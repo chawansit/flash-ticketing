@@ -61,23 +61,23 @@ sequenceDiagram
     participant K as Kafka
     participant Con as Consumer
     Sim->>API: Signed payment success callback
-    API->>DB: Begin; lock order, payment, hold and seats
+    API->>DB: Begin and lock order, payment, hold and seats
     API->>DB: Validate ownership and post-lock deadline
     API->>DB: Save booking, SOLD state, PAID order and OrderPaid event
     API->>DB: Commit
     API-->>Sim: Acknowledge callback
     Sim->>API: Repeat callback
     API->>DB: Check callback and successful payment state
-    API-->>Sim: Duplicate; no new booking
+    API-->>Sim: Duplicate - no new booking
     Pub->>DB: Lease unpublished outbox row and commit
     Pub->>K: Publish stable event ID, keyed by aggregate ID
     K-->>Pub: Broker acknowledgement
     Pub->>DB: Mark published if lease token still matches
     K->>Con: Deliver OrderPaid
-    Con->>DB: Begin; insert inbox entry, tickets and TicketsIssued event
+    Con->>DB: Begin and insert inbox entry, tickets and TicketsIssued event
     Con->>DB: Mark order FULFILLED and commit
     Con->>K: Commit consumer offset
-    Note over Pub,Con: Crashes can repeat delivery; inbox and unique constraints protect effects
+    Note over Pub,Con: Crashes can repeat delivery - inbox and unique constraints protect effects
 ```
 
 This sequence assumes a valid, unexpired hold and a successful payment. SQL connections pass through PgBouncer; it is omitted here for readability.
