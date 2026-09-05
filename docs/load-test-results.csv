@@ -1,0 +1,5 @@
+run_id,test_date,seat,attempts,max_concurrency,client_pools,admission_cap,http_201,http_409,http_429,http_503,transport_errors,unexpected_http_responses,server_p95_ms,server_conflict_p95_ms,client_p95_ms,client_conflict_p95_ms,overload_percent
+R1,2026-09-05,A002,1000,200,1,none,1,999,0,0,0,0,500.85,,6392.06,6392.06,0.0
+R2,2026-09-05,A003,1000,200,1,8,1,799,0,200,0,0,65.34,75.94,9022.74,9719.56,20.0
+R3,2026-09-05,A004,1000,200,20,8,1,344,0,655,0,0,101.93,137.35,3427.34,3993.74,65.5
+R4,2026-09-05,A005,1000,200,200,8,1,135,0,864,0,0,83.99,233.09,1052.62,1326.25,86.4

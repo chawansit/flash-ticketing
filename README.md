@@ -35,6 +35,10 @@ Useful endpoints: [OpenAPI JSON](http://localhost:8000/openapi.json),
 [metrics](http://localhost:8000/metrics), [Prometheus](http://localhost:9090),
 `/health/live`, `/health/ready`.
 
+## Load-test results
+
+See the [load-test conditions and results](docs/load-test-report.md) and [CSV summary](docs/load-test-results.csv). The report includes all four measured configurations, reproduction commands, and unmet latency targets.
+
 ## Tests
 
 ```sh
