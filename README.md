@@ -68,6 +68,10 @@ E2E tests consume one seat per run. Compose supplies these settings.
 
 ## Architecture
 
+- [Application flow](docs/application-flow.md): reservation, payment, expiry and failure paths.
+- [Technology stack](docs/tech-stack.md): versions, responsibilities and runtime limits.
+- [System diagrams](docs/system-diagrams.md): runtime topology and payment event sequence.
+
 ```text
 src/ticketing/
   domain.py                 Pure payment decisions and business failures
