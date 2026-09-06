@@ -1,0 +1,15 @@
+{
+  "utc": "2026-09-06T16:14:56.8569574Z",
+  "cpu": "Intel(R) Core(TM) i7-7700 CPU @ 3.60GHz",
+  "physical_cores": 4,
+  "logical_processors": 8,
+  "host_ram_bytes": 17143836672,
+  "docker_cpus": 8,
+  "docker_ram_bytes": 8308514816,
+  "api_processes": 1,
+  "api_admission_limit": 8,
+  "generator_inflight_limit": 50,
+  "other_containers_running": true,
+  "baseline_commit": "ce12967",
+  "measurement_changes": "backlog observer added locally; see subsequent commit"
+}

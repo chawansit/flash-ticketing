@@ -1,0 +1,180 @@
+{
+  "utc": "2026-09-06T16:13:42.760220+00:00",
+  "profile": "hot",
+  "backlog_samples": [
+    {
+      "utc": "2026-09-06T16:13:12.592939+00:00",
+      "orders": 0,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:13:14.626246+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:13:16.659328+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:13:18.714207+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:13:20.773690+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:13:22.816078+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:13:24.856927+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:13:26.882105+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:13:28.904493+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:13:30.969438+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 11,
+      "global_oldest_outbox_seconds": 0.236783
+    },
+    {
+      "utc": "2026-09-06T16:13:33.019747+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 18,
+      "global_oldest_outbox_seconds": 0.353865
+    },
+    {
+      "utc": "2026-09-06T16:13:35.054975+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 41,
+      "global_oldest_outbox_seconds": 0.695237
+    },
+    {
+      "utc": "2026-09-06T16:13:37.094420+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 26,
+      "global_oldest_outbox_seconds": 0.583348
+    },
+    {
+      "utc": "2026-09-06T16:13:39.142609+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 49,
+      "global_oldest_outbox_seconds": 0.781168
+    },
+    {
+      "utc": "2026-09-06T16:13:41.225666+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 37,
+      "global_oldest_outbox_seconds": 0.721876
+    },
+    {
+      "utc": "2026-09-06T16:13:42.735120+00:00",
+      "orders": 1,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "global_unpublished_outbox": 35,
+      "global_oldest_outbox_seconds": 1.079693
+    }
+  ],
+  "order_creation_to_ticket_p95_seconds": null,
+  "event_id": "08476f74-8616-4ed5-af11-afe332bc98f3",
+  "target_journeys_per_second": 200,
+  "duration_seconds": 30,
+  "inflight_limit": 50,
+  "scheduled": 6000,
+  "dispatched": 2887,
+  "generator_dropped": 3113,
+  "scheduling_lag_p95_ms": 66.72979998984374,
+  "dispatch_and_http_completion_seconds": 30.104495999985375,
+  "completed_http_requests_per_second": 95.89929690240962,
+  "statuses": {
+    "hold": {
+      "409": 2852,
+      "503": 34,
+      "201": 1
+    }
+  },
+  "latency_ms_by_operation_status": {
+    "hold:409": {
+      "count": 2852,
+      "p95": 271.6147000028286,
+      "p99": 384.03529999777675
+    },
+    "hold:503": {
+      "count": 34,
+      "p95": 111.09220000798814,
+      "p99": 165.80369998700917
+    },
+    "hold:201": {
+      "count": 1,
+      "p95": 95.00529998331331,
+      "p99": 95.00529998331331
+    }
+  },
+  "durable_holds": 1,
+  "accepted_payments": 0,
+  "order_states": {
+    "PENDING": 1
+  },
+  "tickets": 0,
+  "duplicate_booked_seats": 0,
+  "remaining_simulated_callback_deliveries": 0,
+  "drain_seconds": 0.0779999999795109,
+  "correctness_pass": true,
+  "note": "Local baseline only; callback traffic is not included in generator HTTP RPS."
+}

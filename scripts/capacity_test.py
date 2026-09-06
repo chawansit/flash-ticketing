@@ -45,6 +45,52 @@ async def run(args):
                 "INSERT INTO event_seats(event_id,seat_id,price) VALUES (%s,%s,100)",
                 [(event, f"S{i}") for i in range(1 if args.profile == "hot" else total)],
             )
+    samples = []
+    monitor_stop = asyncio.Event()
+
+    def observe():
+        with psycopg.connect(dsn) as conn:
+            row = conn.execute(
+                "SELECT count(*), count(*) FILTER (WHERE status='FULFILLED') FROM orders WHERE event_id=%s",
+                (event,),
+            ).fetchone()
+            remaining = conn.execute(
+                "SELECT coalesce(sum(greatest(p.target_deliveries-p.deliveries,0)),0) "
+                "FROM payment_attempts p JOIN orders o ON o.id=p.order_id WHERE o.event_id=%s",
+                (event,),
+            ).fetchone()[0]
+            outbox = conn.execute(
+                "SELECT count(*), coalesce(extract(epoch FROM clock_timestamp()-min(occurred_at)),0) "
+                "FROM outbox_events WHERE published_at IS NULL"
+            ).fetchone()
+            unconsumed = conn.execute(
+                "SELECT count(*) FROM outbox_events e JOIN orders o ON o.id=e.aggregate_id "
+                "WHERE o.event_id=%s AND NOT EXISTS (SELECT 1 FROM consumer_inbox i "
+                "WHERE i.event_id=e.id AND i.consumer='fulfillment')",
+                (event,),
+            ).fetchone()[0]
+            return {
+                "utc": datetime.now(UTC).isoformat(),
+                "orders": row[0],
+                "fulfilled": row[1],
+                "remaining_callbacks": remaining,
+                "run_events_not_consumed": unconsumed,
+                "global_unpublished_outbox": outbox[0],
+                "global_oldest_outbox_seconds": float(outbox[1]),
+            }
+
+    async def monitor():
+        while not monitor_stop.is_set():
+            try:
+                samples.append(await asyncio.to_thread(observe))
+            except psycopg.Error as exc:
+                samples.append({"utc": datetime.now(UTC).isoformat(), "error": type(exc).__name__})
+            try:
+                await asyncio.wait_for(monitor_stop.wait(), timeout=2)
+            except TimeoutError:
+                pass
+
+    monitor_task = asyncio.create_task(monitor())
     statuses = defaultdict(Counter)
     latency = defaultdict(list)
     lag = []
@@ -158,6 +204,17 @@ async def run(args):
         if time.monotonic() - drain_start >= args.drain:
             break
         await asyncio.sleep(0.5)
+    monitor_stop.set()
+    await monitor_task
+    samples.append(await asyncio.to_thread(observe))
+    with psycopg.connect(dsn) as conn:
+        fulfillment = conn.execute(
+            "SELECT percentile_cont(0.95) WITHIN GROUP (ORDER BY "
+            "extract(epoch FROM t.issued_at-o.created_at)) "
+            "FROM tickets t JOIN bookings b ON b.id=t.booking_id "
+            "JOIN orders o ON o.id=b.order_id WHERE o.event_id=%s",
+            (event,),
+        ).fetchone()[0]
     wins = statuses["hold"]["201"]
     unexpected = sum(
         count
@@ -181,6 +238,8 @@ async def run(args):
     result = {
         "utc": datetime.now(UTC).isoformat(),
         "profile": args.profile,
+        "backlog_samples": samples,
+        "order_creation_to_ticket_p95_seconds": float(fulfillment) if fulfillment is not None else None,
         "event_id": event,
         "target_journeys_per_second": args.rate,
         "duration_seconds": args.seconds,

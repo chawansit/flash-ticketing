@@ -88,3 +88,7 @@ These samples validate local behavior only. They do not establish sustainable th
 Final checkout baseline: 50 holds, 50 accepted payments, 50 fulfilled orders and 50 tickets; zero duplicate booked seats, zero remaining simulated callback deliveries and zero generator drops. Hold p95 62.00 ms; payment initiation p95 55.43 ms. The drain after HTTP completion took 17.891 seconds; this is not per-order fulfillment p95.
 
 Regression validation: 32 unit/integration tests passed, zero skipped, in 8.96 seconds. Two existing dependency deprecation warnings remain. Ruff and git diff whitespace checks passed. HTTP E2E pytest was not rerun; the checkout baseline exercised real HTTP, simulator, Kafka and ticket fulfillment.
+
+## Staged capacity measurement
+
+See [the longer staged results](staged/README.md) for measured operating points, overload boundaries, checkout backlog and hardware details. The later tests demonstrate why fast API acceptance must not be reported as full-pipeline throughput.

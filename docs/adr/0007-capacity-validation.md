@@ -20,3 +20,9 @@ Run all three profiles at a bounded local rate, review correctness queries and r
 
 
 Executed evidence: all three local profiles produced successful baseline results; final checkout drained all three configured callbacks per payment. 32 unit/integration tests passed with no skips. See [capacity report](../capacity/README.md) for raw results, startup failure observations and remaining distributed-validation gaps.
+
+## Staged local measurement refinement, 2026-09-06
+
+Sample per-run order/fulfillment/callback backlog and instance-wide outbox age every two seconds through a separate database connection. Record order-creation-to-ticket p95 separately from HTTP latency. This adds observer load and does not replace Kafka consumer-lag or database saturation monitoring. Increase offered load sequentially; retain failed stages and confirm a lower working rate with a longer run. Generator and server share the host, so missed arrivals bound the measurement rather than proving a server-only ceiling.
+
+Outcome: the longer 50-RPS spread stage met HTTP latency/rejection thresholds but accumulated 2,091 unconsumed events. The 5-checkout/sec stage accumulated callback work despite fast HTTP acceptance. Keep correctness, HTTP performance and end-to-end queue stability as separate judgments; see the staged report.

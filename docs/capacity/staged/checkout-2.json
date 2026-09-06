@@ -1,0 +1,381 @@
+{
+  "utc": "2026-09-06T16:19:26.641666+00:00",
+  "profile": "checkout",
+  "backlog_samples": [
+    {
+      "utc": "2026-09-06T16:18:12.806537+00:00",
+      "orders": 0,
+      "fulfilled": 0,
+      "remaining_callbacks": 0,
+      "run_events_not_consumed": 1,
+      "global_unpublished_outbox": 1,
+      "global_oldest_outbox_seconds": 0.007038
+    },
+    {
+      "utc": "2026-09-06T16:18:14.825136+00:00",
+      "orders": 5,
+      "fulfilled": 4,
+      "remaining_callbacks": 0,
+      "run_events_not_consumed": 1,
+      "global_unpublished_outbox": 1,
+      "global_oldest_outbox_seconds": 0.010973
+    },
+    {
+      "utc": "2026-09-06T16:18:16.865643+00:00",
+      "orders": 9,
+      "fulfilled": 8,
+      "remaining_callbacks": 4,
+      "run_events_not_consumed": 1,
+      "global_unpublished_outbox": 1,
+      "global_oldest_outbox_seconds": 0.049571
+    },
+    {
+      "utc": "2026-09-06T16:18:18.881111+00:00",
+      "orders": 13,
+      "fulfilled": 12,
+      "remaining_callbacks": 4,
+      "run_events_not_consumed": 1,
+      "global_unpublished_outbox": 1,
+      "global_oldest_outbox_seconds": 0.052127
+    },
+    {
+      "utc": "2026-09-06T16:18:20.932329+00:00",
+      "orders": 17,
+      "fulfilled": 16,
+      "remaining_callbacks": 3,
+      "run_events_not_consumed": 2,
+      "global_unpublished_outbox": 2,
+      "global_oldest_outbox_seconds": 0.082041
+    },
+    {
+      "utc": "2026-09-06T16:18:23.000426+00:00",
+      "orders": 21,
+      "fulfilled": 20,
+      "remaining_callbacks": 7,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:18:25.056140+00:00",
+      "orders": 25,
+      "fulfilled": 25,
+      "remaining_callbacks": 6,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:18:27.078754+00:00",
+      "orders": 29,
+      "fulfilled": 28,
+      "remaining_callbacks": 11,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:18:29.132100+00:00",
+      "orders": 33,
+      "fulfilled": 33,
+      "remaining_callbacks": 8,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:18:31.195792+00:00",
+      "orders": 37,
+      "fulfilled": 37,
+      "remaining_callbacks": 9,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:18:33.265989+00:00",
+      "orders": 41,
+      "fulfilled": 41,
+      "remaining_callbacks": 9,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:18:35.329913+00:00",
+      "orders": 46,
+      "fulfilled": 45,
+      "remaining_callbacks": 7,
+      "run_events_not_consumed": 1,
+      "global_unpublished_outbox": 1,
+      "global_oldest_outbox_seconds": 0.027529
+    },
+    {
+      "utc": "2026-09-06T16:18:37.398287+00:00",
+      "orders": 50,
+      "fulfilled": 49,
+      "remaining_callbacks": 10,
+      "run_events_not_consumed": 1,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:18:39.430208+00:00",
+      "orders": 54,
+      "fulfilled": 53,
+      "remaining_callbacks": 6,
+      "run_events_not_consumed": 2,
+      "global_unpublished_outbox": 2,
+      "global_oldest_outbox_seconds": 0.059357
+    },
+    {
+      "utc": "2026-09-06T16:18:41.470938+00:00",
+      "orders": 58,
+      "fulfilled": 56,
+      "remaining_callbacks": 10,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:18:43.506294+00:00",
+      "orders": 62,
+      "fulfilled": 61,
+      "remaining_callbacks": 9,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:18:45.539934+00:00",
+      "orders": 66,
+      "fulfilled": 65,
+      "remaining_callbacks": 6,
+      "run_events_not_consumed": 2,
+      "global_unpublished_outbox": 1,
+      "global_oldest_outbox_seconds": 0.089205
+    },
+    {
+      "utc": "2026-09-06T16:18:47.588605+00:00",
+      "orders": 70,
+      "fulfilled": 70,
+      "remaining_callbacks": 4,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:18:49.639896+00:00",
+      "orders": 74,
+      "fulfilled": 74,
+      "remaining_callbacks": 5,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:18:51.692473+00:00",
+      "orders": 78,
+      "fulfilled": 78,
+      "remaining_callbacks": 5,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:18:53.730053+00:00",
+      "orders": 82,
+      "fulfilled": 82,
+      "remaining_callbacks": 5,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:18:55.786748+00:00",
+      "orders": 86,
+      "fulfilled": 86,
+      "remaining_callbacks": 4,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:18:57.843759+00:00",
+      "orders": 91,
+      "fulfilled": 90,
+      "remaining_callbacks": 2,
+      "run_events_not_consumed": 1,
+      "global_unpublished_outbox": 1,
+      "global_oldest_outbox_seconds": 0.016953
+    },
+    {
+      "utc": "2026-09-06T16:18:59.883731+00:00",
+      "orders": 95,
+      "fulfilled": 93,
+      "remaining_callbacks": 10,
+      "run_events_not_consumed": 1,
+      "global_unpublished_outbox": 1,
+      "global_oldest_outbox_seconds": 0.070302
+    },
+    {
+      "utc": "2026-09-06T16:19:01.911209+00:00",
+      "orders": 99,
+      "fulfilled": 98,
+      "remaining_callbacks": 7,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:19:03.987610+00:00",
+      "orders": 103,
+      "fulfilled": 102,
+      "remaining_callbacks": 3,
+      "run_events_not_consumed": 2,
+      "global_unpublished_outbox": 2,
+      "global_oldest_outbox_seconds": 0.093694
+    },
+    {
+      "utc": "2026-09-06T16:19:06.031567+00:00",
+      "orders": 107,
+      "fulfilled": 106,
+      "remaining_callbacks": 3,
+      "run_events_not_consumed": 2,
+      "global_unpublished_outbox": 2,
+      "global_oldest_outbox_seconds": 0.079388
+    },
+    {
+      "utc": "2026-09-06T16:19:08.095407+00:00",
+      "orders": 111,
+      "fulfilled": 110,
+      "remaining_callbacks": 8,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:19:10.131612+00:00",
+      "orders": 115,
+      "fulfilled": 115,
+      "remaining_callbacks": 5,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:19:12.214635+00:00",
+      "orders": 119,
+      "fulfilled": 117,
+      "remaining_callbacks": 14,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:19:14.289180+00:00",
+      "orders": 120,
+      "fulfilled": 120,
+      "remaining_callbacks": 7,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:19:16.328484+00:00",
+      "orders": 120,
+      "fulfilled": 120,
+      "remaining_callbacks": 5,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:19:18.374884+00:00",
+      "orders": 120,
+      "fulfilled": 120,
+      "remaining_callbacks": 5,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:19:20.462472+00:00",
+      "orders": 120,
+      "fulfilled": 120,
+      "remaining_callbacks": 5,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:19:22.529783+00:00",
+      "orders": 120,
+      "fulfilled": 120,
+      "remaining_callbacks": 3,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:19:24.574705+00:00",
+      "orders": 120,
+      "fulfilled": 120,
+      "remaining_callbacks": 3,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-06T16:19:26.617996+00:00",
+      "orders": 120,
+      "fulfilled": 120,
+      "remaining_callbacks": 0,
+      "run_events_not_consumed": 0,
+      "global_unpublished_outbox": 0,
+      "global_oldest_outbox_seconds": 0.0
+    }
+  ],
+  "order_creation_to_ticket_p95_seconds": 0.89580315,
+  "event_id": "fe52cbf2-ce96-4e3a-ba9b-300f32a130b3",
+  "target_journeys_per_second": 2,
+  "duration_seconds": 60,
+  "inflight_limit": 50,
+  "scheduled": 120,
+  "dispatched": 120,
+  "generator_dropped": 0,
+  "scheduling_lag_p95_ms": 20.06100001744926,
+  "dispatch_and_http_completion_seconds": 59.595169000007445,
+  "completed_http_requests_per_second": 4.027172068258922,
+  "statuses": {
+    "hold": {
+      "201": 120
+    },
+    "payment": {
+      "202": 120
+    }
+  },
+  "latency_ms_by_operation_status": {
+    "hold:201": {
+      "count": 120,
+      "p95": 55.131200002506375,
+      "p99": 58.380200003739446
+    },
+    "payment:202": {
+      "count": 120,
+      "p95": 33.238900010474026,
+      "p99": 41.09999997308478
+    }
+  },
+  "durable_holds": 120,
+  "accepted_payments": 120,
+  "order_states": {
+    "FULFILLED": 120
+  },
+  "tickets": 120,
+  "duplicate_booked_seats": 0,
+  "remaining_simulated_callback_deliveries": 0,
+  "drain_seconds": 14.26500000001397,
+  "correctness_pass": true,
+  "note": "Local baseline only; callback traffic is not included in generator HTTP RPS."
+}
