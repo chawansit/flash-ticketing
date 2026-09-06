@@ -1,0 +1,228 @@
+"""Bounded development-only constant-arrival capacity probe; not a 100k-RPS generator."""
+
+import argparse
+import asyncio
+import json
+import math
+import os
+import time
+from collections import Counter, defaultdict
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
+from uuid import uuid4
+
+import httpx
+import jwt
+import psycopg
+
+from ticketing.config import Settings
+
+
+def percentile(values, fraction):
+    return sorted(values)[max(0, math.ceil(len(values) * fraction) - 1)] if values else None
+
+
+async def run(args):
+    settings = Settings()
+    if settings.environment != "development":
+        raise RuntimeError("Development fixtures and simulated payments only")
+    if args.profile == "hot" and args.seconds + 10 >= settings.hold_seconds:
+        raise ValueError("Hot run plus request timeout must finish before the hold TTL")
+    async with httpx.AsyncClient(base_url=args.url, timeout=5) as probe:
+        (await probe.get("/health/ready")).raise_for_status()
+    event = str(uuid4())
+    total = args.rate * args.seconds
+    dsn = os.environ["TEST_DATABASE_URL"]
+    # Fresh event: no existing customer inventory is modified.
+    with psycopg.connect(dsn) as conn:
+        conn.execute(
+            "INSERT INTO events VALUES (%s,'Capacity probe','THB',"
+            "clock_timestamp()-interval '1 day',clock_timestamp()+interval '1 day')",
+            (event,),
+        )
+        with conn.cursor() as cur:
+            cur.executemany(
+                "INSERT INTO event_seats(event_id,seat_id,price) VALUES (%s,%s,100)",
+                [(event, f"S{i}") for i in range(1 if args.profile == "hot" else total)],
+            )
+    statuses = defaultdict(Counter)
+    latency = defaultdict(list)
+    lag = []
+    pending = set()
+    all_tasks = []
+    dropped = 0
+    dispatched = 0
+    accepted_payments = 0
+    tokens = [
+        jwt.encode(
+            {
+                "sub": f"{event}-{i}",
+                "aud": "ticketing",
+                "iss": "ticketing",
+                "exp": datetime.now(UTC) + timedelta(hours=1),
+            },
+            settings.jwt_secret,
+            algorithm="HS256",
+        )
+        for i in range(total)
+    ]
+    async with httpx.AsyncClient(
+        base_url=args.url,
+        timeout=10,
+        limits=httpx.Limits(max_connections=args.inflight, max_keepalive_connections=args.inflight),
+    ) as client:
+
+        async def post(operation, path, payload, index):
+            start = time.perf_counter()
+            try:
+                response = await client.post(
+                    path,
+                    json=payload,
+                    headers={
+                        "Authorization": "Bearer " + tokens[index],
+                        "Idempotency-Key": f"{event}-{index}-{operation}",
+                    },
+                )
+                statuses[operation][str(response.status_code)] += 1
+                latency[f"{operation}:{response.status_code}"].append((time.perf_counter() - start) * 1000)
+                return response
+            except httpx.HTTPError:
+                statuses[operation]["transport_error"] += 1
+                latency[f"{operation}:transport_error"].append((time.perf_counter() - start) * 1000)
+                return None
+
+        async def journey(index):
+            nonlocal accepted_payments
+            held = await post(
+                "hold",
+                "/v1/holds",
+                {"event_id": event, "seat_ids": [f"S{0 if args.profile == 'hot' else index}"]},
+                index,
+            )
+            if args.profile == "checkout" and held is not None and held.status_code == 201:
+                paid = await post(
+                    "payment",
+                    f"/v1/orders/{held.json()['order_id']}/payments",
+                    {"duplicates": 3, "delay_seconds": 0},
+                    index,
+                )
+                if paid is not None and paid.status_code == 202:
+                    accepted_payments += 1
+
+        start = time.perf_counter()
+        for index in range(total):
+            due = start + index / args.rate
+            await asyncio.sleep(max(0, due - time.perf_counter()))
+            late = time.perf_counter() - due
+            lag.append(late * 1000)
+            # No unbounded queue and no catch-up burst when the generator falls behind.
+            if late > max(0.05, 1 / args.rate) or len(pending) >= args.inflight:
+                dropped += 1
+                continue
+            task = asyncio.create_task(journey(index))
+            pending.add(task)
+            all_tasks.append(task)
+            task.add_done_callback(pending.discard)
+            dispatched += 1
+        if all_tasks:
+            await asyncio.gather(*all_tasks)
+        elapsed = time.perf_counter() - start
+
+    drain_start = time.monotonic()
+    while True:
+        with psycopg.connect(dsn) as conn:
+            states = dict(
+                conn.execute(
+                    "SELECT status,count(*) FROM orders WHERE event_id=%s GROUP BY status", (event,)
+                ).fetchall()
+            )
+            holds = conn.execute("SELECT count(*) FROM holds WHERE event_id=%s", (event,)).fetchone()[0]
+            duplicates = conn.execute(
+                "SELECT count(*) FROM (SELECT seat_id FROM bookings WHERE event_id=%s "
+                "GROUP BY seat_id HAVING count(*)>1) AS d",
+                (event,),
+            ).fetchone()[0]
+            tickets = conn.execute(
+                "SELECT count(*) FROM tickets t JOIN bookings b ON b.id=t.booking_id WHERE b.event_id=%s",
+                (event,),
+            ).fetchone()[0]
+            remaining_deliveries = conn.execute(
+                "SELECT coalesce(sum(greatest(p.target_deliveries-p.deliveries,0)),0) "
+                "FROM payment_attempts p JOIN orders o ON o.id=p.order_id WHERE o.event_id=%s",
+                (event,),
+            ).fetchone()[0]
+        if args.profile != "checkout" or (
+            states.get("FULFILLED", 0) == accepted_payments and remaining_deliveries == 0
+        ):
+            break
+        if time.monotonic() - drain_start >= args.drain:
+            break
+        await asyncio.sleep(0.5)
+    wins = statuses["hold"]["201"]
+    unexpected = sum(
+        count
+        for op, counts in statuses.items()
+        for status, count in counts.items()
+        if status not in ({"201", "409", "429", "503"} if op == "hold" else {"202", "409", "429", "503"})
+    )
+    correct = (
+        duplicates == 0
+        and holds == wins
+        and wins > 0
+        and unexpected == 0
+        and (args.profile != "hot" or wins == 1)
+        and (
+            args.profile != "checkout"
+            or states.get("FULFILLED", 0) == accepted_payments == tickets
+            and accepted_payments > 0
+            and remaining_deliveries == 0
+        )
+    )
+    result = {
+        "utc": datetime.now(UTC).isoformat(),
+        "profile": args.profile,
+        "event_id": event,
+        "target_journeys_per_second": args.rate,
+        "duration_seconds": args.seconds,
+        "inflight_limit": args.inflight,
+        "scheduled": total,
+        "dispatched": dispatched,
+        "generator_dropped": dropped,
+        "scheduling_lag_p95_ms": percentile(lag, 0.95),
+        "dispatch_and_http_completion_seconds": elapsed,
+        "completed_http_requests_per_second": sum(sum(v.values()) for v in statuses.values()) / elapsed,
+        "statuses": dict(statuses),
+        "latency_ms_by_operation_status": {
+            key: {"count": len(values), "p95": percentile(values, 0.95), "p99": percentile(values, 0.99)}
+            for key, values in latency.items()
+        },
+        "durable_holds": holds,
+        "accepted_payments": accepted_payments,
+        "order_states": states,
+        "tickets": tickets,
+        "duplicate_booked_seats": duplicates,
+        "remaining_simulated_callback_deliveries": remaining_deliveries,
+        "drain_seconds": time.monotonic() - drain_start,
+        "correctness_pass": correct,
+        "note": "Local baseline only; callback traffic is not included in generator HTTP RPS.",
+    }
+    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.output).write_text(json.dumps(result, indent=2), encoding="utf-8")
+    print(json.dumps(result, indent=2))
+    if not correct:
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--profile", choices=["hot", "spread", "checkout"], required=True)
+    parser.add_argument("--rate", type=int, default=10)
+    parser.add_argument("--seconds", type=int, default=5)
+    parser.add_argument("--inflight", type=int, default=50)
+    parser.add_argument("--drain", type=int, default=45)
+    parser.add_argument("--url", default="http://127.0.0.1:8000")
+    parser.add_argument("--output", required=True)
+    args = parser.parse_args()
+    if min(args.rate, args.seconds, args.inflight, args.drain) < 1 or args.rate * args.seconds > 100000:
+        parser.error("Use positive limits and at most 100000 scheduled journeys per local run")
+    asyncio.run(run(args))

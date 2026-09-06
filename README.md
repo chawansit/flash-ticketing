@@ -114,3 +114,5 @@ Stop with `docker compose down`. Named volumes are retained. Do not remove volum
 to retain bookings or Kafka history.
 
 Architecture decisions: [ADR index](docs/adr/README.md).
+
+Capacity validation: [profiles, provisional targets and measured baselines](docs/capacity/README.md).

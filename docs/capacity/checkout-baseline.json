@@ -1,0 +1,45 @@
+{
+  "utc": "2026-09-06T16:04:46.153696+00:00",
+  "profile": "checkout",
+  "event_id": "dd0d8824-4e3c-4e60-a8bf-f0e21049f5de",
+  "target_journeys_per_second": 10,
+  "duration_seconds": 5,
+  "inflight_limit": 50,
+  "scheduled": 50,
+  "dispatched": 50,
+  "generator_dropped": 0,
+  "scheduling_lag_p95_ms": 23.888300027465448,
+  "dispatch_and_http_completion_seconds": 4.970143800019287,
+  "completed_http_requests_per_second": 20.1201421978197,
+  "statuses": {
+    "hold": {
+      "201": 50
+    },
+    "payment": {
+      "202": 50
+    }
+  },
+  "latency_ms_by_operation_status": {
+    "hold:201": {
+      "count": 50,
+      "p95": 61.997000011615455,
+      "p99": 75.16859998577274
+    },
+    "payment:202": {
+      "count": 50,
+      "p95": 55.434899986721575,
+      "p99": 59.82750002294779
+    }
+  },
+  "durable_holds": 50,
+  "accepted_payments": 50,
+  "order_states": {
+    "FULFILLED": 50
+  },
+  "tickets": 50,
+  "duplicate_booked_seats": 0,
+  "remaining_simulated_callback_deliveries": 0,
+  "drain_seconds": 17.89100000000326,
+  "correctness_pass": true,
+  "note": "Local baseline only; callback traffic is not included in generator HTTP RPS."
+}

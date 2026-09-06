@@ -1,0 +1,42 @@
+{
+  "utc": "2026-09-06T16:02:46.888176+00:00",
+  "profile": "hot",
+  "event_id": "740b0eef-2434-43d0-8a57-b85cb6ad43cb",
+  "target_journeys_per_second": 10,
+  "duration_seconds": 5,
+  "inflight_limit": 50,
+  "scheduled": 50,
+  "dispatched": 50,
+  "generator_dropped": 0,
+  "scheduling_lag_p95_ms": 23.67029996821657,
+  "dispatch_and_http_completion_seconds": 4.917195199988782,
+  "completed_http_requests_per_second": 10.168398439849218,
+  "statuses": {
+    "hold": {
+      "201": 1,
+      "409": 49
+    }
+  },
+  "latency_ms_by_operation_status": {
+    "hold:201": {
+      "count": 1,
+      "p95": 32.66909997910261,
+      "p99": 32.66909997910261
+    },
+    "hold:409": {
+      "count": 49,
+      "p95": 43.487499991897494,
+      "p99": 47.668499988503754
+    }
+  },
+  "durable_holds": 1,
+  "accepted_payments": 0,
+  "order_states": {
+    "PENDING": 1
+  },
+  "tickets": 0,
+  "duplicate_booked_seats": 0,
+  "drain_seconds": 0.030999999988125637,
+  "correctness_pass": true,
+  "note": "Local baseline only; callback traffic is not included in generator HTTP RPS."
+}

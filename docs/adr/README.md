@@ -9,3 +9,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [Seat hold expiry](0005-seat-hold-ttl.md)
 - [Horizontal scaling with shared database authority](0006-horizontal-scaling.md)
 
+- [Offered-load capacity validation](0007-capacity-validation.md)
