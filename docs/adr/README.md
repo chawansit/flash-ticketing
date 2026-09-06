@@ -1,0 +1,11 @@
+# Engineering decision records
+
+Create or update an ADR whenever selecting or changing an architectural pattern. Record context, decision, alternatives, consequences, failure handling and validation. Accepted decisions are superseded by a linked new ADR rather than silently rewritten. These initial records document existing implementation, not new scope approval.
+
+- [PostgreSQL authority and Redis admission](0001-postgresql-authority.md)
+- [Transactional outbox](0002-transactional-outbox.md)
+- [Kafka at-least-once delivery](0003-kafka-delivery.md)
+- [Payment and callback idempotency](0004-payment-idempotency.md)
+- [Seat hold expiry](0005-seat-hold-ttl.md)
+- [Horizontal scaling with shared database authority](0006-horizontal-scaling.md)
+

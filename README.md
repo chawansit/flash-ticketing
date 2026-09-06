@@ -112,3 +112,5 @@ See [architecture](docs/architecture.md), [failure scenarios](docs/failure-modes
 
 Stop with `docker compose down`. Named volumes are retained. Do not remove volumes if you need
 to retain bookings or Kafka history.
+
+Architecture decisions: [ADR index](docs/adr/README.md).
