@@ -17,6 +17,18 @@ class Settings:
     simulator_concurrency: int = int(os.getenv("SIMULATOR_CONCURRENCY", "4"))
     refresh_cooldown_ms: int = int(os.getenv("REFRESH_COOLDOWN_MS", "250"))
     worker_port: int = int(os.getenv("WORKER_METRICS_PORT", "9101"))
+    # Target reconciliation period per active event. Must stay below the 30-second Redis
+    # seat-map TTL, which only a full snapshot extends. This is a scheduling target, not a
+    # freshness guarantee: see ticketing_reconciliation_overdue_seconds.
+    reconcile_interval_seconds: int = int(os.getenv("RECONCILE_INTERVAL_SECONDS", "20"))
+    # Events are proactively reconciled from this long before sale_starts until this long
+    # after sale_ends. Only fields present in the events table are used.
+    reconcile_window_seconds: int = int(os.getenv("RECONCILE_WINDOW_SECONDS", "300"))
+    reconcile_batch_size: int = int(os.getenv("RECONCILE_BATCH_SIZE", "8"))
+    reconcile_budget_ms: int = int(os.getenv("RECONCILE_BUDGET_MS", "500"))
+    reconcile_lease_seconds: int = int(os.getenv("RECONCILE_LEASE_SECONDS", "30"))
+    reconcile_backoff_ms: int = int(os.getenv("RECONCILE_BACKOFF_MS", "1000"))
+    reconcile_seed_batch: int = int(os.getenv("RECONCILE_SEED_BATCH", "200"))
 
     def validate(self):
         if self.environment != "development" and (
@@ -31,3 +43,17 @@ class Settings:
             raise RuntimeError("SIMULATOR_CONCURRENCY must fit DB_POOL_MAX")
         if not 1 <= self.refresh_cooldown_ms <= 5000:
             raise RuntimeError("REFRESH_COOLDOWN_MS must be between 1 and 5000")
+        if not 1 <= self.reconcile_interval_seconds < 30:
+            raise RuntimeError("RECONCILE_INTERVAL_SECONDS must be below the 30-second cache TTL")
+        if not 0 <= self.reconcile_window_seconds <= 86400:
+            raise RuntimeError("RECONCILE_WINDOW_SECONDS must be between 0 and 86400")
+        if not 1 <= self.reconcile_batch_size <= 100:
+            raise RuntimeError("RECONCILE_BATCH_SIZE must be between 1 and 100")
+        if not 50 <= self.reconcile_budget_ms <= 5000:
+            raise RuntimeError("RECONCILE_BUDGET_MS must be between 50 and 5000")
+        if not 5 <= self.reconcile_lease_seconds <= 300:
+            raise RuntimeError("RECONCILE_LEASE_SECONDS must be between 5 and 300")
+        if not 100 <= self.reconcile_backoff_ms <= 60000:
+            raise RuntimeError("RECONCILE_BACKOFF_MS must be between 100 and 60000")
+        if not 1 <= self.reconcile_seed_batch <= 5000:
+            raise RuntimeError("RECONCILE_SEED_BATCH must be between 1 and 5000")

@@ -93,3 +93,40 @@ local adapter probe. Large inventories need bounded reconciliation work before c
 support at those sizes; simply raising the timeout does not remove Redis blocking.
 
 See [metrics](observability.md) and [current measurements](capacity/incremental/README.md).
+
+## Bounded reconciliation scheduling
+
+Apply migration 004 before starting this maintenance worker. It is additive; keep it
+installed across a rollback, because the previous periodic sweep simply ignores the table.
+On a large `events` table build `events_sale_window` with `CREATE INDEX CONCURRENTLY` by
+hand first: the migration runner wraps each file in one transaction and cannot use
+`CONCURRENTLY`. The `IF NOT EXISTS` guard then makes the statement a no-op.
+
+Maintenance no longer rebuilds every retained event's seat map. It keeps a durable schedule
+in `event_reconciliation` for events inside their sale window
+(`sale_starts - RECONCILE_WINDOW_SECONDS` to `sale_ends + RECONCILE_WINDOW_SECONDS`), claims
+the oldest-due rows in bounded batches under token-fenced leases, and spends at most
+`RECONCILE_BUDGET_MS` per loop so hold expiry and dirty-seat refresh are never starved.
+
+`RECONCILE_INTERVAL_SECONDS` defaults to 20 (1-29; must remain below the 30-second map TTL), `RECONCILE_WINDOW_SECONDS` to 300
+(0-86400), `RECONCILE_BATCH_SIZE` to 8 (1-100), `RECONCILE_BUDGET_MS` to 500 (50-5000),
+`RECONCILE_LEASE_SECONDS` to 30 (5-300), `RECONCILE_BACKOFF_MS` to 1000 (100-60000) and
+`RECONCILE_SEED_BATCH` to 200 (1-5000).
+
+Watch `ticketing_reconciliation_tracked_events` converge after deploy, then
+`ticketing_reconciliation_backlog` and `ticketing_reconciliation_overdue_seconds`. Alert when
+overdue age approaches the 30-second seat-map TTL minus the interval, and on sustained
+`ticketing_reconciliation_failures_total{stage="snapshot"}`. Only a full snapshot extends the
+TTL, so a schedule that cannot keep up means maps expire and reads fall back to
+`SEATMAP_WARMING` until a rebuild. Local measurement put the ceiling near 4,200 active
+300-seat shows per worker; treat that as an order of magnitude, not a guarantee, and
+re-measure on real hardware.
+
+Deadlines slip uniformly under overload rather than starving individual events. Do not raise
+`RECONCILE_BATCH_SIZE` or `RECONCILE_BUDGET_MS` to hide a backlog: that trades hold-expiry
+latency for a flatter graph. Add maintenance instances instead, which is safe because claims
+use `SKIP LOCKED` with per-event leases. Never delete schedule rows to clear a backlog.
+Events outside their sale window are not proactively reconciled and rely on SeatsChanged
+notifications; a stale map for a closed event is expected, not an incident.
+
+See [metrics](observability.md) and [current measurements](capacity/reconciliation/README.md).

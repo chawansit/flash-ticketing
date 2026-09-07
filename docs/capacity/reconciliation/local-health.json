@@ -1,0 +1,12 @@
+{
+  "utc": "2026-09-07T18:39:00.522505+00:00",
+  "durable_holds": 150,
+  "durable_orders": 150,
+  "unpublished": 0,
+  "dirty_refreshes": 0,
+  "dead_letters": 0,
+  "scheduled_events": 222,
+  "never_reconciled": 0,
+  "failed_schedule_rows": 0,
+  "ready": 200
+}

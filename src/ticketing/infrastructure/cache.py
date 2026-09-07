@@ -1,3 +1,4 @@
+import hashlib
 import json
 from contextlib import contextmanager
 from uuid import uuid4
@@ -45,9 +46,32 @@ for _,seat in ipairs(changed) do
   redis.call('HSET',KEYS[1],'seat:'..seat.seat_id,cjson.encode(seat))
 end
 redis.call('HSET',KEYS[1],'version',version)
-if ARGV[1] == 'full' then redis.call('EXPIRE',KEYS[1],30) end
+if ARGV[1] == 'full' then
+  redis.call('HSET',KEYS[1],'layout',ARGV[3],'layout_etag',ARGV[4])
+  redis.call('HSETNX',KEYS[1],'incarnation',ARGV[5])
+  redis.call('EXPIRE',KEYS[1],30)
+end
 redis.call('HDEL',KEYS[1],'updating')
 return version
+"""
+BROWSE = """
+local meta = redis.call('HMGET',KEYS[1],'version','incarnation','updating','layout_etag')
+if not meta[1] or not meta[2] or meta[3] or not meta[4] then return {503} end
+local tag = ARGV[1] == 'layout' and meta[4] or ('"availability:'..ARGV[2]..':'..meta[2]..':'..meta[1]..'"')
+for _,candidate in ipairs(cjson.decode(ARGV[3])) do
+  if candidate == '*' or candidate == tag then return {304,tag} end
+end
+if ARGV[1] == 'layout' then
+  local layout = redis.call('HGET',KEYS[1],'layout')
+  if not layout then return {503} end
+  return {200,tag,layout}
+end
+local result = {200,tag,meta[1]}
+local fields = redis.call('HGETALL',KEYS[1])
+for i=1,#fields,2 do
+  if string.sub(fields[i],1,5) == 'seat:' then table.insert(result,fields[i+1]) end
+end
+return result
 """
 RATE = """
 local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],1) end; return n
@@ -107,7 +131,50 @@ class RedisSeats:
 
     def put(self, event, version, data):
         # Source row versions, not aggregate snapshot order, fence racing updates.
-        return self.redis.eval(PUT, 1, self.key(event), "full", json.dumps(data["seats"], default=str))
+        layout = json.dumps(
+            {
+                "event_id": str(event),
+                "seats": [
+                    {"seat_id": seat["seat_id"], "price": seat["price"]}
+                    for seat in sorted(data["seats"], key=lambda seat: seat["seat_id"])
+                ],
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        tag = '"layout:' + hashlib.sha256(layout.encode()).hexdigest() + '"'
+        return self.redis.eval(
+            PUT, 1, self.key(event), "full", json.dumps(data["seats"], default=str), layout, tag, str(uuid4())
+        )
 
     def patch(self, event, seats):
         return self.redis.eval(PUT, 1, self.key(event), "patch", json.dumps(seats, default=str)) >= 0
+
+    def browse(self, event, kind, if_none_match=None):
+        if kind not in {"layout", "availability"}:
+            raise ValueError("Unknown browse representation")
+        tags = [part.strip().removeprefix("W/") for part in (if_none_match or "").split(",")]
+        try:
+            result = self.redis.eval(BROWSE, 1, self.key(event), kind, str(event), json.dumps(tags))
+        except RedisError as exc:
+            raise Failure("SEATMAP_UNAVAILABLE", 503) from exc
+        if int(result[0]) == 503:
+            raise Failure("SEATMAP_WARMING", 503)
+        status, tag = int(result[0]), result[1]
+        if status == 304:
+            return status, tag, None
+        if kind == "layout":
+            return status, tag, json.loads(result[2])
+        seats = [json.loads(raw) for raw in result[3:]]
+        return (
+            status,
+            tag,
+            {
+                "event_id": str(event),
+                "version": int(result[2]),
+                "seats": [
+                    {key: seat[key] for key in ("seat_id", "status", "reserved_until")}
+                    for seat in sorted(seats, key=lambda seat: seat["seat_id"])
+                ],
+            },
+        )

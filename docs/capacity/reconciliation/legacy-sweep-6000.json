@@ -1,0 +1,66 @@
+{
+  "shows": 6000,
+  "seats_per_show": 300,
+  "seat_rows": 1800000,
+  "seed_seconds": 19.72,
+  "interval_seconds": 20,
+  "batch_size": 8,
+  "budget_ms": 500,
+  "ttl_seconds": 30,
+  "legacy_full_sweep": {
+    "events": 6000,
+    "wall_seconds": 19.75,
+    "per_event_p50_ms": 3.22,
+    "per_event_p95_ms": 3.92,
+    "failures": 0
+  },
+  "saturated_capacity": {
+    "mode": "saturated",
+    "workers": 1,
+    "interval_seconds": 1,
+    "wall_seconds": 2.083,
+    "reconciliations": 448,
+    "events_per_second": 215.03,
+    "demand_ceiling_events_per_second": 1000.0,
+    "demand_limited": false,
+    "per_worker": [
+      448
+    ],
+    "pass_duration_p95_ms": 529.27,
+    "tracked_events": 1000,
+    "due_at_end": 792,
+    "never_reconciled": 552,
+    "peak_backlog": 790,
+    "peak_overdue_seconds": 1.57,
+    "peak_seconds_since_last_reconciliation": 1.55,
+    "worst_consecutive_failures": 0
+  },
+  "steady_state": {
+    "mode": "steady_state",
+    "workers": 1,
+    "interval_seconds": 20,
+    "wall_seconds": 2.099,
+    "reconciliations": 424,
+    "events_per_second": 202.03,
+    "demand_ceiling_events_per_second": 100.0,
+    "demand_limited": true,
+    "per_worker": [
+      424
+    ],
+    "pass_duration_p95_ms": 523.13,
+    "tracked_events": 2000,
+    "due_at_end": 1576,
+    "never_reconciled": 1491,
+    "peak_backlog": 1680,
+    "peak_overdue_seconds": 1.61,
+    "peak_seconds_since_last_reconciliation": 3.15,
+    "worst_consecutive_failures": 0
+  },
+  "derived": {
+    "note": "Derived from measured saturated throughput on this machine only.",
+    "valid": true,
+    "shows_reconcilable_within_interval": 4300,
+    "shows_reconcilable_within_ttl": 6450,
+    "every_map_stayed_within_ttl": false
+  }
+}

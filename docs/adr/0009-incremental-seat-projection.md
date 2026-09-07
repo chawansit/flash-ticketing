@@ -56,3 +56,8 @@ Nine 30-second reservation stages at 10/50/100 offered RPS and isolated 3k/10k/5
 inventory probes were executed. Final 3k refresh p95: full 47.97 ms, patch 7.14 ms.
 Large full-refresh timeouts and noisy end-to-end results are retained, not declared
 passes. See [report](../capacity/incremental/README.md) for evidence and limitations.
+
+Partially superseded by [ADR 0011](0011-bounded-reconciliation-scheduler.md): "keep full
+reconciliation every five seconds" is replaced by a bounded per-event schedule over active
+events. Changed-seat patching, per-seat source versions, the `seatmap:v2` hash and the
+30-second TTL extended only by full reconciliation all remain unchanged.

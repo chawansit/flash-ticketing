@@ -13,3 +13,7 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [Bounded background work and durable cache refresh](0008-bounded-background-processing.md)
 
 - [Measured database work and incremental seat projections](0009-incremental-seat-projection.md)
+
+- [Separate layout and conditional availability](0010-conditional-seatmap-reads.md)
+
+- [Bounded reconciliation scheduler](0011-bounded-reconciliation-scheduler.md)

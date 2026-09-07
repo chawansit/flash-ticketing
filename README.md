@@ -120,3 +120,7 @@ Capacity validation: [profiles, provisional targets and measured baselines](docs
 Latest performance update: [background optimizations and matched before/after results](docs/capacity/optimized/README.md).
 
 Latest: [database profiling and incremental projection measurements](docs/capacity/incremental/README.md).
+
+Latest read optimization: [300-seat cinema map comparison](docs/capacity/seatmap/README.md).
+
+Latest integration: [bounded scheduler and conditional reads](docs/capacity/reconciliation/local-integration.md).

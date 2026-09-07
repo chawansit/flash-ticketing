@@ -1,4 +1,4 @@
-# Capacity validation for work packages 2â€“4
+# Capacity validation for work packages 2Ã¢â‚¬â€œ4
 
 ## Status and scope
 
@@ -98,3 +98,7 @@ See [the longer staged results](staged/README.md) for measured operating points,
 See [the matched optimization comparison](optimized/README.md), including Redis freshness, durable refresh debt and a two-minute checkout confirmation. Earlier staged results describe the previous worker implementation.
 
 Latest: [database profiling and incremental projection measurements](incremental/README.md).
+
+Latest read optimization: [300-seat cinema map comparison](seatmap/README.md).
+
+Latest integration: [bounded scheduler and conditional reads](reconciliation/local-integration.md).

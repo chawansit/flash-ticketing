@@ -85,8 +85,13 @@ SQL locks, then acknowledges only the captured generation and matching token. A 
 remains dirty, retaining its changed-seat IDs. Routine refreshes read only those rows and
 merge into a Redis hash using per-seat source versions. The sum of cached source versions
 forms the map cursor; unchanged seats preserve their delta cursor. Full reconciliation
-runs every five seconds and repairs cache loss or missed notifications. Only complete
-reconciliations extend the 30-second TTL. Seat inventory is static in this MVP.
+repairs cache loss or missed notifications. It is no longer a periodic sweep of every
+retained event: maintenance keeps a durable per-event schedule covering events inside their
+sale window, claims a bounded batch of the oldest-due rows under a token-fenced lease, and
+spends a fixed wall-clock budget per loop so hold expiry and dirty-seat work keep their turn.
+Only complete reconciliations extend the 30-second TTL, so the schedule interval is held
+below it; above the measured throughput ceiling deadlines slip uniformly rather than starving
+individual events. Seat inventory is static in this MVP.
 An interrupted-write marker makes partial Redis script writes unreadable until full repair.
 
 After five failed processing attempts, the consumer writes a durable dead letter before advancing
@@ -96,3 +101,11 @@ Delivery is at least once; external notification logs are best-effort developmen
 See [ADR 0008](adr/0008-bounded-background-processing.md) for the 32-row publisher batch, four-thread simulator and 250-ms per-event queued refresh cooldown. Monitor the refresh queue as well as Kafka/inbox backlog.
 
 See [ADR 0009](adr/0009-incremental-seat-projection.md) and [measurement definitions](observability.md) for the incremental cache format, deployment boundary and profiling metrics.
+
+## Conditional cinema browsing
+
+[ADR 0010](adr/0010-conditional-seatmap-reads.md) adds static layout and compact availability
+representations. Redis checks the availability ETag atomically before fetching seat fields;
+unchanged reads return HTTP 304. Cache incarnations prevent validator reuse after cache
+recreation. Existing full-map and delta endpoints remain compatible. See the
+[client contract](seatmap-reads.md) for revalidation, expiry and rollout semantics.

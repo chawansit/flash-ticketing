@@ -1,0 +1,15 @@
+{
+  "utc": "2026-09-07T12:32:23.753565+00:00",
+  "successful_hold_responses": 612,
+  "durable_holds": 612,
+  "durable_orders": 612,
+  "inventory_seats": 30000,
+  "unpublished": 0,
+  "unconsumed": 0,
+  "dirty_refreshes": 0,
+  "dead_letters": 0,
+  "readiness": 200,
+  "live_layout_status": 200,
+  "live_availability_status": 200,
+  "live_conditional_status": 304
+}

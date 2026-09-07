@@ -1,0 +1,353 @@
+{
+  "utc": "2026-09-07T12:28:15.572734+00:00",
+  "show_ids": [
+    "a04f0460-561d-4d83-befd-cfe3fea6093d",
+    "44867b19-18cc-4ea8-bc9a-50bad3672756",
+    "7525bff2-f682-4af7-8574-ea8df8b5c2cf",
+    "2bfb5b5e-738d-4d3b-91e2-6ee8fcc15190",
+    "3cefc928-9103-431e-8c08-a46b6ff4d80a",
+    "4d311cde-1a50-419e-b897-c693c2a3c634",
+    "4294f413-8d90-47a8-adca-74fe1891ab61",
+    "a1bb3395-ef35-465b-8caa-cc5d41375844",
+    "0dc46c7a-fb92-4b70-9aaf-eb06debd4f28",
+    "a4cfdb6c-6024-4e08-957b-8d7fa94c49c5",
+    "80bc4db8-3689-46a4-a6d1-88a298399ef6",
+    "fb9d1ac6-a542-40c1-8c04-e0946e184db2",
+    "f388e43f-01c6-4c34-aa12-6a06c7fcbf4a",
+    "04e91087-6858-4827-b865-3cba6f90f7ce",
+    "7aa002c3-d1fc-42b1-98b4-caedc0bb4784",
+    "d98784d8-2f49-4916-8a18-5f077741cd92",
+    "0e56e2ee-46cd-45b5-a031-a2f09b3b7591",
+    "73de318f-b582-4ea7-9c2d-237936c46443",
+    "1d8bcd94-35c5-4113-b693-6f25db64789a",
+    "a5edea50-6e29-4438-9857-576bc4d1bb77",
+    "decd28b6-ffa9-42f6-844f-581e0d3666c6",
+    "a700abf8-d545-47a4-bdb2-f133472e1d5e",
+    "a03e9d45-752b-405f-bedd-e2a08df28c8c",
+    "14b82b8f-f84d-4b73-af84-1e3f049d392e",
+    "5861a448-3a0a-4a56-a764-e90fe9711ed0",
+    "8725ecea-c4ce-4cbd-be89-17ec14a87e8d",
+    "cdccb160-80b0-489f-b900-d08865eedfab",
+    "f5b7d693-97c0-4cb4-bb43-0939a073e1bb",
+    "13303939-9d3f-438d-9d3d-2db618ff3259",
+    "eaea8882-83e2-4a74-8a6d-8ec619d9345e",
+    "6877876f-a4b5-46d1-9651-b7c42770e6b0",
+    "05a66cd7-c9ef-4c13-965d-8536b33c528c",
+    "b9460916-cece-43a9-be86-3996731602ef",
+    "9ddfee6e-6e43-43eb-aa4c-3ce18e42bf9b",
+    "b29bf96e-ce8e-4a0c-996a-cc208c2bad0e",
+    "b654a040-0360-42a7-9552-5573ebb334b6",
+    "358f0dc1-e3be-4d9d-b676-aed777565155",
+    "2040c06b-65f8-4186-8d17-798672227444",
+    "174e9115-c1ec-499c-8f5e-4712a941c997",
+    "4821beda-be66-411a-a20d-52f560c1f978",
+    "80e50e27-3f0e-4cea-ac57-164fe7780e26",
+    "51da6dac-e6bb-4042-8141-01d7e9771ec3",
+    "9d91f374-6866-45bf-9955-297374f184c1",
+    "a40ff1fc-aed1-467b-aa8b-a3e4cad73844",
+    "f63a03c7-33bf-4add-a2e2-73cf3e805ead",
+    "b435bb69-1dd3-4702-b050-f647fd0f2902",
+    "4129823f-80fd-4a18-89c6-8c0ff71c0714",
+    "97cfb208-a346-466c-96d2-b294b782335d",
+    "b903c914-dee6-4979-a506-cf8fea6a4abd",
+    "54c5d756-1333-4847-8f71-d540f01670fe",
+    "347e165a-b81e-4324-aed8-8c136f7f17ae",
+    "d5f97858-7f47-4fd7-b697-8ac2f1a001b7",
+    "2cf4d909-b305-44b3-893a-2b04e73fdaef",
+    "878fd4c9-8feb-47f3-9d0e-51320d3876db",
+    "7076b60d-e950-44fb-a157-c66129463351",
+    "e6bfebee-9b60-47e2-9e36-413617b731dd",
+    "b5ce4384-e728-482e-b890-b2f7e7016ac1",
+    "c8240ab8-cd11-429f-b99c-48357c96051a",
+    "b172f3b4-4940-428b-93a3-fdb6d0822fde",
+    "fb4e146f-be7b-496c-ac73-abca8d420342",
+    "fdb3c33b-fdfd-4ed1-8225-b49ad659f6ed",
+    "8ef1c9da-605b-4901-9919-56d2d0f02f2f",
+    "c51cbb35-21b4-4b3c-a5c3-baeec014db47",
+    "21dd05e6-50d5-4e1b-8c34-efff432b85c0",
+    "55e4f80d-ee88-4d80-852c-430a29f647c6",
+    "70010025-c51b-4408-b8b4-995bcde6f74d",
+    "d7f4d4d4-de1d-4218-b928-2d6662ed1eb0",
+    "351ff0b4-dde0-42ad-9910-567d9cfb7ec4",
+    "12eb7a6d-8878-4de2-ba26-058f91cb6e97",
+    "b3433a39-4059-41b4-affc-79eea3ed1109",
+    "6cb62431-a04b-4a3d-8729-abdf448ad99b",
+    "bf88e3cf-ee31-472e-b898-d3ba06aa3444",
+    "28009644-eb57-4a7d-b01d-7e7e20ef6746",
+    "57b4f078-c6a4-4fbc-873d-54b76f3f891f",
+    "c8845faa-04bf-4ef9-9e83-c800452dfe12",
+    "b0197446-f4d9-4311-b80f-410a9dbd01d1",
+    "2a30b82f-d7de-41b5-9555-3edf441d8d34",
+    "081c521b-6658-4286-8480-5bb9c1f51968",
+    "0819c195-856b-438e-a280-fb8115099326",
+    "ce3a295b-e60b-4895-9eaf-0eb93fb9dfd2",
+    "ab58a722-37d0-40a5-a697-876be71996b6",
+    "48549fed-579e-43ad-8721-89e1acefd85d",
+    "c9d549c5-d1e1-4971-8ad6-13aafd65f824",
+    "27a9b8da-270d-4934-948b-8de04fb17921",
+    "49ac7e07-6c5f-4898-840d-82c7701bfac2",
+    "46af3ac5-10d8-4110-9313-e175bfbc87f0",
+    "5dc54280-31a0-478f-9720-37a067e17778",
+    "c60d5a33-92f2-4d12-9bc2-a2bea466c77b",
+    "4fb835c4-56fc-462e-971b-d977a82d54fe",
+    "b5f73737-a81b-4ec4-b23c-0625dafb555d",
+    "b3608fc6-8c89-4d0b-a8a4-254e8e024d38",
+    "42a0466a-f934-4728-8425-ce32fe636070",
+    "83565b4c-1505-4aa2-9e75-aa4f85c384cd",
+    "5c5ec2c2-864c-41b8-9926-71df2b150183",
+    "04b6fb34-308f-4843-b549-fd9ab753547d",
+    "4c620ae8-c7a2-497e-be52-b620acd7921b",
+    "b08802c7-e6ac-4664-93c6-0c21af55a653",
+    "d094cded-4ae0-4bbf-b729-ccc6de05d121",
+    "166e155e-b36a-4a2b-8c40-33b6f2d87ea1",
+    "e1911ef6-97c1-40cb-bf44-8a37bd5058c2"
+  ],
+  "results": [
+    {
+      "mode": "legacy",
+      "offered_rps": 50,
+      "seconds": 30,
+      "shows": 100,
+      "seats_per_show": 300,
+      "viewers": 1000,
+      "write_percent": 5,
+      "generator_drops": 0,
+      "statuses": {
+        "hold": {
+          "201": 75
+        },
+        "read": {
+          "200": 1425
+        }
+      },
+      "elapsed_seconds": 30.00069810001878,
+      "response_body_bytes": 44862600,
+      "read_body_bytes": 44848200,
+      "read_p95_ms": 79.01520002633333,
+      "latency_ms": {
+        "hold:201": {
+          "count": 75,
+          "p95": 132.93780002277344
+        },
+        "read:200": {
+          "count": 1425,
+          "p95": 79.01520002633333
+        }
+      },
+      "server_p95_ms": {
+        "hold:201": 118.12,
+        "read:200": 51.25
+      },
+      "local_read_gate_pass": true
+    },
+    {
+      "mode": "conditional",
+      "offered_rps": 50,
+      "seconds": 30,
+      "shows": 100,
+      "seats_per_show": 300,
+      "viewers": 1000,
+      "write_percent": 5,
+      "generator_drops": 0,
+      "statuses": {
+        "hold": {
+          "201": 75
+        },
+        "read": {
+          "304": 1141,
+          "200": 284
+        }
+      },
+      "elapsed_seconds": 30.00541370001156,
+      "response_body_bytes": 5308842,
+      "read_body_bytes": 5294442,
+      "read_p95_ms": 37.24169998895377,
+      "latency_ms": {
+        "hold:201": {
+          "count": 75,
+          "p95": 75.65779995638877
+        },
+        "read:304": {
+          "count": 1141,
+          "p95": 35.12899996712804
+        },
+        "read:200": {
+          "count": 284,
+          "p95": 41.70150001300499
+        }
+      },
+      "server_p95_ms": {
+        "hold:201": 45.72,
+        "read:304": 9.65,
+        "read:200": 18.63
+      },
+      "local_read_gate_pass": true
+    },
+    {
+      "mode": "conditional",
+      "offered_rps": 100,
+      "seconds": 30,
+      "shows": 100,
+      "seats_per_show": 300,
+      "viewers": 1000,
+      "write_percent": 5,
+      "generator_drops": 144,
+      "statuses": {
+        "read": {
+          "304": 1996,
+          "200": 716
+        },
+        "hold": {
+          "201": 144
+        }
+      },
+      "elapsed_seconds": 30.01504039997235,
+      "response_body_bytes": 13392403,
+      "read_body_bytes": 13364752,
+      "read_p95_ms": 199.7498999699019,
+      "latency_ms": {
+        "read:304": {
+          "count": 1996,
+          "p95": 212.99119998002425
+        },
+        "hold:201": {
+          "count": 144,
+          "p95": 221.69340000255033
+        },
+        "read:200": {
+          "count": 716,
+          "p95": 189.81120001990348
+        }
+      },
+      "server_p95_ms": {
+        "read:304": 10.96,
+        "hold:201": 61.16,
+        "read:200": 17.16
+      },
+      "local_read_gate_pass": false
+    },
+    {
+      "mode": "legacy",
+      "offered_rps": 100,
+      "seconds": 30,
+      "shows": 100,
+      "seats_per_show": 300,
+      "viewers": 1000,
+      "write_percent": 5,
+      "generator_drops": 1237,
+      "statuses": {
+        "read": {
+          "200": 1679
+        },
+        "hold": {
+          "201": 84
+        }
+      },
+      "elapsed_seconds": 30.70475139998598,
+      "response_body_bytes": 52975161,
+      "read_body_bytes": 52959020,
+      "read_p95_ms": 1186.7648000479676,
+      "latency_ms": {
+        "read:200": {
+          "count": 1679,
+          "p95": 1186.7648000479676
+        },
+        "hold:201": {
+          "count": 84,
+          "p95": 1886.304099985864
+        }
+      },
+      "server_p95_ms": {
+        "read:200": 700.09,
+        "hold:201": 1656.68
+      },
+      "local_read_gate_pass": false
+    },
+    {
+      "mode": "legacy",
+      "offered_rps": 200,
+      "seconds": 30,
+      "shows": 100,
+      "seats_per_show": 300,
+      "viewers": 1000,
+      "write_percent": 5,
+      "generator_drops": 4117,
+      "statuses": {
+        "hold": {
+          "201": 105
+        },
+        "read": {
+          "200": 1777,
+          "transport_error": 1
+        }
+      },
+      "elapsed_seconds": 30.200148099975195,
+      "response_body_bytes": 56096696,
+      "read_body_bytes": 56076507,
+      "read_p95_ms": 831.1079000122845,
+      "latency_ms": {
+        "hold:201": {
+          "count": 105,
+          "p95": 1481.8931000190787
+        },
+        "read:200": {
+          "count": 1777,
+          "p95": 831.1079000122845
+        },
+        "read:transport_error": {
+          "count": 1,
+          "p95": 70.98059996496886
+        }
+      },
+      "server_p95_ms": {
+        "hold:201": 1198.53,
+        "read:200": 430.43
+      },
+      "local_read_gate_pass": false
+    },
+    {
+      "mode": "conditional",
+      "offered_rps": 200,
+      "seconds": 30,
+      "shows": 100,
+      "seats_per_show": 300,
+      "viewers": 1000,
+      "write_percent": 5,
+      "generator_drops": 3405,
+      "statuses": {
+        "read": {
+          "200": 871,
+          "304": 1595
+        },
+        "hold": {
+          "201": 129
+        }
+      },
+      "elapsed_seconds": 30.11733960005222,
+      "response_body_bytes": 16309295,
+      "read_body_bytes": 16284464,
+      "read_p95_ms": 231.5579999703914,
+      "latency_ms": {
+        "read:200": {
+          "count": 871,
+          "p95": 236.57260002801195
+        },
+        "read:304": {
+          "count": 1595,
+          "p95": 230.47510004835203
+        },
+        "hold:201": {
+          "count": 129,
+          "p95": 385.977300000377
+        }
+      },
+      "server_p95_ms": {
+        "read:200": 20.16,
+        "read:304": 11.33,
+        "hold:201": 78.51
+      },
+      "local_read_gate_pass": false
+    }
+  ],
+  "note": "Fixed retained 300-seat shows; 95% reads / 5% holds; prewarmed viewer validators; layout/bootstrap excluded; same-machine generator; body bytes exclude headers."
+}

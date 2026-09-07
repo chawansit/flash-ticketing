@@ -37,3 +37,8 @@ Refresh-age refinement: after acknowledging a generation while newer changes rem
 46 container tests passed with no skips; 12 targeted integration cases also passed after the refresh-age refinement. Matched 5-checkout/sec ticket p95 improved from 20.33 s to 0.381 s. The 50-RPS projection drain changed from a failed 60-second window to 0.781 s. The final build completed 1,200 checkouts at 10/sec with 0.313 s ticket p95. The real Kafka outage drill passed and final queues were empty. See [full evidence and limits](../capacity/optimized/README.md). These are local measurements, not production capacity guarantees.
 
 Partially superseded by [ADR 0009](0009-incremental-seat-projection.md): routine refreshes use versioned changed-seat updates; durable generations and leases remain.
+
+Decision 2's five-second periodic rebuild is partially superseded by
+[ADR 0011](0011-bounded-reconciliation-scheduler.md): proactive reconciliation is now a
+bounded, leased, per-event schedule over events inside their sale window. The 250-ms refresh
+cooldown, durable generations, lease-token fencing and the 30-second TTL remain in force.

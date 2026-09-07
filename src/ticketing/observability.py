@@ -55,6 +55,30 @@ WORK_SECONDS = Counter(
 WORK_ACTIVE = Gauge("ticketing_worker_active", "Concurrent worker operations", ["operation"])
 WORK_CALLS = Counter("ticketing_worker_operations_total", "Completed worker calls", ["operation", "outcome"])
 CACHE_ROWS = Counter("ticketing_cache_rows_total", "Rows sent to cache", ["mode"])
+# Reconciliation scheduling. Labels are fixed vocabularies: never event or seat identifiers.
+RECONCILE_BACKLOG = Gauge(
+    "ticketing_reconciliation_backlog", "Active events due for reconciliation, counted up to a cap"
+)
+RECONCILE_OVERDUE = Gauge(
+    "ticketing_reconciliation_overdue_seconds", "Age of the oldest reconciliation deadline already passed"
+)
+RECONCILE_TRACKED = Gauge(
+    "ticketing_reconciliation_tracked_events", "Events currently held in the reconciliation schedule"
+)
+RECONCILE_EVENTS = Counter(
+    "ticketing_reconciliation_events_total", "Scheduled reconciliations by outcome", ["outcome"]
+)
+RECONCILE_FAILURES = Counter(
+    "ticketing_reconciliation_failures_total", "Reconciliation failures by stage", ["stage"]
+)
+RECONCILE_SECONDS = Histogram(
+    "ticketing_reconciliation_seconds",
+    "Per-event reconciliation wall time including Redis I/O",
+    ["outcome"],
+)
+RECONCILE_RECOVERED = Counter(
+    "ticketing_reconciliation_recovered_leases_total", "Expired reconciliation leases reclaimed"
+)
 
 
 def measured_work(operation):

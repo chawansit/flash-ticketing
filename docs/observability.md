@@ -16,6 +16,13 @@ bounded command/operation/outcome labels; SQL text and customer identifiers are 
 | `ticketing_worker_active{operation}` | Concurrent operation calls. |
 | `ticketing_worker_operations_total{operation,outcome}` | Calls completed successfully or with an exception. |
 | `ticketing_cache_rows_total{mode}` | Rows submitted by full snapshots and incremental patches, including retries. |
+| `ticketing_reconciliation_backlog` | Active events already past their reconciliation deadline. Saturates at 10,000 rather than scanning unbounded rows. |
+| `ticketing_reconciliation_overdue_seconds` | Age of the oldest passed deadline. Zero when nothing is due. Compare against the 30-second seat-map TTL. |
+| `ticketing_reconciliation_tracked_events` | Events currently held in the schedule, i.e. inside their sale window. Saturates at 50,000. |
+| `ticketing_reconciliation_events_total{outcome}` | Scheduled reconciliations completed (`ok`) or failed (`error`). |
+| `ticketing_reconciliation_failures_total{stage}` | Failures by stage: `snapshot`, `defer`, `acknowledge`, `schedule`. |
+| `ticketing_reconciliation_seconds{outcome}` | Per-event reconciliation wall time including Redis I/O. |
+| `ticketing_reconciliation_recovered_leases_total` | Expired reconciliation leases reclaimed from crashed or stalled workers. |
 | `process_cpu_seconds_total` | Actual process CPU consumption, separate from I/O-inclusive busy time. |
 
 Useful PromQL:
@@ -28,6 +35,10 @@ sum by (instance) (ticketing_db_pool_in_use)
 sum by (type) (rate(ticketing_db_errors_total[5m]))
 rate(ticketing_worker_busy_seconds_total{operation="consume_event"}[5m])
 rate(ticketing_worker_busy_seconds_total{operation="simulate_one"}[5m]) / 4
+ticketing_reconciliation_overdue_seconds
+histogram_quantile(0.95, sum by (le, outcome) (rate(ticketing_reconciliation_seconds_bucket[5m])))
+sum by (stage) (rate(ticketing_reconciliation_failures_total[5m]))
+rate(ticketing_reconciliation_events_total{outcome="ok"}[5m])
 rate(process_cpu_seconds_total[5m])
 sum by (mode) (rate(ticketing_cache_rows_total[5m]))
 ```
@@ -54,3 +65,7 @@ Its results retain scraper timestamps, histogram buckets and observer errors.
 Histogram summary p95 values are bucket upper bounds, not exact percentiles. Missing
 samples cannot establish zero contention. Generator drops and overload responses
 invalidate a claim that the service sustained the offered rate.
+
+Integration clarification: reconciliation `ok` counts successful token-fenced SQL
+acknowledgements. `stale` and `ack_error` are separate outcomes. A deadline is checked
+before each snapshot, with unstarted leases released; in-flight I/O is not preempted.

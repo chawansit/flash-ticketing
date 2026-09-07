@@ -48,7 +48,7 @@ API and worker containers use the same Python package. Seat writes share the Pos
 | Consumer inbox | Consumer/event uniqueness committed with fulfillment effects |
 | Dispatch recovery | Reclaimable leases for publisher and simulator |
 | Poison-event handling | Five processing attempts, durable PostgreSQL dead letter and manual replay |
-| Cache convergence | Durable coalesced refresh generations, version-checked Redis updates and periodic refresh |
+| Cache convergence | Durable coalesced refresh generations, version-checked Redis updates and bounded scheduled reconciliation |
 
 Schema: [001_initial.sql](../migrations/001_initial.sql).
 
@@ -81,7 +81,7 @@ Schema: [001_initial.sql](../migrations/001_initial.sql).
 | PgBouncer | 40 default backend connections, 160 client connections, no reserve pool |
 | Outbox publication lease | 30 seconds |
 | Simulator dispatch lease | 15 seconds |
-| Seat-map cache TTL / periodic refresh | 30 seconds / approximately every 5 seconds |
+| Seat-map cache TTL / reconciliation interval | 30 seconds / 20-second per-event target for events inside their sale window |
 | Kafka topic / consumer group | ticketing.events / ticketing-fulfillment-v1 |
 
 These limits are configuration choices, not throughput guarantees. See [load-test conditions and results](load-test-report.md).

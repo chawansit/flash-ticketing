@@ -221,6 +221,70 @@ def seats(event_id: UUID, request: Request):
     return request.app.state.cache.read(str(event_id))
 
 
+class LayoutSeat(BaseModel):
+    seat_id: str
+    price: int
+
+
+class SeatLayout(BaseModel):
+    event_id: UUID
+    seats: list[LayoutSeat]
+
+
+class AvailableSeat(BaseModel):
+    seat_id: str
+    status: Literal["AVAILABLE", "HELD", "SOLD"]
+    reserved_until: str | None
+
+
+class Availability(BaseModel):
+    event_id: UUID
+    version: int
+    seats: list[AvailableSeat]
+
+
+Conditional = Annotated[str | None, Header(alias="If-None-Match", max_length=8192)]
+BROWSE_RESPONSES = {**ERRORS, 304: {"description": "Unchanged representation; no response body"}}
+
+
+def browse_response(request, event_id, kind, validator):
+    status, etag, body = request.app.state.cache.browse(str(event_id), kind, validator)
+    headers = {
+        "ETag": "W/" + etag,
+        "Cache-Control": "public, max-age=3600, must-revalidate" if kind == "layout" else "private, no-cache",
+    }
+    if status == 304:
+        return Response(status_code=304, headers=headers)
+    return JSONResponse(body, headers=headers)
+
+
+@app.get(
+    "/v1/events/{event_id}/layout", tags=["Browse"], response_model=SeatLayout, responses=BROWSE_RESPONSES
+)
+def layout(event_id: UUID, request: Request, if_none_match: Conditional = None):
+    """Static seat identifiers and show prices. Geometry is not modeled yet.
+
+    Cache for one hour, then revalidate with If-None-Match. Existing inventory is static.
+    """
+    return browse_response(request, event_id, "layout", if_none_match)
+
+
+@app.get(
+    "/v1/events/{event_id}/availability",
+    tags=["Browse"],
+    response_model=Availability,
+    responses=BROWSE_RESPONSES,
+)
+def availability(event_id: UUID, request: Request, if_none_match: Conditional = None):
+    """Advisory availability without layout/prices. Always revalidate cached responses.
+
+    Send the previous ETag in If-None-Match; unchanged reads return 304 without loading
+    seats. Back off polling when unchanged and pause hidden clients. HELD includes its
+    expiry; reservations always recheck PostgreSQL. Cache loss returns warming, not 304.
+    """
+    return browse_response(request, event_id, "availability", if_none_match)
+
+
 @app.get("/v1/events/{event_id}/seat-deltas", tags=["Browse"], responses=ERRORS)
 def deltas(event_id: UUID, request: Request, since: int = 0):
     """Current states changed since a snapshot version; use version from the response next time."""
@@ -232,7 +296,7 @@ def deltas(event_id: UUID, request: Request, since: int = 0):
 
 @app.post("/v1/holds", tags=["Reservations"], responses=ERRORS, status_code=201)
 def hold(body: HoldInput, who: Actor, svc: Service, key: Key, request: Request):
-    """Atomically hold 1–8 seats and create a pending order. Replays retain the original deadline."""
+    """Atomically hold 1â€“8 seats and create a pending order. Replays retain the original deadline."""
     request.app.state.cache.rate_limit(who)
     return svc.reserve(who, body.event_id, body.seat_ids, key)
 

@@ -22,6 +22,13 @@ from ticketing.infrastructure.reservations import PostgresReservations, event
 from ticketing.observability import (
     CACHE_ROWS,
     OUTBOX_AGE,
+    RECONCILE_BACKLOG,
+    RECONCILE_EVENTS,
+    RECONCILE_FAILURES,
+    RECONCILE_OVERDUE,
+    RECONCILE_RECOVERED,
+    RECONCILE_SECONDS,
+    RECONCILE_TRACKED,
     REFRESH_AGE,
     REFRESH_PENDING,
     WORKER_ERRORS,
@@ -211,6 +218,176 @@ def refresh_one(db, cache, cooldown_ms=250):
     return True
 
 
+# --- Bounded proactive reconciliation -------------------------------------------------
+# The schema models scheduled inventory as `events` only. Proactive reconciliation is
+# therefore defined purely by the sale window that exists today: an event is active from
+# `sale_starts - window` until `sale_ends + window`. No show-end, screen or location field
+# is invented. Events outside the window are still reconciled reactively through
+# seat_refresh_requests when a SeatsChanged notification arrives.
+ACTIVE_WINDOW = """e.sale_starts <= statement_timestamp() + (%s * interval '1 second')
+    AND e.sale_ends > statement_timestamp() - (%s * interval '1 second')"""
+BACKOFF_SHIFT_CAP = 5  # Retry delay tops out at base * 2**5.
+BACKLOG_COUNT_CAP = 10000  # Backlog gauge saturates rather than scanning unbounded rows.
+TRACKED_COUNT_CAP = 50000
+
+
+def schedule_window(settings):
+    return (settings.reconcile_window_seconds, settings.reconcile_window_seconds)
+
+
+@measured_work("reconcile_schedule")
+def maintain_schedule(db, settings):
+    """Bounded seed, prune and metric sampling. Never runs inside a claim or Redis write."""
+    window = schedule_window(settings)
+    with db.transaction() as conn:
+        seeded = conn.execute(
+            f"""INSERT INTO event_reconciliation(event_id)
+            SELECT e.id FROM events e
+            WHERE {ACTIVE_WINDOW} AND NOT EXISTS (
+                SELECT 1 FROM event_reconciliation r WHERE r.event_id=e.id)
+            ORDER BY e.sale_starts LIMIT %s
+            ON CONFLICT DO NOTHING""",
+            (*window, settings.reconcile_seed_batch),
+        ).rowcount
+        # Leaving the active window drops the advisory row. It is derived state and is
+        # re-seeded if the window reopens; a leased row is never removed underneath a worker.
+        pruned = conn.execute(
+            f"""DELETE FROM event_reconciliation WHERE event_id = ANY(ARRAY(
+                SELECT r.event_id FROM event_reconciliation r JOIN events e ON e.id=r.event_id
+                WHERE NOT ({ACTIVE_WINDOW})
+                AND (r.lease_until IS NULL OR r.lease_until < clock_timestamp())
+                ORDER BY r.event_id LIMIT %s FOR UPDATE OF r SKIP LOCKED))
+                AND (lease_until IS NULL OR lease_until < clock_timestamp())""",
+            (*window, settings.reconcile_seed_batch),
+        ).rowcount
+        row = conn.execute(
+            f"""SELECT
+            (SELECT count(*) FROM (SELECT 1 FROM event_reconciliation
+                WHERE next_due_at<=clock_timestamp() LIMIT {BACKLOG_COUNT_CAP}) due) AS backlog,
+            (SELECT count(*) FROM (SELECT 1 FROM event_reconciliation
+                LIMIT {TRACKED_COUNT_CAP}) all_rows) AS tracked,
+            (SELECT EXTRACT(EPOCH FROM clock_timestamp()-min(next_due_at))
+                FROM event_reconciliation) AS overdue"""
+        ).fetchone()
+    RECONCILE_BACKLOG.set(row["backlog"])
+    RECONCILE_TRACKED.set(row["tracked"])
+    RECONCILE_OVERDUE.set(max(0.0, float(row["overdue"] or 0)))
+    return seeded, pruned
+
+
+def claim_due_events(db, settings):
+    """Claim a bounded batch under one short transaction. Returns (token, event ids)."""
+    token = uuid4()
+    window = schedule_window(settings)
+    with db.transaction() as conn:
+        rows = conn.execute(
+            f"""SELECT r.event_id, r.lease_until FROM event_reconciliation r
+            JOIN events e ON e.id=r.event_id
+            WHERE r.next_due_at<=clock_timestamp()
+            AND (r.lease_until IS NULL OR r.lease_until<clock_timestamp())
+            AND {ACTIVE_WINDOW}
+            ORDER BY r.next_due_at, r.event_id
+            LIMIT %s FOR UPDATE OF r SKIP LOCKED""",
+            (*window, settings.reconcile_batch_size),
+        ).fetchall()
+        if not rows:
+            return token, []
+        recovered = sum(1 for row in rows if row["lease_until"] is not None)
+        conn.execute(
+            """UPDATE event_reconciliation
+            SET lease_token=%s, lease_until=clock_timestamp()+(%s * interval '1 second'),
+            claimed_at=clock_timestamp() WHERE event_id=ANY(%s)""",
+            (token, settings.reconcile_lease_seconds, [row["event_id"] for row in rows]),
+        )
+    if recovered:
+        RECONCILE_RECOVERED.inc(recovered)
+    return token, [row["event_id"] for row in rows]
+
+
+def complete_reconciliation(db, settings, event_id, token):
+    with db.transaction() as conn:
+        result = conn.execute(
+            """UPDATE event_reconciliation SET last_reconciled_at=clock_timestamp(),
+            next_due_at=clock_timestamp()+(%s * interval '1 second'),
+            consecutive_failures=0, lease_until=NULL, lease_token=NULL
+            WHERE event_id=%s AND lease_token=%s""",
+            (settings.reconcile_interval_seconds, event_id, token),
+        )
+        return result.rowcount == 1
+
+
+def defer_reconciliation(db, settings, event_id, token):
+    """Bounded exponential backoff. A stale token cannot move another worker's deadline."""
+    cap = settings.reconcile_backoff_ms * 2**BACKOFF_SHIFT_CAP
+    with db.transaction() as conn:
+        conn.execute(
+            f"""UPDATE event_reconciliation SET consecutive_failures=consecutive_failures+1,
+            next_due_at=clock_timestamp() + (LEAST(
+                %s * power(2, LEAST(consecutive_failures, {BACKOFF_SHIFT_CAP})), %s)
+                * interval '1 millisecond'),
+            lease_until=NULL, lease_token=NULL
+            WHERE event_id=%s AND lease_token=%s""",
+            (settings.reconcile_backoff_ms, cap, event_id, token),
+        )
+
+
+@measured_work("reconcile_batch")
+def reconcile_batch(db, cache, settings, deadline=None):
+    """One bounded batch. No SQL lock is held while `snapshot` writes Redis, and one slow
+    or failing event can neither abort the batch nor block another event's progress."""
+    token, event_ids = claim_due_events(db, settings)
+    processed = 0
+    for index, event_id in enumerate(event_ids):
+        if deadline is not None and time.monotonic() >= deadline:
+            with db.transaction() as conn:
+                conn.execute(
+                    """UPDATE event_reconciliation SET lease_until=NULL,lease_token=NULL
+                    WHERE event_id=ANY(%s) AND lease_token=%s""",
+                    (event_ids[index:], token),
+                )
+            break
+        processed += 1
+        started = time.monotonic()
+        try:
+            snapshot(db, cache, event_id)
+        except Exception:
+            RECONCILE_SECONDS.labels("error").observe(time.monotonic() - started)
+            RECONCILE_EVENTS.labels("error").inc()
+            RECONCILE_FAILURES.labels("snapshot").inc()
+            log.exception("reconciliation_failed")
+            try:
+                defer_reconciliation(db, settings, event_id, token)
+            except Exception:
+                RECONCILE_FAILURES.labels("defer").inc()
+                log.exception("reconciliation_defer_failed")
+            continue
+        try:
+            acknowledged = complete_reconciliation(db, settings, event_id, token)
+        except Exception:
+            RECONCILE_FAILURES.labels("acknowledge").inc()
+            log.exception("reconciliation_acknowledge_failed")
+            RECONCILE_EVENTS.labels("ack_error").inc()
+            continue
+        if not acknowledged:
+            RECONCILE_EVENTS.labels("stale").inc()
+            continue
+        RECONCILE_SECONDS.labels("ok").observe(time.monotonic() - started)
+        RECONCILE_EVENTS.labels("ok").inc()
+    return processed
+
+
+def reconcile_pass(db, cache, settings, deadline):
+    """Claim batches until the wall-clock budget is spent. Overrun is bounded by one started snapshot plus database bookkeeping,
+    so hold expiry and dirty-seat processing keep their turn in the maintenance loop."""
+    done = 0
+    while time.monotonic() < deadline:
+        claimed = reconcile_batch(db, cache, settings, deadline)
+        done += claimed
+        if not claimed:
+            break
+    return done
+
+
 @measured_work("consume_event")
 def consume_event(db, cache, envelope):
     if envelope["schema_version"] != 1:
@@ -374,11 +551,21 @@ def main():
                             break
                         work = True
                     if time.monotonic() >= next_warm:
-                        with db.transaction() as conn:
-                            events = conn.execute("SELECT id FROM events").fetchall()
-                        for item in events:
-                            snapshot(db, cache, item["id"])
-                        next_warm = time.monotonic() + 5
+                        # Seeding, pruning and metric sampling are bounded and infrequent;
+                        # a failure here must not stop reconciliation already scheduled.
+                        try:
+                            maintain_schedule(db, settings)
+                        except Exception:
+                            RECONCILE_FAILURES.labels("schedule").inc()
+                            log.exception("reconciliation_schedule_failed")
+                        next_warm = time.monotonic() + 1
+                    work = (
+                        reconcile_pass(
+                            db, cache, settings, time.monotonic() + settings.reconcile_budget_ms / 1000
+                        )
+                        > 0
+                        or work
+                    )
                 else:
                     for messages in consumer.poll(timeout_ms=500, max_records=1).values():
                         for message in messages:

@@ -22,7 +22,7 @@ flowchart TB
     Workers -->|"SQL for leases, fulfillment and cleanup"| Pool
     Pool --> DB
     API -->|"Cache reads and admission"| Cache
-    Workers -->|"Versioned seat patches + periodic reconciliation"| Cache
+    Workers -->|"Versioned seat patches + scheduled reconciliation"| Cache
     Workers -->|"Publish and consume events"| Broker
     Workers -->|"Simulator signed payment callback"| API
     Migrate -->|"Schema migration"| DB
@@ -40,7 +40,7 @@ flowchart TB
 | PgBouncer | Bounds backend database connections shared by application processes |
 | Publisher worker | Leases outbox rows, sends to Kafka and marks publication after acknowledgement |
 | Consumer worker | Issues tickets, settles simulated refunds, queues durable cache refreshes and deduplicates effects |
-| Maintenance worker | Expires old holds without waiting on busy locks leases coalesced refresh work and periodically rebuilds seat maps |
+| Maintenance worker | Expires old holds without waiting on busy locks, leases coalesced refresh work, and reconciles a bounded batch of due active seat maps per loop |
 | Simulator worker | Uses four bounded threads to lease attempts and send signed duplicate HTTP callbacks |
 | Prometheus | Scrapes metrics; it does not participate in reservation decisions |
 | Migration CLI | Connects directly to PostgreSQL before application startup |
