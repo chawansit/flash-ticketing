@@ -26,3 +26,13 @@
 Safety assumes PostgreSQL transactional durability and that seat writes use the reservation
 adapter. The local Compose stack does not establish disaster-recovery durability or HA.
 
+
+## Optimized background work
+
+- Redis write fails: retain the durable dirty generation and retry after refresh lease expiry.
+- Refresh finishes after a newer request: acknowledge only the captured generation; newer work remains.
+- Old refresher/publisher/simulator loses its lease: matching-token SQL predicates reject its acknowledgement.
+- Only part of a Kafka batch is acknowledged: mark only confirmed rows; replay uncertain rows with stable IDs.
+- Simulator thread fails: wait for the bounded batch; remaining callbacks keep their finite leases for retry.
+
+See [ADR 0008](adr/0008-bounded-background-processing.md) and the background optimization integration tests.

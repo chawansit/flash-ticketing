@@ -23,3 +23,7 @@ Broker outages accumulate durable work. A crash after acknowledgement can publis
 
 See [reservation persistence](../../src/ticketing/infrastructure/reservations.py), [database transactions](../../src/ticketing/infrastructure/postgres.py), [Redis adapter](../../src/ticketing/infrastructure/cache.py), [workers](../../src/ticketing/workers.py), [schema](../../migrations/001_initial.sql) and [integration tests](../../tests/integration).
 
+
+## Partial supersession, 2026-09-07
+
+[ADR 0008](0008-bounded-background-processing.md) supersedes scheduling details with bounded publication batches, concurrent simulated dispatch and durable coalesced refresh intent. The original correctness guarantees remain.

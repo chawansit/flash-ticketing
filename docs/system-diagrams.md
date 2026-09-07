@@ -11,7 +11,7 @@ flowchart TB
         API["FastAPI and Uvicorn<br/>Admission, authentication, use cases and reservation adapter"]
         Workers["Four worker processes<br/>Publisher, consumer, maintenance and payment simulator"]
         Pool["PgBouncer<br/>Transaction pooling"]
-        DB[("PostgreSQL<br/>Seat ownership, orders, payments, bookings,<br/>outbox, inbox, tickets and dead letters")]
+        DB[("PostgreSQL<br/>Seat ownership, orders, payments, bookings,<br/>outbox, inbox, refresh requests,<br/>tickets and dead letters")]
         Cache[("Redis<br/>Seat maps, contention shield and rate limits")]
         Broker[("Kafka<br/>ticketing.events")]
         Metrics["Prometheus"]
@@ -39,9 +39,9 @@ flowchart TB
 | Redis | Fast advisory reads and request admission; never grants a confirmed booking |
 | PgBouncer | Bounds backend database connections shared by application processes |
 | Publisher worker | Leases outbox rows, sends to Kafka and marks publication after acknowledgement |
-| Consumer worker | Issues tickets, settles simulated refunds, refreshes caches and deduplicates effects |
-| Maintenance worker | Expires old holds without waiting on busy locks and periodically refreshes seat maps |
-| Simulator worker | Polls due payment attempts and sends signed duplicate HTTP callbacks |
+| Consumer worker | Issues tickets, settles simulated refunds, queues durable cache refreshes and deduplicates effects |
+| Maintenance worker | Expires old holds without waiting on busy locks leases coalesced refresh work and periodically rebuilds seat maps |
+| Simulator worker | Uses four bounded threads to lease attempts and send signed duplicate HTTP callbacks |
 | Prometheus | Scrapes metrics; it does not participate in reservation decisions |
 | Migration CLI | Connects directly to PostgreSQL before application startup |
 
@@ -83,7 +83,10 @@ sequenceDiagram
 This sequence assumes a valid, unexpired hold and a successful payment. SQL connections pass through PgBouncer; it is omitted here for readability.
 
 - A late successful payment writes RefundRequested instead of creating bookings. Its consumer updates the simulated refund and order to REFUNDED.
-- SeatsChanged causes a current-state cache rebuild. Redis is updated before the corresponding inbox acknowledgement because Redis cannot share a PostgreSQL transaction.
+- SeatsChanged commits a durable refresh generation together with its inbox entry. Maintenance
+  coalesces requests, leases a generation, rebuilds Redis, and acknowledges that generation only
+  with the matching lease token. Inbox completion is not proof of cache freshness; monitor the
+  refresh queue and cache version. See [ADR 0008](adr/0008-bounded-background-processing.md).
 - TicketsIssued follows the same outbox path and produces a development notification log.
 - A publication crash after broker acknowledgement can repeat the event ID.
 - A consumer crash after its database commit can redeliver the event; its inbox record prevents repeated transactional effects.

@@ -1,0 +1,16 @@
+{
+  "utc": "2026-09-07T03:15:27.9981163Z",
+  "cpu": "Intel(R) Core(TM) i7-7700 CPU @ 3.60GHz",
+  "physical_cores": 4,
+  "logical_processors": 8,
+  "host_ram_bytes": 17143836672,
+  "docker_cpus": 8,
+  "docker_ram_bytes": 8308518912,
+  "api_processes": 1,
+  "api_admission_limit": 8,
+  "db_pool_max": 12,
+  "publisher_batch_size": 32,
+  "simulator_concurrency": 4,
+  "refresh_cooldown_ms": 250,
+  "other_containers_running": true
+}

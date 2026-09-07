@@ -60,3 +60,19 @@ does not trigger a seat-map read stampede into PostgreSQL.
 `RESERVE_CONCURRENCY` caps reservation requests before the synchronous thread pool. Excess
 requests receive 503 ADMISSION_FULL immediately; this is overload rejection, not a waiting room.
 The default is 8 per API process. Raising it requires a new latency and connection-budget test.
+
+## Coalesced cache refresh operations
+
+Apply migration 002 before starting the optimized consumer and maintenance workers. Do not remove
+the new table during a rollback; stop writers and drain outstanding refresh work before reverting
+workers. Existing periodic rebuilds remain a fallback, but do not count a leftover dirty queue as
+successfully processed.
+
+Monitor ticketing_cache_refresh_pending and ticketing_cache_refresh_oldest_seconds alongside
+outbox/inbox backlog and cache version. The consumer acknowledges durable intent; cache availability
+is still eventually consistent. If Redis fails, the dirty request remains and its lease can be
+reclaimed after 30 seconds. Inspect the maintenance logs and Redis availability before retrying.
+Never delete dirty rows to make a backlog graph look healthy.
+
+PUBLISHER_BATCH_SIZE defaults to 32 (1–100), SIMULATOR_CONCURRENCY to 4 (1–DB_POOL_MAX),
+REFRESH_COOLDOWN_MS to 250 (1–5000). Existing API admission and database pool sizes remain unchanged.

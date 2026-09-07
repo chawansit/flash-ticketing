@@ -31,7 +31,8 @@ def system():
     db.pool.wait(timeout=10)
     try:
         with db.transaction() as conn:
-            conn.execute(Path("migrations/001_initial.sql").read_text())
+            for migration in sorted(Path("migrations").glob("*.sql")):
+                conn.execute(migration.read_text(encoding="utf-8-sig"))
             event_id = uuid4()
             conn.execute(
                 """INSERT INTO events VALUES (%s,'Test','THB',clock_timestamp()-interval '1 day',

@@ -14,6 +14,8 @@ from uuid import uuid4
 import httpx
 import jwt
 import psycopg
+from redis import Redis
+from redis.exceptions import RedisError
 
 from ticketing.config import Settings
 
@@ -45,6 +47,7 @@ async def run(args):
                 "INSERT INTO event_seats(event_id,seat_id,price) VALUES (%s,%s,100)",
                 [(event, f"S{i}") for i in range(1 if args.profile == "hot" else total)],
             )
+    cache = Redis.from_url(os.getenv("TEST_REDIS_URL", settings.redis_url), decode_responses=True)
     samples = []
     monitor_stop = asyncio.Event()
 
@@ -69,9 +72,38 @@ async def run(args):
                 "WHERE i.event_id=e.id AND i.consumer='fulfillment')",
                 (event,),
             ).fetchone()[0]
+            sql_version = int(
+                conn.execute(
+                    "SELECT coalesce(sum(version),0) FROM event_seats WHERE event_id=%s", (event,)
+                ).fetchone()[0]
+            )
+            refresh_supported = conn.execute("SELECT to_regclass('seat_refresh_requests')").fetchone()[0]
+            refresh = (
+                conn.execute(
+                    "SELECT generation-completed_generation, "
+                    "extract(epoch FROM clock_timestamp()-requested_at) "
+                    "FROM seat_refresh_requests WHERE event_id=%s AND generation>completed_generation",
+                    (event,),
+                ).fetchone()
+                if refresh_supported
+                else None
+            )
+            try:
+                raw = cache.get(f"seatmap:{event}")
+                cached_version = json.loads(raw)["version"] if raw else None
+            except RedisError:
+                cached_version = None
             return {
                 "utc": datetime.now(UTC).isoformat(),
                 "orders": row[0],
+                "sql_inventory_version": sql_version,
+                "cache_version": cached_version,
+                "cache_version_lag": max(0, sql_version - cached_version)
+                if cached_version is not None
+                else None,
+                "refresh_queue_supported": bool(refresh_supported),
+                "refresh_generations_pending": refresh[0] if refresh else 0,
+                "refresh_oldest_seconds": float(refresh[1]) if refresh else 0,
                 "fulfilled": row[1],
                 "remaining_callbacks": remaining,
                 "run_events_not_consumed": unconsumed,
@@ -174,6 +206,7 @@ async def run(args):
             await asyncio.gather(*all_tasks)
         elapsed = time.perf_counter() - start
 
+    http_phase_end = await asyncio.to_thread(observe)
     drain_start = time.monotonic()
     while True:
         with psycopg.connect(dsn) as conn:
@@ -197,9 +230,16 @@ async def run(args):
                 "FROM payment_attempts p JOIN orders o ON o.id=p.order_id WHERE o.event_id=%s",
                 (event,),
             ).fetchone()[0]
-        if args.profile != "checkout" or (
+        delivery_done = args.profile != "checkout" or (
             states.get("FULFILLED", 0) == accepted_payments and remaining_deliveries == 0
-        ):
+        )
+        projection = await asyncio.to_thread(observe) if args.wait_projection else None
+        projection_done = not args.wait_projection or (
+            projection["run_events_not_consumed"] == 0
+            and projection["refresh_generations_pending"] == 0
+            and projection["cache_version_lag"] == 0
+        )
+        if delivery_done and projection_done:
             break
         if time.monotonic() - drain_start >= args.drain:
             break
@@ -239,6 +279,9 @@ async def run(args):
         "utc": datetime.now(UTC).isoformat(),
         "profile": args.profile,
         "backlog_samples": samples,
+        "http_phase_end": http_phase_end,
+        "projection_drain_requested": args.wait_projection,
+        "projection_drained": projection_done if args.wait_projection else None,
         "order_creation_to_ticket_p95_seconds": float(fulfillment) if fulfillment is not None else None,
         "event_id": event,
         "target_journeys_per_second": args.rate,
@@ -268,12 +311,14 @@ async def run(args):
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     Path(args.output).write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(json.dumps(result, indent=2))
-    if not correct:
+    cache.close()
+    if not correct or not projection_done:
         raise SystemExit(1)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--wait-projection", action="store_true")
     parser.add_argument("--profile", choices=["hot", "spread", "checkout"], required=True)
     parser.add_argument("--rate", type=int, default=10)
     parser.add_argument("--seconds", type=int, default=5)

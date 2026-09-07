@@ -12,6 +12,9 @@ x-app: &app
     HOLD_SECONDS: ${HOLD_SECONDS:-120}
     DB_POOL_MAX: ${DB_POOL_MAX:-12}
     RESERVE_CONCURRENCY: ${RESERVE_CONCURRENCY:-8}
+    PUBLISHER_BATCH_SIZE: ${PUBLISHER_BATCH_SIZE:-32}
+    SIMULATOR_CONCURRENCY: ${SIMULATOR_CONCURRENCY:-4}
+    REFRESH_COOLDOWN_MS: ${REFRESH_COOLDOWN_MS:-250}
   restart: unless-stopped
   depends_on:
     migrate: {condition: service_completed_successfully}

@@ -62,3 +62,7 @@ latency and 5–10x connection/lock-wait scaling have not been independently ben
 
 Payment and refund effects are simulated. No real gateway, payment UX, frontend, external
 notification provider or HA deployment is included. Docker services remain running locally.
+
+## Update: background optimization validation, 2026-09-07
+
+The optimized container suite passed 46 tests with no skips, including 100 synchronized HTTP contenders with exactly one durable hold. A subsequent refresh-age refinement passed all 12 targeted background integration cases and the two-minute real checkout confirmation. The actual Kafka outage drill passed. See [the complete comparison and validation evidence](capacity/optimized/README.md). Earlier figures above remain historical results for the prior implementation.

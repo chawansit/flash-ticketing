@@ -79,11 +79,15 @@ order; consumers must remain order-independent, as these handlers do. No global 
 
 Ticket creation, order fulfillment and the consumer inbox entry share a database transaction.
 Kafka offsets commit afterward. Unique booking-to-ticket references guard even semantically
-duplicate OrderPaid events. Redis updates cannot share that transaction: seat events rebuild
-current authoritative snapshots before inbox acknowledgement, and periodic refresh repairs missed
-updates. Cache replacement uses monotonically increasing sums of seat versions to reject stale
+duplicate OrderPaid events. SeatsChanged now commits a durable refresh generation and inbox
+entry together. Maintenance coalesces generations, leases refresh work, writes Redis outside
+SQL locks, then acknowledges only the captured generation and matching token. A newer request
+remains dirty. Periodic refresh repairs missed updates. Cache replacement uses monotonically
+increasing sums of seat versions to reject stale
 rebuilds; unchanged seats preserve their delta cursor. Seat inventory is static in this MVP.
 
 After five failed processing attempts, the consumer writes a durable dead letter before advancing
 its offset. If that write fails, it seeks back to the message. Operators can replay after repair.
 Delivery is at least once; external notification logs are best-effort development output.
+
+See [ADR 0008](adr/0008-bounded-background-processing.md) for the 32-row publisher batch, four-thread simulator and 250-ms per-event queued refresh cooldown. Monitor the refresh queue as well as Kafka/inbox backlog.

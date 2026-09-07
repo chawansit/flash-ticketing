@@ -10,3 +10,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [Horizontal scaling with shared database authority](0006-horizontal-scaling.md)
 
 - [Offered-load capacity validation](0007-capacity-validation.md)
+- [Bounded background work and durable cache refresh](0008-bounded-background-processing.md)

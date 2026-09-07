@@ -48,7 +48,7 @@ API and worker containers use the same Python package. Seat writes share the Pos
 | Consumer inbox | Consumer/event uniqueness committed with fulfillment effects |
 | Dispatch recovery | Reclaimable leases for publisher and simulator |
 | Poison-event handling | Five processing attempts, durable PostgreSQL dead letter and manual replay |
-| Cache convergence | Current-state rebuilds, version-checked Redis updates and periodic refresh |
+| Cache convergence | Durable coalesced refresh generations, version-checked Redis updates and periodic refresh |
 
 Schema: [001_initial.sql](../migrations/001_initial.sql).
 
@@ -93,3 +93,5 @@ The implemented runtime is a local development stack with one PostgreSQL server,
 A production deployment would additionally need managed identity/secrets, TLS, edge abuse protection, provider payment reconciliation, backups, highly available data services and measured replica/admission sizing. A product frontend, CDN, external payment provider and read replicas are not part of the current diagram.
 
 Related: [application flow](application-flow.md), [system diagrams](system-diagrams.md), [runbook](runbook.md).
+
+Background defaults added by [ADR 0008](adr/0008-bounded-background-processing.md): PUBLISHER_BATCH_SIZE=32, SIMULATOR_CONCURRENCY=4 (must fit DB_POOL_MAX), REFRESH_COOLDOWN_MS=250. Refresh leases last 30 seconds. Metrics include ticketing_cache_refresh_pending and ticketing_cache_refresh_oldest_seconds.

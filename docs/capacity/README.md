@@ -92,3 +92,7 @@ Regression validation: 32 unit/integration tests passed, zero skipped, in 8.96 s
 ## Staged capacity measurement
 
 See [the longer staged results](staged/README.md) for measured operating points, overload boundaries, checkout backlog and hardware details. The later tests demonstrate why fast API acceptance must not be reported as full-pipeline throughput.
+
+## Optimized implementation, 2026-09-07
+
+See [the matched optimization comparison](optimized/README.md), including Redis freshness, durable refresh debt and a two-minute checkout confirmation. Earlier staged results describe the previous worker implementation.

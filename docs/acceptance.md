@@ -24,3 +24,5 @@ additional API containers behind a local proxy; the DB tests use concurrent inde
 
 Local test results and any environment limitations are recorded in `docs/validation.md`.
 
+
+Background optimization coverage: durable coalescing, generation/lease fencing, partial Kafka acknowledgement, bounded concurrent simulated dispatch and a real synchronized 100-request hold test. Executed evidence is recorded in [the optimization report](capacity/optimized/README.md).

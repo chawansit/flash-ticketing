@@ -64,7 +64,7 @@ python -m ruff check src tests scripts
 Integration tests skip unless `TEST_DATABASE_URL` is provided; cache tests also need
 `TEST_REDIS_URL`. Integration fixtures create isolated random schemas and remove only those
 schemas. E2E tests need `E2E_API_URL`, a matching JWT secret, the seed event and running workers.
-E2E tests consume one seat per run. Compose supplies these settings.
+E2E tests book one seed seat and create a fresh one-seat event for 100 synchronized hold contenders. Compose supplies these settings.
 
 ## Architecture
 
@@ -116,3 +116,5 @@ to retain bookings or Kafka history.
 Architecture decisions: [ADR index](docs/adr/README.md).
 
 Capacity validation: [profiles, provisional targets and measured baselines](docs/capacity/README.md).
+
+Latest performance update: [background optimizations and matched before/after results](docs/capacity/optimized/README.md).

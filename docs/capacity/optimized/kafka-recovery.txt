@@ -1,0 +1,2 @@
+{"kafka_stopped": true, "order_status": "PAID", "tickets": 0}
+{"kafka_recovered": true, "order_status": "FULFILLED", "tickets": 1}

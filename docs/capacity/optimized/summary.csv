@@ -1,0 +1,7 @@
+file,profile,offered_journeys_s,duration_s,client_http_rps,holds,hold_503,generator_drops,hold_p95_ms,ticket_p95_s,tickets,unconsumed_events_at_http_end,pending_refresh_generations_at_http_end,cache_version_lag_at_http_end,pending_callbacks_at_http_end,drain_s,projection_drained,final_cache_version_lag,correctness_pass,observer_errors
+after-checkout-10.json,checkout,10,60,20.016,600,0,0,52.062,0.4613610999999998,600,3,7,6,23,15.047,True,0,True,0
+after-checkout-5.json,checkout,5,60,10.022,300,0,0,60.602,0.38116825000000026,300,2,3,3,26,29.844,True,0,True,0
+after-spread-50.json,spread,50,60,50.012,2992,8,0,82.026,,0,3,18,15,0,0.781,True,0,True,0
+before-checkout-5.json,checkout,5,60,10.026,300,0,0,52.939,20.330370950000002,300,1,0,1,242,31.484,True,0,True,0
+before-spread-50.json,spread,50,60,49.188,2844,108,48,228.491,,0,2000,0,1,0,60.64,False,5,True,0
+final-checkout-10-120s.json,checkout,10,120,20.007,1200,0,0,52.136,0.31251185,1200,2,1,1,27,15.438,True,0,True,0

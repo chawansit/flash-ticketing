@@ -7,6 +7,7 @@ import os
 import signal
 import time
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from uuid import uuid4
 
 from kafka import KafkaConsumer, KafkaProducer, TopicPartition
@@ -18,7 +19,13 @@ from ticketing.config import Settings
 from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.postgres import Postgres
 from ticketing.infrastructure.reservations import PostgresReservations, event
-from ticketing.observability import OUTBOX_AGE, WORKER_ERRORS, configure_logging
+from ticketing.observability import (
+    OUTBOX_AGE,
+    REFRESH_AGE,
+    REFRESH_PENDING,
+    WORKER_ERRORS,
+    configure_logging,
+)
 
 log = logging.getLogger("ticketing.worker")
 running = True
@@ -54,35 +61,107 @@ def snapshot(db, cache, event_id):
     cache.put(str(event_id), version, {"event_id": str(event_id), "version": version, "seats": seats})
 
 
-def publish_one(db, producer):
+def publish_batch(db, producer, limit=32):
     token = uuid4()
     with db.transaction() as conn:
         age = conn.execute("""SELECT EXTRACT(EPOCH FROM clock_timestamp()-min(occurred_at)) AS age
             FROM outbox_events WHERE published_at IS NULL""").fetchone()["age"]
         OUTBOX_AGE.set(float(age or 0))
-        row = conn.execute("""SELECT * FROM outbox_events WHERE published_at IS NULL
+        rows = conn.execute(
+            """SELECT * FROM outbox_events WHERE published_at IS NULL
             AND (lease_until IS NULL OR lease_until < clock_timestamp())
-            ORDER BY occurred_at LIMIT 1 FOR UPDATE SKIP LOCKED""").fetchone()
-        if not row:
+            ORDER BY occurred_at LIMIT %s FOR UPDATE SKIP LOCKED""",
+            (limit,),
+        ).fetchall()
+        if not rows:
             return False
         conn.execute(
-            "UPDATE outbox_events SET lease_until=clock_timestamp()+interval '30 seconds',lease_token=%s WHERE id=%s",
-            (token, row["id"]),
+            """UPDATE outbox_events SET lease_until=clock_timestamp()+interval '30 seconds',lease_token=%s
+            WHERE id=ANY(%s)""",
+            (token, [row["id"] for row in rows]),
         )
-    envelope = {
-        "event_id": str(row["id"]),
-        "aggregate_id": str(row["aggregate_id"]),
-        "event_type": row["event_type"],
-        "schema_version": row["schema_version"],
-        "occurred_at": row["occurred_at"].isoformat(),
-        "payload": row["payload"],
-    }
-    producer.send("ticketing.events", key=str(row["aggregate_id"]).encode(), value=envelope).get(timeout=10)
+    pending, confirmed, errors = [], [], []
+    deadline = time.monotonic() + 10
+    for row in rows:
+        if time.monotonic() >= deadline:
+            break
+        envelope = {
+            "event_id": str(row["id"]),
+            "aggregate_id": str(row["aggregate_id"]),
+            "event_type": row["event_type"],
+            "schema_version": row["schema_version"],
+            "occurred_at": row["occurred_at"].isoformat(),
+            "payload": row["payload"],
+        }
+        try:
+            future = producer.send("ticketing.events", key=str(row["aggregate_id"]).encode(), value=envelope)
+            pending.append((row["id"], future))
+        except Exception as exc:  # noqa: BLE001 - re-raised after preserving successful acknowledgements
+            errors.append(exc)
+            break
+    for event_id, future in pending:
+        try:
+            future.get(timeout=max(0, deadline - time.monotonic()))
+            confirmed.append(event_id)
+        except Exception as exc:  # noqa: BLE001 - re-raised after preserving successful acknowledgements
+            errors.append(exc)
+    if confirmed:
+        with db.transaction() as conn:
+            conn.execute(
+                """UPDATE outbox_events SET published_at=clock_timestamp(),lease_until=NULL
+                WHERE id=ANY(%s) AND lease_token=%s""",
+                (confirmed, token),
+            )
+    if errors:
+        raise errors[0]
+    return bool(confirmed)
+
+
+def publish_one(db, producer):
+    return publish_batch(db, producer, limit=1)
+
+
+def request_refresh(conn, event_id):
+    conn.execute(
+        """INSERT INTO seat_refresh_requests(event_id) VALUES (%s)
+        ON CONFLICT(event_id) DO UPDATE SET generation=seat_refresh_requests.generation+1,
+        requested_at=CASE
+            WHEN seat_refresh_requests.generation=seat_refresh_requests.completed_generation
+            THEN clock_timestamp() ELSE seat_refresh_requests.requested_at END""",
+        (event_id,),
+    )
+
+
+def refresh_one(db, cache, cooldown_ms=250):
+    token = uuid4()
+    with db.transaction() as conn:
+        state = conn.execute("""SELECT count(*) AS n,
+            EXTRACT(EPOCH FROM clock_timestamp()-min(requested_at)) AS age
+            FROM seat_refresh_requests WHERE generation>completed_generation""").fetchone()
+        REFRESH_PENDING.set(state["n"])
+        REFRESH_AGE.set(float(state["age"] or 0))
+        row = conn.execute("""SELECT * FROM seat_refresh_requests
+            WHERE generation>completed_generation AND next_attempt_at<=clock_timestamp()
+            AND (lease_until IS NULL OR lease_until<clock_timestamp())
+            ORDER BY requested_at LIMIT 1 FOR UPDATE SKIP LOCKED""").fetchone()
+        if not row:
+            return False
+        claimed_at = conn.execute(
+            """UPDATE seat_refresh_requests
+            SET lease_token=%s,lease_until=clock_timestamp()+interval '30 seconds'
+            WHERE event_id=%s RETURNING clock_timestamp() AS claimed_at""",
+            (token, row["event_id"]),
+        ).fetchone()["claimed_at"]
+    # No SQL locks while writing Redis. The snapshot is fenced by inventory version.
+    snapshot(db, cache, row["event_id"])
     with db.transaction() as conn:
         conn.execute(
-            """UPDATE outbox_events SET published_at=clock_timestamp(),lease_until=NULL
-            WHERE id=%s AND lease_token=%s""",
-            (row["id"], token),
+            """UPDATE seat_refresh_requests SET completed_generation=%s,
+            lease_until=NULL,lease_token=NULL,
+            next_attempt_at=clock_timestamp()+(%s * interval '1 millisecond'),
+            requested_at=CASE WHEN generation>%s THEN %s ELSE requested_at END
+            WHERE event_id=%s AND lease_token=%s""",
+            (row["generation"], cooldown_ms, row["generation"], claimed_at, row["event_id"], token),
         )
     return True
 
@@ -91,9 +170,6 @@ def consume_event(db, cache, envelope):
     if envelope["schema_version"] != 1:
         raise ValueError("Unsupported event schema")
     kind, data = envelope["event_type"], envelope["payload"]
-    if kind == "SeatsChanged":
-        # Redis cannot share a DB transaction. Rebuild first; repeating it is safe.
-        snapshot(db, cache, data["event_id"])
     with db.transaction() as conn:
         inserted = conn.execute(
             """INSERT INTO consumer_inbox VALUES ('fulfillment',%s)
@@ -102,7 +178,9 @@ def consume_event(db, cache, envelope):
         ).fetchone()
         if not inserted:
             return
-        if kind == "OrderPaid":
+        if kind == "SeatsChanged":
+            request_refresh(conn, data["event_id"])
+        elif kind == "OrderPaid":
             order = conn.execute(
                 "SELECT * FROM orders WHERE id=%s FOR UPDATE", (data["order_id"],)
             ).fetchone()
@@ -129,7 +207,7 @@ def consume_event(db, cache, envelope):
             )
         elif kind == "TicketsIssued":
             log.info("development_notification", extra={"fields": data})
-        elif kind != "SeatsChanged":
+        else:
             raise ValueError("Unknown event type")
 
 
@@ -180,6 +258,18 @@ def simulate_one(db, settings):
     return True
 
 
+def simulate_batch(db, settings, executor):
+    futures = [executor.submit(simulate_one, db, settings) for _ in range(settings.simulator_concurrency)]
+    work = False
+    for future in as_completed(futures):
+        try:
+            work = future.result() or work
+        except Exception:
+            WORKER_ERRORS.labels("simulator").inc()
+            log.exception("callback_dispatch_failed")
+    return work
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("role", choices=["publisher", "consumer", "maintenance", "simulator"])
@@ -194,8 +284,10 @@ def main():
     start_http_server(settings.worker_port)
     db, cache = Postgres(settings.database_url, settings.pool_max), RedisSeats(settings.redis_url)
     service = Reservations(PostgresReservations(db, cache, settings.hold_seconds))
-    producer = consumer = None
+    producer = consumer = executor = None
     try:
+        if role == "simulator":
+            executor = ThreadPoolExecutor(max_workers=settings.simulator_concurrency)
         if role == "publisher":
             producer = KafkaProducer(
                 bootstrap_servers=settings.kafka_bootstrap,
@@ -219,10 +311,14 @@ def main():
             try:
                 work = False
                 if role == "publisher":
-                    work = publish_one(db, producer)
+                    work = publish_batch(db, producer, settings.publisher_batch_size)
                 elif role == "simulator":
-                    work = simulate_one(db, settings)
+                    work = simulate_batch(db, settings, executor)
                 elif role == "maintenance":
+                    for _ in range(10):
+                        if not refresh_one(db, cache, settings.refresh_cooldown_ms):
+                            break
+                        work = True
                     for _ in range(100):
                         if not service.expire_one():
                             break
@@ -276,6 +372,8 @@ def main():
                 log.exception("worker_iteration_failed", extra={"fields": {"role": role}})
                 time.sleep(1)
     finally:
+        if executor:
+            executor.shutdown(wait=True)
         if producer:
             producer.close(timeout=5)
         if consumer:
