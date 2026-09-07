@@ -20,11 +20,13 @@ from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.postgres import Postgres
 from ticketing.infrastructure.reservations import PostgresReservations, event
 from ticketing.observability import (
+    CACHE_ROWS,
     OUTBOX_AGE,
     REFRESH_AGE,
     REFRESH_PENDING,
     WORKER_ERRORS,
     configure_logging,
+    measured_work,
 )
 
 log = logging.getLogger("ticketing.worker")
@@ -36,6 +38,7 @@ def stop(*_):
     running = False
 
 
+@measured_work("snapshot")
 def snapshot(db, cache, event_id):
     # One statement gives a consistent snapshot. A global sequence is not used: allocation
     # order is not commit order. Sum of monotonically increasing row versions is monotonic.
@@ -45,6 +48,7 @@ def snapshot(db, cache, event_id):
             FROM event_seats WHERE event_id=%s ORDER BY seat_id""",
             (event_id,),
         ).fetchall()
+    CACHE_ROWS.labels("full").inc(len(rows))
     version = sum(r["version"] for r in rows)
     # Redis atomically preserves the last aggregate marker for unchanged seats.
     seats = [
@@ -61,6 +65,7 @@ def snapshot(db, cache, event_id):
     cache.put(str(event_id), version, {"event_id": str(event_id), "version": version, "seats": seats})
 
 
+@measured_work("publish_batch")
 def publish_batch(db, producer, limit=32):
     token = uuid4()
     with db.transaction() as conn:
@@ -121,17 +126,45 @@ def publish_one(db, producer):
     return publish_batch(db, producer, limit=1)
 
 
-def request_refresh(conn, event_id):
+def request_refresh(conn, event_id, seat_ids=None):
     conn.execute(
-        """INSERT INTO seat_refresh_requests(event_id) VALUES (%s)
+        """INSERT INTO seat_refresh_requests(event_id,seat_ids) VALUES (%s,%s)
         ON CONFLICT(event_id) DO UPDATE SET generation=seat_refresh_requests.generation+1,
+        seat_ids=CASE
+            WHEN seat_refresh_requests.generation=seat_refresh_requests.completed_generation THEN EXCLUDED.seat_ids
+            WHEN seat_refresh_requests.seat_ids IS NULL OR EXCLUDED.seat_ids IS NULL THEN NULL
+            ELSE ARRAY(SELECT DISTINCT unnest(seat_refresh_requests.seat_ids || EXCLUDED.seat_ids)) END,
         requested_at=CASE
             WHEN seat_refresh_requests.generation=seat_refresh_requests.completed_generation
             THEN clock_timestamp() ELSE seat_refresh_requests.requested_at END""",
-        (event_id,),
+        (event_id, seat_ids),
     )
 
 
+def changed_snapshot(db, cache, event_id, seat_ids):
+    with db.transaction() as conn:
+        rows = conn.execute(
+            """SELECT seat_id,price,hold_id,reserved_until,booked_order_id,version
+            FROM event_seats WHERE event_id=%s AND seat_id=ANY(%s) ORDER BY seat_id""",
+            (event_id, seat_ids),
+        ).fetchall()
+    seats = [seat_state(row) for row in rows]
+    CACHE_ROWS.labels("patch").inc(len(seats))
+    if not cache.patch(str(event_id), seats):
+        snapshot(db, cache, event_id)
+
+
+def seat_state(row):
+    return {
+        "seat_id": row["seat_id"],
+        "price": row["price"],
+        "status": "SOLD" if row["booked_order_id"] else "HELD" if row["hold_id"] else "AVAILABLE",
+        "reserved_until": row["reserved_until"],
+        "source_version": row["version"],
+    }
+
+
+@measured_work("refresh_one")
 def refresh_one(db, cache, cooldown_ms=250):
     token = uuid4()
     with db.transaction() as conn:
@@ -153,19 +186,32 @@ def refresh_one(db, cache, cooldown_ms=250):
             (token, row["event_id"]),
         ).fetchone()["claimed_at"]
     # No SQL locks while writing Redis. The snapshot is fenced by inventory version.
-    snapshot(db, cache, row["event_id"])
+    if row["seat_ids"] is None:
+        snapshot(db, cache, row["event_id"])
+    else:
+        changed_snapshot(db, cache, row["event_id"], row["seat_ids"])
     with db.transaction() as conn:
         conn.execute(
             """UPDATE seat_refresh_requests SET completed_generation=%s,
+            seat_ids=CASE WHEN generation=%s THEN NULL ELSE seat_ids END,
             lease_until=NULL,lease_token=NULL,
             next_attempt_at=clock_timestamp()+(%s * interval '1 millisecond'),
             requested_at=CASE WHEN generation>%s THEN %s ELSE requested_at END
             WHERE event_id=%s AND lease_token=%s""",
-            (row["generation"], cooldown_ms, row["generation"], claimed_at, row["event_id"], token),
+            (
+                row["generation"],
+                row["generation"],
+                cooldown_ms,
+                row["generation"],
+                claimed_at,
+                row["event_id"],
+                token,
+            ),
         )
     return True
 
 
+@measured_work("consume_event")
 def consume_event(db, cache, envelope):
     if envelope["schema_version"] != 1:
         raise ValueError("Unsupported event schema")
@@ -179,7 +225,10 @@ def consume_event(db, cache, envelope):
         if not inserted:
             return
         if kind == "SeatsChanged":
-            request_refresh(conn, data["event_id"])
+            if "seats" in data:
+                request_refresh(conn, data["event_id"], data["seats"])
+            else:
+                request_refresh(conn, data["event_id"])
         elif kind == "OrderPaid":
             order = conn.execute(
                 "SELECT * FROM orders WHERE id=%s FOR UPDATE", (data["order_id"],)
@@ -211,6 +260,7 @@ def consume_event(db, cache, envelope):
             raise ValueError("Unknown event type")
 
 
+@measured_work("simulate_one")
 def simulate_one(db, settings):
     token = uuid4()
     with db.transaction() as conn:

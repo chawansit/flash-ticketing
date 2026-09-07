@@ -1,0 +1,434 @@
+[
+  {
+    "file": "after-10.json.gz",
+    "rate": 10,
+    "inventory": 3000,
+    "statuses": {
+      "hold": {
+        "201": 300
+      }
+    },
+    "generator_drops": 0,
+    "latency_ms": {
+      "hold:201": {
+        "count": 300,
+        "p95": 60.95610000193119,
+        "p99": 78.12229997944087
+      }
+    },
+    "projection_drained": true,
+    "drain_seconds": 0.7970000000204891,
+    "correctness_pass": true,
+    "db_max_connections": 14.0,
+    "db_max_lock_waiters": 0.0,
+    "db_max_oldest_waiting_query_seconds": 0.0,
+    "api_pool_max_size": 2.0,
+    "api_pool_max_acquiring": 0.0,
+    "api_pool_max_in_use": 0.0,
+    "query_count": 17692.0,
+    "query_mean_ms": 0.9160563585800265,
+    "api_query_p95_bucket_upper_ms": 5.0,
+    "api_transaction_p95_bucket_upper_ms": 50.0,
+    "api_pool_p95_bucket_upper_ms": 5.0,
+    "pool_acquisition_errors": 0,
+    "sql_lock_errors": 0,
+    "cache_full_rows": 176562.0,
+    "cache_patch_rows": 297.0,
+    "worker_busy_seconds": {
+      "snapshot": 2.5734633900005974,
+      "refresh_one": 3.3164356489992315,
+      "publish_batch": 7.072831712000038,
+      "consume_event": 3.3117911990003677,
+      "simulate_one": 10.765105169000549
+    },
+    "metric_note": "Counters cover scrape-aligned start through drain; p95 is bucket upper bound, not exact. Worker operations can nest. Samples can miss waits."
+  },
+  {
+    "file": "after-100.json.gz",
+    "rate": 100,
+    "inventory": 3000,
+    "statuses": {
+      "hold": {
+        "201": 1826,
+        "503": 122
+      }
+    },
+    "generator_drops": 1052,
+    "latency_ms": {
+      "hold:201": {
+        "count": 1826,
+        "p95": 911.4021999994293,
+        "p99": 1283.40220003156
+      },
+      "hold:503": {
+        "count": 122,
+        "p95": 402.1625999594107,
+        "p99": 564.498600026127
+      }
+    },
+    "projection_drained": true,
+    "drain_seconds": 0.8589999999967404,
+    "correctness_pass": true,
+    "db_max_connections": 14.0,
+    "db_max_lock_waiters": 1.0,
+    "db_max_oldest_waiting_query_seconds": 0.004634,
+    "api_pool_max_size": 8.0,
+    "api_pool_max_acquiring": 0.0,
+    "api_pool_max_in_use": 4.0,
+    "query_count": 47483.0,
+    "query_mean_ms": 1.1422430861361725,
+    "api_query_p95_bucket_upper_ms": 10.0,
+    "api_transaction_p95_bucket_upper_ms": 100.0,
+    "api_pool_p95_bucket_upper_ms": 5.0,
+    "pool_acquisition_errors": 0,
+    "sql_lock_errors": 0,
+    "cache_full_rows": 177135.0,
+    "cache_patch_rows": 9557.0,
+    "worker_busy_seconds": {
+      "snapshot": 3.903016545999776,
+      "refresh_one": 3.909749634999457,
+      "publish_batch": 21.66031998500148,
+      "consume_event": 23.127851966002254,
+      "simulate_one": 10.334473532000288
+    },
+    "metric_note": "Counters cover scrape-aligned start through drain; p95 is bucket upper bound, not exact. Worker operations can nest. Samples can miss waits."
+  },
+  {
+    "file": "after-50.json.gz",
+    "rate": 50,
+    "inventory": 3000,
+    "statuses": {
+      "hold": {
+        "201": 1498,
+        "503": 2
+      }
+    },
+    "generator_drops": 0,
+    "latency_ms": {
+      "hold:201": {
+        "count": 1498,
+        "p95": 89.33889999752864,
+        "p99": 155.41659999871626
+      },
+      "hold:503": {
+        "count": 2,
+        "p95": 23.9144999650307,
+        "p99": 23.9144999650307
+      }
+    },
+    "projection_drained": true,
+    "drain_seconds": 0.8599999999860302,
+    "correctness_pass": true,
+    "db_max_connections": 14.0,
+    "db_max_lock_waiters": 0.0,
+    "db_max_oldest_waiting_query_seconds": 0.0,
+    "api_pool_max_size": 8.0,
+    "api_pool_max_acquiring": 0.0,
+    "api_pool_max_in_use": 3.0,
+    "query_count": 39744.0,
+    "query_mean_ms": 0.7992610255883926,
+    "api_query_p95_bucket_upper_ms": 5.0,
+    "api_transaction_p95_bucket_upper_ms": 50.0,
+    "api_pool_p95_bucket_upper_ms": 5.0,
+    "pool_acquisition_errors": 0,
+    "sql_lock_errors": 0,
+    "cache_full_rows": 165135.0,
+    "cache_patch_rows": 2265.0,
+    "worker_busy_seconds": {
+      "snapshot": 2.704150955000273,
+      "refresh_one": 3.200158621999549,
+      "publish_batch": 9.937787531002982,
+      "consume_event": 12.893352929002731,
+      "simulate_one": 8.73509522900099
+    },
+    "metric_note": "Counters cover scrape-aligned start through drain; p95 is bucket upper bound, not exact. Worker operations can nest. Samples can miss waits."
+  },
+  {
+    "file": "before-10.json.gz",
+    "rate": 10,
+    "inventory": 3000,
+    "statuses": {
+      "hold": {
+        "201": 300
+      }
+    },
+    "generator_drops": 0,
+    "latency_ms": {
+      "hold:201": {
+        "count": 300,
+        "p95": 154.73320003366098,
+        "p99": 334.00249999249354
+      }
+    },
+    "projection_drained": true,
+    "drain_seconds": 0.7809999999590218,
+    "correctness_pass": true,
+    "db_max_connections": 9.0,
+    "db_max_lock_waiters": 0.0,
+    "db_max_oldest_waiting_query_seconds": 0.0,
+    "api_pool_max_size": 4.0,
+    "api_pool_max_acquiring": 0.0,
+    "api_pool_max_in_use": 1.0,
+    "query_count": 16573.0,
+    "query_mean_ms": 0.9538348867436514,
+    "api_query_p95_bucket_upper_ms": 5.0,
+    "api_transaction_p95_bucket_upper_ms": 250.0,
+    "api_pool_p95_bucket_upper_ms": 5.0,
+    "pool_acquisition_errors": 0,
+    "sql_lock_errors": 3.0,
+    "cache_full_rows": 305556.0,
+    "cache_patch_rows": 0,
+    "worker_busy_seconds": {
+      "snapshot": 5.287405941000145,
+      "refresh_one": 6.985547096000857,
+      "publish_batch": 9.98210887900018,
+      "consume_event": 5.644354219001002,
+      "simulate_one": 8.81707449799842
+    },
+    "metric_note": "Counters cover scrape-aligned start through drain; p95 is bucket upper bound, not exact. Worker operations can nest. Samples can miss waits."
+  },
+  {
+    "file": "before-100.json.gz",
+    "rate": 100,
+    "inventory": 3000,
+    "statuses": {
+      "hold": {
+        "201": 1616,
+        "503": 136
+      }
+    },
+    "generator_drops": 1248,
+    "latency_ms": {
+      "hold:201": {
+        "count": 1616,
+        "p95": 858.0655999830924,
+        "p99": 1212.2827999992296
+      },
+      "hold:503": {
+        "count": 136,
+        "p95": 761.5574999945238,
+        "p99": 1144.8057999950834
+      }
+    },
+    "projection_drained": true,
+    "drain_seconds": 0.7809999999590218,
+    "correctness_pass": true,
+    "db_max_connections": 15.0,
+    "db_max_lock_waiters": 1.0,
+    "db_max_oldest_waiting_query_seconds": 0.009582,
+    "api_pool_max_size": 8.0,
+    "api_pool_max_acquiring": 0.0,
+    "api_pool_max_in_use": 8.0,
+    "query_count": 39464.0,
+    "query_mean_ms": 1.4673818920028756,
+    "api_query_p95_bucket_upper_ms": 10.0,
+    "api_transaction_p95_bucket_upper_ms": 100.0,
+    "api_pool_p95_bucket_upper_ms": 5.0,
+    "pool_acquisition_errors": 0,
+    "sql_lock_errors": 1.0,
+    "cache_full_rows": 261130.0,
+    "cache_patch_rows": 0,
+    "worker_busy_seconds": {
+      "snapshot": 6.81325827799958,
+      "refresh_one": 6.707293738999681,
+      "publish_batch": 19.57263284699991,
+      "consume_event": 21.159144576000585,
+      "simulate_one": 11.61171301000104
+    },
+    "metric_note": "Counters cover scrape-aligned start through drain; p95 is bucket upper bound, not exact. Worker operations can nest. Samples can miss waits."
+  },
+  {
+    "file": "before-50.json.gz",
+    "rate": 50,
+    "inventory": 3000,
+    "statuses": {
+      "hold": {
+        "503": 24,
+        "201": 1472
+      }
+    },
+    "generator_drops": 4,
+    "latency_ms": {
+      "hold:503": {
+        "count": 24,
+        "p95": 75.81309997476637,
+        "p99": 79.56909999484196
+      },
+      "hold:201": {
+        "count": 1472,
+        "p95": 155.85189999546856,
+        "p99": 225.46230000443757
+      }
+    },
+    "projection_drained": true,
+    "drain_seconds": 0.9369999999762513,
+    "correctness_pass": true,
+    "db_max_connections": 13.0,
+    "db_max_lock_waiters": 0.0,
+    "db_max_oldest_waiting_query_seconds": 0.0,
+    "api_pool_max_size": 8.0,
+    "api_pool_max_acquiring": 0.0,
+    "api_pool_max_in_use": 3.0,
+    "query_count": 36457.0,
+    "query_mean_ms": 1.0937061715170915,
+    "api_query_p95_bucket_upper_ms": 5.0,
+    "api_transaction_p95_bucket_upper_ms": 100.0,
+    "api_pool_p95_bucket_upper_ms": 5.0,
+    "pool_acquisition_errors": 0,
+    "sql_lock_errors": 1.0,
+    "cache_full_rows": 120130.0,
+    "cache_patch_rows": 0,
+    "worker_busy_seconds": {
+      "snapshot": 2.791262791000463,
+      "refresh_one": 1.5218150999999125,
+      "publish_batch": 14.602673416000016,
+      "consume_event": 17.298256618000153,
+      "simulate_one": 10.127569189000269
+    },
+    "metric_note": "Counters cover scrape-aligned start through drain; p95 is bucket upper bound, not exact. Worker operations can nest. Samples can miss waits."
+  },
+  {
+    "file": "final-10.json.gz",
+    "rate": 10,
+    "inventory": 3000,
+    "statuses": {
+      "hold": {
+        "201": 300
+      }
+    },
+    "generator_drops": 0,
+    "latency_ms": {
+      "hold:201": {
+        "count": 300,
+        "p95": 50.35500001395121,
+        "p99": 104.26280001411214
+      }
+    },
+    "projection_drained": true,
+    "drain_seconds": 0.2029999999795109,
+    "correctness_pass": true,
+    "db_max_connections": 14.0,
+    "db_max_lock_waiters": 0.0,
+    "db_max_oldest_waiting_query_seconds": 0.0,
+    "api_pool_max_size": 2.0,
+    "api_pool_max_acquiring": 0.0,
+    "api_pool_max_in_use": 1.0,
+    "query_count": 17456.0,
+    "query_mean_ms": 0.7720459205430843,
+    "api_query_p95_bucket_upper_ms": 5.0,
+    "api_transaction_p95_bucket_upper_ms": 50.0,
+    "api_pool_p95_bucket_upper_ms": 5.0,
+    "pool_acquisition_errors": 0,
+    "sql_lock_errors": 0.0,
+    "cache_full_rows": 195145.0,
+    "cache_patch_rows": 284.0,
+    "worker_busy_seconds": {
+      "snapshot": 2.8284000399989964,
+      "refresh_one": 2.740007527997477,
+      "publish_batch": 5.806964567995692,
+      "consume_event": 3.155941901998858,
+      "simulate_one": 8.477154235996977
+    },
+    "metric_note": "Counters cover scrape-aligned start through drain; p95 is bucket upper bound, not exact. Worker operations can nest. Samples can miss waits."
+  },
+  {
+    "file": "final-100.json.gz",
+    "rate": 100,
+    "inventory": 3000,
+    "statuses": {
+      "hold": {
+        "201": 2160,
+        "503": 57
+      }
+    },
+    "generator_drops": 783,
+    "latency_ms": {
+      "hold:201": {
+        "count": 2160,
+        "p95": 973.4268999891356,
+        "p99": 1483.989299973473
+      },
+      "hold:503": {
+        "count": 57,
+        "p95": 543.8426000182517,
+        "p99": 820.2320000273176
+      }
+    },
+    "projection_drained": true,
+    "drain_seconds": 0.8429999999934807,
+    "correctness_pass": true,
+    "db_max_connections": 14.0,
+    "db_max_lock_waiters": 0.0,
+    "db_max_oldest_waiting_query_seconds": 0.0,
+    "api_pool_max_size": 8.0,
+    "api_pool_max_acquiring": 0.0,
+    "api_pool_max_in_use": 2.0,
+    "query_count": 54756.0,
+    "query_mean_ms": 0.8866675767582025,
+    "api_query_p95_bucket_upper_ms": 5.0,
+    "api_transaction_p95_bucket_upper_ms": 75.0,
+    "api_pool_p95_bucket_upper_ms": 5.0,
+    "pool_acquisition_errors": 0,
+    "sql_lock_errors": 0.0,
+    "cache_full_rows": 222145.0,
+    "cache_patch_rows": 7341.0,
+    "worker_busy_seconds": {
+      "snapshot": 3.8342203550030263,
+      "refresh_one": 3.0655075750021297,
+      "publish_batch": 19.096367423998345,
+      "consume_event": 21.12443262000329,
+      "simulate_one": 8.676620125002955
+    },
+    "metric_note": "Counters cover scrape-aligned start through drain; p95 is bucket upper bound, not exact. Worker operations can nest. Samples can miss waits."
+  },
+  {
+    "file": "final-50.json.gz",
+    "rate": 50,
+    "inventory": 3000,
+    "statuses": {
+      "hold": {
+        "201": 1469,
+        "503": 20
+      }
+    },
+    "generator_drops": 11,
+    "latency_ms": {
+      "hold:201": {
+        "count": 1469,
+        "p95": 145.7827999838628,
+        "p99": 213.29549996880814
+      },
+      "hold:503": {
+        "count": 20,
+        "p95": 42.395399999804795,
+        "p99": 116.08899995917454
+      }
+    },
+    "projection_drained": true,
+    "drain_seconds": 0.23499999998603016,
+    "correctness_pass": true,
+    "db_max_connections": 14.0,
+    "db_max_lock_waiters": 1.0,
+    "db_max_oldest_waiting_query_seconds": 0.001083,
+    "api_pool_max_size": 8.0,
+    "api_pool_max_acquiring": 3.0,
+    "api_pool_max_in_use": 5.0,
+    "query_count": 38813.0,
+    "query_mean_ms": 0.9034378016643491,
+    "api_query_p95_bucket_upper_ms": 5.0,
+    "api_transaction_p95_bucket_upper_ms": 75.0,
+    "api_pool_p95_bucket_upper_ms": 5.0,
+    "pool_acquisition_errors": 0,
+    "sql_lock_errors": 0.0,
+    "cache_full_rows": 210145.0,
+    "cache_patch_rows": 3644.0,
+    "worker_busy_seconds": {
+      "snapshot": 3.8619755679987975,
+      "refresh_one": 3.23140407100027,
+      "publish_batch": 11.357358730999294,
+      "consume_event": 14.28965456800097,
+      "simulate_one": 8.661060757005089
+    },
+    "metric_note": "Counters cover scrape-aligned start through drain; p95 is bucket upper bound, not exact. Worker operations can nest. Samples can miss waits."
+  }
+]

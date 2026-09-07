@@ -11,3 +11,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 
 - [Offered-load capacity validation](0007-capacity-validation.md)
 - [Bounded background work and durable cache refresh](0008-bounded-background-processing.md)
+
+- [Measured database work and incremental seat projections](0009-incremental-seat-projection.md)

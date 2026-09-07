@@ -74,5 +74,22 @@ is still eventually consistent. If Redis fails, the dirty request remains and it
 reclaimed after 30 seconds. Inspect the maintenance logs and Redis availability before retrying.
 Never delete dirty rows to make a backlog graph look healthy.
 
-PUBLISHER_BATCH_SIZE defaults to 32 (1–100), SIMULATOR_CONCURRENCY to 4 (1–DB_POOL_MAX),
-REFRESH_COOLDOWN_MS to 250 (1–5000). Existing API admission and database pool sizes remain unchanged.
+PUBLISHER_BATCH_SIZE defaults to 32 (1â€“100), SIMULATOR_CONCURRENCY to 4 (1â€“DB_POOL_MAX),
+REFRESH_COOLDOWN_MS to 250 (1â€“5000). Existing API admission and database pool sizes remain unchanged.
+
+## Incremental projection rollout
+
+Apply migration 003 before starting the new consumer or maintenance worker. Restart API
+and workers together; the new hash key is `seatmap:v2:{event-id}`. Old JSON keys expire
+naturally. Allow warming responses until a full snapshot completes. Mixed old/new
+cache writers are not a supported rolling update. Rollback API/workers together; retain
+the additive migration and let the old periodic snapshot warm its own key.
+
+Refresh SQL acknowledgements remain lease-token fenced. Do not delete dirty work to
+hide backlog. A hash with `updating` is unreadable after an interrupted write; full
+reconciliation repairs it. Legacy messages without seat IDs request full reconciliation.
+Cold full snapshots at 10,000 and 50,000 seats exceeded the 100 ms Redis timeout in the
+local adapter probe. Large inventories need bounded reconciliation work before claiming
+support at those sizes; simply raising the timeout does not remove Redis blocking.
+
+See [metrics](observability.md) and [current measurements](capacity/incremental/README.md).

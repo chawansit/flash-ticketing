@@ -189,14 +189,19 @@ class PostgresReservations:
             ORDER BY seat_id FOR UPDATE NOWAIT""",
             (order["hold_id"],),
         ).fetchall()
-        conn.execute(
+        released = conn.execute(
             """UPDATE event_seats SET hold_id=NULL,reserved_until=NULL,version=version+1
-            WHERE hold_id=%s AND booked_order_id IS NULL""",
+            WHERE hold_id=%s AND booked_order_id IS NULL RETURNING seat_id""",
             (order["hold_id"],),
-        )
+        ).fetchall()
         conn.execute("UPDATE holds SET status=%s WHERE id=%s AND status='ACTIVE'", (state, order["hold_id"]))
         conn.execute("UPDATE orders SET status='EXPIRED' WHERE id=%s AND status='PENDING'", (order["id"],))
-        event(conn, order["id"], "SeatsChanged", {"event_id": str(order["event_id"])})
+        event(
+            conn,
+            order["id"],
+            "SeatsChanged",
+            {"event_id": str(order["event_id"]), "seats": [r["seat_id"] for r in released]},
+        )
 
     def expire_one(self):
         with self.db.transaction() as conn:
@@ -330,5 +335,10 @@ class PostgresReservations:
                         "RefundRequested",
                         {"payment_id": str(payment["id"]), "order_id": str(order["id"])},
                     )
-            event(conn, order["id"], "SeatsChanged", {"event_id": str(order["event_id"])})
+            event(
+                conn,
+                order["id"],
+                "SeatsChanged",
+                {"event_id": str(order["event_id"]), "seats": [r["seat_id"] for r in seats]},
+            )
             return {"status": decision.lower()}

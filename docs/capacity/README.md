@@ -1,4 +1,4 @@
-# Capacity validation for work packages 2–4
+# Capacity validation for work packages 2â€“4
 
 ## Status and scope
 
@@ -96,3 +96,5 @@ See [the longer staged results](staged/README.md) for measured operating points,
 ## Optimized implementation, 2026-09-07
 
 See [the matched optimization comparison](optimized/README.md), including Redis freshness, durable refresh debt and a two-minute checkout confirmation. Earlier staged results describe the previous worker implementation.
+
+Latest: [database profiling and incremental projection measurements](incremental/README.md).

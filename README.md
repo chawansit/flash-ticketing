@@ -118,3 +118,5 @@ Architecture decisions: [ADR index](docs/adr/README.md).
 Capacity validation: [profiles, provisional targets and measured baselines](docs/capacity/README.md).
 
 Latest performance update: [background optimizations and matched before/after results](docs/capacity/optimized/README.md).
+
+Latest: [database profiling and incremental projection measurements](docs/capacity/incremental/README.md).

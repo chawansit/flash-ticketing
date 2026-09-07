@@ -6,6 +6,8 @@ import json
 import math
 import os
 import time
+import urllib.parse
+import urllib.request
 from collections import Counter, defaultdict
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -35,6 +37,9 @@ async def run(args):
     event = str(uuid4())
     total = args.rate * args.seconds
     dsn = os.environ["TEST_DATABASE_URL"]
+    if not 1 <= args.seats <= 100000:
+        raise ValueError("Inventory must be between 1 and 100000 seats")
+    inventory = 1 if args.profile == "hot" else max(total, args.seats)
     # Fresh event: no existing customer inventory is modified.
     with psycopg.connect(dsn) as conn:
         conn.execute(
@@ -45,7 +50,7 @@ async def run(args):
         with conn.cursor() as cur:
             cur.executemany(
                 "INSERT INTO event_seats(event_id,seat_id,price) VALUES (%s,%s,100)",
-                [(event, f"S{i}") for i in range(1 if args.profile == "hot" else total)],
+                [(event, f"S{i}") for i in range(inventory)],
             )
     cache = Redis.from_url(os.getenv("TEST_REDIS_URL", settings.redis_url), decode_responses=True)
     samples = []
@@ -88,13 +93,39 @@ async def run(args):
                 if refresh_supported
                 else None
             )
+            activity = conn.execute("""SELECT count(*) FILTER (WHERE backend_type='client backend'),
+                count(*) FILTER (WHERE state='active'),
+                count(*) FILTER (WHERE wait_event_type='Lock'),
+                coalesce(max(extract(epoch FROM clock_timestamp()-query_start))
+                    FILTER (WHERE wait_event_type='Lock'),0),
+                count(*) FILTER (WHERE cardinality(pg_blocking_pids(pid))>0)
+                FROM pg_stat_activity WHERE datname=current_database() AND pid<>pg_backend_pid()""").fetchone()
             try:
-                raw = cache.get(f"seatmap:{event}")
-                cached_version = json.loads(raw)["version"] if raw else None
+                raw_version = cache.hget(f"seatmap:v2:{{{event}}}", "version")
+                raw = cache.get(f"seatmap:{event}") if raw_version is None else None
+                cached_version = (
+                    int(raw_version)
+                    if raw_version is not None
+                    else json.loads(raw)["version"]
+                    if raw
+                    else None
+                )
             except RedisError:
                 cached_version = None
             return {
                 "utc": datetime.now(UTC).isoformat(),
+                "db_activity": dict(
+                    zip(
+                        [
+                            "connections",
+                            "active",
+                            "lock_waiters",
+                            "oldest_waiting_query_seconds",
+                            "blocked_sessions",
+                        ],
+                        [float(x) for x in activity],
+                    )
+                ),
                 "orders": row[0],
                 "sql_inventory_version": sql_version,
                 "cache_version": cached_version,
@@ -111,10 +142,26 @@ async def run(args):
                 "global_oldest_outbox_seconds": float(outbox[1]),
             }
 
+    def metrics():
+        query = urllib.parse.urlencode(
+            {
+                "query": '{__name__=~"ticketing_db_.*|ticketing_worker_.*|ticketing_cache_rows_total|process_cpu_seconds_total"}'
+            }
+        )
+        try:
+            with urllib.request.urlopen(args.prometheus + "/api/v1/query?" + query, timeout=3) as response:
+                return json.load(response)["data"]["result"]
+        except (OSError, ValueError, KeyError) as exc:
+            return {"error": type(exc).__name__}
+
+    metrics_start = await asyncio.to_thread(metrics)
+
     async def monitor():
         while not monitor_stop.is_set():
             try:
-                samples.append(await asyncio.to_thread(observe))
+                sample = await asyncio.to_thread(observe)
+                sample["metrics"] = await asyncio.to_thread(metrics)
+                samples.append(sample)
             except psycopg.Error as exc:
                 samples.append({"utc": datetime.now(UTC).isoformat(), "error": type(exc).__name__})
             try:
@@ -277,6 +324,9 @@ async def run(args):
     )
     result = {
         "utc": datetime.now(UTC).isoformat(),
+        "inventory_seats": inventory,
+        "metrics_start": metrics_start,
+        "metrics_end": await asyncio.to_thread(metrics),
         "profile": args.profile,
         "backlog_samples": samples,
         "http_phase_end": http_phase_end,
@@ -318,6 +368,8 @@ async def run(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--seats", type=int, default=3000)
+    parser.add_argument("--prometheus", default="http://127.0.0.1:9090")
     parser.add_argument("--wait-projection", action="store_true")
     parser.add_argument("--profile", choices=["hot", "spread", "checkout"], required=True)
     parser.add_argument("--rate", type=int, default=10)

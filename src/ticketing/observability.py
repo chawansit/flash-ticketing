@@ -2,6 +2,8 @@ import json
 import logging
 from contextvars import ContextVar
 from datetime import UTC, datetime
+from functools import wraps
+from time import perf_counter as monotonic
 
 from prometheus_client import Counter, Gauge, Histogram
 
@@ -35,3 +37,42 @@ def configure_logging():
     handler = logging.StreamHandler()
     handler.setFormatter(JsonFormatter())
     logging.basicConfig(level=logging.INFO, handlers=[handler], force=True)
+
+
+# Fixed labels only: no SQL text, identifiers or request payloads.
+DB_QUERY_SECONDS = Histogram(
+    "ticketing_db_query_seconds", "Client execute time including network/pooler", ["command"]
+)
+DB_POOL_SECONDS = Histogram(
+    "ticketing_db_pool_acquire_seconds", "Pool acquisition including failures", ["outcome"]
+)
+DB_POOL_ACQUIRING = Gauge("ticketing_db_pool_acquiring", "Threads acquiring a connection")
+DB_POOL_IN_USE = Gauge("ticketing_db_pool_in_use", "Connections checked out")
+DB_POOL_STATE = Gauge("ticketing_db_pool_state", "Last sampled pool state", ["state"])
+WORK_SECONDS = Counter(
+    "ticketing_worker_busy_seconds_total", "Operation wall time including I/O", ["operation"]
+)
+WORK_ACTIVE = Gauge("ticketing_worker_active", "Concurrent worker operations", ["operation"])
+WORK_CALLS = Counter("ticketing_worker_operations_total", "Completed worker calls", ["operation", "outcome"])
+CACHE_ROWS = Counter("ticketing_cache_rows_total", "Rows sent to cache", ["mode"])
+
+
+def measured_work(operation):
+    def decorate(fn):
+        @wraps(fn)
+        def wrapped(*args, **kwargs):
+            start, outcome = monotonic(), "ok"
+            WORK_ACTIVE.labels(operation).inc()
+            try:
+                return fn(*args, **kwargs)
+            except Exception:
+                outcome = "error"
+                raise
+            finally:
+                WORK_ACTIVE.labels(operation).dec()
+                WORK_SECONDS.labels(operation).inc(monotonic() - start)
+                WORK_CALLS.labels(operation, outcome).inc()
+
+        return wrapped
+
+    return decorate

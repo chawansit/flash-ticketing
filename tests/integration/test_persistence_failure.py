@@ -67,6 +67,6 @@ def test_redis_success_sql_failure_rolls_back_and_recovers(system, monkeypatch, 
         snapshot(db, cache, event_id)
         assert cache.read(str(event_id))["version"] > before["version"]
     finally:
-        cache.redis.delete(shield, f"seatmap:{event_id}")
+        cache.redis.delete(shield, cache.key(event_id))
         cache.redis.close()
 

@@ -82,12 +82,17 @@ Kafka offsets commit afterward. Unique booking-to-ticket references guard even s
 duplicate OrderPaid events. SeatsChanged now commits a durable refresh generation and inbox
 entry together. Maintenance coalesces generations, leases refresh work, writes Redis outside
 SQL locks, then acknowledges only the captured generation and matching token. A newer request
-remains dirty. Periodic refresh repairs missed updates. Cache replacement uses monotonically
-increasing sums of seat versions to reject stale
-rebuilds; unchanged seats preserve their delta cursor. Seat inventory is static in this MVP.
+remains dirty, retaining its changed-seat IDs. Routine refreshes read only those rows and
+merge into a Redis hash using per-seat source versions. The sum of cached source versions
+forms the map cursor; unchanged seats preserve their delta cursor. Full reconciliation
+runs every five seconds and repairs cache loss or missed notifications. Only complete
+reconciliations extend the 30-second TTL. Seat inventory is static in this MVP.
+An interrupted-write marker makes partial Redis script writes unreadable until full repair.
 
 After five failed processing attempts, the consumer writes a durable dead letter before advancing
 its offset. If that write fails, it seeks back to the message. Operators can replay after repair.
 Delivery is at least once; external notification logs are best-effort development output.
 
 See [ADR 0008](adr/0008-bounded-background-processing.md) for the 32-row publisher batch, four-thread simulator and 250-ms per-event queued refresh cooldown. Monitor the refresh queue as well as Kafka/inbox backlog.
+
+See [ADR 0009](adr/0009-incremental-seat-projection.md) and [measurement definitions](observability.md) for the incremental cache format, deployment boundary and profiling metrics.

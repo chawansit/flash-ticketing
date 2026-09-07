@@ -34,5 +34,5 @@ def test_shield_and_monotonic_cache(system):
         cache.put(str(event_id), initial["version"], initial)
         assert cache.read(str(event_id)) == newer
     finally:
-        cache.redis.delete(f"seatmap:{event_id}")
+        cache.redis.delete(cache.key(event_id))
         cache.redis.close()

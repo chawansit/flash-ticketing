@@ -22,7 +22,7 @@ flowchart TB
     Workers -->|"SQL for leases, fulfillment and cleanup"| Pool
     Pool --> DB
     API -->|"Cache reads and admission"| Cache
-    Workers -->|"Refresh seat snapshots"| Cache
+    Workers -->|"Versioned seat patches + periodic reconciliation"| Cache
     Workers -->|"Publish and consume events"| Broker
     Workers -->|"Simulator signed payment callback"| API
     Migrate -->|"Schema migration"| DB
