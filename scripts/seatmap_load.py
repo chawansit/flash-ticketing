@@ -48,7 +48,7 @@ async def run(args):
     results = []
     try:
         for rate in args.rates:
-            modes = (
+            modes = args.modes or (
                 ["legacy", "conditional"] if args.rates.index(rate) % 2 == 0 else ["conditional", "legacy"]
             )
             for mode in modes:
@@ -137,6 +137,60 @@ async def run(args):
                         statuses[operation][status] += 1
                         times[operation + ":" + status].append((perf_counter() - start) * 1000)
 
+                    samples = []
+                    stop_observer = asyncio.Event()
+
+                    def observe():
+                        with psycopg.connect(dsn) as conn:
+                            row = conn.execute(
+                                """SELECT
+                                (SELECT count(*) FROM holds WHERE event_id=ANY(%s::uuid[]) AND status='EXPIRED'),
+                                (SELECT count(*) FROM holds WHERE event_id=ANY(%s::uuid[]) AND status='ACTIVE' AND expires_at<clock_timestamp()),
+                                (SELECT coalesce(max(extract(epoch FROM clock_timestamp()-expires_at)),0) FROM holds WHERE event_id=ANY(%s::uuid[]) AND status='ACTIVE' AND expires_at<clock_timestamp()),
+                                (SELECT coalesce(max(extract(epoch FROM clock_timestamp()-last_reconciled_at)),0) FROM event_reconciliation WHERE event_id=ANY(%s::uuid[])),
+                                (SELECT count(*) FROM event_reconciliation WHERE event_id=ANY(%s::uuid[]) AND last_reconciled_at IS NULL),
+                                (SELECT count(*) FROM seat_refresh_requests WHERE event_id=ANY(%s::uuid[]) AND generation>completed_generation)
+                            """,
+                                (shows, shows, shows, shows, shows, shows),
+                            ).fetchone()
+                        with cache.redis.pipeline(transaction=False) as pipe:
+                            for event in shows:
+                                pipe.ttl(cache.key(event))
+                            ttls = pipe.execute()
+                        return {
+                            "utc": datetime.now(UTC).isoformat(),
+                            **dict(
+                                zip(
+                                    [
+                                        "expired_holds",
+                                        "overdue_active_holds",
+                                        "oldest_overdue_hold_seconds",
+                                        "oldest_reconciliation_seconds",
+                                        "never_reconciled",
+                                        "dirty_events",
+                                    ],
+                                    [float(v) for v in row],
+                                )
+                            ),
+                            "missing_maps": sum(ttl == -2 for ttl in ttls),
+                            "maps_without_ttl": sum(ttl == -1 for ttl in ttls),
+                            "minimum_map_ttl_seconds": min(ttls),
+                        }
+
+                    async def monitor(stop_observer=stop_observer, samples=samples, observe=observe):
+                        while not stop_observer.is_set():
+                            try:
+                                samples.append(await asyncio.to_thread(observe))
+                            except Exception as exc:  # noqa: BLE001 - retain observer failure as evidence
+                                samples.append(
+                                    {"utc": datetime.now(UTC).isoformat(), "error": type(exc).__name__}
+                                )
+                            try:
+                                await asyncio.wait_for(stop_observer.wait(), timeout=2)
+                            except TimeoutError:
+                                pass
+
+                    observer = asyncio.create_task(monitor()) if args.observe else None
                     start = perf_counter()
                     for index, item in enumerate(work):
                         due = start + index / rate
@@ -150,7 +204,12 @@ async def run(args):
                         task.add_done_callback(pending.discard)
                     await asyncio.gather(*tasks)
                     elapsed = perf_counter() - start
+                    if observer:
+                        stop_observer.set()
+                        await observer
+                        samples.append(await asyncio.to_thread(observe))
                 result = {
+                    "observations": samples,
                     "mode": mode,
                     "offered_rps": rate,
                     "seconds": args.seconds,
@@ -202,6 +261,8 @@ async def run(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--modes", nargs="+", choices=["legacy", "conditional"])
+    parser.add_argument("--observe", action="store_true")
     parser.add_argument("--rates", type=int, nargs="+", default=[50, 100, 200])
     parser.add_argument("--seconds", type=int, default=30)
     parser.add_argument("--shows", type=int, default=100)

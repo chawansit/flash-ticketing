@@ -43,3 +43,5 @@ or production failover load was measured. Deadline-release behavior is tested di
 Reproduce with scripts/seatmap_load.py at --rates 50 --seconds 30 --shows 100 --viewers 1000.
 The isolated Claude scheduler benchmark was reviewed and corrected but not rerun locally;
 its original numerical evidence must not be attributed to this integrated implementation.
+
+Follow-up: [three-minute read and expiry validation](sustained-validation.md).

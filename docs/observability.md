@@ -69,3 +69,16 @@ invalidate a claim that the service sustained the offered rate.
 Integration clarification: reconciliation `ok` counts successful token-fenced SQL
 acknowledgements. `stale` and `ack_error` are separate outcomes. A deadline is checked
 before each snapshot, with unstarted leases released; in-flight I/O is not preempted.
+
+## Sustained read/expiry observations
+
+`scripts/seatmap_load.py --modes conditional --observe` samples the probe's own shows
+approximately every two seconds. It records actual Redis TTLs (including missing keys),
+expired-hold cleanup counts, overdue ACTIVE holds and their oldest expiry age, dirty
+projection rows, and age since the last acknowledged reconciliation. These SQL and
+Redis reads add measurement overhead. TTL samples can miss brief gaps between samples;
+HTTP 503/error counts are complementary evidence. Reconciliation age is not a substitute
+for actual cache presence. `never_reconciled` counts existing schedule rows with no
+acknowledgement, not events absent from the schedule. A positive HTTP gate is separate
+from these recovery observations. Use a duration longer than the configured hold TTL
+to exercise expiry during traffic, and keep failed runs.

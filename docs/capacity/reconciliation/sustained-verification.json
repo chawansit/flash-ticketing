@@ -1,0 +1,10 @@
+{
+  "utc": "2026-09-07T18:47:48.648783+00:00",
+  "application_commit": "160d63b",
+  "durable_holds": 450,
+  "durable_orders": 450,
+  "global_unpublished": 0,
+  "global_dirty_events": 0,
+  "dead_letters": 0,
+  "ready": 200
+}

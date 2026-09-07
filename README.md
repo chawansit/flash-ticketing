@@ -124,3 +124,5 @@ Latest: [database profiling and incremental projection measurements](docs/capaci
 Latest read optimization: [300-seat cinema map comparison](docs/capacity/seatmap/README.md).
 
 Latest integration: [bounded scheduler and conditional reads](docs/capacity/reconciliation/local-integration.md).
+
+Follow-up: [three-minute read and expiry validation](docs/capacity/reconciliation/sustained-validation.md).
