@@ -17,3 +17,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [Separate layout and conditional availability](0010-conditional-seatmap-reads.md)
 
 - [Bounded reconciliation scheduler](0011-bounded-reconciliation-scheduler.md)
+
+- [Separate fixture preparation and HTTP load generation](0012-separated-load-generation.md)
