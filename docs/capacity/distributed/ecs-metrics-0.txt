@@ -1,0 +1,332 @@
+# HELP python_gc_objects_collected_total Objects collected during gc
+# TYPE python_gc_objects_collected_total counter
+python_gc_objects_collected_total{generation="0"} 55815.0
+python_gc_objects_collected_total{generation="1"} 34882.0
+python_gc_objects_collected_total{generation="2"} 4235.0
+# HELP python_gc_objects_uncollectable_total Uncollectable objects found during GC
+# TYPE python_gc_objects_uncollectable_total counter
+python_gc_objects_uncollectable_total{generation="0"} 0.0
+python_gc_objects_uncollectable_total{generation="1"} 0.0
+python_gc_objects_uncollectable_total{generation="2"} 0.0
+# HELP python_gc_collections_total Number of times this generation was collected
+# TYPE python_gc_collections_total counter
+python_gc_collections_total{generation="0"} 1776.0
+python_gc_collections_total{generation="1"} 161.0
+python_gc_collections_total{generation="2"} 4.0
+# HELP python_info Python platform information
+# TYPE python_info gauge
+python_info{implementation="CPython",major="3",minor="12",patchlevel="14",version="3.12.14"} 1.0
+# HELP process_virtual_memory_bytes Virtual memory size in bytes.
+# TYPE process_virtual_memory_bytes gauge
+process_virtual_memory_bytes 7.08685824e+08
+# HELP process_resident_memory_bytes Resident memory size in bytes.
+# TYPE process_resident_memory_bytes gauge
+process_resident_memory_bytes 7.3191424e+07
+# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1.78883817043e+09
+# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total 18.810000000000002
+# HELP process_open_fds Number of open file descriptors.
+# TYPE process_open_fds gauge
+process_open_fds 17.0
+# HELP process_max_fds Maximum number of open file descriptors.
+# TYPE process_max_fds gauge
+process_max_fds 1.048576e+06
+# HELP ticketing_http_requests_total HTTP requests
+# TYPE ticketing_http_requests_total counter
+ticketing_http_requests_total{method="GET",route="/health/ready",status="503"} 28.0
+ticketing_http_requests_total{method="GET",route="/metrics",status="200"} 146.0
+ticketing_http_requests_total{method="GET",route="/health/ready",status="200"} 132.0
+ticketing_http_requests_total{method="GET",route="/v1/events/{event_id}/availability",status="200"} 1689.0
+ticketing_http_requests_total{method="POST",route="/v1/holds",status="201"} 96.0
+ticketing_http_requests_total{method="GET",route="/v1/events/{event_id}/availability",status="304"} 1722.0
+# HELP ticketing_http_requests_created HTTP requests
+# TYPE ticketing_http_requests_created gauge
+ticketing_http_requests_created{method="GET",route="/health/ready",status="503"} 1.788838178478613e+09
+ticketing_http_requests_created{method="GET",route="/metrics",status="200"} 1.7888382783771677e+09
+ticketing_http_requests_created{method="GET",route="/health/ready",status="200"} 1.788838317945983e+09
+ticketing_http_requests_created{method="GET",route="/v1/events/{event_id}/availability",status="200"} 1.7888383419887545e+09
+ticketing_http_requests_created{method="POST",route="/v1/holds",status="201"} 1.788838353416417e+09
+ticketing_http_requests_created{method="GET",route="/v1/events/{event_id}/availability",status="304"} 1.7888383534834754e+09
+# HELP ticketing_http_seconds HTTP latency
+# TYPE ticketing_http_seconds histogram
+ticketing_http_seconds_bucket{le="0.005",route="/health/ready"} 131.0
+ticketing_http_seconds_bucket{le="0.01",route="/health/ready"} 141.0
+ticketing_http_seconds_bucket{le="0.025",route="/health/ready"} 148.0
+ticketing_http_seconds_bucket{le="0.05",route="/health/ready"} 148.0
+ticketing_http_seconds_bucket{le="0.075",route="/health/ready"} 148.0
+ticketing_http_seconds_bucket{le="0.1",route="/health/ready"} 148.0
+ticketing_http_seconds_bucket{le="0.25",route="/health/ready"} 160.0
+ticketing_http_seconds_bucket{le="0.5",route="/health/ready"} 160.0
+ticketing_http_seconds_bucket{le="0.75",route="/health/ready"} 160.0
+ticketing_http_seconds_bucket{le="1.0",route="/health/ready"} 160.0
+ticketing_http_seconds_bucket{le="2.5",route="/health/ready"} 160.0
+ticketing_http_seconds_bucket{le="5.0",route="/health/ready"} 160.0
+ticketing_http_seconds_bucket{le="7.5",route="/health/ready"} 160.0
+ticketing_http_seconds_bucket{le="10.0",route="/health/ready"} 160.0
+ticketing_http_seconds_bucket{le="+Inf",route="/health/ready"} 160.0
+ticketing_http_seconds_count{route="/health/ready"} 160.0
+ticketing_http_seconds_sum{route="/health/ready"} 2.4064791599995345
+ticketing_http_seconds_bucket{le="0.005",route="/metrics"} 97.0
+ticketing_http_seconds_bucket{le="0.01",route="/metrics"} 136.0
+ticketing_http_seconds_bucket{le="0.025",route="/metrics"} 145.0
+ticketing_http_seconds_bucket{le="0.05",route="/metrics"} 146.0
+ticketing_http_seconds_bucket{le="0.075",route="/metrics"} 146.0
+ticketing_http_seconds_bucket{le="0.1",route="/metrics"} 146.0
+ticketing_http_seconds_bucket{le="0.25",route="/metrics"} 146.0
+ticketing_http_seconds_bucket{le="0.5",route="/metrics"} 146.0
+ticketing_http_seconds_bucket{le="0.75",route="/metrics"} 146.0
+ticketing_http_seconds_bucket{le="1.0",route="/metrics"} 146.0
+ticketing_http_seconds_bucket{le="2.5",route="/metrics"} 146.0
+ticketing_http_seconds_bucket{le="5.0",route="/metrics"} 146.0
+ticketing_http_seconds_bucket{le="7.5",route="/metrics"} 146.0
+ticketing_http_seconds_bucket{le="10.0",route="/metrics"} 146.0
+ticketing_http_seconds_bucket{le="+Inf",route="/metrics"} 146.0
+ticketing_http_seconds_count{route="/metrics"} 146.0
+ticketing_http_seconds_sum{route="/metrics"} 0.7690181129998734
+ticketing_http_seconds_bucket{le="0.005",route="/v1/events/{event_id}/availability"} 2788.0
+ticketing_http_seconds_bucket{le="0.01",route="/v1/events/{event_id}/availability"} 3328.0
+ticketing_http_seconds_bucket{le="0.025",route="/v1/events/{event_id}/availability"} 3408.0
+ticketing_http_seconds_bucket{le="0.05",route="/v1/events/{event_id}/availability"} 3410.0
+ticketing_http_seconds_bucket{le="0.075",route="/v1/events/{event_id}/availability"} 3411.0
+ticketing_http_seconds_bucket{le="0.1",route="/v1/events/{event_id}/availability"} 3411.0
+ticketing_http_seconds_bucket{le="0.25",route="/v1/events/{event_id}/availability"} 3411.0
+ticketing_http_seconds_bucket{le="0.5",route="/v1/events/{event_id}/availability"} 3411.0
+ticketing_http_seconds_bucket{le="0.75",route="/v1/events/{event_id}/availability"} 3411.0
+ticketing_http_seconds_bucket{le="1.0",route="/v1/events/{event_id}/availability"} 3411.0
+ticketing_http_seconds_bucket{le="2.5",route="/v1/events/{event_id}/availability"} 3411.0
+ticketing_http_seconds_bucket{le="5.0",route="/v1/events/{event_id}/availability"} 3411.0
+ticketing_http_seconds_bucket{le="7.5",route="/v1/events/{event_id}/availability"} 3411.0
+ticketing_http_seconds_bucket{le="10.0",route="/v1/events/{event_id}/availability"} 3411.0
+ticketing_http_seconds_bucket{le="+Inf",route="/v1/events/{event_id}/availability"} 3411.0
+ticketing_http_seconds_count{route="/v1/events/{event_id}/availability"} 3411.0
+ticketing_http_seconds_sum{route="/v1/events/{event_id}/availability"} 11.2611120370008
+ticketing_http_seconds_bucket{le="0.005",route="/v1/holds"} 0.0
+ticketing_http_seconds_bucket{le="0.01",route="/v1/holds"} 0.0
+ticketing_http_seconds_bucket{le="0.025",route="/v1/holds"} 77.0
+ticketing_http_seconds_bucket{le="0.05",route="/v1/holds"} 94.0
+ticketing_http_seconds_bucket{le="0.075",route="/v1/holds"} 95.0
+ticketing_http_seconds_bucket{le="0.1",route="/v1/holds"} 96.0
+ticketing_http_seconds_bucket{le="0.25",route="/v1/holds"} 96.0
+ticketing_http_seconds_bucket{le="0.5",route="/v1/holds"} 96.0
+ticketing_http_seconds_bucket{le="0.75",route="/v1/holds"} 96.0
+ticketing_http_seconds_bucket{le="1.0",route="/v1/holds"} 96.0
+ticketing_http_seconds_bucket{le="2.5",route="/v1/holds"} 96.0
+ticketing_http_seconds_bucket{le="5.0",route="/v1/holds"} 96.0
+ticketing_http_seconds_bucket{le="7.5",route="/v1/holds"} 96.0
+ticketing_http_seconds_bucket{le="10.0",route="/v1/holds"} 96.0
+ticketing_http_seconds_bucket{le="+Inf",route="/v1/holds"} 96.0
+ticketing_http_seconds_count{route="/v1/holds"} 96.0
+ticketing_http_seconds_sum{route="/v1/holds"} 2.004686130000181
+# HELP ticketing_http_seconds_created HTTP latency
+# TYPE ticketing_http_seconds_created gauge
+ticketing_http_seconds_created{route="/health/ready"} 1.7888381784786425e+09
+ticketing_http_seconds_created{route="/metrics"} 1.788838278377197e+09
+ticketing_http_seconds_created{route="/v1/events/{event_id}/availability"} 1.788838341988777e+09
+ticketing_http_seconds_created{route="/v1/holds"} 1.788838353416436e+09
+# HELP ticketing_outcomes_total Business outcomes
+# TYPE ticketing_outcomes_total counter
+ticketing_outcomes_total{operation="request",outcome="DATABASE_UNAVAILABLE"} 28.0
+# HELP ticketing_outcomes_created Business outcomes
+# TYPE ticketing_outcomes_created gauge
+ticketing_outcomes_created{operation="request",outcome="DATABASE_UNAVAILABLE"} 1.78883817847839e+09
+# HELP ticketing_worker_errors_total Worker errors
+# TYPE ticketing_worker_errors_total counter
+# HELP ticketing_outbox_oldest_seconds Oldest unpublished event age
+# TYPE ticketing_outbox_oldest_seconds gauge
+ticketing_outbox_oldest_seconds 0.0
+# HELP ticketing_cache_refresh_pending Events awaiting cache refresh
+# TYPE ticketing_cache_refresh_pending gauge
+ticketing_cache_refresh_pending 0.0
+# HELP ticketing_cache_refresh_oldest_seconds Oldest dirty cache request age
+# TYPE ticketing_cache_refresh_oldest_seconds gauge
+ticketing_cache_refresh_oldest_seconds 0.0
+# HELP ticketing_db_transaction_seconds Database transaction duration
+# TYPE ticketing_db_transaction_seconds histogram
+ticketing_db_transaction_seconds_bucket{le="0.005"} 123.0
+ticketing_db_transaction_seconds_bucket{le="0.01"} 131.0
+ticketing_db_transaction_seconds_bucket{le="0.025"} 220.0
+ticketing_db_transaction_seconds_bucket{le="0.05"} 227.0
+ticketing_db_transaction_seconds_bucket{le="0.075"} 228.0
+ticketing_db_transaction_seconds_bucket{le="0.1"} 228.0
+ticketing_db_transaction_seconds_bucket{le="0.25"} 228.0
+ticketing_db_transaction_seconds_bucket{le="0.5"} 228.0
+ticketing_db_transaction_seconds_bucket{le="0.75"} 228.0
+ticketing_db_transaction_seconds_bucket{le="1.0"} 228.0
+ticketing_db_transaction_seconds_bucket{le="2.5"} 228.0
+ticketing_db_transaction_seconds_bucket{le="5.0"} 228.0
+ticketing_db_transaction_seconds_bucket{le="7.5"} 228.0
+ticketing_db_transaction_seconds_bucket{le="10.0"} 228.0
+ticketing_db_transaction_seconds_bucket{le="+Inf"} 228.0
+ticketing_db_transaction_seconds_count 228.0
+ticketing_db_transaction_seconds_sum 1.9238123650006855
+# HELP ticketing_db_transaction_seconds_created Database transaction duration
+# TYPE ticketing_db_transaction_seconds_created gauge
+ticketing_db_transaction_seconds_created 1.7888381749930437e+09
+# HELP ticketing_db_errors_total Database errors
+# TYPE ticketing_db_errors_total counter
+ticketing_db_errors_total{type="PoolTimeout"} 12.0
+ticketing_db_errors_total{type="TooManyRequests"} 16.0
+# HELP ticketing_db_errors_created Database errors
+# TYPE ticketing_db_errors_created gauge
+ticketing_db_errors_created{type="PoolTimeout"} 1.7888381784780622e+09
+ticketing_db_errors_created{type="TooManyRequests"} 1.7888382415640113e+09
+# HELP ticketing_db_query_seconds Client execute time including network/pooler
+# TYPE ticketing_db_query_seconds histogram
+ticketing_db_query_seconds_bucket{command="SET",le="0.005"} 680.0
+ticketing_db_query_seconds_bucket{command="SET",le="0.01"} 684.0
+ticketing_db_query_seconds_bucket{command="SET",le="0.025"} 684.0
+ticketing_db_query_seconds_bucket{command="SET",le="0.05"} 684.0
+ticketing_db_query_seconds_bucket{command="SET",le="0.075"} 684.0
+ticketing_db_query_seconds_bucket{command="SET",le="0.1"} 684.0
+ticketing_db_query_seconds_bucket{command="SET",le="0.25"} 684.0
+ticketing_db_query_seconds_bucket{command="SET",le="0.5"} 684.0
+ticketing_db_query_seconds_bucket{command="SET",le="0.75"} 684.0
+ticketing_db_query_seconds_bucket{command="SET",le="1.0"} 684.0
+ticketing_db_query_seconds_bucket{command="SET",le="2.5"} 684.0
+ticketing_db_query_seconds_bucket{command="SET",le="5.0"} 684.0
+ticketing_db_query_seconds_bucket{command="SET",le="7.5"} 684.0
+ticketing_db_query_seconds_bucket{command="SET",le="10.0"} 684.0
+ticketing_db_query_seconds_bucket{command="SET",le="+Inf"} 684.0
+ticketing_db_query_seconds_count{command="SET"} 684.0
+ticketing_db_query_seconds_sum{command="SET"} 0.2736216280005692
+ticketing_db_query_seconds_bucket{command="SELECT",le="0.005"} 420.0
+ticketing_db_query_seconds_bucket{command="SELECT",le="0.01"} 420.0
+ticketing_db_query_seconds_bucket{command="SELECT",le="0.025"} 420.0
+ticketing_db_query_seconds_bucket{command="SELECT",le="0.05"} 420.0
+ticketing_db_query_seconds_bucket{command="SELECT",le="0.075"} 420.0
+ticketing_db_query_seconds_bucket{command="SELECT",le="0.1"} 420.0
+ticketing_db_query_seconds_bucket{command="SELECT",le="0.25"} 420.0
+ticketing_db_query_seconds_bucket{command="SELECT",le="0.5"} 420.0
+ticketing_db_query_seconds_bucket{command="SELECT",le="0.75"} 420.0
+ticketing_db_query_seconds_bucket{command="SELECT",le="1.0"} 420.0
+ticketing_db_query_seconds_bucket{command="SELECT",le="2.5"} 420.0
+ticketing_db_query_seconds_bucket{command="SELECT",le="5.0"} 420.0
+ticketing_db_query_seconds_bucket{command="SELECT",le="7.5"} 420.0
+ticketing_db_query_seconds_bucket{command="SELECT",le="10.0"} 420.0
+ticketing_db_query_seconds_bucket{command="SELECT",le="+Inf"} 420.0
+ticketing_db_query_seconds_count{command="SELECT"} 420.0
+ticketing_db_query_seconds_sum{command="SELECT"} 0.213913351000798
+ticketing_db_query_seconds_bucket{command="INSERT",le="0.005"} 470.0
+ticketing_db_query_seconds_bucket{command="INSERT",le="0.01"} 475.0
+ticketing_db_query_seconds_bucket{command="INSERT",le="0.025"} 480.0
+ticketing_db_query_seconds_bucket{command="INSERT",le="0.05"} 480.0
+ticketing_db_query_seconds_bucket{command="INSERT",le="0.075"} 480.0
+ticketing_db_query_seconds_bucket{command="INSERT",le="0.1"} 480.0
+ticketing_db_query_seconds_bucket{command="INSERT",le="0.25"} 480.0
+ticketing_db_query_seconds_bucket{command="INSERT",le="0.5"} 480.0
+ticketing_db_query_seconds_bucket{command="INSERT",le="0.75"} 480.0
+ticketing_db_query_seconds_bucket{command="INSERT",le="1.0"} 480.0
+ticketing_db_query_seconds_bucket{command="INSERT",le="2.5"} 480.0
+ticketing_db_query_seconds_bucket{command="INSERT",le="5.0"} 480.0
+ticketing_db_query_seconds_bucket{command="INSERT",le="7.5"} 480.0
+ticketing_db_query_seconds_bucket{command="INSERT",le="10.0"} 480.0
+ticketing_db_query_seconds_bucket{command="INSERT",le="+Inf"} 480.0
+ticketing_db_query_seconds_count{command="INSERT"} 480.0
+ticketing_db_query_seconds_sum{command="INSERT"} 0.5776047450012811
+ticketing_db_query_seconds_bucket{command="UPDATE",le="0.005"} 192.0
+ticketing_db_query_seconds_bucket{command="UPDATE",le="0.01"} 192.0
+ticketing_db_query_seconds_bucket{command="UPDATE",le="0.025"} 192.0
+ticketing_db_query_seconds_bucket{command="UPDATE",le="0.05"} 192.0
+ticketing_db_query_seconds_bucket{command="UPDATE",le="0.075"} 192.0
+ticketing_db_query_seconds_bucket{command="UPDATE",le="0.1"} 192.0
+ticketing_db_query_seconds_bucket{command="UPDATE",le="0.25"} 192.0
+ticketing_db_query_seconds_bucket{command="UPDATE",le="0.5"} 192.0
+ticketing_db_query_seconds_bucket{command="UPDATE",le="0.75"} 192.0
+ticketing_db_query_seconds_bucket{command="UPDATE",le="1.0"} 192.0
+ticketing_db_query_seconds_bucket{command="UPDATE",le="2.5"} 192.0
+ticketing_db_query_seconds_bucket{command="UPDATE",le="5.0"} 192.0
+ticketing_db_query_seconds_bucket{command="UPDATE",le="7.5"} 192.0
+ticketing_db_query_seconds_bucket{command="UPDATE",le="10.0"} 192.0
+ticketing_db_query_seconds_bucket{command="UPDATE",le="+Inf"} 192.0
+ticketing_db_query_seconds_count{command="UPDATE"} 192.0
+ticketing_db_query_seconds_sum{command="UPDATE"} 0.14089410800087876
+# HELP ticketing_db_query_seconds_created Client execute time including network/pooler
+# TYPE ticketing_db_query_seconds_created gauge
+ticketing_db_query_seconds_created{command="SET"} 1.7888383179419334e+09
+ticketing_db_query_seconds_created{command="SELECT"} 1.7888383179432046e+09
+ticketing_db_query_seconds_created{command="INSERT"} 1.788838353383667e+09
+ticketing_db_query_seconds_created{command="UPDATE"} 1.7888383533982897e+09
+# HELP ticketing_db_pool_acquire_seconds Pool acquisition including failures
+# TYPE ticketing_db_pool_acquire_seconds histogram
+ticketing_db_pool_acquire_seconds_bucket{le="0.005",outcome="error"} 16.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.01",outcome="error"} 16.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.025",outcome="error"} 16.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.05",outcome="error"} 16.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.075",outcome="error"} 16.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.1",outcome="error"} 16.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.25",outcome="error"} 28.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.5",outcome="error"} 28.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.75",outcome="error"} 28.0
+ticketing_db_pool_acquire_seconds_bucket{le="1.0",outcome="error"} 28.0
+ticketing_db_pool_acquire_seconds_bucket{le="2.5",outcome="error"} 28.0
+ticketing_db_pool_acquire_seconds_bucket{le="5.0",outcome="error"} 28.0
+ticketing_db_pool_acquire_seconds_bucket{le="7.5",outcome="error"} 28.0
+ticketing_db_pool_acquire_seconds_bucket{le="10.0",outcome="error"} 28.0
+ticketing_db_pool_acquire_seconds_bucket{le="+Inf",outcome="error"} 28.0
+ticketing_db_pool_acquire_seconds_count{outcome="error"} 28.0
+ticketing_db_pool_acquire_seconds_sum{outcome="error"} 1.8054192540000251
+ticketing_db_pool_acquire_seconds_bucket{le="0.005",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.01",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.025",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.05",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.075",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.1",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.25",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.5",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_bucket{le="0.75",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_bucket{le="1.0",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_bucket{le="2.5",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_bucket{le="5.0",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_bucket{le="7.5",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_bucket{le="10.0",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_bucket{le="+Inf",outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_count{outcome="ok"} 228.0
+ticketing_db_pool_acquire_seconds_sum{outcome="ok"} 0.009087311999365966
+# HELP ticketing_db_pool_acquire_seconds_created Pool acquisition including failures
+# TYPE ticketing_db_pool_acquire_seconds_created gauge
+ticketing_db_pool_acquire_seconds_created{outcome="error"} 1.7888381784778225e+09
+ticketing_db_pool_acquire_seconds_created{outcome="ok"} 1.7888383179403672e+09
+# HELP ticketing_db_pool_acquiring Threads acquiring a connection
+# TYPE ticketing_db_pool_acquiring gauge
+ticketing_db_pool_acquiring 0.0
+# HELP ticketing_db_pool_in_use Connections checked out
+# TYPE ticketing_db_pool_in_use gauge
+ticketing_db_pool_in_use 0.0
+# HELP ticketing_db_pool_state Last sampled pool state
+# TYPE ticketing_db_pool_state gauge
+ticketing_db_pool_state{state="pool_size"} 2.0
+ticketing_db_pool_state{state="pool_available"} 2.0
+ticketing_db_pool_state{state="requests_waiting"} 0.0
+ticketing_db_pool_state{state="pool_max"} 12.0
+# HELP ticketing_worker_busy_seconds_total Operation wall time including I/O
+# TYPE ticketing_worker_busy_seconds_total counter
+# HELP ticketing_worker_active Concurrent worker operations
+# TYPE ticketing_worker_active gauge
+# HELP ticketing_worker_operations_total Completed worker calls
+# TYPE ticketing_worker_operations_total counter
+# HELP ticketing_cache_rows_total Rows sent to cache
+# TYPE ticketing_cache_rows_total counter
+# HELP ticketing_reconciliation_backlog Active events due for reconciliation, counted up to a cap
+# TYPE ticketing_reconciliation_backlog gauge
+ticketing_reconciliation_backlog 0.0
+# HELP ticketing_reconciliation_overdue_seconds Age of the oldest reconciliation deadline already passed
+# TYPE ticketing_reconciliation_overdue_seconds gauge
+ticketing_reconciliation_overdue_seconds 0.0
+# HELP ticketing_reconciliation_tracked_events Events currently held in the reconciliation schedule
+# TYPE ticketing_reconciliation_tracked_events gauge
+ticketing_reconciliation_tracked_events 0.0
+# HELP ticketing_reconciliation_events_total Scheduled reconciliations by outcome
+# TYPE ticketing_reconciliation_events_total counter
+# HELP ticketing_reconciliation_failures_total Reconciliation failures by stage
+# TYPE ticketing_reconciliation_failures_total counter
+# HELP ticketing_reconciliation_seconds Per-event reconciliation wall time including Redis I/O
+# TYPE ticketing_reconciliation_seconds histogram
+# HELP ticketing_reconciliation_recovered_leases_total Expired reconciliation leases reclaimed
+# TYPE ticketing_reconciliation_recovered_leases_total counter
+ticketing_reconciliation_recovered_leases_total 0.0
+# HELP ticketing_reconciliation_recovered_leases_created Expired reconciliation leases reclaimed
+# TYPE ticketing_reconciliation_recovered_leases_created gauge
+ticketing_reconciliation_recovered_leases_created 1.7888381749933982e+09

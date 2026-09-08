@@ -35,3 +35,13 @@ HTTP-only same-host smoke: 100 requests, no errors/drops, read p95 23.08 ms.
 Ruff formatting/lint and git diff whitespace checks passed. Full application tests were
 not rerun for these measurement-only scripts. See [report](../capacity/distributed/README.md).
 External execution remains pending a supplied generator host and reachable test API.
+
+## External execution topology (2026-09-08)
+
+The user supplied a Huawei ECS generator. Use an SSH reverse tunnel bound only to ECS
+loopback to reach the local API, keeping development API ports private. This avoids
+public ingress changes; measured latency includes WAN and SSH overhead and cannot be
+used as same-region production service latency. ECS has 4 vCPUs and about 7.4 GiB RAM.
+Generator dependencies use an isolated virtual environment; credentials remain temporary
+and outside version control. Close the tunnel and remove the remote token manifest after
+measurement. Tunnel failure invalidates the run and is reported, not retried invisibly.

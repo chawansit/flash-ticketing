@@ -1,0 +1,122 @@
+[
+  {
+    "utc": "2026-09-08T03:45:14.871353+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 8
+  },
+  {
+    "utc": "2026-09-08T03:45:17.886714+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 9
+  },
+  {
+    "utc": "2026-09-08T03:45:20.894724+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 8
+  },
+  {
+    "utc": "2026-09-08T03:45:23.910240+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 11
+  },
+  {
+    "utc": "2026-09-08T03:45:26.922335+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 8
+  },
+  {
+    "utc": "2026-09-08T03:45:29.930196+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 8
+  },
+  {
+    "utc": "2026-09-08T03:45:32.939542+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 8
+  },
+  {
+    "utc": "2026-09-08T03:45:35.946962+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 9
+  },
+  {
+    "utc": "2026-09-08T03:45:38.959572+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 8
+  },
+  {
+    "utc": "2026-09-08T03:45:41.968871+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 15
+  },
+  {
+    "utc": "2026-09-08T03:45:44.977864+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 12
+  },
+  {
+    "utc": "2026-09-08T03:45:47.985626+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 9
+  },
+  {
+    "utc": "2026-09-08T03:45:50.996093+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 9
+  },
+  {
+    "utc": "2026-09-08T03:45:54.010259+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 9
+  },
+  {
+    "utc": "2026-09-08T03:45:57.021007+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 10
+  },
+  {
+    "utc": "2026-09-08T03:46:00.038401+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 10
+  },
+  {
+    "utc": "2026-09-08T03:46:03.047440+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 15
+  },
+  {
+    "utc": "2026-09-08T03:46:06.064561+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 12
+  },
+  {
+    "utc": "2026-09-08T03:46:09.075568+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 10
+  },
+  {
+    "utc": "2026-09-08T03:46:12.104934+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 10
+  }
+]

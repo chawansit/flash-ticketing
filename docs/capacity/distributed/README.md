@@ -54,7 +54,7 @@ the application side during external runs; the HTTP generator does not verify th
 Increase rates in separate stages with fresh seat allocations and inspect errors, latency,
 generator CPU/scheduling lag and backend metrics before proceeding.
 
-External execution is pending a supplied generator host and reachable test API. The current
+External execution was subsequently performed on the user-supplied Huawei ECS; see below. The current
 API binds localhost; this work has not exposed it publicly or purchased infrastructure.
 The local smoke result, when present, is explicitly same-host and is only harness validation.
 
@@ -65,3 +65,31 @@ reads and 5 HTTP 201 holds, zero drops/errors. Read p95 23.08 ms, read p99 296.1
 the short run is not a tail-latency capacity qualification. Two earlier attempts stopped
 at readiness HTTP 503 while local dependencies were down/restarting; neither entered
 the measured phase. Ruff and whitespace checks passed. Application tests were not rerun.
+
+## Huawei ECS external run
+
+[Raw result](ecs-50rps.json): 4-vCPU, 7.4-GiB Ubuntu ECS generated traffic through a
+loopback-only reverse SSH tunnel to the Windows-hosted API. Backend remains local; this
+is not a Huawei-hosted production deployment. Network and tunnel costs are included.
+
+At 50 RPS for 180 seconds, 800 shows and 8,000 viewers: 450 holds returned 201;
+6,934 reads returned 304 and 1,615 returned 200. One read had a transport error.
+No generator drops; scheduling lag p95 1.09 ms; generator CPU 11.46 seconds.
+Read p95 20.79 ms, hold p95 56.07 ms. **The strict zero-error gate failed** (exit 1).
+The harness did not retain the exception subtype, so its cause is unresolved. Rates
+were not increased after this failure. Do not interpret 50 RPS as maximum capacity.
+
+[Durable verification](ecs-durable-verification.json) counts this manifest's actors,
+separately from earlier tests. This workload does not exercise duplicate-seat booking.
+[Backend snapshots](ecs-metrics-0.txt) and [later snapshot](ecs-metrics-39.txt) are
+cumulative API-process counters, not isolated per-run worker-utilization measurements.
+
+The first supplemental observer used an incorrect cache key: its TTL fields are
+explicitly invalid in [observations](ecs-observations.json). SQL fields are unaffected.
+[Corrected TTL samples](ecs-corrected-ttl.json) cover only the late run and aftermath,
+not the entire test. Consequently full-run cache reconciliation is not qualified here.
+The remote credential manifest was removed and the SSH tunnel closed after retrieval.
+The isolated generator environment and non-secret results remain on ECS for reuse.
+
+Next validation needs transport exception details, a full-duration corrected observer,
+and a repeat at 50 RPS before increasing load. No maximum production sizing is claimed.

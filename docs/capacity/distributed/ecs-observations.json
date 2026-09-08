@@ -1,0 +1,285 @@
+{
+  "warning": "TTL fields invalid: observer omitted Redis hash-tag braces. Do not use missing_maps or minimum_ttl. SQL overdue fields unaffected.",
+  "samples": [
+    {
+      "utc": "2026-09-08T03:43:23.198615+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:43:29.360006+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:43:33.381070+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:43:37.396486+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:43:41.444369+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:43:45.463562+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:43:49.485114+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:43:53.502291+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:43:57.519603+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:44:01.535672+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:44:05.552248+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:44:09.577581+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:44:13.600198+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:44:17.614739+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:44:21.653718+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:44:25.669891+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:44:29.689298+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:44:33.704222+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:44:37.721824+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:44:41.748530+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:44:45.764516+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:44:49.787787+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 1,
+      "oldest_overdue_seconds": 0.164984
+    },
+    {
+      "utc": "2026-09-08T03:44:53.803055+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 1,
+      "oldest_overdue_seconds": 0.178896
+    },
+    {
+      "utc": "2026-09-08T03:44:57.818864+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 1,
+      "oldest_overdue_seconds": 0.194741
+    },
+    {
+      "utc": "2026-09-08T03:45:01.832300+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:45:05.847558+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:45:09.861291+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:45:13.875208+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 1,
+      "oldest_overdue_seconds": 0.253057
+    },
+    {
+      "utc": "2026-09-08T03:45:17.898964+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 1,
+      "oldest_overdue_seconds": 0.274367
+    },
+    {
+      "utc": "2026-09-08T03:45:21.913372+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 1,
+      "oldest_overdue_seconds": 0.291015
+    },
+    {
+      "utc": "2026-09-08T03:45:25.927543+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 1,
+      "oldest_overdue_seconds": 0.305137
+    },
+    {
+      "utc": "2026-09-08T03:45:29.944042+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 1,
+      "oldest_overdue_seconds": 0.321153
+    },
+    {
+      "utc": "2026-09-08T03:45:33.958266+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 0,
+      "oldest_overdue_seconds": 0.0
+    },
+    {
+      "utc": "2026-09-08T03:45:37.976358+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 1,
+      "oldest_overdue_seconds": 0.353533
+    },
+    {
+      "utc": "2026-09-08T03:45:41.993605+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 1,
+      "oldest_overdue_seconds": 0.368859
+    },
+    {
+      "utc": "2026-09-08T03:45:46.008058+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 1,
+      "oldest_overdue_seconds": 0.386704
+    },
+    {
+      "utc": "2026-09-08T03:45:50.027539+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 2,
+      "oldest_overdue_seconds": 0.405769
+    },
+    {
+      "utc": "2026-09-08T03:45:54.046435+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 1,
+      "oldest_overdue_seconds": 0.024439
+    },
+    {
+      "utc": "2026-09-08T03:45:58.064191+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 1,
+      "oldest_overdue_seconds": 0.04129
+    },
+    {
+      "utc": "2026-09-08T03:46:02.089554+00:00",
+      "missing_maps": 800,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 2,
+      "oldest_overdue_seconds": 0.468718
+    }
+  ]
+}
