@@ -1,0 +1,12 @@
+ Container flash-cloud-bench-redis-1  Running
+ Container flash-cloud-bench-postgres-1  Running
+ Container flash-cloud-bench-pgbouncer-1  Running
+ Container flash-cloud-bench-kafka-1  Running
+ Container flash-cloud-bench-postgres-1  Waiting
+ Container flash-cloud-bench-postgres-1  Waiting
+ Container flash-cloud-bench-postgres-1  Healthy
+ Container flash-cloud-bench-migrate-1  Starting
+ Container flash-cloud-bench-postgres-1  Healthy
+ Container flash-cloud-bench-migrate-1  Started
+..                                                                       [100%]
+2 passed in 0.88s

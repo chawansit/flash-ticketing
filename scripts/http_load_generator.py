@@ -35,6 +35,7 @@ async def run(args):
     shows, tokens = manifest["show_ids"], manifest["viewer_tokens"]
     statuses, latency = defaultdict(Counter), defaultdict(list)
     counts, bytes_received, drops = Counter(), 0, 0
+    transport_errors = Counter()
     validators, pending, tasks, lags = {}, set(), [], []
     run_id = str(uuid4())
     async with httpx.AsyncClient(
@@ -85,8 +86,9 @@ async def run(args):
                         validators[viewer] = response.headers["etag"]
                 status = str(response.status_code)
                 bytes_received += len(response.content)
-            except httpx.HTTPError:
+            except httpx.HTTPError as exc:
                 status = "transport_error"
+                transport_errors[type(exc).__name__] += 1
             statuses[operation][status] += 1
             latency[operation + ":" + status].append((perf_counter() - begin) * 1000)
 
@@ -110,6 +112,7 @@ async def run(args):
         await asyncio.gather(*tasks)
         elapsed, cpu = perf_counter() - start, process_time() - cpu_start
     reads = [value for key, values in latency.items() if key.startswith("read:") for value in values]
+    holds = [value for key, values in latency.items() if key.startswith("hold:") for value in values]
     unexpected = sum(
         n
         for op, rows in statuses.items()
@@ -131,6 +134,7 @@ async def run(args):
         "viewers": len(tokens),
         "write_percent": 5,
         "generator_drops": drops,
+        "transport_error_types": dict(transport_errors),
         "scheduling_lag_p95_ms": percentile(lags, 0.95),
         "generator_cpu_seconds": cpu,
         "elapsed_seconds": elapsed,
@@ -142,6 +146,7 @@ async def run(args):
             for key, v in latency.items()
         },
         "read_p95_ms": percentile(reads, 0.95),
+        "hold_p95_ms": percentile(holds, 0.95),
         "local_read_gate_pass": drops == 0
         and unexpected == 0
         and bool(reads)

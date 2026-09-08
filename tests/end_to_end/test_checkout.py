@@ -30,13 +30,15 @@ def test_http_payment_kafka_ticket():
     with httpx.Client(base_url=url, headers={"Authorization": "Bearer " + token}, timeout=5) as client:
         events = client.get("/v1/events").json()
         assert events, "Run the seed command before E2E tests"
-        seats = client.get(f"/v1/events/{events[0]['id']}/seats").json()["seats"]
+        event = next((event for event in events if event["title"] == "Bangkok Demo Concert"), None)
+        assert event is not None, "Run the demo seed command before E2E tests"
+        seats = client.get(f"/v1/events/{event['id']}/seats").json()["seats"]
         available = [s for s in seats if s["status"] == "AVAILABLE"]
         assert available, "Seed event has no free seats"
         held = client.post(
             "/v1/holds",
             headers={"Idempotency-Key": str(uuid4())},
-            json={"event_id": events[0]["id"], "seat_ids": [available[-1]["seat_id"]]},
+            json={"event_id": event["id"], "seat_ids": [available[-1]["seat_id"]]},
         )
         assert held.status_code == 201, held.text
         order = held.json()["order_id"]

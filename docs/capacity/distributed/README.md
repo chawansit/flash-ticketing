@@ -93,3 +93,5 @@ The isolated generator environment and non-secret results remain on ECS for reus
 
 Next validation needs transport exception details, a full-duration corrected observer,
 and a repeat at 50 RPS before increasing load. No maximum production sizing is claimed.
+
+See the subsequent [cloud-hosted c6.xlarge.2 backend benchmark](../huawei-single-node/README.md).

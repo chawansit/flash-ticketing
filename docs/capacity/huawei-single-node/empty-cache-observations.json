@@ -1,0 +1,67 @@
+[
+  {
+    "utc": "2026-09-08T04:42:04.376890+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 12,
+    "overdue_active_holds": 0,
+    "oldest_overdue_seconds": 0.0,
+    "reconciliation_age_seconds": 18.155932,
+    "database_connections": 7,
+    "lock_waiters": 0,
+    "active_connections": 1,
+    "redis_used_bytes": 50031008
+  },
+  {
+    "utc": "2026-09-08T04:42:06.391008+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 10,
+    "overdue_active_holds": 0,
+    "oldest_overdue_seconds": 0.0,
+    "reconciliation_age_seconds": 20.099925,
+    "database_connections": 7,
+    "lock_waiters": 0,
+    "active_connections": 1,
+    "redis_used_bytes": 49962704
+  },
+  {
+    "utc": "2026-09-08T04:42:08.405149+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 10,
+    "overdue_active_holds": 0,
+    "oldest_overdue_seconds": 0.0,
+    "reconciliation_age_seconds": 20.052539,
+    "database_connections": 7,
+    "lock_waiters": 0,
+    "active_connections": 2,
+    "redis_used_bytes": 50071144
+  },
+  {
+    "utc": "2026-09-08T04:42:10.419140+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 10,
+    "overdue_active_holds": 0,
+    "oldest_overdue_seconds": 0.0,
+    "reconciliation_age_seconds": 20.221832,
+    "database_connections": 7,
+    "lock_waiters": 0,
+    "active_connections": 1,
+    "redis_used_bytes": 50188832
+  },
+  {
+    "utc": "2026-09-08T04:42:12.432979+00:00",
+    "missing_maps": 0,
+    "maps_without_ttl": 0,
+    "minimum_ttl": 24,
+    "overdue_active_holds": 0,
+    "oldest_overdue_seconds": 0.0,
+    "reconciliation_age_seconds": 6.203142,
+    "database_connections": 7,
+    "lock_waiters": 0,
+    "active_connections": 1,
+    "redis_used_bytes": 49958680
+  }
+]

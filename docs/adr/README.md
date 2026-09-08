@@ -19,3 +19,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [Bounded reconciliation scheduler](0011-bounded-reconciliation-scheduler.md)
 
 - [Separate fixture preparation and HTTP load generation](0012-separated-load-generation.md)
+
+- [0013: Single-ECS capacity validation](0013-single-ecs-capacity-validation.md)

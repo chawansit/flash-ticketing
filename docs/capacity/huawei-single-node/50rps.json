@@ -1,0 +1,51 @@
+{
+  "utc": "2026-09-08T04:33:14.664905+00:00",
+  "manifest_id": "abb9bc94-563d-4886-8161-087fc28d60a5",
+  "run_id": "c8d8fe95-9a11-4c66-8f4b-e142c63ce37d",
+  "target_origin": "http://127.0.0.1:18001",
+  "generator_hostname": "DESKTOP-AC5PAL6",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "topology_declared": "separate-host",
+  "offered_rps": 50,
+  "seconds": 180,
+  "show_count": 800,
+  "seats_per_show": 300,
+  "viewers": 8000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "transport_error_types": {},
+  "scheduling_lag_p95_ms": 15.64569998299703,
+  "generator_cpu_seconds": 31.796875,
+  "elapsed_seconds": 179.98869839997496,
+  "completed_rps": 50.00313953046094,
+  "statuses": {
+    "hold": {
+      "201": 450
+    },
+    "read": {
+      "304": 6931,
+      "200": 1619
+    }
+  },
+  "response_body_bytes": 30184347,
+  "latency_ms": {
+    "hold:201": {
+      "p50": 23.208400001749396,
+      "p95": 36.372700007632375,
+      "p99": 50.44670001370832
+    },
+    "read:304": {
+      "p50": 16.639399982523173,
+      "p95": 27.480399992782623,
+      "p99": 42.11569996550679
+    },
+    "read:200": {
+      "p50": 24.208199989516288,
+      "p95": 37.54410002147779,
+      "p99": 60.97970000701025
+    }
+  },
+  "read_p95_ms": 32.07120002480224,
+  "local_read_gate_pass": true,
+  "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here."
+}

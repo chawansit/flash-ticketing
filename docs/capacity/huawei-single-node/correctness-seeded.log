@@ -1,0 +1,53 @@
+ Container flash-cloud-bench-kafka-1  Running
+ Container flash-cloud-bench-redis-1  Running
+ Container flash-cloud-bench-postgres-1  Running
+ Container flash-cloud-bench-pgbouncer-1  Running
+ Container flash-cloud-bench-postgres-1  Waiting
+ Container flash-cloud-bench-postgres-1  Waiting
+ Container flash-cloud-bench-postgres-1  Healthy
+ Container flash-cloud-bench-migrate-1  Starting
+ Container flash-cloud-bench-postgres-1  Healthy
+ Container flash-cloud-bench-migrate-1  Started
+F......................................................................  [100%]
+=================================== FAILURES ===================================
+________________________ test_http_payment_kafka_ticket ________________________
+
+    def test_http_payment_kafka_ticket():
+        url = os.getenv("E2E_API_URL")
+        if not url:
+            pytest.skip("E2E_API_URL not configured")
+        subject = "e2e-" + uuid4().hex
+        token = jwt.encode(
+            {
+                "sub": subject,
+                "aud": "ticketing",
+                "iss": "ticketing",
+                "exp": datetime.now(UTC) + timedelta(minutes=5),
+            },
+            Settings().jwt_secret,
+            algorithm="HS256",
+        )
+        with httpx.Client(base_url=url, headers={"Authorization": "Bearer " + token}, timeout=5) as client:
+            events = client.get("/v1/events").json()
+            assert events, "Run the seed command before E2E tests"
+            seats = client.get(f"/v1/events/{events[0]['id']}/seats").json()["seats"]
+            available = [s for s in seats if s["status"] == "AVAILABLE"]
+>           assert available, "Seed event has no free seats"
+E           AssertionError: Seed event has no free seats
+E           assert []
+
+tests/end_to_end/test_checkout.py:35: AssertionError
+=============================== warnings summary ===============================
+../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+../usr/local/lib/python3.12/site-packages/starlette/testclient.py:53
+  /usr/local/lib/python3.12/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/end_to_end/test_checkout.py::test_http_payment_kafka_ticket - As...
+1 failed, 70 passed, 2 warnings in 9.48s
+
