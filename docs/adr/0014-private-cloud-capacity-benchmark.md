@@ -73,3 +73,17 @@ See [the report and raw artifacts](../capacity/huawei-private/README.md).
 Earlier interrupted and cold-bootstrap failures remain separate. Backend services
 were stopped, temporary forwarding guard removed after shutdown, and synthetic
 credentials deleted. The full application suite was not rerun in this measurement.
+
+## Staged validation after ADR 0017
+
+The user requested 400, 500, 650 and 800 RPS, each for five minutes, stopping at
+the first failed gate, then a 30-minute run at the highest passing level. Keep the
+existing backend image/configuration and four generator processes. For totals not
+divisible by four, distribute integer rates with a difference of at most one RPS:
+650 becomes 163/163/162/162. Each process retains a disjoint show/viewer partition,
+shared start time, the same 95/5 mix and unchanged per-worker gates. Record assigned
+rates explicitly. This extends harness allocation only; no runtime architecture,
+locking, messaging, TTL, admission or persistence decision changes. Do not round the
+requested aggregate rate. Preserve failed results and distinguish generator limits
+from backend limits. Sustained fixtures use a separate seat range after expiry drain.
+Validation results will be linked after execution.

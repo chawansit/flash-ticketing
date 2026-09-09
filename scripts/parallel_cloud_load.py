@@ -19,13 +19,14 @@ a = p.parse_args()
 m = json.loads(a.manifest.read_text())
 if (
     a.workers < 1
-    or a.rate < 1
+    or a.rate < a.workers
     or a.seconds < 1
-    or a.rate % a.workers
     or len(m["show_ids"]) % a.workers
     or len(m["viewer_tokens"]) % len(m["show_ids"])
 ):
-    p.error("Positive limits and evenly partitioned rate/shows/viewers required")
+    p.error("Positive limits, rate >= workers, and evenly partitioned shows/viewers required")
+worker_rates = [a.rate // a.workers + (i < a.rate % a.workers) for i in range(a.workers)]
+
 a.output.mkdir(parents=True, exist_ok=True)
 start = (datetime.now(UTC) + timedelta(seconds=30)).isoformat()
 processes = []
@@ -54,7 +55,7 @@ try:
                 "--origin",
                 m["origin"],
                 "--rate",
-                str(a.rate // a.workers),
+                str(worker_rates[i]),
                 "--seconds",
                 str(a.seconds),
                 "--start-at",
@@ -79,6 +80,7 @@ try:
         "rate": a.rate,
         "seconds": a.seconds,
         "workers": a.workers,
+        "worker_rates": worker_rates,
         "worker_exit_codes": codes,
         "start_skew_ms": skew,
         "generator_drops": sum(r["generator_drops"] for r in results),
