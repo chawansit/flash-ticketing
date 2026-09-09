@@ -1,0 +1,1639 @@
+{
+  "request_error_codes": {
+    "ADMISSION_FULL": 52,
+    "SEAT_BUSY": 584,
+    "SEAT_UNAVAILABLE": 462
+  },
+  "first_20_read_errors": [],
+  "hold_requests": 1100,
+  "statuses": {
+    "201": 2,
+    "503": 52,
+    "409": 1046
+  },
+  "error_codes": {
+    "ADMISSION_FULL": 52,
+    "SEAT_BUSY": 584,
+    "SEAT_UNAVAILABLE": 462
+  },
+  "successful_hold_phases": {
+    "dispatch": {
+      "count": 2,
+      "mean_ms": 1.8765,
+      "p95_ms": 2.081,
+      "p99_ms": 2.081,
+      "max_ms": 2.081
+    },
+    "rate_limit": {
+      "count": 2,
+      "mean_ms": 0.239,
+      "p95_ms": 0.242,
+      "p99_ms": 0.242,
+      "max_ms": 0.242
+    },
+    "redis_enter": {
+      "count": 2,
+      "mean_ms": 0.3965,
+      "p95_ms": 0.644,
+      "p99_ms": 0.644,
+      "max_ms": 0.644
+    },
+    "db_enter": {
+      "count": 2,
+      "mean_ms": 0.9019999999999999,
+      "p95_ms": 1.037,
+      "p99_ms": 1.037,
+      "max_ms": 1.037
+    },
+    "database_body": {
+      "count": 2,
+      "mean_ms": 5.388,
+      "p95_ms": 7.173,
+      "p99_ms": 7.173,
+      "max_ms": 7.173
+    },
+    "db_exit": {
+      "count": 2,
+      "mean_ms": 3.102,
+      "p95_ms": 4.576,
+      "p99_ms": 4.576,
+      "max_ms": 4.576
+    },
+    "redis_exit": {
+      "count": 2,
+      "mean_ms": 0.8855,
+      "p95_ms": 1.163,
+      "p99_ms": 1.163,
+      "max_ms": 1.163
+    }
+  },
+  "first_100_errors": [
+    {
+      "time": "2026-09-09T13:47:47.343043+00:00",
+      "request_id": "da8c8d9b-13c8-4ef5-ab26-d312f8aabfc0",
+      "status": 503,
+      "duration_ms": 0.12,
+      "error_code": "ADMISSION_FULL",
+      "hold_arrival_occupancy": 8,
+      "hold_limit": 8,
+      "hold_phase_ms": {}
+    },
+    {
+      "time": "2026-09-09T13:47:47.344165+00:00",
+      "request_id": "79014f6f-e152-4f29-94d3-8275ccff8c06",
+      "status": 503,
+      "duration_ms": 0.09,
+      "error_code": "ADMISSION_FULL",
+      "hold_arrival_occupancy": 8,
+      "hold_limit": 8,
+      "hold_phase_ms": {}
+    },
+    {
+      "time": "2026-09-09T13:47:47.346176+00:00",
+      "request_id": "b54c935f-3ae3-4f28-9020-9167f16354c2",
+      "status": 503,
+      "duration_ms": 0.08,
+      "error_code": "ADMISSION_FULL",
+      "hold_arrival_occupancy": 8,
+      "hold_limit": 8,
+      "hold_phase_ms": {}
+    },
+    {
+      "time": "2026-09-09T13:47:47.347516+00:00",
+      "request_id": "684e1c35-4a29-40c2-8d25-c890498bea5d",
+      "status": 503,
+      "duration_ms": 0.08,
+      "error_code": "ADMISSION_FULL",
+      "hold_arrival_occupancy": 8,
+      "hold_limit": 8,
+      "hold_phase_ms": {}
+    },
+    {
+      "time": "2026-09-09T13:47:47.348781+00:00",
+      "request_id": "6da379a4-a05f-4ec4-86a4-66e2bc629834",
+      "status": 503,
+      "duration_ms": 0.08,
+      "error_code": "ADMISSION_FULL",
+      "hold_arrival_occupancy": 8,
+      "hold_limit": 8,
+      "hold_phase_ms": {}
+    },
+    {
+      "time": "2026-09-09T13:47:47.349137+00:00",
+      "request_id": "38ef6dbe-e4b8-4cf7-a663-fa042a593049",
+      "status": 503,
+      "duration_ms": 0.09,
+      "error_code": "ADMISSION_FULL",
+      "hold_arrival_occupancy": 8,
+      "hold_limit": 8,
+      "hold_phase_ms": {}
+    },
+    {
+      "time": "2026-09-09T13:47:47.349835+00:00",
+      "request_id": "2b0f4d12-da68-47c3-b174-2efd41766732",
+      "status": 503,
+      "duration_ms": 0.1,
+      "error_code": "ADMISSION_FULL",
+      "hold_arrival_occupancy": 8,
+      "hold_limit": 8,
+      "hold_phase_ms": {}
+    },
+    {
+      "time": "2026-09-09T13:47:47.350610+00:00",
+      "request_id": "4bf3f1a7-def1-4498-9d50-29c87def1bab",
+      "status": 409,
+      "duration_ms": 17.94,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 9.369,
+        "rate_limit": 1.191,
+        "redis_enter": 1.246
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.352635+00:00",
+      "request_id": "009f15b2-008c-4453-9b59-b9390c8e4029",
+      "status": 503,
+      "duration_ms": 0.08,
+      "error_code": "ADMISSION_FULL",
+      "hold_arrival_occupancy": 8,
+      "hold_limit": 8,
+      "hold_phase_ms": {}
+    },
+    {
+      "time": "2026-09-09T13:47:47.353278+00:00",
+      "request_id": "240517bd-467a-42a8-ba21-906af43fb92f",
+      "status": 409,
+      "duration_ms": 21.83,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 6.035,
+        "rate_limit": 0.213,
+        "redis_enter": 0.533,
+        "db_enter": 3.462,
+        "database_body": 3.782,
+        "db_exit": 0.741,
+        "redis_exit": 1.709
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.353523+00:00",
+      "request_id": "04345d91-7307-4532-926e-c410e0ae7218",
+      "status": 409,
+      "duration_ms": 19.33,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 11.203,
+        "rate_limit": 1.305,
+        "redis_enter": 1.437
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.359051+00:00",
+      "request_id": "f2e36562-a98a-4c25-86ae-69422a2f6bcd",
+      "status": 503,
+      "duration_ms": 0.08,
+      "error_code": "ADMISSION_FULL",
+      "hold_arrival_occupancy": 8,
+      "hold_limit": 8,
+      "hold_phase_ms": {}
+    },
+    {
+      "time": "2026-09-09T13:47:47.359712+00:00",
+      "request_id": "f3b5312a-9f06-438c-b0cd-8b13313aaa11",
+      "status": 503,
+      "duration_ms": 0.08,
+      "error_code": "ADMISSION_FULL",
+      "hold_arrival_occupancy": 8,
+      "hold_limit": 8,
+      "hold_phase_ms": {}
+    },
+    {
+      "time": "2026-09-09T13:47:47.360505+00:00",
+      "request_id": "75f22624-5971-4ffc-bd2e-799f3e872d7f",
+      "status": 409,
+      "duration_ms": 23.69,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 4,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 17.05,
+        "rate_limit": 0.35,
+        "redis_enter": 3.243
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.361526+00:00",
+      "request_id": "6390904a-62a3-4515-bc91-2d0ea5a7b515",
+      "status": 409,
+      "duration_ms": 22.27,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 6,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 16.584,
+        "rate_limit": 1.298,
+        "redis_enter": 1.293
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.361882+00:00",
+      "request_id": "9f9ec678-0109-405f-89ef-697b239cc22c",
+      "status": 409,
+      "duration_ms": 20.77,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 7,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 16.8,
+        "rate_limit": 0.411,
+        "redis_enter": 0.86
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.362220+00:00",
+      "request_id": "09b7f066-220a-48db-bcb6-af770b23fcd4",
+      "status": 409,
+      "duration_ms": 23.99,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 5,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 17.489,
+        "rate_limit": 2.499,
+        "redis_enter": 1.04
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.363322+00:00",
+      "request_id": "3c69709b-1a12-4c9f-b630-acf7bdf262f2",
+      "status": 409,
+      "duration_ms": 27.93,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 14.792,
+        "rate_limit": 0.59,
+        "redis_enter": 0.492,
+        "db_enter": 1.567,
+        "database_body": 7.03,
+        "db_exit": 0.751,
+        "redis_exit": 0.57
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.366206+00:00",
+      "request_id": "ee669403-3374-4723-b216-8b0e5f966cce",
+      "status": 409,
+      "duration_ms": 11.28,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 6,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 10.042,
+        "rate_limit": 0.18,
+        "redis_enter": 0.277
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.368792+00:00",
+      "request_id": "6eec07e6-33e3-446c-a3dd-2b35e2ecf721",
+      "status": 409,
+      "duration_ms": 12.73,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 7,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 10.033,
+        "rate_limit": 0.513,
+        "redis_enter": 0.468
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.376940+00:00",
+      "request_id": "b3f22d79-f8f8-4dfa-8657-ee5849c1aa1c",
+      "status": 409,
+      "duration_ms": 13.16,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 10.252,
+        "rate_limit": 0.548,
+        "redis_enter": 1.285
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.377379+00:00",
+      "request_id": "081371c1-833b-44fe-b3c4-d5a2481c26d6",
+      "status": 409,
+      "duration_ms": 12.74,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 5,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 7.742,
+        "rate_limit": 2.709,
+        "redis_enter": 0.851
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.377846+00:00",
+      "request_id": "086c4281-878d-4f73-acd1-5a25732b33e8",
+      "status": 409,
+      "duration_ms": 9.85,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 5,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 6.569,
+        "rate_limit": 1.101,
+        "redis_enter": 0.532
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.380325+00:00",
+      "request_id": "3f7d924b-998e-4538-8713-79b93f537188",
+      "status": 409,
+      "duration_ms": 15.77,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 4,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 8.228,
+        "rate_limit": 1.536,
+        "redis_enter": 2.717
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.380742+00:00",
+      "request_id": "72c9bc27-62cf-479b-b0ba-3ffba9bf8ec3",
+      "status": 409,
+      "duration_ms": 29.11,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 7,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 12.252,
+        "rate_limit": 0.347,
+        "redis_enter": 1.081,
+        "db_enter": 1.812,
+        "database_body": 5.447,
+        "db_exit": 1.226,
+        "redis_exit": 3.648
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.384493+00:00",
+      "request_id": "a0616d44-db88-4b1f-9e5d-e8b3962559cf",
+      "status": 409,
+      "duration_ms": 12.6,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 6,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 10.144,
+        "rate_limit": 0.4,
+        "redis_enter": 0.605
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.385274+00:00",
+      "request_id": "7b6f6ab4-bf4a-488c-9be7-de5a80d81af7",
+      "status": 409,
+      "duration_ms": 12.71,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 7,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 10.049,
+        "rate_limit": 0.549,
+        "redis_enter": 0.501
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.386398+00:00",
+      "request_id": "ceeae0f6-840e-4158-b75c-4939f35071f6",
+      "status": 409,
+      "duration_ms": 15.9,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 5,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 6.669,
+        "rate_limit": 0.864,
+        "redis_enter": 0.431,
+        "db_enter": 2.377,
+        "database_body": 3.888,
+        "db_exit": 0.292,
+        "redis_exit": 0.361
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.389018+00:00",
+      "request_id": "8ba2c9e6-53d4-4e89-a695-cc96937fefce",
+      "status": 409,
+      "duration_ms": 9.15,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 6,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 8.035,
+        "rate_limit": 0.135,
+        "redis_enter": 0.607
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.390519+00:00",
+      "request_id": "d7e90363-4e32-4cd0-ba53-4032a439f1ee",
+      "status": 409,
+      "duration_ms": 6.43,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 5,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 4.494,
+        "rate_limit": 0.49,
+        "redis_enter": 1.036
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.392252+00:00",
+      "request_id": "6293c80f-38e0-4fde-815b-9307cfe81bb8",
+      "status": 409,
+      "duration_ms": 4.68,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.921,
+        "rate_limit": 0.21,
+        "redis_enter": 0.255
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.393218+00:00",
+      "request_id": "757da383-ac75-4ce2-bb82-ae52382c8930",
+      "status": 409,
+      "duration_ms": 14.95,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 5,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 8.189,
+        "rate_limit": 0.167,
+        "redis_enter": 1.096,
+        "db_enter": 2.816,
+        "database_body": 1.952,
+        "db_exit": 0.147,
+        "redis_exit": 0.235
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.397073+00:00",
+      "request_id": "748b5588-7cdc-4ad1-937f-a0f8c600e8aa",
+      "status": 409,
+      "duration_ms": 5.86,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.551,
+        "rate_limit": 0.144,
+        "redis_enter": 0.126,
+        "db_enter": 0.487,
+        "database_body": 0.928,
+        "db_exit": 0.132,
+        "redis_exit": 0.146
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.405641+00:00",
+      "request_id": "e351441b-cde1-4da7-b096-3f15b36ddbf6",
+      "status": 409,
+      "duration_ms": 8.11,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 4.84,
+        "rate_limit": 0.144,
+        "redis_enter": 0.527,
+        "db_enter": 0.532,
+        "database_body": 1.445,
+        "db_exit": 0.154,
+        "redis_exit": 0.129
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.411108+00:00",
+      "request_id": "c9ea7571-522d-437e-8edd-f3ba86902b60",
+      "status": 409,
+      "duration_ms": 6.81,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.987,
+        "rate_limit": 0.142,
+        "redis_enter": 0.119,
+        "db_enter": 0.546,
+        "database_body": 1.054,
+        "db_exit": 0.161,
+        "redis_exit": 0.131
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.419627+00:00",
+      "request_id": "df776cba-0ed7-42d1-991f-2431640153b4",
+      "status": 409,
+      "duration_ms": 3.59,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.518,
+        "rate_limit": 0.156,
+        "redis_enter": 0.373
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.420576+00:00",
+      "request_id": "6692e5d6-01b4-4e7a-b0f2-146df8c1cc33",
+      "status": 409,
+      "duration_ms": 9.74,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.521,
+        "rate_limit": 0.141,
+        "redis_enter": 0.195,
+        "db_enter": 0.515,
+        "database_body": 3.716,
+        "db_exit": 0.343,
+        "redis_exit": 0.935
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.424610+00:00",
+      "request_id": "bbcfdc2e-4e8b-4ac7-b4e1-f9d98143c235",
+      "status": 409,
+      "duration_ms": 3.61,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.916,
+        "rate_limit": 0.21,
+        "redis_enter": 0.15
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.429191+00:00",
+      "request_id": "306d3143-eb49-41ee-a2a7-082e6e8abb3b",
+      "status": 409,
+      "duration_ms": 9.13,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.001,
+        "rate_limit": 0.287,
+        "redis_enter": 0.332,
+        "db_enter": 2.455,
+        "database_body": 1.165,
+        "db_exit": 0.157,
+        "redis_exit": 1.274
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.432787+00:00",
+      "request_id": "18c58822-5b18-4c1f-baa2-b86ff80cb4de",
+      "status": 409,
+      "duration_ms": 4.94,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 4.16,
+        "rate_limit": 0.204,
+        "redis_enter": 0.262
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.433889+00:00",
+      "request_id": "4f55ecdf-9741-4e5f-85fb-4d17c47a72ec",
+      "status": 409,
+      "duration_ms": 8.05,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.891,
+        "rate_limit": 0.154,
+        "redis_enter": 0.12,
+        "db_enter": 0.49,
+        "database_body": 1.878,
+        "db_exit": 0.456,
+        "redis_exit": 0.322
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.438422+00:00",
+      "request_id": "78783e1d-fee6-4c17-aaef-fba6e70e29ba",
+      "status": 409,
+      "duration_ms": 4.92,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 1.928,
+        "rate_limit": 0.131,
+        "redis_enter": 0.12,
+        "db_enter": 0.472,
+        "database_body": 0.904,
+        "db_exit": 0.599,
+        "redis_exit": 0.289
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.441201+00:00",
+      "request_id": "5bbae1ac-ad74-47b8-a81c-c527cff60549",
+      "status": 409,
+      "duration_ms": 6.21,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.491,
+        "rate_limit": 0.291,
+        "redis_enter": 0.26,
+        "db_enter": 0.505,
+        "database_body": 1.043,
+        "db_exit": 0.18,
+        "redis_exit": 0.12
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.448305+00:00",
+      "request_id": "b815a540-3caf-4027-8e49-14fc08f53d47",
+      "status": 409,
+      "duration_ms": 6.09,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.164,
+        "rate_limit": 0.138,
+        "redis_enter": 0.12,
+        "db_enter": 0.516,
+        "database_body": 1.246,
+        "db_exit": 0.149,
+        "redis_exit": 0.453
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.452048+00:00",
+      "request_id": "52ee4192-b18f-46ee-a716-6cabbe91d25c",
+      "status": 409,
+      "duration_ms": 4.18,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.489,
+        "rate_limit": 0.236,
+        "redis_enter": 0.173
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.454074+00:00",
+      "request_id": "26d2a97a-dbba-4a89-9754-35a16b770b31",
+      "status": 409,
+      "duration_ms": 7.63,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.943,
+        "rate_limit": 0.134,
+        "redis_enter": 0.12,
+        "db_enter": 1.0,
+        "database_body": 2.802,
+        "db_exit": 0.153,
+        "redis_exit": 0.161
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.458884+00:00",
+      "request_id": "2f5cdf6f-6837-4fb3-a212-a0701ec1d2b0",
+      "status": 409,
+      "duration_ms": 6.07,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.864,
+        "rate_limit": 0.143,
+        "redis_enter": 0.126,
+        "db_enter": 0.521,
+        "database_body": 1.775,
+        "db_exit": 0.149,
+        "redis_exit": 0.139
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.463320+00:00",
+      "request_id": "c59551ae-b867-4eef-a174-03364a729f32",
+      "status": 409,
+      "duration_ms": 5.52,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.64,
+        "rate_limit": 0.164,
+        "redis_enter": 0.144,
+        "db_enter": 0.795,
+        "database_body": 1.035,
+        "db_exit": 0.215,
+        "redis_exit": 0.144
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.468160+00:00",
+      "request_id": "1e208314-00c0-4b19-b47a-410aad9b9609",
+      "status": 409,
+      "duration_ms": 4.39,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.521,
+        "rate_limit": 0.179,
+        "redis_enter": 0.251
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.468420+00:00",
+      "request_id": "699459c3-0a9b-440d-aad1-bd88754abb91",
+      "status": 409,
+      "duration_ms": 7.37,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.658,
+        "rate_limit": 0.155,
+        "redis_enter": 0.113,
+        "db_enter": 0.529,
+        "database_body": 1.843,
+        "db_exit": 0.222,
+        "redis_exit": 0.203
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.474739+00:00",
+      "request_id": "e68a68ed-95bd-4115-b71c-29ec14f02824",
+      "status": 409,
+      "duration_ms": 3.67,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.946,
+        "rate_limit": 0.171,
+        "redis_enter": 0.283
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.476214+00:00",
+      "request_id": "45a8ed3e-8d22-4900-8bdb-34c7c6c38301",
+      "status": 409,
+      "duration_ms": 7.1,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.052,
+        "rate_limit": 0.158,
+        "redis_enter": 0.123,
+        "db_enter": 1.153,
+        "database_body": 1.969,
+        "db_exit": 0.183,
+        "redis_exit": 0.139
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.482444+00:00",
+      "request_id": "295c6ba9-b0d9-4510-b88b-d874d6e66b38",
+      "status": 409,
+      "duration_ms": 5.79,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 4.887,
+        "rate_limit": 0.241,
+        "redis_enter": 0.261
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.483594+00:00",
+      "request_id": "21c15388-6505-4c11-a164-1dddf820ccba",
+      "status": 409,
+      "duration_ms": 4.42,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.505,
+        "rate_limit": 0.254,
+        "redis_enter": 0.541
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.485568+00:00",
+      "request_id": "50fbe081-552e-4a49-9220-4d3da85d3848",
+      "status": 409,
+      "duration_ms": 10.22,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 5.001,
+        "rate_limit": 0.255,
+        "redis_enter": 0.44,
+        "db_enter": 1.88,
+        "database_body": 1.67,
+        "db_exit": 0.161,
+        "redis_exit": 0.251
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.489574+00:00",
+      "request_id": "d650e7e7-886a-4cd8-b681-62f5dbf2c895",
+      "status": 409,
+      "duration_ms": 6.22,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.993,
+        "rate_limit": 0.133,
+        "redis_enter": 0.121,
+        "db_enter": 0.525,
+        "database_body": 1.84,
+        "db_exit": 0.138,
+        "redis_exit": 0.141
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.492499+00:00",
+      "request_id": "75e5a219-795c-4cca-8b1d-bfcc57f9cf1a",
+      "status": 409,
+      "duration_ms": 4.23,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.626,
+        "rate_limit": 0.15,
+        "redis_enter": 0.153
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.494513+00:00",
+      "request_id": "a7dc449e-269e-4509-b2fa-f50980f33542",
+      "status": 409,
+      "duration_ms": 6.74,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.337,
+        "rate_limit": 0.29,
+        "redis_enter": 0.354,
+        "db_enter": 0.917,
+        "database_body": 1.164,
+        "db_exit": 0.142,
+        "redis_exit": 0.124
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.500456+00:00",
+      "request_id": "b587ce39-bf73-4b61-bd8d-15c83eaf8f51",
+      "status": 409,
+      "duration_ms": 5.67,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.35,
+        "rate_limit": 0.141,
+        "redis_enter": 0.124,
+        "db_enter": 0.529,
+        "database_body": 0.917,
+        "db_exit": 0.133,
+        "redis_exit": 0.117
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.508171+00:00",
+      "request_id": "5d45dd87-fd48-4b10-b212-09f80b93b47c",
+      "status": 409,
+      "duration_ms": 4.74,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.995,
+        "rate_limit": 0.258,
+        "redis_enter": 0.221
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.510401+00:00",
+      "request_id": "aa40ab40-daa2-4458-b6fd-2f6311d35ffd",
+      "status": 409,
+      "duration_ms": 4.22,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.657,
+        "rate_limit": 0.136,
+        "redis_enter": 0.14
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.511164+00:00",
+      "request_id": "7b837dca-3057-4538-afec-15f4ea749feb",
+      "status": 409,
+      "duration_ms": 10.27,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 4.277,
+        "rate_limit": 0.158,
+        "redis_enter": 0.127,
+        "db_enter": 1.986,
+        "database_body": 2.242,
+        "db_exit": 0.751,
+        "redis_exit": 0.313
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.517452+00:00",
+      "request_id": "150b5fbc-15d4-4281-81e3-84814ba4b2c9",
+      "status": 409,
+      "duration_ms": 4.22,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.016,
+        "rate_limit": 0.161,
+        "redis_enter": 0.144
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.519670+00:00",
+      "request_id": "c120c3f9-eb7a-42d8-9202-c41510bab612",
+      "status": 409,
+      "duration_ms": 7.45,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.636,
+        "rate_limit": 0.138,
+        "redis_enter": 0.227,
+        "db_enter": 2.271,
+        "database_body": 1.218,
+        "db_exit": 0.154,
+        "redis_exit": 0.49
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.523530+00:00",
+      "request_id": "408d2452-97f2-4c30-b555-0abbd60cc823",
+      "status": 409,
+      "duration_ms": 4.35,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.68,
+        "rate_limit": 0.229,
+        "redis_enter": 0.121
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.525014+00:00",
+      "request_id": "cb364604-2160-4e1b-9067-a8d25e6ac791",
+      "status": 409,
+      "duration_ms": 7.85,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.591,
+        "rate_limit": 0.124,
+        "redis_enter": 0.132,
+        "db_enter": 0.508,
+        "database_body": 2.512,
+        "db_exit": 0.169,
+        "redis_exit": 0.446
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.532016+00:00",
+      "request_id": "305ac4d4-42a9-4f7c-80bb-f608f28d4120",
+      "status": 409,
+      "duration_ms": 5.39,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 4.31,
+        "rate_limit": 0.252,
+        "redis_enter": 0.477
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.533781+00:00",
+      "request_id": "61d0ba54-7719-4438-8b12-cb14d4c74691",
+      "status": 409,
+      "duration_ms": 7.42,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 5.237,
+        "rate_limit": 0.499,
+        "redis_enter": 0.505
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.534311+00:00",
+      "request_id": "49dc8c70-6210-423e-a7bc-11c68e1a2aae",
+      "status": 409,
+      "duration_ms": 9.76,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.55,
+        "rate_limit": 0.134,
+        "redis_enter": 0.118,
+        "db_enter": 0.533,
+        "database_body": 3.558,
+        "db_exit": 0.403,
+        "redis_exit": 0.145
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.540435+00:00",
+      "request_id": "b9aba400-58ff-4b16-8e48-026f5452ac63",
+      "status": 409,
+      "duration_ms": 6.96,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.266,
+        "rate_limit": 0.153,
+        "redis_enter": 0.124,
+        "db_enter": 0.994,
+        "database_body": 1.064,
+        "db_exit": 1.315,
+        "redis_exit": 0.508
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.543387+00:00",
+      "request_id": "bc06b2de-b059-4d43-afdb-20f4d843a9c4",
+      "status": 409,
+      "duration_ms": 4.3,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.617,
+        "rate_limit": 0.188,
+        "redis_enter": 0.14
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.546183+00:00",
+      "request_id": "51540013-e2bb-4542-bfd9-28bd0f55647b",
+      "status": 409,
+      "duration_ms": 4.86,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.995,
+        "rate_limit": 0.256,
+        "redis_enter": 0.143
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.547795+00:00",
+      "request_id": "f0bc0a98-48c6-493d-8df5-c8f2fb8331c9",
+      "status": 409,
+      "duration_ms": 11.46,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 4.215,
+        "rate_limit": 0.193,
+        "redis_enter": 0.498,
+        "db_enter": 2.149,
+        "database_body": 3.033,
+        "db_exit": 0.402,
+        "redis_exit": 0.382
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.552665+00:00",
+      "request_id": "23c4c2eb-46d8-4bab-a1cd-99318f81bc76",
+      "status": 409,
+      "duration_ms": 7.86,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.803,
+        "rate_limit": 0.16,
+        "redis_enter": 0.132,
+        "db_enter": 0.563,
+        "database_body": 2.099,
+        "db_exit": 0.383,
+        "redis_exit": 0.26
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.554775+00:00",
+      "request_id": "1b2d5d03-d8f6-4cce-90b7-70c748794cf4",
+      "status": 409,
+      "duration_ms": 4.34,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.677,
+        "rate_limit": 0.215,
+        "redis_enter": 0.127
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.557215+00:00",
+      "request_id": "9e96db84-d642-4b80-8944-a280da33740a",
+      "status": 409,
+      "duration_ms": 8.94,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.635,
+        "rate_limit": 0.209,
+        "redis_enter": 0.571,
+        "db_enter": 1.468,
+        "database_body": 2.266,
+        "db_exit": 0.291,
+        "redis_exit": 0.167
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.561173+00:00",
+      "request_id": "7b02a985-90c3-4511-85b3-685e17ea0376",
+      "status": 409,
+      "duration_ms": 5.38,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.59,
+        "rate_limit": 0.142,
+        "redis_enter": 0.123,
+        "db_enter": 0.514,
+        "database_body": 1.387,
+        "db_exit": 0.168,
+        "redis_exit": 0.132
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.565913+00:00",
+      "request_id": "e2b8c1d4-5820-4480-aecf-1be8c04855f5",
+      "status": 409,
+      "duration_ms": 5.75,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.253,
+        "rate_limit": 0.132,
+        "redis_enter": 0.121,
+        "db_enter": 0.517,
+        "database_body": 1.078,
+        "db_exit": 0.151,
+        "redis_exit": 0.114
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.571918+00:00",
+      "request_id": "d5487140-a98d-4b19-8cba-108c79df8153",
+      "status": 409,
+      "duration_ms": 5.4,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.648,
+        "rate_limit": 0.137,
+        "redis_enter": 0.122,
+        "db_enter": 0.526,
+        "database_body": 1.344,
+        "db_exit": 0.164,
+        "redis_exit": 0.124
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.579114+00:00",
+      "request_id": "f8db555f-3f58-41cb-8300-9466cca07420",
+      "status": 409,
+      "duration_ms": 5.3,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.032,
+        "rate_limit": 0.494,
+        "redis_enter": 1.184
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.580300+00:00",
+      "request_id": "a0de550c-6991-4064-93f3-e338a2480460",
+      "status": 409,
+      "duration_ms": 9.41,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.148,
+        "rate_limit": 0.142,
+        "redis_enter": 0.148,
+        "db_enter": 0.49,
+        "database_body": 3.351,
+        "db_exit": 0.435,
+        "redis_exit": 0.689
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.585082+00:00",
+      "request_id": "70dd8519-2e50-4d53-83c0-7923fbafa61a",
+      "status": 409,
+      "duration_ms": 7.99,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 5.331,
+        "rate_limit": 1.515,
+        "redis_enter": 0.667
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.587663+00:00",
+      "request_id": "7b13b9d6-45a1-434f-a1f8-22fd0faa00de",
+      "status": 409,
+      "duration_ms": 6.4,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 4.219,
+        "rate_limit": 0.251,
+        "redis_enter": 1.37
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.588184+00:00",
+      "request_id": "8ffbffed-007a-4085-b1b9-9a7ac0075912",
+      "status": 409,
+      "duration_ms": 6.08,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 4.503,
+        "rate_limit": 0.397,
+        "redis_enter": 0.202
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.589236+00:00",
+      "request_id": "ec236c02-d2de-47b9-bd5f-343be110e9e9",
+      "status": 409,
+      "duration_ms": 14.04,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 4.238,
+        "rate_limit": 0.174,
+        "redis_enter": 0.714,
+        "db_enter": 1.951,
+        "database_body": 4.619,
+        "db_exit": 0.807,
+        "redis_exit": 0.558
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.592014+00:00",
+      "request_id": "899c2634-20c4-43cf-af09-6c23a96b99ed",
+      "status": 409,
+      "duration_ms": 3.07,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.068,
+        "rate_limit": 0.535,
+        "redis_enter": 0.171
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.595020+00:00",
+      "request_id": "3079ddb5-e84e-48dd-9e56-d2b2b1ccaffe",
+      "status": 409,
+      "duration_ms": 3.75,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.942,
+        "rate_limit": 0.215,
+        "redis_enter": 0.134
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.595397+00:00",
+      "request_id": "e5620579-46a9-4c96-b1b8-62bcae35959d",
+      "status": 409,
+      "duration_ms": 12.06,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 4,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 5.977,
+        "rate_limit": 0.223,
+        "redis_enter": 0.342,
+        "db_enter": 2.269,
+        "database_body": 1.716,
+        "db_exit": 0.416,
+        "redis_exit": 0.324
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.601472+00:00",
+      "request_id": "3e26ce21-f9c8-470e-842f-c1f7ff40841b",
+      "status": 409,
+      "duration_ms": 5.47,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.66,
+        "rate_limit": 0.159,
+        "redis_enter": 0.126,
+        "db_enter": 0.849,
+        "database_body": 1.06,
+        "db_exit": 0.143,
+        "redis_exit": 0.134
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.605477+00:00",
+      "request_id": "97e963eb-a4b6-4b35-b345-5e42588943a3",
+      "status": 409,
+      "duration_ms": 6.1,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.464,
+        "rate_limit": 0.136,
+        "redis_enter": 0.113,
+        "db_enter": 0.509,
+        "database_body": 1.251,
+        "db_exit": 0.146,
+        "redis_exit": 0.141
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.610142+00:00",
+      "request_id": "8c1ba013-3227-4265-bc44-397306ebdfe1",
+      "status": 409,
+      "duration_ms": 3.88,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.179,
+        "rate_limit": 0.191,
+        "redis_enter": 0.213
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.611175+00:00",
+      "request_id": "b760e878-1e29-4440-ac6a-d31c02299bba",
+      "status": 409,
+      "duration_ms": 6.73,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.467,
+        "rate_limit": 0.131,
+        "redis_enter": 0.12,
+        "db_enter": 0.51,
+        "database_body": 2.097,
+        "db_exit": 0.533,
+        "redis_exit": 0.232
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.616564+00:00",
+      "request_id": "03ab8e7c-e043-4749-9743-2dbf5ac1fc75",
+      "status": 409,
+      "duration_ms": 5.71,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.499,
+        "rate_limit": 0.136,
+        "redis_enter": 0.12,
+        "db_enter": 0.852,
+        "database_body": 0.914,
+        "db_exit": 0.183,
+        "redis_exit": 0.501
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.626363+00:00",
+      "request_id": "9a9a2a7d-a064-4935-afc9-a08f4a5e4fed",
+      "status": 409,
+      "duration_ms": 8.49,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 4.795,
+        "rate_limit": 1.734,
+        "redis_enter": 1.156
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.627596+00:00",
+      "request_id": "32a47c22-5596-4943-929b-4b98300a2a31",
+      "status": 409,
+      "duration_ms": 8.0,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 5.541,
+        "rate_limit": 0.519,
+        "redis_enter": 0.748
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.628726+00:00",
+      "request_id": "691d16aa-87cf-4838-a183-aee69766db04",
+      "status": 409,
+      "duration_ms": 7.57,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 5.487,
+        "rate_limit": 0.5,
+        "redis_enter": 0.73
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.629340+00:00",
+      "request_id": "19ea7ef2-2b1b-46d2-b2b9-1b03bde21022",
+      "status": 409,
+      "duration_ms": 15.4,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.271,
+        "rate_limit": 0.154,
+        "redis_enter": 0.158,
+        "db_enter": 0.864,
+        "database_body": 8.651,
+        "db_exit": 0.952,
+        "redis_exit": 0.283
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.630127+00:00",
+      "request_id": "7c30a9f6-7d0d-4598-ae71-3fcbc995cdde",
+      "status": 409,
+      "duration_ms": 7.25,
+      "error_code": "SEAT_BUSY",
+      "hold_arrival_occupancy": 5,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 3.612,
+        "rate_limit": 0.448,
+        "redis_enter": 2.175
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.632376+00:00",
+      "request_id": "8ed61401-0556-432b-bfb7-265a5e8287e3",
+      "status": 409,
+      "duration_ms": 10.22,
+      "error_code": "SEAT_UNAVAILABLE",
+      "hold_arrival_occupancy": 4,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 5.587,
+        "rate_limit": 1.011,
+        "redis_enter": 0.596,
+        "db_enter": 1.286,
+        "database_body": 1.089,
+        "db_exit": 0.157,
+        "redis_exit": 0.126
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:57.260217+00:00",
+      "request_id": "c24231ad-269a-47e9-8f7f-04dfd53f6b2d",
+      "status": 503,
+      "duration_ms": 0.09,
+      "error_code": "ADMISSION_FULL",
+      "hold_arrival_occupancy": 8,
+      "hold_limit": 8,
+      "hold_phase_ms": {}
+    }
+  ],
+  "slowest_20_successful_holds": [
+    {
+      "time": "2026-09-09T13:47:57.264608+00:00",
+      "request_id": "d098f2b4-a7b9-4b46-9df5-8c3db3a2b62f",
+      "status": 201,
+      "duration_ms": 21.27,
+      "error_code": null,
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 2.081,
+        "rate_limit": 0.236,
+        "redis_enter": 0.644,
+        "db_enter": 1.037,
+        "database_body": 7.173,
+        "db_exit": 4.576,
+        "redis_exit": 1.163
+      }
+    },
+    {
+      "time": "2026-09-09T13:47:47.334731+00:00",
+      "request_id": "317ace47-1994-43fe-8f6d-60a717f7cd61",
+      "status": 201,
+      "duration_ms": 10.05,
+      "error_code": null,
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 1.672,
+        "rate_limit": 0.242,
+        "redis_enter": 0.149,
+        "db_enter": 0.767,
+        "database_body": 3.603,
+        "db_exit": 1.628,
+        "redis_exit": 0.608
+      }
+    }
+  ],
+  "note": "Server log durations rounded to milliseconds. Phase percentiles are separate distributions; do not add them. db_exit includes commit/rollback and pool return."
+}

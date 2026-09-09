@@ -1,0 +1,35 @@
+{
+  "concentrated-200": {
+    "start": "2026-09-09T13:35:48.558302+00:00",
+    "end": "2026-09-09T13:40:48.548772+00:00",
+    "samples": 95,
+    "observer_errors": 0,
+    "missing_maps": 0,
+    "database_connections": 12,
+    "lock_waiters": 0,
+    "reconciliation_age_seconds": 20.345583,
+    "oldest_overdue_seconds": 0.243424
+  },
+  "concentrated-400": {
+    "start": "2026-09-09T13:42:01.068290+00:00",
+    "end": "2026-09-09T13:47:01.077819+00:00",
+    "samples": 149,
+    "observer_errors": 0,
+    "missing_maps": 0,
+    "database_connections": 14,
+    "lock_waiters": 0,
+    "reconciliation_age_seconds": 20.73588,
+    "oldest_overdue_seconds": 0.288956
+  },
+  "concentrated-burst": {
+    "start": "2026-09-09T13:49:20.862929+00:00",
+    "end": "2026-09-09T13:53:20.835213+00:00",
+    "samples": 119,
+    "observer_errors": 0,
+    "missing_maps": 0,
+    "database_connections": 14,
+    "lock_waiters": 0,
+    "reconciliation_age_seconds": 20.268062,
+    "oldest_overdue_seconds": 0.224434
+  }
+}

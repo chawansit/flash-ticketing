@@ -29,3 +29,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0016: Isolated reconciliation worker](0016-isolated-reconciliation-worker.md)
 
 - [0017: Redis-validated bounded browse bodies](0017-validated-browse-body-cache.md)
+
+- [0018: Concentrated traffic validation](0018-concentrated-traffic-validation.md)

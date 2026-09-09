@@ -278,6 +278,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.burst:
         args.seconds = 240
-    if min(args.rate, args.seconds, args.inflight) < 1 or args.rate * (600 if args.burst else args.seconds) > 2000000:
+    if min(args.rate, args.seconds, args.inflight) < 1 or args.rate * args.seconds > 2000000:
         parser.error("Use positive limits and at most 2000000 requests")
     asyncio.run(run(args))

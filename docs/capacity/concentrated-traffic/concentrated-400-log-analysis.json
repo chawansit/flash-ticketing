@@ -1,0 +1,424 @@
+{
+  "request_error_codes": {},
+  "first_20_read_errors": [],
+  "hold_requests": 6000,
+  "statuses": {
+    "201": 6000
+  },
+  "error_codes": {},
+  "successful_hold_phases": {
+    "dispatch": {
+      "count": 6000,
+      "mean_ms": 4.156466,
+      "p95_ms": 5.645,
+      "p99_ms": 15.767,
+      "max_ms": 68.231
+    },
+    "rate_limit": {
+      "count": 6000,
+      "mean_ms": 0.7181438333333334,
+      "p95_ms": 1.691,
+      "p99_ms": 2.706,
+      "max_ms": 24.166
+    },
+    "redis_enter": {
+      "count": 6000,
+      "mean_ms": 0.6601481666666666,
+      "p95_ms": 1.487,
+      "p99_ms": 2.762,
+      "max_ms": 11.713
+    },
+    "db_enter": {
+      "count": 6000,
+      "mean_ms": 2.3411631666666666,
+      "p95_ms": 5.498,
+      "p99_ms": 9.753,
+      "max_ms": 39.349
+    },
+    "database_body": {
+      "count": 6000,
+      "mean_ms": 12.724855333333332,
+      "p95_ms": 20.607,
+      "p99_ms": 32.636,
+      "max_ms": 89.137
+    },
+    "db_exit": {
+      "count": 6000,
+      "mean_ms": 2.0590829999999998,
+      "p95_ms": 4.36,
+      "p99_ms": 6.63,
+      "max_ms": 54.198
+    },
+    "redis_exit": {
+      "count": 6000,
+      "mean_ms": 0.9585863333333333,
+      "p95_ms": 2.773,
+      "p99_ms": 4.427,
+      "max_ms": 29.56
+    }
+  },
+  "first_100_errors": [],
+  "slowest_20_successful_holds": [
+    {
+      "time": "2026-09-09T13:44:04.798527+00:00",
+      "request_id": "8a6b30a3-09e5-4e35-b6cd-5d84c2501592",
+      "status": 201,
+      "duration_ms": 128.85,
+      "error_code": null,
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 7.699,
+        "rate_limit": 0.451,
+        "redis_enter": 0.521,
+        "db_enter": 3.864,
+        "database_body": 85.25,
+        "db_exit": 1.718,
+        "redis_exit": 0.636
+      }
+    },
+    {
+      "time": "2026-09-09T13:44:04.798987+00:00",
+      "request_id": "8e2e0524-c783-424a-8680-04e6c5937fd5",
+      "status": 201,
+      "duration_ms": 127.7,
+      "error_code": null,
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 4.874,
+        "rate_limit": 1.546,
+        "redis_enter": 0.534,
+        "db_enter": 3.245,
+        "database_body": 87.334,
+        "db_exit": 0.898,
+        "redis_exit": 2.07
+      }
+    },
+    {
+      "time": "2026-09-09T13:44:04.798033+00:00",
+      "request_id": "05805953-5693-4b6c-8198-3d2f14cc4e77",
+      "status": 201,
+      "duration_ms": 127.15,
+      "error_code": null,
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 8.135,
+        "rate_limit": 1.028,
+        "redis_enter": 2.011,
+        "db_enter": 5.588,
+        "database_body": 80.107,
+        "db_exit": 0.944,
+        "redis_exit": 0.237
+      }
+    },
+    {
+      "time": "2026-09-09T13:42:08.196973+00:00",
+      "request_id": "581da872-d824-4f15-a3e1-26f4cedf378d",
+      "status": 201,
+      "duration_ms": 127.13,
+      "error_code": null,
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 4.59,
+        "rate_limit": 0.146,
+        "redis_enter": 0.248,
+        "db_enter": 3.276,
+        "database_body": 89.137,
+        "db_exit": 2.341,
+        "redis_exit": 3.387
+      }
+    },
+    {
+      "time": "2026-09-09T13:44:04.797412+00:00",
+      "request_id": "df738ad0-fa89-4746-a797-afdeff5ddbf6",
+      "status": 201,
+      "duration_ms": 126.84,
+      "error_code": null,
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 6.205,
+        "rate_limit": 0.874,
+        "redis_enter": 0.429,
+        "db_enter": 4.665,
+        "database_body": 82.916,
+        "db_exit": 1.991,
+        "redis_exit": 0.181
+      }
+    },
+    {
+      "time": "2026-09-09T13:42:08.196677+00:00",
+      "request_id": "e8144002-989a-4a0c-95ae-d0d7fcb90fe8",
+      "status": 201,
+      "duration_ms": 125.45,
+      "error_code": null,
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 7.828,
+        "rate_limit": 4.494,
+        "redis_enter": 0.379,
+        "db_enter": 12.097,
+        "database_body": 74.863,
+        "db_exit": 0.876,
+        "redis_exit": 1.343
+      }
+    },
+    {
+      "time": "2026-09-09T13:45:04.192790+00:00",
+      "request_id": "0b282515-894f-4470-b2c4-2f64328a36d2",
+      "status": 201,
+      "duration_ms": 119.13,
+      "error_code": null,
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 19.993,
+        "rate_limit": 0.537,
+        "redis_enter": 0.148,
+        "db_enter": 6.644,
+        "database_body": 54.16,
+        "db_exit": 4.063,
+        "redis_exit": 14.427
+      }
+    },
+    {
+      "time": "2026-09-09T13:45:04.196899+00:00",
+      "request_id": "32899da7-a295-439b-a845-fea4ad6e64e8",
+      "status": 201,
+      "duration_ms": 117.98,
+      "error_code": null,
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 11.138,
+        "rate_limit": 0.836,
+        "redis_enter": 0.24,
+        "db_enter": 9.346,
+        "database_body": 74.681,
+        "db_exit": 3.028,
+        "redis_exit": 0.667
+      }
+    },
+    {
+      "time": "2026-09-09T13:45:04.398026+00:00",
+      "request_id": "005d4c70-36db-428a-90b9-ec53d5123daa",
+      "status": 201,
+      "duration_ms": 117.08,
+      "error_code": null,
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 67.817,
+        "rate_limit": 0.845,
+        "redis_enter": 0.725,
+        "db_enter": 2.234,
+        "database_body": 24.0,
+        "db_exit": 4.714,
+        "redis_exit": 1.4
+      }
+    },
+    {
+      "time": "2026-09-09T13:45:04.397634+00:00",
+      "request_id": "fa144ef6-d1cf-4277-83e8-c8e55586ed55",
+      "status": 201,
+      "duration_ms": 116.44,
+      "error_code": null,
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 68.231,
+        "rate_limit": 0.855,
+        "redis_enter": 0.799,
+        "db_enter": 3.502,
+        "database_body": 22.564,
+        "db_exit": 4.787,
+        "redis_exit": 0.717
+      }
+    },
+    {
+      "time": "2026-09-09T13:45:04.195081+00:00",
+      "request_id": "cd122996-4469-43ed-b10b-b511d8b0f8a6",
+      "status": 201,
+      "duration_ms": 116.03,
+      "error_code": null,
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 11.667,
+        "rate_limit": 0.611,
+        "redis_enter": 0.225,
+        "db_enter": 10.822,
+        "database_body": 73.094,
+        "db_exit": 1.012,
+        "redis_exit": 0.14
+      }
+    },
+    {
+      "time": "2026-09-09T13:45:04.192362+00:00",
+      "request_id": "c5456014-9eb5-48f0-925c-a1c3b204e88d",
+      "status": 201,
+      "duration_ms": 113.21,
+      "error_code": null,
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 9.735,
+        "rate_limit": 0.531,
+        "redis_enter": 0.737,
+        "db_enter": 10.036,
+        "database_body": 56.018,
+        "db_exit": 13.661,
+        "redis_exit": 0.593
+      }
+    },
+    {
+      "time": "2026-09-09T13:45:04.395514+00:00",
+      "request_id": "ed3cd8da-973f-4fd2-898b-6dff20f9f1db",
+      "status": 201,
+      "duration_ms": 113.16,
+      "error_code": null,
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 67.603,
+        "rate_limit": 0.112,
+        "redis_enter": 0.658,
+        "db_enter": 3.5,
+        "database_body": 22.37,
+        "db_exit": 0.881,
+        "redis_exit": 3.392
+      }
+    },
+    {
+      "time": "2026-09-09T13:45:04.392546+00:00",
+      "request_id": "a29185e3-af33-4735-83ae-af15dc727196",
+      "status": 201,
+      "duration_ms": 111.21,
+      "error_code": null,
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 66.994,
+        "rate_limit": 1.385,
+        "redis_enter": 0.304,
+        "db_enter": 4.47,
+        "database_body": 20.08,
+        "db_exit": 1.617,
+        "redis_exit": 2.309
+      }
+    },
+    {
+      "time": "2026-09-09T13:42:08.181651+00:00",
+      "request_id": "8009c52b-7066-4580-aa38-cd57c7ca0ade",
+      "status": 201,
+      "duration_ms": 110.93,
+      "error_code": null,
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 5.893,
+        "rate_limit": 0.315,
+        "redis_enter": 0.695,
+        "db_enter": 7.334,
+        "database_body": 79.372,
+        "db_exit": 1.771,
+        "redis_exit": 0.25
+      }
+    },
+    {
+      "time": "2026-09-09T13:42:08.172850+00:00",
+      "request_id": "e40463fa-77e1-40b8-a325-070feebb5fd3",
+      "status": 201,
+      "duration_ms": 102.6,
+      "error_code": null,
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 6.045,
+        "rate_limit": 0.145,
+        "redis_enter": 0.208,
+        "db_enter": 7.463,
+        "database_body": 23.36,
+        "db_exit": 54.198,
+        "redis_exit": 0.808
+      }
+    },
+    {
+      "time": "2026-09-09T13:46:02.570389+00:00",
+      "request_id": "ba33678d-9456-48ba-b80a-0c0874d2a092",
+      "status": 201,
+      "duration_ms": 99.61,
+      "error_code": null,
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 8.522,
+        "rate_limit": 0.105,
+        "redis_enter": 1.149,
+        "db_enter": 39.349,
+        "database_body": 29.544,
+        "db_exit": 3.214,
+        "redis_exit": 0.137
+      }
+    },
+    {
+      "time": "2026-09-09T13:46:02.569751+00:00",
+      "request_id": "c150e774-6c38-43b0-a260-d7addf8d8187",
+      "status": 201,
+      "duration_ms": 98.76,
+      "error_code": null,
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 7.837,
+        "rate_limit": 0.166,
+        "redis_enter": 1.778,
+        "db_enter": 37.65,
+        "database_body": 28.044,
+        "db_exit": 3.772,
+        "redis_exit": 2.397
+      }
+    },
+    {
+      "time": "2026-09-09T13:46:29.564460+00:00",
+      "request_id": "eb9fda7a-2404-4498-93fa-b92228512b96",
+      "status": 201,
+      "duration_ms": 93.71,
+      "error_code": null,
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 52.727,
+        "rate_limit": 1.373,
+        "redis_enter": 1.853,
+        "db_enter": 7.065,
+        "database_body": 22.759,
+        "db_exit": 1.701,
+        "redis_exit": 1.946
+      }
+    },
+    {
+      "time": "2026-09-09T13:46:02.562217+00:00",
+      "request_id": "93706b4a-6045-4818-a75c-1af6b97a9e18",
+      "status": 201,
+      "duration_ms": 90.61,
+      "error_code": null,
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 7.198,
+        "rate_limit": 1.459,
+        "redis_enter": 0.644,
+        "db_enter": 38.425,
+        "database_body": 22.165,
+        "db_exit": 1.79,
+        "redis_exit": 0.339
+      }
+    }
+  ],
+  "note": "Server log durations rounded to milliseconds. Phase percentiles are separate distributions; do not add them. db_exit includes commit/rollback and pool return."
+}

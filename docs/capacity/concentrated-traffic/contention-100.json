@@ -1,0 +1,928 @@
+{
+  "run_id": "c9e4aae5-91f7-4fa1-a463-3dd9f21bcd4c",
+  "measured_started_utc": "2026-09-09T13:47:47.281410+00:00",
+  "utc": "2026-09-09T13:47:47.634586+00:00",
+  "event_id": "4024b773-0355-491e-abcb-c576408e4259",
+  "seat_id": "S250",
+  "contenders": 100,
+  "statuses": {
+    "hold": {
+      "201": 1,
+      "503": 10,
+      "409": 89
+    }
+  },
+  "expected_conflicts": 89,
+  "error_codes": {
+    "ADMISSION_FULL": 10,
+    "SEAT_BUSY": 46,
+    "SEAT_UNAVAILABLE": 43
+  },
+  "http_one_winner_pass": true,
+  "availability_gate_pass": false,
+  "failed_response_p95_ms": 317.2177529995679,
+  "dispatch_spread_ms": 42.09955500118667,
+  "requests": [
+    {
+      "index": 0,
+      "status": "201",
+      "code": null,
+      "request_id": null,
+      "latency_ms": 59.70493699715007,
+      "dispatch_offset_ms": 0.15289500151993707,
+      "hold_id": "f814e8ba-cd4f-4e23-82b8-8f8eff859d3c"
+    },
+    {
+      "index": 9,
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "da8c8d9b-13c8-4ef5-ab26-d312f8aabfc0",
+      "latency_ms": 63.762931000383105,
+      "dispatch_offset_ms": 3.9166290007415228,
+      "hold_id": null
+    },
+    {
+      "index": 10,
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "79014f6f-e152-4f29-94d3-8275ccff8c06",
+      "latency_ms": 65.01350700273179,
+      "dispatch_offset_ms": 4.3860239966306835,
+      "hold_id": null
+    },
+    {
+      "index": 11,
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "b54c935f-3ae3-4f28-9020-9167f16354c2",
+      "latency_ms": 66.29573299869662,
+      "dispatch_offset_ms": 4.885611997451633,
+      "hold_id": null
+    },
+    {
+      "index": 12,
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "6da379a4-a05f-4ec4-86a4-66e2bc629834",
+      "latency_ms": 68.35797700477997,
+      "dispatch_offset_ms": 5.402873997809365,
+      "hold_id": null
+    },
+    {
+      "index": 13,
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "38ef6dbe-e4b8-4cf7-a663-fa042a593049",
+      "latency_ms": 68.36750399816083,
+      "dispatch_offset_ms": 5.760275998909492,
+      "hold_id": null
+    },
+    {
+      "index": 14,
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "2b0f4d12-da68-47c3-b174-2efd41766732",
+      "latency_ms": 70.40699900244363,
+      "dispatch_offset_ms": 6.114420997619163,
+      "hold_id": null
+    },
+    {
+      "index": 2,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "4bf3f1a7-def1-4498-9d50-29c87def1bab",
+      "latency_ms": 75.68988900311524,
+      "dispatch_offset_ms": 1.0963809982058592,
+      "hold_id": null
+    },
+    {
+      "index": 20,
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "684e1c35-4a29-40c2-8d25-c890498bea5d",
+      "latency_ms": 70.01748600305291,
+      "dispatch_offset_ms": 8.29655199777335,
+      "hold_id": null
+    },
+    {
+      "index": 16,
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "009f15b2-008c-4453-9b59-b9390c8e4029",
+      "latency_ms": 72.57992700033356,
+      "dispatch_offset_ms": 6.874781000078656,
+      "hold_id": null
+    },
+    {
+      "index": 1,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "240517bd-467a-42a8-ba21-906af43fb92f",
+      "latency_ms": 79.16140899760649,
+      "dispatch_offset_ms": 0.6687970017082989,
+      "hold_id": null
+    },
+    {
+      "index": 3,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "04345d91-7307-4532-926e-c410e0ae7218",
+      "latency_ms": 78.60993899521418,
+      "dispatch_offset_ms": 1.562101002491545,
+      "hold_id": null
+    },
+    {
+      "index": 25,
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "f2e36562-a98a-4c25-86ae-69422a2f6bcd",
+      "latency_ms": 75.26893600152107,
+      "dispatch_offset_ms": 10.029208999185357,
+      "hold_id": null
+    },
+    {
+      "index": 19,
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "f3b5312a-9f06-438c-b0cd-8b13313aaa11",
+      "latency_ms": 77.63839000108419,
+      "dispatch_offset_ms": 7.930207000754308,
+      "hold_id": null
+    },
+    {
+      "index": 5,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "75f22624-5971-4ffc-bd2e-799f3e872d7f",
+      "latency_ms": 83.43707699532388,
+      "dispatch_offset_ms": 2.406870000413619,
+      "hold_id": null
+    },
+    {
+      "index": 7,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "6390904a-62a3-4515-bc91-2d0ea5a7b515",
+      "latency_ms": 84.89106400520541,
+      "dispatch_offset_ms": 3.1137069963733666,
+      "hold_id": null
+    },
+    {
+      "index": 8,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "9f9ec678-0109-405f-89ef-697b239cc22c",
+      "latency_ms": 84.92715300235432,
+      "dispatch_offset_ms": 3.4802869995473884,
+      "hold_id": null
+    },
+    {
+      "index": 6,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "09b7f066-220a-48db-bcb6-af770b23fcd4",
+      "latency_ms": 87.76806099922396,
+      "dispatch_offset_ms": 2.7474250018713064,
+      "hold_id": null
+    },
+    {
+      "index": 4,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "3c69709b-1a12-4c9f-b630-acf7bdf262f2",
+      "latency_ms": 88.84589100489393,
+      "dispatch_offset_ms": 1.960716996109113,
+      "hold_id": null
+    },
+    {
+      "index": 17,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "ee669403-3374-4723-b216-8b0e5f966cce",
+      "latency_ms": 85.32035600364907,
+      "dispatch_offset_ms": 7.255610995343886,
+      "hold_id": null
+    },
+    {
+      "index": 18,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "6eec07e6-33e3-446c-a3dd-2b35e2ecf721",
+      "latency_ms": 86.6705419975915,
+      "dispatch_offset_ms": 7.604229998833034,
+      "hold_id": null
+    },
+    {
+      "index": 21,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "081371c1-833b-44fe-b3c4-d5a2481c26d6",
+      "latency_ms": 93.48228999442654,
+      "dispatch_offset_ms": 8.61505600187229,
+      "hold_id": null
+    },
+    {
+      "index": 22,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "086c4281-878d-4f73-acd1-5a25732b33e8",
+      "latency_ms": 93.45664399734233,
+      "dispatch_offset_ms": 8.941487001720816,
+      "hold_id": null
+    },
+    {
+      "index": 29,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "b3f22d79-f8f8-4dfa-8657-ee5849c1aa1c",
+      "latency_ms": 93.4035739992396,
+      "dispatch_offset_ms": 11.636420000286307,
+      "hold_id": null
+    },
+    {
+      "index": 28,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "3f7d924b-998e-4538-8713-79b93f537188",
+      "latency_ms": 94.94890899804886,
+      "dispatch_offset_ms": 11.294413998257369,
+      "hold_id": null
+    },
+    {
+      "index": 15,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "72c9bc27-62cf-479b-b0ba-3ffba9bf8ec3",
+      "latency_ms": 100.16953099693637,
+      "dispatch_offset_ms": 6.462386998464353,
+      "hold_id": null
+    },
+    {
+      "index": 30,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "a0616d44-db88-4b1f-9e5d-e8b3962559cf",
+      "latency_ms": 98.7149800057523,
+      "dispatch_offset_ms": 11.996750996331684,
+      "hold_id": null
+    },
+    {
+      "index": 24,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "7b6f6ab4-bf4a-488c-9be7-de5a80d81af7",
+      "latency_ms": 101.60503999941284,
+      "dispatch_offset_ms": 9.654194996983279,
+      "hold_id": null
+    },
+    {
+      "index": 23,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "ceeae0f6-840e-4158-b75c-4939f35071f6",
+      "latency_ms": 105.3084469967871,
+      "dispatch_offset_ms": 9.304954000981525,
+      "hold_id": null
+    },
+    {
+      "index": 32,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "8ba2c9e6-53d4-4e89-a695-cc96937fefce",
+      "latency_ms": 104.19582499889657,
+      "dispatch_offset_ms": 12.73611900251126,
+      "hold_id": null
+    },
+    {
+      "index": 38,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "d7e90363-4e32-4cd0-ba53-4032a439f1ee",
+      "latency_ms": 105.41866499988828,
+      "dispatch_offset_ms": 14.878395995765459,
+      "hold_id": null
+    },
+    {
+      "index": 37,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "6293c80f-38e0-4fde-815b-9307cfe81bb8",
+      "latency_ms": 106.26020599738695,
+      "dispatch_offset_ms": 14.552059998095501,
+      "hold_id": null
+    },
+    {
+      "index": 33,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "757da383-ac75-4ce2-bb82-ae52382c8930",
+      "latency_ms": 110.92858300253283,
+      "dispatch_offset_ms": 13.099335999868345,
+      "hold_id": null
+    },
+    {
+      "index": 35,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "e351441b-cde1-4da7-b096-3f15b36ddbf6",
+      "latency_ms": 119.03584199899342,
+      "dispatch_offset_ms": 13.85592699807603,
+      "hold_id": null
+    },
+    {
+      "index": 43,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "748b5588-7cdc-4ad1-937f-a0f8c600e8aa",
+      "latency_ms": 118.58668999775546,
+      "dispatch_offset_ms": 16.803521000838373,
+      "hold_id": null
+    },
+    {
+      "index": 45,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "c9ea7571-522d-437e-8edd-f3ba86902b60",
+      "latency_ms": 121.09934900217922,
+      "dispatch_offset_ms": 17.489166995801497,
+      "hold_id": null
+    },
+    {
+      "index": 49,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "df776cba-0ed7-42d1-991f-2431640153b4",
+      "latency_ms": 127.64791000518017,
+      "dispatch_offset_ms": 18.849743995815516,
+      "hold_id": null
+    },
+    {
+      "index": 44,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "6692e5d6-01b4-4e7a-b0f2-146df8c1cc33",
+      "latency_ms": 130.64992900035577,
+      "dispatch_offset_ms": 17.159408002044074,
+      "hold_id": null
+    },
+    {
+      "index": 31,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "306d3143-eb49-41ee-a2a7-082e6e8abb3b",
+      "latency_ms": 144.00430800014874,
+      "dispatch_offset_ms": 12.403775996062905,
+      "hold_id": null
+    },
+    {
+      "index": 54,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "18c58822-5b18-4c1f-baa2-b86ff80cb4de",
+      "latency_ms": 139.9024839993217,
+      "dispatch_offset_ms": 21.514250998734497,
+      "hold_id": null
+    },
+    {
+      "index": 50,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "4f55ecdf-9741-4e5f-85fb-4d17c47a72ec",
+      "latency_ms": 142.3145970038604,
+      "dispatch_offset_ms": 19.466295998427086,
+      "hold_id": null
+    },
+    {
+      "index": 53,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "bbcfdc2e-4e8b-4ac7-b4e1-f9d98143c235",
+      "latency_ms": 141.20133300457383,
+      "dispatch_offset_ms": 21.034733996202704,
+      "hold_id": null
+    },
+    {
+      "index": 51,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "78783e1d-fee6-4c17-aaef-fba6e70e29ba",
+      "latency_ms": 145.21761600190075,
+      "dispatch_offset_ms": 20.05074299813714,
+      "hold_id": null
+    },
+    {
+      "index": 26,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "5bbae1ac-ad74-47b8-a81c-c527cff60549",
+      "latency_ms": 157.42638200026704,
+      "dispatch_offset_ms": 10.370691001298837,
+      "hold_id": null
+    },
+    {
+      "index": 60,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "b815a540-3caf-4027-8e49-14fc08f53d47",
+      "latency_ms": 150.47315900301328,
+      "dispatch_offset_ms": 24.53945399611257,
+      "hold_id": null
+    },
+    {
+      "index": 56,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "26d2a97a-dbba-4a89-9754-35a16b770b31",
+      "latency_ms": 158.70385499874828,
+      "dispatch_offset_ms": 22.558753000339493,
+      "hold_id": null
+    },
+    {
+      "index": 58,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "2f5cdf6f-6837-4fb3-a212-a0701ec1d2b0",
+      "latency_ms": 162.72791599476477,
+      "dispatch_offset_ms": 23.577006002597045,
+      "hold_id": null
+    },
+    {
+      "index": 64,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "52ee4192-b18f-46ee-a716-6cabbe91d25c",
+      "latency_ms": 164.13403100159485,
+      "dispatch_offset_ms": 26.7069339970476,
+      "hold_id": null
+    },
+    {
+      "index": 63,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "c59551ae-b867-4eef-a174-03364a729f32",
+      "latency_ms": 165.6951859986293,
+      "dispatch_offset_ms": 26.199460997304413,
+      "hold_id": null
+    },
+    {
+      "index": 69,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "1e208314-00c0-4b19-b47a-410aad9b9609",
+      "latency_ms": 165.17074299918022,
+      "dispatch_offset_ms": 29.025235002336558,
+      "hold_id": null
+    },
+    {
+      "index": 62,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "699459c3-0a9b-440d-aad1-bd88754abb91",
+      "latency_ms": 168.877946001885,
+      "dispatch_offset_ms": 25.650967996625695,
+      "hold_id": null
+    },
+    {
+      "index": 72,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "e68a68ed-95bd-4115-b71c-29ec14f02824",
+      "latency_ms": 171.86204299650853,
+      "dispatch_offset_ms": 30.363527999725193,
+      "hold_id": null
+    },
+    {
+      "index": 66,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "45a8ed3e-8d22-4900-8bdb-34c7c6c38301",
+      "latency_ms": 174.79638700024225,
+      "dispatch_offset_ms": 27.77570900070714,
+      "hold_id": null
+    },
+    {
+      "index": 55,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "21c15388-6505-4c11-a164-1dddf820ccba",
+      "latency_ms": 189.45454500499181,
+      "dispatch_offset_ms": 22.038370996597223,
+      "hold_id": null
+    },
+    {
+      "index": 74,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "50fbe081-552e-4a49-9220-4d3da85d3848",
+      "latency_ms": 183.34019299800275,
+      "dispatch_offset_ms": 31.20037900225725,
+      "hold_id": null
+    },
+    {
+      "index": 77,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "d650e7e7-886a-4cd8-b681-62f5dbf2c895",
+      "latency_ms": 186.21469500067178,
+      "dispatch_offset_ms": 32.384420999733265,
+      "hold_id": null
+    },
+    {
+      "index": 70,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "75e5a219-795c-4cca-8b1d-bfcc57f9cf1a",
+      "latency_ms": 190.2877879983862,
+      "dispatch_offset_ms": 29.530790001444984,
+      "hold_id": null
+    },
+    {
+      "index": 75,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "a7dc449e-269e-4509-b2fa-f50980f33542",
+      "latency_ms": 191.82071999966865,
+      "dispatch_offset_ms": 31.599201996868942,
+      "hold_id": null
+    },
+    {
+      "index": 76,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "295c6ba9-b0d9-4510-b88b-d874d6e66b38",
+      "latency_ms": 194.76221699733287,
+      "dispatch_offset_ms": 32.02532599971164,
+      "hold_id": null
+    },
+    {
+      "index": 82,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "b587ce39-bf73-4b61-bd8d-15c83eaf8f51",
+      "latency_ms": 196.70108900027117,
+      "dispatch_offset_ms": 34.45117899536854,
+      "hold_id": null
+    },
+    {
+      "index": 85,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "5d45dd87-fd48-4b10-b212-09f80b93b47c",
+      "latency_ms": 198.79154099908192,
+      "dispatch_offset_ms": 36.71641500113765,
+      "hold_id": null
+    },
+    {
+      "index": 61,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "7b837dca-3057-4538-afec-15f4ea749feb",
+      "latency_ms": 213.85455400013598,
+      "dispatch_offset_ms": 25.131656999292318,
+      "hold_id": null
+    },
+    {
+      "index": 86,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "aa40ab40-daa2-4458-b6fd-2f6311d35ffd",
+      "latency_ms": 202.7040670000133,
+      "dispatch_offset_ms": 37.09238000010373,
+      "hold_id": null
+    },
+    {
+      "index": 78,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "c120c3f9-eb7a-42d8-9202-c41510bab612",
+      "latency_ms": 213.67720900161657,
+      "dispatch_offset_ms": 32.77261900075246,
+      "hold_id": null
+    },
+    {
+      "index": 42,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "408d2452-97f2-4c30-b555-0abbd60cc823",
+      "latency_ms": 236.37522700300906,
+      "dispatch_offset_ms": 16.47277799929725,
+      "hold_id": null
+    },
+    {
+      "index": 57,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "cb364604-2160-4e1b-9067-a8d25e6ac791",
+      "latency_ms": 230.66445799486246,
+      "dispatch_offset_ms": 23.092005001672078,
+      "hold_id": null
+    },
+    {
+      "index": 88,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "305ac4d4-42a9-4f7c-80bb-f608f28d4120",
+      "latency_ms": 220.26364599878434,
+      "dispatch_offset_ms": 37.84560899657663,
+      "hold_id": null
+    },
+    {
+      "index": 93,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "61d0ba54-7719-4438-8b12-cb14d4c74691",
+      "latency_ms": 221.1557629998424,
+      "dispatch_offset_ms": 39.86473700206261,
+      "hold_id": null
+    },
+    {
+      "index": 89,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "49dc8c70-6210-423e-a7bc-11c68e1a2aae",
+      "latency_ms": 223.13744599523488,
+      "dispatch_offset_ms": 38.23262800142402,
+      "hold_id": null
+    },
+    {
+      "index": 90,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "150b5fbc-15d4-4281-81e3-84814ba4b2c9",
+      "latency_ms": 225.3847530009807,
+      "dispatch_offset_ms": 38.57990799588151,
+      "hold_id": null
+    },
+    {
+      "index": 91,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "b9aba400-58ff-4b16-8e48-026f5452ac63",
+      "latency_ms": 228.5620709953946,
+      "dispatch_offset_ms": 39.01305500039598,
+      "hold_id": null
+    },
+    {
+      "index": 67,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "bc06b2de-b059-4d43-afdb-20f4d843a9c4",
+      "latency_ms": 241.93820000073174,
+      "dispatch_offset_ms": 28.170555997348856,
+      "hold_id": null
+    },
+    {
+      "index": 84,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "51540013-e2bb-4542-bfd9-28bd0f55647b",
+      "latency_ms": 236.02605699852575,
+      "dispatch_offset_ms": 36.3426019976032,
+      "hold_id": null
+    },
+    {
+      "index": 97,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "f0bc0a98-48c6-493d-8df5-c8f2fb8331c9",
+      "latency_ms": 234.78926800453337,
+      "dispatch_offset_ms": 41.38096299720928,
+      "hold_id": null
+    },
+    {
+      "index": 96,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "23c4c2eb-46d8-4bab-a1cd-99318f81bc76",
+      "latency_ms": 237.8613669934566,
+      "dispatch_offset_ms": 41.03504100203281,
+      "hold_id": null
+    },
+    {
+      "index": 41,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "9e96db84-d642-4b80-8944-a280da33740a",
+      "latency_ms": 268.55366000381764,
+      "dispatch_offset_ms": 16.127723996760324,
+      "hold_id": null
+    },
+    {
+      "index": 47,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "1b2d5d03-d8f6-4cce-90b7-70c748794cf4",
+      "latency_ms": 270.20557800278766,
+      "dispatch_offset_ms": 18.181596999056637,
+      "hold_id": null
+    },
+    {
+      "index": 73,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "7b02a985-90c3-4511-85b3-685e17ea0376",
+      "latency_ms": 258.8401100001647,
+      "dispatch_offset_ms": 30.806762995780446,
+      "hold_id": null
+    },
+    {
+      "index": 95,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "e2b8c1d4-5820-4480-aecf-1be8c04855f5",
+      "latency_ms": 253.84189199394314,
+      "dispatch_offset_ms": 40.64918900257908,
+      "hold_id": null
+    },
+    {
+      "index": 71,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "d5487140-a98d-4b19-8cba-108c79df8153",
+      "latency_ms": 268.6319559943513,
+      "dispatch_offset_ms": 29.993406002176926,
+      "hold_id": null
+    },
+    {
+      "index": 81,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "f8db555f-3f58-41cb-8300-9466cca07420",
+      "latency_ms": 269.36719399964204,
+      "dispatch_offset_ms": 33.89290499762865,
+      "hold_id": null
+    },
+    {
+      "index": 46,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "a0de550c-6991-4064-93f3-e338a2480460",
+      "latency_ms": 287.82864999811864,
+      "dispatch_offset_ms": 17.815938997955527,
+      "hold_id": null
+    },
+    {
+      "index": 59,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "70dd8519-2e50-4d53-83c0-7923fbafa61a",
+      "latency_ms": 286.294749006629,
+      "dispatch_offset_ms": 24.071194995485712,
+      "hold_id": null
+    },
+    {
+      "index": 48,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "7b13b9d6-45a1-434f-a1f8-22fd0faa00de",
+      "latency_ms": 294.09357300028205,
+      "dispatch_offset_ms": 18.505829000787344,
+      "hold_id": null
+    },
+    {
+      "index": 87,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "8ffbffed-007a-4085-b1b9-9a7ac0075912",
+      "latency_ms": 275.5963589952444,
+      "dispatch_offset_ms": 37.43427700101165,
+      "hold_id": null
+    },
+    {
+      "index": 27,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "ec236c02-d2de-47b9-bd5f-343be110e9e9",
+      "latency_ms": 304.0016570012085,
+      "dispatch_offset_ms": 10.792695000418462,
+      "hold_id": null
+    },
+    {
+      "index": 83,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "899c2634-20c4-43cf-af09-6c23a96b99ed",
+      "latency_ms": 281.93951399589423,
+      "dispatch_offset_ms": 34.86746099952143,
+      "hold_id": null
+    },
+    {
+      "index": 65,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "e5620579-46a9-4c96-b1b8-62bcae35959d",
+      "latency_ms": 294.0571419967455,
+      "dispatch_offset_ms": 27.24072799901478,
+      "hold_id": null
+    },
+    {
+      "index": 36,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "3079ddb5-e84e-48dd-9e56-d2b2b1ccaffe",
+      "latency_ms": 307.55148400203325,
+      "dispatch_offset_ms": 14.227827996364795,
+      "hold_id": null
+    },
+    {
+      "index": 68,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "3e26ce21-f9c8-470e-842f-c1f7ff40841b",
+      "latency_ms": 297.9208570031915,
+      "dispatch_offset_ms": 28.521177999209613,
+      "hold_id": null
+    },
+    {
+      "index": 94,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "97e963eb-a4b6-4b35-b345-5e42588943a3",
+      "latency_ms": 289.9535079995985,
+      "dispatch_offset_ms": 40.249127996503375,
+      "hold_id": null
+    },
+    {
+      "index": 98,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "8c1ba013-3227-4265-bc44-397306ebdfe1",
+      "latency_ms": 293.0929529975401,
+      "dispatch_offset_ms": 41.72786499839276,
+      "hold_id": null
+    },
+    {
+      "index": 80,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "b760e878-1e29-4440-ac6a-d31c02299bba",
+      "latency_ms": 301.95194100087974,
+      "dispatch_offset_ms": 33.54322599625448,
+      "hold_id": null
+    },
+    {
+      "index": 92,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "03ab8e7c-e043-4749-9743-2dbf5ac1fc75",
+      "latency_ms": 298.90950200206134,
+      "dispatch_offset_ms": 39.45317299803719,
+      "hold_id": null
+    },
+    {
+      "index": 40,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "9a9a2a7d-a064-4935-afc9-a08f4a5e4fed",
+      "latency_ms": 330.99028700235067,
+      "dispatch_offset_ms": 15.66414799890481,
+      "hold_id": null
+    },
+    {
+      "index": 52,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "32a47c22-5596-4943-929b-4b98300a2a31",
+      "latency_ms": 327.24372899974696,
+      "dispatch_offset_ms": 20.539823999570217,
+      "hold_id": null
+    },
+    {
+      "index": 99,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "691d16aa-87cf-4838-a183-aee69766db04",
+      "latency_ms": 306.5994709977531,
+      "dispatch_offset_ms": 42.09955500118667,
+      "hold_id": null
+    },
+    {
+      "index": 39,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "19ea7ef2-2b1b-46d2-b2b9-1b03bde21022",
+      "latency_ms": 334.217395997257,
+      "dispatch_offset_ms": 15.314839998609386,
+      "hold_id": null
+    },
+    {
+      "index": 79,
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "7c30a9f6-7d0d-4598-ae71-3fcbc995cdde",
+      "latency_ms": 317.2177529995679,
+      "dispatch_offset_ms": 33.20447899750434,
+      "hold_id": null
+    },
+    {
+      "index": 34,
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "8ed61401-0556-432b-bfb7-265a5e8287e3",
+      "latency_ms": 338.6896070005605,
+      "dispatch_offset_ms": 13.501168999937363,
+      "hold_id": null
+    }
+  ],
+  "note": "One client barrier, not simultaneous server arrival. No retries. Durable ownership verified separately."
+}

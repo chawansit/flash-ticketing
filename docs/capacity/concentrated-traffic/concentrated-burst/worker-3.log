@@ -1,0 +1,130 @@
+{"phase": "measuring", "rate": 25, "seconds": 240, "utc": "2026-09-09T13:49:20.865737+00:00"}
+{"phase": "progress", "scheduled": 750, "drops": 0}
+{"phase": "progress", "scheduled": 1500, "drops": 0}
+{"phase": "progress", "scheduled": 2250, "drops": 0}
+{"phase": "progress", "scheduled": 3000, "drops": 0}
+{"phase": "progress", "scheduled": 3750, "drops": 0}
+{"phase": "progress", "scheduled": 4500, "drops": 0}
+{"phase": "progress", "scheduled": 5250, "drops": 0}
+{"phase": "progress", "scheduled": 6000, "drops": 0}
+{"phase": "progress", "scheduled": 6750, "drops": 0}
+{"phase": "progress", "scheduled": 7500, "drops": 0}
+{"phase": "progress", "scheduled": 8250, "drops": 0}
+{"phase": "progress", "scheduled": 9000, "drops": 0}
+{"phase": "progress", "scheduled": 9750, "drops": 0}
+{"phase": "progress", "scheduled": 10500, "drops": 0}
+{"phase": "progress", "scheduled": 11250, "drops": 0}
+{"phase": "progress", "scheduled": 12000, "drops": 0}
+{"phase": "progress", "scheduled": 12750, "drops": 0}
+{"phase": "progress", "scheduled": 13500, "drops": 0}
+{"phase": "progress", "scheduled": 14250, "drops": 0}
+{
+  "phases": {
+    "0": {
+      "statuses": {
+        "hold": {
+          "201": 75
+        },
+        "read": {
+          "304": 1047,
+          "200": 378
+        }
+      },
+      "p95_ms": {
+        "hold": 25.583606999134645,
+        "read": 10.465949002536945
+      }
+    },
+    "1": {
+      "statuses": {
+        "read": {
+          "304": 7237,
+          "200": 4163
+        },
+        "hold": {
+          "201": 600
+        }
+      },
+      "p95_ms": {
+        "read": 11.280139995506033,
+        "hold": 37.86353100440465
+      }
+    },
+    "2": {
+      "statuses": {
+        "hold": {
+          "201": 75
+        },
+        "read": {
+          "200": 862,
+          "304": 563
+        }
+      },
+      "p95_ms": {
+        "hold": 27.180601995496545,
+        "read": 12.684166998951696
+      }
+    }
+  },
+  "read_hot_share": 0,
+  "burst": true,
+  "utc": "2026-09-09T13:53:20.832838+00:00",
+  "measured_started_utc": "2026-09-09T13:49:20.865737+00:00",
+  "manifest_id": "3a30daae-3d0f-4a18-832b-bd5f6c43b5b7",
+  "run_id": "6af32b9b-68ec-4d22-ac8b-6da1d3ea00fd",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 25,
+  "seconds": 240,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "error_codes": {},
+  "error_examples": [],
+  "transport_error_types": {},
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.6027859965106472,
+  "generator_cpu_seconds": 27.158320034000003,
+  "elapsed_seconds": 239.96423733799747,
+  "completed_rps": 62.509314581205736,
+  "statuses": {
+    "hold": {
+      "201": 750
+    },
+    "read": {
+      "304": 8847,
+      "200": 5403
+    }
+  },
+  "response_body_bytes": 100769245,
+  "latency_ms": {
+    "hold:201": {
+      "p50": 22.412091995647643,
+      "p95": 37.11504300008528,
+      "p99": 58.564710001519416
+    },
+    "read:304": {
+      "p50": 3.7996949977241457,
+      "p95": 6.812501000240445,
+      "p99": 13.843496999470517
+    },
+    "read:200": {
+      "p50": 4.308614996261895,
+      "p95": 12.826939004298765,
+      "p99": 18.461241001205053
+    }
+  },
+  "read_p95_ms": 11.525393005285878,
+  "hold_p95_ms": 37.11504300008528,
+  "local_read_gate_pass": true,
+  "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": true,
+  "phase_latency_gate_pass": true
+}

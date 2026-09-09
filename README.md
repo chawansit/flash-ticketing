@@ -134,3 +134,5 @@ seat updates and hold expiry. Deploy both with matching application versions.
 `python -m ticketing.workers reconciler` and scrape its port 9101 under its own
 instance name. Map TTL remains 30 seconds; this removes shared-loop blocking but
 still requires capacity validation. See [ADR 0016](docs/adr/0016-isolated-reconciliation-worker.md).
+
+Latest cloud validation: [concentrated seat-map reads, seat contention and burst recovery](docs/capacity/concentrated-traffic/README.md). Hot reads passed 400 RPS for five minutes; contention retained one durable winner but exposed admission and client-latency limits.
