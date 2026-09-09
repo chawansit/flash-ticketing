@@ -1,0 +1,43 @@
+[
+  {
+    "client_expiry_seconds": 5,
+    "declared_server_timeout_seconds": 5,
+    "started_utc": "2026-09-09T16:43:37.331772+00:00",
+    "finished_utc": "2026-09-09T16:44:53.086493+00:00",
+    "statuses": {
+      "200": 346,
+      "304": 124,
+      "transport_error": 10
+    },
+    "failed_pairs": 10,
+    "same_port_probes": 81,
+    "new_connect_probes": 149
+  },
+  {
+    "client_expiry_seconds": 30,
+    "declared_server_timeout_seconds": 5,
+    "started_utc": "2026-09-09T16:44:53.123560+00:00",
+    "finished_utc": "2026-09-09T16:46:08.856202+00:00",
+    "statuses": {
+      "200": 347,
+      "304": 121,
+      "transport_error": 12
+    },
+    "failed_pairs": 12,
+    "same_port_probes": 66,
+    "new_connect_probes": 162
+  },
+  {
+    "client_expiry_seconds": 2,
+    "declared_server_timeout_seconds": 5,
+    "started_utc": "2026-09-09T16:46:08.893879+00:00",
+    "finished_utc": "2026-09-09T16:47:24.580232+00:00",
+    "statuses": {
+      "200": 352,
+      "304": 128
+    },
+    "failed_pairs": 0,
+    "same_port_probes": 0,
+    "new_connect_probes": 240
+  }
+]

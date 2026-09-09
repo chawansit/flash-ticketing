@@ -69,3 +69,5 @@ Use fresh seats and output directories on repetition. Do not publish the private
 ## Remaining work
 
 Root cause is unresolved. A focused connection-idle/keep-alive experiment or longer bounded read soak with this trace enabled can test the connection-reuse hypothesis. Correlate an actual failed request with transport/server evidence before changing pooling or accepting the retained async-service candidate. The current evidence does not justify calling the issue fixed.
+
+Follow-up: the [idle-boundary experiment](../idle-boundary/README.md) reproduced controlled connection-reuse errors. It supports a mitigation candidate but does not establish the cause of the earlier failures.

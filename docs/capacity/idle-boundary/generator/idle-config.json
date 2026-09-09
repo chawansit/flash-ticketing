@@ -1,0 +1,32 @@
+{
+  "httpx": "0.28.1",
+  "httpcore": "1.0.9",
+  "hashes": {
+    "idle_boundary_probe.py": "63f9d56f478ddfa288880681a75adbfb5ef966e9d474140957f1b5abc34be424",
+    "http_load_generator.py": "fc92da8b3ca32f6b80d5f0c6ab68585a6ffb08baa9cf8a8f35e3dcbacc0064ab"
+  },
+  "lanes": 16,
+  "repeats": 3,
+  "delays": [
+    4.95,
+    4.995,
+    5,
+    5.005,
+    5.05
+  ],
+  "policy_order": [
+    5,
+    30,
+    2
+  ],
+  "proxy_env_present": {
+    "HTTP_PROXY": false,
+    "HTTPS_PROXY": false,
+    "ALL_PROXY": false,
+    "NO_PROXY": false,
+    "http_proxy": false,
+    "https_proxy": false,
+    "all_proxy": false,
+    "no_proxy": false
+  }
+}

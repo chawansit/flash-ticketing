@@ -1,0 +1,9 @@
+{
+  "uvicorn": "0.52.4",
+  "httptools": "0.8.0",
+  "api_sha256": "5e788ad4a528d1696ab3ba118eb16904b2ff55accee6810645a6c46620654ccc",
+  "service_sync": true,
+  "ingress_timeout_line": [
+    "http=TimedHttpToolsProtocol, limit_concurrency=256, timeout_keep_alive=5)"
+  ]
+}

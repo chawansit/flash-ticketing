@@ -1,0 +1,242 @@
+[
+  {
+    "client_expiry_seconds": 2,
+    "declared_server_timeout_seconds": 5,
+    "started_utc": "2026-09-09T16:46:08.893879+00:00",
+    "finished_utc": "2026-09-09T16:47:24.580232+00:00",
+    "statuses": {
+      "200": 352,
+      "304": 128
+    },
+    "failed_pairs": 0,
+    "same_port_probes": 0,
+    "new_connect_probes": 240,
+    "by_delay": [
+      {
+        "idle_seconds": 4.95,
+        "pairs": 48,
+        "probe_statuses": {
+          "304": 26,
+          "200": 22
+        },
+        "reused": 0,
+        "new_connect": 48,
+        "actual_idle_min": 4.950055007997435,
+        "actual_idle_max": 4.955720566998934
+      },
+      {
+        "idle_seconds": 4.995,
+        "pairs": 48,
+        "probe_statuses": {
+          "200": 23,
+          "304": 25
+        },
+        "reused": 0,
+        "new_connect": 48,
+        "actual_idle_min": 4.995087909999711,
+        "actual_idle_max": 5.000823679998575
+      },
+      {
+        "idle_seconds": 5,
+        "pairs": 48,
+        "probe_statuses": {
+          "304": 26,
+          "200": 22
+        },
+        "reused": 0,
+        "new_connect": 48,
+        "actual_idle_min": 5.000070788999437,
+        "actual_idle_max": 5.006597043997317
+      },
+      {
+        "idle_seconds": 5.005,
+        "pairs": 48,
+        "probe_statuses": {
+          "200": 23,
+          "304": 25
+        },
+        "reused": 0,
+        "new_connect": 48,
+        "actual_idle_min": 5.0050207109961775,
+        "actual_idle_max": 5.011713380001311
+      },
+      {
+        "idle_seconds": 5.05,
+        "pairs": 48,
+        "probe_statuses": {
+          "304": 26,
+          "200": 22
+        },
+        "reused": 0,
+        "new_connect": 48,
+        "actual_idle_min": 5.050136641999416,
+        "actual_idle_max": 5.0544040970053175
+      }
+    ],
+    "error_classes": {},
+    "errors_attempting_connect": 0
+  },
+  {
+    "client_expiry_seconds": 30,
+    "declared_server_timeout_seconds": 5,
+    "started_utc": "2026-09-09T16:44:53.123560+00:00",
+    "finished_utc": "2026-09-09T16:46:08.856202+00:00",
+    "statuses": {
+      "200": 347,
+      "304": 121,
+      "transport_error": 12
+    },
+    "failed_pairs": 12,
+    "same_port_probes": 66,
+    "new_connect_probes": 162,
+    "by_delay": [
+      {
+        "idle_seconds": 4.95,
+        "pairs": 48,
+        "probe_statuses": {
+          "304": 26,
+          "200": 22
+        },
+        "reused": 48,
+        "new_connect": 0,
+        "actual_idle_min": 4.950064912001835,
+        "actual_idle_max": 4.95610126000247
+      },
+      {
+        "idle_seconds": 4.995,
+        "pairs": 48,
+        "probe_statuses": {
+          "transport_error": 12,
+          "304": 18,
+          "200": 18
+        },
+        "reused": 18,
+        "new_connect": 18,
+        "actual_idle_min": 4.9952071309962776,
+        "actual_idle_max": 5.001187339999888
+      },
+      {
+        "idle_seconds": 5,
+        "pairs": 48,
+        "probe_statuses": {
+          "304": 26,
+          "200": 22
+        },
+        "reused": 0,
+        "new_connect": 48,
+        "actual_idle_min": 5.000054600001022,
+        "actual_idle_max": 5.0062048390027485
+      },
+      {
+        "idle_seconds": 5.005,
+        "pairs": 48,
+        "probe_statuses": {
+          "200": 23,
+          "304": 25
+        },
+        "reused": 0,
+        "new_connect": 48,
+        "actual_idle_min": 5.005105627999001,
+        "actual_idle_max": 5.0121045089981635
+      },
+      {
+        "idle_seconds": 5.05,
+        "pairs": 48,
+        "probe_statuses": {
+          "304": 26,
+          "200": 22
+        },
+        "reused": 0,
+        "new_connect": 48,
+        "actual_idle_min": 5.050118405997637,
+        "actual_idle_max": 5.054023390999646
+      }
+    ],
+    "error_classes": {
+      "RemoteProtocolError": 10,
+      "ReadError": 2
+    },
+    "errors_attempting_connect": 0
+  },
+  {
+    "client_expiry_seconds": 5,
+    "declared_server_timeout_seconds": 5,
+    "started_utc": "2026-09-09T16:43:37.331772+00:00",
+    "finished_utc": "2026-09-09T16:44:53.086493+00:00",
+    "statuses": {
+      "200": 346,
+      "304": 124,
+      "transport_error": 10
+    },
+    "failed_pairs": 10,
+    "same_port_probes": 81,
+    "new_connect_probes": 149,
+    "by_delay": [
+      {
+        "idle_seconds": 4.95,
+        "pairs": 48,
+        "probe_statuses": {
+          "304": 26,
+          "200": 22
+        },
+        "reused": 48,
+        "new_connect": 0,
+        "actual_idle_min": 4.95020614600071,
+        "actual_idle_max": 4.955841168004554
+      },
+      {
+        "idle_seconds": 4.995,
+        "pairs": 48,
+        "probe_statuses": {
+          "transport_error": 10,
+          "304": 21,
+          "200": 17
+        },
+        "reused": 33,
+        "new_connect": 5,
+        "actual_idle_min": 4.995086375995015,
+        "actual_idle_max": 5.0006740349999745
+      },
+      {
+        "idle_seconds": 5,
+        "pairs": 48,
+        "probe_statuses": {
+          "304": 26,
+          "200": 22
+        },
+        "reused": 0,
+        "new_connect": 48,
+        "actual_idle_min": 5.0000750010003685,
+        "actual_idle_max": 5.0058802560015465
+      },
+      {
+        "idle_seconds": 5.005,
+        "pairs": 48,
+        "probe_statuses": {
+          "200": 23,
+          "304": 25
+        },
+        "reused": 0,
+        "new_connect": 48,
+        "actual_idle_min": 5.005055426998297,
+        "actual_idle_max": 5.010635289996571
+      },
+      {
+        "idle_seconds": 5.05,
+        "pairs": 48,
+        "probe_statuses": {
+          "304": 26,
+          "200": 22
+        },
+        "reused": 0,
+        "new_connect": 48,
+        "actual_idle_min": 5.050111347998609,
+        "actual_idle_max": 5.052067611999519
+      }
+    ],
+    "error_classes": {
+      "RemoteProtocolError": 10
+    },
+    "errors_attempting_connect": 0
+  }
+]

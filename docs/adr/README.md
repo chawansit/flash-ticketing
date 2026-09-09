@@ -41,3 +41,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0022: Inline in-memory service dependency](0022-inline-service-dependency.md)
 
 - [0023: Bounded read transport diagnostics](0023-read-transport-diagnostics.md)
+
+- [0024: Read-only idle-boundary experiment](0024-idle-boundary-experiment.md)
