@@ -1,0 +1,146 @@
+{
+  "application_records": 123269,
+  "ingress_records": 123269,
+  "missing_ingress": 0,
+  "status_mismatches": 0,
+  "missing_protocol_stamps": 0,
+  "groups": {
+    "/health/ready|200": {
+      "app": {
+        "count": 105,
+        "p95_ms": 16.4,
+        "max_ms": 96.57
+      },
+      "protocol_queue": {
+        "count": 105,
+        "p95_ms": 0.553,
+        "max_ms": 12.221
+      },
+      "asgi_headers": {
+        "count": 105,
+        "p95_ms": 16.565,
+        "max_ms": 96.711
+      }
+    },
+    "/metrics|200": {
+      "app": {
+        "count": 107,
+        "p95_ms": 18.83,
+        "max_ms": 34.04
+      },
+      "protocol_queue": {
+        "count": 107,
+        "p95_ms": 0.776,
+        "max_ms": 2.37
+      },
+      "asgi_headers": {
+        "count": 107,
+        "p95_ms": 19.072,
+        "max_ms": 34.174
+      }
+    },
+    "/health/live|200": {
+      "app": {
+        "count": 257,
+        "p95_ms": 44.07,
+        "max_ms": 46.17
+      },
+      "protocol_queue": {
+        "count": 257,
+        "p95_ms": 9.223,
+        "max_ms": 10.75
+      },
+      "asgi_headers": {
+        "count": 257,
+        "p95_ms": 44.189,
+        "max_ms": 46.304
+      }
+    },
+    "/v1/holds|503": {
+      "app": {
+        "count": 1921,
+        "p95_ms": 0.11,
+        "max_ms": 1.44
+      },
+      "protocol_queue": {
+        "count": 1921,
+        "p95_ms": 37.943,
+        "max_ms": 57.602
+      },
+      "asgi_headers": {
+        "count": 1921,
+        "p95_ms": 0.382,
+        "max_ms": 29.507
+      }
+    },
+    "/v1/holds|409": {
+      "app": {
+        "count": 77,
+        "p95_ms": 512.62,
+        "max_ms": 518.12
+      },
+      "protocol_queue": {
+        "count": 77,
+        "p95_ms": 6.107,
+        "max_ms": 6.3
+      },
+      "asgi_headers": {
+        "count": 77,
+        "p95_ms": 512.777,
+        "max_ms": 518.276
+      }
+    },
+    "/v1/holds|201": {
+      "app": {
+        "count": 6002,
+        "p95_ms": 46.4,
+        "max_ms": 514.05
+      },
+      "protocol_queue": {
+        "count": 6002,
+        "p95_ms": 0.413,
+        "max_ms": 10.353
+      },
+      "asgi_headers": {
+        "count": 6002,
+        "p95_ms": 46.591,
+        "max_ms": 514.226
+      }
+    },
+    "/v1/events/{event_id}/availability|200": {
+      "app": {
+        "count": 47351,
+        "p95_ms": 12.96,
+        "max_ms": 121.0
+      },
+      "protocol_queue": {
+        "count": 47351,
+        "p95_ms": 0.542,
+        "max_ms": 37.494
+      },
+      "asgi_headers": {
+        "count": 47351,
+        "p95_ms": 13.205,
+        "max_ms": 121.122
+      }
+    },
+    "/v1/events/{event_id}/availability|304": {
+      "app": {
+        "count": 67449,
+        "p95_ms": 7.11,
+        "max_ms": 115.29
+      },
+      "protocol_queue": {
+        "count": 67449,
+        "p95_ms": 0.522,
+        "max_ms": 25.141
+      },
+      "asgi_headers": {
+        "count": 67449,
+        "p95_ms": 7.386,
+        "max_ms": 116.004
+      }
+    }
+  },
+  "note": "Protocol callback to ASGI excludes network/kernel waiting before headers-complete. Percentiles describe separate distributions."
+}

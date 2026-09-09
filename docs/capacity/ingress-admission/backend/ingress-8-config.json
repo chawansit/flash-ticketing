@@ -1,0 +1,14 @@
+{
+  "base_commit": "6d1cde1",
+  "hashes": {
+    "src/ticketing/api.py": "5e788ad4a528d1696ab3ba118eb16904b2ff55accee6810645a6c46620654ccc",
+    "src/ticketing/infrastructure/cache.py": "5b7c7765cc621b6cf5eb1ba4789fdefb03b4602a9b8f783bf46c8bff9e5c77e0",
+    "src/ticketing/infrastructure/reservations.py": "1e49c31dc1c09b59b1e5ceea29887cdf422bccedf1863350816ebab270296b4c",
+    "/app/ingress_server.py": "8a2a92e75b4bed0927fbe37d407db4ec8c18431c04cbec680fd3f45b35012554"
+  },
+  "uvicorn": "0.52.4",
+  "httptools": "0.8.0",
+  "admission": 8,
+  "pool_max": 12,
+  "hold_seconds": 120
+}

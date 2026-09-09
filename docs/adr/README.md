@@ -33,3 +33,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0018: Concentrated traffic validation](0018-concentrated-traffic-validation.md)
 
 - [0019: Contention latency attribution](0019-contention-latency-attribution.md)
+
+- [0020: Protocol ingress timing and bounded admission experiment](0020-ingress-and-admission-experiment.md)

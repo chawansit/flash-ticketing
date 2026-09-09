@@ -37,6 +37,8 @@ Useful endpoints: [OpenAPI JSON](http://localhost:8000/openapi.json),
 
 ## Load-test results
 
+Latest: [protocol ingress and admission 8 vs 16 experiment](docs/capacity/ingress-admission/README.md). Both passed 400 HTTP RPS for five minutes; admission 16 did not improve hot-seat total latency, so the default remains eight.
+
 See the [load-test conditions and results](docs/load-test-report.md) and [CSV summary](docs/load-test-results.csv). The report includes all four measured configurations, reproduction commands, and unmet latency targets.
 
 ## Tests

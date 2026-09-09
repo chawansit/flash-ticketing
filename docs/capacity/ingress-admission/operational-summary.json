@@ -1,0 +1,86 @@
+{
+  "8": {
+    "start_utc": "2026-09-09T14:51:02.604406+00:00",
+    "end_utc": "2026-09-09T14:56:02.610536+00:00",
+    "observer_samples": 149,
+    "observer_max": {
+      "missing_maps": 0,
+      "maps_without_ttl": 0,
+      "minimum_ttl": 23,
+      "overdue_active_holds": 6,
+      "oldest_overdue_seconds": 0.30167,
+      "reconciliation_age_seconds": 20.649952,
+      "database_connections": 14,
+      "lock_waiters": 0,
+      "active_connections": 4,
+      "redis_used_bytes": 50762600
+    },
+    "minimum_map_ttl": 9,
+    "api_means_from_counter_deltas": {
+      "ticketing_db_pool_acquire_seconds": {
+        "sample_count": 5968.0,
+        "mean_ms": 0.027070215460188916
+      },
+      "ticketing_db_query_seconds": {
+        "sample_count": 77080.0,
+        "mean_ms": 1.1028669894545973
+      },
+      "ticketing_db_transaction_seconds": {
+        "sample_count": 5968.0,
+        "mean_ms": 17.47026622018864
+      }
+    },
+    "worker_busy_seconds_per_wall_second": {
+      "consumer:9101|consume_event": 0.09956327763434578,
+      "maintenance:9101|refresh_one": 0.16424777266399662,
+      "publisher:9101|publish_batch": 0.10790187919090385,
+      "reconciler:9101|reconcile_batch": 0.34484678496368965,
+      "reconciler:9101|reconcile_schedule": 0.0036996282231605924,
+      "reconciler:9101|snapshot": 0.210460889464642,
+      "simulator:9101|simulate_one": 0.1302139760244366
+    },
+    "note": "Observer filtered to measured interval. Prometheus deltas are scrape-aligned approximations; means are not p95. Worker operation intervals can overlap: do not sum as CPU utilization. Short locks can escape 2-second sampling."
+  },
+  "16": {
+    "start_utc": "2026-09-09T14:59:38.055966+00:00",
+    "end_utc": "2026-09-09T15:04:38.076533+00:00",
+    "observer_samples": 149,
+    "observer_max": {
+      "missing_maps": 0,
+      "maps_without_ttl": 0,
+      "minimum_ttl": 22,
+      "overdue_active_holds": 5,
+      "oldest_overdue_seconds": 0.375356,
+      "reconciliation_age_seconds": 20.436009,
+      "database_connections": 14,
+      "lock_waiters": 0,
+      "active_connections": 4,
+      "redis_used_bytes": 50693328
+    },
+    "minimum_map_ttl": 10,
+    "api_means_from_counter_deltas": {
+      "ticketing_db_pool_acquire_seconds": {
+        "sample_count": 5956.0,
+        "mean_ms": 0.02210960054296398
+      },
+      "ticketing_db_query_seconds": {
+        "sample_count": 76924.0,
+        "mean_ms": 0.6658969730803277
+      },
+      "ticketing_db_transaction_seconds": {
+        "sample_count": 5956.0,
+        "mean_ms": 11.07014559669926
+      }
+    },
+    "worker_busy_seconds_per_wall_second": {
+      "consumer:9101|consume_event": 0.09872515013965312,
+      "maintenance:9101|refresh_one": 0.16298224156256766,
+      "publisher:9101|publish_batch": 0.11135549017165128,
+      "reconciler:9101|reconcile_batch": 0.3470736478982629,
+      "reconciler:9101|reconcile_schedule": 0.003512465693008077,
+      "reconciler:9101|snapshot": 0.21100671953638084,
+      "simulator:9101|simulate_one": 0.12839811924321112
+    },
+    "note": "Observer filtered to measured interval. Prometheus deltas are scrape-aligned approximations; means are not p95. Worker operation intervals can overlap: do not sum as CPU utilization. Short locks can escape 2-second sampling."
+  }
+}

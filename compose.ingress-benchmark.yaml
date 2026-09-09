@@ -1,0 +1,8 @@
+# Opt-in diagnostics; leave out of normal application deployment.
+services:
+  api:
+    command: ["python", "/app/ingress_server.py"]
+    volumes:
+      - ./scripts/ingress_server.py:/app/ingress_server.py:ro
+    environment:
+      RESERVE_CONCURRENCY: ${EXPERIMENT_ADMISSION:-8}
