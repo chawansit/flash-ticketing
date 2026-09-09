@@ -1,0 +1,12 @@
+{
+  "utc": "2026-09-09T19:38:22.785059+00:00",
+  "removed_credentials": [
+    "night-mixed-manifest.json",
+    "night-soak-manifest.json",
+    "night-soak400-manifest.json",
+    "overnight-manifest.json"
+  ],
+  "remaining_manifests": [],
+  "temporary_load_directories": [],
+  "ecs_left_running": true
+}

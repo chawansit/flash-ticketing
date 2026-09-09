@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "<frozen runpy>", line 287, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "scripts/verify_cloud_holds.py", line 44, in <module>
+    audited_holds, audited_intervals, overlaps = conn.execute("""WITH selected AS (
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/psycopg/connection.py", line 300, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.DiskFull: could not resize shared memory segment "/PostgreSQL.2005557580" to 16777216 bytes: No space left on device

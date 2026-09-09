@@ -1,0 +1,10 @@
+{
+  "cpu_sample_utc": "2026-09-09T18:43:19.248086+00:00",
+  "postgres_cpu_percent_of_one_core": 117.23,
+  "host_busy_percent": 80.23,
+  "host_steal_percent": 0.0,
+  "vacuum_snapshot_file": "night-soak-vacuum-snapshot.json",
+  "vacuum_snapshot_file_mtime_utc": "2026-09-09T18:45:00.946371+00:00",
+  "checkpoint_log_file": "night-soak-postgres-spike.log",
+  "conclusion": "Temporal correlation only; the causal PostgreSQL operation has not been established."
+}

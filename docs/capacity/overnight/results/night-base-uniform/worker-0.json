@@ -1,0 +1,216 @@
+{
+  "phases": {
+    "0": {
+      "statuses": {
+        "read": {
+          "304": 28480,
+          "200": 20
+        },
+        "hold": {
+          "409": 1500
+        }
+      },
+      "p95_ms": {
+        "read": 5.186208996747155,
+        "hold": 24.344787001609802
+      }
+    }
+  },
+  "read_hot_share": 0,
+  "burst": false,
+  "utc": "2026-09-09T17:53:59.290002+00:00",
+  "measured_started_utc": "2026-09-09T17:48:59.289478+00:00",
+  "manifest_id": "eec0f739-d376-40ca-9a15-580be72a6174",
+  "run_id": "b9ca3989-319d-4ee1-bd7a-d8a84cb9ebf0",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 100,
+  "seconds": 300,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "error_codes": {
+    "hold:409:SALE_CLOSED": 1500
+  },
+  "error_examples": [
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "0110831f-c391-4e63-949c-a4f0bd453364"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "3e9af45c-3bb0-447d-add1-aed7f20c5ab5"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "0c3e1b4a-40f5-47aa-8a4c-b48840f86fc6"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "28db853a-b98f-4468-a4e4-cdb878360101"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "015499ae-2711-424e-ae94-4792fafe2683"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "341f3442-4d67-405e-ba99-22c4e564101b"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "85772cc1-8dfe-42d7-beff-44e047608638"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "7b3cc084-7723-4a56-a623-3127def6ec9f"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "95091c0b-4ac3-4c80-9e86-59e6a314174c"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "0f3f0007-fa04-4a61-aa41-b3727e91e630"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "8c8876c0-dabd-43f9-ba6e-8edcac381cb3"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "b5e8b2a9-1002-43d1-ab2e-671723fcca5d"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "be4a4b7a-8467-461c-b90f-ac333b211391"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "b2ca3b99-622a-4112-9f2c-d3524efaddb6"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "adbdc290-d47e-4a3e-bb64-ea0c12d7049b"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "68a8911d-a49f-41c4-8a64-a4f0d20f6794"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "27d140a0-7f4c-4be2-831e-4bb0ef66210d"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "379a6d4f-1a8e-497b-b058-852c1877f6bc"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "46173322-5abf-413b-ae7b-69421c03fbe9"
+    },
+    {
+      "operation": "hold",
+      "status": "409",
+      "code": "SALE_CLOSED",
+      "request_id": "d95819b2-4bec-4213-8195-b2352b92536c"
+    }
+  ],
+  "keepalive_expiry_seconds": 5.0,
+  "measured_tcp_connect_events": {
+    "read": {
+      "started": 58,
+      "complete": 58
+    },
+    "hold": {
+      "started": 1,
+      "complete": 1
+    }
+  },
+  "transport_error_types": {},
+  "transport_diagnostics_enabled": true,
+  "transport_failure_examples": [],
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.1151340004289523,
+  "generator_cpu_seconds": 52.851634367,
+  "elapsed_seconds": 299.99404016199696,
+  "completed_rps": 100.00198665213476,
+  "statuses": {
+    "read": {
+      "304": 28480,
+      "200": 20
+    },
+    "hold": {
+      "409": 1500
+    }
+  },
+  "response_body_bytes": 482550,
+  "latency_ms": {
+    "read:304": {
+      "p50": 2.732736997131724,
+      "p95": 5.184736000956036,
+      "p99": 8.748332998948172
+    },
+    "hold:409": {
+      "p50": 16.977185994619504,
+      "p95": 24.344787001609802,
+      "p99": 33.290637999016326
+    },
+    "read:200": {
+      "p50": 2.9559670001617633,
+      "p95": 7.426208001561463,
+      "p99": 8.83626800350612
+    }
+  },
+  "read_p95_ms": 5.186208996747155,
+  "hold_p95_ms": 24.344787001609802,
+  "local_read_gate_pass": false,
+  "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": false,
+  "phase_latency_gate_pass": true
+}

@@ -45,3 +45,9 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0024: Read-only idle-boundary experiment](0024-idle-boundary-experiment.md)
 
 - [0025: Client expiry load comparison](0025-client-expiry-load-comparison.md)
+
+- [0026: Direct ASGI instrumentation and admission](0026-direct-asgi-instrumentation.md)
+
+- [0027: Transaction-scoped diagnostic settings](0027-transaction-scoped-diagnostics.md)
+
+- [0028: Mixed load and bounded failure validation](0028-mixed-load-and-failure-validation.md)

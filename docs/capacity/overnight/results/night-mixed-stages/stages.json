@@ -1,0 +1,109 @@
+{
+  "started_utc": "2026-09-09T18:10:36.618591+00:00",
+  "stages": [
+    {
+      "rate": 400,
+      "seat_offset": 0,
+      "exit_code": 0,
+      "pass": true,
+      "summary": {
+        "utc": "2026-09-09T18:16:06.853866+00:00",
+        "hot_read_share": 0,
+        "burst": false,
+        "mixed_hot_holds": true,
+        "keepalive_expiry_seconds": 5.0,
+        "rate": 400,
+        "seconds": 300,
+        "workers": 4,
+        "worker_rates": [
+          100,
+          100,
+          100,
+          100
+        ],
+        "worker_exit_codes": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "start_skew_ms": 24.862,
+        "generator_drops": 0,
+        "worst_worker_read_p95_ms": 6.762053999409545,
+        "worst_worker_hold_p95_ms": 36.2110779969953,
+        "gate_pass": true,
+        "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+      }
+    },
+    {
+      "rate": 500,
+      "seat_offset": 40,
+      "exit_code": 0,
+      "pass": true,
+      "summary": {
+        "utc": "2026-09-09T18:21:37.138504+00:00",
+        "hot_read_share": 0,
+        "burst": false,
+        "mixed_hot_holds": true,
+        "keepalive_expiry_seconds": 5.0,
+        "rate": 500,
+        "seconds": 300,
+        "workers": 4,
+        "worker_rates": [
+          125,
+          125,
+          125,
+          125
+        ],
+        "worker_exit_codes": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "start_skew_ms": 3.509,
+        "generator_drops": 0,
+        "worst_worker_read_p95_ms": 17.062241000530776,
+        "worst_worker_hold_p95_ms": 58.42661700444296,
+        "gate_pass": true,
+        "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+      }
+    },
+    {
+      "rate": 600,
+      "seat_offset": 80,
+      "exit_code": 1,
+      "pass": false,
+      "summary": {
+        "utc": "2026-09-09T18:27:07.474504+00:00",
+        "hot_read_share": 0,
+        "burst": false,
+        "mixed_hot_holds": true,
+        "keepalive_expiry_seconds": 5.0,
+        "rate": 600,
+        "seconds": 300,
+        "workers": 4,
+        "worker_rates": [
+          150,
+          150,
+          150,
+          150
+        ],
+        "worker_exit_codes": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "start_skew_ms": 5.556,
+        "generator_drops": 0,
+        "worst_worker_read_p95_ms": 63.71563200082164,
+        "worst_worker_hold_p95_ms": 133.0987670007744,
+        "gate_pass": false,
+        "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+      }
+    }
+  ],
+  "selected_soak_rps": 500,
+  "completed_utc": "2026-09-09T18:27:07.519462+00:00"
+}

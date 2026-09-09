@@ -1,0 +1,93 @@
+{
+  "phases": {
+    "0": {
+      "statuses": {
+        "read": {
+          "200": 12965,
+          "304": 15535
+        },
+        "hold": {
+          "201": 1500
+        }
+      },
+      "p95_ms": {
+        "read": 11.12956200086046,
+        "hold": 47.03323099965928
+      }
+    }
+  },
+  "read_hot_share": 0,
+  "burst": false,
+  "utc": "2026-09-09T18:09:32.623456+00:00",
+  "measured_started_utc": "2026-09-09T18:04:32.619691+00:00",
+  "manifest_id": "eec0f739-d376-40ca-9a15-580be72a6174",
+  "run_id": "b614c0d3-32a8-4d4d-b545-f2bff419b88e",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 100,
+  "seconds": 300,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "error_codes": {},
+  "error_examples": [],
+  "keepalive_expiry_seconds": 5.0,
+  "measured_tcp_connect_events": {
+    "read": {
+      "started": 68,
+      "complete": 68
+    },
+    "hold": {
+      "started": 2,
+      "complete": 2
+    }
+  },
+  "transport_error_types": {},
+  "transport_diagnostics_enabled": true,
+  "transport_failure_examples": [],
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.278720999835059,
+  "generator_cpu_seconds": 55.458449093,
+  "elapsed_seconds": 299.9959282400014,
+  "completed_rps": 100.00135727175449,
+  "statuses": {
+    "read": {
+      "200": 12965,
+      "304": 15535
+    },
+    "hold": {
+      "201": 1500
+    }
+  },
+  "response_body_bytes": 241891975,
+  "latency_ms": {
+    "read:200": {
+      "p50": 3.421168999921065,
+      "p95": 12.368540003080852,
+      "p99": 27.233788998273667
+    },
+    "read:304": {
+      "p50": 2.9454699979396537,
+      "p95": 9.435343003133312,
+      "p99": 24.22018299694173
+    },
+    "hold:201": {
+      "p50": 21.258886001305655,
+      "p95": 47.03323099965928,
+      "p99": 75.0460689960164
+    }
+  },
+  "read_p95_ms": 11.12956200086046,
+  "hold_p95_ms": 47.03323099965928,
+  "local_read_gate_pass": true,
+  "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": true,
+  "phase_latency_gate_pass": true
+}

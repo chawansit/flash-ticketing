@@ -1,0 +1,11 @@
+/flash-cloud-bench-api-1 0 running
+/flash-cloud-bench-consumer-1 0 running
+/flash-cloud-bench-kafka-1 0 running
+/flash-cloud-bench-maintenance-1 0 running
+/flash-cloud-bench-pgbouncer-1 0 running
+/flash-cloud-bench-postgres-1 0 running
+/flash-cloud-bench-prometheus-1 0 running
+/flash-cloud-bench-publisher-1 0 running
+/flash-cloud-bench-reconciler-1 0 running
+/flash-cloud-bench-redis-1 0 running
+/flash-cloud-bench-simulator-1 0 running

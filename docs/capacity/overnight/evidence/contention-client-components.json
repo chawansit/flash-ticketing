@@ -1,0 +1,485 @@
+{
+  "waves": {
+    "night-base100": {
+      "201": {
+        "total_ms": {
+          "count": 1,
+          "p95": 90.38136200251756
+        },
+        "client_ms": {
+          "count": 1,
+          "p95": 87.93233900360065
+        },
+        "lane_wait_ms": {
+          "count": 1,
+          "p95": 0.0013040043995715678
+        },
+        "protocol_queue_ms": {
+          "count": 1,
+          "p95": 2.466
+        },
+        "asgi_headers_ms": {
+          "count": 1,
+          "p95": 71.207
+        },
+        "app_ms": {
+          "count": 1,
+          "p95": 71.06
+        }
+      },
+      "409": {
+        "total_ms": {
+          "count": 7,
+          "p95": 87.52939799887827
+        },
+        "client_ms": {
+          "count": 7,
+          "p95": 86.91180000460008
+        },
+        "lane_wait_ms": {
+          "count": 7,
+          "p95": 0.00715300120646134
+        },
+        "protocol_queue_ms": {
+          "count": 7,
+          "p95": 2.795
+        },
+        "asgi_headers_ms": {
+          "count": 7,
+          "p95": 72.05
+        },
+        "app_ms": {
+          "count": 7,
+          "p95": 71.63
+        }
+      },
+      "503": {
+        "total_ms": {
+          "count": 92,
+          "p95": 66.63459300034447
+        },
+        "client_ms": {
+          "count": 92,
+          "p95": 57.31193799874745
+        },
+        "lane_wait_ms": {
+          "count": 92,
+          "p95": 0.003088003722950816
+        },
+        "protocol_queue_ms": {
+          "count": 92,
+          "p95": 20.198
+        },
+        "asgi_headers_ms": {
+          "count": 92,
+          "p95": 0.333
+        },
+        "app_ms": {
+          "count": 92,
+          "p95": 0.1
+        }
+      }
+    },
+    "night-base1000": {
+      "201": {
+        "total_ms": {
+          "count": 1,
+          "p95": 526.601061996189
+        },
+        "client_ms": {
+          "count": 1,
+          "p95": 523.2901249983115
+        },
+        "lane_wait_ms": {
+          "count": 1,
+          "p95": 0.0017170023056678474
+        },
+        "protocol_queue_ms": {
+          "count": 1,
+          "p95": 0.954
+        },
+        "asgi_headers_ms": {
+          "count": 1,
+          "p95": 486.823
+        },
+        "app_ms": {
+          "count": 1,
+          "p95": 486.66
+        }
+      },
+      "409": {
+        "total_ms": {
+          "count": 55,
+          "p95": 678.966079998645
+        },
+        "client_ms": {
+          "count": 55,
+          "p95": 521.490225000889
+        },
+        "lane_wait_ms": {
+          "count": 55,
+          "p95": 644.536011001037
+        },
+        "protocol_queue_ms": {
+          "count": 55,
+          "p95": 4.617
+        },
+        "asgi_headers_ms": {
+          "count": 55,
+          "p95": 486.855
+        },
+        "app_ms": {
+          "count": 55,
+          "p95": 486.63
+        }
+      },
+      "503": {
+        "total_ms": {
+          "count": 944,
+          "p95": 519.4598230009433
+        },
+        "client_ms": {
+          "count": 944,
+          "p95": 83.73154699802399
+        },
+        "lane_wait_ms": {
+          "count": 944,
+          "p95": 450.98395999957575
+        },
+        "protocol_queue_ms": {
+          "count": 944,
+          "p95": 36.392
+        },
+        "asgi_headers_ms": {
+          "count": 944,
+          "p95": 0.324
+        },
+        "app_ms": {
+          "count": 944,
+          "p95": 0.11
+        }
+      }
+    },
+    "night-cand100-v2": {
+      "201": {
+        "total_ms": {
+          "count": 1,
+          "p95": 78.19399000436533
+        },
+        "client_ms": {
+          "count": 1,
+          "p95": 76.19070200598799
+        },
+        "lane_wait_ms": {
+          "count": 1,
+          "p95": 0.0018949940567836165
+        },
+        "protocol_queue_ms": {
+          "count": 1,
+          "p95": 0.969
+        },
+        "asgi_headers_ms": {
+          "count": 1,
+          "p95": 61.838
+        },
+        "app_ms": {
+          "count": 1,
+          "p95": 61.72
+        }
+      },
+      "409": {
+        "total_ms": {
+          "count": 7,
+          "p95": 74.26092000241624
+        },
+        "client_ms": {
+          "count": 7,
+          "p95": 73.39373700233409
+        },
+        "lane_wait_ms": {
+          "count": 7,
+          "p95": 0.00585200177738443
+        },
+        "protocol_queue_ms": {
+          "count": 7,
+          "p95": 0.915
+        },
+        "asgi_headers_ms": {
+          "count": 7,
+          "p95": 58.273
+        },
+        "app_ms": {
+          "count": 7,
+          "p95": 57.99
+        }
+      },
+      "503": {
+        "total_ms": {
+          "count": 92,
+          "p95": 61.57602000166662
+        },
+        "client_ms": {
+          "count": 92,
+          "p95": 49.671684006170835
+        },
+        "lane_wait_ms": {
+          "count": 92,
+          "p95": 0.0023989996407181025
+        },
+        "protocol_queue_ms": {
+          "count": 92,
+          "p95": 16.31
+        },
+        "asgi_headers_ms": {
+          "count": 92,
+          "p95": 0.21
+        },
+        "app_ms": {
+          "count": 92,
+          "p95": 0.09
+        }
+      }
+    },
+    "night-cand1000": {
+      "201": {
+        "total_ms": {
+          "count": 1,
+          "p95": 216.18480800680118
+        },
+        "client_ms": {
+          "count": 1,
+          "p95": 213.3884799986845
+        },
+        "lane_wait_ms": {
+          "count": 1,
+          "p95": 0.0014399993233382702
+        },
+        "protocol_queue_ms": {
+          "count": 1,
+          "p95": 0.402
+        },
+        "asgi_headers_ms": {
+          "count": 1,
+          "p95": 187.735
+        },
+        "app_ms": {
+          "count": 1,
+          "p95": 187.6
+        }
+      },
+      "409": {
+        "total_ms": {
+          "count": 44,
+          "p95": 531.4309989989852
+        },
+        "client_ms": {
+          "count": 44,
+          "p95": 295.31470999791054
+        },
+        "lane_wait_ms": {
+          "count": 44,
+          "p95": 498.96541600173805
+        },
+        "protocol_queue_ms": {
+          "count": 44,
+          "p95": 7.726
+        },
+        "asgi_headers_ms": {
+          "count": 44,
+          "p95": 215.148
+        },
+        "app_ms": {
+          "count": 44,
+          "p95": 215.05
+        }
+      },
+      "503": {
+        "total_ms": {
+          "count": 955,
+          "p95": 456.14121000107843
+        },
+        "client_ms": {
+          "count": 955,
+          "p95": 70.67383600224275
+        },
+        "lane_wait_ms": {
+          "count": 955,
+          "p95": 406.86799800459994
+        },
+        "protocol_queue_ms": {
+          "count": 955,
+          "p95": 22.357
+        },
+        "asgi_headers_ms": {
+          "count": 955,
+          "p95": 0.241
+        },
+        "app_ms": {
+          "count": 955,
+          "p95": 0.1
+        }
+      }
+    },
+    "night-cand1000b": {
+      "201": {
+        "total_ms": {
+          "count": 1,
+          "p95": 363.62982100399677
+        },
+        "client_ms": {
+          "count": 1,
+          "p95": 362.3121330019785
+        },
+        "lane_wait_ms": {
+          "count": 1,
+          "p95": 0.0031620002118870616
+        },
+        "protocol_queue_ms": {
+          "count": 1,
+          "p95": 0.326
+        },
+        "asgi_headers_ms": {
+          "count": 1,
+          "p95": 337.486
+        },
+        "app_ms": {
+          "count": 1,
+          "p95": 337.39
+        }
+      },
+      "409": {
+        "total_ms": {
+          "count": 43,
+          "p95": 588.3070990021224
+        },
+        "client_ms": {
+          "count": 43,
+          "p95": 356.50081500352826
+        },
+        "lane_wait_ms": {
+          "count": 43,
+          "p95": 557.5546129985014
+        },
+        "protocol_queue_ms": {
+          "count": 43,
+          "p95": 7.709
+        },
+        "asgi_headers_ms": {
+          "count": 43,
+          "p95": 335.205
+        },
+        "app_ms": {
+          "count": 43,
+          "p95": 335.11
+        }
+      },
+      "503": {
+        "total_ms": {
+          "count": 956,
+          "p95": 471.41589500097325
+        },
+        "client_ms": {
+          "count": 956,
+          "p95": 82.44937400013441
+        },
+        "lane_wait_ms": {
+          "count": 956,
+          "p95": 405.08476499962853
+        },
+        "protocol_queue_ms": {
+          "count": 956,
+          "p95": 36.834
+        },
+        "asgi_headers_ms": {
+          "count": 956,
+          "p95": 0.241
+        },
+        "app_ms": {
+          "count": 956,
+          "p95": 0.1
+        }
+      }
+    },
+    "night-base1000b": {
+      "201": {
+        "total_ms": {
+          "count": 1,
+          "p95": 530.4374170009396
+        },
+        "client_ms": {
+          "count": 1,
+          "p95": 527.872003003722
+        },
+        "lane_wait_ms": {
+          "count": 1,
+          "p95": 0.0014200049918144941
+        },
+        "protocol_queue_ms": {
+          "count": 1,
+          "p95": 0.857
+        },
+        "asgi_headers_ms": {
+          "count": 1,
+          "p95": 493.233
+        },
+        "app_ms": {
+          "count": 1,
+          "p95": 493.03
+        }
+      },
+      "409": {
+        "total_ms": {
+          "count": 51,
+          "p95": 689.3872069995268
+        },
+        "client_ms": {
+          "count": 51,
+          "p95": 546.9096359956893
+        },
+        "lane_wait_ms": {
+          "count": 51,
+          "p95": 653.9893570006825
+        },
+        "protocol_queue_ms": {
+          "count": 51,
+          "p95": 4.199
+        },
+        "asgi_headers_ms": {
+          "count": 51,
+          "p95": 506.119
+        },
+        "app_ms": {
+          "count": 51,
+          "p95": 505.91
+        }
+      },
+      "503": {
+        "total_ms": {
+          "count": 948,
+          "p95": 539.4139529962558
+        },
+        "client_ms": {
+          "count": 948,
+          "p95": 89.39989500504453
+        },
+        "lane_wait_ms": {
+          "count": 948,
+          "p95": 472.4244689932675
+        },
+        "protocol_queue_ms": {
+          "count": 948,
+          "p95": 41.034
+        },
+        "asgi_headers_ms": {
+          "count": 948,
+          "p95": 0.359
+        },
+        "app_ms": {
+          "count": 948,
+          "p95": 0.11
+        }
+      }
+    }
+  },
+  "note": "Separate distributions per response status; percentiles are not additive. App and protocol timings come from response headers. Total includes generator lane queueing."
+}

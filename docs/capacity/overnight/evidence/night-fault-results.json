@@ -1,0 +1,182 @@
+{
+  "started_utc": "2026-09-09T19:35:58.252287+00:00",
+  "event_id": "4024b773-0355-491e-abcb-c576408e4259",
+  "seat_ids": [
+    "S290",
+    "S291",
+    "S292"
+  ],
+  "cases": [
+    {
+      "service": "redis",
+      "started_utc": "2026-09-09T19:35:59.000059+00:00",
+      "during_outage": {
+        "status": 503,
+        "body": {
+          "code": "ADMISSION_UNAVAILABLE",
+          "request_id": "0285e3d8-1762-44e9-8a50-ba763124aaec"
+        },
+        "milliseconds": 5.2346609882079065
+      },
+      "readiness_recovery_seconds": 1.0501780780032277,
+      "failed_key_records_before_retry": 0,
+      "after_recovery": {
+        "status": 201,
+        "body": {
+          "hold_id": "49d7a270-7dae-41ae-b4c5-409738978a85",
+          "order_id": "9af3622b-2f15-4720-8e51-4a3a732e451b",
+          "expires_at": "2026-09-09T19:38:03.795386+00:00",
+          "total": 100,
+          "currency": "THB",
+          "seats": [
+            "S290"
+          ]
+        },
+        "milliseconds": 8.883140006219037
+      },
+      "idempotent_replay": {
+        "status": 201,
+        "body": {
+          "seats": [
+            "S290"
+          ],
+          "total": 100,
+          "hold_id": "49d7a270-7dae-41ae-b4c5-409738978a85",
+          "currency": "THB",
+          "order_id": "9af3622b-2f15-4720-8e51-4a3a732e451b",
+          "expires_at": "2026-09-09T19:38:03.795386+00:00"
+        },
+        "milliseconds": 4.233972998918034
+      },
+      "conflict": {
+        "status": 409,
+        "body": {
+          "code": "SEAT_UNAVAILABLE",
+          "request_id": "031eaeac-1c31-49fd-bbbe-dfd36e2ee3ef"
+        },
+        "milliseconds": 4.374231997644529
+      },
+      "one_current_owner": true,
+      "pass": true
+    },
+    {
+      "service": "postgres",
+      "started_utc": "2026-09-09T19:36:04.524795+00:00",
+      "during_outage": {
+        "status": 503,
+        "body": {
+          "code": "DATABASE_UNAVAILABLE",
+          "request_id": "b00be884-f558-4ca0-aad2-759b65131c34"
+        },
+        "milliseconds": 5.439222004497424
+      },
+      "readiness_recovery_seconds": 13.055604219989618,
+      "failed_key_records_before_retry": 0,
+      "after_recovery": {
+        "status": 201,
+        "body": {
+          "hold_id": "106e83a7-1eca-4f7a-bbaf-ffd236da43a9",
+          "order_id": "794a6899-d8b5-41d2-b65c-67652da8d45d",
+          "expires_at": "2026-09-09T19:38:21.231463+00:00",
+          "total": 100,
+          "currency": "THB",
+          "seats": [
+            "S291"
+          ]
+        },
+        "milliseconds": 9.384716002386995
+      },
+      "idempotent_replay": {
+        "status": 201,
+        "body": {
+          "seats": [
+            "S291"
+          ],
+          "total": 100,
+          "hold_id": "106e83a7-1eca-4f7a-bbaf-ffd236da43a9",
+          "currency": "THB",
+          "order_id": "794a6899-d8b5-41d2-b65c-67652da8d45d",
+          "expires_at": "2026-09-09T19:38:21.231463+00:00"
+        },
+        "milliseconds": 4.523554001934826
+      },
+      "conflict": {
+        "status": 409,
+        "body": {
+          "code": "SEAT_UNAVAILABLE",
+          "request_id": "bcbbfe88-927d-4709-a2e9-bffd819c7790"
+        },
+        "milliseconds": 5.423515001893975
+      },
+      "one_current_owner": true,
+      "pass": true
+    },
+    {
+      "service": "kafka",
+      "started_utc": "2026-09-09T19:36:21.971453+00:00",
+      "order_id": "e824048b-2cb4-41fb-b060-1cbd2b3739db",
+      "payment": {
+        "status": 202,
+        "body": {
+          "payment_id": "741df8d7-61fc-4aea-9ba5-492a3dfd40c8",
+          "order_id": "e824048b-2cb4-41fb-b060-1cbd2b3739db"
+        },
+        "milliseconds": 8.902508008759469
+      },
+      "during_outage": {
+        "status": 200,
+        "body": {
+          "id": "e824048b-2cb4-41fb-b060-1cbd2b3739db",
+          "actor": "load-534c9d13-e725-4d79-9205-cd06402ffdd6-0",
+          "hold_id": "40c18b3f-d610-40dc-b00e-b56ebaac7685",
+          "event_id": "4024b773-0355-491e-abcb-c576408e4259",
+          "total": 100,
+          "currency": "THB",
+          "status": "PAID",
+          "created_at": "2026-09-09T19:36:21.977691+00:00",
+          "tickets": []
+        },
+        "milliseconds": 3.744224988622591
+      },
+      "pending_paid_events": 1,
+      "fulfillment_recovery_seconds": 10.10459278000053,
+      "after_recovery": {
+        "status": 200,
+        "body": {
+          "id": "e824048b-2cb4-41fb-b060-1cbd2b3739db",
+          "actor": "load-534c9d13-e725-4d79-9205-cd06402ffdd6-0",
+          "hold_id": "40c18b3f-d610-40dc-b00e-b56ebaac7685",
+          "event_id": "4024b773-0355-491e-abcb-c576408e4259",
+          "total": 100,
+          "currency": "THB",
+          "status": "FULFILLED",
+          "created_at": "2026-09-09T19:36:21.977691+00:00",
+          "tickets": [
+            {
+              "id": "1001f718-fbb9-4572-9c6a-089a509bf71e",
+              "seat_id": "S292"
+            }
+          ]
+        },
+        "milliseconds": 5.644231001497246
+      },
+      "deliveries": 5,
+      "target_deliveries": 5,
+      "booking_ticket_callback_paid_event_counts": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "pass": true
+    }
+  ],
+  "unused_seat_preflight": [
+    [
+      3,
+      0
+    ]
+  ],
+  "completed_utc": "2026-09-09T19:36:36.270012+00:00",
+  "pass": true
+}

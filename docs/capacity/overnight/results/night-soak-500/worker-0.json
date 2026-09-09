@@ -1,0 +1,260 @@
+{
+  "mixed_hot_holds": true,
+  "expected_hot_conflicts": 2248,
+  "hot_failed_p95_ms": 27.258399000857025,
+  "phases": {
+    "0": {
+      "statuses": {
+        "hot_hold": {
+          "409": 2248,
+          "201": 1,
+          "503": 1
+        },
+        "read": {
+          "304": 125268,
+          "200": 88482
+        },
+        "hold": {
+          "201": 8996,
+          "503": 4
+        }
+      },
+      "p95_ms": {
+        "hot_hold": 27.34670199424727,
+        "read": 17.349624999042135,
+        "hold": 58.799004000320565
+      }
+    }
+  },
+  "read_hot_share": 0,
+  "burst": false,
+  "utc": "2026-09-09T19:00:20.534087+00:00",
+  "measured_started_utc": "2026-09-09T18:30:20.464815+00:00",
+  "manifest_id": "13db922c-2f19-456f-8aef-54957dc76ab9",
+  "run_id": "222687f2-31b7-4409-8309-c18a08dcc50d",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 125,
+  "seconds": 1800,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "error_codes": {
+    "hot_hold:409:SEAT_BUSY": 2073,
+    "hot_hold:409:SEAT_UNAVAILABLE": 175,
+    "hold:503:ADMISSION_FULL": 4,
+    "hot_hold:503:ADMISSION_FULL": 1
+  },
+  "error_examples": [
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "8b6d7603-9f03-44f5-b64e-de865024f898"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "8d37d1d2-4179-4aaf-b6bd-410618aac09e"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "c15f2f53-bdda-4f27-9c67-c88a6c50e847"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "b56f0344-0349-43bc-a227-70bc5e38eef9"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "a8cb6fdc-3488-4acf-83e7-00e102964e9c"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "e79434ea-ce6a-4075-b6e5-35c171d4cdf4"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "d9679877-b413-48d0-bec2-75f68f201837"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "0f7a392c-2941-4c53-881e-42c15536a89c"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "0e91924b-2ca1-4e41-a90f-4a0cdef43605"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "ad0a1764-b480-4d63-84b1-09dd192f5a5e"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "f7f3e53d-ff6c-49f2-bbb2-7d26dd7905d7"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "8180da27-d312-4730-aeca-66c51618be32"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "87d044ae-c0f5-4414-a6dc-375e7414458c"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "10c4c4b0-7c86-41e1-9e6a-7349075c6ac3"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "026d2b0b-2e26-433e-af0a-36f3b163c8d3"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "86cafd70-1298-4abf-8a62-03f070e43773"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "a4289e47-77c9-4b74-aa87-29a1dfc330b8"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "411db4a9-e18d-48e2-b207-72a6506b3b22"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "64db4ec2-682b-4d6a-9b99-ba46d9954104"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "eeb172f3-df96-4fd3-8bcc-ee12afcc8fe3"
+    }
+  ],
+  "keepalive_expiry_seconds": 5.0,
+  "measured_tcp_connect_events": {
+    "hot_hold": {
+      "started": 7,
+      "complete": 7
+    },
+    "read": {
+      "started": 705,
+      "complete": 705
+    },
+    "hold": {
+      "started": 10,
+      "complete": 10
+    }
+  },
+  "transport_error_types": {},
+  "transport_diagnostics_enabled": true,
+  "transport_failure_examples": [],
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.0700889979489148,
+  "generator_cpu_seconds": 415.183286526,
+  "elapsed_seconds": 1799.9971971920022,
+  "completed_rps": 125.00019463974736,
+  "statuses": {
+    "hot_hold": {
+      "409": 2248,
+      "201": 1,
+      "503": 1
+    },
+    "read": {
+      "304": 125268,
+      "200": 88482
+    },
+    "hold": {
+      "201": 8996,
+      "503": 4
+    }
+  },
+  "response_body_bytes": 1651719064,
+  "latency_ms": {
+    "hot_hold:409": {
+      "p50": 9.75919800112024,
+      "p95": 26.415701999212615,
+      "p99": 82.47530800144887
+    },
+    "read:304": {
+      "p50": 3.6287960028857924,
+      "p95": 14.591370993002784,
+      "p99": 41.67566800606437
+    },
+    "hold:201": {
+      "p50": 31.21126599580748,
+      "p95": 58.80190199968638,
+      "p99": 101.62900700379396
+    },
+    "read:200": {
+      "p50": 4.239508998580277,
+      "p95": 19.341655002790503,
+      "p99": 49.98659400007455
+    },
+    "hot_hold:201": {
+      "p50": 88.81238899630262,
+      "p95": 88.81238899630262,
+      "p99": 88.81238899630262
+    },
+    "hold:503": {
+      "p50": 2.3828609992051497,
+      "p95": 49.881758000992704,
+      "p99": 49.881758000992704
+    },
+    "hot_hold:503": {
+      "p50": 40.588688003481366,
+      "p95": 40.588688003481366,
+      "p99": 40.588688003481366
+    }
+  },
+  "read_p95_ms": 17.349624999042135,
+  "hold_p95_ms": 58.799004000320565,
+  "local_read_gate_pass": false,
+  "note": "95% reads/5% holds (mixed mode: 4% distinct, 1% hot). Known hot 409 codes remain in error_codes but are expected; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": false,
+  "phase_latency_gate_pass": true,
+  "hot_contention_gate_pass": true
+}

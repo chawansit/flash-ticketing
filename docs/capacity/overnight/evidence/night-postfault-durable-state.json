@@ -1,0 +1,39 @@
+{
+  "utc": "2026-09-09T19:38:23.867150+00:00",
+  "orders": [
+    [
+      "9af3622b-2f15-4720-8e51-4a3a732e451b",
+      "EXPIRED",
+      "EXPIRED",
+      0,
+      0
+    ],
+    [
+      "794a6899-d8b5-41d2-b65c-67652da8d45d",
+      "EXPIRED",
+      "EXPIRED",
+      0,
+      0
+    ],
+    [
+      "e824048b-2cb4-41fb-b060-1cbd2b3739db",
+      "FULFILLED",
+      "CONSUMED",
+      1,
+      1
+    ]
+  ],
+  "queues": [
+    [
+      0,
+      0,
+      0
+    ]
+  ],
+  "duplicate_bookings": [
+    [
+      0
+    ]
+  ],
+  "pass": true
+}

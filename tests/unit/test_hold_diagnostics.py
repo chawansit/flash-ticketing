@@ -11,7 +11,8 @@ from prometheus_client import REGISTRY
 from starlette.requests import Request
 from starlette.responses import Response
 
-from ticketing.api import app, instrumentation, settings
+from ticketing.api import app, settings
+from ticketing.http import RequestInstrumentation
 from ticketing.observability import HOLD_TRACE, TimedHoldResource, hold_phase
 
 spec = importlib.util.spec_from_file_location(
@@ -20,6 +21,23 @@ spec = importlib.util.spec_from_file_location(
 generator = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(generator)
 error_diagnostic = generator.error_diagnostic
+
+
+async def instrumentation(request, call_next):
+    """Exercise the ASGI adapter with the existing test handler contract."""
+    from ticketing import api
+    messages = []
+    async def downstream(scope, receive, send):
+        response = await call_next(Request(scope))
+        await response(scope, receive, send)
+    async def receive():
+        return {'type': 'http.request', 'body': b'', 'more_body': False}
+    async def send(message):
+        messages.append(message)
+    await RequestInstrumentation(downstream, app, api.settings)(request.scope, receive, send)
+    start = messages[0]
+    return Response(b''.join(m.get('body', b'') for m in messages[1:]),
+                    status_code=start['status'])
 
 
 def sample(name, labels=None):

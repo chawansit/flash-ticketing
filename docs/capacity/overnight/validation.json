@@ -1,0 +1,61 @@
+{
+  "cloud_suite": {
+    "passed": 114,
+    "warnings": 2,
+    "log": "evidence/night-candidate-tests.log",
+    "scope": "candidate application before later harness-only additions"
+  },
+  "local_unit_suite": {
+    "passed": 67,
+    "warnings": 2,
+    "log": "evidence/local-unit-tests-final.log",
+    "seconds": 16.37
+  },
+  "source_api_sha256": "16fd557d587f7ae9a687065da787baf1d1c02ef0e4002e35500b1253c609b87d",
+  "source_http_sha256": "e55652688bf8caf65207f04c44b0ec2c95312ba6b7cfec8aea2606ea47c23bfc",
+  "stage_escalation_stopped_at_rps": 600,
+  "soak_selected_rps": 400,
+  "soak_status": "Both 500 and 400 RPS completed and failed strict error gate",
+  "fault_drill_status": "passed",
+  "soak_500": {
+    "seconds": 1800,
+    "requests": 900000,
+    "generator_drops": 0,
+    "admission_rejections": 13,
+    "read_transport_errors": 1,
+    "acknowledged_holds": 36003,
+    "durability_and_expiry_pass": true,
+    "overlapping_intervals": 0
+  },
+  "final_durable_audit": {
+    "workers": 60,
+    "acknowledged_holds": 94748,
+    "audited_seat_intervals": 94748,
+    "overlaps": 0,
+    "pass": true
+  },
+  "soak_400": {
+    "seconds": 1800,
+    "requests": 720000,
+    "generator_drops": 0,
+    "admission_rejections": 0,
+    "read_transport_errors": 3,
+    "acknowledged_holds": 28815,
+    "read_p95_ms": 10.348625,
+    "hold_p95_ms": 42.959879,
+    "hot_failed_p95_ms": 22.948323,
+    "gate_pass": false
+  },
+  "audit_followup_tests": {
+    "passed": 3,
+    "scope": "durable accounting after transaction-local serial query setting"
+  },
+  "status": "completed",
+  "cleanup": {
+    "benchmark_containers_stopped": true,
+    "manifests_removed": true,
+    "temporary_firewall_rule_removed": true,
+    "ecs_vms_left_running": true,
+    "volumes_retained": true
+  }
+}

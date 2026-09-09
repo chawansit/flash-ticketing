@@ -1,0 +1,11 @@
+{
+  "utc": "2026-09-09T18:04:02.168427+00:00",
+  "seconds": 300,
+  "deadline_with_drain": "2026-09-09T18:12:01.426029+00:00",
+  "expected_shows": 800,
+  "found_shows": 800,
+  "open_through_deadline": 800,
+  "earliest_sale_end": "2026-09-09 23:57:44.708971+00",
+  "credentials_valid": true,
+  "pass": true
+}

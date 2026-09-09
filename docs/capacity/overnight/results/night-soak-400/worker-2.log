@@ -1,0 +1,304 @@
+{"phase": "measuring", "rate": 100, "seconds": 1800, "utc": "2026-09-09T19:03:20.657575+00:00"}
+{"phase": "progress", "scheduled": 3000, "drops": 0}
+{"phase": "progress", "scheduled": 6000, "drops": 0}
+{"phase": "progress", "scheduled": 9000, "drops": 0}
+{"phase": "progress", "scheduled": 12000, "drops": 0}
+{"phase": "progress", "scheduled": 15000, "drops": 0}
+{"phase": "progress", "scheduled": 18000, "drops": 0}
+{"phase": "progress", "scheduled": 21000, "drops": 0}
+{"phase": "progress", "scheduled": 24000, "drops": 0}
+{"phase": "progress", "scheduled": 27000, "drops": 0}
+{"phase": "progress", "scheduled": 30000, "drops": 0}
+{"phase": "progress", "scheduled": 33000, "drops": 0}
+{"phase": "progress", "scheduled": 36000, "drops": 0}
+{"phase": "progress", "scheduled": 39000, "drops": 0}
+{"phase": "progress", "scheduled": 42000, "drops": 0}
+{"phase": "progress", "scheduled": 45000, "drops": 0}
+{"phase": "progress", "scheduled": 48000, "drops": 0}
+{"phase": "progress", "scheduled": 51000, "drops": 0}
+{"phase": "progress", "scheduled": 54000, "drops": 0}
+{"phase": "progress", "scheduled": 57000, "drops": 0}
+{"phase": "progress", "scheduled": 60000, "drops": 0}
+{"phase": "progress", "scheduled": 63000, "drops": 0}
+{"phase": "progress", "scheduled": 66000, "drops": 0}
+{"phase": "progress", "scheduled": 69000, "drops": 0}
+{"phase": "progress", "scheduled": 72000, "drops": 0}
+{"phase": "progress", "scheduled": 75000, "drops": 0}
+{"phase": "progress", "scheduled": 78000, "drops": 0}
+{"phase": "progress", "scheduled": 81000, "drops": 0}
+{"phase": "progress", "scheduled": 84000, "drops": 0}
+{"phase": "progress", "scheduled": 87000, "drops": 0}
+{"phase": "progress", "scheduled": 90000, "drops": 0}
+{"phase": "progress", "scheduled": 93000, "drops": 0}
+{"phase": "progress", "scheduled": 96000, "drops": 0}
+{"phase": "progress", "scheduled": 99000, "drops": 0}
+{"phase": "progress", "scheduled": 102000, "drops": 0}
+{"phase": "progress", "scheduled": 105000, "drops": 0}
+{"phase": "progress", "scheduled": 108000, "drops": 0}
+{"phase": "progress", "scheduled": 111000, "drops": 0}
+{"phase": "progress", "scheduled": 114000, "drops": 0}
+{"phase": "progress", "scheduled": 117000, "drops": 0}
+{"phase": "progress", "scheduled": 120000, "drops": 0}
+{"phase": "progress", "scheduled": 123000, "drops": 0}
+{"phase": "progress", "scheduled": 126000, "drops": 0}
+{"phase": "progress", "scheduled": 129000, "drops": 0}
+{"phase": "progress", "scheduled": 132000, "drops": 0}
+{"phase": "progress", "scheduled": 135000, "drops": 0}
+{"phase": "progress", "scheduled": 138000, "drops": 0}
+{"phase": "progress", "scheduled": 141000, "drops": 0}
+{"phase": "progress", "scheduled": 144000, "drops": 0}
+{"phase": "progress", "scheduled": 147000, "drops": 0}
+{"phase": "progress", "scheduled": 150000, "drops": 0}
+{"phase": "progress", "scheduled": 153000, "drops": 0}
+{"phase": "progress", "scheduled": 156000, "drops": 0}
+{"phase": "progress", "scheduled": 159000, "drops": 0}
+{"phase": "progress", "scheduled": 162000, "drops": 0}
+{"phase": "progress", "scheduled": 165000, "drops": 0}
+{"phase": "progress", "scheduled": 168000, "drops": 0}
+{"phase": "progress", "scheduled": 171000, "drops": 0}
+{"phase": "progress", "scheduled": 174000, "drops": 0}
+{"phase": "progress", "scheduled": 177000, "drops": 0}
+{
+  "mixed_hot_holds": true,
+  "expected_hot_conflicts": 1793,
+  "hot_failed_p95_ms": 22.94832299958216,
+  "phases": {
+    "0": {
+      "statuses": {
+        "hot_hold": {
+          "409": 1793,
+          "201": 7
+        },
+        "read": {
+          "304": 94780,
+          "200": 76220
+        },
+        "hold": {
+          "201": 7200
+        }
+      },
+      "p95_ms": {
+        "hot_hold": 22.775970996008255,
+        "read": 8.908250005333684,
+        "hold": 42.95987899968168
+      }
+    }
+  },
+  "read_hot_share": 0,
+  "burst": false,
+  "utc": "2026-09-09T19:33:20.709607+00:00",
+  "measured_started_utc": "2026-09-09T19:03:20.657575+00:00",
+  "manifest_id": "a54f81af-d399-4c40-9865-1a32be6c9888",
+  "run_id": "702d6336-7c49-48bd-9c73-e7398d832513",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 100,
+  "seconds": 1800,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "error_codes": {
+    "hot_hold:409:SEAT_BUSY": 169,
+    "hot_hold:409:SEAT_UNAVAILABLE": 1624
+  },
+  "error_examples": [
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_BUSY",
+      "request_id": "2e9de70c-87b0-487c-aa0d-fbdd49470e83"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "234b9e29-543f-4f3b-b9c2-a5392369d154"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "170df72f-6b64-4418-a609-c96aeaddeace"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "e5895bca-d24c-4bc2-b000-cb5de906290a"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "61c84dc8-8334-4791-8134-53b2b4b06d72"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "dfccd8f9-2b43-49f6-9050-0a6b7b591941"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "8857ce2b-2cc8-41ba-a6f7-cc3fccdd5d32"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "bf52a1f5-172a-4f73-8cc1-d2e36133ab83"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "40c73b81-dc00-4786-ab36-ad59735d762c"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "2f8db65e-131c-430c-a7b9-224effe47510"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "5afd8442-84f3-4f04-b0eb-b13f155951f6"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "eb85dc5d-c22b-49a2-9119-d43f8431329f"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "1112c478-d706-4735-be9a-3a1c90dff144"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "3ca6c675-9840-40d9-bd2b-651ca03f774e"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "4ba07346-9801-4493-a1db-e0595d6c80dc"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "21971849-5ec3-4a01-a42f-c89e1a93af2c"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "5aa81950-7cb4-4854-8fa9-9f674a6aee94"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "2bdfdc56-1150-4cc0-bcb1-2cb6280e802b"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "d05f387e-0b0c-456d-869c-c06a9d531f3a"
+    },
+    {
+      "operation": "hot_hold",
+      "status": "409",
+      "code": "SEAT_UNAVAILABLE",
+      "request_id": "1871e498-795e-4785-beea-7042c212f05e"
+    }
+  ],
+  "keepalive_expiry_seconds": 5.0,
+  "measured_tcp_connect_events": {
+    "hot_hold": {
+      "started": 1,
+      "complete": 1
+    },
+    "read": {
+      "started": 333,
+      "complete": 333
+    },
+    "hold": {
+      "started": 3,
+      "complete": 3
+    }
+  },
+  "transport_error_types": {},
+  "transport_diagnostics_enabled": true,
+  "transport_failure_examples": [],
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.1229470037505962,
+  "generator_cpu_seconds": 340.588010103,
+  "elapsed_seconds": 1799.9930829779987,
+  "completed_rps": 100.00038428047678,
+  "statuses": {
+    "hot_hold": {
+      "409": 1793,
+      "201": 7
+    },
+    "read": {
+      "304": 94780,
+      "200": 76220
+    },
+    "hold": {
+      "201": 7200
+    }
+  },
+  "response_body_bytes": 1421624773,
+  "latency_ms": {
+    "hot_hold:409": {
+      "p50": 9.666863996244501,
+      "p95": 22.94832299958216,
+      "p99": 41.3282790032099
+    },
+    "read:304": {
+      "p50": 3.2586419983999804,
+      "p95": 7.325635997403879,
+      "p99": 15.379347001726273
+    },
+    "hold:201": {
+      "p50": 21.58472500013886,
+      "p95": 42.95987899968168,
+      "p99": 64.80183499661507
+    },
+    "read:200": {
+      "p50": 3.596551003283821,
+      "p95": 10.736486001405865,
+      "p99": 21.589012001641095
+    },
+    "hot_hold:201": {
+      "p50": 14.168080997478683,
+      "p95": 19.2559710048954,
+      "p99": 19.2559710048954
+    }
+  },
+  "read_p95_ms": 8.908250005333684,
+  "hold_p95_ms": 42.95987899968168,
+  "local_read_gate_pass": true,
+  "note": "95% reads/5% holds (mixed mode: 4% distinct, 1% hot). Known hot 409 codes remain in error_codes but are expected; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": true,
+  "phase_latency_gate_pass": true,
+  "hot_contention_gate_pass": true
+}

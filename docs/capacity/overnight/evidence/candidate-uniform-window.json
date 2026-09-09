@@ -1,0 +1,975 @@
+{
+  "start": "2026-09-09T18:05:32Z",
+  "end": "2026-09-09T18:09:32Z",
+  "metrics": {
+    "query_p95": [
+      {
+        "labels": {
+          "command": "DELETE",
+          "instance": "reconciler:9101"
+        },
+        "samples": 24,
+        "mean": 0.00475,
+        "max": 0.00475
+      },
+      {
+        "labels": {
+          "command": "INSERT",
+          "instance": "api:8000"
+        },
+        "samples": 24,
+        "mean": 0.004798508563512948,
+        "max": 0.004821929824561403
+      },
+      {
+        "labels": {
+          "command": "INSERT",
+          "instance": "consumer:9101"
+        },
+        "samples": 24,
+        "mean": 0.004751377479192249,
+        "max": 0.00475444063571206
+      },
+      {
+        "labels": {
+          "command": "INSERT",
+          "instance": "maintenance:9101"
+        },
+        "samples": 23,
+        "mean": 0.00475,
+        "max": 0.004750000000000001
+      },
+      {
+        "labels": {
+          "command": "INSERT",
+          "instance": "reconciler:9101"
+        },
+        "samples": 24,
+        "mean": 0.00475,
+        "max": 0.00475
+      },
+      {
+        "labels": {
+          "command": "SELECT",
+          "instance": "api:8000"
+        },
+        "samples": 24,
+        "mean": 0.00479703172350445,
+        "max": 0.004831720430107527
+      },
+      {
+        "labels": {
+          "command": "SELECT",
+          "instance": "consumer:9101"
+        },
+        "samples": 0
+      },
+      {
+        "labels": {
+          "command": "SELECT",
+          "instance": "maintenance:9101"
+        },
+        "samples": 24,
+        "mean": 0.016408940607765248,
+        "max": 0.020416979362101302
+      },
+      {
+        "labels": {
+          "command": "SELECT",
+          "instance": "publisher:9101"
+        },
+        "samples": 24,
+        "mean": 0.004750526579658634,
+        "max": 0.004752265140677158
+      },
+      {
+        "labels": {
+          "command": "SELECT",
+          "instance": "reconciler:9101"
+        },
+        "samples": 24,
+        "mean": 0.004751983929914186,
+        "max": 0.004755044247787611
+      },
+      {
+        "labels": {
+          "command": "SELECT",
+          "instance": "simulator:9101"
+        },
+        "samples": 24,
+        "mean": 0.00475198534148786,
+        "max": 0.004754554170661554
+      },
+      {
+        "labels": {
+          "command": "SET",
+          "instance": "api:8000"
+        },
+        "samples": 24,
+        "mean": 0.004774686141486874,
+        "max": 0.004793260473588343
+      },
+      {
+        "labels": {
+          "command": "SET",
+          "instance": "consumer:9101"
+        },
+        "samples": 24,
+        "mean": 0.004750280940714768,
+        "max": 0.004750986090927963
+      },
+      {
+        "labels": {
+          "command": "SET",
+          "instance": "maintenance:9101"
+        },
+        "samples": 24,
+        "mean": 0.00475,
+        "max": 0.004750000000000001
+      },
+      {
+        "labels": {
+          "command": "SET",
+          "instance": "publisher:9101"
+        },
+        "samples": 24,
+        "mean": 0.004751061094843724,
+        "max": 0.004752570810030669
+      },
+      {
+        "labels": {
+          "command": "SET",
+          "instance": "reconciler:9101"
+        },
+        "samples": 24,
+        "mean": 0.004750469529912967,
+        "max": 0.004751671711128317
+      },
+      {
+        "labels": {
+          "command": "SET",
+          "instance": "simulator:9101"
+        },
+        "samples": 24,
+        "mean": 0.00475053552742774,
+        "max": 0.004751514185527574
+      },
+      {
+        "labels": {
+          "command": "UPDATE",
+          "instance": "api:8000"
+        },
+        "samples": 24,
+        "mean": 0.004800371744684968,
+        "max": 0.004837962962962963
+      },
+      {
+        "labels": {
+          "command": "UPDATE",
+          "instance": "consumer:9101"
+        },
+        "samples": 0
+      },
+      {
+        "labels": {
+          "command": "UPDATE",
+          "instance": "maintenance:9101"
+        },
+        "samples": 24,
+        "mean": 0.018612888285777205,
+        "max": 0.021505681818181813
+      },
+      {
+        "labels": {
+          "command": "UPDATE",
+          "instance": "publisher:9101"
+        },
+        "samples": 24,
+        "mean": 0.0047532796817283535,
+        "max": 0.004760501105379514
+      },
+      {
+        "labels": {
+          "command": "UPDATE",
+          "instance": "reconciler:9101"
+        },
+        "samples": 24,
+        "mean": 0.00475160321065411,
+        "max": 0.004756061250531689
+      },
+      {
+        "labels": {
+          "command": "UPDATE",
+          "instance": "simulator:9101"
+        },
+        "samples": 0
+      }
+    ],
+    "pool_p95": [
+      {
+        "labels": {
+          "instance": "api:8000"
+        },
+        "samples": 24,
+        "mean": 0.00475,
+        "max": 0.004750000000000001
+      },
+      {
+        "labels": {
+          "instance": "consumer:9101"
+        },
+        "samples": 24,
+        "mean": 0.00475,
+        "max": 0.004750000000000001
+      },
+      {
+        "labels": {
+          "instance": "maintenance:9101"
+        },
+        "samples": 24,
+        "mean": 0.00475,
+        "max": 0.004750000000000001
+      },
+      {
+        "labels": {
+          "instance": "publisher:9101"
+        },
+        "samples": 24,
+        "mean": 0.00475,
+        "max": 0.004750000000000001
+      },
+      {
+        "labels": {
+          "instance": "reconciler:9101"
+        },
+        "samples": 24,
+        "mean": 0.00475,
+        "max": 0.004750000000000001
+      },
+      {
+        "labels": {
+          "instance": "simulator:9101"
+        },
+        "samples": 24,
+        "mean": 0.00475,
+        "max": 0.004750000000000001
+      }
+    ],
+    "pool_in_use": [
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_in_use",
+          "instance": "api:8000",
+          "job": "api"
+        },
+        "samples": 24,
+        "mean": 3.2083333333333335,
+        "max": 4.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_in_use",
+          "instance": "consumer:9101",
+          "job": "workers"
+        },
+        "samples": 24,
+        "mean": 0.2916666666666667,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_in_use",
+          "instance": "maintenance:9101",
+          "job": "workers"
+        },
+        "samples": 24,
+        "mean": 0.7916666666666666,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_in_use",
+          "instance": "publisher:9101",
+          "job": "workers"
+        },
+        "samples": 24,
+        "mean": 0.041666666666666664,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_in_use",
+          "instance": "reconciler:9101",
+          "job": "workers"
+        },
+        "samples": 24,
+        "mean": 0.2916666666666667,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_in_use",
+          "instance": "simulator:9101",
+          "job": "workers"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      }
+    ],
+    "pool_acquiring": [
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_acquiring",
+          "instance": "api:8000",
+          "job": "api"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_acquiring",
+          "instance": "consumer:9101",
+          "job": "workers"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_acquiring",
+          "instance": "maintenance:9101",
+          "job": "workers"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_acquiring",
+          "instance": "publisher:9101",
+          "job": "workers"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_acquiring",
+          "instance": "reconciler:9101",
+          "job": "workers"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_acquiring",
+          "instance": "simulator:9101",
+          "job": "workers"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      }
+    ],
+    "pool_state": [
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "api:8000",
+          "job": "api",
+          "state": "pool_available"
+        },
+        "samples": 24,
+        "mean": 1.7916666666666667,
+        "max": 3.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "api:8000",
+          "job": "api",
+          "state": "pool_max"
+        },
+        "samples": 24,
+        "mean": 12.0,
+        "max": 12.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "api:8000",
+          "job": "api",
+          "state": "pool_size"
+        },
+        "samples": 24,
+        "mean": 5.0,
+        "max": 5.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "api:8000",
+          "job": "api",
+          "state": "requests_waiting"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "consumer:9101",
+          "job": "workers",
+          "state": "pool_available"
+        },
+        "samples": 24,
+        "mean": 0.7083333333333334,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "consumer:9101",
+          "job": "workers",
+          "state": "pool_max"
+        },
+        "samples": 24,
+        "mean": 12.0,
+        "max": 12.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "consumer:9101",
+          "job": "workers",
+          "state": "pool_size"
+        },
+        "samples": 24,
+        "mean": 1.0,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "consumer:9101",
+          "job": "workers",
+          "state": "requests_waiting"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "maintenance:9101",
+          "job": "workers",
+          "state": "pool_available"
+        },
+        "samples": 24,
+        "mean": 0.20833333333333334,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "maintenance:9101",
+          "job": "workers",
+          "state": "pool_max"
+        },
+        "samples": 24,
+        "mean": 12.0,
+        "max": 12.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "maintenance:9101",
+          "job": "workers",
+          "state": "pool_size"
+        },
+        "samples": 24,
+        "mean": 1.0,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "maintenance:9101",
+          "job": "workers",
+          "state": "requests_waiting"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "publisher:9101",
+          "job": "workers",
+          "state": "pool_available"
+        },
+        "samples": 24,
+        "mean": 0.9583333333333334,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "publisher:9101",
+          "job": "workers",
+          "state": "pool_max"
+        },
+        "samples": 24,
+        "mean": 12.0,
+        "max": 12.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "publisher:9101",
+          "job": "workers",
+          "state": "pool_size"
+        },
+        "samples": 24,
+        "mean": 1.0,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "publisher:9101",
+          "job": "workers",
+          "state": "requests_waiting"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "reconciler:9101",
+          "job": "workers",
+          "state": "pool_available"
+        },
+        "samples": 24,
+        "mean": 0.7083333333333334,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "reconciler:9101",
+          "job": "workers",
+          "state": "pool_max"
+        },
+        "samples": 24,
+        "mean": 12.0,
+        "max": 12.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "reconciler:9101",
+          "job": "workers",
+          "state": "pool_size"
+        },
+        "samples": 24,
+        "mean": 1.0,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "reconciler:9101",
+          "job": "workers",
+          "state": "requests_waiting"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "simulator:9101",
+          "job": "workers",
+          "state": "pool_available"
+        },
+        "samples": 24,
+        "mean": 4.0,
+        "max": 4.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "simulator:9101",
+          "job": "workers",
+          "state": "pool_max"
+        },
+        "samples": 24,
+        "mean": 12.0,
+        "max": 12.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "simulator:9101",
+          "job": "workers",
+          "state": "pool_size"
+        },
+        "samples": 24,
+        "mean": 4.0,
+        "max": 4.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_db_pool_state",
+          "instance": "simulator:9101",
+          "job": "workers",
+          "state": "requests_waiting"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      }
+    ],
+    "worker_active": [
+      {
+        "labels": {
+          "__name__": "ticketing_worker_active",
+          "instance": "consumer:9101",
+          "job": "workers",
+          "operation": "consume_event"
+        },
+        "samples": 24,
+        "mean": 0.2916666666666667,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_worker_active",
+          "instance": "maintenance:9101",
+          "job": "workers",
+          "operation": "refresh_one"
+        },
+        "samples": 24,
+        "mean": 0.08333333333333333,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_worker_active",
+          "instance": "maintenance:9101",
+          "job": "workers",
+          "operation": "snapshot"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_worker_active",
+          "instance": "publisher:9101",
+          "job": "workers",
+          "operation": "publish_batch"
+        },
+        "samples": 24,
+        "mean": 0.08333333333333333,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_worker_active",
+          "instance": "reconciler:9101",
+          "job": "workers",
+          "operation": "reconcile_batch"
+        },
+        "samples": 24,
+        "mean": 0.3333333333333333,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_worker_active",
+          "instance": "reconciler:9101",
+          "job": "workers",
+          "operation": "reconcile_schedule"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_worker_active",
+          "instance": "reconciler:9101",
+          "job": "workers",
+          "operation": "snapshot"
+        },
+        "samples": 24,
+        "mean": 0.20833333333333334,
+        "max": 1.0
+      },
+      {
+        "labels": {
+          "__name__": "ticketing_worker_active",
+          "instance": "simulator:9101",
+          "job": "workers",
+          "operation": "simulate_one"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      }
+    ],
+    "worker_busy_rate": [
+      {
+        "labels": {
+          "instance": "consumer:9101",
+          "job": "workers",
+          "operation": "consume_event"
+        },
+        "samples": 24,
+        "mean": 0.1107622376203477,
+        "max": 0.13850445325131824
+      },
+      {
+        "labels": {
+          "instance": "maintenance:9101",
+          "job": "workers",
+          "operation": "refresh_one"
+        },
+        "samples": 24,
+        "mean": 0.16785536427368322,
+        "max": 0.20140234836805823
+      },
+      {
+        "labels": {
+          "instance": "maintenance:9101",
+          "job": "workers",
+          "operation": "snapshot"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "instance": "publisher:9101",
+          "job": "workers",
+          "operation": "publish_batch"
+        },
+        "samples": 24,
+        "mean": 0.11948259717322231,
+        "max": 0.14713766434341033
+      },
+      {
+        "labels": {
+          "instance": "reconciler:9101",
+          "job": "workers",
+          "operation": "reconcile_batch"
+        },
+        "samples": 24,
+        "mean": 0.3607312742388868,
+        "max": 0.4268073664565401
+      },
+      {
+        "labels": {
+          "instance": "reconciler:9101",
+          "job": "workers",
+          "operation": "reconcile_schedule"
+        },
+        "samples": 24,
+        "mean": 0.00355296626892761,
+        "max": 0.003796668254653923
+      },
+      {
+        "labels": {
+          "instance": "reconciler:9101",
+          "job": "workers",
+          "operation": "snapshot"
+        },
+        "samples": 24,
+        "mean": 0.21367589846519297,
+        "max": 0.2541226907307811
+      },
+      {
+        "labels": {
+          "instance": "simulator:9101",
+          "job": "workers",
+          "operation": "simulate_one"
+        },
+        "samples": 24,
+        "mean": 0.1312117908617052,
+        "max": 0.14232138933836144
+      }
+    ],
+    "worker_error_increase": [
+      {
+        "labels": {
+          "instance": "maintenance:9101",
+          "job": "workers",
+          "role": "maintenance"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "instance": "publisher:9101",
+          "job": "workers",
+          "role": "publisher"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "instance": "reconciler:9101",
+          "job": "workers",
+          "role": "reconciler"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      },
+      {
+        "labels": {
+          "instance": "simulator:9101",
+          "job": "workers",
+          "role": "simulator"
+        },
+        "samples": 24,
+        "mean": 0.0,
+        "max": 0.0
+      }
+    ]
+  },
+  "database": {
+    "samples": 118,
+    "errors": [],
+    "database_connections": {
+      "samples": 118,
+      "mean": 12.033898305084746,
+      "max": 14
+    },
+    "lock_waiters": {
+      "samples": 118,
+      "mean": 0.0,
+      "max": 0
+    },
+    "active_connections": {
+      "samples": 118,
+      "mean": 1.8983050847457628,
+      "max": 5
+    },
+    "missing_maps": {
+      "samples": 118,
+      "mean": 0.0,
+      "max": 0
+    },
+    "overdue_active_holds": {
+      "samples": 118,
+      "mean": 2.0677966101694913,
+      "max": 13
+    },
+    "oldest_overdue_seconds": {
+      "samples": 118,
+      "mean": 0.08245051694915254,
+      "max": 0.656149
+    },
+    "reconciliation_age_seconds": {
+      "samples": 118,
+      "mean": 16.933142584745763,
+      "max": 20.465358
+    },
+    "redis_used_bytes": {
+      "samples": 118,
+      "mean": 50297114.16949152,
+      "max": 50796856
+    }
+  },
+  "container_cpu_percent_one_core": {
+    "flash-cloud-bench-api-1": {
+      "samples": 24,
+      "mean": 63.03041666666667,
+      "max": 99.35
+    },
+    "flash-cloud-bench-consumer-1": {
+      "samples": 24,
+      "mean": 7.3429166666666665,
+      "max": 11.43
+    },
+    "flash-cloud-bench-publisher-1": {
+      "samples": 24,
+      "mean": 4.400833333333334,
+      "max": 5.5
+    },
+    "flash-cloud-bench-simulator-1": {
+      "samples": 24,
+      "mean": 3.2624999999999997,
+      "max": 3.89
+    },
+    "flash-cloud-bench-reconciler-1": {
+      "samples": 24,
+      "mean": 12.225,
+      "max": 27.51
+    },
+    "flash-cloud-bench-maintenance-1": {
+      "samples": 24,
+      "mean": 7.567916666666666,
+      "max": 11.11
+    },
+    "flash-cloud-bench-redis-1": {
+      "samples": 24,
+      "mean": 11.634166666666665,
+      "max": 23.6
+    },
+    "flash-cloud-bench-pgbouncer-1": {
+      "samples": 24,
+      "mean": 9.100833333333332,
+      "max": 12.18
+    },
+    "flash-cloud-bench-postgres-1": {
+      "samples": 24,
+      "mean": 82.90375,
+      "max": 179.6
+    },
+    "flash-cloud-bench-kafka-1": {
+      "samples": 24,
+      "mean": 23.75208333333333,
+      "max": 163.98
+    },
+    "flash-cloud-bench-prometheus-1": {
+      "samples": 24,
+      "mean": 0.09000000000000001,
+      "max": 0.29
+    }
+  },
+  "host_busy_percent": {
+    "samples": 23,
+    "mean": 57.66324808207269,
+    "max": 77.56770567194685
+  },
+  "host_steal_percent": {
+    "samples": 23,
+    "mean": 0.0,
+    "max": 0.0
+  },
+  "note": "Prometheus histogram p95 values are bucket estimates over trailing 1-minute windows, not exact query percentiles. Worker busy rate includes I/O and overlapping operations. CPU Docker percent is relative to one core; host percent spans all cores. Zero sampled lock waiters does not exclude short waits. Absent samples are not zero."
+}

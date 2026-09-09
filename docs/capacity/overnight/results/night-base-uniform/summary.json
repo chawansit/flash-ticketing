@@ -1,0 +1,27 @@
+{
+  "utc": "2026-09-09T17:53:59.384166+00:00",
+  "hot_read_share": 0,
+  "burst": false,
+  "keepalive_expiry_seconds": 5.0,
+  "rate": 400,
+  "seconds": 300,
+  "workers": 4,
+  "worker_rates": [
+    100,
+    100,
+    100,
+    100
+  ],
+  "worker_exit_codes": [
+    1,
+    1,
+    1,
+    1
+  ],
+  "start_skew_ms": 8.619,
+  "generator_drops": 0,
+  "worst_worker_read_p95_ms": 5.37626699951943,
+  "worst_worker_hold_p95_ms": 24.344787001609802,
+  "gate_pass": false,
+  "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+}

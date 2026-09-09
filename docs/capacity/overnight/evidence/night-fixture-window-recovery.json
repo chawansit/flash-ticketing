@@ -1,0 +1,9 @@
+{
+  "reason": "uniform control started after synthetic sale expiry; retain failed run",
+  "fixture_shows": 800,
+  "before_open": 0,
+  "before_latest_end": "2026-09-09T17:48:58.453034+00:00",
+  "after_open": 800,
+  "after_latest_end": "2026-09-09T23:57:44.713524+00:00",
+  "scope": "only IDs in cloud-fixture.json"
+}

@@ -1,0 +1,1 @@
+{"pass": true, "cases": [{"service": "redis", "pass": true}, {"service": "postgres", "pass": true}, {"service": "kafka", "pass": true}]}

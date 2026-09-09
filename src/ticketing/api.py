@@ -4,7 +4,7 @@ import logging
 import time
 from contextlib import asynccontextmanager
 from typing import Annotated, Literal
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import jwt
 from fastapi import Depends, FastAPI, Header, Request, Response
@@ -20,19 +20,12 @@ from pydantic import BaseModel, Field
 from ticketing.application.reservations import Reservations
 from ticketing.config import Settings
 from ticketing.domain import Failure
+from ticketing.http import RequestInstrumentation
 from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.postgres import Postgres
 from ticketing.infrastructure.reservations import PostgresReservations
 from ticketing.observability import (
-    HOLD_ADMISSION,
-    HOLD_INFLIGHT,
-    HOLD_LIMIT,
-    HOLD_OCCUPANCY,
-    HOLD_TRACE,
-    LATENCY,
     OUTCOMES,
-    REQUEST_ID,
-    REQUESTS,
     configure_logging,
     hold_phase,
     observe_hold_phase,
@@ -127,69 +120,7 @@ class Callback(BaseModel):
     outcome: Literal["SUCCEEDED", "FAILED"]
 
 
-@app.middleware("http")
-async def instrumentation(request, call_next):
-    started = time.monotonic()
-    request.state.request_id = str(uuid4())
-    context = REQUEST_ID.set(request.state.request_id)
-    reservation = request.method == "POST" and request.url.path == "/v1/holds"
-    admitted = False
-    trace = {} if reservation else None
-    trace_context = HOLD_TRACE.set(trace)
-    arrival_occupancy = app.state.reserve_inflight
-    request.state.error_code = None
-    if reservation:
-        HOLD_OCCUPANCY.observe(arrival_occupancy)
-        HOLD_LIMIT.set(settings.reserve_concurrency)
-    try:
-        # This check/increment runs on the process's one event loop with no await between
-        # them. Reject before entering Starlette's synchronous worker-thread queue.
-        if reservation and app.state.reserve_inflight >= settings.reserve_concurrency:
-            HOLD_ADMISSION.labels("rejected").inc()
-            OUTCOMES.labels("request", "ADMISSION_FULL").inc()
-            request.state.error_code = "ADMISSION_FULL"
-            response = JSONResponse(
-                status_code=503,
-                content={"code": "ADMISSION_FULL", "request_id": request.state.request_id},
-                headers={"Retry-After": "1"},
-            )
-        else:
-            if reservation:
-                app.state.reserve_inflight += 1
-                admitted = True
-                request.state.hold_admitted_at = time.monotonic()
-                HOLD_INFLIGHT.set(app.state.reserve_inflight)
-                HOLD_ADMISSION.labels("admitted").inc()
-            response = await call_next(request)
-    finally:
-        if admitted:
-            app.state.reserve_inflight -= 1
-            HOLD_INFLIGHT.set(app.state.reserve_inflight)
-        HOLD_TRACE.reset(trace_context)
-        REQUEST_ID.reset(context)
-    route = getattr(request.scope.get("route"), "path", "/v1/holds" if reservation else "unmatched")
-    elapsed = time.monotonic() - started
-    REQUESTS.labels(route, request.method, response.status_code).inc()
-    LATENCY.labels(route).observe(elapsed)
-    response.headers["X-Request-ID"] = request.state.request_id
-    response.headers["Server-Timing"] = f"app;dur={elapsed * 1000:.2f}"
-    log.info(
-        "request",
-        extra={
-            "fields": {
-                "request_id": request.state.request_id,
-                "route": route,
-                "status": response.status_code,
-                "duration_ms": round(elapsed * 1000, 2),
-                "error_code": request.state.error_code,
-                **({"hold_arrival_occupancy": arrival_occupancy,
-                    "hold_limit": settings.reserve_concurrency,
-                    "hold_phase_ms": {k: round(v, 3) for k, v in trace.items()}}
-                   if reservation else {}),
-            }
-        },
-    )
-    return response
+app.add_middleware(RequestInstrumentation, owner=app, config=settings)
 
 
 @app.exception_handler(Failure)

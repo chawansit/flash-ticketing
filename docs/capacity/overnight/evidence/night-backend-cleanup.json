@@ -1,0 +1,11 @@
+{
+  "utc": "2026-09-09T19:41:31.076151+00:00",
+  "running_benchmark_containers": [],
+  "remaining_host_manifests": [],
+  "api_credential_cleanup": "remaining []",
+  "temporary_firewall_rule_present": false,
+  "diagnostic_probe_config_disabled": true,
+  "ecs_left_running": true,
+  "volumes_retained": true,
+  "pass": true
+}

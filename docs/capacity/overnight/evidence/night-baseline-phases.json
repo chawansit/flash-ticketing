@@ -1,0 +1,66 @@
+{
+  "authentication:submit_to_entry": {
+    "count": 64,
+    "p95": 61.299
+  },
+  "authentication:execution": {
+    "count": 64,
+    "p95": 0.133
+  },
+  "authentication:finish_to_resume": {
+    "count": 64,
+    "p95": 47.09
+  },
+  "service_dependency:submit_to_entry": {
+    "count": 64,
+    "p95": 54.798
+  },
+  "service_dependency:execution": {
+    "count": 64,
+    "p95": 0.005
+  },
+  "service_dependency:finish_to_resume": {
+    "count": 64,
+    "p95": 56.063
+  },
+  "hold_handler:submit_to_entry": {
+    "count": 64,
+    "p95": 54.358
+  },
+  "hold_handler:execution": {
+    "count": 64,
+    "p95": 12.231
+  },
+  "hold_handler:finish_to_resume": {
+    "count": 64,
+    "p95": 60.697
+  },
+  "hold:dispatch": {
+    "count": 64,
+    "p95": 368.3
+  },
+  "hold:rate_limit": {
+    "count": 64,
+    "p95": 4.099
+  },
+  "hold:redis_enter": {
+    "count": 64,
+    "p95": 1.757
+  },
+  "hold:db_enter": {
+    "count": 13,
+    "p95": 5.863
+  },
+  "hold:database_body": {
+    "count": 13,
+    "p95": 8.773
+  },
+  "hold:db_exit": {
+    "count": 13,
+    "p95": 2.231
+  },
+  "hold:redis_exit": {
+    "count": 13,
+    "p95": 0.919
+  }
+}

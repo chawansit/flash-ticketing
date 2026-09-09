@@ -1,0 +1,6 @@
+api-1  | {"time": "2026-09-09T17:47:02.529643+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "6cba37db-f97b-4c9a-ac7f-e991a4d7ef22", "route": "/health/ready", "status": 200, "duration_ms": 3.53, "error_code": null}
+api-1  | {"time": "2026-09-09T17:47:02.529920+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "6cba37db-f97b-4c9a-ac7f-e991a4d7ef22", "status": 200, "protocol_queue_ms": 0.049, "asgi_headers_ms": 3.848}
+api-1  | INFO:     127.0.0.1:46402 - "GET /health/ready HTTP/1.1" 200 OK
+api-1  | INFO:     172.18.0.3:35220 - "GET /metrics HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:47:03.041128+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "c22ce71e-ea47-4314-9928-3d795edcbfdb", "route": "/metrics", "status": 200, "duration_ms": 8.76, "error_code": null}
+api-1  | {"time": "2026-09-09T17:47:03.041253+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "c22ce71e-ea47-4314-9928-3d795edcbfdb", "status": 200, "protocol_queue_ms": 0.115, "asgi_headers_ms": 8.957}

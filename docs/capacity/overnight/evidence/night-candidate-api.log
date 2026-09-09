@@ -1,0 +1,780 @@
+api-1  | {"time": "2026-09-09T17:43:58.040292+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "0c534998-73bd-437d-9eec-d5b45c8a68b2", "route": "/metrics", "status": 200, "duration_ms": 8.93, "error_code": null}
+api-1  | {"time": "2026-09-09T17:43:58.040394+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "0c534998-73bd-437d-9eec-d5b45c8a68b2", "status": 200, "protocol_queue_ms": 0.101, "asgi_headers_ms": 9.096}
+api-1  | INFO:     172.18.0.3:37090 - "GET /metrics HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:43:58.567912+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "0d7f2a16-3e1f-4b7c-93b7-4839818d702c", "route": "/health/ready", "status": 200, "duration_ms": 1.65, "error_code": null}
+api-1  | {"time": "2026-09-09T17:43:58.568008+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "0d7f2a16-3e1f-4b7c-93b7-4839818d702c", "status": 200, "protocol_queue_ms": 0.047, "asgi_headers_ms": 1.81}
+api-1  | INFO:     127.0.0.1:34144 - "GET /health/ready HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.515347+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "1fc439bd-2449-4197-bcd0-b4caf4ff6cdd", "route": "/health/live", "status": 200, "duration_ms": 3.61, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.515519+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "1fc439bd-2449-4197-bcd0-b4caf4ff6cdd", "status": 200, "protocol_queue_ms": 0.101, "asgi_headers_ms": 3.885}
+api-1  | INFO:     10.1.14.190:54206 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.517920+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "32b3c828-7bad-4e13-ac9a-d1b57e386e87", "route": "/health/live", "status": 200, "duration_ms": 5.66, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.518046+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "32b3c828-7bad-4e13-ac9a-d1b57e386e87", "status": 200, "protocol_queue_ms": 0.162, "asgi_headers_ms": 5.821}
+api-1  | INFO:     10.1.14.190:54222 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.518381+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "2a39dd20-7639-4888-9ea3-8a13158bb021", "route": "/health/live", "status": 200, "duration_ms": 5.99, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.518475+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "2a39dd20-7639-4888-9ea3-8a13158bb021", "status": 200, "protocol_queue_ms": 0.241, "asgi_headers_ms": 6.126}
+api-1  | INFO:     10.1.14.190:54220 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.518780+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "2cdee7d7-54ca-4975-b75c-1d952212185c", "route": "/health/live", "status": 200, "duration_ms": 6.29, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.518858+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "2cdee7d7-54ca-4975-b75c-1d952212185c", "status": 200, "protocol_queue_ms": 0.316, "asgi_headers_ms": 6.425}
+api-1  | INFO:     10.1.14.190:54238 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.519110+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "b34debda-f7b1-45bb-ba8d-9c66f57a8b12", "route": "/health/live", "status": 200, "duration_ms": 6.56, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.519201+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "b34debda-f7b1-45bb-ba8d-9c66f57a8b12", "status": 200, "protocol_queue_ms": 0.404, "asgi_headers_ms": 6.664}
+api-1  | INFO:     10.1.14.190:54210 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.519484+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "c7b5665e-aa90-48be-862a-275cc998fbf2", "route": "/health/live", "status": 200, "duration_ms": 6.81, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.519555+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "c7b5665e-aa90-48be-862a-275cc998fbf2", "status": 200, "protocol_queue_ms": 0.467, "asgi_headers_ms": 6.937}
+api-1  | INFO:     10.1.14.190:54240 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.522356+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "cbe78f23-f54e-463a-927c-31ff7401b88b", "route": "/health/live", "status": 200, "duration_ms": 8.4, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.522455+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "cbe78f23-f54e-463a-927c-31ff7401b88b", "status": 200, "protocol_queue_ms": 1.148, "asgi_headers_ms": 8.514}
+api-1  | INFO:     10.1.14.190:54244 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.522836+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "71ea566d-4297-43a6-8c81-bb4829e256f6", "route": "/health/live", "status": 200, "duration_ms": 8.74, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.522913+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "71ea566d-4297-43a6-8c81-bb4829e256f6", "status": 200, "protocol_queue_ms": 0.278, "asgi_headers_ms": 8.879}
+api-1  | INFO:     10.1.14.190:54256 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.523172+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "20ec3472-d2da-448f-a851-bb0af8a2c88b", "route": "/health/live", "status": 200, "duration_ms": 7.12, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.523261+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "20ec3472-d2da-448f-a851-bb0af8a2c88b", "status": 200, "protocol_queue_ms": 1.891, "asgi_headers_ms": 7.223}
+api-1  | INFO:     10.1.14.190:54282 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.523529+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "400f02d8-aa17-41d4-ba7c-a98ee0735afa", "route": "/health/live", "status": 200, "duration_ms": 7.27, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.523620+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "400f02d8-aa17-41d4-ba7c-a98ee0735afa", "status": 200, "protocol_queue_ms": 2.076, "asgi_headers_ms": 7.378}
+api-1  | INFO:     10.1.14.190:54284 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.523883+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "1f7ac080-9bb2-4d86-ae04-a4c8411b0770", "route": "/health/live", "status": 200, "duration_ms": 7.96, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.523970+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "1f7ac080-9bb2-4d86-ae04-a4c8411b0770", "status": 200, "protocol_queue_ms": 1.791, "asgi_headers_ms": 8.061}
+api-1  | INFO:     10.1.14.190:54266 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.524214+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "e70e3b61-77c3-42c5-8ea9-f39d643398df", "route": "/health/live", "status": 200, "duration_ms": 7.89, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.524298+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "e70e3b61-77c3-42c5-8ea9-f39d643398df", "status": 200, "protocol_queue_ms": 2.133, "asgi_headers_ms": 7.984}
+api-1  | INFO:     10.1.14.190:54298 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.524582+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "2ddde455-0a6d-4005-a2b1-248b85bff28e", "route": "/health/live", "status": 200, "duration_ms": 8.15, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.524656+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "2ddde455-0a6d-4005-a2b1-248b85bff28e", "status": 200, "protocol_queue_ms": 2.194, "asgi_headers_ms": 8.263}
+api-1  | INFO:     10.1.14.190:54300 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.524939+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "5bbb5554-40ab-4323-b311-7fdbd9b2a135", "route": "/health/live", "status": 200, "duration_ms": 8.43, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.525010+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "5bbb5554-40ab-4323-b311-7fdbd9b2a135", "status": 200, "protocol_queue_ms": 2.247, "asgi_headers_ms": 8.552}
+api-1  | INFO:     10.1.14.190:54306 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.525268+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "b446f43d-376a-4423-8752-c53e9b02d7c1", "route": "/health/live", "status": 200, "duration_ms": 8.7, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.525337+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "b446f43d-376a-4423-8752-c53e9b02d7c1", "status": 200, "protocol_queue_ms": 2.316, "asgi_headers_ms": 8.795}
+api-1  | INFO:     10.1.14.190:54318 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.525592+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "898e3770-7b42-4397-85dd-4c13e49690c3", "route": "/health/live", "status": 200, "duration_ms": 8.97, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.525678+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "898e3770-7b42-4397-85dd-4c13e49690c3", "status": 200, "protocol_queue_ms": 2.365, "asgi_headers_ms": 9.07}
+api-1  | INFO:     10.1.14.190:54324 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | INFO:     10.1.14.190:54330 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | INFO:     10.1.14.190:54332 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | INFO:     10.1.14.190:54346 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | INFO:     10.1.14.190:54334 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.525962+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "e7e70bb1-053d-44bd-bf6d-f25bd57f8559", "route": "/health/live", "status": 200, "duration_ms": 9.19, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.526026+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "e7e70bb1-053d-44bd-bf6d-f25bd57f8559", "status": 200, "protocol_queue_ms": 2.465, "asgi_headers_ms": 9.288}
+api-1  | {"time": "2026-09-09T17:44:00.526260+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "84542946-5975-4121-bcdd-f3fe16d45ed6", "route": "/health/live", "status": 200, "duration_ms": 9.43, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.526342+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "84542946-5975-4121-bcdd-f3fe16d45ed6", "status": 200, "protocol_queue_ms": 2.531, "asgi_headers_ms": 9.521}
+api-1  | {"time": "2026-09-09T17:44:00.526607+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d9cd5523-57d9-4fe8-a990-4f707461eea8", "route": "/health/live", "status": 200, "duration_ms": 9.62, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.526672+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d9cd5523-57d9-4fe8-a990-4f707461eea8", "status": 200, "protocol_queue_ms": 2.629, "asgi_headers_ms": 9.72}
+api-1  | {"time": "2026-09-09T17:44:00.526960+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "f1c2fe6f-5c5a-4308-be80-23a82bafdb2a", "route": "/health/live", "status": 200, "duration_ms": 10.03, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.527025+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "f1c2fe6f-5c5a-4308-be80-23a82bafdb2a", "status": 200, "protocol_queue_ms": 2.583, "asgi_headers_ms": 10.136}
+api-1  | {"time": "2026-09-09T17:44:00.527261+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "180882a8-b801-4079-89b0-6b03cd1df8d6", "route": "/health/live", "status": 200, "duration_ms": 10.17, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.527383+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "180882a8-b801-4079-89b0-6b03cd1df8d6", "status": 200, "protocol_queue_ms": 2.722, "asgi_headers_ms": 10.304}
+api-1  | INFO:     10.1.14.190:54366 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.527647+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "020bc41d-c315-45c1-a616-87651430c4d8", "route": "/health/live", "status": 200, "duration_ms": 10.62, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.527739+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "020bc41d-c315-45c1-a616-87651430c4d8", "status": 200, "protocol_queue_ms": 2.675, "asgi_headers_ms": 10.726}
+api-1  | INFO:     10.1.14.190:54354 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.528020+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "a1f005af-ff50-4b8d-b991-43ff35f4df57", "route": "/health/live", "status": 200, "duration_ms": 10.73, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.528191+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "a1f005af-ff50-4b8d-b991-43ff35f4df57", "status": 200, "protocol_queue_ms": 2.875, "asgi_headers_ms": 10.909}
+api-1  | INFO:     10.1.14.190:54390 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.528613+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "bff78ad5-0e29-4f11-b90f-483c1fefdaa7", "route": "/health/live", "status": 200, "duration_ms": 11.37, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.528698+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "bff78ad5-0e29-4f11-b90f-483c1fefdaa7", "status": 200, "protocol_queue_ms": 2.826, "asgi_headers_ms": 11.497}
+api-1  | INFO:     10.1.14.190:54374 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.529055+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "58bc6642-9af2-42d0-8cbf-239e3fc8ad69", "route": "/health/live", "status": 200, "duration_ms": 11.69, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.529128+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "58bc6642-9af2-42d0-8cbf-239e3fc8ad69", "status": 200, "protocol_queue_ms": 2.924, "asgi_headers_ms": 11.803}
+api-1  | INFO:     10.1.14.190:54400 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.576247+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "3a4a687a-d22c-4c8a-9730-1e121fae264d", "route": "/health/live", "status": 200, "duration_ms": 1.32, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.576528+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "3a4a687a-d22c-4c8a-9730-1e121fae264d", "status": 200, "protocol_queue_ms": 0.071, "asgi_headers_ms": 1.636}
+api-1  | INFO:     10.1.14.190:54414 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.578614+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "c209fff5-b9a5-4c23-b4df-63eb50f8a007", "route": "/health/live", "status": 200, "duration_ms": 3.06, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.578691+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "c209fff5-b9a5-4c23-b4df-63eb50f8a007", "status": 200, "protocol_queue_ms": 0.398, "asgi_headers_ms": 3.167}
+api-1  | INFO:     10.1.14.190:54428 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.580792+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "25051215-ab42-4402-88cb-e3c594f0a6cb", "route": "/health/live", "status": 200, "duration_ms": 4.98, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.580907+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "25051215-ab42-4402-88cb-e3c594f0a6cb", "status": 200, "protocol_queue_ms": 0.134, "asgi_headers_ms": 5.135}
+api-1  | INFO:     10.1.14.190:54440 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.581684+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "9c12e3b5-9858-4acb-bac8-610f24b78065", "route": "/health/live", "status": 200, "duration_ms": 6.25, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.581784+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "9c12e3b5-9858-4acb-bac8-610f24b78065", "status": 200, "protocol_queue_ms": 0.099, "asgi_headers_ms": 6.571}
+api-1  | INFO:     10.1.14.190:54422 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.582070+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "7b412f83-ba02-40b3-b6b3-ab188711ff7c", "route": "/health/live", "status": 200, "duration_ms": 5.13, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.582142+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "7b412f83-ba02-40b3-b6b3-ab188711ff7c", "status": 200, "protocol_queue_ms": 0.984, "asgi_headers_ms": 5.242}
+api-1  | INFO:     10.1.14.190:54456 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.582390+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "67922bb5-0994-4613-b977-dead78b887c1", "route": "/health/live", "status": 200, "duration_ms": 5.35, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.582490+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "67922bb5-0994-4613-b977-dead78b887c1", "status": 200, "protocol_queue_ms": 1.08, "asgi_headers_ms": 5.464}
+api-1  | INFO:     10.1.14.190:54466 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.582756+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "02f41981-8b93-465a-ab2f-050102b34776", "route": "/health/live", "status": 200, "duration_ms": 5.55, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.582851+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "02f41981-8b93-465a-ab2f-050102b34776", "status": 200, "protocol_queue_ms": 1.196, "asgi_headers_ms": 5.672}
+api-1  | INFO:     10.1.14.190:54478 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.583101+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "2f78b719-6b31-48e2-8b4c-e386fa5b2863", "route": "/health/live", "status": 200, "duration_ms": 5.73, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.583188+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "2f78b719-6b31-48e2-8b4c-e386fa5b2863", "status": 200, "protocol_queue_ms": 1.362, "asgi_headers_ms": 5.828}
+api-1  | INFO:     10.1.14.190:54492 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.583474+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "3411e3a9-d6fe-4216-b3e4-732e4e718119", "route": "/health/live", "status": 200, "duration_ms": 6.31, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.583548+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "3411e3a9-d6fe-4216-b3e4-732e4e718119", "status": 200, "protocol_queue_ms": 1.143, "asgi_headers_ms": 6.439}
+api-1  | INFO:     10.1.14.190:54472 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.583809+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "4ca56492-56d3-4f15-8e07-ecda2995e9b2", "route": "/health/live", "status": 200, "duration_ms": 6.35, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.583896+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "4ca56492-56d3-4f15-8e07-ecda2995e9b2", "status": 200, "protocol_queue_ms": 1.417, "asgi_headers_ms": 6.464}
+api-1  | INFO:     10.1.14.190:54502 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.584244+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "479abdb4-04f6-4313-8a51-6c7ce74a13b6", "route": "/health/live", "status": 200, "duration_ms": 6.7, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.584344+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "479abdb4-04f6-4313-8a51-6c7ce74a13b6", "status": 200, "protocol_queue_ms": 1.48, "asgi_headers_ms": 6.805}
+api-1  | INFO:     10.1.14.190:54518 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.585230+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d486fc15-ab0b-423c-851b-777288cb4432", "route": "/health/live", "status": 200, "duration_ms": 7.19, "error_code": null}
+api-1  | INFO:     10.1.14.190:54536 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | INFO:     10.1.14.190:54538 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | INFO:     10.1.14.190:54556 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | INFO:     10.1.14.190:54534 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.585348+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d486fc15-ab0b-423c-851b-777288cb4432", "status": 200, "protocol_queue_ms": 0.358, "asgi_headers_ms": 7.332}
+api-1  | {"time": "2026-09-09T17:44:00.585646+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "8f5dee91-7042-4a20-b5bb-79cc5277c70e", "route": "/health/live", "status": 200, "duration_ms": 7.43, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.585712+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "8f5dee91-7042-4a20-b5bb-79cc5277c70e", "status": 200, "protocol_queue_ms": 0.405, "asgi_headers_ms": 7.629}
+api-1  | {"time": "2026-09-09T17:44:00.585993+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "c706498c-438e-464d-a3e3-bccef076cd2e", "route": "/health/live", "status": 200, "duration_ms": 7.71, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.586058+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "c706498c-438e-464d-a3e3-bccef076cd2e", "status": 200, "protocol_queue_ms": 0.549, "asgi_headers_ms": 7.814}
+api-1  | {"time": "2026-09-09T17:44:00.586422+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "0a671614-fcea-4724-9ba2-be9a21e71cec", "route": "/health/live", "status": 200, "duration_ms": 8.44, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.586558+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "0a671614-fcea-4724-9ba2-be9a21e71cec", "status": 200, "protocol_queue_ms": 0.293, "asgi_headers_ms": 8.616}
+api-1  | {"time": "2026-09-09T17:44:00.587156+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "3669651b-c4f6-4de3-ab2f-941f4c212109", "route": "/health/live", "status": 200, "duration_ms": 7.94, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.587361+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "3669651b-c4f6-4de3-ab2f-941f4c212109", "status": 200, "protocol_queue_ms": 0.858, "asgi_headers_ms": 8.153}
+api-1  | INFO:     10.1.14.190:54554 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.587783+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "7d1c8d7d-3937-4224-9108-31c60febf4f3", "route": "/health/live", "status": 200, "duration_ms": 8.21, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.587924+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "7d1c8d7d-3937-4224-9108-31c60febf4f3", "status": 200, "protocol_queue_ms": 1.13, "asgi_headers_ms": 8.403}
+api-1  | INFO:     10.1.14.190:54584 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.588284+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "53891160-9f97-464f-9ae6-433a7cbfa2be", "route": "/health/live", "status": 200, "duration_ms": 8.47, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.588441+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "53891160-9f97-464f-9ae6-433a7cbfa2be", "status": 200, "protocol_queue_ms": 1.359, "asgi_headers_ms": 8.648}
+api-1  | INFO:     10.1.14.190:54600 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.588841+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "de0c9252-9dd7-4384-9408-deb32bad3b4e", "route": "/health/live", "status": 200, "duration_ms": 8.88, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.589014+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "de0c9252-9dd7-4384-9408-deb32bad3b4e", "status": 200, "protocol_queue_ms": 1.49, "asgi_headers_ms": 9.053}
+api-1  | INFO:     10.1.14.190:54616 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.589413+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "3904f745-c913-466f-8c99-ea90df71a591", "route": "/health/live", "status": 200, "duration_ms": 9.5, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.589564+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "3904f745-c913-466f-8c99-ea90df71a591", "status": 200, "protocol_queue_ms": 1.433, "asgi_headers_ms": 9.691}
+api-1  | INFO:     10.1.14.190:54602 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.589952+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d949ca0c-ecb5-4b82-9e9d-6d77f88b0942", "route": "/health/live", "status": 200, "duration_ms": 10.34, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.590127+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d949ca0c-ecb5-4b82-9e9d-6d77f88b0942", "status": 200, "protocol_queue_ms": 1.192, "asgi_headers_ms": 10.515}
+api-1  | INFO:     10.1.14.190:54590 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.590556+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "574b84ea-d792-4f2d-9b44-2b48547615cf", "route": "/health/live", "status": 200, "duration_ms": 10.38, "error_code": null}
+api-1  | INFO:     10.1.14.190:54650 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | INFO:     10.1.14.190:54570 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | INFO:     10.1.14.190:54624 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.590693+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "574b84ea-d792-4f2d-9b44-2b48547615cf", "status": 200, "protocol_queue_ms": 1.62, "asgi_headers_ms": 10.549}
+api-1  | {"time": "2026-09-09T17:44:00.590988+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "918beba7-98b0-4f57-9b4a-b38126684285", "route": "/health/live", "status": 200, "duration_ms": 11.53, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.591052+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "918beba7-98b0-4f57-9b4a-b38126684285", "status": 200, "protocol_queue_ms": 1.054, "asgi_headers_ms": 11.64}
+api-1  | {"time": "2026-09-09T17:44:00.591309+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "135bf133-4216-45ac-b857-47e52acd6335", "route": "/health/live", "status": 200, "duration_ms": 11.27, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.591371+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "135bf133-4216-45ac-b857-47e52acd6335", "status": 200, "protocol_queue_ms": 1.524, "asgi_headers_ms": 11.368}
+api-1  | {"time": "2026-09-09T17:44:00.591622+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "b6817ab8-e213-4eef-888d-00bb0ebd0ba2", "route": "/health/live", "status": 200, "duration_ms": 11.54, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.591706+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "b6817ab8-e213-4eef-888d-00bb0ebd0ba2", "status": 200, "protocol_queue_ms": 1.571, "asgi_headers_ms": 11.637}
+api-1  | INFO:     10.1.14.190:54640 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.595460+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "828dea92-3310-45ea-bb04-a385716d02da", "route": "/health/live", "status": 200, "duration_ms": 0.88, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.595594+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "828dea92-3310-45ea-bb04-a385716d02da", "status": 200, "protocol_queue_ms": 0.038, "asgi_headers_ms": 1.049}
+api-1  | INFO:     10.1.14.190:54656 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.597632+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "f6906750-6153-4eed-8786-8bb7ce843a5e", "route": "/health/live", "status": 200, "duration_ms": 2.78, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.597747+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "f6906750-6153-4eed-8786-8bb7ce843a5e", "status": 200, "protocol_queue_ms": 0.098, "asgi_headers_ms": 2.919}
+api-1  | INFO:     10.1.14.190:54672 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.600066+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "11729c2f-e43f-4b21-846c-2d89e06cde23", "route": "/health/live", "status": 200, "duration_ms": 4.94, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.600148+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "11729c2f-e43f-4b21-846c-2d89e06cde23", "status": 200, "protocol_queue_ms": 0.099, "asgi_headers_ms": 5.045}
+api-1  | INFO:     10.1.14.190:54674 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.601018+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "13f425e4-ba33-4fe0-b9c0-dbce456cecd4", "route": "/health/live", "status": 200, "duration_ms": 4.82, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.601101+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "13f425e4-ba33-4fe0-b9c0-dbce456cecd4", "status": 200, "protocol_queue_ms": 0.917, "asgi_headers_ms": 4.921}
+api-1  | INFO:     10.1.14.190:54700 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.601364+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "99bf39ae-dd2e-4654-85db-d2d49304efc5", "route": "/health/live", "status": 200, "duration_ms": 5.09, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.601469+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "99bf39ae-dd2e-4654-85db-d2d49304efc5", "status": 200, "protocol_queue_ms": 0.97, "asgi_headers_ms": 5.191}
+api-1  | INFO:     10.1.14.190:54706 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | INFO:     10.1.14.190:54712 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.601803+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "b7bdabfb-5dd8-48a1-8d39-9443696e2461", "route": "/health/live", "status": 200, "duration_ms": 5.41, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.601898+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "b7bdabfb-5dd8-48a1-8d39-9443696e2461", "status": 200, "protocol_queue_ms": 1.021, "asgi_headers_ms": 5.565}
+api-1  | {"time": "2026-09-09T17:44:00.602207+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "35c5203f-b663-4aa5-bc90-90abf8b14792", "route": "/health/live", "status": 200, "duration_ms": 6.15, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.602306+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "35c5203f-b663-4aa5-bc90-90abf8b14792", "status": 200, "protocol_queue_ms": 0.799, "asgi_headers_ms": 6.287}
+api-1  | INFO:     10.1.14.190:54688 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.602987+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "1f205213-909b-46f1-9743-5ea8b960dd8a", "route": "/health/live", "status": 200, "duration_ms": 5.9, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.603235+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "1f205213-909b-46f1-9743-5ea8b960dd8a", "status": 200, "protocol_queue_ms": 0.42, "asgi_headers_ms": 6.163}
+api-1  | INFO:     10.1.14.190:54730 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | INFO:     10.1.14.190:54716 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | INFO:     10.1.14.190:54718 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | INFO:     10.1.14.190:54738 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.604318+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d463b118-0d05-4286-93b6-455659e565c7", "route": "/health/live", "status": 200, "duration_ms": 7.42, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.604396+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d463b118-0d05-4286-93b6-455659e565c7", "status": 200, "protocol_queue_ms": 0.276, "asgi_headers_ms": 7.54}
+api-1  | {"time": "2026-09-09T17:44:00.604738+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "3d5feedb-826d-4a08-92d5-960c94081321", "route": "/health/live", "status": 200, "duration_ms": 7.69, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.604871+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "3d5feedb-826d-4a08-92d5-960c94081321", "status": 200, "protocol_queue_ms": 0.379, "asgi_headers_ms": 7.856}
+api-1  | {"time": "2026-09-09T17:44:00.605228+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "a4653746-6579-4b88-b566-f96d4efe3228", "route": "/health/live", "status": 200, "duration_ms": 8.03, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.605340+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "a4653746-6579-4b88-b566-f96d4efe3228", "status": 200, "protocol_queue_ms": 0.465, "asgi_headers_ms": 8.173}
+api-1  | {"time": "2026-09-09T17:44:00.606188+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "4563e260-aa0f-4261-806d-569afc8540a9", "route": "/health/live", "status": 200, "duration_ms": 7.77, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.606256+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "4563e260-aa0f-4261-806d-569afc8540a9", "status": 200, "protocol_queue_ms": 1.156, "asgi_headers_ms": 7.865}
+api-1  | {"time": "2026-09-09T17:44:00.606715+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "f689d703-a8a4-4ebf-ab58-850166222ba5", "route": "/health/live", "status": 200, "duration_ms": 7.95, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.606836+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "f689d703-a8a4-4ebf-ab58-850166222ba5", "status": 200, "protocol_queue_ms": 1.388, "asgi_headers_ms": 8.116}
+api-1  | INFO:     10.1.14.190:54758 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | INFO:     10.1.14.190:54818 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.607153+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "1310be33-67cf-4a5a-9af7-712f0b929584", "route": "/health/live", "status": 200, "duration_ms": 8.64, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.607277+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "1310be33-67cf-4a5a-9af7-712f0b929584", "status": 200, "protocol_queue_ms": 1.231, "asgi_headers_ms": 8.783}
+api-1  | INFO:     10.1.14.190:54772 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.607630+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "efde9952-bdca-488d-9a3a-8997bd3d2bc4", "route": "/health/live", "status": 200, "duration_ms": 9.03, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.607737+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "efde9952-bdca-488d-9a3a-8997bd3d2bc4", "status": 200, "protocol_queue_ms": 1.285, "asgi_headers_ms": 9.169}
+api-1  | INFO:     10.1.14.190:54788 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.608085+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "9406761a-8ce0-4e7d-a4e6-3df58ef2fcd0", "route": "/health/live", "status": 200, "duration_ms": 8.53, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.608191+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "9406761a-8ce0-4e7d-a4e6-3df58ef2fcd0", "status": 200, "protocol_queue_ms": 2.162, "asgi_headers_ms": 8.666}
+api-1  | {"time": "2026-09-09T17:44:00.608546+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "baf3ab0e-108f-46f7-9d16-fd904f90b3d7", "route": "/health/live", "status": 200, "duration_ms": 9.87, "error_code": null}
+api-1  | INFO:     10.1.14.190:54848 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.608647+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "baf3ab0e-108f-46f7-9d16-fd904f90b3d7", "status": 200, "protocol_queue_ms": 1.335, "asgi_headers_ms": 10.015}
+api-1  | INFO:     10.1.14.190:54802 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.608989+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d6b916ee-7cd0-40aa-b5cf-b0d867f6afff", "route": "/health/live", "status": 200, "duration_ms": 9.14, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.609095+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d6b916ee-7cd0-40aa-b5cf-b0d867f6afff", "status": 200, "protocol_queue_ms": 2.255, "asgi_headers_ms": 9.299}
+api-1  | INFO:     10.1.14.190:54874 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.609424+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "45e4351b-f932-4ac5-a4da-10a687b939c7", "route": "/health/live", "status": 200, "duration_ms": 8.68, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.609537+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "45e4351b-f932-4ac5-a4da-10a687b939c7", "status": 200, "protocol_queue_ms": 0.759, "asgi_headers_ms": 8.822}
+api-1  | INFO:     10.1.14.190:54878 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.609883+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "c0826b76-34fd-4973-90b1-3cc560d69af5", "route": "/health/live", "status": 200, "duration_ms": 10.25, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.609984+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "c0826b76-34fd-4973-90b1-3cc560d69af5", "status": 200, "protocol_queue_ms": 2.205, "asgi_headers_ms": 10.388}
+api-1  | INFO:     10.1.14.190:54854 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.610330+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d2e15179-6f0b-49bc-aac1-baa09490bd95", "route": "/health/live", "status": 200, "duration_ms": 10.56, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.610442+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d2e15179-6f0b-49bc-aac1-baa09490bd95", "status": 200, "protocol_queue_ms": 2.309, "asgi_headers_ms": 10.7}
+api-1  | INFO:     10.1.14.190:54868 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.610798+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "dee6d668-b28f-4d27-91b1-f266539c7bc3", "route": "/health/live", "status": 200, "duration_ms": 11.32, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.610903+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "dee6d668-b28f-4d27-91b1-f266539c7bc3", "status": 200, "protocol_queue_ms": 2.082, "asgi_headers_ms": 11.477}
+api-1  | INFO:     10.1.14.190:54840 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.611213+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "523a06fe-2b9b-485d-81c9-3883e0ba5b0e", "route": "/health/live", "status": 200, "duration_ms": 11.53, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.611340+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "523a06fe-2b9b-485d-81c9-3883e0ba5b0e", "status": 200, "protocol_queue_ms": 2.259, "asgi_headers_ms": 11.672}
+api-1  | INFO:     10.1.14.190:54860 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.611716+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "dc1731a8-7ca8-4f02-8cee-4fef7801d020", "route": "/health/live", "status": 200, "duration_ms": 12.35, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.611827+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "dc1731a8-7ca8-4f02-8cee-4fef7801d020", "status": 200, "protocol_queue_ms": 1.997, "asgi_headers_ms": 12.502}
+api-1  | INFO:     10.1.14.190:54824 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.612187+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "c20a8cd9-6d35-4113-92bd-e0e92095b34d", "route": "/health/live", "status": 200, "duration_ms": 13.93, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.612293+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "c20a8cd9-6d35-4113-92bd-e0e92095b34d", "status": 200, "protocol_queue_ms": 1.011, "asgi_headers_ms": 14.07}
+api-1  | INFO:     10.1.14.190:54750 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.618351+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "367f776b-e088-4951-aab2-70e3634dbdbf", "route": "/health/live", "status": 200, "duration_ms": 3.21, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.618637+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "367f776b-e088-4951-aab2-70e3634dbdbf", "status": 200, "protocol_queue_ms": 1.016, "asgi_headers_ms": 3.602}
+api-1  | INFO:     10.1.14.190:54958 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.619055+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "c39a24a9-2823-49ab-86d5-e0ef711434af", "route": "/health/live", "status": 200, "duration_ms": 4.28, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.619159+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "c39a24a9-2823-49ab-86d5-e0ef711434af", "status": 200, "protocol_queue_ms": 0.803, "asgi_headers_ms": 4.406}
+api-1  | INFO:     10.1.14.190:54916 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.619524+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "95c33ac3-8808-4fe4-9530-5ffb1fd4a475", "route": "/health/live", "status": 200, "duration_ms": 5.42, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.619602+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "95c33ac3-8808-4fe4-9530-5ffb1fd4a475", "status": 200, "protocol_queue_ms": 0.255, "asgi_headers_ms": 5.564}
+api-1  | INFO:     10.1.14.190:54882 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.619873+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "9cf3ee3a-eb51-4fbd-ba4e-e26ca14c30db", "route": "/health/live", "status": 200, "duration_ms": 4.93, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.619967+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "9cf3ee3a-eb51-4fbd-ba4e-e26ca14c30db", "status": 200, "protocol_queue_ms": 0.947, "asgi_headers_ms": 5.038}
+api-1  | INFO:     10.1.14.190:54942 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.620217+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "6ba50d11-f20e-4894-bdab-5e13d8d3c6b2", "route": "/health/live", "status": 200, "duration_ms": 5.66, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.620324+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "6ba50d11-f20e-4894-bdab-5e13d8d3c6b2", "status": 200, "protocol_queue_ms": 0.654, "asgi_headers_ms": 5.781}
+api-1  | INFO:     10.1.14.190:54908 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.620629+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "f3bb6424-8f8a-4a19-903f-465824574562", "route": "/health/live", "status": 200, "duration_ms": 6.34, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.620715+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "f3bb6424-8f8a-4a19-903f-465824574562", "status": 200, "protocol_queue_ms": 0.406, "asgi_headers_ms": 6.439}
+api-1  | INFO:     10.1.14.190:54904 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.621023+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "e40ae58d-2972-45e4-bbed-7c3ea5fad003", "route": "/health/live", "status": 200, "duration_ms": 6.39, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.621110+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "e40ae58d-2972-45e4-bbed-7c3ea5fad003", "status": 200, "protocol_queue_ms": 0.718, "asgi_headers_ms": 6.49}
+api-1  | INFO:     10.1.14.190:54910 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.621352+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "9896564d-5e68-4e6d-8f23-52011b81a1a5", "route": "/health/live", "status": 200, "duration_ms": 6.51, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.621452+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "9896564d-5e68-4e6d-8f23-52011b81a1a5", "status": 200, "protocol_queue_ms": 0.869, "asgi_headers_ms": 6.607}
+api-1  | INFO:     10.1.14.190:54926 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.621945+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "b6c5a67c-a802-4208-bc48-7576d7a7fa0c", "route": "/health/live", "status": 200, "duration_ms": 7.74, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.622165+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "b6c5a67c-a802-4208-bc48-7576d7a7fa0c", "status": 200, "protocol_queue_ms": 0.337, "asgi_headers_ms": 7.976}
+api-1  | INFO:     10.1.14.190:54892 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.622623+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "8e396274-b8f1-4a78-acb3-4ecd3a6fd219", "route": "/health/live", "status": 200, "duration_ms": 7.91, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.622726+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "8e396274-b8f1-4a78-acb3-4ecd3a6fd219", "status": 200, "protocol_queue_ms": 0.756, "asgi_headers_ms": 8.031}
+api-1  | INFO:     10.1.14.190:54914 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.623013+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "666853b1-3630-4be3-b445-21244222dd17", "route": "/health/live", "status": 200, "duration_ms": 7.33, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.623106+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "666853b1-3630-4be3-b445-21244222dd17", "status": 200, "protocol_queue_ms": 0.387, "asgi_headers_ms": 7.436}
+api-1  | INFO:     10.1.14.190:54978 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.623415+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "b6ed8c3f-e919-452e-aa01-b1d91b76e3aa", "route": "/health/live", "status": 200, "duration_ms": 6.99, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.623504+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "b6ed8c3f-e919-452e-aa01-b1d91b76e3aa", "status": 200, "protocol_queue_ms": 0.565, "asgi_headers_ms": 7.112}
+api-1  | INFO:     10.1.14.190:54986 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.623790+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "c25962cb-d8ba-4a31-9c8f-a20a0ff85f9d", "route": "/health/live", "status": 200, "duration_ms": 7.16, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.623862+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "c25962cb-d8ba-4a31-9c8f-a20a0ff85f9d", "status": 200, "protocol_queue_ms": 0.715, "asgi_headers_ms": 7.272}
+api-1  | INFO:     10.1.14.190:55004 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.624111+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "dc0f3123-bb6a-4766-83a7-5e551c96740b", "route": "/health/live", "status": 200, "duration_ms": 8.59, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.624195+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "dc0f3123-bb6a-4766-83a7-5e551c96740b", "status": 200, "protocol_queue_ms": 0.277, "asgi_headers_ms": 8.689}
+api-1  | INFO:     10.1.14.190:54962 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.624472+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "f1e227b0-db0f-4ec1-8a52-3db1e537e675", "route": "/health/live", "status": 200, "duration_ms": 8.83, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.624542+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "f1e227b0-db0f-4ec1-8a52-3db1e537e675", "status": 200, "protocol_queue_ms": 0.337, "asgi_headers_ms": 8.944}
+api-1  | INFO:     10.1.14.190:54976 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.624823+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "270a3641-4f84-47ee-aed4-25ada1346b29", "route": "/health/live", "status": 200, "duration_ms": 8.27, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.624894+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "270a3641-4f84-47ee-aed4-25ada1346b29", "status": 200, "protocol_queue_ms": 0.652, "asgi_headers_ms": 8.388}
+api-1  | INFO:     10.1.14.190:55002 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.625140+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "90586295-04e9-4aec-a672-943396a6b66b", "route": "/health/live", "status": 200, "duration_ms": 8.46, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.625225+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "90586295-04e9-4aec-a672-943396a6b66b", "status": 200, "protocol_queue_ms": 0.677, "asgi_headers_ms": 8.56}
+api-1  | INFO:     10.1.14.190:55006 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.625496+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "55d666ae-8d64-490f-80b9-1ae2b3b7b695", "route": "/health/live", "status": 200, "duration_ms": 9.72, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.625565+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "55d666ae-8d64-490f-80b9-1ae2b3b7b695", "status": 200, "protocol_queue_ms": 0.437, "asgi_headers_ms": 9.833}
+api-1  | INFO:     10.1.14.190:54984 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.625897+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "9950e568-00e0-44fc-998d-a27cb846c83b", "route": "/health/live", "status": 200, "duration_ms": 8.72, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.625966+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "9950e568-00e0-44fc-998d-a27cb846c83b", "status": 200, "protocol_queue_ms": 1.028, "asgi_headers_ms": 8.917}
+api-1  | INFO:     10.1.14.190:55026 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.626212+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "64707232-ab1f-444a-a304-1b0b9906ab6e", "route": "/health/live", "status": 200, "duration_ms": 8.95, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.626297+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "64707232-ab1f-444a-a304-1b0b9906ab6e", "status": 200, "protocol_queue_ms": 1.211, "asgi_headers_ms": 9.049}
+api-1  | INFO:     10.1.14.190:55050 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.626576+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "db55d7cf-2720-4701-a678-02bbc32ef8d1", "route": "/health/live", "status": 200, "duration_ms": 9.13, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.626644+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "db55d7cf-2720-4701-a678-02bbc32ef8d1", "status": 200, "protocol_queue_ms": 1.336, "asgi_headers_ms": 9.236}
+api-1  | INFO:     10.1.14.190:55064 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.626915+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "8288fb01-526e-49ef-8da4-6e8097a10327", "route": "/health/live", "status": 200, "duration_ms": 9.3, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.626984+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "8288fb01-526e-49ef-8da4-6e8097a10327", "status": 200, "protocol_queue_ms": 1.483, "asgi_headers_ms": 9.399}
+api-1  | INFO:     10.1.14.190:55082 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.627236+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d9de04b8-794c-42fe-8512-b3c3993e5c34", "route": "/health/live", "status": 200, "duration_ms": 9.7, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.627305+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d9de04b8-794c-42fe-8512-b3c3993e5c34", "status": 200, "protocol_queue_ms": 1.414, "asgi_headers_ms": 9.804}
+api-1  | INFO:     10.1.14.190:55076 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.627581+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "dfca7c93-5bb0-4d9b-b17d-e5e476a55c93", "route": "/health/live", "status": 200, "duration_ms": 10.82, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.627649+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "dfca7c93-5bb0-4d9b-b17d-e5e476a55c93", "status": 200, "protocol_queue_ms": 0.727, "asgi_headers_ms": 10.918}
+api-1  | INFO:     10.1.14.190:55012 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:00.627928+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "f99755b9-9888-4c76-8a55-cd1c8c0c8cb0", "route": "/health/live", "status": 200, "duration_ms": 10.56, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:00.627997+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "f99755b9-9888-4c76-8a55-cd1c8c0c8cb0", "status": 200, "protocol_queue_ms": 1.281, "asgi_headers_ms": 10.665}
+api-1  | INFO:     10.1.14.190:55038 - "GET /health/live HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:01.154914+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "803035ba-6cdc-495c-9363-95b180ecd421", "route": "/v1/holds", "status": 503, "duration_ms": 0.11, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.155011+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "803035ba-6cdc-495c-9363-95b180ecd421", "status": 503, "protocol_queue_ms": 0.612, "asgi_headers_ms": 0.426}
+api-1  | INFO:     10.1.14.190:54266 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.155378+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "ac8285e8-c017-4b44-b307-c06b546cd7c5", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.155486+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "ac8285e8-c017-4b44-b307-c06b546cd7c5", "status": 503, "protocol_queue_ms": 1.259, "asgi_headers_ms": 0.205}
+api-1  | INFO:     10.1.14.190:54282 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.155822+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "5343a363-a314-4054-ac4b-9a355bf5b096", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.155894+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "5343a363-a314-4054-ac4b-9a355bf5b096", "status": 503, "protocol_queue_ms": 1.682, "asgi_headers_ms": 0.19}
+api-1  | INFO:     10.1.14.190:54284 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.156189+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "2678858d-8b8d-4bfe-9f51-31a7dea4f1e4", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.156260+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "2678858d-8b8d-4bfe-9f51-31a7dea4f1e4", "status": 503, "protocol_queue_ms": 2.045, "asgi_headers_ms": 0.168}
+api-1  | INFO:     10.1.14.190:54298 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.156561+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "92319ac9-6dd6-4b16-acc3-5b0e44f05039", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.156632+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "92319ac9-6dd6-4b16-acc3-5b0e44f05039", "status": 503, "protocol_queue_ms": 2.37, "asgi_headers_ms": 0.181}
+api-1  | INFO:     10.1.14.190:54300 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.157715+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "2752d9c1-f30a-4ca8-8c99-7c5447a99927", "route": "/v1/holds", "status": 503, "duration_ms": 0.16, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.157823+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "2752d9c1-f30a-4ca8-8c99-7c5447a99927", "status": 503, "protocol_queue_ms": 0.634, "asgi_headers_ms": 0.295}
+api-1  | INFO:     10.1.14.190:54306 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.158159+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "55928e4a-dd84-4dff-849d-2321a8c1f0df", "route": "/v1/holds", "status": 503, "duration_ms": 0.09, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.158232+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "55928e4a-dd84-4dff-849d-2321a8c1f0df", "status": 503, "protocol_queue_ms": 1.107, "asgi_headers_ms": 0.186}
+api-1  | INFO:     10.1.14.190:54318 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.158563+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "1ef3d40b-b22e-4a74-9048-00bf3c6deae1", "route": "/v1/holds", "status": 503, "duration_ms": 0.09, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.158636+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "1ef3d40b-b22e-4a74-9048-00bf3c6deae1", "status": 503, "protocol_queue_ms": 1.442, "asgi_headers_ms": 0.191}
+api-1  | INFO:     10.1.14.190:54324 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.158977+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "4e7600fc-db0a-49bd-b19f-d5242e3f6c1f", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.159059+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "4e7600fc-db0a-49bd-b19f-d5242e3f6c1f", "status": 503, "protocol_queue_ms": 1.825, "asgi_headers_ms": 0.19}
+api-1  | INFO:     10.1.14.190:54330 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.159388+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "3edb3b90-ab6f-4727-8f08-2c90adf76b73", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.159494+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "3edb3b90-ab6f-4727-8f08-2c90adf76b73", "status": 503, "protocol_queue_ms": 2.187, "asgi_headers_ms": 0.203}
+api-1  | {"time": "2026-09-09T17:44:01.159809+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "deb97893-75c4-4a89-b361-aac9c5e0aab6", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.159907+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "deb97893-75c4-4a89-b361-aac9c5e0aab6", "status": 503, "protocol_queue_ms": 2.565, "asgi_headers_ms": 0.204}
+api-1  | INFO:     10.1.14.190:54332 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54334 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.160221+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "c5f3db1c-be47-4f04-94cc-39523b694fef", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.160325+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "c5f3db1c-be47-4f04-94cc-39523b694fef", "status": 503, "protocol_queue_ms": 2.951, "asgi_headers_ms": 0.2}
+api-1  | INFO:     10.1.14.190:54346 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.160660+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "61941a8f-2723-4fee-9a37-008f20fd35f4", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.160756+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "61941a8f-2723-4fee-9a37-008f20fd35f4", "status": 503, "protocol_queue_ms": 3.351, "asgi_headers_ms": 0.193}
+api-1  | INFO:     10.1.14.190:54354 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.161087+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "c4b6f29e-25af-421d-b140-93f874b8ab29", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.161194+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "c4b6f29e-25af-421d-b140-93f874b8ab29", "status": 503, "protocol_queue_ms": 3.744, "asgi_headers_ms": 0.204}
+api-1  | INFO:     10.1.14.190:54366 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.161533+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "04735443-f88a-4d17-8dee-d7c415a8c9e8", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.161660+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "04735443-f88a-4d17-8dee-d7c415a8c9e8", "status": 503, "protocol_queue_ms": 4.124, "asgi_headers_ms": 0.203}
+api-1  | INFO:     10.1.14.190:54374 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.161972+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "7191427e-acd9-427f-8cd3-e9c0bd92144e", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.162044+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "7191427e-acd9-427f-8cd3-e9c0bd92144e", "status": 503, "protocol_queue_ms": 4.536, "asgi_headers_ms": 0.17}
+api-1  | INFO:     10.1.14.190:54390 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.162327+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "6aed30cd-6643-4cbc-a22e-2ea1838278bd", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.162398+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "6aed30cd-6643-4cbc-a22e-2ea1838278bd", "status": 503, "protocol_queue_ms": 4.855, "asgi_headers_ms": 0.166}
+api-1  | INFO:     10.1.14.190:54400 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.164729+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "2e5ebe54-1213-40dc-ad39-36121e245fa7", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.164817+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "2e5ebe54-1213-40dc-ad39-36121e245fa7", "status": 503, "protocol_queue_ms": 1.522, "asgi_headers_ms": 0.194}
+api-1  | INFO:     10.1.14.190:54882 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.165128+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "e57088af-aec1-41a5-9129-c1a21a2a5b09", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.165205+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "e57088af-aec1-41a5-9129-c1a21a2a5b09", "status": 503, "protocol_queue_ms": 1.885, "asgi_headers_ms": 0.174}
+api-1  | INFO:     10.1.14.190:54892 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.165561+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "a009b486-b871-4c0f-8556-87cd1596389a", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.165634+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "a009b486-b871-4c0f-8556-87cd1596389a", "status": 503, "protocol_queue_ms": 2.27, "asgi_headers_ms": 0.189}
+api-1  | INFO:     10.1.14.190:54904 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.165965+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "16554902-b35b-4346-8886-99d38124b2c4", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.166055+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "16554902-b35b-4346-8886-99d38124b2c4", "status": 503, "protocol_queue_ms": 2.679, "asgi_headers_ms": 0.173}
+api-1  | INFO:     10.1.14.190:54908 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.166379+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "3870ee57-927d-45fc-824b-a64670c72c1e", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.166464+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "3870ee57-927d-45fc-824b-a64670c72c1e", "status": 503, "protocol_queue_ms": 3.053, "asgi_headers_ms": 0.17}
+api-1  | {"time": "2026-09-09T17:44:01.166748+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "0fd14991-50c4-44a6-b57d-cb54fdc0fe9e", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.166831+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "0fd14991-50c4-44a6-b57d-cb54fdc0fe9e", "status": 503, "protocol_queue_ms": 3.398, "asgi_headers_ms": 0.178}
+api-1  | INFO:     10.1.14.190:54910 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54914 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54916 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.167107+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "b1d3c16d-b0de-430a-a64b-d5191357df95", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.167176+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "b1d3c16d-b0de-430a-a64b-d5191357df95", "status": 503, "protocol_queue_ms": 3.734, "asgi_headers_ms": 0.164}
+api-1  | {"time": "2026-09-09T17:44:01.167551+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "18c6b9d2-520a-4c56-ac0b-43da3ac949f1", "route": "/v1/holds", "status": 503, "duration_ms": 0.1, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.167687+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "18c6b9d2-520a-4c56-ac0b-43da3ac949f1", "status": 503, "protocol_queue_ms": 4.125, "asgi_headers_ms": 0.195}
+api-1  | INFO:     10.1.14.190:54414 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.168046+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "3fc4eee5-a32e-40f6-aab8-91dba4e4d789", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.168118+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "3fc4eee5-a32e-40f6-aab8-91dba4e4d789", "status": 503, "protocol_queue_ms": 4.614, "asgi_headers_ms": 0.175}
+api-1  | INFO:     10.1.14.190:54926 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.168404+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "a97dfbaf-2474-4552-bde1-cd2e324ead48", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.168483+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "a97dfbaf-2474-4552-bde1-cd2e324ead48", "status": 503, "protocol_queue_ms": 4.955, "asgi_headers_ms": 0.175}
+api-1  | INFO:     10.1.14.190:54942 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.168792+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "491cf202-883c-4053-88aa-8f8710a04940", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.168865+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "491cf202-883c-4053-88aa-8f8710a04940", "status": 503, "protocol_queue_ms": 5.292, "asgi_headers_ms": 0.193}
+api-1  | INFO:     10.1.14.190:54422 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.169154+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "78f66da9-9dd1-4bc2-8929-89c592428aec", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.169220+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "78f66da9-9dd1-4bc2-8929-89c592428aec", "status": 503, "protocol_queue_ms": 5.655, "asgi_headers_ms": 0.164}
+api-1  | INFO:     10.1.14.190:54958 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.169560+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "4c04cb3e-73f4-4576-b92f-712541ae082f", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.169634+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "4c04cb3e-73f4-4576-b92f-712541ae082f", "status": 503, "protocol_queue_ms": 5.988, "asgi_headers_ms": 0.217}
+api-1  | INFO:     10.1.14.190:54428 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.169997+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "9a20b2e3-f6fb-49d0-bd68-74f36041c420", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.170072+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "9a20b2e3-f6fb-49d0-bd68-74f36041c420", "status": 503, "protocol_queue_ms": 6.442, "asgi_headers_ms": 0.175}
+api-1  | INFO:     10.1.14.190:54962 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.170366+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "915ba3fd-fa45-4e0c-9ace-9979ee1c77ac", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.170448+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "915ba3fd-fa45-4e0c-9ace-9979ee1c77ac", "status": 503, "protocol_queue_ms": 6.78, "asgi_headers_ms": 0.164}
+api-1  | INFO:     10.1.14.190:54440 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.170719+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "4c0c8395-c5b1-4892-8fc7-ace4636f46cb", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.170821+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "4c0c8395-c5b1-4892-8fc7-ace4636f46cb", "status": 503, "protocol_queue_ms": 7.122, "asgi_headers_ms": 0.179}
+api-1  | INFO:     10.1.14.190:54976 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.171106+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "55bf7394-7d00-476d-b457-bd762ee095bf", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.171173+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "55bf7394-7d00-476d-b457-bd762ee095bf", "status": 503, "protocol_queue_ms": 7.468, "asgi_headers_ms": 0.164}
+api-1  | INFO:     10.1.14.190:54656 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.171467+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "f4ffbc8f-05d2-487d-986e-6dc38f05f853", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.171537+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "f4ffbc8f-05d2-487d-986e-6dc38f05f853", "status": 503, "protocol_queue_ms": 7.795, "asgi_headers_ms": 0.175}
+api-1  | INFO:     10.1.14.190:54456 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.171843+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "3cf1b203-e482-4624-8bf7-d60fe511b24a", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.171912+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "3cf1b203-e482-4624-8bf7-d60fe511b24a", "status": 503, "protocol_queue_ms": 8.139, "asgi_headers_ms": 0.182}
+api-1  | INFO:     10.1.14.190:54978 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.172199+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "7e77a590-c16b-40a7-9cb4-704475a0efa5", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.172271+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "7e77a590-c16b-40a7-9cb4-704475a0efa5", "status": 503, "protocol_queue_ms": 8.488, "asgi_headers_ms": 0.164}
+api-1  | INFO:     10.1.14.190:54466 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.172568+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "f8bb9bad-a963-492b-9265-398d685b4c6e", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.172636+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "f8bb9bad-a963-492b-9265-398d685b4c6e", "status": 503, "protocol_queue_ms": 8.816, "asgi_headers_ms": 0.177}
+api-1  | INFO:     10.1.14.190:54984 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.172940+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "86869964-d2e7-477c-b19c-92e337c5d106", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.173008+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "86869964-d2e7-477c-b19c-92e337c5d106", "status": 503, "protocol_queue_ms": 9.165, "asgi_headers_ms": 0.17}
+api-1  | INFO:     10.1.14.190:54672 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.174966+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "fd806dd5-54de-48f3-ae5d-76b29cbc6636", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.175249+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "fd806dd5-54de-48f3-ae5d-76b29cbc6636", "status": 503, "protocol_queue_ms": 1.649, "asgi_headers_ms": 0.374}
+api-1  | INFO:     10.1.14.190:54472 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.175629+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "ce80e0ba-bfb3-406e-87c5-3e61ebc377da", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.175701+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "ce80e0ba-bfb3-406e-87c5-3e61ebc377da", "status": 503, "protocol_queue_ms": 2.26, "asgi_headers_ms": 0.178}
+api-1  | {"time": "2026-09-09T17:44:01.176019+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d88f41c0-41a9-47c7-86be-f9b158eb1b13", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.176085+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d88f41c0-41a9-47c7-86be-f9b158eb1b13", "status": 503, "protocol_queue_ms": 2.626, "asgi_headers_ms": 0.167}
+api-1  | INFO:     10.1.14.190:54986 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54674 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.176340+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "866bd78f-0cea-425c-a21e-93a0e6ec757d", "route": "/v1/holds", "status": 503, "duration_ms": 0.06, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.176465+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "866bd78f-0cea-425c-a21e-93a0e6ec757d", "status": 503, "protocol_queue_ms": 2.928, "asgi_headers_ms": 0.188}
+api-1  | INFO:     10.1.14.190:54478 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.176798+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "860aa6c8-ea0c-4c1c-a0c2-1e3c556b2a39", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.176870+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "860aa6c8-ea0c-4c1c-a0c2-1e3c556b2a39", "status": 503, "protocol_queue_ms": 3.319, "asgi_headers_ms": 0.186}
+api-1  | INFO:     10.1.14.190:55002 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.177154+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "ce437278-737c-4c36-a206-e3ad47640067", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.177222+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "ce437278-737c-4c36-a206-e3ad47640067", "status": 503, "protocol_queue_ms": 3.669, "asgi_headers_ms": 0.164}
+api-1  | INFO:     10.1.14.190:54688 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.177567+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "a79d7291-d972-4ca0-b6fe-aef17074331f", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.177639+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "a79d7291-d972-4ca0-b6fe-aef17074331f", "status": 503, "protocol_queue_ms": 4.032, "asgi_headers_ms": 0.186}
+api-1  | INFO:     10.1.14.190:54492 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.177944+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "be11b40d-0084-4a9c-9065-3ff4fd865773", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.178014+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "be11b40d-0084-4a9c-9065-3ff4fd865773", "status": 503, "protocol_queue_ms": 4.399, "asgi_headers_ms": 0.17}
+api-1  | INFO:     10.1.14.190:55004 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54700 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.178281+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "07322169-1861-4c76-932c-797db0eb4b93", "route": "/v1/holds", "status": 503, "duration_ms": 0.06, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.178361+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "07322169-1861-4c76-932c-797db0eb4b93", "status": 503, "protocol_queue_ms": 4.723, "asgi_headers_ms": 0.158}
+api-1  | {"time": "2026-09-09T17:44:01.178651+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "62b37448-6515-4db9-bb3c-de402f700fe5", "route": "/v1/holds", "status": 503, "duration_ms": 0.06, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.178744+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "62b37448-6515-4db9-bb3c-de402f700fe5", "status": 503, "protocol_queue_ms": 5.054, "asgi_headers_ms": 0.183}
+api-1  | {"time": "2026-09-09T17:44:01.179080+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "b8224e0e-b714-4a6c-91c5-3b9f4039ce02", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.179145+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "b8224e0e-b714-4a6c-91c5-3b9f4039ce02", "status": 503, "protocol_queue_ms": 5.454, "asgi_headers_ms": 0.162}
+api-1  | {"time": "2026-09-09T17:44:01.179420+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "bc4c7071-d857-4043-8322-90fbf17cb878", "route": "/v1/holds", "status": 503, "duration_ms": 0.06, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.179495+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "bc4c7071-d857-4043-8322-90fbf17cb878", "status": 503, "protocol_queue_ms": 5.775, "asgi_headers_ms": 0.167}
+api-1  | INFO:     10.1.14.190:54502 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54706 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:55006 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.179787+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "cce1a18b-f62c-47ac-b9bb-ecf9ea2cadd4", "route": "/v1/holds", "status": 503, "duration_ms": 0.06, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.179856+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "cce1a18b-f62c-47ac-b9bb-ecf9ea2cadd4", "status": 503, "protocol_queue_ms": 6.099, "asgi_headers_ms": 0.18}
+api-1  | INFO:     10.1.14.190:54518 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.180160+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d4810c33-241d-4f84-8649-925ceb1d9744", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.180234+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d4810c33-241d-4f84-8649-925ceb1d9744", "status": 503, "protocol_queue_ms": 6.458, "asgi_headers_ms": 0.169}
+api-1  | INFO:     10.1.14.190:55012 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.180588+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d7b8d2fb-623c-4a1a-9290-7a4ce682a6ce", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.180685+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d7b8d2fb-623c-4a1a-9290-7a4ce682a6ce", "status": 503, "protocol_queue_ms": 6.858, "asgi_headers_ms": 0.196}
+api-1  | INFO:     10.1.14.190:54712 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.181004+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "c8f864c5-58f0-4c54-be2e-80b9aa928be7", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | INFO:     10.1.14.190:54534 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:55026 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54716 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54536 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.181104+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "c8f864c5-58f0-4c54-be2e-80b9aa928be7", "status": 503, "protocol_queue_ms": 7.254, "asgi_headers_ms": 0.195}
+api-1  | {"time": "2026-09-09T17:44:01.181372+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "0a9c5e6e-0c65-4f03-849c-e993f700feb1", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.181466+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "0a9c5e6e-0c65-4f03-849c-e993f700feb1", "status": 503, "protocol_queue_ms": 7.617, "asgi_headers_ms": 0.16}
+api-1  | {"time": "2026-09-09T17:44:01.181739+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "b62f390d-c138-43c4-a6f8-1c3817f6faba", "route": "/v1/holds", "status": 503, "duration_ms": 0.06, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.181821+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "b62f390d-c138-43c4-a6f8-1c3817f6faba", "status": 503, "protocol_queue_ms": 7.947, "asgi_headers_ms": 0.171}
+api-1  | {"time": "2026-09-09T17:44:01.182098+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "032eb423-d2a0-4641-9613-4a6f123ace4f", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.182162+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "032eb423-d2a0-4641-9613-4a6f123ace4f", "status": 503, "protocol_queue_ms": 8.279, "asgi_headers_ms": 0.159}
+api-1  | {"time": "2026-09-09T17:44:01.182447+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "9d8f7f79-28ec-44bc-a8b9-b25202eed00f", "route": "/v1/holds", "status": 503, "duration_ms": 0.06, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.182518+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "9d8f7f79-28ec-44bc-a8b9-b25202eed00f", "status": 503, "protocol_queue_ms": 8.596, "asgi_headers_ms": 0.17}
+api-1  | INFO:     10.1.14.190:55038 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.182878+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "3766434d-c81b-4b20-99db-473ce771ed56", "route": "/v1/holds", "status": 503, "duration_ms": 0.09, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.182947+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "3766434d-c81b-4b20-99db-473ce771ed56", "status": 503, "protocol_queue_ms": 8.984, "asgi_headers_ms": 0.194}
+api-1  | INFO:     10.1.14.190:54718 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.183232+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "11f8ef5f-01c3-4b4c-83d5-58b6703c22bf", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.183301+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "11f8ef5f-01c3-4b4c-83d5-58b6703c22bf", "status": 503, "protocol_queue_ms": 9.328, "asgi_headers_ms": 0.164}
+api-1  | INFO:     10.1.14.190:54538 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.183605+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "636e5b0c-8c99-46d7-b772-d76912c9a54b", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.183673+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "636e5b0c-8c99-46d7-b772-d76912c9a54b", "status": 503, "protocol_queue_ms": 9.671, "asgi_headers_ms": 0.168}
+api-1  | INFO:     10.1.14.190:55050 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.183973+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "353aa100-7daa-4472-b952-fe1f7669afcd", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.184043+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "353aa100-7daa-4472-b952-fe1f7669afcd", "status": 503, "protocol_queue_ms": 10.019, "asgi_headers_ms": 0.165}
+api-1  | INFO:     10.1.14.190:54730 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.184331+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "6e66994b-476b-40f5-8e95-40c5c79f4b43", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.184399+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "6e66994b-476b-40f5-8e95-40c5c79f4b43", "status": 503, "protocol_queue_ms": 10.353, "asgi_headers_ms": 0.163}
+api-1  | INFO:     10.1.14.190:55064 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.184696+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "c1f42a51-4956-456d-832a-a7990efa9d88", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.184775+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "c1f42a51-4956-456d-832a-a7990efa9d88", "status": 503, "protocol_queue_ms": 10.692, "asgi_headers_ms": 0.165}
+api-1  | INFO:     10.1.14.190:54554 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.185065+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "59fd0de2-ce8c-4f09-9d95-57fa6f208012", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.185133+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "59fd0de2-ce8c-4f09-9d95-57fa6f208012", "status": 503, "protocol_queue_ms": 11.036, "asgi_headers_ms": 0.165}
+api-1  | INFO:     10.1.14.190:54738 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.185413+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "2671ee60-6fef-46be-b310-7a7ce58fa7c1", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.185496+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "2671ee60-6fef-46be-b310-7a7ce58fa7c1", "status": 503, "protocol_queue_ms": 11.365, "asgi_headers_ms": 0.176}
+api-1  | INFO:     10.1.14.190:54556 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.186115+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "a87dd9f9-2fe9-4554-a50a-7ece33ec82b5", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.186190+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "a87dd9f9-2fe9-4554-a50a-7ece33ec82b5", "status": 503, "protocol_queue_ms": 12.025, "asgi_headers_ms": 0.184}
+api-1  | {"time": "2026-09-09T17:44:01.186500+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "5a77dd6e-4987-49d6-976a-573dd29bb1a6", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.186566+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "5a77dd6e-4987-49d6-976a-573dd29bb1a6", "status": 503, "protocol_queue_ms": 12.389, "asgi_headers_ms": 0.176}
+api-1  | {"time": "2026-09-09T17:44:01.186864+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "c6250ece-0d4e-4621-834a-66be3076317f", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.186928+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "c6250ece-0d4e-4621-834a-66be3076317f", "status": 503, "protocol_queue_ms": 12.724, "asgi_headers_ms": 0.181}
+api-1  | {"time": "2026-09-09T17:44:01.187211+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "6fe1d6b9-4852-49bc-8fb4-0a131dfe2bdb", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.187276+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "6fe1d6b9-4852-49bc-8fb4-0a131dfe2bdb", "status": 503, "protocol_queue_ms": 13.068, "asgi_headers_ms": 0.161}
+api-1  | {"time": "2026-09-09T17:44:01.187561+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "667bf951-fa64-4a0f-8fd3-e0afbc607039", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.187626+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "667bf951-fa64-4a0f-8fd3-e0afbc607039", "status": 503, "protocol_queue_ms": 13.382, "asgi_headers_ms": 0.172}
+api-1  | INFO:     10.1.14.190:55076 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54750 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54570 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:55082 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54758 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.188112+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "f753cc14-d1c7-4041-a7e8-053823e8b55f", "route": "/v1/holds", "status": 503, "duration_ms": 0.09, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.188255+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "f753cc14-d1c7-4041-a7e8-053823e8b55f", "status": 503, "protocol_queue_ms": 13.898, "asgi_headers_ms": 0.243}
+api-1  | INFO:     10.1.14.190:54584 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.188708+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "b91f6d8d-814b-4916-8f6a-1754d61c1c37", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.188883+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "b91f6d8d-814b-4916-8f6a-1754d61c1c37", "status": 503, "protocol_queue_ms": 14.48, "asgi_headers_ms": 0.26}
+api-1  | INFO:     10.1.14.190:54772 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.189312+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "8a7ef5a5-1c14-4569-8208-751ffabeed65", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.189384+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "8a7ef5a5-1c14-4569-8208-751ffabeed65", "status": 503, "protocol_queue_ms": 15.06, "asgi_headers_ms": 0.182}
+api-1  | {"time": "2026-09-09T17:44:01.189689+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "157c007b-3909-4ffc-a780-2c0566c92054", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.189754+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "157c007b-3909-4ffc-a780-2c0566c92054", "status": 503, "protocol_queue_ms": 15.425, "asgi_headers_ms": 0.165}
+api-1  | {"time": "2026-09-09T17:44:01.190039+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "e169636d-17fb-437d-b17a-4acd62f0f8a0", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.190120+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "e169636d-17fb-437d-b17a-4acd62f0f8a0", "status": 503, "protocol_queue_ms": 15.769, "asgi_headers_ms": 0.161}
+api-1  | {"time": "2026-09-09T17:44:01.190378+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "7417b25a-f433-4d0a-b3d5-6e112b240ff1", "route": "/v1/holds", "status": 503, "duration_ms": 0.06, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.190453+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "7417b25a-f433-4d0a-b3d5-6e112b240ff1", "status": 503, "protocol_queue_ms": 16.09, "asgi_headers_ms": 0.139}
+api-1  | INFO:     10.1.14.190:54590 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54788 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54600 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54802 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.190978+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "9a6cfa51-79cf-4166-bcb1-311ca88b8223", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.191153+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "9a6cfa51-79cf-4166-bcb1-311ca88b8223", "status": 503, "protocol_queue_ms": 16.635, "asgi_headers_ms": 0.233}
+api-1  | INFO:     10.1.14.190:54602 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.191916+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "519f8df5-3ccf-4521-9245-3449da3c89af", "route": "/v1/holds", "status": 503, "duration_ms": 0.5, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.192088+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "519f8df5-3ccf-4521-9245-3449da3c89af", "status": 503, "protocol_queue_ms": 17.128, "asgi_headers_ms": 0.688}
+api-1  | INFO:     10.1.14.190:54818 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.192586+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "6106823d-350d-4722-843e-236ba7c57564", "route": "/v1/holds", "status": 503, "duration_ms": 0.1, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.192780+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "6106823d-350d-4722-843e-236ba7c57564", "status": 503, "protocol_queue_ms": 18.174, "asgi_headers_ms": 0.274}
+api-1  | INFO:     10.1.14.190:54616 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54624 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.193334+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "4372a212-35e2-4c7f-afdb-43dd8b369c2c", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.193412+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "4372a212-35e2-4c7f-afdb-43dd8b369c2c", "status": 503, "protocol_queue_ms": 18.903, "asgi_headers_ms": 0.198}
+api-1  | {"time": "2026-09-09T17:44:01.193745+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d37f08cd-5dee-467b-b14e-98d8615c1b4c", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.193920+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d37f08cd-5dee-467b-b14e-98d8615c1b4c", "status": 503, "protocol_queue_ms": 19.302, "asgi_headers_ms": 0.197}
+api-1  | INFO:     10.1.14.190:54824 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.194820+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "3d2cfe29-fb57-4709-af0e-f43fb9389a77", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.194918+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "3d2cfe29-fb57-4709-af0e-f43fb9389a77", "status": 503, "protocol_queue_ms": 20.337, "asgi_headers_ms": 0.221}
+api-1  | INFO:     10.1.14.190:54640 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.195259+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d9a8a336-bbe0-4afc-bc3d-170f5e057774", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.195330+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d9a8a336-bbe0-4afc-bc3d-170f5e057774", "status": 503, "protocol_queue_ms": 20.778, "asgi_headers_ms": 0.175}
+api-1  | {"time": "2026-09-09T17:44:01.195629+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "24b25591-a964-4dff-8ef0-8347ac952fd5", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.195694+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "24b25591-a964-4dff-8ef0-8347ac952fd5", "status": 503, "protocol_queue_ms": 21.131, "asgi_headers_ms": 0.163}
+api-1  | {"time": "2026-09-09T17:44:01.195990+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d958020a-f53c-40b1-a144-d1d8f1332717", "route": "/v1/holds", "status": 503, "duration_ms": 0.06, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.196053+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d958020a-f53c-40b1-a144-d1d8f1332717", "status": 503, "protocol_queue_ms": 21.47, "asgi_headers_ms": 0.161}
+api-1  | {"time": "2026-09-09T17:44:01.196312+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "e017af54-6d47-4597-a8f8-a8a413ad570a", "route": "/v1/holds", "status": 503, "duration_ms": 0.06, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.196391+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "e017af54-6d47-4597-a8f8-a8a413ad570a", "status": 503, "protocol_queue_ms": 21.79, "asgi_headers_ms": 0.156}
+api-1  | {"time": "2026-09-09T17:44:01.196684+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d8f943ef-f676-4640-ada1-4b70a1d32392", "route": "/v1/holds", "status": 503, "duration_ms": 0.06, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.196748+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d8f943ef-f676-4640-ada1-4b70a1d32392", "status": 503, "protocol_queue_ms": 22.114, "asgi_headers_ms": 0.158}
+api-1  | INFO:     10.1.14.190:54840 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54650 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54848 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54854 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | INFO:     10.1.14.190:54860 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.197048+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "6e05ee4f-eed5-4e83-add0-050397bbbddf", "route": "/v1/holds", "status": 503, "duration_ms": 0.06, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.197145+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "6e05ee4f-eed5-4e83-add0-050397bbbddf", "status": 503, "protocol_queue_ms": 22.456, "asgi_headers_ms": 0.188}
+api-1  | INFO:     10.1.14.190:54868 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.197455+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "5152d518-6963-44c4-a77d-38a131db274c", "route": "/v1/holds", "status": 503, "duration_ms": 0.07, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.197558+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "5152d518-6963-44c4-a77d-38a131db274c", "status": 503, "protocol_queue_ms": 22.825, "asgi_headers_ms": 0.208}
+api-1  | INFO:     10.1.14.190:54874 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.197870+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "1d79099f-2d5c-4027-aab4-f7723ca48e1a", "route": "/v1/holds", "status": 503, "duration_ms": 0.08, "error_code": "ADMISSION_FULL", "hold_arrival_occupancy": 8, "hold_limit": 8, "hold_phase_ms": {}}
+api-1  | {"time": "2026-09-09T17:44:01.197936+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "1d79099f-2d5c-4027-aab4-f7723ca48e1a", "status": 503, "protocol_queue_ms": 23.207, "asgi_headers_ms": 0.182}
+api-1  | INFO:     10.1.14.190:54878 - "POST /v1/holds HTTP/1.1" 503 Service Unavailable
+api-1  | {"time": "2026-09-09T17:44:01.199997+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "bbe01d77-e937-426a-8b6b-0184d38a0066", "stage": "authentication", "outcome": "ok", "borrowed_tokens_at_submit": 0, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 12.07, "execution": 0.131, "finish_to_resume": 24.777}}
+api-1  | {"time": "2026-09-09T17:44:01.201013+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "635ce9cc-e8f4-43ad-a31e-cfd701eb9809", "stage": "authentication", "outcome": "ok", "borrowed_tokens_at_submit": 1, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 34.466, "execution": 0.134, "finish_to_resume": 2.335}}
+api-1  | {"time": "2026-09-09T17:44:01.201168+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "d8933fb4-dd3d-41a5-80e1-492309a74187", "stage": "authentication", "outcome": "ok", "borrowed_tokens_at_submit": 1, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 34.535, "execution": 0.106, "finish_to_resume": 2.37}}
+api-1  | {"time": "2026-09-09T17:44:01.201285+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "e5cfc058-32ea-47dd-9c26-70b2caceaa45", "stage": "authentication", "outcome": "ok", "borrowed_tokens_at_submit": 1, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 34.518, "execution": 0.081, "finish_to_resume": 2.35}}
+api-1  | {"time": "2026-09-09T17:44:01.201396+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "ecc44d46-dd71-4796-83aa-372af263fb41", "stage": "authentication", "outcome": "ok", "borrowed_tokens_at_submit": 1, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 34.556, "execution": 0.096, "finish_to_resume": 2.321}}
+api-1  | {"time": "2026-09-09T17:44:01.201542+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "37185368-20f2-4a22-87a7-33f207e03732", "stage": "authentication", "outcome": "ok", "borrowed_tokens_at_submit": 1, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 34.554, "execution": 0.093, "finish_to_resume": 2.283}}
+api-1  | {"time": "2026-09-09T17:44:01.201667+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "c00b0b3f-1d67-4319-bece-88a6deca9bce", "stage": "authentication", "outcome": "ok", "borrowed_tokens_at_submit": 1, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 34.79, "execution": 0.098, "finish_to_resume": 2.258}}
+api-1  | {"time": "2026-09-09T17:44:01.201814+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "98d95f54-0234-4a97-9cec-8f215eb0e95f", "stage": "authentication", "outcome": "ok", "borrowed_tokens_at_submit": 1, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 35.259, "execution": 0.078, "finish_to_resume": 2.208}}
+api-1  | {"time": "2026-09-09T17:44:01.202938+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "bbe01d77-e937-426a-8b6b-0184d38a0066", "stage": "service_dependency", "outcome": "ok", "borrowed_tokens_at_submit": 7, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 1.948, "execution": 0.006, "finish_to_resume": 0.793}}
+api-1  | {"time": "2026-09-09T17:44:01.203397+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "635ce9cc-e8f4-43ad-a31e-cfd701eb9809", "stage": "service_dependency", "outcome": "ok", "borrowed_tokens_at_submit": 7, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 1.267, "execution": 0.005, "finish_to_resume": 0.957}}
+api-1  | {"time": "2026-09-09T17:44:01.203607+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "e5cfc058-32ea-47dd-9c26-70b2caceaa45", "stage": "service_dependency", "outcome": "ok", "borrowed_tokens_at_submit": 5, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 1.072, "execution": 0.003, "finish_to_resume": 1.142}}
+api-1  | {"time": "2026-09-09T17:44:01.203788+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "37185368-20f2-4a22-87a7-33f207e03732", "stage": "service_dependency", "outcome": "ok", "borrowed_tokens_at_submit": 3, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 0.844, "execution": 0.002, "finish_to_resume": 1.269}}
+api-1  | {"time": "2026-09-09T17:44:01.203970+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "98d95f54-0234-4a97-9cec-8f215eb0e95f", "stage": "service_dependency", "outcome": "ok", "borrowed_tokens_at_submit": 1, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 0.609, "execution": 0.003, "finish_to_resume": 1.427}}
+api-1  | {"time": "2026-09-09T17:44:01.204156+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "d8933fb4-dd3d-41a5-80e1-492309a74187", "stage": "service_dependency", "outcome": "ok", "borrowed_tokens_at_submit": 6, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 1.297, "execution": 0.002, "finish_to_resume": 1.585}}
+api-1  | {"time": "2026-09-09T17:44:01.204318+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "c00b0b3f-1d67-4319-bece-88a6deca9bce", "stage": "service_dependency", "outcome": "ok", "borrowed_tokens_at_submit": 2, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 0.831, "execution": 0.003, "finish_to_resume": 1.71}}
+api-1  | {"time": "2026-09-09T17:44:01.204492+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "ecc44d46-dd71-4796-83aa-372af263fb41", "stage": "service_dependency", "outcome": "ok", "borrowed_tokens_at_submit": 4, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 1.111, "execution": 0.002, "finish_to_resume": 1.852}}
+api-1  | {"time": "2026-09-09T17:44:01.208958+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "37185368-20f2-4a22-87a7-33f207e03732", "stage": "hold_handler", "outcome": "error", "borrowed_tokens_at_submit": 5, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 2.258, "execution": 1.535, "finish_to_resume": 1.214}}
+api-1  | {"time": "2026-09-09T17:44:01.209181+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "37185368-20f2-4a22-87a7-33f207e03732", "route": "/v1/holds", "status": 409, "duration_ms": 54.68, "error_code": "SEAT_BUSY", "hold_arrival_occupancy": 7, "hold_limit": 8, "hold_phase_ms": {"dispatch": 51.671, "rate_limit": 0.82, "redis_enter": 0.654}}
+api-1  | {"time": "2026-09-09T17:44:01.209361+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "37185368-20f2-4a22-87a7-33f207e03732", "status": 409, "protocol_queue_ms": 0.536, "asgi_headers_ms": 54.874}
+api-1  | INFO:     10.1.14.190:54256 - "POST /v1/holds HTTP/1.1" 409 Conflict
+api-1  | {"time": "2026-09-09T17:44:01.209751+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "635ce9cc-e8f4-43ad-a31e-cfd701eb9809", "stage": "hold_handler", "outcome": "error", "borrowed_tokens_at_submit": 7, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 2.175, "execution": 2.317, "finish_to_resume": 1.651}}
+api-1  | {"time": "2026-09-09T17:44:01.209929+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "635ce9cc-e8f4-43ad-a31e-cfd701eb9809", "route": "/v1/holds", "status": 409, "duration_ms": 56.41, "error_code": "SEAT_BUSY", "hold_arrival_occupancy": 1, "hold_limit": 8, "hold_phase_ms": {"dispatch": 52.21, "rate_limit": 1.408, "redis_enter": 0.84}}
+api-1  | {"time": "2026-09-09T17:44:01.210006+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "635ce9cc-e8f4-43ad-a31e-cfd701eb9809", "status": 409, "protocol_queue_ms": 0.119, "asgi_headers_ms": 56.504}
+api-1  | INFO:     10.1.14.190:54210 - "POST /v1/holds HTTP/1.1" 409 Conflict
+api-1  | {"time": "2026-09-09T17:44:01.210509+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "ecc44d46-dd71-4796-83aa-372af263fb41", "stage": "hold_handler", "outcome": "error", "borrowed_tokens_at_submit": 1, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 1.27, "execution": 2.288, "finish_to_resume": 2.273}}
+api-1  | {"time": "2026-09-09T17:44:01.210647+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "ecc44d46-dd71-4796-83aa-372af263fb41", "route": "/v1/holds", "status": 409, "duration_ms": 56.36, "error_code": "SEAT_BUSY", "hold_arrival_occupancy": 5, "hold_limit": 8, "hold_phase_ms": {"dispatch": 51.582, "rate_limit": 0.587, "redis_enter": 1.634}}
+api-1  | {"time": "2026-09-09T17:44:01.210859+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "ecc44d46-dd71-4796-83aa-372af263fb41", "status": 409, "protocol_queue_ms": 0.433, "asgi_headers_ms": 56.559}
+api-1  | INFO:     10.1.14.190:54240 - "POST /v1/holds HTTP/1.1" 409 Conflict
+api-1  | {"time": "2026-09-09T17:44:01.211280+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "idempotency_probe", "request_id": "bbe01d77-e937-426a-8b6b-0184d38a0066", "outcome": "error", "duration_ms": 0.954}
+api-1  | {"time": "2026-09-09T17:44:01.211591+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "e5cfc058-32ea-47dd-9c26-70b2caceaa45", "stage": "hold_handler", "outcome": "error", "borrowed_tokens_at_submit": 6, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 2.279, "execution": 2.717, "finish_to_resume": 2.808}}
+api-1  | {"time": "2026-09-09T17:44:01.212129+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "e5cfc058-32ea-47dd-9c26-70b2caceaa45", "route": "/v1/holds", "status": 409, "duration_ms": 57.97, "error_code": "SEAT_BUSY", "hold_arrival_occupancy": 4, "hold_limit": 8, "hold_phase_ms": {"dispatch": 51.837, "rate_limit": 1.213, "redis_enter": 1.432}}
+api-1  | {"time": "2026-09-09T17:44:01.212275+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "e5cfc058-32ea-47dd-9c26-70b2caceaa45", "status": 409, "protocol_queue_ms": 0.351, "asgi_headers_ms": 58.126}
+api-1  | INFO:     10.1.14.190:54238 - "POST /v1/holds HTTP/1.1" 409 Conflict
+api-1  | {"time": "2026-09-09T17:44:01.212958+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "d8933fb4-dd3d-41a5-80e1-492309a74187", "stage": "hold_handler", "outcome": "error", "borrowed_tokens_at_submit": 3, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 3.549, "execution": 1.217, "finish_to_resume": 3.86}}
+api-1  | {"time": "2026-09-09T17:44:01.213119+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "d8933fb4-dd3d-41a5-80e1-492309a74187", "route": "/v1/holds", "status": 409, "duration_ms": 59.48, "error_code": "SEAT_BUSY", "hold_arrival_occupancy": 2, "hold_limit": 8, "hold_phase_ms": {"dispatch": 54.212, "rate_limit": 0.403, "redis_enter": 0.741}}
+api-1  | {"time": "2026-09-09T17:44:01.213203+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "d8933fb4-dd3d-41a5-80e1-492309a74187", "status": 409, "protocol_queue_ms": 0.184, "asgi_headers_ms": 59.586}
+api-1  | INFO:     10.1.14.190:54220 - "POST /v1/holds HTTP/1.1" 409 Conflict
+api-1  | {"time": "2026-09-09T17:44:01.213499+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "98d95f54-0234-4a97-9cec-8f215eb0e95f", "stage": "hold_handler", "outcome": "error", "borrowed_tokens_at_submit": 4, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 2.565, "execution": 4.277, "finish_to_resume": 2.47}}
+api-1  | {"time": "2026-09-09T17:44:01.213638+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "98d95f54-0234-4a97-9cec-8f215eb0e95f", "route": "/v1/holds", "status": 409, "duration_ms": 59.93, "error_code": "SEAT_BUSY", "hold_arrival_occupancy": 3, "hold_limit": 8, "hold_phase_ms": {"dispatch": 52.983, "rate_limit": 1.838, "redis_enter": 2.376}}
+api-1  | {"time": "2026-09-09T17:44:01.213715+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "98d95f54-0234-4a97-9cec-8f215eb0e95f", "status": 409, "protocol_queue_ms": 0.237, "asgi_headers_ms": 60.027}
+api-1  | INFO:     10.1.14.190:54222 - "POST /v1/holds HTTP/1.1" 409 Conflict
+api-1  | {"time": "2026-09-09T17:44:01.213987+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "bbe01d77-e937-426a-8b6b-0184d38a0066", "stage": "hold_handler", "outcome": "error", "borrowed_tokens_at_submit": 7, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 1.876, "execution": 7.403, "finish_to_resume": 1.554}}
+api-1  | {"time": "2026-09-09T17:44:01.214128+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": null, "status": 500, "protocol_queue_ms": 0.086, "asgi_headers_ms": 60.97}
+api-1  | INFO:     10.1.14.190:54206 - "POST /v1/holds HTTP/1.1" 500 Internal Server Error
+api-1  | ERROR:    Exception in ASGI application
+api-1  | Traceback (most recent call last):
+api-1  |   File "/usr/local/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+api-1  |     result = await app(  # type: ignore[func-returns-value]
+api-1  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/usr/local/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+api-1  |     return await self.app(scope, receive, send)
+api-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/app/ingress_server.py", line 49, in __call__
+api-1  |     await self.app(scope, receive, timed_send)
+api-1  |   File "/usr/local/lib/python3.12/site-packages/fastapi/applications.py", line 1163, in __call__
+api-1  |     await super().__call__(scope, receive, send)
+api-1  |   File "/usr/local/lib/python3.12/site-packages/starlette/applications.py", line 96, in __call__
+api-1  |     await self.middleware_stack(scope, receive, send)
+api-1  |   File "/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+api-1  |     raise exc
+api-1  |   File "/usr/local/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+api-1  |     await self.app(scope, receive, _send)
+api-1  |   File "/usr/local/lib/python3.12/site-packages/ticketing/http.py", line 92, in __call__
+api-1  |     await self.app(scope, receive, measured_send)
+api-1  |   File "/usr/local/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+api-1  |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+api-1  |   File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+api-1  |     raise exc
+api-1  |   File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+api-1  |     await app(scope, receive, sender)
+api-1  |   File "/usr/local/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+api-1  |     await self.app(scope, receive, send)
+api-1  |   File "/usr/local/lib/python3.12/site-packages/starlette/routing.py", line 670, in __call__
+api-1  |     await self.middleware_stack(scope, receive, send)
+api-1  |   File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 2734, in app
+api-1  |     await route.handle(scope, receive, send)
+api-1  |   File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 1281, in handle
+api-1  |     await super().handle(scope, receive, send)
+api-1  |   File "/usr/local/lib/python3.12/site-packages/starlette/routing.py", line 280, in handle
+api-1  |     await self.app(scope, receive, send)
+api-1  |   File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 158, in app
+api-1  |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+api-1  |   File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+api-1  |     raise exc
+api-1  |   File "/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+api-1  |     await app(scope, receive, sender)
+api-1  |   File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 144, in app
+api-1  |     response = await f(request)
+api-1  |                ^^^^^^^^^^^^^^^^
+api-1  |   File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 706, in app
+api-1  |     raw_response = await run_endpoint_function(
+api-1  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/usr/local/lib/python3.12/site-packages/fastapi/routing.py", line 354, in run_endpoint_function
+api-1  |     return await run_in_threadpool(dependant.call, **values)
+api-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/app/thread_dispatch_probe.py", line 36, in measured
+api-1  |     return await original(work)
+api-1  |            ^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/usr/local/lib/python3.12/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
+api-1  |     return await anyio.to_thread.run_sync(func)
+api-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/usr/local/lib/python3.12/site-packages/anyio/to_thread.py", line 65, in run_sync
+api-1  |     return await get_async_backend().run_sync_in_worker_thread(
+api-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2706, in run_sync_in_worker_thread
+api-1  |     return await future
+api-1  |            ^^^^^^^^^^^^
+api-1  |   File "/usr/local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1100, in run
+api-1  |     result = context.run(func, *args)
+api-1  |              ^^^^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/app/thread_dispatch_probe.py", line 30, in work
+api-1  |     return func(*args, **kwargs)
+api-1  |            ^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/usr/local/lib/python3.12/site-packages/ticketing/api.py", line 268, in hold
+api-1  |     return svc.reserve(who, body.event_id, body.seat_ids, key)
+api-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/usr/local/lib/python3.12/site-packages/ticketing/application/reservations.py", line 16, in reserve
+api-1  |     return self.store.reserve(actor, event_id, sorted(seat_ids), key)
+api-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/usr/local/lib/python3.12/site-packages/ticketing/infrastructure/reservations.py", line 76, in reserve
+api-1  |     replay = idem(conn, actor, "hold", key, request)
+api-1  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/app/thread_dispatch_probe.py", line 67, in measured
+api-1  |     return original(conn, actor, operation, key, request)
+api-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/usr/local/lib/python3.12/site-packages/ticketing/infrastructure/reservations.py", line 26, in idem
+api-1  |     row = conn.execute(
+api-1  |           ^^^^^^^^^^^^^
+api-1  |   File "/usr/local/lib/python3.12/site-packages/psycopg/connection.py", line 300, in execute
+api-1  |     raise ex.with_traceback(None)
+api-1  | psycopg.errors.ReadOnlySqlTransaction: cannot execute INSERT in a read-only transaction
+api-1  | {"time": "2026-09-09T17:44:01.227963+00:00", "level": "INFO", "logger": "ticketing.dispatch_probe", "message": "dispatch_probe", "request_id": "c00b0b3f-1d67-4319-bece-88a6deca9bce", "stage": "hold_handler", "outcome": "error", "borrowed_tokens_at_submit": 2, "total_tokens_at_submit": 40, "tasks_waiting_at_submit": 0, "timing_ms": {"submit_to_entry": 2.3, "execution": 5.831, "finish_to_resume": 15.348}}
+api-1  | {"time": "2026-09-09T17:44:01.228103+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "c00b0b3f-1d67-4319-bece-88a6deca9bce", "route": "/v1/holds", "status": 409, "duration_ms": 73.71, "error_code": "SEAT_BUSY", "hold_arrival_occupancy": 6, "hold_limit": 8, "hold_phase_ms": {"dispatch": 52.35, "rate_limit": 4.938, "redis_enter": 0.82}}
+api-1  | {"time": "2026-09-09T17:44:01.228174+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "c00b0b3f-1d67-4319-bece-88a6deca9bce", "status": 409, "protocol_queue_ms": 0.503, "asgi_headers_ms": 73.801}
+api-1  | INFO:     10.1.14.190:54244 - "POST /v1/holds HTTP/1.1" 409 Conflict
+api-1  | {"time": "2026-09-09T17:44:03.041970+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "4e41be87-24c4-43e9-b2b2-4bbbc8e4d3ed", "route": "/metrics", "status": 200, "duration_ms": 9.79, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:03.042069+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "4e41be87-24c4-43e9-b2b2-4bbbc8e4d3ed", "status": 200, "protocol_queue_ms": 0.094, "asgi_headers_ms": 9.962}
+api-1  | INFO:     172.18.0.3:37090 - "GET /metrics HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:03.875096+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "935557c4-7bb2-4bf7-97e6-deb5aa9082db", "route": "/health/ready", "status": 200, "duration_ms": 1.61, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:03.875193+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "935557c4-7bb2-4bf7-97e6-deb5aa9082db", "status": 200, "protocol_queue_ms": 0.045, "asgi_headers_ms": 1.769}
+api-1  | INFO:     127.0.0.1:43444 - "GET /health/ready HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:08.040446+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "9d87f80f-25a7-4931-b069-636c5d4d1cff", "route": "/metrics", "status": 200, "duration_ms": 9.52, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:08.040552+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "9d87f80f-25a7-4931-b069-636c5d4d1cff", "status": 200, "protocol_queue_ms": 0.092, "asgi_headers_ms": 9.698}
+api-1  | INFO:     172.18.0.3:37090 - "GET /metrics HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:09.178306+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "e1ec4175-e484-4114-aa2a-abc1d78b19cc", "route": "/health/ready", "status": 200, "duration_ms": 1.57, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:09.178402+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "e1ec4175-e484-4114-aa2a-abc1d78b19cc", "status": 200, "protocol_queue_ms": 0.045, "asgi_headers_ms": 1.729}
+api-1  | INFO:     127.0.0.1:43460 - "GET /health/ready HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:13.041577+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "82125712-0b00-4e95-be6e-1f93214bc084", "route": "/metrics", "status": 200, "duration_ms": 10.67, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:13.041676+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "82125712-0b00-4e95-be6e-1f93214bc084", "status": 200, "protocol_queue_ms": 0.087, "asgi_headers_ms": 10.83}
+api-1  | INFO:     172.18.0.3:37090 - "GET /metrics HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:14.484338+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "899c9003-9e2a-448e-ac13-da86285b0d8c", "route": "/health/ready", "status": 200, "duration_ms": 1.65, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:14.484438+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "899c9003-9e2a-448e-ac13-da86285b0d8c", "status": 200, "protocol_queue_ms": 0.045, "asgi_headers_ms": 1.809}
+api-1  | INFO:     127.0.0.1:35510 - "GET /health/ready HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:18.041924+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "0c05169e-4402-4550-bc3a-95c29fe9f92b", "route": "/metrics", "status": 200, "duration_ms": 9.63, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:18.042028+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "0c05169e-4402-4550-bc3a-95c29fe9f92b", "status": 200, "protocol_queue_ms": 0.088, "asgi_headers_ms": 9.8}
+api-1  | INFO:     172.18.0.3:37090 - "GET /metrics HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:19.790024+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "7c8098b4-2a4a-433a-b754-8d33bd8c43b6", "route": "/health/ready", "status": 200, "duration_ms": 1.62, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:19.790121+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "7c8098b4-2a4a-433a-b754-8d33bd8c43b6", "status": 200, "protocol_queue_ms": 0.046, "asgi_headers_ms": 1.767}
+api-1  | INFO:     127.0.0.1:35526 - "GET /health/ready HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:23.044261+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "0be668c0-d302-40e4-b561-9e8d614c7a4a", "route": "/metrics", "status": 200, "duration_ms": 10.04, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:23.044379+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "0be668c0-d302-40e4-b561-9e8d614c7a4a", "status": 200, "protocol_queue_ms": 0.096, "asgi_headers_ms": 10.231}
+api-1  | INFO:     172.18.0.3:37090 - "GET /metrics HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:25.100379+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "779f6b9c-b802-4725-9c84-a62ee377a35c", "route": "/health/ready", "status": 200, "duration_ms": 1.61, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:25.100491+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "779f6b9c-b802-4725-9c84-a62ee377a35c", "status": 200, "protocol_queue_ms": 0.046, "asgi_headers_ms": 1.766}
+api-1  | INFO:     127.0.0.1:39664 - "GET /health/ready HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:28.042251+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "da07eed3-3137-44df-a651-c0ee5ce6363d", "route": "/metrics", "status": 200, "duration_ms": 10.52, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:28.042355+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "da07eed3-3137-44df-a651-c0ee5ce6363d", "status": 200, "protocol_queue_ms": 0.081, "asgi_headers_ms": 10.687}
+api-1  | INFO:     172.18.0.3:37090 - "GET /metrics HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:30.408468+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "ad9fcd88-fb82-4cde-8521-3039745252a7", "route": "/health/ready", "status": 200, "duration_ms": 1.65, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:30.408567+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "ad9fcd88-fb82-4cde-8521-3039745252a7", "status": 200, "protocol_queue_ms": 0.048, "asgi_headers_ms": 1.816}
+api-1  | INFO:     127.0.0.1:39670 - "GET /health/ready HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:33.041643+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "3343c16c-0b9f-41a7-b056-7487b20c08c2", "route": "/metrics", "status": 200, "duration_ms": 9.48, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:33.041750+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "3343c16c-0b9f-41a7-b056-7487b20c08c2", "status": 200, "protocol_queue_ms": 0.085, "asgi_headers_ms": 9.646}
+api-1  | INFO:     172.18.0.3:37090 - "GET /metrics HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:35.713812+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "1bff57de-0294-4f61-a5ff-278081d2fc84", "route": "/health/ready", "status": 200, "duration_ms": 1.64, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:35.713910+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "1bff57de-0294-4f61-a5ff-278081d2fc84", "status": 200, "protocol_queue_ms": 0.048, "asgi_headers_ms": 1.814}
+api-1  | INFO:     127.0.0.1:44300 - "GET /health/ready HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:38.040650+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "e65a8a5a-09de-47af-aa19-0887c8349076", "route": "/metrics", "status": 200, "duration_ms": 9.47, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:38.040755+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "e65a8a5a-09de-47af-aa19-0887c8349076", "status": 200, "protocol_queue_ms": 0.084, "asgi_headers_ms": 9.64}
+api-1  | INFO:     172.18.0.3:37090 - "GET /metrics HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:41.021191+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "8c564766-c730-4725-99d6-304562a746cc", "route": "/health/ready", "status": 200, "duration_ms": 1.58, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:41.021286+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "8c564766-c730-4725-99d6-304562a746cc", "status": 200, "protocol_queue_ms": 0.048, "asgi_headers_ms": 1.737}
+api-1  | INFO:     127.0.0.1:44308 - "GET /health/ready HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:43.041707+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "f7b85f80-636d-4682-963a-6d8d839cba1c", "route": "/metrics", "status": 200, "duration_ms": 9.53, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:43.041822+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "f7b85f80-636d-4682-963a-6d8d839cba1c", "status": 200, "protocol_queue_ms": 0.085, "asgi_headers_ms": 9.706}
+api-1  | INFO:     172.18.0.3:37090 - "GET /metrics HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:46.332396+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "2d1a30a4-b033-4b0f-bc4b-38073d410663", "route": "/health/ready", "status": 200, "duration_ms": 1.62, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:46.332507+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "2d1a30a4-b033-4b0f-bc4b-38073d410663", "status": 200, "protocol_queue_ms": 0.046, "asgi_headers_ms": 1.784}
+api-1  | INFO:     127.0.0.1:42448 - "GET /health/ready HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:48.041742+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "ab24424e-7050-4345-a268-3531d1cb5049", "route": "/metrics", "status": 200, "duration_ms": 9.57, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:48.041865+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "ab24424e-7050-4345-a268-3531d1cb5049", "status": 200, "protocol_queue_ms": 0.09, "asgi_headers_ms": 9.756}
+api-1  | INFO:     172.18.0.3:37090 - "GET /metrics HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:51.637088+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "28c88256-a5f3-4b79-94e4-04c559bf7228", "route": "/health/ready", "status": 200, "duration_ms": 1.61, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:51.637185+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "28c88256-a5f3-4b79-94e4-04c559bf7228", "status": 200, "protocol_queue_ms": 0.046, "asgi_headers_ms": 1.766}
+api-1  | INFO:     127.0.0.1:42452 - "GET /health/ready HTTP/1.1" 200 OK
+api-1  | {"time": "2026-09-09T17:44:53.039365+00:00", "level": "INFO", "logger": "ticketing.api", "message": "request", "request_id": "5d23e774-67f3-41cb-9e32-da7a96feb58f", "route": "/metrics", "status": 200, "duration_ms": 9.4, "error_code": null}
+api-1  | {"time": "2026-09-09T17:44:53.039482+00:00", "level": "INFO", "logger": "ticketing.ingress", "message": "ingress", "request_id": "5d23e774-67f3-41cb-9e32-da7a96feb58f", "status": 200, "protocol_queue_ms": 0.088, "asgi_headers_ms": 9.56}
+api-1  | INFO:     172.18.0.3:37090 - "GET /metrics HTTP/1.1" 200 OK

@@ -14,8 +14,8 @@ p.add_argument('--seat-id', required=True)
 p.add_argument('--hold-id', required=True)
 p.add_argument('--output', type=Path, required=True)
 a = p.parse_args()
-with psycopg.connect(os.environ['TEST_DATABASE_URL'], autocommit=True) as conn:
-    conn.execute('SET default_transaction_read_only = on')
+with psycopg.connect(os.environ['TEST_DATABASE_URL'], autocommit=False) as conn:
+    conn.execute('SET TRANSACTION READ ONLY')
     row = conn.execute('''SELECT count(*), count(DISTINCT h.id), count(DISTINCT o.id),
         count(*) FILTER (WHERE h.id=%s::uuid AND h.event_id=%s::uuid
           AND o.hold_id=h.id AND o.actor=h.actor AND r.actor=h.actor)

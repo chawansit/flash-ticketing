@@ -103,6 +103,7 @@ async def run(args):
     statuses, latency = defaultdict(Counter), defaultdict(list)
     counts, bytes_received, drops = Counter(), 0, 0
     connection_counts = defaultdict(Counter)
+    expected_hot_conflicts = 0
     transport_errors = Counter()
     transport_examples = []
     drop_reasons = Counter()
@@ -134,19 +135,29 @@ async def run(args):
             viewer = randomizer.randrange(len(tokens))
             show = shows[viewer % len(shows)]
             write = index % 20 == 0
+            hot = bool(getattr(args, "mixed_hot_holds", False) and index % 100 == 0)
             seat = manifest["seat_offset"] + counts[show]
-            if write:
+            if hot:
+                show = manifest["hot_hold_show_id"]
+                seat = manifest.get("hot_hold_seat", 299)
+                if not 0 <= seat < manifest["seats_per_show"]:
+                    raise ValueError("Invalid hot seat")
+            if write and not hot:
+                if (getattr(args, "mixed_hot_holds", False)
+                        and show == manifest["hot_hold_show_id"]
+                        and seat == manifest.get("hot_hold_seat", 299)):
+                    raise ValueError("Ordinary allocation overlaps the shared hot seat")
                 counts[show] += 1
                 if seat >= manifest["seats_per_show"]:
                     raise ValueError("Allocated fixture seats exhausted")
             if not write and hot_show and randomizer.random() < 0.9:
                 show = hot_show
-            workload.append((index, viewer, show, write, seat, due, phase))
+            workload.append((index, viewer, show, write, seat, due, phase, hot))
 
         async def request(item):
-            nonlocal bytes_received
-            index, viewer, show, write, seat, _, phase = item
-            operation = "hold" if write else "read"
+            nonlocal bytes_received, expected_hot_conflicts
+            index, viewer, show, write, seat, _, phase, hot = item
+            operation = "hot_hold" if hot else "hold" if write else "read"
             begin = perf_counter()
             trace = TransportTrace() if getattr(args, "transport_diagnostics", False) else None
             started_utc = datetime.now(UTC).isoformat() if trace else None
@@ -172,6 +183,8 @@ async def run(args):
                 bytes_received += len(response.content)
                 if response.status_code not in ({201} if write else {200, 304}):
                     code, request_id = error_diagnostic(response)
+                    if hot and status == "409" and code in {"SEAT_BUSY", "SEAT_UNAVAILABLE"}:
+                        expected_hot_conflicts += 1
                     error_codes[f"{operation}:{status}:{code}"] += 1
                     if len(error_examples) < 20:
                         error_examples.append({"operation": operation, "status": status,
@@ -242,9 +255,14 @@ async def run(args):
         n
         for op, rows in statuses.items()
         for status, n in rows.items()
-        if status not in ({"200", "304"} if op == "read" else {"201"})
+        if status not in ({"200", "304"} if op == "read" else {"201", "409"} if op == "hot_hold" else {"201"})
     )
+    unexpected += statuses["hot_hold"].get("409", 0) - expected_hot_conflicts
+    hot_failed = [v for k, values in latency.items() if k.startswith("hot_hold:") and k != "hot_hold:201" for v in values]
     result = {
+        "mixed_hot_holds": getattr(args, "mixed_hot_holds", False),
+        "expected_hot_conflicts": expected_hot_conflicts,
+        "hot_failed_p95_ms": percentile(hot_failed, .95),
         "phases": {phase: {"statuses": dict(rows), "p95_ms": {
             op: percentile(values, 0.95) for op, values in phase_latency[phase].items()
         }} for phase, rows in phase_statuses.items()},
@@ -291,7 +309,7 @@ async def run(args):
         and not task_errors
         and bool(reads)
         and percentile(reads, 0.95) <= 150,
-        "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+        "note": "95% reads/5% holds (mixed mode: 4% distinct, 1% hot). Known hot 409 codes remain in error_codes but are expected; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
     }
     result["reservation_gate_pass"] = bool(holds) and percentile(holds, 0.95) <= 300
     result["accounting_pass"] = (
@@ -305,7 +323,8 @@ async def run(args):
         percentile(values, 0.95) <= (150 if op == "read" else 300)
         for rows in phase_latency.values() for op, values in rows.items()
     )
-    result["workload_gate_pass"] &= result["phase_latency_gate_pass"]
+    result["hot_contention_gate_pass"] = not getattr(args, "mixed_hot_holds", False) or (bool(hot_failed) and percentile(hot_failed, .95) <= 200)
+    result["workload_gate_pass"] &= result["phase_latency_gate_pass"] and result["hot_contention_gate_pass"]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps(result, indent=2))
@@ -323,6 +342,7 @@ if __name__ == "__main__":
     parser.add_argument("--inflight", type=int, default=64)
     parser.add_argument("--burst", action="store_true", help="Continuous 60s base/120s 4x/60s recovery")
     parser.add_argument("--transport-diagnostics", action="store_true")
+    parser.add_argument("--mixed-hot-holds", action="store_true")
     parser.add_argument("--keepalive-expiry", type=expiry_seconds, default=5.0)
     parser.add_argument("--start-at", help="Optional coordinated UTC ISO start time")
     parser.add_argument(

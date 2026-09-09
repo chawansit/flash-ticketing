@@ -1,0 +1,1 @@
+8b932f37a8b1153913f7e385486578ac732a32f38ff6d01556e5d90dd3bd4b39  scripts/cloud_failure_drill.py

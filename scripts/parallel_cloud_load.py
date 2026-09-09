@@ -18,6 +18,7 @@ p.add_argument("--workers", type=int, default=4)
 p.add_argument("--seat-offset", type=int, default=0)
 p.add_argument("--output", type=Path, required=True)
 p.add_argument("--hot-reads", action="store_true")
+p.add_argument("--mixed-hot-holds", action="store_true")
 p.add_argument("--burst", action="store_true")
 p.add_argument("--transport-diagnostics", action="store_true")
 p.add_argument("--keepalive-expiry", type=expiry_seconds, default=5.0)
@@ -47,6 +48,9 @@ try:
             viewer_tokens=m["viewer_tokens"][i :: a.workers],
             seat_offset=a.seat_offset,
         )
+        if a.mixed_hot_holds:
+            shard["hot_hold_show_id"] = m["show_ids"][0]
+            shard["hot_hold_seat"] = 299
         if a.hot_reads:
             shard["hot_show_id"] = m["show_ids"][0]
         credentials = Path(private_directory.name) / f"private-worker-{i}.json"
@@ -76,7 +80,7 @@ try:
                 "separate-host",
                 "--output",
                 str(result_path),
-            ] + (["--burst"] if a.burst else []) + (["--transport-diagnostics"] if a.transport_diagnostics else []),
+            ] + (["--burst"] if a.burst else []) + (["--transport-diagnostics"] if a.transport_diagnostics else []) + (["--mixed-hot-holds"] if a.mixed_hot_holds else []),
             stdout=log,
             stderr=subprocess.STDOUT,
         )
@@ -91,6 +95,7 @@ try:
         "utc": datetime.now(UTC).isoformat(),
         "hot_read_share": 0.9 if a.hot_reads else 0,
         "burst": a.burst,
+        "mixed_hot_holds": a.mixed_hot_holds,
         "keepalive_expiry_seconds": a.keepalive_expiry,
         "rate": a.rate,
         "seconds": a.seconds,

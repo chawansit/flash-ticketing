@@ -1,0 +1,3 @@
+{"rate": 400, "pass": true, "selected_soak_rps": 400}
+{"rate": 500, "pass": true, "selected_soak_rps": 500}
+{"rate": 600, "pass": false, "selected_soak_rps": 500}
