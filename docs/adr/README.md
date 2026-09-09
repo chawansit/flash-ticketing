@@ -43,3 +43,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0023: Bounded read transport diagnostics](0023-read-transport-diagnostics.md)
 
 - [0024: Read-only idle-boundary experiment](0024-idle-boundary-experiment.md)
+
+- [0025: Client expiry load comparison](0025-client-expiry-load-comparison.md)

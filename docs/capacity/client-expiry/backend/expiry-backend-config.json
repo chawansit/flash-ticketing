@@ -1,0 +1,7 @@
+{
+  "api_sha256": "5e788ad4a528d1696ab3ba118eb16904b2ff55accee6810645a6c46620654ccc",
+  "service_is_async": false,
+  "uvicorn": "0.52.4",
+  "httptools": "0.8.0",
+  "cpu_observer_sha256": "e41e49fff3319b545b5eecc4e209279d44a529efa10d92e210c74137b6fa5d90"
+}

@@ -38,3 +38,5 @@ Use a fresh output directory. The second command reproduces the report summary f
 - [Generator configuration and hashes](generator/idle-config.json), [executed probe](generator/idle_boundary_probe.py), [executed trace helper](generator/http_load_generator.py)
 - [Backend identity and actual timeout source](backend/idle-backend-config.json), [response correlation](backend/correlation.json), [matched server records](backend/matched-ingress.json), [cleanup](backend/idle-cleanup.log)
 - [Previous transport investigation](../read-transport/README.md)
+
+Follow-up: [400 RPS client-expiry ABBA comparison](../client-expiry/README.md) passed for both policies, with more TCP connections at 2s. The generator default remains 5s.

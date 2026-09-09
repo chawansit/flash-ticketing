@@ -1,0 +1,103 @@
+{"phase": "measuring", "rate": 100, "seconds": 300, "utc": "2026-09-09T17:10:53.679467+00:00"}
+{"phase": "progress", "scheduled": 3000, "drops": 0}
+{"phase": "progress", "scheduled": 6000, "drops": 0}
+{"phase": "progress", "scheduled": 9000, "drops": 0}
+{"phase": "progress", "scheduled": 12000, "drops": 0}
+{"phase": "progress", "scheduled": 15000, "drops": 0}
+{"phase": "progress", "scheduled": 18000, "drops": 0}
+{"phase": "progress", "scheduled": 21000, "drops": 0}
+{"phase": "progress", "scheduled": 24000, "drops": 0}
+{"phase": "progress", "scheduled": 27000, "drops": 0}
+{
+  "phases": {
+    "0": {
+      "statuses": {
+        "hold": {
+          "201": 1500
+        },
+        "read": {
+          "304": 14802,
+          "200": 13698
+        }
+      },
+      "p95_ms": {
+        "hold": 43.73619800026063,
+        "read": 12.17769600043539
+      }
+    }
+  },
+  "read_hot_share": 0,
+  "burst": false,
+  "utc": "2026-09-09T17:15:53.680621+00:00",
+  "measured_started_utc": "2026-09-09T17:10:53.679467+00:00",
+  "manifest_id": "944189bb-4258-4971-a087-4ccbdc1b451f",
+  "run_id": "c9119825-bccf-4c28-b116-a6de08da2e08",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 100,
+  "seconds": 300,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "error_codes": {},
+  "error_examples": [],
+  "keepalive_expiry_seconds": 2.0,
+  "measured_tcp_connect_events": {
+    "hold": {
+      "started": 3,
+      "complete": 3
+    },
+    "read": {
+      "started": 155,
+      "complete": 155
+    }
+  },
+  "transport_error_types": {},
+  "transport_diagnostics_enabled": true,
+  "transport_failure_examples": [],
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.3030920017627068,
+  "generator_cpu_seconds": 56.153358413,
+  "elapsed_seconds": 299.99394790299993,
+  "completed_rps": 100.00201740636516,
+  "statuses": {
+    "hold": {
+      "201": 1500
+    },
+    "read": {
+      "304": 14802,
+      "200": 13698
+    }
+  },
+  "response_body_bytes": 255601117,
+  "latency_ms": {
+    "hold:201": {
+      "p50": 17.694285001198296,
+      "p95": 43.73619800026063,
+      "p99": 72.06246699934127
+    },
+    "read:304": {
+      "p50": 2.886428999772761,
+      "p95": 9.531029994832352,
+      "p99": 27.423355997598264
+    },
+    "read:200": {
+      "p50": 3.3423170025344007,
+      "p95": 13.337822005269118,
+      "p99": 33.835492002253886
+    }
+  },
+  "read_p95_ms": 12.17769600043539,
+  "hold_p95_ms": 43.73619800026063,
+  "local_read_gate_pass": true,
+  "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": true,
+  "phase_latency_gate_pass": true
+}

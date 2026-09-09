@@ -1,0 +1,130 @@
+[
+  {
+    "name": "a1",
+    "expiry": 5,
+    "offset": 140,
+    "summary": {
+      "utc": "2026-09-09T17:10:18.743779+00:00",
+      "hot_read_share": 0,
+      "burst": false,
+      "keepalive_expiry_seconds": 5.0,
+      "rate": 400,
+      "seconds": 300,
+      "workers": 4,
+      "worker_rates": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "worker_exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "start_skew_ms": 14.218,
+      "generator_drops": 0,
+      "worst_worker_read_p95_ms": 12.087153998436406,
+      "worst_worker_hold_p95_ms": 49.03287599881878,
+      "gate_pass": true,
+      "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+    }
+  },
+  {
+    "name": "b1",
+    "expiry": 2,
+    "offset": 180,
+    "summary": {
+      "utc": "2026-09-09T17:15:53.784226+00:00",
+      "hot_read_share": 0,
+      "burst": false,
+      "keepalive_expiry_seconds": 2.0,
+      "rate": 400,
+      "seconds": 300,
+      "workers": 4,
+      "worker_rates": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "worker_exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "start_skew_ms": 15.362,
+      "generator_drops": 0,
+      "worst_worker_read_p95_ms": 12.17769600043539,
+      "worst_worker_hold_p95_ms": 51.43719899933785,
+      "gate_pass": true,
+      "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+    }
+  },
+  {
+    "name": "b2",
+    "expiry": 2,
+    "offset": 220,
+    "summary": {
+      "utc": "2026-09-09T17:21:24.098662+00:00",
+      "hot_read_share": 0,
+      "burst": false,
+      "keepalive_expiry_seconds": 2.0,
+      "rate": 400,
+      "seconds": 300,
+      "workers": 4,
+      "worker_rates": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "worker_exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "start_skew_ms": 1.95,
+      "generator_drops": 0,
+      "worst_worker_read_p95_ms": 16.570662999583874,
+      "worst_worker_hold_p95_ms": 59.599918000458274,
+      "gate_pass": true,
+      "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+    }
+  },
+  {
+    "name": "a2",
+    "expiry": 5,
+    "offset": 260,
+    "summary": {
+      "utc": "2026-09-09T17:26:54.428025+00:00",
+      "hot_read_share": 0,
+      "burst": false,
+      "keepalive_expiry_seconds": 5.0,
+      "rate": 400,
+      "seconds": 300,
+      "workers": 4,
+      "worker_rates": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "worker_exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "start_skew_ms": 1.807,
+      "generator_drops": 0,
+      "worst_worker_read_p95_ms": 16.20723200176144,
+      "worst_worker_hold_p95_ms": 54.935699998168275,
+      "gate_pass": true,
+      "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+    }
+  }
+]

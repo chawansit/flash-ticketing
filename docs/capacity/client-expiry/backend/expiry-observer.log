@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/app/scripts/cloud_benchmark_observe.py", line 23, in <module>
+    with psycopg.connect(os.environ["TEST_DATABASE_URL"], autocommit=True) as conn:
+                         ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 714, in __getitem__
+KeyError: 'TEST_DATABASE_URL'

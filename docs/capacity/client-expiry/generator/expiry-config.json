@@ -1,0 +1,21 @@
+{
+  "httpx": "0.28.1",
+  "httpcore": "1.0.9",
+  "python": "3.12.3",
+  "policies": [
+    5,
+    2,
+    2,
+    5
+  ],
+  "offsets": [
+    140,
+    180,
+    220,
+    260
+  ],
+  "hashes": {
+    "http_load_generator.py": "160656caac25e5dd3658bc90818e7f3b2147cb5ca91ec7302323379b6fca0587",
+    "parallel_cloud_load.py": "255cf71f727bba19a4c708f482ee27f24e9490ebc5e277de6c65cf7dec80ea24"
+  }
+}

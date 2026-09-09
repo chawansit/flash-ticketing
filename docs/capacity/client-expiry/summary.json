@@ -1,0 +1,170 @@
+[
+  {
+    "name": "a1",
+    "expiry_seconds": 5,
+    "start": "2026-09-09T17:05:18.636240+00:00",
+    "end": "2026-09-09T17:10:18.645097+00:00",
+    "gate_pass": true,
+    "statuses": {
+      "hold:201": 6000,
+      "read:304": 67709,
+      "read:200": 46291
+    },
+    "transport_errors": {},
+    "generator_drops": 0,
+    "worst_worker_read_p95_ms": 12.087153998436406,
+    "worst_worker_hold_p95_ms": 49.03287599881878,
+    "connect_events": {
+      "started": 331,
+      "complete": 331
+    },
+    "connect_attempts_per_1000_completed": 2.7583333333333333,
+    "generator_cpu_seconds": 227.900221765,
+    "api_cpu_percent_one_core_100": {
+      "samples": 30,
+      "mean": 64.55633333333333,
+      "max": 95.98
+    },
+    "host_busy_percent": {
+      "samples": 29,
+      "mean": 56.43787938744442,
+      "max": 67.84434203789043
+    },
+    "cpu_sample_errors": 0,
+    "observer_samples": 141,
+    "observer_first_utc": "2026-09-09T17:05:34.682869+00:00",
+    "observer_last_utc": "2026-09-09T17:10:17.201936+00:00",
+    "observer_errors": 0,
+    "max_database_connections": 12,
+    "max_lock_waiters": 0,
+    "max_missing_maps": 0,
+    "max_overdue_holds": 6,
+    "max_expiry_delay_seconds": 0.370653
+  },
+  {
+    "name": "b1",
+    "expiry_seconds": 2,
+    "start": "2026-09-09T17:10:53.677109+00:00",
+    "end": "2026-09-09T17:15:53.686702+00:00",
+    "gate_pass": true,
+    "statuses": {
+      "read:304": 59225,
+      "read:200": 54775,
+      "hold:201": 6000
+    },
+    "transport_errors": {},
+    "generator_drops": 0,
+    "worst_worker_read_p95_ms": 12.17769600043539,
+    "worst_worker_hold_p95_ms": 51.43719899933785,
+    "connect_events": {
+      "started": 668,
+      "complete": 668
+    },
+    "connect_attempts_per_1000_completed": 5.566666666666666,
+    "generator_cpu_seconds": 225.308075122,
+    "api_cpu_percent_one_core_100": {
+      "samples": 30,
+      "mean": 68.568,
+      "max": 95.56
+    },
+    "host_busy_percent": {
+      "samples": 29,
+      "mean": 62.22784673567073,
+      "max": 71.28283601122163
+    },
+    "cpu_sample_errors": 0,
+    "observer_samples": 148,
+    "observer_first_utc": "2026-09-09T17:10:55.527628+00:00",
+    "observer_last_utc": "2026-09-09T17:15:52.450190+00:00",
+    "observer_errors": 0,
+    "max_database_connections": 13,
+    "max_lock_waiters": 0,
+    "max_missing_maps": 0,
+    "max_overdue_holds": 6,
+    "max_expiry_delay_seconds": 0.341615
+  },
+  {
+    "name": "b2",
+    "expiry_seconds": 2,
+    "start": "2026-09-09T17:16:24.004466+00:00",
+    "end": "2026-09-09T17:21:24.001684+00:00",
+    "gate_pass": true,
+    "statuses": {
+      "read:200": 54990,
+      "read:304": 59010,
+      "hold:201": 6000
+    },
+    "transport_errors": {},
+    "generator_drops": 0,
+    "worst_worker_read_p95_ms": 16.570662999583874,
+    "worst_worker_hold_p95_ms": 59.599918000458274,
+    "connect_events": {
+      "started": 672,
+      "complete": 672
+    },
+    "connect_attempts_per_1000_completed": 5.6,
+    "generator_cpu_seconds": 231.008439179,
+    "api_cpu_percent_one_core_100": {
+      "samples": 30,
+      "mean": 70.721,
+      "max": 95.44
+    },
+    "host_busy_percent": {
+      "samples": 29,
+      "mean": 62.10790361453976,
+      "max": 69.51625287944715
+    },
+    "cpu_sample_errors": 0,
+    "observer_samples": 148,
+    "observer_first_utc": "2026-09-09T17:16:24.746216+00:00",
+    "observer_last_utc": "2026-09-09T17:21:22.176545+00:00",
+    "observer_errors": 0,
+    "max_database_connections": 13,
+    "max_lock_waiters": 0,
+    "max_missing_maps": 0,
+    "max_overdue_holds": 6,
+    "max_expiry_delay_seconds": 0.310389
+  },
+  {
+    "name": "a2",
+    "expiry_seconds": 5,
+    "start": "2026-09-09T17:21:54.303680+00:00",
+    "end": "2026-09-09T17:26:54.301599+00:00",
+    "gate_pass": true,
+    "statuses": {
+      "read:200": 55063,
+      "read:304": 58937,
+      "hold:201": 6000
+    },
+    "transport_errors": {},
+    "generator_drops": 0,
+    "worst_worker_read_p95_ms": 16.20723200176144,
+    "worst_worker_hold_p95_ms": 54.935699998168275,
+    "connect_events": {
+      "started": 272,
+      "complete": 272
+    },
+    "connect_attempts_per_1000_completed": 2.2666666666666666,
+    "generator_cpu_seconds": 235.329729068,
+    "api_cpu_percent_one_core_100": {
+      "samples": 30,
+      "mean": 68.733,
+      "max": 94.84
+    },
+    "host_busy_percent": {
+      "samples": 29,
+      "mean": 61.856780867974656,
+      "max": 70.58071117932975
+    },
+    "cpu_sample_errors": 0,
+    "observer_samples": 148,
+    "observer_first_utc": "2026-09-09T17:21:54.518719+00:00",
+    "observer_last_utc": "2026-09-09T17:26:52.325786+00:00",
+    "observer_errors": 0,
+    "max_database_connections": 13,
+    "max_lock_waiters": 0,
+    "max_missing_maps": 0,
+    "max_overdue_holds": 8,
+    "max_expiry_delay_seconds": 0.326307
+  }
+]

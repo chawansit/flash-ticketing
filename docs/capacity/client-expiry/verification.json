@@ -1,0 +1,10 @@
+{
+  "source_hashes_match_executed": true,
+  "received_archive_sha256": "0580a7ebef7f3a521ddefbd1519ae8b6cfa4752dfe8e26823a53664ba036c0a2",
+  "received_archive_bytes": 259211,
+  "all_four_gates_pass": true,
+  "requests": 480000,
+  "generator_cleanup_observed_utc": "2026-09-09T17:29:26Z",
+  "generator_manifest_removed": true,
+  "generator_processes_exited": true
+}

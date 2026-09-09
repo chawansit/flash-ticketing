@@ -1,0 +1,3 @@
+compose.ingress.yaml:      DISPATCH_PROBE: "0"
+scripts/ingress_server.py:    if os.getenv("DISPATCH_PROBE", "0") == "1":
+scripts/ingress_server.py:                http=TimedHttpToolsProtocol, limit_concurrency=256, timeout_keep_alive=5)
