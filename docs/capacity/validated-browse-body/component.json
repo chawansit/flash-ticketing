@@ -1,0 +1,93 @@
+{
+  "results": [
+    {
+      "mode": "baseline",
+      "repeat": 0,
+      "requests": 2000,
+      "mean_ms": 1.3848155386003782,
+      "p95_ms": 3.597173999878578,
+      "process_cpu_seconds": 2.1231538000000083,
+      "response_bytes": 18671420,
+      "statuses": {
+        "200": 1000,
+        "304": 1000
+      }
+    },
+    {
+      "mode": "encoded",
+      "repeat": 0,
+      "requests": 2000,
+      "mean_ms": 0.3755290324879752,
+      "p95_ms": 0.9870750000118278,
+      "process_cpu_seconds": 0.5165740000000123,
+      "response_bytes": 18671420,
+      "statuses": {
+        "200": 1000,
+        "304": 1000
+      }
+    },
+    {
+      "mode": "encoded",
+      "repeat": 1,
+      "requests": 2000,
+      "mean_ms": 0.4150570254132617,
+      "p95_ms": 1.8103379989042878,
+      "process_cpu_seconds": 0.5787153999999828,
+      "response_bytes": 18671420,
+      "statuses": {
+        "200": 1000,
+        "304": 1000
+      }
+    },
+    {
+      "mode": "baseline",
+      "repeat": 1,
+      "requests": 2000,
+      "mean_ms": 1.6321802303682489,
+      "p95_ms": 4.252724000252783,
+      "process_cpu_seconds": 2.5866596000000257,
+      "response_bytes": 18671420,
+      "statuses": {
+        "200": 1000,
+        "304": 1000
+      }
+    },
+    {
+      "mode": "baseline",
+      "repeat": 2,
+      "requests": 2000,
+      "mean_ms": 1.5272238819707127,
+      "p95_ms": 4.168614999798592,
+      "process_cpu_seconds": 2.387892999999969,
+      "response_bytes": 18671420,
+      "statuses": {
+        "200": 1000,
+        "304": 1000
+      }
+    },
+    {
+      "mode": "encoded",
+      "repeat": 2,
+      "requests": 2000,
+      "mean_ms": 0.43944883400035906,
+      "p95_ms": 1.9424540005275048,
+      "process_cpu_seconds": 0.6201876999999918,
+      "response_bytes": 18671420,
+      "statuses": {
+        "200": 1000,
+        "304": 1000
+      }
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "mean_ms": 1.5147398836464465,
+      "mean_cpu_seconds": 2.3659021333333343
+    },
+    "encoded": {
+      "mean_ms": 0.4100116306338653,
+      "mean_cpu_seconds": 0.5718256999999957
+    }
+  },
+  "scope": "Sequential component, one 300-seat show; 2000 reads per mode, three alternating-order repeats; 50% HTTP-style revalidation; update every 20 reads outside timing. Redis real, HTTP/auth/DB/workers excluded. Not production capacity."
+}

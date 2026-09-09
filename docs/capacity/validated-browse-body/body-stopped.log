@@ -1,0 +1,37 @@
+ Container flash-cloud-bench-reconciler-1  Stopping
+ Container flash-cloud-bench-simulator-1  Stopping
+ Container flash-cloud-bench-maintenance-1  Stopping
+ Container flash-cloud-bench-consumer-1  Stopping
+ Container flash-cloud-bench-publisher-1  Stopping
+ Container flash-cloud-bench-prometheus-1  Stopping
+ Container flash-cloud-bench-api-1  Stopping
+ Container flash-cloud-bench-prometheus-1  Stopped
+ Container flash-cloud-bench-simulator-1  Stopped
+ Container flash-cloud-bench-reconciler-1  Stopped
+ Container flash-cloud-bench-publisher-1  Stopped
+ Container flash-cloud-bench-maintenance-1  Stopped
+ Container flash-cloud-bench-api-1  Stopped
+ Container flash-cloud-bench-consumer-1  Stopped
+ Container flash-cloud-bench-kafka-1  Stopping
+ Container flash-cloud-bench-redis-1  Stopping
+ Container flash-cloud-bench-pgbouncer-1  Stopping
+ Container flash-cloud-bench-migrate-1  Stopping
+ Container flash-cloud-bench-migrate-1  Stopped
+ Container flash-cloud-bench-pgbouncer-1  Stopped
+ Container flash-cloud-bench-postgres-1  Stopping
+ Container flash-cloud-bench-redis-1  Stopped
+ Container flash-cloud-bench-postgres-1  Stopped
+ Container flash-cloud-bench-kafka-1  Stopped
+NAME                              IMAGE                           COMMAND                  SERVICE       CREATED              STATUS                                PORTS
+flash-cloud-bench-api-1           flash-cloud-bench-api           "uvicorn ticketing.a…"   api           35 minutes ago       Exited (0) 1 second ago
+flash-cloud-bench-consumer-1      flash-cloud-bench-consumer      "python -m ticketing…"   consumer      35 minutes ago       Exited (0) 1 second ago
+flash-cloud-bench-kafka-1         apache/kafka:3.9.1              "/__cacert_entrypoin…"   kafka         32 hours ago         Exited (143) Less than a second ago
+flash-cloud-bench-maintenance-1   flash-cloud-bench-maintenance   "python -m ticketing…"   maintenance   35 minutes ago       Exited (0) 1 second ago
+flash-cloud-bench-migrate-1       flash-cloud-bench-migrate       "python -m ticketing…"   migrate       About a minute ago   Exited (0) About a minute ago
+flash-cloud-bench-pgbouncer-1     edoburu/pgbouncer:v1.24.1-p1    "/entrypoint.sh /usr…"   pgbouncer     32 hours ago         Exited (0) 1 second ago
+flash-cloud-bench-postgres-1      postgres:17.6                   "docker-entrypoint.s…"   postgres      32 hours ago         Exited (0) Less than a second ago
+flash-cloud-bench-prometheus-1    prom/prometheus:v3.5.0          "/bin/prometheus --c…"   prometheus    32 hours ago         Exited (0) 1 second ago
+flash-cloud-bench-publisher-1     flash-cloud-bench-publisher     "python -m ticketing…"   publisher     35 minutes ago       Exited (0) 1 second ago
+flash-cloud-bench-reconciler-1    flash-cloud-bench-reconciler    "python -m ticketing…"   reconciler    35 minutes ago       Exited (0) 1 second ago
+flash-cloud-bench-redis-1         redis:7.4.5-alpine              "docker-entrypoint.s…"   redis         32 hours ago         Exited (0) Less than a second ago
+flash-cloud-bench-simulator-1     flash-cloud-bench-simulator     "python -m ticketing…"   simulator     35 minutes ago       Exited (0) 1 second ago

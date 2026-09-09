@@ -1,0 +1,20 @@
+{
+  "source_commit": "6d1cde1",
+  "hashes": {
+    "src/ticketing/api.py": "5e788ad4a528d1696ab3ba118eb16904b2ff55accee6810645a6c46620654ccc",
+    "src/ticketing/infrastructure/cache.py": "5b7c7765cc621b6cf5eb1ba4789fdefb03b4602a9b8f783bf46c8bff9e5c77e0",
+    "src/ticketing/workers.py": "778207105428ec3c02df641ca3c235a9600f412c75a86736650c199ec2273981"
+  },
+  "missing_maps": 0,
+  "minimum_ttl": 24,
+  "fixtures_open": 800,
+  "tracked_events": 804,
+  "settings": {
+    "reserve_concurrency": 8,
+    "pool_max": 12,
+    "hold_seconds": 120,
+    "reconcile_interval_seconds": 20,
+    "reconcile_batch_size": 8,
+    "reconcile_budget_ms": 500
+  }
+}

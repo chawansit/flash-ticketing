@@ -110,3 +110,13 @@ representations. Redis checks the availability ETag atomically before fetching s
 unchanged reads return HTTP 304. Cache incarnations prevent validator reuse after cache
 recreation. Existing full-map and delta endpoints remain compatible. See the
 [client contract](seatmap-reads.md) for revalidation, expiry and rollout semantics.
+
+## Redis-validated serialized browse bodies
+
+[ADR 0017](adr/0017-validated-browse-body-cache.md) adds a per-process LRU for layout
+and availability JSON. Every request still validates against Redis atomically;
+matching local ETags allow reuse of immutable response bytes for HTTP 200, while
+matching client validators return HTTP 304. Redis loss, an expired map or a partial
+write still returns 503. The cache retains at most 2,048 representations and 32 MiB
+of body bytes per process; eviction affects performance only. Full-map and delta
+endpoints are unchanged. This does not change seat ownership or hold admission.

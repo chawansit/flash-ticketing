@@ -8,7 +8,7 @@ These Mermaid diagrams show the implemented local MVP. GitHub renders them direc
 flowchart TB
     Client["API client, Swagger UI or load generator"]
     subgraph Local["Docker Compose network"]
-        API["FastAPI and Uvicorn<br/>Admission, authentication, use cases and reservation adapter"]
+        API["FastAPI and Uvicorn<br/>Admission, authentication, use cases and reservation adapter<br/>Bounded browse bodies validated against Redis on every read"]
         Workers["Five worker processes<br/>Publisher, consumer, maintenance,<br/>reconciler and payment simulator"]
         Pool["PgBouncer<br/>Transaction pooling"]
         DB[("PostgreSQL<br/>Seat ownership, orders, payments, bookings,<br/>outbox, inbox, refresh requests,<br/>tickets and dead letters")]

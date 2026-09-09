@@ -131,3 +131,15 @@ Events outside their sale window are not proactively reconciled and rely on Seat
 notifications; a stale map for a closed event is expected, not an incident.
 
 See [metrics](observability.md) and [current measurements](capacity/reconciliation/README.md).
+
+## Serialized browse response reuse
+
+Monitor `ticketing_browse_body_total{outcome="reuse"}` versus `serialize` and
+`client_304`, plus `ticketing_browse_body_bytes` and `ticketing_browse_body_entries`.
+Each API process retains at most 32 MiB of payload bytes / 2,048 entries; RSS also
+includes metadata, request-local references and transient construction buffers.
+Every response still checks Redis; a populated local cache cannot hide a Redis
+outage, map expiry or `updating` marker. Do not interpret reuse as stale serving.
+Restart discards local entries safely. Scale-out multiplies memory bounds and
+introduces cold caches; do not infer linear production scaling from hit rate.
+See [ADR 0017](adr/0017-validated-browse-body-cache.md).

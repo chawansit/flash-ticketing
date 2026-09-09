@@ -1,0 +1,8 @@
+ticketing_browse_body_total{outcome="serialize"} 56177.0
+ticketing_browse_body_total{outcome="client_304"} 300722.0
+ticketing_browse_body_total{outcome="reuse"} 245821.0
+ticketing_browse_body_created{outcome="serialize"} 1.7889540148828356e+09
+ticketing_browse_body_created{outcome="client_304"} 1.7889540447316723e+09
+ticketing_browse_body_created{outcome="reuse"} 1.7889540483212433e+09
+ticketing_browse_body_bytes 1.49051e+07
+ticketing_browse_body_entries 800.0

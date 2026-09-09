@@ -1,6 +1,6 @@
 # ADR 0017: Bounded, Redis-validated serialized browse responses
 
-Status: Accepted; local correctness passed, cloud measurement pending.
+Status: Accepted; local/cloud correctness and 352-RPS sustained load gate passed.
 
 ## Context
 The isolated-reconciliation 352-RPS run had 83 ADMISSION_FULL responses, dispatch
@@ -51,4 +51,11 @@ Restart or rollback simply discards the optimization; no migration or data clean
 Executed rebuilt full Compose suite: 84 passed, two dependency warnings, no skips.
 Coverage includes HTTP conditional/update/expiry/outage behavior, concurrent encoded
 version/body consistency, bounded eviction and eviction during validation. Ruff passed.
-Same-machine load comparison remains pending; no capacity improvement is claimed.
+The [same-machine cloud comparison](../capacity/validated-browse-body/README.md)
+completed 633,600 requests at 352 RPS for 30 minutes with zero errors or drops.
+Read/hold worst-worker p95 decreased from 54.340/130.332 to 13.217/43.976 ms, and
+ADMISSION_FULL from 83 to zero. All 31,680 holds passed post-drain durability checks;
+full cloud suite passed 84 tests with two dependency warnings. Retained bodies
+served 81.6% of HTTP 200 reads after Redis validation. This qualifies one operating
+point for the measured workload, not maximum production capacity. The report
+records comparison confounders and untested scaling/failure scenarios.

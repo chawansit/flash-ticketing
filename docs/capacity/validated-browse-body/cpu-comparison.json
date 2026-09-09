@@ -1,0 +1,116 @@
+{
+  "huawei-isolated-reconciliation": {
+    "maintenance": {
+      "samples": 148,
+      "mean_cpu_percent_of_one_core": 9.92027027027027,
+      "max_cpu_percent_of_one_core": 15.0
+    },
+    "publisher": {
+      "samples": 148,
+      "mean_cpu_percent_of_one_core": 4.4797972972972975,
+      "max_cpu_percent_of_one_core": 5.92
+    },
+    "reconciler": {
+      "samples": 148,
+      "mean_cpu_percent_of_one_core": 12.098648648648648,
+      "max_cpu_percent_of_one_core": 36.88
+    },
+    "simulator": {
+      "samples": 148,
+      "mean_cpu_percent_of_one_core": 3.086621621621622,
+      "max_cpu_percent_of_one_core": 3.93
+    },
+    "consumer": {
+      "samples": 148,
+      "mean_cpu_percent_of_one_core": 6.494594594594594,
+      "max_cpu_percent_of_one_core": 12.37
+    },
+    "api": {
+      "samples": 148,
+      "mean_cpu_percent_of_one_core": 84.2706081081081,
+      "max_cpu_percent_of_one_core": 114.76
+    },
+    "redis": {
+      "samples": 148,
+      "mean_cpu_percent_of_one_core": 18.53445945945946,
+      "max_cpu_percent_of_one_core": 32.95
+    },
+    "pgbouncer": {
+      "samples": 148,
+      "mean_cpu_percent_of_one_core": 9.587702702702703,
+      "max_cpu_percent_of_one_core": 13.75
+    },
+    "postgres": {
+      "samples": 148,
+      "mean_cpu_percent_of_one_core": 85.39141891891892,
+      "max_cpu_percent_of_one_core": 149.44
+    },
+    "kafka": {
+      "samples": 148,
+      "mean_cpu_percent_of_one_core": 22.334054054054054,
+      "max_cpu_percent_of_one_core": 192.49
+    },
+    "prometheus": {
+      "samples": 148,
+      "mean_cpu_percent_of_one_core": 0.16135135135135134,
+      "max_cpu_percent_of_one_core": 0.52
+    }
+  },
+  "validated-browse-body": {
+    "consumer": {
+      "samples": 149,
+      "mean_cpu_percent_of_one_core": 6.627114093959731,
+      "max_cpu_percent_of_one_core": 14.42
+    },
+    "publisher": {
+      "samples": 149,
+      "mean_cpu_percent_of_one_core": 4.289530201342282,
+      "max_cpu_percent_of_one_core": 5.89
+    },
+    "simulator": {
+      "samples": 149,
+      "mean_cpu_percent_of_one_core": 3.1945637583892617,
+      "max_cpu_percent_of_one_core": 3.98
+    },
+    "reconciler": {
+      "samples": 149,
+      "mean_cpu_percent_of_one_core": 12.353221476510067,
+      "max_cpu_percent_of_one_core": 39.68
+    },
+    "api": {
+      "samples": 149,
+      "mean_cpu_percent_of_one_core": 60.76228187919463,
+      "max_cpu_percent_of_one_core": 117.86
+    },
+    "maintenance": {
+      "samples": 149,
+      "mean_cpu_percent_of_one_core": 10.065369127516778,
+      "max_cpu_percent_of_one_core": 14.61
+    },
+    "redis": {
+      "samples": 149,
+      "mean_cpu_percent_of_one_core": 13.228859060402685,
+      "max_cpu_percent_of_one_core": 38.56
+    },
+    "pgbouncer": {
+      "samples": 149,
+      "mean_cpu_percent_of_one_core": 9.422818791946309,
+      "max_cpu_percent_of_one_core": 14.91
+    },
+    "postgres": {
+      "samples": 149,
+      "mean_cpu_percent_of_one_core": 84.96771812080537,
+      "max_cpu_percent_of_one_core": 169.06
+    },
+    "kafka": {
+      "samples": 149,
+      "mean_cpu_percent_of_one_core": 19.466912751677853,
+      "max_cpu_percent_of_one_core": 175.53
+    },
+    "prometheus": {
+      "samples": 149,
+      "mean_cpu_percent_of_one_core": 0.1704026845637584,
+      "max_cpu_percent_of_one_core": 1.28
+    }
+  }
+}

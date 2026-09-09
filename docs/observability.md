@@ -82,3 +82,13 @@ for actual cache presence. `never_reconciled` counts existing schedule rows with
 acknowledgement, not events absent from the schedule. A positive HTTP gate is separate
 from these recovery observations. Use a duration longer than the configured hold TTL
 to exercise expiry during traffic, and keep failed runs.
+
+## Serialized representation cache
+
+`ticketing_browse_body_total` has three fixed outcomes: `client_304` (client's
+validator matched), `reuse` (Redis matched a retained body, returned as HTTP 200),
+and `serialize` (fresh representation encoded). These count only layout/availability
+browse responses that reached this stage. `ticketing_browse_body_bytes` and
+`ticketing_browse_body_entries` describe retained payloads in the API instance,
+not total RSS. All outcomes include a Redis check. Workers do not populate this
+read cache. The bounds are per instance/process, not a cluster-wide memory limit.
