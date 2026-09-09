@@ -4,5 +4,7 @@ services:
     command: ["python", "/app/ingress_server.py"]
     volumes:
       - ./scripts/ingress_server.py:/app/ingress_server.py:ro
+      - ./scripts/thread_dispatch_probe.py:/app/thread_dispatch_probe.py:ro
     environment:
+      DISPATCH_PROBE: ${DISPATCH_PROBE:-0}
       RESERVE_CONCURRENCY: ${EXPERIMENT_ADMISSION:-8}

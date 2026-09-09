@@ -50,6 +50,12 @@ class IngressTiming:
 
 
 if __name__ == "__main__":
+    import os
+
     from ticketing.api import app
+
+    if os.getenv("DISPATCH_PROBE", "0") == "1":
+        from thread_dispatch_probe import install
+        install()
     uvicorn.run(IngressTiming(app), host="0.0.0.0", port=8000,
                 http=TimedHttpToolsProtocol, limit_concurrency=256, timeout_keep_alive=5)

@@ -1,0 +1,1 @@
+{"admission": 8, "pool_max": 12, "hold_seconds": 120, "versions": {"fastapi": "0.141.1", "starlette": "1.6.0", "anyio": "4.15.0", "uvicorn": "0.52.4", "httptools": "0.8.0"}, "hashes": {"/app/ingress_server.py": "6589565fd0fe298517a87f042c4ec8a89da431ad67a5b9e5021ad4b7f9c625f0", "/app/thread_dispatch_probe.py": "60bc88ab4b6d72bd5816a91596c0f48badd0ca74a1d13fece9bc1013290fd35d"}}

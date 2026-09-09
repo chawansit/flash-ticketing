@@ -1,0 +1,87 @@
+{
+  "matched_requests": 2000,
+  "admitted_requests": 88,
+  "dispatch": {
+    "authentication": {
+      "count": 88,
+      "timing": {
+        "submit_to_entry": {
+          "count": 88,
+          "p95_ms": 48.654,
+          "max_ms": 54.455
+        },
+        "execution": {
+          "count": 88,
+          "p95_ms": 0.131,
+          "max_ms": 0.249
+        },
+        "finish_to_resume": {
+          "count": 88,
+          "p95_ms": 82.892,
+          "max_ms": 82.97
+        }
+      },
+      "max_borrowed_tokens": 7,
+      "total_tokens": [
+        40
+      ],
+      "max_tasks_waiting": 0
+    },
+    "service_dependency": {
+      "count": 88,
+      "timing": {
+        "submit_to_entry": {
+          "count": 88,
+          "p95_ms": 81.49,
+          "max_ms": 87.011
+        },
+        "execution": {
+          "count": 88,
+          "p95_ms": 0.005,
+          "max_ms": 0.021
+        },
+        "finish_to_resume": {
+          "count": 88,
+          "p95_ms": 79.977,
+          "max_ms": 80.426
+        }
+      },
+      "max_borrowed_tokens": 7,
+      "total_tokens": [
+        40
+      ],
+      "max_tasks_waiting": 0
+    },
+    "hold_handler": {
+      "count": 88,
+      "timing": {
+        "submit_to_entry": {
+          "count": 88,
+          "p95_ms": 62.132,
+          "max_ms": 66.536
+        },
+        "execution": {
+          "count": 88,
+          "p95_ms": 9.361,
+          "max_ms": 18.459
+        },
+        "finish_to_resume": {
+          "count": 88,
+          "p95_ms": 60.703,
+          "max_ms": 61.667
+        }
+      },
+      "max_borrowed_tokens": 7,
+      "total_tokens": [
+        40
+      ],
+      "max_tasks_waiting": 0
+    }
+  },
+  "idempotency": {
+    "count": 20,
+    "p95_ms": 1.958,
+    "max_ms": 2.464
+  },
+  "note": "Each admitted request has exactly one authentication, service dependency and hold-handler dispatch record. Stage distributions overlap existing dispatch/DB timings: do not sum percentiles. Limiter occupancy sampled at submission only."
+}

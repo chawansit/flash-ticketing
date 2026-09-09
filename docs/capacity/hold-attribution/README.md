@@ -49,3 +49,5 @@ python scripts/analyze_hold_contention.py --clients docs/capacity/ingress-admiss
 Repeat for admission 16. The shell example uses POSIX wildcard expansion; on Windows expand paths before invoking Python. Missing joins, duplicate IDs and inconsistent outcomes fail the analysis instead of silently dropping evidence.
 
 Executed validation: analyzer matched 2,000 requests per setting; **2 unit tests passed in 0.06s** for missing/duplicate/mismatched records and absent-phase handling; Ruff passed. No application tests or cloud load were rerun because application behavior and deployment were unchanged. Existing ADR 0020 remains applicable; this offline analysis selects no new architectural pattern. Benchmark services remain stopped.
+
+Follow-up: [worker dispatch probes implemented and measured on Cloud](../dispatch-probe/README.md).
