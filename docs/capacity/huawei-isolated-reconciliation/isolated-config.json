@@ -1,0 +1,15 @@
+{
+  "source_commit": "a5fa4e7",
+  "worker_sha256": "778207105428ec3c02df641ca3c235a9600f412c75a86736650c199ec2273981",
+  "missing_maps": 0,
+  "settings": {
+    "reserve_concurrency": 8,
+    "pool_max": 12,
+    "hold_seconds": 120,
+    "reconcile_interval_seconds": 20,
+    "reconcile_batch_size": 8,
+    "reconcile_budget_ms": 500
+  },
+  "fixtures_open": 800,
+  "tracked_events": 808
+}

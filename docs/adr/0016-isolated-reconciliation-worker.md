@@ -1,6 +1,6 @@
 # ADR 0016: Isolate deadline-sensitive reconciliation from maintenance
 
-Status: Accepted; local validation passed, cloud validation pending.
+Status: Accepted; local/cloud correctness passed; sustained load has remaining admission failures.
 
 ## Context
 The diagnostic 352-RPS run had 160 SEATMAP_WARMING reads. Reconciliation age
@@ -50,4 +50,4 @@ warnings. The regression launches the actual reconciler process against isolated
 PostgreSQL/Redis data, expires its map, and verifies a new incarnation is rebuilt
 while maintenance is absent and the overdue database hold remains ACTIVE. Existing
 concurrency, fencing, idempotency and payment tests passed. Ruff/diff checks passed.
-A new same-machine sustained cloud run remains required to quantify the improvement.
+The [same-machine 352-RPS, 30-minute cloud rerun](../capacity/huawei-isolated-reconciliation/README.md) completed 633,600 requests: SEATMAP_WARMING decreased from 160 to zero and maximum sampled reconciliation age from 33.694 to 21.099 seconds. However, 83 holds returned ADMISSION_FULL and read/hold p95 increased to 54.340/130.332 ms. The overall zero-error gate failed; this is not a production maximum or an overall performance improvement. All 31,597 accepted holds passed post-expiry durability checks. Full cloud suite: 80 passed, two dependency warnings. The extra process/resource tradeoff needs further measurement before changing admission or scaling assumptions.

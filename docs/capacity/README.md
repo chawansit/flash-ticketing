@@ -104,3 +104,5 @@ Latest read optimization: [300-seat cinema map comparison](seatmap/README.md).
 Latest integration: [bounded scheduler and conditional reads](reconciliation/local-integration.md).
 
 Follow-up: [three-minute read and expiry validation](reconciliation/sustained-validation.md).
+
+Latest measured result: [isolated reconciliation, 352 RPS for 30 minutes](huawei-isolated-reconciliation/README.md). No seat-map warming errors observed; 83 admission rejections remain, so the overall zero-error gate failed.

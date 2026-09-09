@@ -30,7 +30,7 @@ The persistence adapter uses explicit SQL rather than an ORM. Redis leases optim
 | Application | [application](../src/ticketing/application) | Use cases depend on persistence/cache ports and domain rules |
 | Infrastructure | [infrastructure](../src/ticketing/infrastructure) | Implements ports using PostgreSQL and Redis |
 | HTTP interface / composition | [api.py](../src/ticketing/api.py) | Validates/authenticates requests and wires concrete adapters |
-| Background processing | [workers.py](../src/ticketing/workers.py) | Runs publisher, consumer, maintenance and simulator roles |
+| Background processing | [workers.py](../src/ticketing/workers.py) | Runs publisher, consumer, maintenance, reconciler and simulator roles |
 | Administrative CLI | [cli.py](../src/ticketing/cli.py) | Checksummed migrations, development seed/token and dead-letter replay |
 
 API and worker containers use the same Python package. Seat writes share the PostgresReservations adapter; there is no separately deployed reservation microservice.

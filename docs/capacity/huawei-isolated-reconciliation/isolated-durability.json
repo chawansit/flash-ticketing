@@ -1,0 +1,59 @@
+{
+  "runs": [
+    {
+      "run_id": "4d070a1f-65d0-473b-8588-c4e3656376bc",
+      "acknowledged_201": 7900,
+      "idempotency_records": 7900,
+      "distinct_holds": 7900,
+      "distinct_orders": 7900,
+      "broken_links": 0,
+      "active_holds": 0,
+      "overdue_holds": 0,
+      "pending_orders": 0,
+      "pass": true
+    },
+    {
+      "run_id": "5b0ac6f8-bc1e-47ee-a4be-cb1139fb83d7",
+      "acknowledged_201": 7907,
+      "idempotency_records": 7907,
+      "distinct_holds": 7907,
+      "distinct_orders": 7907,
+      "broken_links": 0,
+      "active_holds": 0,
+      "overdue_holds": 0,
+      "pending_orders": 0,
+      "pass": true
+    },
+    {
+      "run_id": "c1ffd5df-7cd0-4cf3-964d-b9bd2167bf64",
+      "acknowledged_201": 7898,
+      "idempotency_records": 7898,
+      "distinct_holds": 7898,
+      "distinct_orders": 7898,
+      "broken_links": 0,
+      "active_holds": 0,
+      "overdue_holds": 0,
+      "pending_orders": 0,
+      "pass": true
+    },
+    {
+      "run_id": "c39fa079-2153-45c8-a59b-67e4c025b2b8",
+      "acknowledged_201": 7892,
+      "idempotency_records": 7892,
+      "distinct_holds": 7892,
+      "distinct_orders": 7892,
+      "broken_links": 0,
+      "active_holds": 0,
+      "overdue_holds": 0,
+      "pending_orders": 0,
+      "pass": true
+    }
+  ],
+  "queues_snapshot": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0
+  },
+  "durability_and_expiry_pass": true,
+  "note": "Run after expiry drain. Queue counts are global context; this is not a contention or payment test."
+}

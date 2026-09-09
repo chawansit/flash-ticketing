@@ -1,0 +1,10 @@
+{
+  "samples": 890,
+  "errors": 0,
+  "max_missing_maps": 0,
+  "max_database_connections": 14,
+  "max_lock_waiters": 0,
+  "max_reconciliation_age_seconds": 21.098946,
+  "max_oldest_overdue_seconds": 0.264245,
+  "missing_map_samples": []
+}

@@ -86,12 +86,13 @@ remains dirty, retaining its changed-seat IDs. Routine refreshes read only those
 merge into a Redis hash using per-seat source versions. The sum of cached source versions
 forms the map cursor; unchanged seats preserve their delta cursor. Full reconciliation
 repairs cache loss or missed notifications. It is no longer a periodic sweep of every
-retained event: maintenance keeps a durable per-event schedule covering events inside their
+retained event: the dedicated reconciler keeps a durable per-event schedule covering events inside their
 sale window, claims a bounded batch of the oldest-due rows under a token-fenced lease, and
-spends a fixed wall-clock budget per loop so hold expiry and dirty-seat work keep their turn.
+spends a fixed wall-clock budget per pass. Hold expiry and dirty-seat work run independently
+in maintenance; they no longer delay the start of a reconciliation pass.
 Only complete reconciliations extend the 30-second TTL, so the schedule interval is held
-below it; above the measured throughput ceiling deadlines slip uniformly rather than starving
-individual events. Seat inventory is static in this MVP.
+below it. Overload can still delay deadlines and expire maps; process isolation does not
+guarantee a freshness SLO. See [ADR 0016](adr/0016-isolated-reconciliation-worker.md). Seat inventory is static in this MVP.
 An interrupted-write marker makes partial Redis script writes unreadable until full repair.
 
 After five failed processing attempts, the consumer writes a durable dead letter before advancing

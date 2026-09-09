@@ -1,0 +1,150 @@
+time="2026-09-09T10:55:02+08:00" level=warning msg="Docker Compose is configured to build using Bake, but buildx isn't installed"
+#0 building with "default" instance using docker driver
+
+#1 [migrate internal] load build definition from Dockerfile
+#1 transferring dockerfile: 562B done
+#1 DONE 0.0s
+
+#2 [migrate internal] load metadata for docker.io/library/python:3.12-slim
+#2 DONE 1.4s
+
+#3 [migrate internal] load .dockerignore
+#3 transferring context: 101B done
+#3 DONE 0.0s
+
+#4 [migrate internal] load build context
+#4 transferring context: 3.06kB 0.0s done
+#4 DONE 0.0s
+
+#5 [migrate  1/10] FROM docker.io/library/python:3.12-slim@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea
+#5 resolve docker.io/library/python:3.12-slim@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea 0.0s done
+#5 DONE 0.0s
+
+#6 [migrate  4/10] COPY requirements.lock ./
+#6 CACHED
+
+#7 [migrate  5/10] RUN pip install --no-cache-dir -r requirements.lock
+#7 CACHED
+
+#8 [migrate  7/10] RUN pip install --no-cache-dir --no-deps . && useradd --uid 10001 --create-home ticketing
+#8 CACHED
+
+#9 [migrate  9/10] COPY tests ./tests
+#9 CACHED
+
+#10 [migrate  8/10] COPY migrations ./migrations
+#10 CACHED
+
+#11 [migrate  2/10] WORKDIR /app
+#11 CACHED
+
+#12 [migrate  6/10] COPY src ./src
+#12 CACHED
+
+#13 [migrate  3/10] COPY pyproject.toml ./
+#13 CACHED
+
+#14 [migrate 10/10] COPY scripts ./scripts
+#14 CACHED
+
+#15 [migrate] exporting to image
+#15 exporting layers done
+#15 exporting manifest sha256:ccaba8288bdbf72a7bf3df8dac5280d53c0f34ad55642f27267b61c770bb49b7 done
+#15 exporting config sha256:a0ab8ba3e42f8bb1cd8e51ec23971b82b2b23609591bed9d9576536bafa10f4f done
+#15 exporting attestation manifest sha256:967ea4d37a24473d72e7e38e0d5b38b75129b5460951a65c1487e8304747b28b 0.0s done
+#15 exporting manifest list sha256:49cf3c07109d40bcf406e77e36abce5b93a6160d30c53ab325ffc32382fed398 0.0s done
+#15 naming to docker.io/library/flash-cloud-bench-migrate:latest
+#15 naming to docker.io/library/flash-cloud-bench-migrate:latest done
+#15 unpacking to docker.io/library/flash-cloud-bench-migrate:latest done
+#15 DONE 0.1s
+
+#16 [migrate] resolving provenance for metadata file
+#16 DONE 0.0s
+ migrate  Built
+ Container flash-cloud-bench-kafka-1  Running
+ Container flash-cloud-bench-postgres-1  Running
+ Container flash-cloud-bench-redis-1  Running
+ Container flash-cloud-bench-pgbouncer-1  Running
+ Container flash-cloud-bench-migrate-1  Recreate
+ Container flash-cloud-bench-migrate-1  Recreated
+ Container flash-cloud-bench-postgres-1  Waiting
+ Container flash-cloud-bench-postgres-1  Waiting
+ Container flash-cloud-bench-postgres-1  Healthy
+ Container flash-cloud-bench-postgres-1  Healthy
+ Container flash-cloud-bench-migrate-1  Starting
+ Container flash-cloud-bench-migrate-1  Started
+time="2026-09-09T10:55:05+08:00" level=warning msg="Docker Compose is configured to build using Bake, but buildx isn't installed"
+#0 building with "default" instance using docker driver
+
+#1 [tests internal] load build definition from Dockerfile
+#1 transferring dockerfile: 562B done
+#1 DONE 0.0s
+
+#2 [tests internal] load metadata for docker.io/library/python:3.12-slim
+#2 DONE 0.3s
+
+#3 [tests internal] load .dockerignore
+#3 transferring context: 101B done
+#3 DONE 0.0s
+
+#4 [tests internal] load build context
+#4 transferring context: 3.06kB done
+#4 DONE 0.0s
+
+#5 [tests  1/10] FROM docker.io/library/python:3.12-slim@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea
+#5 resolve docker.io/library/python:3.12-slim@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea 0.0s done
+#5 DONE 0.0s
+
+#6 [tests  5/10] RUN pip install --no-cache-dir -r requirements.lock
+#6 CACHED
+
+#7 [tests  2/10] WORKDIR /app
+#7 CACHED
+
+#8 [tests  9/10] COPY tests ./tests
+#8 CACHED
+
+#9 [tests  3/10] COPY pyproject.toml ./
+#9 CACHED
+
+#10 [tests  6/10] COPY src ./src
+#10 CACHED
+
+#11 [tests  7/10] RUN pip install --no-cache-dir --no-deps . && useradd --uid 10001 --create-home ticketing
+#11 CACHED
+
+#12 [tests  8/10] COPY migrations ./migrations
+#12 CACHED
+
+#13 [tests  4/10] COPY requirements.lock ./
+#13 CACHED
+
+#14 [tests 10/10] COPY scripts ./scripts
+#14 CACHED
+
+#15 [tests] exporting to image
+#15 exporting layers done
+#15 exporting manifest sha256:444fa5565619c7d5f54d77a3b3396cf1b4fb142a67ae12cd70afd0b8a3947dfa 0.0s done
+#15 exporting config sha256:7727d00eb04d14f420c6e3fea9fcec18ebfe2a165bf9ead782a811cc34d0884f 0.0s done
+#15 exporting attestation manifest sha256:8d5d0f73ef5f957dd291cb8bbb8e6ee4be394652bf3b0627cb10e407e157a63f 0.0s done
+#15 exporting manifest list sha256:99a4bc2a53270afb334e15f0d75856ae3581caf725698d40e61363f4541c12fb
+#15 exporting manifest list sha256:99a4bc2a53270afb334e15f0d75856ae3581caf725698d40e61363f4541c12fb 0.0s done
+#15 naming to docker.io/library/flash-cloud-bench-tests:latest done
+#15 unpacking to docker.io/library/flash-cloud-bench-tests:latest done
+#15 DONE 0.1s
+
+#16 [tests] resolving provenance for metadata file
+#16 DONE 0.0s
+........................................................................ [ 90%]
+........                                                                 [100%]
+=============================== warnings summary ===============================
+../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+../usr/local/lib/python3.12/site-packages/starlette/testclient.py:53
+  /usr/local/lib/python3.12/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+80 passed, 2 warnings in 12.31s

@@ -9,7 +9,7 @@ flowchart TB
     Client["API client, Swagger UI or load generator"]
     subgraph Local["Docker Compose network"]
         API["FastAPI and Uvicorn<br/>Admission, authentication, use cases and reservation adapter"]
-        Workers["Four worker processes<br/>Publisher, consumer, maintenance and payment simulator"]
+        Workers["Five worker processes<br/>Publisher, consumer, maintenance,<br/>reconciler and payment simulator"]
         Pool["PgBouncer<br/>Transaction pooling"]
         DB[("PostgreSQL<br/>Seat ownership, orders, payments, bookings,<br/>outbox, inbox, refresh requests,<br/>tickets and dead letters")]
         Cache[("Redis<br/>Seat maps, contention shield and rate limits")]
@@ -40,12 +40,13 @@ flowchart TB
 | PgBouncer | Bounds backend database connections shared by application processes |
 | Publisher worker | Leases outbox rows, sends to Kafka and marks publication after acknowledgement |
 | Consumer worker | Issues tickets, settles simulated refunds, queues durable cache refreshes and deduplicates effects |
-| Maintenance worker | Expires old holds without waiting on busy locks, leases coalesced refresh work, and reconciles a bounded batch of due active seat maps per loop |
+| Maintenance worker | Expires old holds without waiting on busy locks and leases coalesced dirty-seat refresh work |
+| Reconciler worker | Independently schedules and repairs due seat maps in bounded batches using durable fenced leases |
 | Simulator worker | Uses four bounded threads to lease attempts and send signed duplicate HTTP callbacks |
 | Prometheus | Scrapes metrics; it does not participate in reservation decisions |
 | Migration CLI | Connects directly to PostgreSQL before application startup |
 
-The worker box represents four separate Compose services. They do not all perform every arrowed operation; the table identifies each role. Migrations and isolated integration tests can access PostgreSQL directly; normal application database access goes through PgBouncer.
+The worker box represents five separate Compose services. They do not all perform every arrowed operation; the table identifies each role. Migrations and isolated integration tests can access PostgreSQL directly; normal application database access goes through PgBouncer.
 
 Event metadata reads use PostgreSQL. Seat-map reads use Redis, including the polling delta endpoint. A cache miss or outage returns 503 rather than causing a seat-map query stampede into PostgreSQL.
 

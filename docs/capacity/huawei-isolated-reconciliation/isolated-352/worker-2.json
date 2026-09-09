@@ -1,0 +1,189 @@
+{
+  "utc": "2026-09-09T02:49:20.248011+00:00",
+  "measured_started_utc": "2026-09-09T02:19:20.242291+00:00",
+  "manifest_id": "9d7f68d1-588c-4327-857c-539740098166",
+  "run_id": "c39fa079-2153-45c8-a59b-67e4c025b2b8",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 88,
+  "seconds": 1800,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "error_codes": {
+    "hold:503:ADMISSION_FULL": 28
+  },
+  "error_examples": [
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "82e0fdf4-5f32-4006-bca5-8e7909d68f15"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "3e3ffe4b-3f15-42e7-a287-02e58d703c9d"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "bc52ec10-0ccc-4b7e-8579-d5776b1c29bd"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "ef4e3b1d-326b-4660-854c-d3fdf0ddd6f8"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "cb7be003-8cde-49bd-b208-832c5efa6606"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "fce2ffc8-b69a-44e5-8f25-0f3c2affebcd"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "eb511775-b820-4004-8931-59ff23edcc02"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "31388dfc-befd-4423-9141-5c2cf7cd0335"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "641c3d28-5f2d-4e9b-8407-766b6554462b"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "0013fba8-2ce1-4fb2-b268-9f49ad87e29d"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "fa43c869-8f7d-41af-8db8-a9811b572a9f"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "9c66cd0c-ee9c-4e18-abf4-fc9fffdd38e6"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "912dd348-4967-4152-8e8a-fe0f12059631"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "a71a8e69-d566-462d-8d94-00ba53fd3eeb"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "7096d105-feb7-4c2e-9af6-644c53962137"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "963fa97a-0bbc-4ec0-a919-e1e62ccbebd6"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "e55aae97-55bb-4950-afbc-7a211ab06b7f"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "e67a95f1-6ff7-455a-b29a-7e2546994068"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "36206d9e-a1b0-4071-8114-e584b601ff09"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "aca70347-c658-4968-b9c4-d356a6d33c11"
+    }
+  ],
+  "transport_error_types": {},
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.0946350002996041,
+  "generator_cpu_seconds": 310.119824902,
+  "elapsed_seconds": 1799.9951854900005,
+  "completed_rps": 88.00023537667398,
+  "statuses": {
+    "hold": {
+      "201": 7892,
+      "503": 28
+    },
+    "read": {
+      "304": 75331,
+      "200": 75149
+    }
+  },
+  "response_body_bytes": 1402012024,
+  "latency_ms": {
+    "hold:201": {
+      "p50": 31.69147599965072,
+      "p95": 129.15041599990218,
+      "p99": 396.297739000147
+    },
+    "read:304": {
+      "p50": 6.239905999791517,
+      "p95": 45.3393120005785,
+      "p99": 175.1303730006839
+    },
+    "read:200": {
+      "p50": 9.847728999829997,
+      "p95": 61.470718999771634,
+      "p99": 198.9335560001564
+    },
+    "hold:503": {
+      "p50": 56.99239500063413,
+      "p95": 112.36348799957341,
+      "p99": 118.93164600041928
+    }
+  },
+  "read_p95_ms": 54.30682899987005,
+  "hold_p95_ms": 128.77675799973076,
+  "local_read_gate_pass": false,
+  "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": false
+}
