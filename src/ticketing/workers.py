@@ -499,7 +499,7 @@ def simulate_batch(db, settings, executor):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("role", choices=["publisher", "consumer", "maintenance", "simulator"])
+    parser.add_argument("role", choices=["publisher", "consumer", "maintenance", "reconciler", "simulator"])
     role = parser.parse_args().role
     configure_logging()
     settings = Settings()
@@ -550,6 +550,7 @@ def main():
                         if not service.expire_one():
                             break
                         work = True
+                elif role == "reconciler":
                     if time.monotonic() >= next_warm:
                         # Seeding, pruning and metric sampling are bounded and infrequent;
                         # a failure here must not stop reconciliation already scheduled.

@@ -126,3 +126,11 @@ Latest read optimization: [300-seat cinema map comparison](docs/capacity/seatmap
 Latest integration: [bounded scheduler and conditional reads](docs/capacity/reconciliation/local-integration.md).
 
 Follow-up: [three-minute read and expiry validation](docs/capacity/reconciliation/sustained-validation.md).
+
+
+Reconciliation now runs in its own `reconciler` service; `maintenance` handles dirty
+seat updates and hold expiry. Deploy both with matching application versions.
+`docker compose up -d --build` includes both. Custom deployments must also run
+`python -m ticketing.workers reconciler` and scrape its port 9101 under its own
+instance name. Map TTL remains 30 seconds; this removes shared-loop blocking but
+still requires capacity validation. See [ADR 0016](docs/adr/0016-isolated-reconciliation-worker.md).

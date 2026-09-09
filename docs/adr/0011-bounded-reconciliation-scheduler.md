@@ -5,6 +5,8 @@ Integration note: numerical results below were supplied by Claude on a different
 Date: 2026-09-08
 Status: Accepted; implemented and validated locally on 2026-09-08
 
+Shared-loop reconciliation placement is superseded by [ADR 0016](0016-isolated-reconciliation-worker.md); ownership, fencing and bounded-work decisions remain accepted.
+
 ## Context
 
 Maintenance rebuilt every retained event's entire seat map roughly every five seconds:

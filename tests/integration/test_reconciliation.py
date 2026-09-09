@@ -386,3 +386,58 @@ def test_stale_ack_is_not_counted_as_success(system, monkeypatch):
     monkeypatch.setattr(workers, "snapshot", steal)
     workers.reconcile_batch(db, None, config)
     assert RECONCILE_EVENTS.labels("ok")._value.get() == before
+
+def test_reconciler_process_recovers_expired_map_without_maintenance(system, cache, tmp_path):
+    """Real worker must refresh Redis independently of the hold-expiry loop."""
+    import subprocess
+    import sys
+    import time
+
+    from psycopg.conninfo import make_conninfo
+
+    svc, db, event_id = system
+    held = svc.reserve('isolated-reconciler', event_id, ['A'], str(uuid4()))
+    with db.transaction() as conn:
+        schema = conn.execute('SELECT current_schema() AS name').fetchone()['name']
+        conn.execute("UPDATE holds SET expires_at=clock_timestamp()-interval '1 second' WHERE id=%s", (held['hold_id'],))
+        conn.execute("UPDATE event_seats SET reserved_until=clock_timestamp()-interval '1 second' WHERE hold_id=%s", (held['hold_id'],))
+    env = {
+        **os.environ,
+        'DATABASE_URL': make_conninfo(os.environ['TEST_DATABASE_URL'], options=f'-c search_path={schema}'),
+        'REDIS_URL': os.environ['TEST_REDIS_URL'],
+        'RECONCILE_INTERVAL_SECONDS': '1',
+        'WORKER_METRICS_PORT': '0',
+    }
+    key = cache.key(str(event_id))
+    with (tmp_path/'reconciler.log').open('w') as output:
+        proc = subprocess.Popen([sys.executable, '-m', 'ticketing.workers', 'reconciler'],
+                                env=env, stdout=output, stderr=subprocess.STDOUT)
+        try:
+            deadline = time.monotonic()+10
+            while not cache.redis.exists(key) and time.monotonic() < deadline:
+                assert proc.poll() is None, 'Reconciler exited during startup'
+                time.sleep(.05)
+            assert cache.redis.exists(key), 'Dedicated reconciler did not warm inventory'
+            old_incarnation = cache.redis.hget(key, 'incarnation')
+            # Expire immediately, simulating the observed lost-map failure without
+            # extending TTL or asking the read path to rebuild from PostgreSQL.
+            cache.redis.pexpire(key, 1)
+            time.sleep(.02)
+            deadline = time.monotonic()+10
+            while cache.redis.hget(key, 'incarnation') in (None, old_incarnation) and time.monotonic() < deadline:
+                assert proc.poll() is None, 'Reconciler exited before recovery'
+                time.sleep(.05)
+            assert cache.redis.hget(key, 'incarnation') not in (None, old_incarnation)
+            result = cache.read(str(event_id))
+            assert next(s for s in result['seats'] if s['seat_id']=='A')['status'] == 'HELD'
+            with db.transaction() as conn:
+                assert conn.execute('SELECT status FROM holds WHERE id=%s', (held['hold_id'],)).fetchone()['status'] == 'ACTIVE'
+            assert 0 < cache.redis.ttl(key) <= 30
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait(timeout=5)
+            cache.redis.delete(key)

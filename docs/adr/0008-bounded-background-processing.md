@@ -3,6 +3,8 @@
 Date: 2026-09-07
 Status: Accepted; implemented
 
+Shared-loop reconciliation placement is superseded by [ADR 0016](0016-isolated-reconciliation-worker.md); ownership, fencing and bounded-work decisions remain accepted.
+
 ## Context
 The measured 50-RPS independent-seat run left 2,091 unconsumed events. Each SeatsChanged message rebuilds a full seat map. Serial simulated callbacks also build backlog at five checkout journeys/sec. PostgreSQL ownership remains authoritative; improving HTTP acceptance alone is insufficient.
 

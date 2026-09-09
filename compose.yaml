@@ -112,6 +112,9 @@ services:
   maintenance:
     <<: *app
     command: ["python", "-m", "ticketing.workers", "maintenance"]
+  reconciler:
+    <<: *app
+    command: ["python", "-m", "ticketing.workers", "reconciler"]
   simulator:
     <<: *app
     command: ["python", "-m", "ticketing.workers", "simulator"]
