@@ -1,0 +1,18 @@
+{
+  "TcpExt:ListenOverflows": 0,
+  "TcpExt:ListenDrops": 0,
+  "TcpExt:TCPLostRetransmit": 0,
+  "TcpExt:TCPFastRetrans": 0,
+  "TcpExt:TCPSlowStartRetrans": 0,
+  "TcpExt:TCPTimeouts": 6,
+  "TcpExt:TCPAbortOnTimeout": 1,
+  "TcpExt:TCPRetransFail": 0,
+  "TcpExt:TCPFastOpenListenOverflow": 0,
+  "TcpExt:TCPSynRetrans": 5,
+  "TcpExt:TcpTimeoutRehash": 0,
+  "MPTcpExt:MPTCPRetrans": 0,
+  "Ip:ReasmTimeout": 0,
+  "Tcp:ActiveOpens": 62,
+  "Tcp:PassiveOpens": 6,
+  "Tcp:RetransSegs": 5
+}

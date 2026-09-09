@@ -1,0 +1,24 @@
+{
+  "timing-100": {
+    "start": "2026-09-09T14:20:22.390109+00:00",
+    "end": "2026-09-09T14:20:39.818240+00:00",
+    "samples": 9,
+    "observer_errors": 0,
+    "missing_maps": 0,
+    "database_connections": 8,
+    "lock_waiters": 0,
+    "reconciliation_age_seconds": 20.061507,
+    "oldest_overdue_seconds": 0.0
+  },
+  "timing-1000": {
+    "start": "2026-09-09T14:22:01.492790+00:00",
+    "end": "2026-09-09T14:22:29.020790+00:00",
+    "samples": 14,
+    "observer_errors": 0,
+    "missing_maps": 0,
+    "database_connections": 8,
+    "lock_waiters": 0,
+    "reconciliation_age_seconds": 20.156399,
+    "oldest_overdue_seconds": 0.0
+  }
+}

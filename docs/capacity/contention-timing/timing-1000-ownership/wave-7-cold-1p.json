@@ -1,0 +1,19 @@
+{
+  "utc": "2026-09-09T14:23:26.684454+00:00",
+  "wave_run_id": "6509f6c0-df67-47af-aa94-e03ddf96e821",
+  "event_id": "4024b773-0355-491e-abcb-c576408e4259",
+  "seat_id": "S227",
+  "acknowledged_hold_id": "09439d00-049e-49df-ad88-c6b0c73eabe6",
+  "record_counts": [
+    1,
+    1,
+    1,
+    1
+  ],
+  "active_seat_hold_order_counts": [
+    1,
+    1
+  ],
+  "current_seat_hold_id": "09439d00-049e-49df-ad88-c6b0c73eabe6",
+  "one_durable_owner_pass": true
+}

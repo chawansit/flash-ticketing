@@ -31,3 +31,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0017: Redis-validated bounded browse bodies](0017-validated-browse-body-cache.md)
 
 - [0018: Concentrated traffic validation](0018-concentrated-traffic-validation.md)
+
+- [0019: Contention latency attribution](0019-contention-latency-attribution.md)

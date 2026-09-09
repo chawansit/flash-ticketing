@@ -1,0 +1,5 @@
+{
+  "backend_commit": "6d1cde1",
+  "generator_sha256": "66b6d89cbab25a866f755d9f268f51662ca449bd7534f4c83d76104504c17425",
+  "note": "Runtime source retains Windows CRLF; normalize repository LF to CRLF before comparing byte hashes. All reported comparisons executed."
+}

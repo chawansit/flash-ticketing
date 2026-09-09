@@ -136,3 +136,5 @@ instance name. Map TTL remains 30 seconds; this removes shared-loop blocking but
 still requires capacity validation. See [ADR 0016](docs/adr/0016-isolated-reconciliation-worker.md).
 
 Latest cloud validation: [concentrated seat-map reads, seat contention and burst recovery](docs/capacity/concentrated-traffic/README.md). Hot reads passed 400 RPS for five minutes; contention retained one durable winner but exposed admission and client-latency limits.
+
+Latest diagnosis: [connection reuse and generator timing under seat contention](docs/capacity/contention-timing/README.md). Sixteen cloud waves retained one durable winner each; client queueing was material, and admission limits remain unresolved.
