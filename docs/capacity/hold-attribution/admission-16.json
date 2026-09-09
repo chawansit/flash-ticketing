@@ -1,0 +1,608 @@
+{
+  "matched_requests": 2000,
+  "groups": {
+    "ADMISSION_FULL": {
+      "count": 1768,
+      "timing": {
+        "total_ms": {
+          "count": 1768,
+          "p50_ms": 274.6477530017728,
+          "p95_ms": 511.2841189984465,
+          "max_ms": 632.3294850008097
+        },
+        "client_ms": {
+          "count": 1768,
+          "p50_ms": 58.56199999834644,
+          "p95_ms": 90.25252800347516,
+          "max_ms": 103.64092999952845
+        },
+        "lane_wait_ms": {
+          "count": 1768,
+          "p50_ms": 202.73730799817713,
+          "p95_ms": 454.79080000222893,
+          "max_ms": 611.5417440014426
+        },
+        "protocol_queue_ms": {
+          "count": 1768,
+          "p50_ms": 13.552,
+          "p95_ms": 39.166,
+          "max_ms": 69.442
+        },
+        "asgi_headers_ms": {
+          "count": 1768,
+          "p50_ms": 0.221,
+          "p95_ms": 0.358,
+          "max_ms": 32.098
+        },
+        "app_ms": {
+          "count": 1768,
+          "p50_ms": 0.08,
+          "p95_ms": 0.11,
+          "max_ms": 0.82
+        },
+        "unattributed_app_ms": {
+          "count": 1768,
+          "p50_ms": 0.08,
+          "p95_ms": 0.11,
+          "max_ms": 0.82
+        }
+      },
+      "phases": {},
+      "slowest_app_requests": [
+        {
+          "request_id": "5bf6717c-c81d-416e-a219-5c5b25a420c7",
+          "status": "503",
+          "code": "ADMISSION_FULL",
+          "app_ms": 0.82,
+          "phases_ms": {},
+          "unattributed_app_ms": 0.82,
+          "total_ms": 476.2020609996398,
+          "client_ms": 63.77196799439844,
+          "lane_wait_ms": 398.34999299637275,
+          "protocol_queue_ms": 21.159,
+          "asgi_headers_ms": 0.957
+        },
+        {
+          "request_id": "0b0ef40c-ca3e-4e58-bc56-83f359663027",
+          "status": "503",
+          "code": "ADMISSION_FULL",
+          "app_ms": 0.8,
+          "phases_ms": {},
+          "unattributed_app_ms": 0.8,
+          "total_ms": 416.24490699905436,
+          "client_ms": 60.426336000091396,
+          "lane_wait_ms": 342.3715840035584,
+          "protocol_queue_ms": 21.765,
+          "asgi_headers_ms": 0.985
+        },
+        {
+          "request_id": "9c73fb1d-437d-42e2-9fde-9b6c63de79cf",
+          "status": "503",
+          "code": "ADMISSION_FULL",
+          "app_ms": 0.29,
+          "phases_ms": {},
+          "unattributed_app_ms": 0.29,
+          "total_ms": 443.1019629992079,
+          "client_ms": 64.87845299852779,
+          "lane_wait_ms": 364.7027920014807,
+          "protocol_queue_ms": 7.305,
+          "asgi_headers_ms": 0.435
+        },
+        {
+          "request_id": "272378a4-44e0-4fc3-9318-1c9eae0c6f98",
+          "status": "503",
+          "code": "ADMISSION_FULL",
+          "app_ms": 0.27,
+          "phases_ms": {},
+          "unattributed_app_ms": 0.27,
+          "total_ms": 462.0029319994501,
+          "client_ms": 64.92202700610505,
+          "lane_wait_ms": 383.00010199600365,
+          "protocol_queue_ms": 7.824,
+          "asgi_headers_ms": 0.449
+        },
+        {
+          "request_id": "27a30c86-61c4-4000-b590-4efa985f3f31",
+          "status": "503",
+          "code": "ADMISSION_FULL",
+          "app_ms": 0.25,
+          "phases_ms": {},
+          "unattributed_app_ms": 0.25,
+          "total_ms": 508.9932690025307,
+          "client_ms": 44.66623000189429,
+          "lane_wait_ms": 450.7047259976389,
+          "protocol_queue_ms": 4.186,
+          "asgi_headers_ms": 0.404
+        }
+      ]
+    },
+    "SEAT_BUSY": {
+      "count": 198,
+      "timing": {
+        "total_ms": {
+          "count": 198,
+          "p50_ms": 641.7621669970686,
+          "p95_ms": 745.6872709954041,
+          "max_ms": 760.1067549985601
+        },
+        "client_ms": {
+          "count": 198,
+          "p50_ms": 34.045934000459965,
+          "p95_ms": 515.9598779937369,
+          "max_ms": 523.7257420012611
+        },
+        "lane_wait_ms": {
+          "count": 198,
+          "p50_ms": 594.2442619998474,
+          "p95_ms": 705.7137619995046,
+          "max_ms": 734.2032020023908
+        },
+        "protocol_queue_ms": {
+          "count": 198,
+          "p50_ms": 0.776,
+          "p95_ms": 4.154,
+          "max_ms": 5.987
+        },
+        "asgi_headers_ms": {
+          "count": 198,
+          "p50_ms": 26.443,
+          "p95_ms": 491.037,
+          "max_ms": 496.389
+        },
+        "app_ms": {
+          "count": 198,
+          "p50_ms": 26.17,
+          "p95_ms": 490.92,
+          "max_ms": 496.25
+        },
+        "unattributed_app_ms": {
+          "count": 198,
+          "p50_ms": 5.5269999999999975,
+          "p95_ms": 100.20300000000003,
+          "max_ms": 108.35199999999998
+        }
+      },
+      "phases": {
+        "dispatch": {
+          "count": 198,
+          "p50_ms": 18.569,
+          "p95_ms": 414.429,
+          "max_ms": 436.698
+        },
+        "rate_limit": {
+          "count": 198,
+          "p50_ms": 1.193,
+          "p95_ms": 6.53,
+          "max_ms": 11.049
+        },
+        "redis_enter": {
+          "count": 198,
+          "p50_ms": 0.903,
+          "p95_ms": 2.868,
+          "max_ms": 6.836
+        }
+      },
+      "slowest_app_requests": [
+        {
+          "request_id": "9380035a-e4b5-4d72-8ce3-6c5e47c6f593",
+          "status": "409",
+          "code": "SEAT_BUSY",
+          "app_ms": 496.25,
+          "phases_ms": {
+            "dispatch": 435.754,
+            "rate_limit": 2.545,
+            "redis_enter": 1.257
+          },
+          "unattributed_app_ms": 56.69399999999996,
+          "total_ms": 525.7927369966637,
+          "client_ms": 523.7257420012611,
+          "lane_wait_ms": 0.0017170023056678474,
+          "protocol_queue_ms": 1.816,
+          "asgi_headers_ms": 496.389
+        },
+        {
+          "request_id": "73994a69-eaed-4d0d-a6c4-ba7d54f998c0",
+          "status": "409",
+          "code": "SEAT_BUSY",
+          "app_ms": 495.88,
+          "phases_ms": {
+            "dispatch": 435.319,
+            "rate_limit": 3.301,
+            "redis_enter": 0.689
+          },
+          "unattributed_app_ms": 56.57099999999997,
+          "total_ms": 521.1189740002737,
+          "client_ms": 519.771055005549,
+          "lane_wait_ms": 0.0036380006349645555,
+          "protocol_queue_ms": 2.204,
+          "asgi_headers_ms": 496.005
+        },
+        {
+          "request_id": "80af154c-7edc-46f5-bf28-724b5fa3eb78",
+          "status": "409",
+          "code": "SEAT_BUSY",
+          "app_ms": 495.58,
+          "phases_ms": {
+            "dispatch": 436.698,
+            "rate_limit": 1.458,
+            "redis_enter": 0.915
+          },
+          "unattributed_app_ms": 56.509000000000015,
+          "total_ms": 522.3999609952443,
+          "client_ms": 519.9648510024417,
+          "lane_wait_ms": 0.0015689947758801281,
+          "protocol_queue_ms": 2.024,
+          "asgi_headers_ms": 495.719
+        },
+        {
+          "request_id": "8ca67047-b80d-4449-9a70-f5e0eefd16cd",
+          "status": "409",
+          "code": "SEAT_BUSY",
+          "app_ms": 494.84,
+          "phases_ms": {
+            "dispatch": 436.083,
+            "rate_limit": 0.97,
+            "redis_enter": 1.777
+          },
+          "unattributed_app_ms": 56.009999999999934,
+          "total_ms": 519.3319550016895,
+          "client_ms": 518.6563769966597,
+          "lane_wait_ms": 0.0059060039347968996,
+          "protocol_queue_ms": 1.921,
+          "asgi_headers_ms": 494.986
+        },
+        {
+          "request_id": "4873af99-d222-421b-8f32-fbf470fdba24",
+          "status": "409",
+          "code": "SEAT_BUSY",
+          "app_ms": 494.83,
+          "phases_ms": {
+            "dispatch": 435.859,
+            "rate_limit": 1.544,
+            "redis_enter": 1.253
+          },
+          "unattributed_app_ms": 56.17399999999998,
+          "total_ms": 521.8368809946696,
+          "client_ms": 519.026309993933,
+          "lane_wait_ms": 0.001310996594838798,
+          "protocol_queue_ms": 2.105,
+          "asgi_headers_ms": 494.96
+        }
+      ]
+    },
+    "SEAT_UNAVAILABLE": {
+      "count": 32,
+      "timing": {
+        "total_ms": {
+          "count": 32,
+          "p50_ms": 654.3460300017614,
+          "p95_ms": 750.5072749991086,
+          "max_ms": 761.5114699947299
+        },
+        "client_ms": {
+          "count": 32,
+          "p50_ms": 39.969473000383005,
+          "p95_ms": 517.4614019997534,
+          "max_ms": 522.8624390001642
+        },
+        "lane_wait_ms": {
+          "count": 32,
+          "p50_ms": 594.2446419940097,
+          "p95_ms": 726.4472759998171,
+          "max_ms": 733.856687998923
+        },
+        "protocol_queue_ms": {
+          "count": 32,
+          "p50_ms": 0.767,
+          "p95_ms": 4.996,
+          "max_ms": 5.78
+        },
+        "asgi_headers_ms": {
+          "count": 32,
+          "p50_ms": 33.829,
+          "p95_ms": 491.443,
+          "max_ms": 496.173
+        },
+        "app_ms": {
+          "count": 32,
+          "p50_ms": 33.51,
+          "p95_ms": 491.33,
+          "max_ms": 496.01
+        },
+        "unattributed_app_ms": {
+          "count": 32,
+          "p50_ms": 4.138999999999999,
+          "p95_ms": 69.93700000000001,
+          "max_ms": 90.055
+        }
+      },
+      "phases": {
+        "database_body": {
+          "count": 32,
+          "p50_ms": 2.67,
+          "p95_ms": 8.309,
+          "max_ms": 11.264
+        },
+        "db_enter": {
+          "count": 32,
+          "p50_ms": 3.238,
+          "p95_ms": 9.007,
+          "max_ms": 9.972
+        },
+        "db_exit": {
+          "count": 32,
+          "p50_ms": 0.403,
+          "p95_ms": 1.77,
+          "max_ms": 5.129
+        },
+        "dispatch": {
+          "count": 32,
+          "p50_ms": 17.926,
+          "p95_ms": 413.907,
+          "max_ms": 435.039
+        },
+        "rate_limit": {
+          "count": 32,
+          "p50_ms": 0.504,
+          "p95_ms": 1.662,
+          "max_ms": 2.543
+        },
+        "redis_enter": {
+          "count": 32,
+          "p50_ms": 0.708,
+          "p95_ms": 2.003,
+          "max_ms": 2.327
+        },
+        "redis_exit": {
+          "count": 32,
+          "p50_ms": 0.454,
+          "p95_ms": 1.306,
+          "max_ms": 5.129
+        }
+      },
+      "slowest_app_requests": [
+        {
+          "request_id": "bdb4ef9a-bc69-4c2f-a531-58f2268b342b",
+          "status": "409",
+          "code": "SEAT_UNAVAILABLE",
+          "app_ms": 496.01,
+          "phases_ms": {
+            "dispatch": 435.039,
+            "rate_limit": 0.893,
+            "redis_enter": 0.362,
+            "db_enter": 4.222,
+            "database_body": 2.274,
+            "db_exit": 0.442,
+            "redis_exit": 0.222
+          },
+          "unattributed_app_ms": 52.55599999999998,
+          "total_ms": 526.0346770010074,
+          "client_ms": 522.8624390001642,
+          "lane_wait_ms": 0.0014499964891001582,
+          "protocol_queue_ms": 2.314,
+          "asgi_headers_ms": 496.173
+        },
+        {
+          "request_id": "e6c26b63-a2c5-4755-8532-8ac67cce7d6d",
+          "status": "409",
+          "code": "SEAT_UNAVAILABLE",
+          "app_ms": 491.33,
+          "phases_ms": {
+            "dispatch": 413.907,
+            "rate_limit": 0.726,
+            "redis_enter": 0.383,
+            "db_enter": 2.804,
+            "database_body": 2.655,
+            "db_exit": 0.52,
+            "redis_exit": 0.398
+          },
+          "unattributed_app_ms": 69.93700000000001,
+          "total_ms": 518.3860600009211,
+          "client_ms": 514.0169330043136,
+          "lane_wait_ms": 0.0014279939932748675,
+          "protocol_queue_ms": 3.268,
+          "asgi_headers_ms": 491.443
+        },
+        {
+          "request_id": "546ef624-7a57-4b0a-b7ff-63658b16a754",
+          "status": "409",
+          "code": "SEAT_UNAVAILABLE",
+          "app_ms": 484.63,
+          "phases_ms": {
+            "dispatch": 387.039,
+            "rate_limit": 0.701,
+            "redis_enter": 1.389,
+            "db_enter": 1.962,
+            "database_body": 2.67,
+            "db_exit": 0.267,
+            "redis_exit": 0.547
+          },
+          "unattributed_app_ms": 90.055,
+          "total_ms": 523.0197929995484,
+          "client_ms": 517.4614019997534,
+          "lane_wait_ms": 0.0013370008673518896,
+          "protocol_queue_ms": 2.395,
+          "asgi_headers_ms": 484.753
+        },
+        {
+          "request_id": "608588a0-bf12-43fb-8e9a-6b8d9ce7a578",
+          "status": "409",
+          "code": "SEAT_UNAVAILABLE",
+          "app_ms": 99.66,
+          "phases_ms": {
+            "dispatch": 76.516,
+            "rate_limit": 1.026,
+            "redis_enter": 1.865,
+            "db_enter": 6.143,
+            "database_body": 3.827,
+            "db_exit": 0.265,
+            "redis_exit": 0.63
+          },
+          "unattributed_app_ms": 9.387999999999991,
+          "total_ms": 567.2506190021522,
+          "client_ms": 157.13673800200922,
+          "lane_wait_ms": 393.8126810026006,
+          "protocol_queue_ms": 5.78,
+          "asgi_headers_ms": 99.788
+        },
+        {
+          "request_id": "e2711037-9e95-4b6f-8ee0-2e635306a32a",
+          "status": "409",
+          "code": "SEAT_UNAVAILABLE",
+          "app_ms": 51.16,
+          "phases_ms": {
+            "dispatch": 30.868,
+            "rate_limit": 0.45,
+            "redis_enter": 0.984,
+            "db_enter": 2.506,
+            "database_body": 4.243,
+            "db_exit": 0.191,
+            "redis_exit": 0.457
+          },
+          "unattributed_app_ms": 11.460999999999999,
+          "total_ms": 615.8297279980616,
+          "client_ms": 68.69552400166867,
+          "lane_wait_ms": 533.7785040028393,
+          "protocol_queue_ms": 1.129,
+          "asgi_headers_ms": 51.281
+        }
+      ]
+    },
+    "SUCCESS": {
+      "count": 2,
+      "timing": {
+        "total_ms": {
+          "count": 2,
+          "p50_ms": 495.86476299737114,
+          "p95_ms": 514.5137180006714,
+          "max_ms": 514.5137180006714
+        },
+        "client_ms": {
+          "count": 2,
+          "p50_ms": 492.2740510010044,
+          "p95_ms": 513.8095970032737,
+          "max_ms": 513.8095970032737
+        },
+        "lane_wait_ms": {
+          "count": 2,
+          "p50_ms": 0.0013379976735450327,
+          "p95_ms": 0.006294998456723988,
+          "max_ms": 0.006294998456723988
+        },
+        "protocol_queue_ms": {
+          "count": 2,
+          "p50_ms": 0.068,
+          "p95_ms": 1.523,
+          "max_ms": 1.523
+        },
+        "asgi_headers_ms": {
+          "count": 2,
+          "p50_ms": 443.565,
+          "p95_ms": 488.119,
+          "max_ms": 488.119
+        },
+        "app_ms": {
+          "count": 2,
+          "p50_ms": 443.36,
+          "p95_ms": 487.88,
+          "max_ms": 487.88
+        },
+        "unattributed_app_ms": {
+          "count": 2,
+          "p50_ms": 89.76099999999997,
+          "p95_ms": 98.25999999999999,
+          "max_ms": 98.25999999999999
+        }
+      },
+      "phases": {
+        "database_body": {
+          "count": 2,
+          "p50_ms": 6.236,
+          "p95_ms": 8.937,
+          "max_ms": 8.937
+        },
+        "db_enter": {
+          "count": 2,
+          "p50_ms": 1.772,
+          "p95_ms": 6.642,
+          "max_ms": 6.642
+        },
+        "db_exit": {
+          "count": 2,
+          "p50_ms": 1.597,
+          "p95_ms": 2.32,
+          "max_ms": 2.32
+        },
+        "dispatch": {
+          "count": 2,
+          "p50_ms": 330.47,
+          "p95_ms": 377.678,
+          "max_ms": 377.678
+        },
+        "rate_limit": {
+          "count": 2,
+          "p50_ms": 0.554,
+          "p95_ms": 3.296,
+          "max_ms": 3.296
+        },
+        "redis_enter": {
+          "count": 2,
+          "p50_ms": 1.23,
+          "p95_ms": 1.522,
+          "max_ms": 1.522
+        },
+        "redis_exit": {
+          "count": 2,
+          "p50_ms": 0.412,
+          "p95_ms": 0.553,
+          "max_ms": 0.553
+        }
+      },
+      "slowest_app_requests": [
+        {
+          "request_id": "9eab7173-c033-4ba7-9b66-cc8d7bb6b06f",
+          "status": "201",
+          "code": null,
+          "app_ms": 487.88,
+          "phases_ms": {
+            "dispatch": 377.678,
+            "rate_limit": 0.554,
+            "redis_enter": 1.23,
+            "db_enter": 1.772,
+            "database_body": 6.236,
+            "db_exit": 1.597,
+            "redis_exit": 0.553
+          },
+          "unattributed_app_ms": 98.25999999999999,
+          "total_ms": 514.5137180006714,
+          "client_ms": 513.8095970032737,
+          "lane_wait_ms": 0.006294998456723988,
+          "protocol_queue_ms": 0.068,
+          "asgi_headers_ms": 488.119
+        },
+        {
+          "request_id": "c897a2e2-0147-4755-814b-69f78372f1f4",
+          "status": "201",
+          "code": null,
+          "app_ms": 443.36,
+          "phases_ms": {
+            "dispatch": 330.47,
+            "rate_limit": 3.296,
+            "redis_enter": 1.522,
+            "db_enter": 6.642,
+            "database_body": 8.937,
+            "db_exit": 2.32,
+            "redis_exit": 0.412
+          },
+          "unattributed_app_ms": 89.76099999999997,
+          "total_ms": 495.86476299737114,
+          "client_ms": 492.2740510010044,
+          "lane_wait_ms": 0.0013379976735450327,
+          "protocol_queue_ms": 1.523,
+          "asgi_headers_ms": 443.565
+        }
+      ]
+    }
+  },
+  "note": "Missing phases are absent, not zero. dispatch combines dependency/body processing and scheduling before handler entry; authentication is not separately timed. database_body includes idempotency and seat checks. Residual is per-request app minus disjoint existing phases, not a direct scheduling metric. Percentiles are not additive."
+}

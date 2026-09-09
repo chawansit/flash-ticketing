@@ -75,3 +75,5 @@ python parallel_cloud_load.py --manifest private-manifest.json --rate 400 --seco
 Repeat with seat 241, then admission 16 with seats 242/243 and uniform offset 40. Check live ownership before 120s and persistence after expiry. Keep backend and generator code identical across settings. Preserve private-network restrictions when exposing the benchmark API.
 
 The next useful experiment is to isolate the long admitted hot-seat requests and evaluate a bounded conflict path while preserving idempotent replay and PostgreSQL ownership. Raising the global admission limit alone is not supported by this evidence.
+
+Follow-up: [per-request failed-hold attribution](../hold-attribution/README.md) identifies pre-handler dispatch as the next diagnostic target; authentication and worker queue time are not yet isolated.
