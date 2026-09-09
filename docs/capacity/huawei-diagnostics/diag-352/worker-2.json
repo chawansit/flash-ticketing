@@ -1,0 +1,189 @@
+{
+  "utc": "2026-09-09T01:59:11.632724+00:00",
+  "measured_started_utc": "2026-09-09T01:29:11.622462+00:00",
+  "manifest_id": "b41b3750-a7b3-4f59-a958-8da8398668cb",
+  "run_id": "c766d4cb-1946-42f4-8e2c-1cede2fe7266",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 88,
+  "seconds": 1800,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "error_codes": {
+    "read:503:SEATMAP_WARMING": 39
+  },
+  "error_examples": [
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "900fe6ac-2267-4853-b9e8-e0ef76728d56"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "131f8e57-7a64-4952-ae6d-5acf382bc59a"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "90b987f0-cea6-4a97-b270-1b9705f9949d"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "d8bc992f-1729-41bb-bd24-94b5d7fd96f5"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "3e1e9bb0-9ea4-471f-9186-f48830632052"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "f5036ee3-6f49-41a1-9c6b-42ada4838c07"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "f17956f2-dbe3-45a1-aeee-bab6b0eb5930"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "8d542665-fc4e-4269-9fea-b73dfce7dfb9"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "e30207f0-70d7-45e5-b2ac-14b866fb38c0"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "1c42894c-0cee-4246-a253-5848fd5ea00d"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "da214d74-f7f3-46cf-b516-a63f929df8fb"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "57a17839-b03c-47e9-b8a9-13de337412c0"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "d8896f45-8267-459e-9198-450efe79f748"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "c255a715-b56d-4217-b37e-35679ddc563a"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "c92c1e57-8ed5-40ac-8657-39d69b61d624"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "a2dd13cd-bb57-4afc-96ef-94a306623d2e"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "e1ae61e7-f38a-4e83-b481-26e36f84f157"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "75e16a4d-fa31-44d7-96a0-d2618bc59995"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "a8352175-9875-46da-abc4-9ad4dd9dc646"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "866ca0ca-d532-4ffa-9f36-bdc4e2b09946"
+    }
+  ],
+  "transport_error_types": {},
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.8959928181629948,
+  "generator_cpu_seconds": 299.16297314499997,
+  "elapsed_seconds": 1800.002322752,
+  "completed_rps": 87.99988644338208,
+  "statuses": {
+    "read": {
+      "304": 79963,
+      "200": 70478,
+      "503": 39
+    },
+    "hold": {
+      "201": 7920
+    }
+  },
+  "response_body_bytes": 1314928281,
+  "latency_ms": {
+    "read:304": {
+      "p50": 3.6292319999802203,
+      "p95": 17.41084599984788,
+      "p99": 49.70939200029534
+    },
+    "hold:201": {
+      "p50": 29.44476699997267,
+      "p95": 72.90418999991743,
+      "p99": 137.35284500012312
+    },
+    "read:200": {
+      "p50": 12.067189000049439,
+      "p95": 33.164694000106465,
+      "p99": 68.61856099999386
+    },
+    "read:503": {
+      "p50": 5.286217999980636,
+      "p95": 75.73648400000366,
+      "p99": 83.82820299999594
+    }
+  },
+  "read_p95_ms": 25.459955000087575,
+  "hold_p95_ms": 72.90418999991743,
+  "local_read_gate_pass": false,
+  "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": false
+}

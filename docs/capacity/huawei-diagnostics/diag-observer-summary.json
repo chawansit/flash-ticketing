@@ -1,0 +1,50 @@
+{
+  "samples": 891,
+  "errors": 0,
+  "max_missing_maps": 85,
+  "max_database_connections": 13,
+  "max_lock_waiters": 0,
+  "max_reconciliation_age_seconds": 33.694005,
+  "max_oldest_overdue_seconds": 0.723505,
+  "missing_map_samples": [
+    {
+      "utc": "2026-09-09T01:31:30.480771+00:00",
+      "missing_maps": 62,
+      "maps_without_ttl": 0,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 4,
+      "oldest_overdue_seconds": 0.212559,
+      "reconciliation_age_seconds": 30.505478,
+      "database_connections": 12,
+      "lock_waiters": 0,
+      "active_connections": 1,
+      "redis_used_bytes": 46647272
+    },
+    {
+      "utc": "2026-09-09T01:31:32.496416+00:00",
+      "missing_maps": 85,
+      "maps_without_ttl": 0,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 8,
+      "oldest_overdue_seconds": 0.406651,
+      "reconciliation_age_seconds": 31.742866,
+      "database_connections": 12,
+      "lock_waiters": 0,
+      "active_connections": 1,
+      "redis_used_bytes": 45610352
+    },
+    {
+      "utc": "2026-09-09T01:31:34.512581+00:00",
+      "missing_maps": 76,
+      "maps_without_ttl": 0,
+      "minimum_ttl": -2,
+      "overdue_active_holds": 1,
+      "oldest_overdue_seconds": 0.144524,
+      "reconciliation_age_seconds": 33.694005,
+      "database_connections": 12,
+      "lock_waiters": 0,
+      "active_connections": 1,
+      "redis_used_bytes": 45772376
+    }
+  ]
+}

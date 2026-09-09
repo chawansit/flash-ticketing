@@ -48,3 +48,12 @@ context-manager propagation/suppression and error-code redaction. Real API logs
 confirmed all seven phases and ADMISSION_FULL at occupancy 8/8. Ruff and diff checks
 passed. Two dependency deprecation warnings remain. See [evidence](../capacity/hold-diagnostics-validation.json). No cloud rerun or capacity
 improvement is claimed. Extends ADRs 0007/0009/0014; supersedes no ownership decision.
+
+## Cloud diagnostic rerun
+The same-machine 352-RPS/30-minute rerun completed with all 31,680 holds successful
+and no ADMISSION_FULL. It recorded 160 availability SEATMAP_WARMING errors; the
+observer found up to 85 expired maps and reconciliation age 33.694 s versus TTL 30 s.
+Client and server error codes agree. Cloud diagnostic/end-to-end subset: 9 passed;
+all acknowledged holds/orders persisted and expired. The zero-error capacity gate
+failed; no throughput improvement or reason to raise admission is claimed.
+See [report and raw evidence](../capacity/huawei-diagnostics/README.md).

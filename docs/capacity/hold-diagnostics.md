@@ -67,3 +67,7 @@ error redaction. Real API logs confirm all seven phases for a successful hold an
 ADMISSION_FULL at occupancy 8/8. [Validation evidence](hold-diagnostics-validation.json).
 No new cloud capacity result exists yet; this change is ready for the diagnostic
 rerun on the same cloud machines before any concurrency tuning.
+
+Cloud follow-up: [352-RPS diagnostic rerun](huawei-diagnostics/README.md) completed
+30 minutes. All holds succeeded, but 160 SEATMAP_WARMING read failures kept the
+zero-error gate failed. Nine diagnostic/end-to-end tests passed on cloud.

@@ -1,0 +1,249 @@
+{"phase": "measuring", "rate": 88, "seconds": 1800, "utc": "2026-09-09T01:29:11.620659+00:00"}
+{"phase": "progress", "scheduled": 2640, "drops": 0}
+{"phase": "progress", "scheduled": 5280, "drops": 0}
+{"phase": "progress", "scheduled": 7920, "drops": 0}
+{"phase": "progress", "scheduled": 10560, "drops": 0}
+{"phase": "progress", "scheduled": 13200, "drops": 0}
+{"phase": "progress", "scheduled": 15840, "drops": 0}
+{"phase": "progress", "scheduled": 18480, "drops": 0}
+{"phase": "progress", "scheduled": 21120, "drops": 0}
+{"phase": "progress", "scheduled": 23760, "drops": 0}
+{"phase": "progress", "scheduled": 26400, "drops": 0}
+{"phase": "progress", "scheduled": 29040, "drops": 0}
+{"phase": "progress", "scheduled": 31680, "drops": 0}
+{"phase": "progress", "scheduled": 34320, "drops": 0}
+{"phase": "progress", "scheduled": 36960, "drops": 0}
+{"phase": "progress", "scheduled": 39600, "drops": 0}
+{"phase": "progress", "scheduled": 42240, "drops": 0}
+{"phase": "progress", "scheduled": 44880, "drops": 0}
+{"phase": "progress", "scheduled": 47520, "drops": 0}
+{"phase": "progress", "scheduled": 50160, "drops": 0}
+{"phase": "progress", "scheduled": 52800, "drops": 0}
+{"phase": "progress", "scheduled": 55440, "drops": 0}
+{"phase": "progress", "scheduled": 58080, "drops": 0}
+{"phase": "progress", "scheduled": 60720, "drops": 0}
+{"phase": "progress", "scheduled": 63360, "drops": 0}
+{"phase": "progress", "scheduled": 66000, "drops": 0}
+{"phase": "progress", "scheduled": 68640, "drops": 0}
+{"phase": "progress", "scheduled": 71280, "drops": 0}
+{"phase": "progress", "scheduled": 73920, "drops": 0}
+{"phase": "progress", "scheduled": 76560, "drops": 0}
+{"phase": "progress", "scheduled": 79200, "drops": 0}
+{"phase": "progress", "scheduled": 81840, "drops": 0}
+{"phase": "progress", "scheduled": 84480, "drops": 0}
+{"phase": "progress", "scheduled": 87120, "drops": 0}
+{"phase": "progress", "scheduled": 89760, "drops": 0}
+{"phase": "progress", "scheduled": 92400, "drops": 0}
+{"phase": "progress", "scheduled": 95040, "drops": 0}
+{"phase": "progress", "scheduled": 97680, "drops": 0}
+{"phase": "progress", "scheduled": 100320, "drops": 0}
+{"phase": "progress", "scheduled": 102960, "drops": 0}
+{"phase": "progress", "scheduled": 105600, "drops": 0}
+{"phase": "progress", "scheduled": 108240, "drops": 0}
+{"phase": "progress", "scheduled": 110880, "drops": 0}
+{"phase": "progress", "scheduled": 113520, "drops": 0}
+{"phase": "progress", "scheduled": 116160, "drops": 0}
+{"phase": "progress", "scheduled": 118800, "drops": 0}
+{"phase": "progress", "scheduled": 121440, "drops": 0}
+{"phase": "progress", "scheduled": 124080, "drops": 0}
+{"phase": "progress", "scheduled": 126720, "drops": 0}
+{"phase": "progress", "scheduled": 129360, "drops": 0}
+{"phase": "progress", "scheduled": 132000, "drops": 0}
+{"phase": "progress", "scheduled": 134640, "drops": 0}
+{"phase": "progress", "scheduled": 137280, "drops": 0}
+{"phase": "progress", "scheduled": 139920, "drops": 0}
+{"phase": "progress", "scheduled": 142560, "drops": 0}
+{"phase": "progress", "scheduled": 145200, "drops": 0}
+{"phase": "progress", "scheduled": 147840, "drops": 0}
+{"phase": "progress", "scheduled": 150480, "drops": 0}
+{"phase": "progress", "scheduled": 153120, "drops": 0}
+{"phase": "progress", "scheduled": 155760, "drops": 0}
+{
+  "utc": "2026-09-09T01:59:11.623828+00:00",
+  "measured_started_utc": "2026-09-09T01:29:11.620659+00:00",
+  "manifest_id": "b41b3750-a7b3-4f59-a958-8da8398668cb",
+  "run_id": "cc6e0eae-989e-41e7-824f-7a057f76b0b2",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 88,
+  "seconds": 1800,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "error_codes": {
+    "read:503:SEATMAP_WARMING": 42
+  },
+  "error_examples": [
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "6eb86596-4d89-4500-a8eb-1560580d12d8"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "3969a977-e9b6-43a8-bff8-e6b42851507c"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "d78a5f52-5b27-4324-bc1d-9129eeee9f39"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "91c1b70a-0364-40b6-bb8c-0b21ca7f247b"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "71186319-7b6b-4bd0-9532-a07b3d82f8f8"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "07b432a0-3b09-4797-bf99-27354210bb7c"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "5aa166ac-3508-40e6-a0f6-171a496c3b24"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "b4f0ee53-9887-4664-89cd-0082e5be310e"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "80c557c9-148b-4e56-b8d3-787bd5c1b1ab"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "cc1f5900-ec54-4af6-b7c2-d74b54727443"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "ba00696b-c6a7-4ac7-bcf3-0df699313b50"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "f14e0284-4250-4bfe-b22e-043207bb67c4"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "4f4e58c0-179f-4b8f-8209-13f7b0a6a85c"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "de288c17-d8fc-4ba6-b404-78b96761b983"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "197dfaf5-420f-42ba-a551-10d28e68f129"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "5d141963-165d-4422-9379-f6f79bf59714"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "20edd49a-9980-4745-b0ac-8c44a73bbb5c"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "d94e7f5a-6cfd-4114-a320-af8738fa5c10"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "7ad1b35f-fa88-49f6-8005-0a19a974ae59"
+    },
+    {
+      "operation": "read",
+      "status": "503",
+      "code": "SEATMAP_WARMING",
+      "request_id": "221dbb5b-e07e-4057-8707-1d0afa07f499"
+    }
+  ],
+  "transport_error_types": {},
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.8218714546947012,
+  "generator_cpu_seconds": 300.650599599,
+  "elapsed_seconds": 1799.995410333,
+  "completed_rps": 88.00022438429214,
+  "statuses": {
+    "read": {
+      "304": 79953,
+      "200": 70485,
+      "503": 42
+    },
+    "hold": {
+      "201": 7920
+    }
+  },
+  "response_body_bytes": 1315060878,
+  "latency_ms": {
+    "read:304": {
+      "p50": 3.8197159999526775,
+      "p95": 17.748380999933033,
+      "p99": 49.76902999999311
+    },
+    "hold:201": {
+      "p50": 25.674537999975655,
+      "p95": 72.50412999997025,
+      "p99": 136.03702199998224
+    },
+    "read:200": {
+      "p50": 8.428160999983447,
+      "p95": 31.768569000178104,
+      "p99": 67.98110799991264
+    },
+    "read:503": {
+      "p50": 4.595693999988271,
+      "p95": 32.04609499999833,
+      "p99": 85.33420800000613
+    }
+  },
+  "read_p95_ms": 25.20267500005957,
+  "hold_p95_ms": 72.50412999997025,
+  "local_read_gate_pass": false,
+  "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": false
+}

@@ -1,0 +1,567 @@
+{
+  "request_error_codes": {
+    "SEATMAP_WARMING": 160
+  },
+  "first_20_read_errors": [
+    {
+      "time": "2026-09-09T01:31:29.793975+00:00",
+      "request_id": "6eb86596-4d89-4500-a8eb-1560580d12d8",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 1.23
+    },
+    {
+      "time": "2026-09-09T01:31:29.795360+00:00",
+      "request_id": "900fe6ac-2267-4853-b9e8-e0ef76728d56",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 0.79
+    },
+    {
+      "time": "2026-09-09T01:31:29.797017+00:00",
+      "request_id": "c1b55930-8ee7-4d17-8a8a-1b9172c533ff",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 0.76
+    },
+    {
+      "time": "2026-09-09T01:31:30.364729+00:00",
+      "request_id": "3969a977-e9b6-43a8-bff8-e6b42851507c",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 2.19
+    },
+    {
+      "time": "2026-09-09T01:31:30.364986+00:00",
+      "request_id": "131f8e57-7a64-4952-ae6d-5acf382bc59a",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 1.3
+    },
+    {
+      "time": "2026-09-09T01:31:30.366707+00:00",
+      "request_id": "3efcb6a8-2321-4ff6-b546-3413001159ed",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 1.28
+    },
+    {
+      "time": "2026-09-09T01:31:30.367229+00:00",
+      "request_id": "0c8e85e1-da38-4f47-ad58-f13a0f81bd5d",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 1.17
+    },
+    {
+      "time": "2026-09-09T01:31:30.434270+00:00",
+      "request_id": "d78a5f52-5b27-4324-bc1d-9129eeee9f39",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 4.28
+    },
+    {
+      "time": "2026-09-09T01:31:30.435329+00:00",
+      "request_id": "90b987f0-cea6-4a97-b270-1b9705f9949d",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 2.52
+    },
+    {
+      "time": "2026-09-09T01:31:30.435899+00:00",
+      "request_id": "b2c6a131-97ea-48cc-a01f-43dab3dbb1f7",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 2.21
+    },
+    {
+      "time": "2026-09-09T01:31:30.438011+00:00",
+      "request_id": "eb726dbf-d414-47d1-8b87-6f6eb9cf04e8",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 2.79
+    },
+    {
+      "time": "2026-09-09T01:31:30.468722+00:00",
+      "request_id": "b515cc3e-1b36-4342-9dfb-8ec1310fca72",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 1.54
+    },
+    {
+      "time": "2026-09-09T01:31:30.469685+00:00",
+      "request_id": "6aab4b4b-22e5-435d-9d31-20f94f530b5e",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 1.65
+    },
+    {
+      "time": "2026-09-09T01:31:30.544990+00:00",
+      "request_id": "91c1b70a-0364-40b6-bb8c-0b21ca7f247b",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 1.58
+    },
+    {
+      "time": "2026-09-09T01:31:30.548004+00:00",
+      "request_id": "304cca2e-912b-4d1e-88cb-1e22f2a4dce0",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 1.49
+    },
+    {
+      "time": "2026-09-09T01:31:30.548229+00:00",
+      "request_id": "de5f882a-cfce-4be5-95e1-3cb1f577d4dd",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 1.3
+    },
+    {
+      "time": "2026-09-09T01:31:30.548434+00:00",
+      "request_id": "d8bc992f-1729-41bb-bd24-94b5d7fd96f5",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 3.04
+    },
+    {
+      "time": "2026-09-09T01:31:30.772108+00:00",
+      "request_id": "71186319-7b6b-4bd0-9532-a07b3d82f8f8",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 1.25
+    },
+    {
+      "time": "2026-09-09T01:31:30.774913+00:00",
+      "request_id": "3e1e9bb0-9ea4-471f-9186-f48830632052",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 1.75
+    },
+    {
+      "time": "2026-09-09T01:31:30.775729+00:00",
+      "request_id": "673c4033-ac79-4d3d-90cd-b2dea52651af",
+      "status": 503,
+      "error_code": "SEATMAP_WARMING",
+      "duration_ms": 1.75
+    }
+  ],
+  "hold_requests": 31680,
+  "statuses": {
+    "201": 31680
+  },
+  "error_codes": {},
+  "successful_hold_phases": {
+    "dispatch": {
+      "count": 31680,
+      "mean_ms": 4.553491508838384,
+      "p95_ms": 9.883,
+      "p99_ms": 49.174,
+      "max_ms": 195.441
+    },
+    "rate_limit": {
+      "count": 31680,
+      "mean_ms": 0.7555902146464647,
+      "p95_ms": 1.977,
+      "p99_ms": 4.685,
+      "max_ms": 36.15
+    },
+    "redis_enter": {
+      "count": 31680,
+      "mean_ms": 0.7244693181818181,
+      "p95_ms": 1.936,
+      "p99_ms": 4.206,
+      "max_ms": 33.985
+    },
+    "db_enter": {
+      "count": 31680,
+      "mean_ms": 2.8914948547979797,
+      "p95_ms": 6.898,
+      "p99_ms": 15.622,
+      "max_ms": 62.774
+    },
+    "database_body": {
+      "count": 31680,
+      "mean_ms": 15.067125157828283,
+      "p95_ms": 30.062,
+      "p99_ms": 47.653,
+      "max_ms": 97.614
+    },
+    "db_exit": {
+      "count": 31680,
+      "mean_ms": 2.393966477272727,
+      "p95_ms": 6.326,
+      "p99_ms": 9.62,
+      "max_ms": 51.014
+    },
+    "redis_exit": {
+      "count": 31680,
+      "mean_ms": 1.3861044823232322,
+      "p95_ms": 4.87,
+      "p99_ms": 8.551,
+      "max_ms": 55.539
+    }
+  },
+  "first_100_errors": [],
+  "slowest_20_successful_holds": [
+    {
+      "time": "2026-09-09T01:35:06.697018+00:00",
+      "request_id": "af14f984-679d-47cb-aca3-9caff147af50",
+      "status": 201,
+      "duration_ms": 275.61,
+      "error_code": null,
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 188.785,
+        "rate_limit": 1.467,
+        "redis_enter": 1.448,
+        "db_enter": 6.941,
+        "database_body": 35.976,
+        "db_exit": 1.273,
+        "redis_exit": 0.677
+      }
+    },
+    {
+      "time": "2026-09-09T01:35:06.696654+00:00",
+      "request_id": "40ffad07-5f4b-44cc-89cc-92a958474031",
+      "status": 201,
+      "duration_ms": 275.15,
+      "error_code": null,
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 195.441,
+        "rate_limit": 0.24,
+        "redis_enter": 1.862,
+        "db_enter": 2.091,
+        "database_body": 27.137,
+        "db_exit": 7.855,
+        "redis_exit": 1.793
+      }
+    },
+    {
+      "time": "2026-09-09T01:37:16.481742+00:00",
+      "request_id": "c1cae10b-cab6-4a33-b494-c4d285d0d2d4",
+      "status": 201,
+      "duration_ms": 267.7,
+      "error_code": null,
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 186.503,
+        "rate_limit": 1.13,
+        "redis_enter": 22.477,
+        "db_enter": 14.347,
+        "database_body": 15.827,
+        "db_exit": 2.952,
+        "redis_exit": 0.396
+      }
+    },
+    {
+      "time": "2026-09-09T01:37:16.480922+00:00",
+      "request_id": "02b18312-a8e3-4646-aabf-99923ca4c38a",
+      "status": 201,
+      "duration_ms": 267.12,
+      "error_code": null,
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 186.908,
+        "rate_limit": 1.323,
+        "redis_enter": 17.778,
+        "db_enter": 15.516,
+        "database_body": 17.359,
+        "db_exit": 3.083,
+        "redis_exit": 1.192
+      }
+    },
+    {
+      "time": "2026-09-09T01:37:16.480053+00:00",
+      "request_id": "9af680be-4f9b-485b-8d3b-d15c64c0a6fe",
+      "status": 201,
+      "duration_ms": 265.85,
+      "error_code": null,
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 194.642,
+        "rate_limit": 4.279,
+        "redis_enter": 4.502,
+        "db_enter": 16.376,
+        "database_body": 12.512,
+        "db_exit": 5.688,
+        "redis_exit": 1.297
+      }
+    },
+    {
+      "time": "2026-09-09T01:37:16.476861+00:00",
+      "request_id": "f7b81227-a6bf-47e1-93e2-277fabd18c61",
+      "status": 201,
+      "duration_ms": 262.92,
+      "error_code": null,
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 191.637,
+        "rate_limit": 9.476,
+        "redis_enter": 5.228,
+        "db_enter": 10.351,
+        "database_body": 12.718,
+        "db_exit": 2.152,
+        "redis_exit": 0.941
+      }
+    },
+    {
+      "time": "2026-09-09T01:35:06.676690+00:00",
+      "request_id": "8eab4d9c-861f-48eb-892d-ac9a55630881",
+      "status": 201,
+      "duration_ms": 255.55,
+      "error_code": null,
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 174.322,
+        "rate_limit": 8.036,
+        "redis_enter": 2.65,
+        "db_enter": 8.427,
+        "database_body": 16.266,
+        "db_exit": 0.901,
+        "redis_exit": 0.844
+      }
+    },
+    {
+      "time": "2026-09-09T01:35:06.675791+00:00",
+      "request_id": "6df63926-fd6d-4dde-9f2b-184807f38045",
+      "status": 201,
+      "duration_ms": 254.46,
+      "error_code": null,
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 189.1,
+        "rate_limit": 1.135,
+        "redis_enter": 0.448,
+        "db_enter": 1.428,
+        "database_body": 14.386,
+        "db_exit": 1.418,
+        "redis_exit": 1.206
+      }
+    },
+    {
+      "time": "2026-09-09T01:46:56.456939+00:00",
+      "request_id": "22502f32-2b8a-4458-acd1-3864ade8bb1e",
+      "status": 201,
+      "duration_ms": 249.9,
+      "error_code": null,
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 120.595,
+        "rate_limit": 0.829,
+        "redis_enter": 0.129,
+        "db_enter": 18.806,
+        "database_body": 52.539,
+        "db_exit": 6.61,
+        "redis_exit": 11.176
+      }
+    },
+    {
+      "time": "2026-09-09T01:37:16.687490+00:00",
+      "request_id": "2430f453-1746-4a6c-ab57-db2406059989",
+      "status": 201,
+      "duration_ms": 249.65,
+      "error_code": null,
+      "hold_arrival_occupancy": 6,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 148.193,
+        "rate_limit": 3.218,
+        "redis_enter": 0.138,
+        "db_enter": 3.084,
+        "database_body": 58.496,
+        "db_exit": 3.34,
+        "redis_exit": 1.094
+      }
+    },
+    {
+      "time": "2026-09-09T01:37:16.687144+00:00",
+      "request_id": "19efa30b-bf4f-4bfe-879a-43f090754176",
+      "status": 201,
+      "duration_ms": 249.16,
+      "error_code": null,
+      "hold_arrival_occupancy": 7,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 143.514,
+        "rate_limit": 7.35,
+        "redis_enter": 0.142,
+        "db_enter": 3.593,
+        "database_body": 58.498,
+        "db_exit": 4.039,
+        "redis_exit": 0.192
+      }
+    },
+    {
+      "time": "2026-09-09T01:57:46.253258+00:00",
+      "request_id": "ebdee4c0-ec26-4eaf-9bff-224a74337335",
+      "status": 201,
+      "duration_ms": 248.11,
+      "error_code": null,
+      "hold_arrival_occupancy": 3,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 173.155,
+        "rate_limit": 3.514,
+        "redis_enter": 0.257,
+        "db_enter": 6.254,
+        "database_body": 23.749,
+        "db_exit": 8.413,
+        "redis_exit": 0.201
+      }
+    },
+    {
+      "time": "2026-09-09T01:57:46.252816+00:00",
+      "request_id": "fac7e6d2-c693-48b4-8227-bb94b7a3f223",
+      "status": 201,
+      "duration_ms": 247.94,
+      "error_code": null,
+      "hold_arrival_occupancy": 2,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 173.145,
+        "rate_limit": 3.38,
+        "redis_enter": 0.574,
+        "db_enter": 6.482,
+        "database_body": 23.128,
+        "db_exit": 1.275,
+        "redis_exit": 4.449
+      }
+    },
+    {
+      "time": "2026-09-09T01:57:46.252203+00:00",
+      "request_id": "7881eb08-a467-487e-ba62-fb43e4d6c1a3",
+      "status": 201,
+      "duration_ms": 247.49,
+      "error_code": null,
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 172.692,
+        "rate_limit": 1.359,
+        "redis_enter": 2.784,
+        "db_enter": 5.594,
+        "database_body": 22.721,
+        "db_exit": 1.724,
+        "redis_exit": 0.154
+      }
+    },
+    {
+      "time": "2026-09-09T01:46:56.452221+00:00",
+      "request_id": "9941c2e4-d548-4e22-9c4e-ad8187622e7c",
+      "status": 201,
+      "duration_ms": 245.06,
+      "error_code": null,
+      "hold_arrival_occupancy": 1,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 122.07,
+        "rate_limit": 0.144,
+        "redis_enter": 5.231,
+        "db_enter": 11.286,
+        "database_body": 48.741,
+        "db_exit": 7.834,
+        "redis_exit": 13.13
+      }
+    },
+    {
+      "time": "2026-09-09T01:35:06.896524+00:00",
+      "request_id": "84ad034f-1562-4ff0-a37e-5d35a593f4f2",
+      "status": 201,
+      "duration_ms": 244.45,
+      "error_code": null,
+      "hold_arrival_occupancy": 4,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 155.334,
+        "rate_limit": 2.705,
+        "redis_enter": 0.431,
+        "db_enter": 5.357,
+        "database_body": 37.461,
+        "db_exit": 4.841,
+        "redis_exit": 1.749
+      }
+    },
+    {
+      "time": "2026-09-09T01:57:46.424771+00:00",
+      "request_id": "e86c57aa-2e98-42c6-913e-bb7b2a12cc04",
+      "status": 201,
+      "duration_ms": 240.61,
+      "error_code": null,
+      "hold_arrival_occupancy": 5,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 137.62,
+        "rate_limit": 20.831,
+        "redis_enter": 3.127,
+        "db_enter": 10.582,
+        "database_body": 43.803,
+        "db_exit": 5.551,
+        "redis_exit": 1.031
+      }
+    },
+    {
+      "time": "2026-09-09T01:37:16.677846+00:00",
+      "request_id": "774a9157-145e-47a6-917c-21fc4661aff3",
+      "status": 201,
+      "duration_ms": 240.52,
+      "error_code": null,
+      "hold_arrival_occupancy": 4,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 152.205,
+        "rate_limit": 0.118,
+        "redis_enter": 0.168,
+        "db_enter": 5.98,
+        "database_body": 46.21,
+        "db_exit": 6.86,
+        "redis_exit": 0.142
+      }
+    },
+    {
+      "time": "2026-09-09T01:32:09.151971+00:00",
+      "request_id": "1fd3373c-cc24-429d-9fed-a92f2f70919d",
+      "status": 201,
+      "duration_ms": 233.65,
+      "error_code": null,
+      "hold_arrival_occupancy": 0,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 126.012,
+        "rate_limit": 3.095,
+        "redis_enter": 10.592,
+        "db_enter": 7.295,
+        "database_body": 42.986,
+        "db_exit": 6.786,
+        "redis_exit": 4.629
+      }
+    },
+    {
+      "time": "2026-09-09T01:57:46.424366+00:00",
+      "request_id": "a40e29c5-fae5-48af-832d-a8965d24d1e4",
+      "status": 201,
+      "duration_ms": 232.05,
+      "error_code": null,
+      "hold_arrival_occupancy": 5,
+      "hold_limit": 8,
+      "hold_phase_ms": {
+        "dispatch": 147.16,
+        "rate_limit": 12.328,
+        "redis_enter": 0.257,
+        "db_enter": 4.984,
+        "database_body": 22.929,
+        "db_exit": 16.139,
+        "redis_exit": 9.728
+      }
+    }
+  ],
+  "note": "Server log durations rounded to milliseconds. Phase percentiles are separate distributions; do not add them. db_exit includes commit/rollback and pool return."
+}

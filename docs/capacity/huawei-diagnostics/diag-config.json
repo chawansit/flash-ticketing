@@ -1,0 +1,16 @@
+{
+  "source_commit": "2a6126c",
+  "settings": {
+    "reserve_concurrency": 8,
+    "pool_max": 12,
+    "hold_seconds": 120,
+    "reconcile_interval_seconds": 20,
+    "reconcile_batch_size": 8,
+    "reconcile_budget_ms": 500,
+    "reconcile_lease_seconds": 30,
+    "reconcile_seed_batch": 200,
+    "refresh_cooldown_ms": 250
+  },
+  "events_total": 807,
+  "reconciliation_tracked": 807
+}

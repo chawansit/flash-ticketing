@@ -1,0 +1,14 @@
+{
+  "ticketing.api": {
+    "runtime_sha256": "3730cc4515a97433baa8207912e715e7f9721731cf569aec3b203c4266b1b484",
+    "matches_commit_with_CRLF_line_endings": true
+  },
+  "ticketing.observability": {
+    "runtime_sha256": "f73e04bd17d50e796eb728e4f57d2da29951deef317cd1af04c8ad03dc6dcee7",
+    "matches_commit_with_CRLF_line_endings": true
+  },
+  "ticketing.infrastructure.reservations": {
+    "runtime_sha256": "1e49c31dc1c09b59b1e5ceea29887cdf422bccedf1863350816ebab270296b4c",
+    "matches_commit_with_CRLF_line_endings": true
+  }
+}
