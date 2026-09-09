@@ -1,0 +1,12 @@
+{
+  "httpx": "0.28.1",
+  "httpcore": "1.0.9",
+  "python": "3.12.3",
+  "keepalive_expiry_default_seconds": 5.0,
+  "timeout_seconds": 10,
+  "max_connections_per_worker": 64,
+  "hashes": {
+    "http_load_generator.py": "fc92da8b3ca32f6b80d5f0c6ab68585a6ffb08baa9cf8a8f35e3dcbacc0064ab",
+    "parallel_cloud_load.py": "c3dd921a5d795f64331eda24e20af5eccb8d1cdd9a7a629b803fb5bfa8090f1e"
+  }
+}

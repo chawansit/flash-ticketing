@@ -1,0 +1,121 @@
+{
+  "runs": {
+    "transport-uniform": {
+      "summary": {
+        "utc": "2026-09-09T16:14:30.599398+00:00",
+        "hot_read_share": 0,
+        "burst": false,
+        "rate": 400,
+        "seconds": 300,
+        "workers": 4,
+        "worker_rates": [
+          100,
+          100,
+          100,
+          100
+        ],
+        "worker_exit_codes": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "start_skew_ms": 4.897,
+        "generator_drops": 0,
+        "worst_worker_read_p95_ms": 14.532609995512757,
+        "worst_worker_hold_p95_ms": 54.11364499741467,
+        "gate_pass": true,
+        "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+      },
+      "statuses": {
+        "read": {
+          "304": 67610,
+          "200": 46390
+        },
+        "hold": {
+          "201": 6000
+        }
+      },
+      "transport_errors": {},
+      "failure_examples": []
+    },
+    "transport-uniform-repeat": {
+      "summary": {
+        "utc": "2026-09-09T16:20:49.816769+00:00",
+        "hot_read_share": 0,
+        "burst": false,
+        "rate": 400,
+        "seconds": 300,
+        "workers": 4,
+        "worker_rates": [
+          100,
+          100,
+          100,
+          100
+        ],
+        "worker_exit_codes": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "start_skew_ms": 0.6980000000000001,
+        "generator_drops": 0,
+        "worst_worker_read_p95_ms": 18.40245099447202,
+        "worst_worker_hold_p95_ms": 63.8221990011516,
+        "gate_pass": true,
+        "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+      },
+      "statuses": {
+        "read": {
+          "200": 51967,
+          "304": 62033
+        },
+        "hold": {
+          "201": 6000
+        }
+      },
+      "transport_errors": {},
+      "failure_examples": []
+    }
+  },
+  "network_deltas": {
+    "backend": [
+      {
+        "Tcp:EstabResets": 71,
+        "Tcp:OutRsts": 125,
+        "Tcp:RetransSegs": 2,
+        "TcpExt:ListenDrops": 0,
+        "TcpExt:TCPAbortOnClose": 45,
+        "TcpExt:TCPTimeouts": 0
+      },
+      {
+        "Tcp:EstabResets": 70,
+        "Tcp:OutRsts": 130,
+        "Tcp:RetransSegs": 4,
+        "TcpExt:ListenDrops": 0,
+        "TcpExt:TCPAbortOnClose": 44,
+        "TcpExt:TCPTimeouts": 0
+      }
+    ],
+    "generator": [
+      {
+        "Tcp:EstabResets": 11,
+        "Tcp:OutRsts": 32,
+        "Tcp:RetransSegs": 60,
+        "TcpExt:ListenDrops": 0,
+        "TcpExt:TCPAbortOnClose": 7,
+        "TcpExt:TCPTimeouts": 46
+      },
+      {
+        "Tcp:EstabResets": 7,
+        "Tcp:OutRsts": 33,
+        "Tcp:RetransSegs": 75,
+        "TcpExt:ListenDrops": 0,
+        "TcpExt:TCPAbortOnClose": 4,
+        "TcpExt:TCPTimeouts": 66
+      }
+    ]
+  },
+  "note": "API-container and generator-host network namespace totals include non-measured traffic. Reset counters are not failed-request counts and do not establish a cause. Trace overhead can change timing. No retries or pooling-policy changes."
+}

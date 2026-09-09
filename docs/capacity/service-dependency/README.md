@@ -60,3 +60,5 @@ Run `python docs/capacity/service-dependency/summarize.py` to reproduce accounti
 ## Next action
 
 Instrument read transport failures with bounded timestamps, connection-reuse state, HTTP phase and exception details on the generator, then correlate with server/network evidence. Determine whether this is connection reuse, transport, server response handling or another cause; the current generic `ReadError` does not distinguish them. Preserve both failures. Only after diagnosing the error should the retained candidate be re-evaluated against the original zero-error gate.
+
+Follow-up: [read transport diagnostics](../read-transport/README.md) implemented; two baseline runs did not reproduce the error. Root cause remains unresolved and this candidate remains unadopted.

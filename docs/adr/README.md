@@ -39,3 +39,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0021: Opt-in worker dispatch diagnostics](0021-thread-dispatch-diagnostics.md)
 
 - [0022: Inline in-memory service dependency](0022-inline-service-dependency.md)
+
+- [0023: Bounded read transport diagnostics](0023-read-transport-diagnostics.md)

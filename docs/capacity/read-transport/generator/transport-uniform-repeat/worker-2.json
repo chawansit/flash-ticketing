@@ -1,0 +1,82 @@
+{
+  "phases": {
+    "0": {
+      "statuses": {
+        "read": {
+          "200": 12989,
+          "304": 15511
+        },
+        "hold": {
+          "201": 1500
+        }
+      },
+      "p95_ms": {
+        "read": 18.230175999633502,
+        "hold": 63.0695809959434
+      }
+    }
+  },
+  "read_hot_share": 0,
+  "burst": false,
+  "utc": "2026-09-09T16:20:49.725788+00:00",
+  "measured_started_utc": "2026-09-09T16:15:49.723821+00:00",
+  "manifest_id": "114c41b7-aab0-4cf2-ab04-d362c99d8fa5",
+  "run_id": "32b136bd-fc24-458f-9986-b272541b3277",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 100,
+  "seconds": 300,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "error_codes": {},
+  "error_examples": [],
+  "transport_error_types": {},
+  "transport_diagnostics_enabled": true,
+  "transport_failure_examples": [],
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.664714000071399,
+  "generator_cpu_seconds": 57.657204910999994,
+  "elapsed_seconds": 299.9954218539933,
+  "completed_rps": 100.0015260719575,
+  "statuses": {
+    "read": {
+      "200": 12989,
+      "304": 15511
+    },
+    "hold": {
+      "201": 1500
+    }
+  },
+  "response_body_bytes": 242328710,
+  "latency_ms": {
+    "read:200": {
+      "p50": 5.9163629994145595,
+      "p95": 20.638723006413784,
+      "p99": 51.80234600265976
+    },
+    "read:304": {
+      "p50": 5.224379005085211,
+      "p95": 14.355418003106024,
+      "p99": 40.84421899460722
+    },
+    "hold:201": {
+      "p50": 31.629167999199126,
+      "p95": 63.0695809959434,
+      "p99": 96.56417000223882
+    }
+  },
+  "read_p95_ms": 18.230175999633502,
+  "hold_p95_ms": 63.0695809959434,
+  "local_read_gate_pass": true,
+  "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": true,
+  "phase_latency_gate_pass": true
+}
