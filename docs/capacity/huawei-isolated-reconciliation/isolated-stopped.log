@@ -23,15 +23,15 @@
  Container flash-cloud-bench-postgres-1  Stopped
  Container flash-cloud-bench-kafka-1  Stopped
 NAME                              IMAGE                           COMMAND                  SERVICE       CREATED          STATUS                                PORTS
-flash-cloud-bench-api-1           flash-cloud-bench-api           "uvicorn ticketing.a…"   api           38 minutes ago   Exited (0) 1 second ago               
-flash-cloud-bench-consumer-1      flash-cloud-bench-consumer      "python -m ticketing…"   consumer      38 minutes ago   Exited (0) 1 second ago               
-flash-cloud-bench-kafka-1         apache/kafka:3.9.1              "/__cacert_entrypoin…"   kafka         23 hours ago     Exited (143) Less than a second ago   
-flash-cloud-bench-maintenance-1   flash-cloud-bench-maintenance   "python -m ticketing…"   maintenance   38 minutes ago   Exited (0) 1 second ago               
-flash-cloud-bench-migrate-1       flash-cloud-bench-migrate       "python -m ticketing…"   migrate       48 seconds ago   Exited (0) 46 seconds ago             
-flash-cloud-bench-pgbouncer-1     edoburu/pgbouncer:v1.24.1-p1    "/entrypoint.sh /usr…"   pgbouncer     23 hours ago     Exited (0) Less than a second ago     
-flash-cloud-bench-postgres-1      postgres:17.6                   "docker-entrypoint.s…"   postgres      23 hours ago     Exited (0) Less than a second ago     
-flash-cloud-bench-prometheus-1    prom/prometheus:v3.5.0          "/bin/prometheus --c…"   prometheus    23 hours ago     Exited (0) 1 second ago               
-flash-cloud-bench-publisher-1     flash-cloud-bench-publisher     "python -m ticketing…"   publisher     38 minutes ago   Exited (0) 1 second ago               
-flash-cloud-bench-reconciler-1    flash-cloud-bench-reconciler    "python -m ticketing…"   reconciler    38 minutes ago   Exited (0) 1 second ago               
-flash-cloud-bench-redis-1         redis:7.4.5-alpine              "docker-entrypoint.s…"   redis         22 hours ago     Exited (0) Less than a second ago     
-flash-cloud-bench-simulator-1     flash-cloud-bench-simulator     "python -m ticketing…"   simulator     38 minutes ago   Exited (0) 1 second ago               
+flash-cloud-bench-api-1           flash-cloud-bench-api           "uvicorn ticketing.a…"   api           38 minutes ago   Exited (0) 1 second ago
+flash-cloud-bench-consumer-1      flash-cloud-bench-consumer      "python -m ticketing…"   consumer      38 minutes ago   Exited (0) 1 second ago
+flash-cloud-bench-kafka-1         apache/kafka:3.9.1              "/__cacert_entrypoin…"   kafka         23 hours ago     Exited (143) Less than a second ago
+flash-cloud-bench-maintenance-1   flash-cloud-bench-maintenance   "python -m ticketing…"   maintenance   38 minutes ago   Exited (0) 1 second ago
+flash-cloud-bench-migrate-1       flash-cloud-bench-migrate       "python -m ticketing…"   migrate       48 seconds ago   Exited (0) 46 seconds ago
+flash-cloud-bench-pgbouncer-1     edoburu/pgbouncer:v1.24.1-p1    "/entrypoint.sh /usr…"   pgbouncer     23 hours ago     Exited (0) Less than a second ago
+flash-cloud-bench-postgres-1      postgres:17.6                   "docker-entrypoint.s…"   postgres      23 hours ago     Exited (0) Less than a second ago
+flash-cloud-bench-prometheus-1    prom/prometheus:v3.5.0          "/bin/prometheus --c…"   prometheus    23 hours ago     Exited (0) 1 second ago
+flash-cloud-bench-publisher-1     flash-cloud-bench-publisher     "python -m ticketing…"   publisher     38 minutes ago   Exited (0) 1 second ago
+flash-cloud-bench-reconciler-1    flash-cloud-bench-reconciler    "python -m ticketing…"   reconciler    38 minutes ago   Exited (0) 1 second ago
+flash-cloud-bench-redis-1         redis:7.4.5-alpine              "docker-entrypoint.s…"   redis         22 hours ago     Exited (0) Less than a second ago
+flash-cloud-bench-simulator-1     flash-cloud-bench-simulator     "python -m ticketing…"   simulator     38 minutes ago   Exited (0) 1 second ago
