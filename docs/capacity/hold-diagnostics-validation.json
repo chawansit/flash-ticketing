@@ -1,0 +1,41 @@
+{
+  "topology": "local Docker Compose; not a cloud capacity run",
+  "command": "docker compose run --rm --build tests python -m pytest -q",
+  "result": "78 passed, 2 dependency deprecation warnings; no skips",
+  "successful_hold": {
+    "time": "2026-09-09T01:17:11.239545+00:00",
+    "level": "INFO",
+    "logger": "ticketing.api",
+    "message": "request",
+    "request_id": "87728649-9c4a-4b68-85da-fa5659b9c807",
+    "route": "/v1/holds",
+    "status": 201,
+    "duration_ms": 38.41,
+    "error_code": null,
+    "hold_arrival_occupancy": 0,
+    "hold_limit": 8,
+    "hold_phase_ms": {
+      "dispatch": 4.264,
+      "rate_limit": 0.505,
+      "redis_enter": 0.34,
+      "db_enter": 2.007,
+      "database_body": 22.744,
+      "db_exit": 6.945,
+      "redis_exit": 0.503
+    }
+  },
+  "admission_rejection": {
+    "time": "2026-09-09T01:17:12.027786+00:00",
+    "level": "INFO",
+    "logger": "ticketing.api",
+    "message": "request",
+    "request_id": "074343b3-e7c0-4a53-b01c-afd126cd8f4c",
+    "route": "/v1/holds",
+    "status": 503,
+    "duration_ms": 0.14,
+    "error_code": "ADMISSION_FULL",
+    "hold_arrival_occupancy": 8,
+    "hold_limit": 8,
+    "hold_phase_ms": {}
+  }
+}

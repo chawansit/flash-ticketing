@@ -1,5 +1,6 @@
 import json
 import logging
+from contextlib import contextmanager
 from contextvars import ContextVar
 from datetime import UTC, datetime
 from functools import wraps
@@ -100,3 +101,51 @@ def measured_work(operation):
         return wrapped
 
     return decorate
+
+
+HOLD_TRACE = ContextVar("hold_trace", default=None)
+HOLD_INFLIGHT = Gauge("ticketing_hold_inflight", "Admitted holds in this API process")
+HOLD_LIMIT = Gauge("ticketing_hold_limit", "Configured hold limit in this API process")
+HOLD_ADMISSION = Counter("ticketing_hold_admission_total", "Hold admission decisions", ["outcome"])
+HOLD_OCCUPANCY = Histogram(
+    "ticketing_hold_arrival_occupancy", "In-flight holds observed at each hold arrival",
+    buckets=(0, 1, 2, 4, 6, 8, 12, 16, 32, 64),
+)
+HOLD_PHASE = Histogram(
+    "ticketing_hold_phase_seconds", "Hold stage wall time including I/O", ["phase", "outcome"],
+    buckets=(.001, .005, .01, .025, .05, .1, .2, .3, .5, 1, 2),
+)
+
+
+def observe_hold_phase(phase, seconds, outcome="ok"):
+    HOLD_PHASE.labels(phase, outcome).observe(seconds)
+    trace = HOLD_TRACE.get()
+    if trace is not None:
+        trace[phase] = trace.get(phase, 0) + seconds * 1000
+
+
+@contextmanager
+def hold_phase(phase):
+    start, outcome = monotonic(), "ok"
+    try:
+        yield
+    except BaseException:
+        outcome = "error"
+        raise
+    finally:
+        observe_hold_phase(phase, monotonic() - start, outcome)
+
+
+class TimedHoldResource:
+    """Measure entry/exit while preserving the wrapped context manager's semantics."""
+
+    def __init__(self, phase, resource):
+        self.phase, self.resource = phase, resource
+
+    def __enter__(self):
+        with hold_phase(self.phase + "_enter"):
+            return self.resource.__enter__()
+
+    def __exit__(self, *exc):
+        with hold_phase(self.phase + "_exit"):
+            return self.resource.__exit__(*exc)

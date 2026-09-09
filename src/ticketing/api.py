@@ -23,7 +23,20 @@ from ticketing.domain import Failure
 from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.postgres import Postgres
 from ticketing.infrastructure.reservations import PostgresReservations
-from ticketing.observability import LATENCY, OUTCOMES, REQUEST_ID, REQUESTS, configure_logging
+from ticketing.observability import (
+    HOLD_ADMISSION,
+    HOLD_INFLIGHT,
+    HOLD_LIMIT,
+    HOLD_OCCUPANCY,
+    HOLD_TRACE,
+    LATENCY,
+    OUTCOMES,
+    REQUEST_ID,
+    REQUESTS,
+    configure_logging,
+    hold_phase,
+    observe_hold_phase,
+)
 
 settings = Settings()
 security = HTTPBearer()
@@ -121,10 +134,20 @@ async def instrumentation(request, call_next):
     context = REQUEST_ID.set(request.state.request_id)
     reservation = request.method == "POST" and request.url.path == "/v1/holds"
     admitted = False
+    trace = {} if reservation else None
+    trace_context = HOLD_TRACE.set(trace)
+    arrival_occupancy = app.state.reserve_inflight
+    request.state.error_code = None
+    if reservation:
+        HOLD_OCCUPANCY.observe(arrival_occupancy)
+        HOLD_LIMIT.set(settings.reserve_concurrency)
     try:
         # This check/increment runs on the process's one event loop with no await between
         # them. Reject before entering Starlette's synchronous worker-thread queue.
         if reservation and app.state.reserve_inflight >= settings.reserve_concurrency:
+            HOLD_ADMISSION.labels("rejected").inc()
+            OUTCOMES.labels("request", "ADMISSION_FULL").inc()
+            request.state.error_code = "ADMISSION_FULL"
             response = JSONResponse(
                 status_code=503,
                 content={"code": "ADMISSION_FULL", "request_id": request.state.request_id},
@@ -134,10 +157,15 @@ async def instrumentation(request, call_next):
             if reservation:
                 app.state.reserve_inflight += 1
                 admitted = True
+                request.state.hold_admitted_at = time.monotonic()
+                HOLD_INFLIGHT.set(app.state.reserve_inflight)
+                HOLD_ADMISSION.labels("admitted").inc()
             response = await call_next(request)
     finally:
         if admitted:
             app.state.reserve_inflight -= 1
+            HOLD_INFLIGHT.set(app.state.reserve_inflight)
+        HOLD_TRACE.reset(trace_context)
         REQUEST_ID.reset(context)
     route = getattr(request.scope.get("route"), "path", "/v1/holds" if reservation else "unmatched")
     elapsed = time.monotonic() - started
@@ -153,6 +181,11 @@ async def instrumentation(request, call_next):
                 "route": route,
                 "status": response.status_code,
                 "duration_ms": round(elapsed * 1000, 2),
+                "error_code": request.state.error_code,
+                **({"hold_arrival_occupancy": arrival_occupancy,
+                    "hold_limit": settings.reserve_concurrency,
+                    "hold_phase_ms": {k: round(v, 3) for k, v in trace.items()}}
+                   if reservation else {}),
             }
         },
     )
@@ -161,6 +194,7 @@ async def instrumentation(request, call_next):
 
 @app.exception_handler(Failure)
 async def business_error(request, exc):
+    request.state.error_code = exc.code
     OUTCOMES.labels("request", exc.code).inc()
     return JSONResponse(
         status_code=exc.status,
@@ -297,7 +331,9 @@ def deltas(event_id: UUID, request: Request, since: int = 0):
 @app.post("/v1/holds", tags=["Reservations"], responses=ERRORS, status_code=201)
 def hold(body: HoldInput, who: Actor, svc: Service, key: Key, request: Request):
     """Atomically hold 1â€“8 seats and create a pending order. Replays retain the original deadline."""
-    request.app.state.cache.rate_limit(who)
+    observe_hold_phase("dispatch", time.monotonic() - request.state.hold_admitted_at)
+    with hold_phase("rate_limit"):
+        request.app.state.cache.rate_limit(who)
     return svc.reserve(who, body.event_id, body.seat_ids, key)
 
 

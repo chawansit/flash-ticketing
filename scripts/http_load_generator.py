@@ -20,6 +20,30 @@ def percentile(values, fraction):
     return sorted(values)[math.ceil(len(values) * fraction) - 1] if values else None
 
 
+ERROR_CODES = frozenset({
+    "ADMISSION_FULL", "ADMISSION_UNAVAILABLE", "DATABASE_UNAVAILABLE", "RESOURCE_BUSY",
+    "SEAT_BUSY", "SEAT_UNAVAILABLE", "SEATMAP_WARMING", "SEATMAP_UNAVAILABLE",
+    "RATE_LIMITED", "UNAUTHENTICATED", "IDEMPOTENCY_MISMATCH", "SALE_CLOSED",
+    "EVENT_NOT_FOUND", "SEAT_NOT_FOUND", "INVALID_REQUEST", "INVALID_SEATS",
+})
+
+
+def error_diagnostic(response):
+    try:
+        body = response.json()
+    except ValueError:
+        body = None
+    code = body.get("code") if isinstance(body, dict) else None
+    code = code if isinstance(code, str) and code in ERROR_CODES else "OTHER"
+    request_id = response.headers.get("X-Request-ID")
+    try:
+        from uuid import UUID
+        request_id = str(UUID(request_id)) if request_id else None
+    except (ValueError, TypeError, AttributeError):
+        request_id = None
+    return code, request_id
+
+
 async def run(args):
     manifest = json.loads(args.manifest.read_text())
     if manifest.get("schema_version") != 1 or manifest.get("environment") != "development":
@@ -39,6 +63,7 @@ async def run(args):
     drop_reasons = Counter()
     validators, pending, lags = {}, set(), []
     task_errors = Counter()
+    error_codes, error_examples = Counter(), []
     run_id = str(uuid4())
     async with httpx.AsyncClient(
         base_url=args.origin,
@@ -88,6 +113,12 @@ async def run(args):
                         validators[viewer] = response.headers["etag"]
                 status = str(response.status_code)
                 bytes_received += len(response.content)
+                if response.status_code not in ({201} if write else {200, 304}):
+                    code, request_id = error_diagnostic(response)
+                    error_codes[f"{operation}:{status}:{code}"] += 1
+                    if len(error_examples) < 20:
+                        error_examples.append({"operation": operation, "status": status,
+                                               "code": code, "request_id": request_id})
             except httpx.HTTPError as exc:
                 status = "transport_error"
                 transport_errors[type(exc).__name__] += 1
@@ -163,6 +194,8 @@ async def run(args):
         "write_percent": 5,
         "generator_drops": drops,
         "drop_reasons": dict(drop_reasons),
+        "error_codes": dict(error_codes),
+        "error_examples": error_examples,
         "transport_error_types": dict(transport_errors),
         "task_error_types": dict(task_errors),
         "scheduling_lag_p95_ms": percentile(lags, 0.95),

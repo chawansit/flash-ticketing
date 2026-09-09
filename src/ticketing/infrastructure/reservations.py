@@ -7,7 +7,7 @@ from psycopg.types.json import Jsonb
 
 from ticketing.application.ports import Database, SeatCache
 from ticketing.domain import Failure, payment_decision
-from ticketing.observability import OUTCOMES, REQUEST_ID
+from ticketing.observability import OUTCOMES, REQUEST_ID, TimedHoldResource, hold_phase
 
 
 def digest(value):
@@ -68,7 +68,11 @@ class PostgresReservations:
         request = {"event_id": str(event_id), "seats": seats}
         # Admission precedes every DB access. A concurrent replay can return SEAT_BUSY;
         # replaying the same key after the original request completes returns its result.
-        with self.cache.shield(str(event_id), seats), self.db.transaction() as conn:
+        with (
+            TimedHoldResource("redis", self.cache.shield(str(event_id), seats)),
+            TimedHoldResource("db", self.db.transaction()) as conn,
+            hold_phase("database_body"),
+        ):
             replay = idem(conn, actor, "hold", key, request)
             if replay is not None:
                 return replay
