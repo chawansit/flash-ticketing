@@ -1,12 +1,15 @@
 import hashlib
 import json
+from collections import OrderedDict
 from contextlib import contextmanager
+from threading import Lock
 from uuid import uuid4
 
 from redis import Redis
 from redis.exceptions import RedisError
 
 from ticketing.domain import Failure
+from ticketing.observability import BROWSE_BODY_BYTES, BROWSE_BODY_ENTRIES, BROWSE_BODY_OUTCOMES
 
 ACQUIRE = """
 for i,k in ipairs(KEYS) do if redis.call('EXISTS',k)==1 then return 0 end end
@@ -79,7 +82,14 @@ local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],1) 
 
 
 class RedisSeats:
-    def __init__(self, url):
+    def __init__(self, url, *, browse_entries=2048, browse_bytes=32 * 1024 * 1024):
+        if browse_entries < 0 or browse_bytes < 0:
+            raise ValueError("Browse cache limits must be nonnegative")
+        self._browse_entries = browse_entries
+        self._browse_bytes = browse_bytes
+        self._bodies = OrderedDict()
+        self._body_bytes = 0
+        self._body_lock = Lock()
         self.redis = Redis.from_url(
             url, decode_responses=True, socket_timeout=0.1, socket_connect_timeout=0.1
         )
@@ -178,3 +188,40 @@ class RedisSeats:
                 ],
             },
         )
+
+
+    def browse_encoded(self, event, kind, if_none_match=None):
+        """Reuse immutable JSON only after the atomic Redis validator confirms it."""
+        key = (str(event), kind)
+        with self._body_lock:
+            cached = self._bodies.get(key)
+            if cached is not None:
+                self._bodies.move_to_end(key)
+        validators = if_none_match or ""
+        if cached is not None:
+            validators += "," + cached[0]
+        status, tag, body = self.browse(event, kind, validators)
+        if status == 304:
+            client_tags = [part.strip().removeprefix("W/") for part in (if_none_match or "").split(",")]
+            if "*" in client_tags or tag in client_tags:
+                BROWSE_BODY_OUTCOMES.labels("client_304").inc()
+                return 304, tag, None
+            # This reference remains valid even if another request evicts the entry.
+            assert cached is not None and cached[0] == tag
+            BROWSE_BODY_OUTCOMES.labels("reuse").inc()
+            return 200, tag, cached[1]
+        encoded = json.dumps(body, ensure_ascii=False, allow_nan=False, separators=(",", ":")).encode()
+        BROWSE_BODY_OUTCOMES.labels("serialize").inc()
+        with self._body_lock:
+            previous = self._bodies.pop(key, None)
+            if previous is not None:
+                self._body_bytes -= len(previous[1])
+            if self._browse_entries and len(encoded) <= self._browse_bytes:
+                self._bodies[key] = (tag, encoded)
+                self._body_bytes += len(encoded)
+                while len(self._bodies) > self._browse_entries or self._body_bytes > self._browse_bytes:
+                    _, removed = self._bodies.popitem(last=False)
+                    self._body_bytes -= len(removed[1])
+            BROWSE_BODY_BYTES.set(self._body_bytes)
+            BROWSE_BODY_ENTRIES.set(len(self._bodies))
+        return 200, tag, encoded

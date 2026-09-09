@@ -149,3 +149,10 @@ class TimedHoldResource:
     def __exit__(self, *exc):
         with hold_phase(self.phase + "_exit"):
             return self.resource.__exit__(*exc)
+
+
+BROWSE_BODY_OUTCOMES = Counter(
+    "ticketing_browse_body_total", "Redis-validated browse representation outcomes", ["outcome"]
+)
+BROWSE_BODY_BYTES = Gauge("ticketing_browse_body_bytes", "Retained serialized browse payload bytes")
+BROWSE_BODY_ENTRIES = Gauge("ticketing_browse_body_entries", "Retained serialized browse representations")

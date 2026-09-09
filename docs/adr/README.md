@@ -27,3 +27,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0015: Hold-path diagnostics](0015-hold-path-diagnostics.md)
 
 - [0016: Isolated reconciliation worker](0016-isolated-reconciliation-worker.md)
+
+- [0017: Redis-validated bounded browse bodies](0017-validated-browse-body-cache.md)

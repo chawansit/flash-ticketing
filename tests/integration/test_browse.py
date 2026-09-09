@@ -120,3 +120,52 @@ def test_atomic_validator_body_during_updates(browse_system):
             assert status == 200
             assert tag.endswith(":" + str(body["version"]) + '"')
         future.result()
+
+
+def test_encoded_reuse_still_checks_redis_and_incarnation(browse_system, monkeypatch):
+    _, db, event, cache, client = browse_system
+    path = f"/v1/events/{event}/availability"
+    first = client.get(path)
+    # Reusing the retained version must skip decoding even for a new viewer.
+    cache.redis.hset(cache.key(event), "seat:A", "invalid seat JSON")
+    second = client.get(path)
+    assert second.status_code == 200
+    assert second.content == first.content
+    assert second.headers["etag"] == first.headers["etag"]
+    assert second.headers["content-type"] == "application/json"
+    cache.redis.delete(cache.key(event))
+    assert client.get(path).status_code == 503
+    snapshot(db, cache, event)
+    rebuilt = client.get(path)
+    assert rebuilt.status_code == 200
+    assert rebuilt.headers["etag"] != first.headers["etag"]
+    from redis.exceptions import ConnectionError
+
+    def offline(*_):
+        raise ConnectionError("offline")
+
+    monkeypatch.setattr(cache.redis, "eval", offline)
+    assert client.get(path).status_code == 503
+
+
+def test_encoded_validator_body_remains_consistent_during_updates(browse_system):
+    import json
+
+    _, _, event, cache, _ = browse_system
+
+    def writer():
+        for version in range(1, 61):
+            cache.patch(event, [{"seat_id": "A", "source_version": version,
+                                 "price": 100, "status": "HELD", "reserved_until": None}])
+
+    def reader():
+        for _ in range(60):
+            status, tag, encoded = cache.browse_encoded(event, "availability")
+            body = json.loads(encoded)
+            assert status == 200
+            assert tag.endswith(":" + str(body["version"]) + '"')
+
+    with ThreadPoolExecutor(max_workers=5) as pool:
+        futures = [pool.submit(writer)] + [pool.submit(reader) for _ in range(4)]
+        for future in futures:
+            future.result()

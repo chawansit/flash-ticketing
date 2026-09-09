@@ -282,14 +282,14 @@ BROWSE_RESPONSES = {**ERRORS, 304: {"description": "Unchanged representation; no
 
 
 def browse_response(request, event_id, kind, validator):
-    status, etag, body = request.app.state.cache.browse(str(event_id), kind, validator)
+    status, etag, body = request.app.state.cache.browse_encoded(str(event_id), kind, validator)
     headers = {
         "ETag": "W/" + etag,
         "Cache-Control": "public, max-age=3600, must-revalidate" if kind == "layout" else "private, no-cache",
     }
     if status == 304:
         return Response(status_code=304, headers=headers)
-    return JSONResponse(body, headers=headers)
+    return Response(body, media_type="application/json", headers=headers)
 
 
 @app.get(
