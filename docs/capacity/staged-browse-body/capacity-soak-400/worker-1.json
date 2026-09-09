@@ -1,0 +1,60 @@
+{
+  "utc": "2026-09-09T13:11:20.365011+00:00",
+  "measured_started_utc": "2026-09-09T12:41:20.363066+00:00",
+  "manifest_id": "8e4b8dd6-ba8a-48ab-9a63-16ceb0831935",
+  "run_id": "e74636e1-b0b8-45dc-843f-bbc15248b327",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 100,
+  "seconds": 1800,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "error_codes": {},
+  "error_examples": [],
+  "transport_error_types": {},
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.2130860050092451,
+  "generator_cpu_seconds": 325.901718105,
+  "elapsed_seconds": 1799.993848744998,
+  "completed_rps": 100.00034173755684,
+  "statuses": {
+    "read": {
+      "304": 89002,
+      "200": 81998
+    },
+    "hold": {
+      "201": 9000
+    }
+  },
+  "response_body_bytes": 1530591920,
+  "latency_ms": {
+    "read:304": {
+      "p50": 3.4210680023534223,
+      "p95": 7.148952994612046,
+      "p99": 18.96490199578693
+    },
+    "hold:201": {
+      "p50": 16.243086000031326,
+      "p95": 41.90636400016956,
+      "p99": 69.847694998316
+    },
+    "read:200": {
+      "p50": 3.9013959976728074,
+      "p95": 10.995085998729337,
+      "p99": 25.523383999825455
+    }
+  },
+  "read_p95_ms": 9.427614997548517,
+  "hold_p95_ms": 41.90636400016956,
+  "local_read_gate_pass": true,
+  "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": true
+}

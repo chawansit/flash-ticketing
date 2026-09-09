@@ -107,4 +107,6 @@ Follow-up: [three-minute read and expiry validation](reconciliation/sustained-va
 
 Earlier measured result: [isolated reconciliation, 352 RPS for 30 minutes](huawei-isolated-reconciliation/README.md). No seat-map warming errors observed; 83 admission rejections remain, so the overall zero-error gate failed.
 
-Latest sustained result: [Redis-validated browse bodies, 352 RPS for 30 minutes](validated-browse-body/README.md): 633,600 completed requests, zero errors/drops; read p95 13.217 ms and hold p95 43.976 ms. This is a verified operating point for the measured workload, not a maximum capacity claim.
+Earlier sustained result: [Redis-validated browse bodies, 352 RPS for 30 minutes](validated-browse-body/README.md): 633,600 completed requests, zero errors/drops; read p95 13.217 ms and hold p95 43.976 ms. This is a verified operating point for the measured workload, not a maximum capacity claim.
+
+Latest staged validation: [400 RPS sustained; 500 RPS rejected requests](staged-browse-body/README.md). 400 RPS passed 30 minutes with 720,000 requests and zero errors/drops. 500 RPS failed the five-minute gate with 45 admission rejections; 650/800 were not run.

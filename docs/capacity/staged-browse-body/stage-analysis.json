@@ -1,0 +1,65 @@
+{
+  "capacity-400": {
+    "started_utc": "2026-09-09T12:27:15.204525+00:00",
+    "statuses": {
+      "read:304": 67245,
+      "read:200": 46755,
+      "hold:201": 6000
+    },
+    "error_codes": {},
+    "observer": {
+      "samples": 150,
+      "observer_errors": 0,
+      "max_missing_maps": 0,
+      "max_database_connections": 14,
+      "max_lock_waiters": 0,
+      "max_reconciliation_age_seconds": 20.633018,
+      "max_oldest_overdue_seconds": 0.270389
+    }
+  },
+  "capacity-500": {
+    "started_utc": "2026-09-09T12:33:02.787885+00:00",
+    "statuses": {
+      "read:304": 81715,
+      "read:200": 60785,
+      "hold:201": 7455,
+      "hold:503": 45
+    },
+    "error_codes": {
+      "hold:503:ADMISSION_FULL": 45
+    },
+    "observer": {
+      "samples": 149,
+      "observer_errors": 0,
+      "max_missing_maps": 0,
+      "max_database_connections": 14,
+      "max_lock_waiters": 0,
+      "max_reconciliation_age_seconds": 20.584055,
+      "max_oldest_overdue_seconds": 6.253474
+    }
+  },
+  "capacity-soak-400": {
+    "started_utc": "2026-09-09T12:41:20.337256+00:00",
+    "statuses": {
+      "read:304": 356010,
+      "read:200": 327990,
+      "hold:201": 36000
+    },
+    "error_codes": {},
+    "observer": {
+      "samples": 889,
+      "observer_errors": 0,
+      "max_missing_maps": 0,
+      "max_database_connections": 14,
+      "max_lock_waiters": 0,
+      "max_reconciliation_age_seconds": 20.454391,
+      "max_oldest_overdue_seconds": 0.49608
+    }
+  },
+  "source_verification": {
+    "backend_commit": "6d1cde1",
+    "coordinator_commit": "5bb9e6b",
+    "verified": true,
+    "line_endings": "CRLF"
+  }
+}

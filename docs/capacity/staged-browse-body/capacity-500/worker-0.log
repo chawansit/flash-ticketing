@@ -1,0 +1,139 @@
+{"phase": "measuring", "rate": 125, "seconds": 300, "utc": "2026-09-09T12:33:02.787885+00:00"}
+{"phase": "progress", "scheduled": 3750, "drops": 0}
+{"phase": "progress", "scheduled": 7500, "drops": 0}
+{"phase": "progress", "scheduled": 11250, "drops": 0}
+{"phase": "progress", "scheduled": 15000, "drops": 0}
+{"phase": "progress", "scheduled": 18750, "drops": 0}
+{"phase": "progress", "scheduled": 22500, "drops": 0}
+{"phase": "progress", "scheduled": 26250, "drops": 0}
+{"phase": "progress", "scheduled": 30000, "drops": 0}
+{"phase": "progress", "scheduled": 33750, "drops": 0}
+{
+  "utc": "2026-09-09T12:38:02.798544+00:00",
+  "measured_started_utc": "2026-09-09T12:33:02.787885+00:00",
+  "manifest_id": "b2e538e8-6493-4b15-874e-7426d587dda2",
+  "run_id": "634b717b-d400-4247-a3cb-247dbbcc248c",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 125,
+  "seconds": 300,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "error_codes": {
+    "hold:503:ADMISSION_FULL": 10
+  },
+  "error_examples": [
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "d2c72f3d-5454-46c0-b0d7-06268dcb4070"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "bb0f8e64-07c0-4d3b-a726-6c0bdba3d781"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "556119df-348d-4ddf-bcff-7c4090e9e5d6"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "a0653308-2455-4a70-bced-ed31a3594861"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "d117c7c0-3195-45c7-ae53-25272a911fa2"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "6ccd85ac-9f8f-4340-b086-c89c46a7ec0a"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "50f2d939-ec44-4b63-a22b-7618365355c8"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "02dd37ab-8a6c-4ea3-9ea3-680320219f05"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "10d8f43e-cb92-488e-9b4d-af2ba938d538"
+    },
+    {
+      "operation": "hold",
+      "status": "503",
+      "code": "ADMISSION_FULL",
+      "request_id": "ad388e8e-a3cd-4d6e-b6d0-3f3b12876f7f"
+    }
+  ],
+  "transport_error_types": {},
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.0629719981807284,
+  "generator_cpu_seconds": 70.06255829700001,
+  "elapsed_seconds": 300.00873326899455,
+  "completed_rps": 124.9963612438464,
+  "statuses": {
+    "read": {
+      "304": 20421,
+      "200": 15204
+    },
+    "hold": {
+      "201": 1865,
+      "503": 10
+    }
+  },
+  "response_body_bytes": 283941025,
+  "latency_ms": {
+    "read:304": {
+      "p50": 4.164525002124719,
+      "p95": 30.933365000237245,
+      "p99": 157.69032599928323
+    },
+    "hold:201": {
+      "p50": 24.90392299660016,
+      "p95": 87.97318000142695,
+      "p99": 318.0949360030354
+    },
+    "read:200": {
+      "p50": 5.107978002342861,
+      "p95": 46.267587997135706,
+      "p99": 204.96634300070582
+    },
+    "hold:503": {
+      "p50": 49.97098699823255,
+      "p95": 132.45361300505465,
+      "p99": 132.45361300505465
+    }
+  },
+  "read_p95_ms": 37.66560099757044,
+  "hold_p95_ms": 88.47585600597085,
+  "local_read_gate_pass": false,
+  "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": false
+}

@@ -1,6 +1,6 @@
 # ADR 0014: Private-network capacity benchmark
 
-Status: Accepted; benchmark executed. Sustained 352-RPS zero-error gate failed.
+Status: Accepted; historical and latest staged validation results recorded below.
 
 ## Context
 Windows generation dropped arrivals at 100 RPS without backend errors. The user supplied
@@ -86,4 +86,10 @@ rates explicitly. This extends harness allocation only; no runtime architecture,
 locking, messaging, TTL, admission or persistence decision changes. Do not round the
 requested aggregate rate. Preserve failed results and distinguish generator limits
 from backend limits. Sustained fixtures use a separate seat range after expiry drain.
-Validation results will be linked after execution.
+[Executed staged validation](../capacity/staged-browse-body/README.md): 400 RPS passed
+five minutes; 500 RPS had 45 ADMISSION_FULL responses in five minutes, so 650/800
+were not run. After expiry/queue drain, 400 RPS passed 30 minutes: 720,000 requests,
+zero errors/drops, read/hold p95 9.428/41.906 ms. All 49,455 accepted holds across
+the runs passed durability/expiry checks. Two coordinator CLI tests and two cloud
+end-to-end tests passed; the full application suite was not rerun. This is a
+verified operating point, not an exact production maximum.
