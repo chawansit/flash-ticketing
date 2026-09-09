@@ -1,0 +1,568 @@
+{
+  "status_counts": [
+    {
+      "route": "/v1/events/{event_id}/availability",
+      "status": 304,
+      "count": 319186
+    },
+    {
+      "route": "/v1/holds",
+      "status": 201,
+      "count": 31660
+    },
+    {
+      "route": "/v1/events/{event_id}/availability",
+      "status": 200,
+      "count": 282734
+    },
+    {
+      "route": "/health/ready",
+      "status": 200,
+      "count": 336
+    },
+    {
+      "route": "/metrics",
+      "status": 200,
+      "count": 364
+    },
+    {
+      "route": "/v1/holds",
+      "status": 503,
+      "count": 20
+    }
+  ],
+  "failures": [
+    {
+      "time": "2026-09-08T17:02:18.161751+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "03cd4d02-f305-46d2-93fc-973be84f39f1",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.08
+    },
+    {
+      "time": "2026-09-08T17:02:18.166979+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "755724f3-4634-440a-bc0a-de3b4f50ac35",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.09
+    },
+    {
+      "time": "2026-09-08T17:02:18.173635+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "a3bf70a9-1f94-4097-97b6-6d70975bdd45",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.08
+    },
+    {
+      "time": "2026-09-08T17:02:18.174070+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "ded8c29a-4238-4ffb-95fc-c9fc51bf7bdd",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.06
+    },
+    {
+      "time": "2026-09-08T17:02:18.363658+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "f7444f15-a109-402f-aa47-0442b0de69a8",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.05
+    },
+    {
+      "time": "2026-09-08T17:02:18.368094+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "ee37b86e-4259-4867-9dfc-410330663a24",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.08
+    },
+    {
+      "time": "2026-09-08T17:02:18.598089+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "b5903d79-ce64-4ad2-8e5d-62f843914f6c",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.04
+    },
+    {
+      "time": "2026-09-08T17:02:18.598487+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "1150f35c-6f5e-4ab9-a501-ae2c6d1f3cee",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.09
+    },
+    {
+      "time": "2026-09-08T17:08:01.274096+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "def6486c-ea51-42e9-8be4-9fa74a0a2853",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.06
+    },
+    {
+      "time": "2026-09-08T17:08:01.274658+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "3e544eb6-0341-440c-89d1-a4118936cf88",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.06
+    },
+    {
+      "time": "2026-09-08T17:08:01.275090+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "55cd1e5a-6be9-4e2d-81e9-ab1a521b3dba",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.05
+    },
+    {
+      "time": "2026-09-08T17:08:01.275519+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "90ded4ab-0be9-4d16-ad8d-3663f5cb59f0",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.05
+    },
+    {
+      "time": "2026-09-08T17:08:01.315455+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "35d32370-9033-4241-8af6-e643b50266b4",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.06
+    },
+    {
+      "time": "2026-09-08T17:08:01.316710+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "4c3c889a-5f3b-4149-a8a1-2b661886cd40",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.05
+    },
+    {
+      "time": "2026-09-08T17:08:01.571057+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "31685127-c69c-4c48-b6bf-1e473e7fe5e6",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.05
+    },
+    {
+      "time": "2026-09-08T17:08:01.571926+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "e90bf15f-7cac-4b1f-a6d8-cfc8b411748d",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.1
+    },
+    {
+      "time": "2026-09-08T17:08:01.961826+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "db9762e8-8d50-4761-81b5-0717c672b02f",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.06
+    },
+    {
+      "time": "2026-09-08T17:08:01.966341+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "a436a46d-f404-4cc1-9a1f-d3d26576af52",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.07
+    },
+    {
+      "time": "2026-09-08T17:08:01.987083+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "416f89f7-bc67-4395-834d-32aa5b1fc026",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.07
+    },
+    {
+      "time": "2026-09-08T17:08:01.987793+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "5c2a0848-9877-4aca-a9d8-f23453ad363f",
+      "route": "/v1/holds",
+      "status": 503,
+      "duration_ms": 0.07
+    }
+  ],
+  "holds_over_300ms": [
+    {
+      "time": "2026-09-08T17:02:18.282592+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "c1264bc8-2d5f-49c3-af86-1f55452ff828",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 606.2
+    },
+    {
+      "time": "2026-09-08T17:02:18.381132+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "a4e632cd-a5e2-4144-bd5c-51278ef35338",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 610.57
+    },
+    {
+      "time": "2026-09-08T17:02:18.403682+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "68138c31-90b8-4844-8f68-8b7bc6fe8844",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 633.23
+    },
+    {
+      "time": "2026-09-08T17:02:18.404564+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "a9b7a235-48d1-4580-b38c-3b0339f4b57c",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 633.71
+    },
+    {
+      "time": "2026-09-08T17:02:18.611065+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "6c068644-d83c-4b1c-a583-99f455097f6f",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 697.37
+    },
+    {
+      "time": "2026-09-08T17:02:18.613740+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "2681f5b2-6dd9-42ec-a80d-8c1b6884d872",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 699.96
+    },
+    {
+      "time": "2026-09-08T17:02:18.617028+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "e66e53cd-0033-41df-87be-24101ae7358b",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 703.43
+    },
+    {
+      "time": "2026-09-08T17:02:18.696014+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "7292cce7-9797-4575-9121-309a83c40c03",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 690.78
+    },
+    {
+      "time": "2026-09-08T17:02:18.883034+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "b08bc421-00d0-4007-89e8-2682e3da4732",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 519.52
+    },
+    {
+      "time": "2026-09-08T17:02:18.908186+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "1092f3cb-6fbd-435c-ba9c-131d783241eb",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 479.32
+    },
+    {
+      "time": "2026-09-08T17:02:18.999659+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "d4f0e9ca-f3d6-4457-bfdb-897bfa9215da",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 401.78
+    },
+    {
+      "time": "2026-09-08T17:02:18.999910+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "7b4eb57d-b630-48d7-925d-ae444c6c6d85",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 401.96
+    },
+    {
+      "time": "2026-09-08T17:02:19.118385+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "15eac60c-8e9f-4a9d-8156-b48b1c33f030",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 321.44
+    },
+    {
+      "time": "2026-09-08T17:02:19.133848+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "ba4b798b-020f-46fc-a4c2-f2cce7240107",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 336.69
+    },
+    {
+      "time": "2026-09-08T17:02:19.135274+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "9e315194-db84-453d-8c29-896687da6484",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 338.02
+    },
+    {
+      "time": "2026-09-08T17:02:19.136223+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "862eb740-d67b-4ea5-b1d2-150a0e955396",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 339.15
+    },
+    {
+      "time": "2026-09-08T17:08:01.308139+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "00da136c-2f40-4900-9363-40145a4b04c7",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 695.35
+    },
+    {
+      "time": "2026-09-08T17:08:01.308486+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "5dc2087e-a419-4553-98ac-24e2a5d4c1c0",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 695.58
+    },
+    {
+      "time": "2026-09-08T17:08:01.365197+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "9ac88c1b-e840-471d-8eca-0e7d6ed4f940",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 752.46
+    },
+    {
+      "time": "2026-09-08T17:08:01.365827+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "46fe83de-6897-444b-8979-ddd3afd5f679",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 697.26
+    },
+    {
+      "time": "2026-09-08T17:08:01.670204+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "ae9dd0de-7b50-4690-95c9-43125e119a2c",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 809.91
+    },
+    {
+      "time": "2026-09-08T17:08:01.675624+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "5e1cf8c3-b7b0-47be-b261-650b040169d2",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 815.25
+    },
+    {
+      "time": "2026-09-08T17:08:01.732263+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "308d5a8d-c8ef-4e77-8564-68130aa3198d",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 835.02
+    },
+    {
+      "time": "2026-09-08T17:08:01.732669+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "ea805213-4836-4e96-9eae-1963e9cf12f6",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 835.36
+    },
+    {
+      "time": "2026-09-08T17:08:02.002496+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "c737c897-23ea-4d38-a8dd-4942eae9779d",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 688.59
+    },
+    {
+      "time": "2026-09-08T17:08:02.004206+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "c9ec1028-1ed9-4509-8a01-b1b652eb065a",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 690.19
+    },
+    {
+      "time": "2026-09-08T17:08:02.064260+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "57c69da2-06d6-4b3c-976c-cb963f2054d2",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 493.48
+    },
+    {
+      "time": "2026-09-08T17:08:02.101572+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "29fb0e76-8a99-4f5f-adf3-8f57537941e0",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 530.64
+    },
+    {
+      "time": "2026-09-08T17:08:02.139191+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "26aeb326-48d5-4a11-abc1-68e236f09749",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 374.91
+    },
+    {
+      "time": "2026-09-08T17:08:02.145053+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "91699715-d63a-44bc-8e80-e4f0d244f686",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 385.6
+    },
+    {
+      "time": "2026-09-08T17:08:02.155930+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "414a756f-bbca-4d1f-9b52-16268ddd544c",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 377.93
+    },
+    {
+      "time": "2026-09-08T17:08:02.158152+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "38220dbb-640b-4c80-a6e7-ef7637c690c0",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 379.63
+    },
+    {
+      "time": "2026-09-08T17:17:16.369636+00:00",
+      "level": "INFO",
+      "logger": "ticketing.api",
+      "message": "request",
+      "request_id": "8c9c1ae7-d6b9-4375-8541-d65c95e4c066",
+      "route": "/v1/holds",
+      "status": 201,
+      "duration_ms": 303.17
+    }
+  ]
+}

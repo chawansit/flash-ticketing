@@ -21,3 +21,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [Separate fixture preparation and HTTP load generation](0012-separated-load-generation.md)
 
 - [0013: Single-ECS capacity validation](0013-single-ecs-capacity-validation.md)
+
+- [0014: Private-network cloud capacity benchmark](0014-private-cloud-capacity-benchmark.md)

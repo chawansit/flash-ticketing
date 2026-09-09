@@ -1,0 +1,179 @@
+{
+  "observations": {
+    "samples": 890,
+    "errors": 0,
+    "max_missing_maps": 0,
+    "max_database_connections": 13,
+    "max_lock_waiters": 0,
+    "max_reconciliation_age_seconds": 28.018494,
+    "max_oldest_overdue_seconds": 0.754431,
+    "max_redis_used_bytes": 50783504
+  },
+  "database": [
+    {
+      "instance": "api:8000",
+      "metric": "ticketing_db_pool_acquire_seconds",
+      "mean_ms": 0.02358037945799624,
+      "p95_bucket_upper_ms": 5.0,
+      "observations": 31972.0
+    },
+    {
+      "instance": "consumer:9101",
+      "metric": "ticketing_db_pool_acquire_seconds",
+      "mean_ms": 0.017593085297910663,
+      "p95_bucket_upper_ms": 5.0,
+      "observations": 61150.0
+    },
+    {
+      "instance": "maintenance:9101",
+      "metric": "ticketing_db_pool_acquire_seconds",
+      "mean_ms": 0.012159677078211834,
+      "p95_bucket_upper_ms": 5.0,
+      "observations": 213866.0
+    },
+    {
+      "instance": "publisher:9101",
+      "metric": "ticketing_db_pool_acquire_seconds",
+      "mean_ms": 0.021438678443728106,
+      "p95_bucket_upper_ms": 5.0,
+      "observations": 51767.0
+    },
+    {
+      "instance": "simulator:9101",
+      "metric": "ticketing_db_pool_acquire_seconds",
+      "mean_ms": 0.01830448798307467,
+      "p95_bucket_upper_ms": 5.0,
+      "observations": 68656.0
+    },
+    {
+      "instance": "maintenance:9101",
+      "metric": "ticketing_db_query_seconds",
+      "mean_ms": 1.2198938502429437,
+      "p95_bucket_upper_ms": 25.0,
+      "observations": 1067295.0
+    },
+    {
+      "instance": "api:8000",
+      "metric": "ticketing_db_query_seconds",
+      "mean_ms": 1.2279276779931954,
+      "p95_bucket_upper_ms": 5.0,
+      "observations": 410932.0
+    },
+    {
+      "instance": "consumer:9101",
+      "metric": "ticketing_db_query_seconds",
+      "mean_ms": 0.30731488279318553,
+      "p95_bucket_upper_ms": 5.0,
+      "observations": 305750.0
+    },
+    {
+      "instance": "publisher:9101",
+      "metric": "ticketing_db_query_seconds",
+      "mean_ms": 0.3351940400841958,
+      "p95_bucket_upper_ms": 5.0,
+      "observations": 258835.0
+    },
+    {
+      "instance": "simulator:9101",
+      "metric": "ticketing_db_query_seconds",
+      "mean_ms": 0.5311532651042352,
+      "p95_bucket_upper_ms": 5.0,
+      "observations": 274624.0
+    },
+    {
+      "instance": "api:8000",
+      "metric": "ticketing_db_transaction_seconds",
+      "mean_ms": 19.323748793225274,
+      "p95_bucket_upper_ms": 50.0,
+      "observations": 31972.0
+    },
+    {
+      "instance": "consumer:9101",
+      "metric": "ticketing_db_transaction_seconds",
+      "mean_ms": 3.0377467792144417,
+      "p95_bucket_upper_ms": 10.0,
+      "observations": 61150.0
+    },
+    {
+      "instance": "maintenance:9101",
+      "metric": "ticketing_db_transaction_seconds",
+      "mean_ms": 7.049930714128476,
+      "p95_bucket_upper_ms": 50.0,
+      "observations": 213865.0
+    },
+    {
+      "instance": "publisher:9101",
+      "metric": "ticketing_db_transaction_seconds",
+      "mean_ms": 3.035633539881071,
+      "p95_bucket_upper_ms": 10.0,
+      "observations": 51767.0
+    },
+    {
+      "instance": "simulator:9101",
+      "metric": "ticketing_db_transaction_seconds",
+      "mean_ms": 3.3269180715306823,
+      "p95_bucket_upper_ms": 10.0,
+      "observations": 68656.0
+    }
+  ],
+  "worker_operation_wall_time": [
+    {
+      "instance": "consumer:9101",
+      "operation": "consume_event",
+      "wall_time_fraction": 0.1073068499322441
+    },
+    {
+      "instance": "maintenance:9101",
+      "operation": "reconcile_batch",
+      "wall_time_fraction": 0.2724337187555626
+    },
+    {
+      "instance": "maintenance:9101",
+      "operation": "reconcile_schedule",
+      "wall_time_fraction": 0.0017582022938878103
+    },
+    {
+      "instance": "maintenance:9101",
+      "operation": "refresh_one",
+      "wall_time_fraction": 0.041062996221672844
+    },
+    {
+      "instance": "maintenance:9101",
+      "operation": "snapshot",
+      "wall_time_fraction": 0.18266585242336975
+    },
+    {
+      "instance": "publisher:9101",
+      "operation": "publish_batch",
+      "wall_time_fraction": 0.11611520158832175
+    },
+    {
+      "instance": "simulator:9101",
+      "operation": "simulate_one",
+      "wall_time_fraction": 0.13229628069950017
+    }
+  ],
+  "scrape_health": {
+    "api:8000": {
+      "minimum": 1.0,
+      "samples": 121
+    },
+    "consumer:9101": {
+      "minimum": 1.0,
+      "samples": 121
+    },
+    "maintenance:9101": {
+      "minimum": 1.0,
+      "samples": 121
+    },
+    "publisher:9101": {
+      "minimum": 1.0,
+      "samples": 121
+    },
+    "simulator:9101": {
+      "minimum": 1.0,
+      "samples": 121
+    }
+  },
+  "metric_note": "Differences between first/last 15-second exported samples; histogram p95 is a bucket upper bound, not exact. Worker wall time includes I/O and operations may nest."
+}

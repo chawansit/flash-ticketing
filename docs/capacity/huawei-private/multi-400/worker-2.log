@@ -1,0 +1,70 @@
+{"phase": "measuring", "rate": 100, "seconds": 180, "utc": "2026-09-08T10:45:48.955565+00:00"}
+{"phase": "progress", "scheduled": 3000, "drops": 0}
+{"phase": "progress", "scheduled": 6000, "drops": 0}
+{"phase": "progress", "scheduled": 9000, "drops": 0}
+{"phase": "progress", "scheduled": 12000, "drops": 0}
+{"phase": "progress", "scheduled": 15000, "drops": 0}
+{
+  "utc": "2026-09-08T10:48:49.047302+00:00",
+  "measured_started_utc": "2026-09-08T10:45:48.955565+00:00",
+  "manifest_id": "654adf3d-2fa7-4cdf-9f1a-9e472c68a549",
+  "run_id": "0cd2e4a8-6ccc-4e5c-a7a3-1b8f2387b2ed",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 100,
+  "seconds": 180,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "transport_error_types": {},
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.701307000075758,
+  "generator_cpu_seconds": 32.806568454,
+  "elapsed_seconds": 180.09007152200002,
+  "completed_rps": 99.94998529278222,
+  "statuses": {
+    "read": {
+      "304": 11498,
+      "200": 5601,
+      "503": 1
+    },
+    "hold": {
+      "201": 900
+    }
+  },
+  "response_body_bytes": 104536991,
+  "latency_ms": {
+    "read:304": {
+      "p50": 4.951692000076946,
+      "p95": 17.512513000156105,
+      "p99": 58.0593739998676
+    },
+    "hold:201": {
+      "p50": 28.27877599997919,
+      "p95": 75.080423999907,
+      "p99": 161.3996579999366
+    },
+    "read:200": {
+      "p50": 11.564227000008032,
+      "p95": 38.04064199994173,
+      "p99": 83.6913519999598
+    },
+    "read:503": {
+      "p50": 130.6321059998936,
+      "p95": 130.6321059998936,
+      "p99": 130.6321059998936
+    }
+  },
+  "read_p95_ms": 26.09448299995165,
+  "hold_p95_ms": 75.080423999907,
+  "local_read_gate_pass": false,
+  "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": false
+}

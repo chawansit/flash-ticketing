@@ -36,7 +36,9 @@ async def run(args):
     statuses, latency = defaultdict(Counter), defaultdict(list)
     counts, bytes_received, drops = Counter(), 0, 0
     transport_errors = Counter()
-    validators, pending, tasks, lags = {}, set(), [], []
+    drop_reasons = Counter()
+    validators, pending, lags = {}, set(), []
+    task_errors = Counter()
     run_id = str(uuid4())
     async with httpx.AsyncClient(
         base_url=args.origin,
@@ -96,6 +98,29 @@ async def run(args):
             seconds=args.seconds + 60
         ):
             raise ValueError("Credentials expired during bootstrap; regenerate manifest")
+
+        def completed(task):
+            pending.discard(task)
+            if error := task.exception():
+                task_errors[type(error).__name__] += 1
+
+        if args.start_at:
+            delay = (datetime.fromisoformat(args.start_at) - datetime.now(UTC)).total_seconds()
+            if delay < 0:
+                raise ValueError("Missed coordinated start during bootstrap")
+            await asyncio.sleep(delay)
+        measured_started_utc = datetime.now(UTC).isoformat()
+        print(
+            json.dumps(
+                {
+                    "phase": "measuring",
+                    "rate": args.rate,
+                    "seconds": args.seconds,
+                    "utc": measured_started_utc,
+                }
+            ),
+            flush=True,
+        )
         cpu_start, start = process_time(), perf_counter()
         for index, item in enumerate(workload):
             due = start + index / args.rate
@@ -104,12 +129,14 @@ async def run(args):
             lags.append(late * 1000)
             if late > max(0.05, 1 / args.rate) or len(pending) >= args.inflight:
                 drops += 1
+                drop_reasons["late" if late > max(0.05, 1 / args.rate) else "inflight_limit"] += 1
                 continue
             task = asyncio.create_task(request(item))
             pending.add(task)
-            tasks.append(task)
-            task.add_done_callback(pending.discard)
-        await asyncio.gather(*tasks)
+            task.add_done_callback(completed)
+            if index and index % (args.rate * 30) == 0:
+                print(json.dumps({"phase": "progress", "scheduled": index, "drops": drops}), flush=True)
+        await asyncio.gather(*pending, return_exceptions=True)
         elapsed, cpu = perf_counter() - start, process_time() - cpu_start
     reads = [value for key, values in latency.items() if key.startswith("read:") for value in values]
     holds = [value for key, values in latency.items() if key.startswith("hold:") for value in values]
@@ -121,6 +148,7 @@ async def run(args):
     )
     result = {
         "utc": datetime.now(UTC).isoformat(),
+        "measured_started_utc": measured_started_utc,
         "manifest_id": manifest["id"],
         "run_id": run_id,
         "target_origin": args.origin,
@@ -134,7 +162,9 @@ async def run(args):
         "viewers": len(tokens),
         "write_percent": 5,
         "generator_drops": drops,
+        "drop_reasons": dict(drop_reasons),
         "transport_error_types": dict(transport_errors),
+        "task_error_types": dict(task_errors),
         "scheduling_lag_p95_ms": percentile(lags, 0.95),
         "generator_cpu_seconds": cpu,
         "elapsed_seconds": elapsed,
@@ -149,14 +179,23 @@ async def run(args):
         "hold_p95_ms": percentile(holds, 0.95),
         "local_read_gate_pass": drops == 0
         and unexpected == 0
+        and not task_errors
         and bool(reads)
         and percentile(reads, 0.95) <= 150,
         "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
     }
+    result["reservation_gate_pass"] = bool(holds) and percentile(holds, 0.95) <= 300
+    result["accounting_pass"] = (
+        sum(sum(v.values()) for v in statuses.values()) + sum(task_errors.values()) + drops
+        == args.rate * args.seconds
+    )
+    result["workload_gate_pass"] = (
+        result["local_read_gate_pass"] and result["reservation_gate_pass"] and result["accounting_pass"]
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps(result, indent=2))
-    if not result["local_read_gate_pass"]:
+    if not result["workload_gate_pass"]:
         raise SystemExit(1)
 
 
@@ -168,10 +207,11 @@ if __name__ == "__main__":
     parser.add_argument("--rate", type=int, default=50)
     parser.add_argument("--seconds", type=int, default=180)
     parser.add_argument("--inflight", type=int, default=64)
+    parser.add_argument("--start-at", help="Optional coordinated UTC ISO start time")
     parser.add_argument(
         "--topology", choices=["same-host", "separate-host", "unverified"], default="unverified"
     )
     args = parser.parse_args()
-    if min(args.rate, args.seconds, args.inflight) < 1 or args.rate * args.seconds > 100000:
-        parser.error("Use positive limits and at most 100000 requests")
+    if min(args.rate, args.seconds, args.inflight) < 1 or args.rate * args.seconds > 2000000:
+        parser.error("Use positive limits and at most 2000000 requests")
     asyncio.run(run(args))

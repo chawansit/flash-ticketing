@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/root/flash-private-generator/http_load_generator.py", line 217, in <module>
+    asyncio.run(run(args))
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/root/flash-private-generator/http_load_generator.py", line 52, in run
+    response.raise_for_status()
+  File "/root/flash-private-generator/.venv/lib/python3.12/site-packages/httpx/_models.py", line 829, in raise_for_status
+    raise HTTPStatusError(message, request=request, response=self)
+httpx.HTTPStatusError: Server error '503 Service Unavailable' for url 'http://10.1.137.69:8000/v1/events/653f7871-9329-4d83-86f3-b663269ef24f/availability'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503

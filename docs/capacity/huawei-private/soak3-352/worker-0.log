@@ -1,0 +1,124 @@
+{"phase": "measuring", "rate": 88, "seconds": 1800, "utc": "2026-09-08T16:54:19.439093+00:00"}
+{"phase": "progress", "scheduled": 2640, "drops": 0}
+{"phase": "progress", "scheduled": 5280, "drops": 0}
+{"phase": "progress", "scheduled": 7920, "drops": 0}
+{"phase": "progress", "scheduled": 10560, "drops": 0}
+{"phase": "progress", "scheduled": 13200, "drops": 0}
+{"phase": "progress", "scheduled": 15840, "drops": 0}
+{"phase": "progress", "scheduled": 18480, "drops": 0}
+{"phase": "progress", "scheduled": 21120, "drops": 0}
+{"phase": "progress", "scheduled": 23760, "drops": 0}
+{"phase": "progress", "scheduled": 26400, "drops": 0}
+{"phase": "progress", "scheduled": 29040, "drops": 0}
+{"phase": "progress", "scheduled": 31680, "drops": 0}
+{"phase": "progress", "scheduled": 34320, "drops": 0}
+{"phase": "progress", "scheduled": 36960, "drops": 0}
+{"phase": "progress", "scheduled": 39600, "drops": 0}
+{"phase": "progress", "scheduled": 42240, "drops": 0}
+{"phase": "progress", "scheduled": 44880, "drops": 0}
+{"phase": "progress", "scheduled": 47520, "drops": 0}
+{"phase": "progress", "scheduled": 50160, "drops": 0}
+{"phase": "progress", "scheduled": 52800, "drops": 0}
+{"phase": "progress", "scheduled": 55440, "drops": 0}
+{"phase": "progress", "scheduled": 58080, "drops": 0}
+{"phase": "progress", "scheduled": 60720, "drops": 0}
+{"phase": "progress", "scheduled": 63360, "drops": 0}
+{"phase": "progress", "scheduled": 66000, "drops": 0}
+{"phase": "progress", "scheduled": 68640, "drops": 0}
+{"phase": "progress", "scheduled": 71280, "drops": 0}
+{"phase": "progress", "scheduled": 73920, "drops": 0}
+{"phase": "progress", "scheduled": 76560, "drops": 0}
+{"phase": "progress", "scheduled": 79200, "drops": 0}
+{"phase": "progress", "scheduled": 81840, "drops": 0}
+{"phase": "progress", "scheduled": 84480, "drops": 0}
+{"phase": "progress", "scheduled": 87120, "drops": 0}
+{"phase": "progress", "scheduled": 89760, "drops": 0}
+{"phase": "progress", "scheduled": 92400, "drops": 0}
+{"phase": "progress", "scheduled": 95040, "drops": 0}
+{"phase": "progress", "scheduled": 97680, "drops": 0}
+{"phase": "progress", "scheduled": 100320, "drops": 0}
+{"phase": "progress", "scheduled": 102960, "drops": 0}
+{"phase": "progress", "scheduled": 105600, "drops": 0}
+{"phase": "progress", "scheduled": 108240, "drops": 0}
+{"phase": "progress", "scheduled": 110880, "drops": 0}
+{"phase": "progress", "scheduled": 113520, "drops": 0}
+{"phase": "progress", "scheduled": 116160, "drops": 0}
+{"phase": "progress", "scheduled": 118800, "drops": 0}
+{"phase": "progress", "scheduled": 121440, "drops": 0}
+{"phase": "progress", "scheduled": 124080, "drops": 0}
+{"phase": "progress", "scheduled": 126720, "drops": 0}
+{"phase": "progress", "scheduled": 129360, "drops": 0}
+{"phase": "progress", "scheduled": 132000, "drops": 0}
+{"phase": "progress", "scheduled": 134640, "drops": 0}
+{"phase": "progress", "scheduled": 137280, "drops": 0}
+{"phase": "progress", "scheduled": 139920, "drops": 0}
+{"phase": "progress", "scheduled": 142560, "drops": 0}
+{"phase": "progress", "scheduled": 145200, "drops": 0}
+{"phase": "progress", "scheduled": 147840, "drops": 0}
+{"phase": "progress", "scheduled": 150480, "drops": 0}
+{"phase": "progress", "scheduled": 153120, "drops": 0}
+{"phase": "progress", "scheduled": 155760, "drops": 0}
+{
+  "utc": "2026-09-08T17:24:19.445570+00:00",
+  "measured_started_utc": "2026-09-08T16:54:19.439093+00:00",
+  "manifest_id": "bb6e3657-5930-4f0f-8f0a-45348c8d13d7",
+  "run_id": "a0c67345-ed7a-4b72-9ffa-ec7756f19d76",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 88,
+  "seconds": 1800,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "transport_error_types": {},
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.5369713637483073,
+  "generator_cpu_seconds": 300.743690744,
+  "elapsed_seconds": 1799.9988621640002,
+  "completed_rps": 88.00005562757293,
+  "statuses": {
+    "read": {
+      "304": 79813,
+      "200": 70667
+    },
+    "hold": {
+      "201": 7913,
+      "503": 7
+    }
+  },
+  "response_body_bytes": 1318413507,
+  "latency_ms": {
+    "read:304": {
+      "p50": 3.6399900000105845,
+      "p95": 16.091407999738294,
+      "p99": 50.47804500009079
+    },
+    "hold:201": {
+      "p50": 29.38086399990425,
+      "p95": 70.87545599983969,
+      "p99": 137.68073900018862
+    },
+    "read:200": {
+      "p50": 11.438552999607055,
+      "p95": 31.416532999628544,
+      "p99": 69.08109400001194
+    },
+    "hold:503": {
+      "p50": 75.46386099988922,
+      "p95": 245.37170899975536,
+      "p99": 245.37170899975536
+    }
+  },
+  "read_p95_ms": 24.656730000060634,
+  "hold_p95_ms": 71.06550399976186,
+  "local_read_gate_pass": false,
+  "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": false
+}

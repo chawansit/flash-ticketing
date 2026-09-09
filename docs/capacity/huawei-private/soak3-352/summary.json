@@ -1,0 +1,18 @@
+{
+  "utc": "2026-09-08T17:24:19.738418+00:00",
+  "rate": 352,
+  "seconds": 1800,
+  "workers": 4,
+  "worker_exit_codes": [
+    1,
+    1,
+    1,
+    1
+  ],
+  "start_skew_ms": 3.967,
+  "generator_drops": 0,
+  "worst_worker_read_p95_ms": 24.656730000060634,
+  "worst_worker_hold_p95_ms": 71.16259600024932,
+  "gate_pass": false,
+  "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+}
