@@ -1,0 +1,1 @@
+{"mode": "warm", "workers": 4, "contenders": 1000, "statuses": {"503": 953, "409": 46, "201": 1}, "one_http_winner_pass": true, "measurement_valid": true, "failed_total_ms": {"count": 999, "p50": 336.2297660059994, "p95": 618.584797004587, "p99": 706.4362750024884, "max": 730.1113120047376}, "connect_attempts": 0}

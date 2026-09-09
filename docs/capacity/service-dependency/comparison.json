@@ -1,0 +1,273 @@
+{
+  "baseline": {
+    "conflict_app_ms": {
+      "count": 93,
+      "p95_ms": 569.36,
+      "max_ms": 593.58
+    },
+    "conflict_dispatch_ms": {
+      "count": 93,
+      "p95_ms": 463.632,
+      "max_ms": 485.078
+    },
+    "transport_error_types": {
+      "ReadError": 1
+    },
+    "statuses": {
+      "503": 1905,
+      "409": 93,
+      "201": 2
+    },
+    "admitted_requests": 95,
+    "stages": {
+      "authentication": {
+        "submit_to_entry": {
+          "count": 95,
+          "p95_ms": 66.909,
+          "max_ms": 68.206
+        },
+        "execution": {
+          "count": 95,
+          "p95_ms": 0.13,
+          "max_ms": 0.185
+        },
+        "finish_to_resume": {
+          "count": 95,
+          "p95_ms": 63.284,
+          "max_ms": 64.453
+        }
+      },
+      "service_dependency": {
+        "submit_to_entry": {
+          "count": 95,
+          "p95_ms": 86.636,
+          "max_ms": 89.896
+        },
+        "execution": {
+          "count": 95,
+          "p95_ms": 0.005,
+          "max_ms": 0.031
+        },
+        "finish_to_resume": {
+          "count": 95,
+          "p95_ms": 88.369,
+          "max_ms": 89.275
+        }
+      },
+      "hold_handler": {
+        "submit_to_entry": {
+          "count": 95,
+          "p95_ms": 64.421,
+          "max_ms": 78.825
+        },
+        "execution": {
+          "count": 95,
+          "p95_ms": 13.338,
+          "max_ms": 27.386
+        },
+        "finish_to_resume": {
+          "count": 95,
+          "p95_ms": 66.215,
+          "max_ms": 71.497
+        }
+      }
+    },
+    "uniform": {
+      "utc": "2026-09-09T15:46:50.235713+00:00",
+      "hot_read_share": 0,
+      "burst": false,
+      "rate": 400,
+      "seconds": 300,
+      "workers": 4,
+      "worker_rates": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "worker_exit_codes": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "start_skew_ms": 4.312,
+      "generator_drops": 0,
+      "worst_worker_read_p95_ms": 14.933509002730716,
+      "worst_worker_hold_p95_ms": 58.43978600023547,
+      "gate_pass": false,
+      "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+    },
+    "uniform_statuses": {
+      "hold": {
+        "201": 6000
+      },
+      "read": {
+        "304": 67662,
+        "200": 46337,
+        "transport_error": 1
+      }
+    },
+    "waves": [
+      {
+        "directory": "service-baseline-hot-0",
+        "failed_total_ms": {
+          "count": 999,
+          "p50": 376.8841679993784,
+          "p95": 646.0879109945381,
+          "p99": 732.7752519995556,
+          "max": 762.9618549981387
+        },
+        "statuses": {
+          "503": 952,
+          "409": 47,
+          "201": 1
+        },
+        "measurement_valid": true
+      },
+      {
+        "directory": "service-baseline-hot-1",
+        "failed_total_ms": {
+          "count": 999,
+          "p50": 336.2297660059994,
+          "p95": 618.584797004587,
+          "p99": 706.4362750024884,
+          "max": 730.1113120047376
+        },
+        "statuses": {
+          "503": 953,
+          "409": 46,
+          "201": 1
+        },
+        "measurement_valid": true
+      }
+    ]
+  },
+  "candidate": {
+    "conflict_app_ms": {
+      "count": 80,
+      "p95_ms": 415.38,
+      "max_ms": 428.95
+    },
+    "conflict_dispatch_ms": {
+      "count": 80,
+      "p95_ms": 285.327,
+      "max_ms": 306.825
+    },
+    "transport_error_types": {
+      "ReadError": 1
+    },
+    "statuses": {
+      "503": 1918,
+      "409": 80,
+      "201": 2
+    },
+    "admitted_requests": 82,
+    "stages": {
+      "authentication": {
+        "submit_to_entry": {
+          "count": 82,
+          "p95_ms": 48.816,
+          "max_ms": 54.104
+        },
+        "execution": {
+          "count": 82,
+          "p95_ms": 0.135,
+          "max_ms": 0.349
+        },
+        "finish_to_resume": {
+          "count": 82,
+          "p95_ms": 85.727,
+          "max_ms": 86.006
+        }
+      },
+      "hold_handler": {
+        "submit_to_entry": {
+          "count": 82,
+          "p95_ms": 69.621,
+          "max_ms": 96.065
+        },
+        "execution": {
+          "count": 82,
+          "p95_ms": 11.669,
+          "max_ms": 22.668
+        },
+        "finish_to_resume": {
+          "count": 82,
+          "p95_ms": 85.813,
+          "max_ms": 88.115
+        }
+      }
+    },
+    "uniform": {
+      "utc": "2026-09-09T15:54:02.133837+00:00",
+      "hot_read_share": 0,
+      "burst": false,
+      "rate": 400,
+      "seconds": 300,
+      "workers": 4,
+      "worker_rates": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "worker_exit_codes": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "start_skew_ms": 10.633999999999999,
+      "generator_drops": 0,
+      "worst_worker_read_p95_ms": 13.47200499731116,
+      "worst_worker_hold_p95_ms": 51.833113000611775,
+      "gate_pass": false,
+      "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+    },
+    "uniform_statuses": {
+      "hold": {
+        "201": 6000
+      },
+      "read": {
+        "304": 66049,
+        "200": 47950,
+        "transport_error": 1
+      }
+    },
+    "waves": [
+      {
+        "directory": "service-candidate-hot-0",
+        "failed_total_ms": {
+          "count": 999,
+          "p50": 332.6898839950445,
+          "p95": 582.056282000849,
+          "p99": 653.9946220000274,
+          "max": 674.9144720015465
+        },
+        "statuses": {
+          "503": 955,
+          "409": 44,
+          "201": 1
+        },
+        "measurement_valid": true
+      },
+      {
+        "directory": "service-candidate-hot-1",
+        "failed_total_ms": {
+          "count": 999,
+          "p50": 350.86575099558104,
+          "p95": 603.3355199979269,
+          "p99": 655.8950350008672,
+          "max": 675.1441819942556
+        },
+        "statuses": {
+          "503": 963,
+          "409": 36,
+          "201": 1
+        },
+        "measurement_valid": true
+      }
+    ]
+  }
+}

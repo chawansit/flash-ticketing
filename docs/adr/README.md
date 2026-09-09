@@ -37,3 +37,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0020: Protocol ingress timing and bounded admission experiment](0020-ingress-and-admission-experiment.md)
 
 - [0021: Opt-in worker dispatch diagnostics](0021-thread-dispatch-diagnostics.md)
+
+- [0022: Inline in-memory service dependency](0022-inline-service-dependency.md)

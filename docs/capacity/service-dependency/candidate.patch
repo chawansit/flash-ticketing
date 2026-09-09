@@ -1,0 +1,13 @@
+diff --git a/src/ticketing/api.py b/src/ticketing/api.py
+index 0afc943..4879948 100644
+--- a/src/ticketing/api.py
++++ b/src/ticketing/api.py
+@@ -76,7 +76,7 @@ class Error(BaseModel):
+ ERRORS = {code: {"model": Error} for code in (401, 403, 404, 409, 422, 429, 503)}
+ 
+ 
+-def service(request: Request):
++async def service(request: Request):
+     return request.app.state.reservations
+ 
+ 

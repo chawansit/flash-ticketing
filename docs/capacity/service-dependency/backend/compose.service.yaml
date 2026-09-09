@@ -1,0 +1,9 @@
+services:
+  api:
+    environment:
+      DISPATCH_PROBE: "1"
+    volumes:
+      - ${SERVICE_API_SOURCE:-./service-baseline.py}:/usr/local/lib/python3.12/site-packages/ticketing/api.py:ro
+  tests:
+    volumes:
+      - ${SERVICE_API_SOURCE:-./service-baseline.py}:/usr/local/lib/python3.12/site-packages/ticketing/api.py:ro

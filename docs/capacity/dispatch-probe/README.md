@@ -51,3 +51,5 @@ Run `python docs/capacity/dispatch-probe/summarize.py` to regenerate summary.jso
 ## Next experiment
 
 Write an ADR before changing the service dependency to execute directly on the event loop; it performs only an in-memory lookup. Preserve synchronous Redis/PostgreSQL work and all authentication/idempotency behavior. Compare instrumented baseline and candidate in repeated order-balanced hot-seat waves plus the same 400 RPS uniform workload, then verify ownership and expiry. Broader event-loop/OS profiling is still needed if scheduling delay remains; this experiment does not measure the full exception/response path after await resumption or event-loop lag directly.
+
+Follow-up: [inline service dependency experiment](../service-dependency/README.md) completed; candidate retained as a patch, not adopted because the load gate failed.

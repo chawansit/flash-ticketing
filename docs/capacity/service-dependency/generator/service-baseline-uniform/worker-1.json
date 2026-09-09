@@ -1,0 +1,80 @@
+{
+  "phases": {
+    "0": {
+      "statuses": {
+        "read": {
+          "304": 16913,
+          "200": 11587
+        },
+        "hold": {
+          "201": 1500
+        }
+      },
+      "p95_ms": {
+        "read": 14.541037002345547,
+        "hold": 56.80368899629684
+      }
+    }
+  },
+  "read_hot_share": 0,
+  "burst": false,
+  "utc": "2026-09-09T15:46:50.148676+00:00",
+  "measured_started_utc": "2026-09-09T15:41:50.148471+00:00",
+  "manifest_id": "47127ca9-831b-4fa5-b387-1853f0d886db",
+  "run_id": "9c944760-3a7f-4638-9e93-600d46e4869d",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 100,
+  "seconds": 300,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 0,
+  "drop_reasons": {},
+  "error_codes": {},
+  "error_examples": [],
+  "transport_error_types": {},
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.5079349977895617,
+  "generator_cpu_seconds": 54.49948413600001,
+  "elapsed_seconds": 299.99359774799814,
+  "completed_rps": 100.00213412954474,
+  "statuses": {
+    "read": {
+      "304": 16913,
+      "200": 11587
+    },
+    "hold": {
+      "201": 1500
+    }
+  },
+  "response_body_bytes": 216265355,
+  "latency_ms": {
+    "read:304": {
+      "p50": 3.094108004006557,
+      "p95": 11.570433001907077,
+      "p99": 31.670652999309823
+    },
+    "hold:201": {
+      "p50": 30.87513699574629,
+      "p95": 56.80368899629684,
+      "p99": 82.9172519952408
+    },
+    "read:200": {
+      "p50": 3.6724230012623593,
+      "p95": 17.24024700524751,
+      "p99": 40.72695099603152
+    }
+  },
+  "read_p95_ms": 14.541037002345547,
+  "hold_p95_ms": 56.80368899629684,
+  "local_read_gate_pass": true,
+  "note": "95% reads/5% holds; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": true,
+  "phase_latency_gate_pass": true
+}
