@@ -1,0 +1,381 @@
+{
+  "rate": 600,
+  "load": {
+    "utc": "2026-09-12T16:11:23.663919+00:00",
+    "hot_read_share": 0,
+    "burst": false,
+    "mixed_hot_holds": false,
+    "keepalive_expiry_seconds": 5.0,
+    "rate": 600,
+    "seconds": 1800,
+    "workers": 4,
+    "worker_rates": [
+      150,
+      150,
+      150,
+      150
+    ],
+    "worker_exit_codes": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "start_skew_ms": 16.983999999999998,
+    "generator_drops": 68,
+    "worst_worker_read_p95_ms": 108.96826098905876,
+    "worst_worker_hold_p95_ms": 245.41987798875198,
+    "transport_phase_counts": {
+      "read": {
+        "connection.connect_tcp.started": 11037,
+        "connection.connect_tcp.complete": 11037,
+        "http11.send_request_headers.started": 1025933,
+        "http11.send_request_headers.complete": 1025933,
+        "http11.send_request_body.started": 1025933,
+        "http11.send_request_body.complete": 1025933,
+        "http11.receive_response_headers.started": 1025933,
+        "http11.receive_response_headers.complete": 1025933,
+        "http11.receive_response_body.started": 1025933,
+        "http11.receive_response_body.complete": 1025933,
+        "http11.response_closed.started": 1025933,
+        "http11.response_closed.complete": 1025933
+      },
+      "hold": {
+        "connection.connect_tcp.started": 555,
+        "connection.connect_tcp.complete": 555,
+        "http11.send_request_headers.started": 53999,
+        "http11.send_request_headers.complete": 53999,
+        "http11.send_request_body.started": 53999,
+        "http11.send_request_body.complete": 53999,
+        "http11.receive_response_headers.started": 53999,
+        "http11.receive_response_headers.complete": 53999,
+        "http11.receive_response_body.started": 53999,
+        "http11.receive_response_body.complete": 53999,
+        "http11.response_closed.started": 53999,
+        "http11.response_closed.complete": 53999
+      }
+    },
+    "transport_errors": {},
+    "coordination_gate_pass": false,
+    "workload_gate_pass": false,
+    "gate_pass": false,
+    "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+  },
+  "durability": {
+    "runs": [
+      {
+        "run_id": "1d76814f-7d7d-4345-a9f9-7dad6704a656",
+        "acknowledged_201": 13425,
+        "idempotency_records": 13425,
+        "distinct_holds": 13425,
+        "distinct_orders": 13425,
+        "broken_links": 0,
+        "active_holds": 0,
+        "overdue_holds": 0,
+        "pending_orders": 0,
+        "pass": true
+      },
+      {
+        "run_id": "211cb569-db43-4035-b152-0f29e1d67d38",
+        "acknowledged_201": 13386,
+        "idempotency_records": 13386,
+        "distinct_holds": 13386,
+        "distinct_orders": 13386,
+        "broken_links": 0,
+        "active_holds": 0,
+        "overdue_holds": 0,
+        "pending_orders": 0,
+        "pass": true
+      },
+      {
+        "run_id": "b4459b8c-9606-476c-80b5-ac8d7bf065f3",
+        "acknowledged_201": 13379,
+        "idempotency_records": 13379,
+        "distinct_holds": 13379,
+        "distinct_orders": 13379,
+        "broken_links": 0,
+        "active_holds": 0,
+        "overdue_holds": 0,
+        "pending_orders": 0,
+        "pass": true
+      },
+      {
+        "run_id": "f90104ab-0435-41c3-ab57-51a1d4cdbeff",
+        "acknowledged_201": 13452,
+        "idempotency_records": 13452,
+        "distinct_holds": 13452,
+        "distinct_orders": 13452,
+        "broken_links": 0,
+        "active_holds": 0,
+        "overdue_holds": 0,
+        "pending_orders": 0,
+        "pass": true
+      }
+    ],
+    "queues_snapshot": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0
+    },
+    "audited_holds": 53642,
+    "audited_seat_intervals": 53642,
+    "overlapping_load_hold_intervals": 0,
+    "durability_and_expiry_pass": true,
+    "note": "Run after expiry drain for workloads without explicit early release. Intervals use order creation to hold expiry and cover only selected load run IDs. Queue counts are global context; this is not a payment test."
+  },
+  "observer": {
+    "api_metric_row_count": 849,
+    "db_commit_delta_count": 53182.0,
+    "db_commit_delta_sum": 103.8468970968388,
+    "db_commit_avg_ms": 1.9526700217524502,
+    "db_rollback_delta_count": 0.0,
+    "db_rollback_delta_sum": 0.0,
+    "db_rollback_avg_ms": null,
+    "db_pool_return_delta_count": 53182.0,
+    "db_pool_return_delta_sum": 0.5453004738083109,
+    "db_pool_return_avg_ms": 0.010253478128094299,
+    "db_pool_acquire_delta_count": 53182.0,
+    "db_pool_acquire_delta_sum": 1050.7501187778544,
+    "db_pool_acquire_avg_ms": 19.757626993679335,
+    "db_query_count": 741596.0,
+    "db_query_sum": 909.9664769253577,
+    "db_query_avg_ms": 1.2270380057677734,
+    "db_transaction_body_sum": 941.2266708306852,
+    "db_transaction_body_count": 53182.0,
+    "db_transaction_body_avg_ms": 17.698218773846136,
+    "worker_busy_delta_sum": 0.0,
+    "worker_active_max": 0.0,
+    "http_close_delta": 0.0,
+    "lock_waiter_max": 0,
+    "checkpoint_request_delta": 0,
+    "checkpoint_sync_ms_delta": 245.0,
+    "wal_sync_ms_delta": 0.0,
+    "wal_write_ms_delta": 0.0,
+    "minimum_ttl_min": 10
+  },
+  "observer_samples": 849,
+  "observer_errors": [],
+  "database_connections": {
+    "samples": 849,
+    "mean": 11.667844522968197,
+    "max": 13
+  },
+  "active_connections": {
+    "samples": 849,
+    "mean": 1.5017667844522968,
+    "max": 4
+  },
+  "lock_waiters": {
+    "samples": 849,
+    "mean": 0.0,
+    "max": 0
+  },
+  "reconciliation_age_seconds": {
+    "samples": 849,
+    "mean": 19.3848881778563,
+    "max": 20.277989
+  },
+  "overdue_active_holds": {
+    "samples": 849,
+    "mean": 1.9434628975265018,
+    "max": 12
+  },
+  "oldest_overdue_seconds": {
+    "samples": 849,
+    "mean": 0.03773710954063604,
+    "max": 0.203122
+  },
+  "missing_maps": {
+    "samples": 849,
+    "mean": 0.0,
+    "max": 0
+  },
+  "maps_without_ttl": {
+    "samples": 849,
+    "mean": 0.0,
+    "max": 0
+  },
+  "container_cpu_percent_one_core": {
+    "flash-ticketing-api-1": {
+      "samples": 177,
+      "mean": 94.67231638418079,
+      "max": 129.26
+    },
+    "flash-ticketing-publisher-1": {
+      "samples": 177,
+      "mean": 6.173559322033898,
+      "max": 9.64
+    },
+    "flash-ticketing-simulator-1": {
+      "samples": 177,
+      "mean": 3.8406214689265536,
+      "max": 4.56
+    },
+    "flash-ticketing-maintenance-1": {
+      "samples": 177,
+      "mean": 19.661129943502825,
+      "max": 24.07
+    },
+    "flash-ticketing-reconciler-1": {
+      "samples": 177,
+      "mean": 15.378926553672317,
+      "max": 29.44
+    },
+    "flash-ticketing-consumer-1": {
+      "samples": 177,
+      "mean": 10.490169491525423,
+      "max": 18.5
+    },
+    "flash-ticketing-prometheus-1": {
+      "samples": 177,
+      "mean": 0.14536723163841808,
+      "max": 0.18
+    },
+    "flash-ticketing-pgbouncer-1": {
+      "samples": 177,
+      "mean": 16.470112994350284,
+      "max": 20.23
+    },
+    "flash-ticketing-postgres-1": {
+      "samples": 177,
+      "mean": 44.80937853107345,
+      "max": 93.27
+    },
+    "flash-ticketing-redis-1": {
+      "samples": 177,
+      "mean": 17.36090395480226,
+      "max": 56.81
+    },
+    "flash-ticketing-kafka-1": {
+      "samples": 177,
+      "mean": 22.28819209039548,
+      "max": 164.05
+    }
+  },
+  "host_busy_percent": {
+    "samples": 176,
+    "mean": 65.36029043956691,
+    "max": 71.8596853237039
+  },
+  "table_delta": {
+    "bookings": {
+      "seq_scan": 0,
+      "idx_scan": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "consumer_inbox": {
+      "seq_scan": 0,
+      "idx_scan": 107284,
+      "n_tup_ins": 107284,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "dead_letters": {
+      "seq_scan": 1,
+      "idx_scan": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "event_reconciliation": {
+      "seq_scan": 5783,
+      "idx_scan": 272829,
+      "n_tup_ins": 0,
+      "n_tup_upd": 165995,
+      "n_tup_del": 0
+    },
+    "event_seats": {
+      "seq_scan": 0,
+      "idx_scan": 457392,
+      "n_tup_ins": 0,
+      "n_tup_upd": 107284,
+      "n_tup_del": 0
+    },
+    "events": {
+      "seq_scan": 3812,
+      "idx_scan": 378479,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "holds": {
+      "seq_scan": 5,
+      "idx_scan": 449438,
+      "n_tup_ins": 53642,
+      "n_tup_upd": 53642,
+      "n_tup_del": 0
+    },
+    "idempotency_records": {
+      "seq_scan": 5,
+      "idx_scan": 107284,
+      "n_tup_ins": 53642,
+      "n_tup_upd": 53642,
+      "n_tup_del": 0
+    },
+    "order_items": {
+      "seq_scan": 1,
+      "idx_scan": 2,
+      "n_tup_ins": 53642,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "orders": {
+      "seq_scan": 5,
+      "idx_scan": 316922,
+      "n_tup_ins": 53642,
+      "n_tup_upd": 53642,
+      "n_tup_del": 0
+    },
+    "outbox_events": {
+      "seq_scan": 0,
+      "idx_scan": 302981,
+      "n_tup_ins": 107284,
+      "n_tup_upd": 214568,
+      "n_tup_del": 0
+    },
+    "payment_attempts": {
+      "seq_scan": 78337,
+      "idx_scan": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "payment_callbacks": {
+      "seq_scan": 0,
+      "idx_scan": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "refund_requests": {
+      "seq_scan": 0,
+      "idx_scan": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "schema_migrations": {
+      "seq_scan": 0,
+      "idx_scan": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "seat_refresh_requests": {
+      "seq_scan": 191266,
+      "idx_scan": 378323,
+      "n_tup_ins": 0,
+      "n_tup_upd": 320982,
+      "n_tup_del": 0
+    },
+    "tickets": {
+      "seq_scan": 0,
+      "idx_scan": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    }
+  }
+}

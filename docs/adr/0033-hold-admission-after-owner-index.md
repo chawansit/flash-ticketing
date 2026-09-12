@@ -99,3 +99,6 @@ Accept admission twelve as the single-process default. This explicitly
 supersedes the admission-eight default portion of ADRs 0020 and 0029; their
 historical experiments and other decisions remain valid. DB pool maximum stays
 twelve. See [the retained report](../capacity/huawei-keepalive-admission/README.md).
+
+
+The subsequent 600 RPS single-instance stage failed with 421 HTTP 503 responses and 68 generator drops; API CPU averaged 94.672% of one core while PostgreSQL averaged 44.809%. All 53,642 accepted holds remained durable with zero overlap and drained queues. This establishes 500 RPS as the verified point for this topology and does not reverse the admission-twelve decision.

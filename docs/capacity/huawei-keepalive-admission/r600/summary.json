@@ -1,0 +1,61 @@
+{
+  "utc": "2026-09-12T16:11:23.663919+00:00",
+  "hot_read_share": 0,
+  "burst": false,
+  "mixed_hot_holds": false,
+  "keepalive_expiry_seconds": 5.0,
+  "rate": 600,
+  "seconds": 1800,
+  "workers": 4,
+  "worker_rates": [
+    150,
+    150,
+    150,
+    150
+  ],
+  "worker_exit_codes": [
+    1,
+    1,
+    1,
+    1
+  ],
+  "start_skew_ms": 16.983999999999998,
+  "generator_drops": 68,
+  "worst_worker_read_p95_ms": 108.96826098905876,
+  "worst_worker_hold_p95_ms": 245.41987798875198,
+  "transport_phase_counts": {
+    "read": {
+      "connection.connect_tcp.started": 11037,
+      "connection.connect_tcp.complete": 11037,
+      "http11.send_request_headers.started": 1025933,
+      "http11.send_request_headers.complete": 1025933,
+      "http11.send_request_body.started": 1025933,
+      "http11.send_request_body.complete": 1025933,
+      "http11.receive_response_headers.started": 1025933,
+      "http11.receive_response_headers.complete": 1025933,
+      "http11.receive_response_body.started": 1025933,
+      "http11.receive_response_body.complete": 1025933,
+      "http11.response_closed.started": 1025933,
+      "http11.response_closed.complete": 1025933
+    },
+    "hold": {
+      "connection.connect_tcp.started": 555,
+      "connection.connect_tcp.complete": 555,
+      "http11.send_request_headers.started": 53999,
+      "http11.send_request_headers.complete": 53999,
+      "http11.send_request_body.started": 53999,
+      "http11.send_request_body.complete": 53999,
+      "http11.receive_response_headers.started": 53999,
+      "http11.receive_response_headers.complete": 53999,
+      "http11.receive_response_body.started": 53999,
+      "http11.receive_response_body.complete": 53999,
+      "http11.response_closed.started": 53999,
+      "http11.response_closed.complete": 53999
+    }
+  },
+  "transport_errors": {},
+  "coordination_gate_pass": false,
+  "workload_gate_pass": false,
+  "gate_pass": false,
+  "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+}

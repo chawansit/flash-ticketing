@@ -33,6 +33,7 @@ intervals and drained queues.
 | 400 RPS, admission 8 | 720,000 | 0 | 0 | 12.817 ms | 38.715 ms | 36,000/36,000 | pass |
 | 500 RPS, admission 8 | 900,000 | 3 admission 503 | 0 | 17.914 ms | 54.937 ms | 44,997/44,997 | fail |
 | 500 RPS, admission 12 | 900,000 | 0 | 0 | 16.694 ms | 57.666 ms | 45,000/45,000 | pass |
+| 600 RPS, admission 12 | 1,079,932 completed | 421 HTTP 503 | 68 | 108.968 ms | 245.420 ms | 53,642/53,642 | fail |
 
 Every durability audit reported zero broken links, active or overdue holds,
 pending orders and overlapping load-held seat intervals. Unpublished outbox,
@@ -65,7 +66,7 @@ resource evidence does not show pool or PostgreSQL saturation.
 
 ## Keep-alive conclusion
 
-The ten-second server/five-second client ordering completed 2.52 million
+The ten-second server/five-second client ordering completed 3.60 million
 requests across these stages without a transport error. The prior equal
 five/five control recorded one reset in 720,000 requests. This evidence clears
 the current capacity-test transport gate and supports the ten-second setting for
@@ -79,9 +80,17 @@ the admission-eight default portion of ADRs 0020 and 0029. DB pool maximum
 remains twelve. Horizontal scaling must budget aggregate admission and database
 connections explicitly.
 
-The next capacity stage is 600 RPS for 30 minutes with the accepted settings.
-Stop escalation on any unexpected response, transport error, drop, correctness
-failure or undrained queue. A passing 600 stage is required before 750 RPS.
+The 600 RPS stage was executed for 30 minutes and failed the capacity gate. It
+produced 352 hold admission 503 responses, 69 server concurrency 503 responses
+(64 reads and five holds) and 68 generator drops. No transport error occurred.
+API CPU averaged 94.672% of one core while PostgreSQL averaged 44.809%; sampled
+active DB connections peaked at four and lock waiters remained zero. All 53,642
+accepted holds passed durability and overlap checks and queues drained.
+
+Do not run 750 RPS on the single-instance topology. The verified operating point
+is 500 RPS for this exact workload and topology. The next experiment should split
+API CPU across two instances behind a load balancer while keeping aggregate DB
+pool and admission budgets at twelve.
 
 Machine-readable summaries, observer/CPU samples, database table counters and
 durability reports are retained below. Credential manifests and host details
