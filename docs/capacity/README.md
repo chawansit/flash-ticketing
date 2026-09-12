@@ -118,3 +118,5 @@ Latest experiment: [direct ASGI instrumentation, mixed-load limits and recovery 
 - [Active seat-owner index: matched Huawei validation](postgres-owner-index/README.md)
 
 - [Keep-alive margin and admission-12 Huawei validation](huawei-keepalive-admission/README.md)
+
+- [Fixed-budget horizontal API validation](huawei-horizontal-api/README.md)

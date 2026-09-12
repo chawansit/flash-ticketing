@@ -1,0 +1,18 @@
+{
+  "rate": 600,
+  "requests": 1080000,
+  "unexpected_responses": 0,
+  "generator_drops": 0,
+  "transport_errors": 0,
+  "read_p95_ms": 12.968893,
+  "hold_p95_ms": 47.013589,
+  "durable_holds": 54000,
+  "overlapping_intervals": 0,
+  "api1": {"pool_acquire_avg_ms": 15.397416, "transaction_body_avg_ms": 13.347854, "query_avg_ms": 0.916649, "commit_avg_ms": 1.919326, "cpu_mean_percent_one_core": 54.368},
+  "api2": {"pool_acquire_avg_ms": 15.307595, "transaction_body_avg_ms": 13.260757, "query_avg_ms": 0.910485, "commit_avg_ms": 1.918350, "cpu_mean_percent_one_core": 54.277},
+  "postgres_cpu_mean_percent_one_core": 41.203,
+  "redis_cpu_mean_percent_one_core": 18.447,
+  "load_balancer_cpu_mean_percent_one_core": 7.584,
+  "sampled_lock_waiter_max": 0,
+  "pass": true
+}

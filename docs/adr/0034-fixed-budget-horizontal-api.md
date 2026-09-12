@@ -1,6 +1,6 @@
 # ADR 0034: Fixed-budget horizontal API scaling experiment
 
-Status: Proposed; implementation and cloud validation pending
+Status: Accepted; two-replica sustained validation passed, four-replica sustained validation pending
 
 ## Context
 
@@ -26,6 +26,9 @@ round-robin upstream selection and persistent upstream connections. Disable
 proxy retries so connection and application failures remain visible.
 
 For two replicas, configure DB pool six and hold admission six per instance.
+Set the otherwise-unused API-process simulator validation concurrency to two so
+it remains within every per-replica pool, including the later pool-three
+configuration.
 The aggregate API pool and admission budgets therefore remain twelve. All
 replicas use the same PostgreSQL authority, Redis hold shield and Kafka cluster.
 No sticky sessions are required because request ownership and idempotency state
@@ -87,4 +90,10 @@ single-instance topology with pool/admission twelve.
 
 ## Validation evidence
 
-Pending.
+Two replicas passed the required 500 and 600 RPS, 30-minute stages. The 500 RPS stage completed 900,000 requests with read/hold p95 of 9.026/33.923 ms; the 600 RPS stage completed 1,080,000 requests with read/hold p95 of 12.969/47.014 ms. Both recorded zero unexpected responses, transport errors and generator drops. PostgreSQL verified 45,000 and 54,000 acknowledged holds respectively, with zero broken links or overlapping held-seat intervals and drained queues.
+
+At 600 RPS the two API containers averaged 54.368% and 54.277% of one core, PostgreSQL averaged 41.203%, sampled lock waiters remained zero and mean per-instance DB pool acquisition was 15.308–15.397 ms. This passes the rate at which the single-process topology failed.
+
+Four replicas with pool/admission three each passed the 100-contender correctness preflight: exactly one HTTP 201 and one matching durable PostgreSQL owner. The other responses were eleven seat-busy conflicts and 88 bounded admission rejections; failed-response p95 was 44.205 ms. A startup validation failure first exposed that the API inherited simulator concurrency four while its pool was three. The horizontal override now constrains that otherwise-unused API setting to two. No traffic was sent until all four replicas were healthy.
+
+Sustained four-replica validation is pending. Full non-secret evidence is retained under `docs/capacity/huawei-horizontal-api`.

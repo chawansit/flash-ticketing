@@ -4,6 +4,9 @@ services:
     environment:
       DB_POOL_MAX: ${API_POOL_PER_INSTANCE:-6}
       RESERVE_CONCURRENCY: ${API_ADMISSION_PER_INSTANCE:-6}
+      # Settings are validated as one unit in every process. The API does not run
+      # payment simulation, but this value must still fit its per-replica pool.
+      SIMULATOR_CONCURRENCY: ${API_SIMULATOR_PER_INSTANCE:-2}
 
   load-balancer:
     image: nginx:1.27.5-alpine
