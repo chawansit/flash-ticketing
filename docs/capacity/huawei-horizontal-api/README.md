@@ -47,6 +47,9 @@ Four API replicas start with pool three, hold admission three and simulator vali
 
 This passes the zero-double-booking preflight. The high admission-rejection share is expected from a burst of 100 requests against only twelve aggregate hold slots and means this configuration is unsuitable for absorbing synchronized contention without an upstream waiting-room or rate-control layer. Sustained four-replica capacity validation remains pending a fresh private manifest.
 
+## Regression validation
+
+After the horizontal override correction, 69 unit tests and 57 integration tests passed. The integration suite includes persistence-failure rollback, process contention, cache reconciliation and recovery behavior. Both suites reported only the two existing dependency deprecation warnings. Ruff passed with the Windows Docker mount executable-bit rule excluded; no Python source changed in this commit. Compose config validation passed for pool/admission three and simulator concurrency two per API replica.
 ## Evidence scope
 
 Machine-readable summaries, per-instance observer streams, Docker CPU samples, durability reports and the non-secret contention summary are retained in this directory. Credential manifests, public addresses and generator worker files are excluded.
