@@ -105,3 +105,5 @@ Local implementation validation on 2026-09-12: Ruff passed across `src`, `tests`
 68 unit tests passed, 57 PostgreSQL/Redis integration tests passed, and the real HTTP 100-contender
 test passed with exactly one durable winner. Cloud soak evidence remains the next target and will be
 stored with the capacity report; these local checks do not establish production capacity.
+
+Cloud validation on 2026-09-12 at commit `bea33ce` completed the planned gate on a 4-vCPU/8-GiB backend ECS and separate 8-vCPU/16-GiB generator ECS. One API worker passed 400 RPS for 30 minutes (720,000 requests) with zero drops, transport errors, unexpected statuses, lock waits, missing maps, or overlapping hold intervals. At 500 RPS for 30 minutes, 29 of 45,000 holds were rejected by bounded admission; all 44,971 accepted holds passed post-expiry durability and overlap checks. A fixed-budget two-worker repeat used pool 6 and admission 4 per process (aggregate 12/8): it reduced 503 responses to 9 but increased hold p95 from 60.692 ms to 89.427 ms. The default remains one worker, pool 12, admission 8. See [the retained report and evidence](../capacity/huawei-long-run-bea33ce/README.md).

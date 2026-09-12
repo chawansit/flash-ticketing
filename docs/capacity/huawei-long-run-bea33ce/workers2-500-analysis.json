@@ -1,0 +1,174 @@
+{
+  "configuration": {
+    "api_workers": 2,
+    "db_pool_max_per_worker": 6,
+    "aggregate_db_pool_max": 12,
+    "reserve_concurrency_per_worker": 4,
+    "aggregate_reserve_concurrency": 8,
+    "observer_started_late_seconds": 110,
+    "api_metrics_note": "Process-local Prometheus counters alternate between workers and are excluded from timing deltas."
+  },
+  "generator": {
+    "utc": "2026-09-12T11:40:01.077844+00:00",
+    "hot_read_share": 0,
+    "burst": false,
+    "mixed_hot_holds": false,
+    "keepalive_expiry_seconds": 5.0,
+    "rate": 500,
+    "seconds": 1800,
+    "workers": 4,
+    "worker_rates": [
+      125,
+      125,
+      125,
+      125
+    ],
+    "worker_exit_codes": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "start_skew_ms": 3.8939999999999997,
+    "generator_drops": 0,
+    "worst_worker_read_p95_ms": 11.856969038490206,
+    "worst_worker_hold_p95_ms": 89.42733000731096,
+    "transport_phase_counts": {
+      "read": {
+        "connection.connect_tcp.started": 1647,
+        "connection.connect_tcp.complete": 1647,
+        "http11.send_request_headers.started": 855000,
+        "http11.send_request_headers.complete": 855000,
+        "http11.send_request_body.started": 855000,
+        "http11.send_request_body.complete": 855000,
+        "http11.receive_response_headers.started": 855000,
+        "http11.receive_response_headers.complete": 855000,
+        "http11.receive_response_body.started": 855000,
+        "http11.receive_response_body.complete": 855000,
+        "http11.response_closed.started": 855000,
+        "http11.response_closed.complete": 855000
+      },
+      "hold": {
+        "connection.connect_tcp.started": 21,
+        "connection.connect_tcp.complete": 21,
+        "http11.send_request_headers.started": 45000,
+        "http11.send_request_headers.complete": 45000,
+        "http11.send_request_body.started": 45000,
+        "http11.send_request_body.complete": 45000,
+        "http11.receive_response_headers.started": 45000,
+        "http11.receive_response_headers.complete": 45000,
+        "http11.receive_response_body.started": 45000,
+        "http11.receive_response_body.complete": 45000,
+        "http11.response_closed.started": 45000,
+        "http11.response_closed.complete": 45000
+      }
+    },
+    "transport_errors": {},
+    "coordination_gate_pass": false,
+    "workload_gate_pass": false,
+    "gate_pass": false,
+    "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+  },
+  "statuses": {
+    "read": {
+      "304": 472895,
+      "200": 382105
+    },
+    "hold": {
+      "201": 44991,
+      "503": 9
+    }
+  },
+  "observer": {
+    "samples": 915,
+    "errors": 0,
+    "max_db_connections": 13,
+    "max_active_connections": 6,
+    "max_lock_waiters": 0,
+    "max_reconciliation_age_seconds": 20.632886,
+    "max_overdue_holds": 26,
+    "max_overdue_seconds": 1.079002,
+    "max_missing_maps": 0,
+    "max_maps_without_ttl": 0
+  },
+  "cpu": {
+    "flash-ticketing-api-1": {
+      "mean_percent": 73.91350515463917,
+      "max_percent": 116.12
+    },
+    "flash-ticketing-reconciler-1": {
+      "mean_percent": 10.85840206185567,
+      "max_percent": 30.47
+    },
+    "flash-ticketing-postgres-1": {
+      "mean_percent": 99.51427835051547,
+      "max_percent": 122.86
+    },
+    "flash-ticketing-redis-1": {
+      "mean_percent": 12.710515463917526,
+      "max_percent": 53.34
+    }
+  },
+  "durability": {
+    "runs": [
+      {
+        "run_id": "08dc25fc-38b5-4aaa-bbbf-5de579501207",
+        "acknowledged_201": 11249,
+        "idempotency_records": 11249,
+        "distinct_holds": 11249,
+        "distinct_orders": 11249,
+        "broken_links": 0,
+        "active_holds": 0,
+        "overdue_holds": 0,
+        "pending_orders": 0,
+        "pass": true
+      },
+      {
+        "run_id": "182d511f-5e17-4279-b35e-795320526f7a",
+        "acknowledged_201": 11248,
+        "idempotency_records": 11248,
+        "distinct_holds": 11248,
+        "distinct_orders": 11248,
+        "broken_links": 0,
+        "active_holds": 0,
+        "overdue_holds": 0,
+        "pending_orders": 0,
+        "pass": true
+      },
+      {
+        "run_id": "8e6b38a5-80b5-4555-9b1a-97524be6b3e3",
+        "acknowledged_201": 11248,
+        "idempotency_records": 11248,
+        "distinct_holds": 11248,
+        "distinct_orders": 11248,
+        "broken_links": 0,
+        "active_holds": 0,
+        "overdue_holds": 0,
+        "pending_orders": 0,
+        "pass": true
+      },
+      {
+        "run_id": "a3ea48b3-b526-42e7-88c9-f476283897c8",
+        "acknowledged_201": 11246,
+        "idempotency_records": 11246,
+        "distinct_holds": 11246,
+        "distinct_orders": 11246,
+        "broken_links": 0,
+        "active_holds": 0,
+        "overdue_holds": 0,
+        "pending_orders": 0,
+        "pass": true
+      }
+    ],
+    "queues_snapshot": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0
+    },
+    "audited_holds": 44991,
+    "audited_seat_intervals": 44991,
+    "overlapping_load_hold_intervals": 0,
+    "durability_and_expiry_pass": true,
+    "note": "Run after expiry drain for workloads without explicit early release. Intervals use order creation to hold expiry and cover only selected load run IDs. Queue counts are global context; this is not a payment test."
+  }
+}

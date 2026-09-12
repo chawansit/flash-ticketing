@@ -1,0 +1,7 @@
+services:
+  api:
+    environment:
+      API_WORKERS: "2"
+      DB_POOL_MAX: "6"
+      RESERVE_CONCURRENCY: "4"
+      EXPERIMENT_ADMISSION: "4"

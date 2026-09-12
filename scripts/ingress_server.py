@@ -6,7 +6,20 @@ import uvicorn
 from prometheus_client import Histogram
 from uvicorn.protocols.http.httptools_impl import HttpToolsProtocol
 
-INGRESS = Histogram("ticketing_ingress_seconds", "Protocol/application boundary duration", ["phase"])
+INGRESS = None
+
+
+def ingress_metric():
+    global INGRESS
+    if INGRESS is None:
+        INGRESS = Histogram(
+            "ticketing_ingress_seconds",
+            "Protocol/application boundary duration",
+            ["phase"],
+        )
+    return INGRESS
+
+
 log = logging.getLogger("ticketing.ingress")
 STAMP = "ticketing_headers_complete_at"
 
@@ -21,6 +34,7 @@ class TimedHttpToolsProtocol(HttpToolsProtocol):
 class IngressTiming:
     def __init__(self, app):
         self.app = app
+        self.ingress = ingress_metric()
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
@@ -35,8 +49,8 @@ class IngressTiming:
                 timings = [f"asgi_headers;dur={elapsed*1000:.3f}"]
                 if queue is not None:
                     timings.append(f"protocol_queue;dur={queue*1000:.3f}")
-                    INGRESS.labels("headers_to_asgi").observe(queue)
-                INGRESS.labels("asgi_to_headers").observe(elapsed)
+                    self.ingress.labels("headers_to_asgi").observe(queue)
+                self.ingress.labels("asgi_to_headers").observe(elapsed)
                 headers.append((b"server-timing", ", ".join(timings).encode("ascii")))
                 request_id = next((v.decode("ascii") for k,v in headers if k.lower()==b"x-request-id"), None)
                 log.info("ingress", extra={"fields": {
@@ -49,13 +63,29 @@ class IngressTiming:
         await self.app(scope, receive, timed_send)
 
 
-if __name__ == "__main__":
+def create_app():
     import os
 
     from ticketing.api import app
 
     if os.getenv("DISPATCH_PROBE", "0") == "1":
         from thread_dispatch_probe import install
+
         install()
-    uvicorn.run(IngressTiming(app), host="0.0.0.0", port=8000,
-                http=TimedHttpToolsProtocol, limit_concurrency=256, timeout_keep_alive=5)
+    return IngressTiming(app)
+
+
+if __name__ == "__main__":
+    import os
+
+    workers = int(os.getenv("API_WORKERS", "1"))
+    uvicorn.run(
+        "ingress_server:create_app",
+        factory=True,
+        workers=workers,
+        host="0.0.0.0",
+        port=8000,
+        http=TimedHttpToolsProtocol,
+        limit_concurrency=256,
+        timeout_keep_alive=5,
+    )

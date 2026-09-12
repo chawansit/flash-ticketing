@@ -111,4 +111,6 @@ Earlier sustained result: [Redis-validated browse bodies, 352 RPS for 30 minutes
 
 Latest staged validation: [400 RPS sustained; 500 RPS rejected requests](staged-browse-body/README.md). 400 RPS passed 30 minutes with 720,000 requests and zero errors/drops. 500 RPS failed the five-minute gate with 45 admission rejections; 650/800 were not run.
 
+Latest long-run boundary: [400 RPS clean; 500 RPS admission boundary; fixed-budget worker comparison](huawei-long-run-bea33ce/README.md).
+
 Latest experiment: [direct ASGI instrumentation, mixed-load limits and recovery validation](overnight/README.md). Workload definitions and retained failures are explicit; do not compare a changed write mix as a like-for-like throughput gain.

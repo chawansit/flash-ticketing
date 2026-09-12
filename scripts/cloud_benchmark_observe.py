@@ -131,6 +131,23 @@ SELECT
 FROM pg_stat_bgwriter
 """.strip()
 
+CHECKPOINTER_SQL = """
+SELECT
+    c.num_timed,
+    c.num_requested,
+    c.sync_time,
+    c.write_time,
+    c.buffers_written,
+    b.buffers_clean,
+    coalesce((
+        SELECT sum(fsyncs)
+        FROM pg_stat_io
+        WHERE backend_type = 'client backend'
+    ), 0)
+FROM pg_stat_checkpointer c
+CROSS JOIN pg_stat_bgwriter b
+""".strip()
+
 WAL_IO_SQL = """
 SELECT coalesce(sum(read_time), 0), coalesce(sum(write_time), 0),
        coalesce(sum(fsync_time), 0), coalesce(sum(sync_time), 0)
@@ -145,6 +162,7 @@ samples: list[dict] = []
 end = time.monotonic() + args.seconds
 
 with psycopg.connect(os.environ['TEST_DATABASE_URL'], autocommit=True) as conn:
+    checkpoint_sql = CHECKPOINTER_SQL if conn.info.server_version >= 170000 else BGWRITER_SQL
     while time.monotonic() < end:
         sample: dict[str, Any] = {"utc": datetime.now(UTC).isoformat()}
         try:
@@ -153,7 +171,7 @@ with psycopg.connect(os.environ['TEST_DATABASE_URL'], autocommit=True) as conn:
                 age = cursor.execute(AGE_SQL, (shows,)).fetchone()
                 activity = cursor.execute(ACTIVITY_SQL).fetchone()
                 wal = cursor.execute(WAL_SQL).fetchone()
-                bgw = cursor.execute(BGWRITER_SQL).fetchone()
+                bgw = cursor.execute(checkpoint_sql).fetchone()
                 wal_io = _query_optional(cursor, WAL_IO_SQL)
 
             sample["overdue_active_holds"] = _to_int(overdue[0]) if overdue else 0

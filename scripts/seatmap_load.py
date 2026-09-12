@@ -131,9 +131,14 @@ async def run(args):
                             status = str(response.status_code)
                             bytes_received += len(response.content)
                             if "Server-Timing" in response.headers:
-                                server_times[operation + ":" + status].append(
-                                    float(response.headers["Server-Timing"].split("dur=")[1])
-                                )
+                                durations = [
+                                    parameter.split("=", 1)[1]
+                                    for metric in response.headers["Server-Timing"].split(",")
+                                    for parameter in metric.split(";")[1:]
+                                    if parameter.strip().startswith("dur=")
+                                ]
+                                if durations:
+                                    server_times[operation + ":" + status].append(float(durations[0]))
                         except httpx.HTTPError:
                             status = "transport_error"
                         statuses[operation][status] += 1
