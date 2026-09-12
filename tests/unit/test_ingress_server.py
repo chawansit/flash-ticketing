@@ -90,3 +90,16 @@ def test_missing_stamp_is_not_reported_as_zero():
     headers=dict(messages[0]['headers'])
     assert b'protocol_queue' not in headers[b'server-timing']
     assert b'asgi_headers' in headers[b'server-timing']
+
+
+def test_server_keepalive_is_bounded(monkeypatch):
+    monkeypatch.delenv("SERVER_KEEPALIVE_SECONDS", raising=False)
+    assert ingress.server_keepalive_seconds() == 5
+    monkeypatch.setenv("SERVER_KEEPALIVE_SECONDS", "10")
+    assert ingress.server_keepalive_seconds() == 10
+    monkeypatch.setenv("SERVER_KEEPALIVE_SECONDS", "0")
+    with pytest.raises(RuntimeError, match="between 1 and 300"):
+        ingress.server_keepalive_seconds()
+    monkeypatch.setenv("SERVER_KEEPALIVE_SECONDS", "invalid")
+    with pytest.raises(RuntimeError, match="must be an integer"):
+        ingress.server_keepalive_seconds()

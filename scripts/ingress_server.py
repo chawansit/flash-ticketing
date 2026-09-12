@@ -24,6 +24,18 @@ log = logging.getLogger("ticketing.ingress")
 STAMP = "ticketing_headers_complete_at"
 
 
+def server_keepalive_seconds():
+    import os
+
+    try:
+        value = int(os.getenv("SERVER_KEEPALIVE_SECONDS", "5"))
+    except ValueError as exc:
+        raise RuntimeError("SERVER_KEEPALIVE_SECONDS must be an integer") from exc
+    if not 1 <= value <= 300:
+        raise RuntimeError("SERVER_KEEPALIVE_SECONDS must be between 1 and 300")
+    return value
+
+
 class TimedHttpToolsProtocol(HttpToolsProtocol):
     def on_headers_complete(self):
         # Each on_message_begin creates a fresh scope. Stamp before scheduling the ASGI task.
@@ -87,5 +99,5 @@ if __name__ == "__main__":
         port=8000,
         http=TimedHttpToolsProtocol,
         limit_concurrency=256,
-        timeout_keep_alive=5,
+        timeout_keep_alive=server_keepalive_seconds(),
     )

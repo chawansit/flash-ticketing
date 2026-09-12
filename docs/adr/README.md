@@ -57,3 +57,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0030: Keep-seatmap-hot-path reads alive by TTL touch](0030-read-path-ttl-touch.md)
 
 - [0031: Partial index for active seat ownership](0031-active-seat-owner-index.md)
+
+- [0032: Server keep-alive margin experiment](0032-server-keepalive-margin-experiment.md)

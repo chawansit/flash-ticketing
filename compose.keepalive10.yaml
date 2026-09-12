@@ -1,0 +1,4 @@
+services:
+  api:
+    environment:
+      SERVER_KEEPALIVE_SECONDS: "10"
