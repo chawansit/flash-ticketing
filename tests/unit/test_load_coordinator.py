@@ -21,7 +21,7 @@ p.add_argument('--manifest');p.add_argument('--output');p.add_argument('--rate',
 p.add_argument('--start-at');a,_=p.parse_known_args()
 m=json.loads(Path(a.manifest).read_text())
 Path(a.output).write_text(json.dumps({'measured_started_utc':a.start_at,
-'generator_drops':0,'read_p95_ms':1,'hold_p95_ms':1,'offered_rps':a.rate,
+'generator_drops':0,'read_p95_ms':1,'hold_p95_ms':1,'offered_rps':a.rate,'workload_gate_pass':True,
 'shows':m['show_ids'],'viewers':m['viewer_tokens']}))
 ''')
     output = tmp_path / "result"
@@ -29,6 +29,8 @@ Path(a.output).write_text(json.dumps({'measured_started_utc':a.start_at,
                     "--rate", str(rate), "--seconds", "300", "--output", str(output)],
                    cwd=tmp_path, check=True, capture_output=True, timeout=20)
     summary = json.loads((output / "summary.json").read_text())
+    assert summary["coordination_gate_pass"]
+    assert summary["workload_gate_pass"]
     assert summary["gate_pass"]
     assert summary["worker_rates"] == expected
     workers = [json.loads((output / f"worker-{i}.json").read_text()) for i in range(4)]

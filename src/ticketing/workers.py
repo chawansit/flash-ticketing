@@ -509,7 +509,7 @@ def main():
     signal.signal(signal.SIGTERM, stop)
     signal.signal(signal.SIGINT, stop)
     start_http_server(settings.worker_port)
-    db, cache = Postgres(settings.database_url, settings.pool_max), RedisSeats(settings.redis_url)
+    db, cache = Postgres(settings.database_url, settings.pool_max), RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
     service = Reservations(PostgresReservations(db, cache, settings.hold_seconds))
     producer = consumer = executor = None
     try:

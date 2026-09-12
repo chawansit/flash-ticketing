@@ -41,7 +41,7 @@ async def lifespan(app):
     settings.validate()
     configure_logging()
     db = Postgres(settings.database_url, settings.pool_max)
-    cache = RedisSeats(settings.redis_url)
+    cache = RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
     app.state.db, app.state.cache = db, cache
     app.state.reservations = Reservations(PostgresReservations(db, cache, settings.hold_seconds))
     yield

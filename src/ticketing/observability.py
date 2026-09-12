@@ -44,18 +44,38 @@ def configure_logging():
 DB_QUERY_SECONDS = Histogram(
     "ticketing_db_query_seconds", "Client execute time including network/pooler", ["command"]
 )
+DB_TRANSACTION_BODY_SECONDS = Histogram(
+    "ticketing_db_transaction_body_seconds", "Transaction body execution time excluding commit/rollback and pool return"
+)
+DB_COMMIT_SECONDS = Histogram("ticketing_db_commit_seconds", "Time spent committing an API transaction")
+DB_ROLLBACK_SECONDS = Histogram("ticketing_db_rollback_seconds", "Time spent rolling back API transactions")
 DB_POOL_SECONDS = Histogram(
     "ticketing_db_pool_acquire_seconds", "Pool acquisition including failures", ["outcome"]
+)
+DB_POOL_RETURN_SECONDS = Histogram(
+    "ticketing_db_pool_return_seconds", "Time spent returning a DB connection to the pool"
 )
 DB_POOL_ACQUIRING = Gauge("ticketing_db_pool_acquiring", "Threads acquiring a connection")
 DB_POOL_IN_USE = Gauge("ticketing_db_pool_in_use", "Connections checked out")
 DB_POOL_STATE = Gauge("ticketing_db_pool_state", "Last sampled pool state", ["state"])
+
 WORK_SECONDS = Counter(
     "ticketing_worker_busy_seconds_total", "Operation wall time including I/O", ["operation"]
 )
 WORK_ACTIVE = Gauge("ticketing_worker_active", "Concurrent worker operations", ["operation"])
 WORK_CALLS = Counter("ticketing_worker_operations_total", "Completed worker calls", ["operation", "outcome"])
 CACHE_ROWS = Counter("ticketing_cache_rows_total", "Rows sent to cache", ["mode"])
+
+HTTP_CONNECTION_AGE_SECONDS = Histogram(
+    "ticketing_http_connection_age_seconds",
+    "Approximate server-visible connection age when request completed",
+    buckets=(0.005, 0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10, 30, 60),
+)
+HTTP_CONNECTION_CLOSE_TOTAL = Counter(
+    "ticketing_http_connection_close_total",
+    "Connection close or reconnect reason observed by request middleware",
+    ["source"],
+)
 # Reconciliation scheduling. Labels are fixed vocabularies: never event or seat identifiers.
 RECONCILE_BACKLOG = Gauge(
     "ticketing_reconciliation_backlog", "Active events due for reconciliation, counted up to a cap"
@@ -80,8 +100,6 @@ RECONCILE_SECONDS = Histogram(
 RECONCILE_RECOVERED = Counter(
     "ticketing_reconciliation_recovered_leases_total", "Expired reconciliation leases reclaimed"
 )
-
-
 def measured_work(operation):
     def decorate(fn):
         @wraps(fn)

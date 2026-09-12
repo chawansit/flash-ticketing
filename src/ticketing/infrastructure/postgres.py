@@ -6,13 +6,17 @@ from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
 
 from ticketing.observability import (
+    DB_COMMIT_SECONDS,
     DB_ERRORS,
     DB_POOL_ACQUIRING,
     DB_POOL_IN_USE,
+    DB_POOL_RETURN_SECONDS,
     DB_POOL_SECONDS,
     DB_POOL_STATE,
     DB_QUERY_SECONDS,
+    DB_ROLLBACK_SECONDS,
     DB_SECONDS,
+    DB_TRANSACTION_BODY_SECONDS,
 )
 
 
@@ -44,42 +48,90 @@ class Postgres:
 
     @contextmanager
     def transaction(self):
-        try:
-            with self.connection() as conn:
-                started = monotonic()
-                try:
-                    with conn.transaction():
-                        conn.execute("SET LOCAL lock_timeout = '75ms'")
-                        conn.execute("SET LOCAL statement_timeout = '1500ms'")
-                        conn.execute("SET LOCAL idle_in_transaction_session_timeout = '3s'")
-                        yield conn
-                finally:
-                    DB_SECONDS.observe(monotonic() - started)
-        except Exception as exc:
+        def _record_error(exc):
             state = getattr(exc, "sqlstate", None)
             if state or type(exc).__name__ in {"PoolTimeout", "TooManyRequests"}:
                 DB_ERRORS.labels(state or type(exc).__name__).inc()
+
+        error_recorded = {"value": False}
+        try:
+            with self.connection() as conn:
+                started = monotonic()
+                body_started = monotonic()
+                body_done = None
+                transaction_started = False
+                try:
+                    conn.execute("BEGIN")
+                    conn.execute("SET LOCAL lock_timeout = '75ms'")
+                    conn.execute("SET LOCAL statement_timeout = '1500ms'")
+                    conn.execute("SET LOCAL idle_in_transaction_session_timeout = '3s'")
+                    transaction_started = True
+
+                    yield conn
+
+                    body_done = monotonic()
+                    DB_TRANSACTION_BODY_SECONDS.observe(body_done - body_started)
+
+                    commit_started = monotonic()
+                    try:
+                        conn.commit()
+                    finally:
+                        DB_COMMIT_SECONDS.observe(monotonic() - commit_started)
+                except Exception as exc:
+                    error_recorded["value"] = True
+                    body_done = body_done or monotonic()
+                    DB_TRANSACTION_BODY_SECONDS.observe(body_done - body_started)
+
+                    rollback_started = monotonic()
+                    try:
+                        if transaction_started:
+                            conn.rollback()
+                    finally:
+                        DB_ROLLBACK_SECONDS.observe(monotonic() - rollback_started)
+
+                    _record_error(exc)
+                    raise
+                finally:
+                    if body_done is None:
+                        body_done = monotonic()
+                        DB_TRANSACTION_BODY_SECONDS.observe(body_done - body_started)
+                    DB_SECONDS.observe(monotonic() - started)
+        except Exception as exc:
+            if not error_recorded["value"]:
+                _record_error(exc)
             raise
 
     @contextmanager
     def connection(self):
         start, outcome = monotonic(), "error"
+        conn = None
         DB_POOL_ACQUIRING.inc()
         try:
             conn = self.pool.getconn()
             outcome = "ok"
-        finally:
-            DB_POOL_SECONDS.labels(outcome).observe(monotonic() - start)
             DB_POOL_ACQUIRING.dec()
             self.sample_pool()
-        DB_POOL_IN_USE.inc()
-        try:
-            with conn:
-                yield conn
+            DB_POOL_IN_USE.inc()
+            try:
+                with conn:
+                    yield conn
+            finally:
+                return_started = monotonic()
+                if conn is not None:
+                    self.pool.putconn(conn)
+                DB_POOL_RETURN_SECONDS.observe(monotonic() - return_started)
+                if conn is not None:
+                    DB_POOL_IN_USE.dec()
+                self.sample_pool()
         finally:
-            self.pool.putconn(conn)
-            DB_POOL_IN_USE.dec()
-            self.sample_pool()
+            DB_POOL_SECONDS.labels(outcome).observe(monotonic() - start)
+            if outcome == "error":
+                # Keep acquisition telemetry consistent when checkout fails.
+                DB_POOL_ACQUIRING.dec()
+                self.sample_pool()
+            else:
+                # On success, return path already decremented DB_POOL_ACQUIRING.
+                pass
 
     def sample_pool(self):
         stats = self.pool.get_stats()

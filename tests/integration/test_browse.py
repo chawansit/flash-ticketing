@@ -1,4 +1,5 @@
 import os
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
@@ -64,6 +65,41 @@ def test_http_conditional_layout_and_availability(browse_system):
     assert released.json()["seats"][0]["status"] == "AVAILABLE"
     schema = client.get("/openapi.json").json()
     assert "304" in schema["paths"]["/v1/events/{event_id}/availability"]["get"]["responses"]
+
+
+def test_successful_browse_refreshes_configured_ttl_in_one_read(browse_system):
+    _, _, event, existing_cache, _ = browse_system
+    existing_cache.redis.delete(existing_cache.key(event))
+    cache = RedisSeats(os.environ["TEST_REDIS_URL"], seatmap_ttl_seconds=3)
+    try:
+        cache.put(
+            event,
+            0,
+            {
+                "seats": [
+                    {
+                        "seat_id": "A",
+                        "source_version": 0,
+                        "price": 100,
+                        "status": "AVAILABLE",
+                        "reserved_until": None,
+                    }
+                ]
+            },
+        )
+        time.sleep(1.1)
+        assert cache.redis.ttl(cache.key(event)) <= 2
+
+        status, tag, _ = cache.browse(event, "availability")
+        assert status == 200
+        assert cache.redis.ttl(cache.key(event)) >= 2
+
+        time.sleep(1.1)
+        assert cache.browse(event, "availability", tag) == (304, tag, None)
+        assert cache.redis.ttl(cache.key(event)) >= 2
+    finally:
+        cache.redis.delete(cache.key(event))
+        cache.redis.close()
 
 
 def test_cache_loss_and_interrupted_write_never_validate_old_body(browse_system):

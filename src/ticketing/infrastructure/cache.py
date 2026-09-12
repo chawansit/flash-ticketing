@@ -30,6 +30,7 @@ if ARGV[1] == 'patch' and (not exists or dirty) then return -1 end
 local rows = cjson.decode(ARGV[2])
 local version = tonumber(redis.call('HGET',KEYS[1],'version') or '0')
 local changed = {}
+local ttl_seconds = tonumber(ARGV[6] or '30')
 if ARGV[1] == 'full' then version = 0 end
 for _,seat in ipairs(rows) do
   local raw = redis.call('HGET',KEYS[1],'seat:'..seat.seat_id)
@@ -52,7 +53,7 @@ redis.call('HSET',KEYS[1],'version',version)
 if ARGV[1] == 'full' then
   redis.call('HSET',KEYS[1],'layout',ARGV[3],'layout_etag',ARGV[4])
   redis.call('HSETNX',KEYS[1],'incarnation',ARGV[5])
-  redis.call('EXPIRE',KEYS[1],30)
+  redis.call('EXPIRE',KEYS[1],ttl_seconds)
 end
 redis.call('HDEL',KEYS[1],'updating')
 return version
@@ -62,11 +63,15 @@ local meta = redis.call('HMGET',KEYS[1],'version','incarnation','updating','layo
 if not meta[1] or not meta[2] or meta[3] or not meta[4] then return {503} end
 local tag = ARGV[1] == 'layout' and meta[4] or ('"availability:'..ARGV[2]..':'..meta[2]..':'..meta[1]..'"')
 for _,candidate in ipairs(cjson.decode(ARGV[3])) do
-  if candidate == '*' or candidate == tag then return {304,tag} end
+  if candidate == '*' or candidate == tag then
+    redis.call('EXPIRE',KEYS[1],tonumber(ARGV[4]))
+    return {304,tag}
+  end
 end
 if ARGV[1] == 'layout' then
   local layout = redis.call('HGET',KEYS[1],'layout')
   if not layout then return {503} end
+  redis.call('EXPIRE',KEYS[1],tonumber(ARGV[4]))
   return {200,tag,layout}
 end
 local result = {200,tag,meta[1]}
@@ -74,19 +79,33 @@ local fields = redis.call('HGETALL',KEYS[1])
 for i=1,#fields,2 do
   if string.sub(fields[i],1,5) == 'seat:' then table.insert(result,fields[i+1]) end
 end
+redis.call('EXPIRE',KEYS[1],tonumber(ARGV[4]))
 return result
 """
 RATE = """
 local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],1) end; return n
 """
+TOUCH = """
+local key = KEYS[1]
+local meta = redis.call('HMGET',key,'version','updating')
+if not meta[1] or meta[2] then
+  return 0
+end
+redis.call('PEXPIRE', key, tonumber(ARGV[1]))
+return 1
+"""
 
 
 class RedisSeats:
-    def __init__(self, url, *, browse_entries=2048, browse_bytes=32 * 1024 * 1024):
+    def __init__(self, url, *, browse_entries=2048, browse_bytes=32 * 1024 * 1024, seatmap_ttl_seconds=30):
         if browse_entries < 0 or browse_bytes < 0:
             raise ValueError("Browse cache limits must be nonnegative")
+        if seatmap_ttl_seconds <= 0:
+            raise ValueError("Seatmap TTL must be positive")
         self._browse_entries = browse_entries
         self._browse_bytes = browse_bytes
+        self._seatmap_ttl_seconds = seatmap_ttl_seconds
+        self._seatmap_ttl_ms = seatmap_ttl_seconds * 1000
         self._bodies = OrderedDict()
         self._body_bytes = 0
         self._body_lock = Lock()
@@ -130,6 +149,7 @@ class RedisSeats:
             raise Failure("SEATMAP_UNAVAILABLE", 503) from exc
         if "version" not in raw or "updating" in raw:
             raise Failure("SEATMAP_WARMING", 503)
+        self._touch(event)
         return {
             "event_id": str(event),
             "version": int(raw["version"]),
@@ -154,7 +174,7 @@ class RedisSeats:
         )
         tag = '"layout:' + hashlib.sha256(layout.encode()).hexdigest() + '"'
         return self.redis.eval(
-            PUT, 1, self.key(event), "full", json.dumps(data["seats"], default=str), layout, tag, str(uuid4())
+            PUT, 1, self.key(event), "full", json.dumps(data["seats"], default=str), layout, tag, str(uuid4()), str(self._seatmap_ttl_seconds)
         )
 
     def patch(self, event, seats):
@@ -165,7 +185,15 @@ class RedisSeats:
             raise ValueError("Unknown browse representation")
         tags = [part.strip().removeprefix("W/") for part in (if_none_match or "").split(",")]
         try:
-            result = self.redis.eval(BROWSE, 1, self.key(event), kind, str(event), json.dumps(tags))
+            result = self.redis.eval(
+                BROWSE,
+                1,
+                self.key(event),
+                kind,
+                str(event),
+                json.dumps(tags),
+                str(self._seatmap_ttl_seconds),
+            )
         except RedisError as exc:
             raise Failure("SEATMAP_UNAVAILABLE", 503) from exc
         if int(result[0]) == 503:
@@ -225,3 +253,9 @@ class RedisSeats:
             BROWSE_BODY_BYTES.set(self._body_bytes)
             BROWSE_BODY_ENTRIES.set(len(self._bodies))
         return 200, tag, encoded
+
+    def _touch(self, event):
+        try:
+            self.redis.eval(TOUCH, 1, self.key(event), str(self._seatmap_ttl_ms))
+        except RedisError:
+            pass

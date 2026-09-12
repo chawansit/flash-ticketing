@@ -12,14 +12,16 @@ class Settings:
     environment: str = os.getenv("ENVIRONMENT", "development")
     hold_seconds: int = int(os.getenv("HOLD_SECONDS", "120"))
     pool_max: int = int(os.getenv("DB_POOL_MAX", "12"))
+    seatmap_ttl_seconds: int = int(os.getenv("SEATMAP_TTL_SECONDS", "30"))
     reserve_concurrency: int = int(os.getenv("RESERVE_CONCURRENCY", "8"))
     publisher_batch_size: int = int(os.getenv("PUBLISHER_BATCH_SIZE", "32"))
     simulator_concurrency: int = int(os.getenv("SIMULATOR_CONCURRENCY", "4"))
     refresh_cooldown_ms: int = int(os.getenv("REFRESH_COOLDOWN_MS", "250"))
     worker_port: int = int(os.getenv("WORKER_METRICS_PORT", "9101"))
-    # Target reconciliation period per active event. Must stay below the 30-second Redis
-    # seat-map TTL, which only a full snapshot extends. This is a scheduling target, not a
-    # freshness guarantee: see ticketing_reconciliation_overdue_seconds.
+    # Target reconciliation period per active event. Must stay below the seatmap TTL
+    # used for read-side keepalive, which is refreshed by successful reads and full rebuilds.
+    # This is a scheduling target, not a hard freshness guarantee: see
+    # ticketing_reconciliation_overdue_seconds.
     reconcile_interval_seconds: int = int(os.getenv("RECONCILE_INTERVAL_SECONDS", "20"))
     # Events are proactively reconciled from this long before sale_starts until this long
     # after sale_ends. Only fields present in the events table are used.
@@ -35,7 +37,7 @@ class Settings:
             self.jwt_secret.startswith("local-") or self.webhook_secret.startswith("local-")
         ):
             raise RuntimeError("Configure JWT_SECRET and WEBHOOK_SECRET outside development")
-        if self.hold_seconds < 1 or self.pool_max < 1 or self.reserve_concurrency < 1:
+        if self.hold_seconds < 1 or self.pool_max < 1 or self.reserve_concurrency < 1 or self.seatmap_ttl_seconds < 1:
             raise RuntimeError("Invalid positive configuration")
         if not 1 <= self.publisher_batch_size <= 100:
             raise RuntimeError("PUBLISHER_BATCH_SIZE must be between 1 and 100")
@@ -43,8 +45,8 @@ class Settings:
             raise RuntimeError("SIMULATOR_CONCURRENCY must fit DB_POOL_MAX")
         if not 1 <= self.refresh_cooldown_ms <= 5000:
             raise RuntimeError("REFRESH_COOLDOWN_MS must be between 1 and 5000")
-        if not 1 <= self.reconcile_interval_seconds < 30:
-            raise RuntimeError("RECONCILE_INTERVAL_SECONDS must be below the 30-second cache TTL")
+        if not 1 <= self.reconcile_interval_seconds < self.seatmap_ttl_seconds:
+            raise RuntimeError("RECONCILE_INTERVAL_SECONDS must be below SEATMAP_TTL_SECONDS")
         if not 0 <= self.reconcile_window_seconds <= 86400:
             raise RuntimeError("RECONCILE_WINDOW_SECONDS must be between 0 and 86400")
         if not 1 <= self.reconcile_batch_size <= 100:

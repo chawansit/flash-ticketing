@@ -103,6 +103,7 @@ async def run(args):
     statuses, latency = defaultdict(Counter), defaultdict(list)
     counts, bytes_received, drops = Counter(), 0, 0
     connection_counts = defaultdict(Counter)
+    transport_phases = defaultdict(Counter)
     expected_hot_conflicts = 0
     transport_errors = Counter()
     transport_examples = []
@@ -199,6 +200,7 @@ async def run(args):
                     event["phase"].rsplit(".", 1)[-1] for event in trace.events
                     if event["phase"].startswith("connection.connect_tcp.")
                 )
+                transport_phases[operation].update(event["phase"] for event in trace.events)
             statuses[operation][status] += 1
             duration = (perf_counter() - begin) * 1000
             latency[operation + ":" + status].append(duration)
@@ -290,6 +292,7 @@ async def run(args):
         "measured_tcp_connect_events": dict(connection_counts) if getattr(args, "transport_diagnostics", False) else None,
         "transport_error_types": dict(transport_errors),
         "transport_diagnostics_enabled": getattr(args, "transport_diagnostics", False),
+        "transport_phase_counts": {operation: dict(values) for operation, values in transport_phases.items()} if args.transport_diagnostics else None,
         "transport_failure_examples": transport_examples,
         "task_error_types": dict(task_errors),
         "scheduling_lag_p95_ms": percentile(lags, 0.95),

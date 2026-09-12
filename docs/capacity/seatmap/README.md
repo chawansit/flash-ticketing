@@ -52,6 +52,11 @@ legacy/conditional at 200. Inventory stays fixed across all six stages; reservat
 use different seats. Earlier holds expire normally and background reconciliation continues.
 No separate tests or benchmarks ran during measured phases.
 
+Each observation sample also collects selected Prometheus series every 2 seconds:
+`ticketing_db_.*`, `ticketing_worker_.*`, and `process_cpu_seconds_total`,
+so latency changes can be correlated to lock waits, pool pressure, and worker utilization.
+
+
 The generator is bounded to 64 in-flight requests and drops late arrivals instead of
 building an unbounded queue. It shares the Windows i7-7700 development machine and
 Docker resources with the services and other workloads. The setup also contains earlier
@@ -78,8 +83,20 @@ durable holds against successful responses and service/queue health.
 Set development TEST_DATABASE_URL and TEST_REDIS_URL as in the runbook, then:
 
 ```powershell
-.venv/Scripts/python.exe scripts/seatmap_load.py --rates 50 100 200 --seconds 30 --shows 100 --viewers 1000 --output new-read-comparison.json
+.venv/Scripts/python.exe scripts/seatmap_load.py --rates 50 100 200 --seconds 30 --shows 100 --viewers 1000 --prometheus http://127.0.0.1:9090 --output new-read-comparison.json
 ```
 
 It creates development show fixtures and retains them; no existing inventory is reset.
+
+To include DB/pool/worker metrics, add `--observe`:
+
+```powershell
+.venv/Scripts/python.exe scripts/seatmap_load.py --observe --rates 50 100 200 --seconds 30 --shows 100 --viewers 1000 --prometheus http://127.0.0.1:9090 --output new-read-comparison-observed.json
+```
+
+After the run, summarize snapshots:
+
+```powershell
+.venv/Scripts/python.exe scripts/summarize_seatmap_load.py new-read-comparison-observed.json
+```
 The fresh-schema domain currently represents each scheduled show using `events`.

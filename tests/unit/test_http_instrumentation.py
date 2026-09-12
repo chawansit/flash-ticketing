@@ -3,6 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from ticketing import http as http_module
 from ticketing.http import RequestInstrumentation
 from ticketing.observability import HOLD_TRACE, REQUEST_ID
 
@@ -89,3 +90,34 @@ def test_streaming_releases_at_headers_and_concurrent_context_is_isolated():
         assert REQUEST_ID.get() is None
         assert len(responses)==4
     asyncio.run(scenario())
+
+def test_connection_tracking_is_bounded(monkeypatch):
+    async def scenario():
+        owner = SimpleNamespace(state=SimpleNamespace(reserve_inflight=0))
+
+        async def downstream(_scope, _receive, send):
+            await send({'type': 'http.response.start', 'status': 200, 'headers': []})
+            await send({'type': 'http.response.body', 'body': b'OK'})
+
+        async def send(_message):
+            return None
+
+        middleware = RequestInstrumentation(downstream, owner, SimpleNamespace(reserve_concurrency=2))
+        for port in range(10):
+            request_scope = scope()
+            request_scope['method'] = 'GET'
+            request_scope['path'] = '/health/live'
+            request_scope['client'] = ('127.0.0.1', port)
+            await middleware(request_scope, receive, send)
+
+    monkeypatch.setattr(http_module, '_CONNECTION_STATE_MAX', 4)
+    monkeypatch.setattr(http_module, '_CONNECTION_STATE_IDLE_SECONDS', 3600)
+    with http_module._connection_state_lock:
+        http_module._connection_state.clear()
+    try:
+        asyncio.run(scenario())
+        with http_module._connection_state_lock:
+            assert len(http_module._connection_state) == 4
+    finally:
+        with http_module._connection_state_lock:
+            http_module._connection_state.clear()

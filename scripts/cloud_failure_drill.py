@@ -1,16 +1,22 @@
 """Bounded service outages on the explicitly named isolated benchmark stack."""
 import argparse
 import json
+import os
 import subprocess
 import time
 import urllib.error
 import urllib.request
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from pathlib import Path as _Path
 from uuid import uuid4
 
-COMPOSE = ['docker','compose','-p','flash-cloud-bench','-f','compose.yaml','-f','compose.private.yaml',
-           '-f','compose.reconciler.yaml','-f','compose.ingress.yaml']
+BASE_DIR = _Path(__file__).resolve().parent.parent
+PROJECT = os.environ.get('FLASH_TICKETING_COMPOSE_PROJECT', 'flash-ticketing')
+COMPOSE = ['docker', 'compose', '-p', PROJECT, '-f', 'compose.yaml']
+for _compose_file in ['compose.private.yaml', 'compose.reconciler.yaml', 'compose.ingress.yaml', 'compose.ingress-benchmark.yaml']:
+    if (BASE_DIR / _compose_file).exists():
+        COMPOSE.extend(['-f', _compose_file])
 
 
 def main():

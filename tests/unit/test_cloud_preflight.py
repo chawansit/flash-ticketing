@@ -15,13 +15,30 @@ def test_preflight_rejects_expiring_credentials_or_closed_sales(tmp_path,monkeyp
  manifest=tmp_path/'private.json'
  manifest.write_text(json.dumps({'environment':'development','show_ids':['one','two'],'expires_at':(datetime.now(UTC)+timedelta(minutes=credential_minutes)).isoformat()}))
  output=tmp_path/'result.json'
- def query(command,**kwargs):
-  code=command[command.index('-c')+1]
-  assert 'SET TRANSACTION READ ONLY' in code
-  assert 'default_transaction_read_only' not in code
-  assert json.loads(command[-2])==['one','two']
-  return json.dumps([2,open_count,'fixture-end'])
- monkeypatch.setattr('subprocess.check_output',query)
+ class FakeCursor:
+  def __enter__(self):
+   return self
+  def __exit__(self,*_):
+   return None
+  def execute(self,query,params):
+   assert 'FROM events WHERE id=ANY(%s::uuid[])' in query
+   assert params[1]==['one','two']
+  def fetchone(self):
+   return [2,open_count,'fixture-end']
+ class FakeConnection:
+  def __init__(self):
+   self.commands=[]
+  def __enter__(self):
+   return self
+  def __exit__(self,*_):
+   return None
+  def execute(self,query):
+   self.commands.append(query)
+   assert query in {'SET TRANSACTION READ ONLY',"SET LOCAL statement_timeout = '20s'"}
+  def cursor(self):
+   assert self.commands==['SET TRANSACTION READ ONLY',"SET LOCAL statement_timeout = '20s'"]
+   return FakeCursor()
+ monkeypatch.setattr('psycopg.connect',lambda *_args,**_kwargs:FakeConnection())
  monkeypatch.setattr(sys,'argv',['preflight','--manifest',str(manifest),'--seconds','300','--output',str(output)])
  with nullcontext() if passes else pytest.raises(SystemExit):
   runpy.run_path(str(scripts/'cloud_load_preflight.py'),run_name='__main__')

@@ -6,6 +6,8 @@ import json
 import math
 import os
 import random
+import urllib.parse
+import urllib.request
 from collections import Counter, defaultdict
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -140,6 +142,18 @@ async def run(args):
                     samples = []
                     stop_observer = asyncio.Event()
 
+                    def query_metrics():
+                        query = urllib.parse.urlencode(
+                            {
+                                "query": '{__name__=~"ticketing_db_.*|ticketing_worker_.*|process_cpu_seconds_total"}'
+                            }
+                        )
+                        with urllib.request.urlopen(args.prometheus + "/api/v1/query?" + query, timeout=2) as response:
+                            payload = json.load(response)
+                            if payload.get("status") != "success":
+                                raise RuntimeError(payload.get("error", "Prometheus query failed"))
+                            return payload["data"]["result"]
+
                     def observe():
                         with psycopg.connect(dsn) as conn:
                             row = conn.execute(
@@ -180,11 +194,17 @@ async def run(args):
                     async def monitor(stop_observer=stop_observer, samples=samples, observe=observe):
                         while not stop_observer.is_set():
                             try:
-                                samples.append(await asyncio.to_thread(observe))
+                                sample = await asyncio.to_thread(observe)
                             except Exception as exc:  # noqa: BLE001 - retain observer failure as evidence
                                 samples.append(
                                     {"utc": datetime.now(UTC).isoformat(), "error": type(exc).__name__}
                                 )
+                                continue
+                            try:
+                                sample["metrics"] = await asyncio.to_thread(query_metrics)
+                            except Exception as exc:  # noqa: BLE001 - keep DB observability even if Prometheus is unavailable
+                                sample["metrics_error"] = type(exc).__name__
+                            samples.append(sample)
                             try:
                                 await asyncio.wait_for(stop_observer.wait(), timeout=2)
                             except TimeoutError:
@@ -269,6 +289,7 @@ if __name__ == "__main__":
     parser.add_argument("--viewers", type=int, default=1000)
     parser.add_argument("--inflight", type=int, default=64)
     parser.add_argument("--url", default="http://127.0.0.1:8000")
+    parser.add_argument("--prometheus", default="http://127.0.0.1:9090")
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
     if (
