@@ -55,3 +55,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0029: Long-run stability and slow-commit isolation workflow](0029-long-run-stability-validation.md)
 
 - [0030: Keep-seatmap-hot-path reads alive by TTL touch](0030-read-path-ttl-touch.md)
+
+- [0031: Partial index for active seat ownership](0031-active-seat-owner-index.md)
