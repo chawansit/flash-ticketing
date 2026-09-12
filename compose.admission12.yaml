@@ -1,0 +1,4 @@
+services:
+  api:
+    environment:
+      RESERVE_CONCURRENCY: "12"
