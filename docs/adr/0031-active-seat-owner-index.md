@@ -77,3 +77,13 @@ cloud CPU measurements are retained in the Huawei long-run report. After migrati
 from 5,112 to 8.14 in the local PostgreSQL plan. Ruff passed, 68 unit tests passed and
 57 PostgreSQL/Redis integration tests passed, with two existing dependency warnings.
 Matched cloud-load evidence remains pending and will be appended after execution.
+### Huawei matched load on 2026-09-12
+
+At commit `152414d`, the same 400 RPS / 30-minute workload reduced PostgreSQL
+mean CPU from 86.34% to 30.78%, API transaction mean from 17.28 ms to 11.54 ms,
+read p95 from 13.05 ms to 9.94 ms and hold p95 from 45.35 ms to 37.27 ms.
+Across 72,000 seat updates, the `event_seats` sequential-scan delta was zero.
+All 36,000 acknowledged holds passed durability and overlap verification, and
+all queues drained. One of 684,000 reads ended in a connection reset, so the
+strict workload gate failed and the planned 500 RPS stage was not run. See the
+[retained report](../capacity/postgres-owner-index/README.md).

@@ -114,3 +114,5 @@ Latest staged validation: [400 RPS sustained; 500 RPS rejected requests](staged-
 Latest long-run boundary: [400 RPS clean; 500 RPS admission boundary; fixed-budget worker comparison](huawei-long-run-bea33ce/README.md).
 
 Latest experiment: [direct ASGI instrumentation, mixed-load limits and recovery validation](overnight/README.md). Workload definitions and retained failures are explicit; do not compare a changed write mix as a like-for-like throughput gain.
+
+- [Active seat-owner index: matched Huawei validation](postgres-owner-index/README.md)
