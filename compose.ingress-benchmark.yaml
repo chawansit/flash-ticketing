@@ -7,4 +7,4 @@ services:
       - ./scripts/thread_dispatch_probe.py:/app/thread_dispatch_probe.py:ro
     environment:
       DISPATCH_PROBE: ${DISPATCH_PROBE:-0}
-      RESERVE_CONCURRENCY: ${EXPERIMENT_ADMISSION:-8}
+      RESERVE_CONCURRENCY: ${EXPERIMENT_ADMISSION:-12}
