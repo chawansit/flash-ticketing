@@ -1,0 +1,61 @@
+{
+  "utc": "2026-09-12T14:44:32.473162+00:00",
+  "hot_read_share": 0,
+  "burst": false,
+  "mixed_hot_holds": false,
+  "keepalive_expiry_seconds": 5.0,
+  "rate": 500,
+  "seconds": 1800,
+  "workers": 4,
+  "worker_rates": [
+    125,
+    125,
+    125,
+    125
+  ],
+  "worker_exit_codes": [
+    1,
+    1,
+    0,
+    1
+  ],
+  "start_skew_ms": 0.19,
+  "generator_drops": 0,
+  "worst_worker_read_p95_ms": 17.914113006554544,
+  "worst_worker_hold_p95_ms": 54.93693798780441,
+  "transport_phase_counts": {
+    "read": {
+      "connection.connect_tcp.started": 2811,
+      "connection.connect_tcp.complete": 2811,
+      "http11.send_request_headers.started": 855000,
+      "http11.send_request_headers.complete": 855000,
+      "http11.send_request_body.started": 855000,
+      "http11.send_request_body.complete": 855000,
+      "http11.receive_response_headers.started": 855000,
+      "http11.receive_response_headers.complete": 855000,
+      "http11.receive_response_body.started": 855000,
+      "http11.receive_response_body.complete": 855000,
+      "http11.response_closed.started": 855000,
+      "http11.response_closed.complete": 855000
+    },
+    "hold": {
+      "connection.connect_tcp.started": 70,
+      "connection.connect_tcp.complete": 70,
+      "http11.send_request_headers.started": 45000,
+      "http11.send_request_headers.complete": 45000,
+      "http11.send_request_body.started": 45000,
+      "http11.send_request_body.complete": 45000,
+      "http11.receive_response_headers.started": 45000,
+      "http11.receive_response_headers.complete": 45000,
+      "http11.receive_response_body.started": 45000,
+      "http11.receive_response_body.complete": 45000,
+      "http11.response_closed.started": 45000,
+      "http11.response_closed.complete": 45000
+    }
+  },
+  "transport_errors": {},
+  "coordination_gate_pass": false,
+  "workload_gate_pass": false,
+  "gate_pass": false,
+  "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+}

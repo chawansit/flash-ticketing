@@ -1,0 +1,381 @@
+{
+  "rate": 500,
+  "load": {
+    "utc": "2026-09-12T14:44:32.473162+00:00",
+    "hot_read_share": 0,
+    "burst": false,
+    "mixed_hot_holds": false,
+    "keepalive_expiry_seconds": 5.0,
+    "rate": 500,
+    "seconds": 1800,
+    "workers": 4,
+    "worker_rates": [
+      125,
+      125,
+      125,
+      125
+    ],
+    "worker_exit_codes": [
+      1,
+      1,
+      0,
+      1
+    ],
+    "start_skew_ms": 0.19,
+    "generator_drops": 0,
+    "worst_worker_read_p95_ms": 17.914113006554544,
+    "worst_worker_hold_p95_ms": 54.93693798780441,
+    "transport_phase_counts": {
+      "read": {
+        "connection.connect_tcp.started": 2811,
+        "connection.connect_tcp.complete": 2811,
+        "http11.send_request_headers.started": 855000,
+        "http11.send_request_headers.complete": 855000,
+        "http11.send_request_body.started": 855000,
+        "http11.send_request_body.complete": 855000,
+        "http11.receive_response_headers.started": 855000,
+        "http11.receive_response_headers.complete": 855000,
+        "http11.receive_response_body.started": 855000,
+        "http11.receive_response_body.complete": 855000,
+        "http11.response_closed.started": 855000,
+        "http11.response_closed.complete": 855000
+      },
+      "hold": {
+        "connection.connect_tcp.started": 70,
+        "connection.connect_tcp.complete": 70,
+        "http11.send_request_headers.started": 45000,
+        "http11.send_request_headers.complete": 45000,
+        "http11.send_request_body.started": 45000,
+        "http11.send_request_body.complete": 45000,
+        "http11.receive_response_headers.started": 45000,
+        "http11.receive_response_headers.complete": 45000,
+        "http11.receive_response_body.started": 45000,
+        "http11.receive_response_body.complete": 45000,
+        "http11.response_closed.started": 45000,
+        "http11.response_closed.complete": 45000
+      }
+    },
+    "transport_errors": {},
+    "coordination_gate_pass": false,
+    "workload_gate_pass": false,
+    "gate_pass": false,
+    "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+  },
+  "durability": {
+    "runs": [
+      {
+        "run_id": "72e120b1-c8ed-4cf8-9e83-250fcf11f814",
+        "acknowledged_201": 11249,
+        "idempotency_records": 11249,
+        "distinct_holds": 11249,
+        "distinct_orders": 11249,
+        "broken_links": 0,
+        "active_holds": 0,
+        "overdue_holds": 0,
+        "pending_orders": 0,
+        "pass": true
+      },
+      {
+        "run_id": "7a0fc0df-f2b0-4520-89d8-63d9ad900299",
+        "acknowledged_201": 11249,
+        "idempotency_records": 11249,
+        "distinct_holds": 11249,
+        "distinct_orders": 11249,
+        "broken_links": 0,
+        "active_holds": 0,
+        "overdue_holds": 0,
+        "pending_orders": 0,
+        "pass": true
+      },
+      {
+        "run_id": "f0d782a0-9ae6-40e8-b6de-70ba06ba16b6",
+        "acknowledged_201": 11249,
+        "idempotency_records": 11249,
+        "distinct_holds": 11249,
+        "distinct_orders": 11249,
+        "broken_links": 0,
+        "active_holds": 0,
+        "overdue_holds": 0,
+        "pending_orders": 0,
+        "pass": true
+      },
+      {
+        "run_id": "f8810c4e-4d0a-4fac-bda5-704082466db1",
+        "acknowledged_201": 11250,
+        "idempotency_records": 11250,
+        "distinct_holds": 11250,
+        "distinct_orders": 11250,
+        "broken_links": 0,
+        "active_holds": 0,
+        "overdue_holds": 0,
+        "pending_orders": 0,
+        "pass": true
+      }
+    ],
+    "queues_snapshot": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0
+    },
+    "audited_holds": 44997,
+    "audited_seat_intervals": 44997,
+    "overlapping_load_hold_intervals": 0,
+    "durability_and_expiry_pass": true,
+    "note": "Run after expiry drain for workloads without explicit early release. Intervals use order creation to hold expiry and cover only selected load run IDs. Queue counts are global context; this is not a payment test."
+  },
+  "observer": {
+    "api_metric_row_count": 863,
+    "db_commit_delta_count": 44963.0,
+    "db_commit_delta_sum": 89.93537137832027,
+    "db_commit_avg_ms": 2.0002084242225893,
+    "db_rollback_delta_count": 0.0,
+    "db_rollback_delta_sum": 0.0,
+    "db_rollback_avg_ms": null,
+    "db_pool_return_delta_count": 44963.0,
+    "db_pool_return_delta_sum": 0.44337354745948687,
+    "db_pool_return_avg_ms": 0.009860853311822763,
+    "db_pool_acquire_delta_count": 44963.0,
+    "db_pool_acquire_delta_sum": 936.7651735302061,
+    "db_pool_acquire_avg_ms": 20.834134144301007,
+    "db_query_count": 626476.0,
+    "db_query_sum": 816.5985095340293,
+    "db_query_avg_ms": 1.303479318495887,
+    "db_transaction_body_sum": 842.050636888016,
+    "db_transaction_body_count": 44963.0,
+    "db_transaction_body_avg_ms": 18.727634652670332,
+    "worker_busy_delta_sum": 0.0,
+    "worker_active_max": 0.0,
+    "http_close_delta": 0.0,
+    "lock_waiter_max": 0,
+    "checkpoint_request_delta": 0,
+    "checkpoint_sync_ms_delta": 170.0,
+    "wal_sync_ms_delta": 0.0,
+    "wal_write_ms_delta": 0.0,
+    "minimum_ttl_min": 10
+  },
+  "observer_samples": 863,
+  "observer_errors": [],
+  "database_connections": {
+    "samples": 863,
+    "mean": 12.13673232908459,
+    "max": 14
+  },
+  "active_connections": {
+    "samples": 863,
+    "mean": 1.4032444959443802,
+    "max": 4
+  },
+  "lock_waiters": {
+    "samples": 863,
+    "mean": 0.0,
+    "max": 0
+  },
+  "reconciliation_age_seconds": {
+    "samples": 863,
+    "mean": 19.204845755504056,
+    "max": 20.490071
+  },
+  "overdue_active_holds": {
+    "samples": 863,
+    "mean": 2.0162224797219004,
+    "max": 7
+  },
+  "oldest_overdue_seconds": {
+    "samples": 863,
+    "mean": 0.029691960602549246,
+    "max": 0.205488
+  },
+  "missing_maps": {
+    "samples": 863,
+    "mean": 0.0,
+    "max": 0
+  },
+  "maps_without_ttl": {
+    "samples": 863,
+    "mean": 0.0,
+    "max": 0
+  },
+  "container_cpu_percent_one_core": {
+    "flash-ticketing-api-1": {
+      "samples": 179,
+      "mean": 79.65821229050279,
+      "max": 110.61
+    },
+    "flash-ticketing-publisher-1": {
+      "samples": 179,
+      "mean": 4.834078212290502,
+      "max": 6.44
+    },
+    "flash-ticketing-simulator-1": {
+      "samples": 179,
+      "mean": 3.7173184357541897,
+      "max": 4.74
+    },
+    "flash-ticketing-maintenance-1": {
+      "samples": 179,
+      "mean": 17.08368715083799,
+      "max": 21.75
+    },
+    "flash-ticketing-reconciler-1": {
+      "samples": 179,
+      "mean": 10.045307262569832,
+      "max": 33.61
+    },
+    "flash-ticketing-consumer-1": {
+      "samples": 179,
+      "mean": 8.943743016759777,
+      "max": 16.35
+    },
+    "flash-ticketing-prometheus-1": {
+      "samples": 179,
+      "mean": 0.3056424581005587,
+      "max": 1.37
+    },
+    "flash-ticketing-pgbouncer-1": {
+      "samples": 179,
+      "mean": 13.47173184357542,
+      "max": 19.4
+    },
+    "flash-ticketing-postgres-1": {
+      "samples": 179,
+      "mean": 33.626089385474856,
+      "max": 51.88
+    },
+    "flash-ticketing-redis-1": {
+      "samples": 179,
+      "mean": 12.509888268156425,
+      "max": 49.74
+    },
+    "flash-ticketing-kafka-1": {
+      "samples": 179,
+      "mean": 20.742793296089385,
+      "max": 156.29
+    }
+  },
+  "host_busy_percent": {
+    "samples": 178,
+    "mean": 56.61212622430449,
+    "max": 63.69756602796478
+  },
+  "table_delta": {
+    "bookings": {
+      "seq_scan": 0,
+      "idx_scan": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "consumer_inbox": {
+      "seq_scan": 0,
+      "idx_scan": 89994,
+      "n_tup_ins": 89994,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "dead_letters": {
+      "seq_scan": 1,
+      "idx_scan": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "event_reconciliation": {
+      "seq_scan": 5856,
+      "idx_scan": 270482,
+      "n_tup_ins": 0,
+      "n_tup_upd": 168388,
+      "n_tup_del": 0
+    },
+    "event_seats": {
+      "seq_scan": 0,
+      "idx_scan": 398226,
+      "n_tup_ins": 0,
+      "n_tup_upd": 89994,
+      "n_tup_del": 0
+    },
+    "events": {
+      "seq_scan": 3884,
+      "idx_scan": 351035,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "holds": {
+      "seq_scan": 5,
+      "idx_scan": 393734,
+      "n_tup_ins": 44997,
+      "n_tup_upd": 44997,
+      "n_tup_del": 0
+    },
+    "idempotency_records": {
+      "seq_scan": 5,
+      "idx_scan": 89994,
+      "n_tup_ins": 44997,
+      "n_tup_upd": 44997,
+      "n_tup_del": 0
+    },
+    "order_items": {
+      "seq_scan": 1,
+      "idx_scan": 2,
+      "n_tup_ins": 44997,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "orders": {
+      "seq_scan": 5,
+      "idx_scan": 276899,
+      "n_tup_ins": 44997,
+      "n_tup_upd": 44997,
+      "n_tup_del": 0
+    },
+    "outbox_events": {
+      "seq_scan": 0,
+      "idx_scan": 257497,
+      "n_tup_ins": 89994,
+      "n_tup_upd": 179988,
+      "n_tup_del": 0
+    },
+    "payment_attempts": {
+      "seq_scan": 79645,
+      "idx_scan": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "payment_callbacks": {
+      "seq_scan": 0,
+      "idx_scan": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "refund_requests": {
+      "seq_scan": 0,
+      "idx_scan": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "schema_migrations": {
+      "seq_scan": 0,
+      "idx_scan": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    },
+    "seat_refresh_requests": {
+      "seq_scan": 158358,
+      "idx_scan": 335176,
+      "n_tup_ins": 0,
+      "n_tup_upd": 269556,
+      "n_tup_del": 0
+    },
+    "tickets": {
+      "seq_scan": 0,
+      "idx_scan": 0,
+      "n_tup_ins": 0,
+      "n_tup_upd": 0,
+      "n_tup_del": 0
+    }
+  }
+}

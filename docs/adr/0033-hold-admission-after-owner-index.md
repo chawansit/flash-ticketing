@@ -1,6 +1,6 @@
 # ADR 0033: Re-evaluate hold admission after owner-index optimization
 
-Status: Proposed; bounded experiment authorized, default admission remains eight
+Status: Accepted; admission twelve is the single-process default
 
 ## Context
 
@@ -77,8 +77,25 @@ before restoring or advancing configuration.
 
 ## Validation evidence
 
-Pending. The admission-eight control at commit `1a68518` attempted 900,000
+The admission-eight control at commit `1a68518` attempted 900,000
 requests with zero transport errors or drops. Three holds returned
-`ADMISSION_FULL`; read p95 was 17.914 ms and hold p95 was 54.937 ms. All
-44,997 accepted holds passed post-expiry durability and overlap checks, and all
-observed queues drained.
+`ADMISSION_FULL` in the same millisecond at occupancy 8/8; read p95 was
+17.914 ms and hold p95 was 54.937 ms. All 44,997 accepted holds passed
+post-expiry durability and overlap checks, and all observed queues drained.
+
+The matched admission-twelve candidate attempted 900,000 requests with zero
+unexpected responses, transport errors or drops. Read p95 was 16.694 ms and
+hold p95 was 57.666 ms. Mean pool acquire fell from 20.834 to 17.554 ms,
+transaction body from 18.728 to 15.691 ms and commit from 2.000 to 1.759 ms.
+PostgreSQL mean CPU increased from 33.626% to 37.829% of one core; sampled
+active connections peaked at five and lock waiters remained zero.
+
+All 45,000 HTTP 201 responses matched idempotency records, holds and orders.
+Broken links, active and overdue holds, pending orders and overlapping seat
+intervals were zero. Outbox, refresh and dead-letter queues drained to zero.
+API restart and OOM counts were zero.
+
+Accept admission twelve as the single-process default. This explicitly
+supersedes the admission-eight default portion of ADRs 0020 and 0029; their
+historical experiments and other decisions remain valid. DB pool maximum stays
+twelve. See [the retained report](../capacity/huawei-keepalive-admission/README.md).

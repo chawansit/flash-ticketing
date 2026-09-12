@@ -1,6 +1,6 @@
 # ADR 0032: Server keep-alive margin experiment
 
-Status: Proposed; experiment authorized, production default unchanged
+Status: Accepted for the measured benchmark topology; general production default unchanged
 
 ## Context
 
@@ -74,4 +74,18 @@ before changing configuration.
 The five/five control at commit `152414d` attempted 720,000 requests with one
 reused-connection reset and zero drops. All 36,000 holds remained durable with
 zero overlap and all queues drained. PostgreSQL indexing evidence is recorded in
-ADR 0031. Candidate evidence remains pending.
+ADR 0031.
+
+The ten/five candidate at commit `1a68518` passed 400 RPS for 30 minutes:
+720,000 requests, zero unexpected responses, transport errors or drops, read
+p95 12.817 ms and hold p95 38.715 ms. The subsequent 500 RPS admission-eight
+control and admission-twelve candidate completed another 1.8 million requests
+without a transport error. All accepted holds passed post-expiry durability and
+overlap checks.
+
+Accept ten-second server keep-alive for this measured benchmark topology while
+the client pool expiry remains five seconds. Keep the script fallback at five
+seconds and the override explicit because an external load balancer requires a
+separate timeout decision. This evidence clears the capacity-test transport
+gate but does not prove universal elimination of resets. Full evidence is in
+[the Huawei report](../capacity/huawei-keepalive-admission/README.md).

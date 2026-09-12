@@ -116,3 +116,5 @@ Latest long-run boundary: [400 RPS clean; 500 RPS admission boundary; fixed-budg
 Latest experiment: [direct ASGI instrumentation, mixed-load limits and recovery validation](overnight/README.md). Workload definitions and retained failures are explicit; do not compare a changed write mix as a like-for-like throughput gain.
 
 - [Active seat-owner index: matched Huawei validation](postgres-owner-index/README.md)
+
+- [Keep-alive margin and admission-12 Huawei validation](huawei-keepalive-admission/README.md)

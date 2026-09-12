@@ -13,7 +13,7 @@ class Settings:
     hold_seconds: int = int(os.getenv("HOLD_SECONDS", "120"))
     pool_max: int = int(os.getenv("DB_POOL_MAX", "12"))
     seatmap_ttl_seconds: int = int(os.getenv("SEATMAP_TTL_SECONDS", "30"))
-    reserve_concurrency: int = int(os.getenv("RESERVE_CONCURRENCY", "8"))
+    reserve_concurrency: int = int(os.getenv("RESERVE_CONCURRENCY", "12"))
     publisher_batch_size: int = int(os.getenv("PUBLISHER_BATCH_SIZE", "32"))
     simulator_concurrency: int = int(os.getenv("SIMULATOR_CONCURRENCY", "4"))
     refresh_cooldown_ms: int = int(os.getenv("REFRESH_COOLDOWN_MS", "250"))
