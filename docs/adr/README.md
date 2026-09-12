@@ -63,3 +63,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0033: Re-evaluate hold admission after owner-index optimization](0033-hold-admission-after-owner-index.md)
 
 - [0034: Fixed-budget horizontal API scaling experiment](0034-fixed-budget-horizontal-api.md)
+
+- [0035: Separate PostgreSQL onto managed RDS](0035-managed-postgresql-separation.md)

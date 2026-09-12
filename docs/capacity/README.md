@@ -120,3 +120,5 @@ Latest experiment: [direct ASGI instrumentation, mixed-load limits and recovery 
 - [Keep-alive margin and admission-12 Huawei validation](huawei-keepalive-admission/README.md)
 
 - [Fixed-budget horizontal API validation](huawei-horizontal-api/README.md)
+
+- [Huawei RDS preparation and local PostgreSQL control](huawei-rds/README.md)

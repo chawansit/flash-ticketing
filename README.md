@@ -98,7 +98,8 @@ adapter. Every seat mutation goes through that one adapter, including expiry and
 Workers are separate processes, not separate seat-owning microservices.
 
 See [architecture](docs/architecture.md), [failure scenarios](docs/failure-modes.md),
-[runbook](docs/runbook.md), and [acceptance criteria](docs/acceptance.md).
+[runbook](docs/runbook.md), [RDS validation runbook](docs/rds-runbook.md), and
+[acceptance criteria](docs/acceptance.md).
 
 ## Deliberate scope and deployment limits
 

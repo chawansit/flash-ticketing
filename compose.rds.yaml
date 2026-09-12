@@ -1,0 +1,52 @@
+services:
+  # The local database is not started unless its explicit profile is selected.
+  postgres:
+    profiles: ["local-database"]
+
+  pgbouncer:
+    environment:
+      DB_HOST: ${RDS_HOST:?Set RDS_HOST in the private RDS environment file}
+      DB_PORT: ${RDS_PORT:-5432}
+      DB_USER: ${RDS_USER:?Set RDS_USER in the private RDS environment file}
+      DB_PASSWORD: ${RDS_PASSWORD:?Set RDS_PASSWORD in the private RDS environment file}
+      DB_NAME: ${RDS_DB:-ticketing}
+      SERVER_TLS_SSLMODE: ${RDS_SSLMODE:-verify-full}
+      SERVER_TLS_CA_FILE: /etc/pgbouncer/rds-ca.pem
+      DEFAULT_POOL_SIZE: ${RDS_PGBOUNCER_POOL_SIZE:-12}
+      MAX_CLIENT_CONN: ${RDS_PGBOUNCER_MAX_CLIENT_CONN:-160}
+      RESERVE_POOL_SIZE: 0
+      QUERY_WAIT_TIMEOUT: ${RDS_PGBOUNCER_QUERY_WAIT_TIMEOUT:-1}
+    volumes:
+      - ${RDS_CA_FILE:-./secrets/rds-ca.pem}:/etc/pgbouncer/rds-ca.pem:ro
+    depends_on: !reset []
+
+  migrate:
+    environment:
+      DATABASE_URL: ${RDS_MIGRATION_URL:?Set RDS_MIGRATION_URL in the private RDS environment file}
+      PGSSLROOTCERT: /etc/ssl/certs/rds-ca.pem
+    volumes:
+      - ${RDS_CA_FILE:-./secrets/rds-ca.pem}:/etc/ssl/certs/rds-ca.pem:ro
+    depends_on: !reset []
+
+  api:
+    environment: &rds-runtime
+      DATABASE_URL: ${RDS_POOLED_DATABASE_URL:?Set RDS_POOLED_DATABASE_URL in the private RDS environment file}
+  publisher:
+    environment: *rds-runtime
+  consumer:
+    environment: *rds-runtime
+  maintenance:
+    environment: *rds-runtime
+  reconciler:
+    environment: *rds-runtime
+  simulator:
+    environment: *rds-runtime
+  seed:
+    environment: *rds-runtime
+  tests:
+    environment:
+      DATABASE_URL: ${RDS_POOLED_DATABASE_URL:?Set RDS_POOLED_DATABASE_URL in the private RDS environment file}
+      TEST_DATABASE_URL: ${RDS_MIGRATION_URL:?Set RDS_MIGRATION_URL in the private RDS environment file}
+      PGSSLROOTCERT: /etc/ssl/certs/rds-ca.pem
+    volumes:
+      - ${RDS_CA_FILE:-./secrets/rds-ca.pem}:/etc/ssl/certs/rds-ca.pem:ro

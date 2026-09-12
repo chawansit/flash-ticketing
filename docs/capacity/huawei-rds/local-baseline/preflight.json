@@ -1,0 +1,49 @@
+{
+  "utc": "2026-09-12T23:17:29.364848+00:00",
+  "target": "redacted",
+  "attempts": 5,
+  "transaction_attempts": 10,
+  "require_schema": true,
+  "failures": [],
+  "dns_ms": 6.766910999431275,
+  "resolved_address_count": 1,
+  "tcp_ms": {
+    "minimum": 0.4500340000959113,
+    "median": 0.5304400037857704,
+    "p95": 0.606044995947741,
+    "maximum": 0.606044995947741
+  },
+  "connect_ms": {
+    "minimum": 8.52454399864655,
+    "median": 8.749561005970463,
+    "p95": 10.457889999088366,
+    "maximum": 10.457889999088366
+  },
+  "server": {
+    "server_version_num": 170006,
+    "server_version": "17.6 (Debian 17.6-2.pgdg13+1)",
+    "timezone": "Etc/UTC",
+    "encoding": "UTF8",
+    "max_connections": 100,
+    "in_recovery": false,
+    "transaction_read_only": "off",
+    "ssl": false,
+    "tls_version": null,
+    "tls_cipher": null
+  },
+  "transaction_ms": {
+    "minimum": 0.5322400029399432,
+    "median": 0.692652498401003,
+    "p95": 1.2531949978438206,
+    "maximum": 1.2531949978438206
+  },
+  "schema": {
+    "migration_count": 5,
+    "expected_migration_count": 5,
+    "required_tables_found": 17,
+    "required_tables_expected": 17,
+    "required_indexes_found": 9,
+    "required_indexes_expected": 9
+  },
+  "pass": true
+}
