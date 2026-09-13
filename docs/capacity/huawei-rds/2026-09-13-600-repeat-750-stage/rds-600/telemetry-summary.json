@@ -1,0 +1,122 @@
+{
+  "measurement_window_utc": {
+    "start": "2026-09-13T06:34:40.851624+00:00",
+    "end": "2026-09-13T07:04:40.963692+00:00"
+  },
+  "request_accounting": {
+    "scheduled": 1080000,
+    "completed": 1080000,
+    "holds_201": 54000,
+    "generator_drops": 0,
+    "worker_exit_gate_pass": true,
+    "accounting_pass": true,
+    "transport_errors": 0,
+    "task_errors": 0
+  },
+  "worker_scheduling": [
+    {
+      "worker": 0,
+      "lag_p95_ms": 1.0639296961016953,
+      "lag_p99_ms": 1.1271623661741614,
+      "lag_p999_ms": 1.7201683949679136,
+      "lag_max_ms": 36.566547700203955,
+      "lag_over_10ms": 93,
+      "lag_over_25ms": 16,
+      "lag_over_50ms": 0,
+      "late_drop_examples": []
+    },
+    {
+      "worker": 1,
+      "lag_p95_ms": 1.0648933239281178,
+      "lag_p99_ms": 1.1283109779469669,
+      "lag_p999_ms": 1.6730229835957289,
+      "lag_max_ms": 35.8812203630805,
+      "lag_over_10ms": 99,
+      "lag_over_25ms": 20,
+      "lag_over_50ms": 0,
+      "late_drop_examples": []
+    },
+    {
+      "worker": 2,
+      "lag_p95_ms": 1.0619116947054863,
+      "lag_p99_ms": 1.1266649817116559,
+      "lag_p999_ms": 1.7267449875362217,
+      "lag_max_ms": 39.839940320234746,
+      "lag_over_10ms": 107,
+      "lag_over_25ms": 25,
+      "lag_over_50ms": 0,
+      "late_drop_examples": []
+    },
+    {
+      "worker": 3,
+      "lag_p95_ms": 1.058530993759632,
+      "lag_p99_ms": 1.1226866045035422,
+      "lag_p999_ms": 1.6997979837469757,
+      "lag_max_ms": 39.251226640772074,
+      "lag_over_10ms": 94,
+      "lag_over_25ms": 19,
+      "lag_over_50ms": 0,
+      "late_drop_examples": []
+    }
+  ],
+  "generator_observer": {
+    "samples_total": 1900,
+    "samples_in_measurement_window": 1800,
+    "errors_total": 0,
+    "observer_wake_lag_p95_ms": 0.10250502964481711,
+    "observer_wake_lag_p99_ms": 0.11818902567029,
+    "observer_wake_lag_max_ms": 0.14454202027991414,
+    "host_cpu_busy_p95_pct": 14.304,
+    "host_cpu_busy_max_pct": 28.141,
+    "host_iowait_max_pct": 0.879,
+    "host_steal_max_pct": 0.0,
+    "load_process_cpu_p95_pct": 111.0,
+    "load_process_cpu_max_pct": 124.001,
+    "cpu_some_avg10_max": 0.0,
+    "cpu_full_avg10_max": 0.0,
+    "memory_some_avg10_max": 0.0,
+    "memory_full_avg10_max": 0.0,
+    "io_some_avg10_max": 0.18,
+    "io_full_avg10_max": 0.18,
+    "network_delta_errors_and_drops": {
+      "rx_errors": 0,
+      "rx_drops": 0,
+      "tx_errors": 0,
+      "tx_drops": 0
+    },
+    "note": "Process CPU includes four workers and the coordinator. A zero-CPU SSH wrapper matched the configured substring; it does not change CPU deltas.",
+    "last_sample_utc": "2026-09-13T07:04:49.534226+00:00",
+    "tail_gap_seconds": 0.0,
+    "measurement_window_coverage_complete": true
+  },
+  "backend_observer": {
+    "samples_total": 915,
+    "samples_in_measurement_window": 866,
+    "errors_total": 0,
+    "database_connections_max": 13,
+    "active_connections_max": 10,
+    "lock_waiters_max": 0,
+    "overdue_active_holds_max": 27,
+    "missing_maps_max": 0,
+    "maps_without_ttl_max": 0,
+    "api_pool_requests_waiting_max": 0,
+    "api_pool_available_min": 1.0,
+    "commit_count_delta": 27309.0,
+    "commit_avg_ms": 3.8979781151903783,
+    "pool_acquire_count_delta": 27309.0,
+    "pool_acquire_avg_ms": 27.28914400013916,
+    "wal_records_delta": 4452452,
+    "wal_bytes_delta": 742075274,
+    "checkpoints_timed_delta": 2,
+    "checkpoints_requested_delta": 0,
+    "buffers_backend_fsync_delta": 0,
+    "note": "API metric deltas cover the single observed API replica; PostgreSQL and Redis samples cover shared services.",
+    "last_sample_utc": "2026-09-13T07:05:25.265651+00:00",
+    "tail_gap_seconds": 0.0,
+    "measurement_window_coverage_complete": true
+  },
+  "exact_window_logs": {
+    "api_replica_2_admission_full": 0,
+    "api_replica_3_admission_full": 0
+  }
+}

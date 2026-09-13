@@ -1,0 +1,143 @@
+{
+  "measurement_window_utc": {
+    "start": "2026-09-13T07:29:43.052489+00:00",
+    "end": "2026-09-13T07:59:43.230631+00:00"
+  },
+  "request_accounting": {
+    "scheduled": 1350000,
+    "completed": 1349997,
+    "holds_201": 67497,
+    "generator_drops": 3,
+    "worker_exit_gate_pass": false,
+    "accounting_pass": true,
+    "transport_errors": 0,
+    "admission_full_responses": 3,
+    "task_errors": 0
+  },
+  "worker_scheduling": [
+    {
+      "worker": 0,
+      "lag_p95_ms": 1.0636282968334854,
+      "lag_p99_ms": 1.187048968859017,
+      "lag_p999_ms": 2.076225879136473,
+      "lag_max_ms": 45.3099753940478,
+      "lag_over_10ms": 216,
+      "lag_over_25ms": 74,
+      "lag_over_50ms": 0,
+      "late_drop_examples": []
+    },
+    {
+      "worker": 1,
+      "lag_p95_ms": 1.062476309016347,
+      "lag_p99_ms": 1.1693188571371138,
+      "lag_p999_ms": 2.1387069718912244,
+      "lag_max_ms": 44.98851852258667,
+      "lag_over_10ms": 229,
+      "lag_over_25ms": 81,
+      "lag_over_50ms": 0,
+      "late_drop_examples": []
+    },
+    {
+      "worker": 2,
+      "lag_p95_ms": 1.0626994189806283,
+      "lag_p99_ms": 1.1672088876366615,
+      "lag_p999_ms": 2.232977538369596,
+      "lag_max_ms": 54.91899629123509,
+      "lag_over_10ms": 236,
+      "lag_over_25ms": 87,
+      "lag_over_50ms": 2,
+      "late_drop_examples": [
+        {
+          "index": 335915,
+          "utc": "2026-09-13T07:59:39.470942+00:00",
+          "lag_ms": 54.919,
+          "pending": 6
+        },
+        {
+          "index": 335916,
+          "utc": "2026-09-13T07:59:39.472507+00:00",
+          "lag_ms": 51.139,
+          "pending": 6
+        }
+      ]
+    },
+    {
+      "worker": 3,
+      "lag_p95_ms": 1.0621632682159543,
+      "lag_p99_ms": 1.1775888851843774,
+      "lag_p999_ms": 2.0608436316251755,
+      "lag_max_ms": 51.31142830941826,
+      "lag_over_10ms": 216,
+      "lag_over_25ms": 76,
+      "lag_over_50ms": 1,
+      "late_drop_examples": [
+        {
+          "index": 331957,
+          "utc": "2026-09-13T07:59:18.276021+00:00",
+          "lag_ms": 51.311,
+          "pending": 2
+        }
+      ]
+    }
+  ],
+  "generator_observer": {
+    "samples_total": 1900,
+    "samples_in_measurement_window": 1766,
+    "errors_total": 0,
+    "observer_wake_lag_p95_ms": 0.1059730420820415,
+    "observer_wake_lag_p99_ms": 0.11971400817856193,
+    "observer_wake_lag_max_ms": 0.1569100422784686,
+    "host_cpu_busy_p95_pct": 17.691,
+    "host_cpu_busy_max_pct": 23.618,
+    "host_iowait_max_pct": 0.376,
+    "host_steal_max_pct": 0.0,
+    "load_process_cpu_p95_pct": 137.997,
+    "load_process_cpu_max_pct": 183.002,
+    "cpu_some_avg10_max": 0.0,
+    "cpu_full_avg10_max": 0.0,
+    "memory_some_avg10_max": 0.0,
+    "memory_full_avg10_max": 0.0,
+    "io_some_avg10_max": 0.0,
+    "io_full_avg10_max": 0.0,
+    "network_delta_errors_and_drops": {
+      "rx_errors": 0,
+      "rx_drops": 0,
+      "tx_errors": 0,
+      "tx_drops": 0
+    },
+    "note": "Process CPU includes four workers and the coordinator. A zero-CPU SSH wrapper matched the configured substring; it does not change CPU deltas.",
+    "last_sample_utc": "2026-09-13T07:59:08.196521+00:00",
+    "tail_gap_seconds": 35.03411,
+    "measurement_window_coverage_complete": false
+  },
+  "backend_observer": {
+    "samples_total": 913,
+    "samples_in_measurement_window": 863,
+    "errors_total": 0,
+    "database_connections_max": 13,
+    "active_connections_max": 9,
+    "lock_waiters_max": 0,
+    "overdue_active_holds_max": 80,
+    "missing_maps_max": 0,
+    "maps_without_ttl_max": 0,
+    "api_pool_requests_waiting_max": 0,
+    "api_pool_available_min": 1.0,
+    "commit_count_delta": 34041.0,
+    "commit_avg_ms": 3.4992473429637685,
+    "pool_acquire_count_delta": 34041.0,
+    "pool_acquire_avg_ms": 26.34513059111432,
+    "wal_records_delta": 5238984,
+    "wal_bytes_delta": 814808369,
+    "checkpoints_timed_delta": 2,
+    "checkpoints_requested_delta": 0,
+    "buffers_backend_fsync_delta": 0,
+    "note": "API metric deltas cover the single observed API replica; PostgreSQL and Redis samples cover shared services.",
+    "last_sample_utc": "2026-09-13T07:59:45.770621+00:00",
+    "tail_gap_seconds": 0.0,
+    "measurement_window_coverage_complete": true
+  },
+  "exact_window_logs": {
+    "api_replica_2_admission_full": 1,
+    "api_replica_3_admission_full": 2
+  }
+}

@@ -2,6 +2,8 @@
 
 Status: **500 RPS passed every measured gate for 30 minutes. The 600 RPS stage failed the strict zero-drop gate, so escalation stopped before 750 RPS.**
 
+Follow-up: a telemetry-instrumented [600 RPS repeat and 750 RPS boundary test](../2026-09-13-600-repeat-750-stage/README.md) subsequently passed 600 RPS cleanly and failed 750 RPS. The current highest clean point for this topology is 600 RPS.
+
 This result establishes a sustained operating point for the measured 95% conditional seat-map read / 5% unique-seat hold workload. It is not a maximum backend capacity, a payment/Kafka throughput result or a complete production qualification.
 
 ## Topology and controlled change

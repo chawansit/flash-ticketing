@@ -121,4 +121,4 @@ Latest experiment: [direct ASGI instrumentation, mixed-load limits and recovery 
 
 - [Fixed-budget horizontal API validation](huawei-horizontal-api/README.md)
 
-- [Huawei RDS staged validation: 500 RPS clean, 600 RPS stopped by one generator late drop](huawei-rds/2026-09-13-admission8-stages/README.md)
+- [Huawei RDS staged validation: 600 RPS clean, 750 RPS admission and generator boundary](huawei-rds/2026-09-13-600-repeat-750-stage/README.md)

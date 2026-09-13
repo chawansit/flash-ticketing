@@ -2,7 +2,7 @@
 
 ADR 0035 prepared a matched test that moves PostgreSQL from the shared backend ECS to Huawei RDS while retaining local PgBouncer and an aggregate application pool budget of twelve. Cloud execution is now complete through the first failed staged gate.
 
-The latest [admission-8 staged report](2026-09-13-admission8-stages/README.md) establishes **500 RPS for 30 minutes** as the highest clean operating point measured for the 95% conditional seat-map read / 5% unique-seat hold workload. All 900,000 requests completed with zero errors or drops; read p95 was 8.420 ms, hold p95 was 46.999 ms and all 45,000 acknowledged holds passed the durable overlap audit. The 600 RPS stage failed because the generator dropped one late read, while all 54,000 holds and backend correctness checks passed. Escalation stopped before 750 RPS.
+The latest [600 RPS repeat and 750 RPS boundary report](2026-09-13-600-repeat-750-stage/README.md) establishes **600 RPS for 30 minutes** as the highest clean operating point measured for the 95% conditional seat-map read / 5% unique-seat hold workload. All 1,080,000 requests completed with zero errors or drops; read p95 was 8.439 ms, hold p95 was 48.778 ms and all 54,000 acknowledged holds passed the durable overlap audit. The 750 RPS stage failed with three `ADMISSION_FULL` responses and three generator late drops, so escalation stopped before 1,000 RPS.
 
 The earlier [400 RPS RDS control](2026-09-13-control/README.md) used admission six and recorded one `ADMISSION_FULL` response. The matched admission-eight control completed 720,000 requests with zero errors or drops. The database connection budget remained unchanged.
 
@@ -36,4 +36,4 @@ Compose structural checks passed for local-PostgreSQL exclusion, dependency remo
 
 ## Next evidence
 
-Repeat 600 RPS with generator scheduling telemetry and Huawei RDS CPU, IOPS, WAL, checkpoint and storage-latency exports. Proceed to 750/1,000 only after a clean 600 RPS repeat. Full commands and failure gates are in `docs/rds-runbook.md`.
+Correlate admission occupancy and connection-pool waits at sub-second resolution around the 750 RPS failures. Export Huawei RDS CPU, IOPS, WAL, checkpoint and storage-latency metrics, and create an ADR before changing admission, connection budgets or worker topology. Full commands and failure gates are in `docs/rds-runbook.md`.
