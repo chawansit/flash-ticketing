@@ -108,6 +108,7 @@ async def run(args):
     transport_errors = Counter()
     transport_examples = []
     drop_reasons = Counter()
+    late_drop_examples = []
     validators, pending, lags = {}, set(), []
     task_errors = Counter()
     error_codes, error_examples = Counter(), []
@@ -240,9 +241,21 @@ async def run(args):
             await asyncio.sleep(max(0, due - perf_counter()))
             late = perf_counter() - due
             lags.append(late * 1000)
-            if late > max(0.05, 1 / args.rate) or len(pending) >= args.inflight:
+            late_threshold = max(0.05, 1 / args.rate)
+            too_late = late > late_threshold
+            if too_late or len(pending) >= args.inflight:
                 drops += 1
-                drop_reasons["late" if late > max(0.05, 1 / args.rate) else "inflight_limit"] += 1
+                reason = "late" if too_late else "inflight_limit"
+                drop_reasons[reason] += 1
+                if too_late and len(late_drop_examples) < 20:
+                    late_drop_examples.append(
+                        {
+                            "index": index,
+                            "utc": datetime.now(UTC).isoformat(),
+                            "lag_ms": round(late * 1000, 3),
+                            "pending": len(pending),
+                        }
+                    )
                 continue
             task = asyncio.create_task(request(item))
             pending.add(task)
@@ -286,6 +299,8 @@ async def run(args):
         "write_percent": 5,
         "generator_drops": drops,
         "drop_reasons": dict(drop_reasons),
+        "late_drop_threshold_ms": max(50.0, 1000 / args.rate),
+        "late_drop_examples": late_drop_examples,
         "error_codes": dict(error_codes),
         "error_examples": error_examples,
         "keepalive_expiry_seconds": getattr(args, "keepalive_expiry", 5.0),
@@ -296,6 +311,12 @@ async def run(args):
         "transport_failure_examples": transport_examples,
         "task_error_types": dict(task_errors),
         "scheduling_lag_p95_ms": percentile(lags, 0.95),
+        "scheduling_lag_p99_ms": percentile(lags, 0.99),
+        "scheduling_lag_p999_ms": percentile(lags, 0.999),
+        "scheduling_lag_max_ms": max(lags, default=None),
+        "scheduling_lag_over_10ms": sum(value > 10 for value in lags),
+        "scheduling_lag_over_25ms": sum(value > 25 for value in lags),
+        "scheduling_lag_over_50ms": sum(value > 50 for value in lags),
         "generator_cpu_seconds": cpu,
         "elapsed_seconds": elapsed,
         "completed_rps": sum(sum(v.values()) for v in statuses.values()) / elapsed,
