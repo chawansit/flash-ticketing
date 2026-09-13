@@ -1,0 +1,49 @@
+{
+  "utc": "2026-09-13T02:18:31.047005+00:00",
+  "target": "redacted",
+  "attempts": 5,
+  "transaction_attempts": 10,
+  "require_schema": true,
+  "failures": [],
+  "dns_ms": 7.108771009370685,
+  "resolved_address_count": 1,
+  "tcp_ms": {
+    "minimum": 1.0320019791834056,
+    "median": 1.0611769976094365,
+    "p95": 1.660062000155449,
+    "maximum": 1.660062000155449
+  },
+  "connect_ms": {
+    "minimum": 19.708650012034923,
+    "median": 20.726232032757252,
+    "p95": 22.044559009373188,
+    "maximum": 22.044559009373188
+  },
+  "server": {
+    "server_version_num": 170011,
+    "server_version": "17.11",
+    "timezone": "Etc/GMT-7",
+    "encoding": "UTF8",
+    "max_connections": 768,
+    "in_recovery": false,
+    "transaction_read_only": "off",
+    "ssl": true,
+    "tls_version": "TLSv1.3",
+    "tls_cipher": "TLS_AES_256_GCM_SHA384"
+  },
+  "transaction_ms": {
+    "minimum": 3.004583006259054,
+    "median": 3.0756735359318554,
+    "p95": 6.262429000344127,
+    "maximum": 6.262429000344127
+  },
+  "schema": {
+    "migration_count": 5,
+    "expected_migration_count": 5,
+    "required_tables_found": 17,
+    "required_tables_expected": 17,
+    "required_indexes_found": 9,
+    "required_indexes_expected": 9
+  },
+  "pass": true
+}

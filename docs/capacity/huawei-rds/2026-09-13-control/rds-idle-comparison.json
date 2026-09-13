@@ -1,0 +1,64 @@
+{
+  "local_pass": true,
+  "candidate_pass": true,
+  "local_server_version": "17.6 (Debian 17.6-2.pgdg13+1)",
+  "candidate_server_version": "17.11",
+  "plans": [
+    {
+      "name": "active_hold_owner",
+      "local_execution_ms": 0.021,
+      "candidate_execution_ms": 0.03,
+      "execution_ratio": 1.4285714285714284,
+      "local_client_ms": 0.5003340047551319,
+      "candidate_client_ms": 1.352366991341114,
+      "client_ratio": 2.7029284008049284
+    },
+    {
+      "name": "event_lookup",
+      "local_execution_ms": 0.015,
+      "candidate_execution_ms": 0.023,
+      "execution_ratio": 1.5333333333333334,
+      "local_client_ms": 0.9109620004892349,
+      "candidate_client_ms": 1.3070160057395697,
+      "client_ratio": 1.4347645730970477
+    },
+    {
+      "name": "expiry_candidate",
+      "local_execution_ms": 0.043,
+      "candidate_execution_ms": 0.038,
+      "execution_ratio": 0.8837209302325582,
+      "local_client_ms": 1.6114090030896477,
+      "candidate_client_ms": 2.1481639705598354,
+      "client_ratio": 1.333096666607321
+    },
+    {
+      "name": "outbox_pending",
+      "local_execution_ms": 0.012,
+      "candidate_execution_ms": 0.028,
+      "execution_ratio": 2.3333333333333335,
+      "local_client_ms": 0.5930400002398528,
+      "candidate_client_ms": 1.6847680089995265,
+      "client_ratio": 2.8409011336809127
+    },
+    {
+      "name": "reconciliation_due",
+      "local_execution_ms": 0.188,
+      "candidate_execution_ms": 0.023,
+      "execution_ratio": 0.12234042553191489,
+      "local_client_ms": 0.809154000307899,
+      "candidate_client_ms": 1.6501739737577736,
+      "client_ratio": 2.0393818397114147
+    },
+    {
+      "name": "seat_lock",
+      "local_execution_ms": 0.087,
+      "candidate_execution_ms": 0.041,
+      "execution_ratio": 0.471264367816092,
+      "local_client_ms": 0.7978540015756153,
+      "candidate_client_ms": 1.6503290389664471,
+      "client_ratio": 2.0684599384189966
+    }
+  ],
+  "pass": true,
+  "note": "Idle query-plan comparison only; sustained load evidence remains authoritative for capacity."
+}

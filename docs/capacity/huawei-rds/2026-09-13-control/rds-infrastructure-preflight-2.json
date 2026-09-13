@@ -1,0 +1,41 @@
+{
+  "utc": "2026-09-13T02:17:20.757784+00:00",
+  "target": "redacted",
+  "attempts": 5,
+  "transaction_attempts": 10,
+  "require_schema": false,
+  "failures": [],
+  "dns_ms": 7.006223022472113,
+  "resolved_address_count": 1,
+  "tcp_ms": {
+    "minimum": 0.9711600141599774,
+    "median": 1.0396100115031004,
+    "p95": 1.6012239502742887,
+    "maximum": 1.6012239502742887
+  },
+  "connect_ms": {
+    "minimum": 19.47376597672701,
+    "median": 19.909518014173955,
+    "p95": 30.76573897851631,
+    "maximum": 30.76573897851631
+  },
+  "server": {
+    "server_version_num": 170011,
+    "server_version": "17.11",
+    "timezone": "Etc/GMT-7",
+    "encoding": "UTF8",
+    "max_connections": 768,
+    "in_recovery": false,
+    "transaction_read_only": "off",
+    "ssl": true,
+    "tls_version": "TLSv1.3",
+    "tls_cipher": "TLS_AES_256_GCM_SHA384"
+  },
+  "transaction_ms": {
+    "minimum": 2.916063996963203,
+    "median": 3.0081225268077105,
+    "p95": 5.963311996310949,
+    "maximum": 5.963311996310949
+  },
+  "pass": true
+}
