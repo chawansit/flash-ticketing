@@ -1,77 +1,75 @@
-# Huawei RDS 750 RPS sub-second diagnostic  2026-09-13
+# Huawei RDS 750 RPS sub-second diagnostic — 2026-09-13
 
-Status: **Failed the strict 30-minute gate. Sub-second evidence identifies a shared connection-pool microburst; the corrected run had no seat-map warming.**
+Status: **750 RPS passed for 30 minutes on the measured four-API topology after bounded admission and upstream keep-alive changes.**
 
-This experiment follows the earlier 750 RPS boundary failure without changing the API topology, PostgreSQL authority, Redis ownership rules, admission limit, database connection budget or workload retry policy. It adds measurement and corrects premeasurement bootstrap timing only. It is not a production maximum or an RDS saturation claim.
+This report extends the original two-API diagnostic through controlled comparisons. It establishes a demonstrated clean operating point for this fixed workload and topology. It is not a production maximum or an RDS saturation claim.
 
-## Fixed topology and workload
+## Fixed workload and final topology
 
-- Two API replicas behind Nginx `least_conn`.
-- Six application DB connections and admission allowance eight per replica.
-- PgBouncer and RDS connection budgets unchanged.
-- Huawei RDS PostgreSQL 17.11, 4 vCPU / 16 GiB / 100 GB.
-- 800 target shows, 300 seats per show, 8,000 viewers, 95% conditional reads and 5% unique holds.
-- Four generator workers, five-second client keep-alive expiry, no workload retry.
-- The database contained two active 800-show fixture sets during this test. Only the newest 800 were targeted, while proactive reconciliation tracked the full active window.
+- Huawei RDS for PostgreSQL 17.11, 4 vCPU, 16 GiB memory and 100 GB storage.
+- Four API containers behind Nginx `least_conn` on one 4-vCPU backend ECS.
+- Three application DB connections and hold admission four per API: 12 DB connections and 16 admitted holds in aggregate.
+- PgBouncer transaction pooling with a backend pool of 24; no reserve pool.
+- Nginx upstream keep-alive cache 128 with a five-second idle timeout; Uvicorn idle timeout ten seconds.
+- Four load-generator workers on a separate 8-vCPU ECS, five-second client connection expiry and no workload retry.
+- 800 shows, 300 seats per show, 8,000 viewers, 95% conditional seat-map reads and 5% unique holds.
 - Temporary `sslmode=require`; CA and hostname verification remain a production prerequisite.
 
-## Harness correction
+## Original failure and corrected instrumentation
 
-The old coordinator allowed 30 seconds between worker creation and measured start, equal to the seat-map TTL. A diagnostic run therefore produced 455 `SEATMAP_WARMING` reads as bootstrap-refreshed keys expired at the measurement boundary. The retained candidate adds bounded concurrent ETag bootstrap and an explicit start delay. The corrected run used 15 seconds. All four workers bootstrapped 200/200 shows with zero retry, and the measured window had zero missing maps and zero `SEATMAP_WARMING`.
+The original two-API 750 RPS run completed 1,349,995 of 1,350,000 scheduled requests. It had five generator late drops, three `ADMISSION_FULL` responses and one `DATABASE_UNAVAILABLE` response. Read and hold p95 remained within target and all 67,496 acknowledged holds were durable with zero overlap.
 
-This changes only premeasurement setup. Workload requests still have no retry. Focused load-tool and observer validation passed 25 tests; Ruff passed.
+The original pool-acquire metric observed the connection context after it returned to the pool, so its roughly 28 ms average represented most of the checked-out connection lifecycle. The corrected instrumentation records pool acquisition and connection hold separately. Controlled follow-ups showed application-pool acquisition averaging about 0.02–0.04 ms, while connection hold and transaction time averaged about 26–27 ms. PgBouncer observation separately exposed the actual shared queue.
 
-## Corrected 750 RPS result
+Huawei provider metrics for 10:55–11:00 UTC showed CPU at 10.19% maximum, write I/O latency at 0.77 ms maximum, 115.07 write IOPS maximum, 0.9 MiB/s maximum combined throughput, 2.37% connection usage and zero connection failures. These one-minute samples rule out sustained RDS saturation during the original spike, while short transients remain possible. See [Huawei RDS provider metrics](huawei-rds-provider-metrics.md).
+
+## Controlled comparisons
+
+| Candidate | Result | Read p95 | Hold p95 | Failure evidence |
+|---|---:|---:|---:|---|
+| Two APIs, PgBouncer 12, 10 min | Failed | 15.644 ms | 75.704 ms | 16 `ADMISSION_FULL`; PgBouncer wait peaked at 146.685 ms |
+| Four APIs, pool/admission 3 each, PgBouncer 12, 10 min | Failed | 8.148 ms | 49.770 ms | 12 `ADMISSION_FULL`; PgBouncer wait peaked at 93.666 ms |
+| Four APIs, pool/admission 3 each, PgBouncer 24, 10 min | Failed | 8.143 ms | 51.238 ms | 22 `ADMISSION_FULL`; PgBouncer had no sampled queue |
+| Admission 4 each, reused seat range, PgBouncer 24, 10 min | Failed | 8.073 ms | 50.703 ms | One `RESOURCE_BUSY` on a previously used synthetic seat |
+| Admission 4 each, fresh seat range, PgBouncer 24, 10 min | Passed | 8.118 ms | 48.721 ms | Zero errors and drops |
+| Same topology, prior Nginx upstream cache, 30 min | Failed | 8.480 ms | 50.909 ms | Two read 502 responses with no application request ID |
+| Nginx upstream timeout 5 s, safety run, 10 min | Passed | 8.236 ms | 50.443 ms | Zero errors and drops |
+| Nginx upstream timeout 5 s, confirmation, 30 min | **Passed** | **8.251 ms** | **51.050 ms** | **Zero errors and drops** |
+
+The reused-seat failure was retained rather than hidden. Repeating with a fresh, disjoint seat range removed that test-data collision and produced 22,500 successful holds with no error. This established a clean admission candidate before the long run.
+
+The first admission-16 long run completed all scheduled requests with no admission rejection, generator drop or transport error, but Nginx returned two read 502 responses. Neither had an application request ID or matching API failure. With proxy retry still disabled, ADR 0038 added a five-second Nginx upstream idle timeout below Uvicorn's ten-second timeout. Nginx configuration validation passed before deployment.
+
+## Final 750 RPS confirmation
+
+The final stage ran from 16:59:51.838 to 17:29:51.984 UTC.
 
 | Metric | Result | Gate |
 |---|---:|---|
-| Duration | 30 minutes |  |
-| Scheduled | 1,350,000 |  |
-| Completed | 1,349,995 | Fail: 5 late drops |
-| Read 200 / 304 | 1,282,495 | Pass |
-| Holds 201 | 67,496 |  |
-| Hold failures | 3 `ADMISSION_FULL`, 1 `DATABASE_UNAVAILABLE` | Fail |
-| Worst read p95 | 10.353 ms | Pass |
-| Worst hold p95 | 57.594 ms | Pass |
-| Transport errors | 0 | Pass |
-| Worker start skew | 5.134 ms | Pass |
+| Duration | 30 minutes | Pass |
+| Scheduled / completed | 1,350,000 / 1,350,000 | Pass |
+| Read responses | 1,282,500 | Pass |
+| Holds 201 | 67,500 | Pass |
+| Unexpected HTTP / transport errors | 0 / 0 | Pass |
+| Generator drops | 0 | Pass |
+| Worst-worker read p95 | 8.251 ms | Pass |
+| Worst-worker hold p95 | 51.050 ms | Pass |
+| Admission rejections | 0 | Pass |
 
-The five generator drops were 50.71856.036 ms late. Generator host CPU was 17.484% at p95 and 21.635% maximum; the load processes used 136.003% of one CPU at p95 and 169.0% maximum. CPU, memory and IO pressure were zero, steal was zero and iowait peaked at 0.126%. The generator was not CPU-saturated, but the fixed zero-drop gate still failed.
+PgBouncer recorded one 1.387 ms waiting sample among 9,001 exact-window samples. Server activity peaked at 19 of 24 and average cumulative wait was 0.305 microseconds per server assignment. RDS connections peaked at 20, active connections at 13 and sampled lock waiters remained zero.
 
-## Confirmed backend correlation
+Across the four APIs, corrected pool acquisition averaged 0.028–0.035 ms, connection hold averaged 26.734–26.857 ms, transaction time averaged 26.662–26.784 ms and commit averaged 3.732–3.816 ms. Event-loop lag averaged 0.873–0.887 ms; the largest sampled current lag was 63.686 ms. No replica rejected admission.
 
-The 200 ms observer captured 9,000 exact-window samples per replica with no scrape errors. Both replicas reached:
+After the hold TTL elapsed, the audit matched all 67,500 acknowledged holds to 67,500 idempotency records, distinct holds and distinct orders. Broken links, active or overdue holds, pending orders and overlapping held-seat intervals were zero. Unpublished outbox events, pending seat refreshes and dead letters were also zero.
 
-- hold inflight 8/8;
-- pool in-use 6/6;
-- two concurrent pool acquirers.
+## Capacity conclusion
 
-At 10:57:18.249 UTC both replicas simultaneously reported that state. Twelve milliseconds later, one hold returned `DATABASE_UNAVAILABLE` after `db_enter=150.518 ms`, matching the configured 150 ms application pool timeout. Its arrival occupancy was six, so the failure was pool acquisition rather than admission rejection. This is direct evidence of a shared DB/pool service-time spike.
+The demonstrated clean point is now **750 RPS for 30 minutes** for the exact workload and topology above. That is 1,282,500 seat-map reads and 67,500 durable hold transactions in one run with target latency, zero unexpected errors, zero double-booking and drained queues.
 
-At 10:58:39.249 UTC both replicas had pool 6/6 with one acquirer. At 10:58:39.283 UTC one replica rejected a new hold at occupancy 8/8. Across the full run, per-replica admission counters recorded three rejections in total.
-
-The two-second backend observer saw at most 13 database connections, 11 active connections and zero lock waiters. On the observed replica, commit average was 3.542 ms and pool acquisition average was 27.924 ms. It recorded no requested checkpoint and no PostgreSQL WAL sync/write time increase exposed by the available counters. These averages do not contradict the sub-second spike.
-
-The corrected exact window had zero missing maps, no maps without TTL and a minimum TTL of 11 seconds. Reconciliation age still reached 44.501 seconds across the active window, but it did not cause target-show read errors after the start-delay correction.
-
-## Correctness
-
-The post-expiry audit matched all 67,496 acknowledged holds to exactly 67,496 idempotency, hold and order records. Broken links, active/overdue holds after drain, pending orders and overlapping held-seat intervals were zero. Unpublished outbox events, pending refresh work and dead letters were zero. Zero double-booking was preserved.
-
-## Decision
-
-The highest clean demonstrated operating point remains **600 RPS for 30 minutes** for this topology and workload. The corrected 750 RPS run fails independently on backend availability and generator scheduling despite meeting latency and correctness targets.
-
-Before changing the 150 ms pool timeout, per-replica pool size, admission allowance or topology, create an ADR and run one controlled comparison. The next experiment should export Huawei RDS provider CPU, IOPS and storage latency around the correlated spike, then compare a bounded pool-wait margin without increasing aggregate connections. Raising admission or connection budgets without that evidence may move queueing into RDS and increase failure amplification.
+RDS was not close to its documented connection limit, and sampled CPU/storage evidence does not show sustained RDS saturation. The result therefore does not identify maximum capacity. A higher stage must begin at 750 RPS as the control and increase one step at a time while retaining the same strict availability, latency, correctness and queue-drain gates.
 
 ## Evidence
 
-- `summary.json` and `worker-*.json`: request accounting, latency, errors, bootstrap and scheduling.
-- `generator-window-summary.json`: exact-window generator CPU, pressure and failure examples.
-- `pressure-window-summary.json`: 200 ms per-replica admission/pool peaks.
-- `backend-window-summary.json`: exact-window database, Redis and cumulative API metrics.
-- `failure-correlation.json`: bounded request/pressure timing correlation.
-- `durability.json`: post-expiry persistence, overlap and queue audit.
-- `api-warmup.json`: premeasurement target-show readiness.
+Each retained run directory contains compact request summaries and worker results. Server-side runs also retain exact-window metric summaries and post-expiry durability audits. The four-API control includes the 100-contender preflight, which produced exactly one durable winner for one seat.
 
-Raw observers remain on the ECSs and are omitted from Git. Private manifests, tokens and database credentials are excluded.
+Raw sub-second observers remain on the ECSs and are intentionally omitted from Git. Private manifests, tokens, database connection strings and credentials are excluded.

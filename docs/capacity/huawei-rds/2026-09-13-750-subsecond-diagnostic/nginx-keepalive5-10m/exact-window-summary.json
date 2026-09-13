@@ -1,0 +1,188 @@
+{
+  "start": "2026-09-13T16:45:50.089673+00:00",
+  "end": "2026-09-13T16:55:50.126401+00:00",
+  "pgbouncer": {
+    "samples": 2974,
+    "peaks": {
+      "cl_active": 21.0,
+      "cl_waiting": 0.0,
+      "sv_active": 16.0,
+      "sv_idle": 17.0,
+      "sv_used": 7.0,
+      "maxwait_seconds": 0.0
+    },
+    "waiting_samples": 0,
+    "maxwait_samples": 0,
+    "wait_examples": [],
+    "counter_deltas": {
+      "server_assignments": 209269.0,
+      "wait_time_us": 220303.0,
+      "wait_avg_us_per_assignment": 1.0527263952138157
+    }
+  },
+  "pressure": {
+    "samples": 1188,
+    "replicas": {
+      "api_0": {
+        "samples": 1188,
+        "peaks": {
+          "ticketing_hold_inflight": 2.0,
+          "ticketing_db_pool_in_use": 2.0,
+          "ticketing_db_pool_acquiring": 0.0,
+          "ticketing_event_loop_lag_current_seconds": 0.035474373027682304
+        },
+        "rejected_delta": 0,
+        "rejection_samples": [],
+        "ticketing_db_pool_acquire_seconds": {
+          "count": 5722.0,
+          "avg_ms": 0.021202966381399544
+        },
+        "ticketing_db_connection_hold_seconds": {
+          "count": 5723.0,
+          "avg_ms": 26.49937822599143
+        },
+        "ticketing_db_transaction_seconds": {
+          "count": 5723.0,
+          "avg_ms": 26.426472068903326
+        },
+        "ticketing_db_commit_seconds": {
+          "count": 5723.0,
+          "avg_ms": 3.479217149847938
+        },
+        "ticketing_event_loop_lag_seconds": {
+          "count": 11661.0,
+          "avg_ms": 0.8838033552572112
+        }
+      },
+      "api_1": {
+        "samples": 1188,
+        "peaks": {
+          "ticketing_hold_inflight": 2.0,
+          "ticketing_db_pool_in_use": 2.0,
+          "ticketing_db_pool_acquiring": 0.0,
+          "ticketing_event_loop_lag_current_seconds": 0.022659299022052437
+        },
+        "rejected_delta": 0,
+        "rejection_samples": [],
+        "ticketing_db_pool_acquire_seconds": {
+          "count": 5671.0,
+          "avg_ms": 0.02554410805715847
+        },
+        "ticketing_db_connection_hold_seconds": {
+          "count": 5672.0,
+          "avg_ms": 26.55461824388279
+        },
+        "ticketing_db_transaction_seconds": {
+          "count": 5672.0,
+          "avg_ms": 26.482311583808226
+        },
+        "ticketing_db_commit_seconds": {
+          "count": 5672.0,
+          "avg_ms": 3.5098633354738102
+        },
+        "ticketing_event_loop_lag_seconds": {
+          "count": 11665.0,
+          "avg_ms": 0.8694674748301816
+        }
+      },
+      "api_2": {
+        "samples": 1188,
+        "peaks": {
+          "ticketing_hold_inflight": 2.0,
+          "ticketing_db_pool_in_use": 2.0,
+          "ticketing_db_pool_acquiring": 0.0,
+          "ticketing_event_loop_lag_current_seconds": 0.012886076990980655
+        },
+        "rejected_delta": 0,
+        "rejection_samples": [],
+        "ticketing_db_pool_acquire_seconds": {
+          "count": 5627.0,
+          "avg_ms": 0.019819702717166255
+        },
+        "ticketing_db_connection_hold_seconds": {
+          "count": 5627.0,
+          "avg_ms": 26.56450967855514
+        },
+        "ticketing_db_transaction_seconds": {
+          "count": 5627.0,
+          "avg_ms": 26.490786272396207
+        },
+        "ticketing_db_commit_seconds": {
+          "count": 5627.0,
+          "avg_ms": 3.4803411220160636
+        },
+        "ticketing_event_loop_lag_seconds": {
+          "count": 11665.0,
+          "avg_ms": 0.869938443189122
+        }
+      },
+      "api_3": {
+        "samples": 1188,
+        "peaks": {
+          "ticketing_hold_inflight": 2.0,
+          "ticketing_db_pool_in_use": 2.0,
+          "ticketing_db_pool_acquiring": 0.0,
+          "ticketing_event_loop_lag_current_seconds": 0.014222622965462506
+        },
+        "rejected_delta": 0,
+        "rejection_samples": [],
+        "ticketing_db_pool_acquire_seconds": {
+          "count": 5675.0,
+          "avg_ms": 0.0206281278807555
+        },
+        "ticketing_db_connection_hold_seconds": {
+          "count": 5676.0,
+          "avg_ms": 26.593190097866824
+        },
+        "ticketing_db_transaction_seconds": {
+          "count": 5676.0,
+          "avg_ms": 26.522159981777612
+        },
+        "ticketing_db_commit_seconds": {
+          "count": 5676.0,
+          "avg_ms": 3.5275388061709854
+        },
+        "ticketing_event_loop_lag_seconds": {
+          "count": 11660.0,
+          "avg_ms": 0.8868153153089599
+        }
+      }
+    }
+  },
+  "backend": {
+    "samples": 289,
+    "errors": [],
+    "database_connections": {
+      "max": 20,
+      "avg": 16.830449826989618
+    },
+    "lock_waiters": {
+      "max": 0,
+      "avg": 0.0
+    },
+    "active_connections": {
+      "max": 16,
+      "avg": 1.8166089965397925
+    },
+    "overdue_active_holds": {
+      "max": 29,
+      "avg": 6.657439446366782
+    },
+    "oldest_overdue_seconds": {
+      "max": 0.759441,
+      "avg": 0.16184020761245674
+    },
+    "reconciliation_age_seconds": {
+      "max": 44.665058,
+      "avg": 38.18044340484429
+    },
+    "missing_maps": {
+      "max": 0,
+      "avg": 0.0
+    },
+    "maps_without_ttl": {
+      "max": 0,
+      "avg": 0.0
+    }
+  }
+}

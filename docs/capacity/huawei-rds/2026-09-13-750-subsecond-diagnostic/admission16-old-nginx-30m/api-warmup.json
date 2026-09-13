@@ -1,0 +1,54 @@
+{
+  "utc": "2026-09-13T16:07:07.418228+00:00",
+  "show_count": 800,
+  "remaining": 0,
+  "pass": true,
+  "history": [
+    {
+      "attempt": 1,
+      "counts": {
+        "ok": 663,
+        "503:SEATMAP_WARMING": 137
+      },
+      "remaining": 137
+    },
+    {
+      "attempt": 2,
+      "counts": {
+        "503:SEATMAP_WARMING": 43,
+        "ok": 94
+      },
+      "remaining": 43
+    },
+    {
+      "attempt": 3,
+      "counts": {
+        "ok": 34,
+        "503:SEATMAP_WARMING": 9
+      },
+      "remaining": 9
+    },
+    {
+      "attempt": 4,
+      "counts": {
+        "ok": 8,
+        "503:SEATMAP_WARMING": 1
+      },
+      "remaining": 1
+    },
+    {
+      "attempt": 5,
+      "counts": {
+        "503:SEATMAP_WARMING": 1
+      },
+      "remaining": 1
+    },
+    {
+      "attempt": 6,
+      "counts": {
+        "ok": 1
+      },
+      "remaining": 0
+    }
+  ]
+}

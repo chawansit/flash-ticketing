@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import time
 from datetime import UTC, datetime
 from pathlib import Path
@@ -20,6 +21,11 @@ METRIC_PREFIXES = (
     "ticketing_db_pool_in_use",
     "ticketing_db_pool_state",
     "ticketing_db_pool_acquire_seconds_",
+    "ticketing_db_connection_hold_seconds_",
+    "ticketing_db_pool_return_seconds_",
+    "ticketing_db_transaction_seconds_",
+    "ticketing_db_commit_seconds_",
+    "ticketing_event_loop_lag_",
 )
 
 
@@ -54,6 +60,79 @@ def scrape(url: str) -> dict[str, float]:
 
 def metric_value(metrics: dict[str, float], name: str, labels: str = "") -> float:
     return metrics.get(f"{name}{labels}", 0.0)
+
+
+def counter_delta(
+    start: dict[str, float], end: dict[str, float], name: str, labels: str = ""
+) -> float:
+    return max(0.0, metric_value(end, name, labels) - metric_value(start, name, labels))
+
+
+def metric_labels(metric: str) -> dict[str, str]:
+    if "{" not in metric:
+        return {}
+    return dict(re.findall(r'(\w+)="([^"]*)"', metric.split("{", 1)[1]))
+
+
+def histogram_upper_bound(
+    start: dict[str, float],
+    end: dict[str, float],
+    name: str,
+    fraction: float,
+    required_labels: dict[str, str] | None = None,
+    count_labels: str = "",
+) -> float | None:
+    count = counter_delta(start, end, f"{name}_count", count_labels)
+    if count <= 0:
+        return None
+    target = count * fraction
+    buckets: list[tuple[float, float]] = []
+    prefix = f"{name}_bucket"
+    for metric, end_value in end.items():
+        if not metric.startswith(prefix + "{"):
+            continue
+        labels = metric_labels(metric)
+        if "le" not in labels or any(
+            labels.get(key) != value for key, value in (required_labels or {}).items()
+        ):
+            continue
+        raw_bound = labels["le"]
+        bound = math.inf if raw_bound == "+Inf" else float(raw_bound)
+        buckets.append((bound, max(0.0, end_value - start.get(metric, 0.0))))
+    for bound, cumulative_count in sorted(buckets):
+        if cumulative_count >= target:
+            return bound
+    return None
+
+
+def histogram_window(
+    start: dict[str, float],
+    end: dict[str, float],
+    name: str,
+    count_labels: str = "",
+    required_labels: dict[str, str] | None = None,
+) -> dict[str, float | None]:
+    count = counter_delta(start, end, f"{name}_count", count_labels)
+    seconds = counter_delta(start, end, f"{name}_sum", count_labels)
+    return {
+        "count": count,
+        "seconds": seconds,
+        "avg_ms": seconds * 1000 / count if count else None,
+        "p95_upper_ms": (
+            bound * 1000
+            if (bound := histogram_upper_bound(
+                start, end, name, 0.95, required_labels, count_labels
+            )) is not None
+            else None
+        ),
+        "p99_upper_ms": (
+            bound * 1000
+            if (bound := histogram_upper_bound(
+                start, end, name, 0.99, required_labels, count_labels
+            )) is not None
+            else None
+        ),
+    }
 
 
 def main() -> int:
@@ -123,6 +202,10 @@ def main() -> int:
                         peak.get("pool_requests_waiting", 0.0),
                         metric_value(metrics, "ticketing_db_pool_state", '{state="requests_waiting"}'),
                     )
+                    peak["event_loop_lag_current_ms"] = max(
+                        peak.get("event_loop_lag_current_ms", 0.0),
+                        metric_value(metrics, "ticketing_event_loop_lag_current_seconds") * 1000,
+                    )
                 except Exception as exc:  # noqa: BLE001
                     row["replicas"][replica] = {"error": type(exc).__name__}
                     errors += 1
@@ -137,25 +220,45 @@ def main() -> int:
             start_metrics = first[replica]
             end_metrics = last[replica]
             deltas[replica] = {
-                "admitted": max(
-                    0.0,
-                    metric_value(end_metrics, "ticketing_hold_admission_total", '{outcome="admitted"}')
-                    - metric_value(start_metrics, "ticketing_hold_admission_total", '{outcome="admitted"}'),
+                "admitted": counter_delta(
+                    start_metrics,
+                    end_metrics,
+                    "ticketing_hold_admission_total",
+                    '{outcome="admitted"}',
                 ),
-                "rejected": max(
-                    0.0,
-                    metric_value(end_metrics, "ticketing_hold_admission_total", '{outcome="rejected"}')
-                    - metric_value(start_metrics, "ticketing_hold_admission_total", '{outcome="rejected"}'),
+                "rejected": counter_delta(
+                    start_metrics,
+                    end_metrics,
+                    "ticketing_hold_admission_total",
+                    '{outcome="rejected"}',
                 ),
-                "pool_acquire_count": max(
-                    0.0,
-                    metric_value(end_metrics, "ticketing_db_pool_acquire_seconds_count", '{outcome="ok"}')
-                    - metric_value(start_metrics, "ticketing_db_pool_acquire_seconds_count", '{outcome="ok"}'),
+                "pool_acquire_ok": histogram_window(
+                    start_metrics,
+                    end_metrics,
+                    "ticketing_db_pool_acquire_seconds",
+                    '{outcome="ok"}',
+                    {"outcome": "ok"},
                 ),
-                "pool_acquire_seconds": max(
-                    0.0,
-                    metric_value(end_metrics, "ticketing_db_pool_acquire_seconds_sum", '{outcome="ok"}')
-                    - metric_value(start_metrics, "ticketing_db_pool_acquire_seconds_sum", '{outcome="ok"}'),
+                "connection_hold": histogram_window(
+                    start_metrics, end_metrics, "ticketing_db_connection_hold_seconds"
+                ),
+                "pool_return": histogram_window(
+                    start_metrics, end_metrics, "ticketing_db_pool_return_seconds"
+                ),
+                "transaction": histogram_window(
+                    start_metrics, end_metrics, "ticketing_db_transaction_seconds"
+                ),
+                "commit": histogram_window(
+                    start_metrics, end_metrics, "ticketing_db_commit_seconds"
+                ),
+                "event_loop_lag": histogram_window(
+                    start_metrics, end_metrics, "ticketing_event_loop_lag_seconds"
+                ),
+                "pool_acquire_errors": counter_delta(
+                    start_metrics,
+                    end_metrics,
+                    "ticketing_db_pool_acquire_seconds_count",
+                    '{outcome="error"}',
                 ),
             }
         summary = {

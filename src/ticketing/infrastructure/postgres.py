@@ -7,6 +7,7 @@ from psycopg_pool import ConnectionPool
 
 from ticketing.observability import (
     DB_COMMIT_SECONDS,
+    DB_CONNECTION_HOLD_SECONDS,
     DB_ERRORS,
     DB_POOL_ACQUIRING,
     DB_POOL_IN_USE,
@@ -105,10 +106,13 @@ class Postgres:
     def connection(self):
         start, outcome = monotonic(), "error"
         conn = None
+        acquired_at = None
         DB_POOL_ACQUIRING.inc()
         try:
             conn = self.pool.getconn()
+            acquired_at = monotonic()
             outcome = "ok"
+            DB_POOL_SECONDS.labels(outcome).observe(acquired_at - start)
             DB_POOL_ACQUIRING.dec()
             self.sample_pool()
             DB_POOL_IN_USE.inc()
@@ -120,12 +124,13 @@ class Postgres:
                 if conn is not None:
                     self.pool.putconn(conn)
                 DB_POOL_RETURN_SECONDS.observe(monotonic() - return_started)
+                DB_CONNECTION_HOLD_SECONDS.observe(monotonic() - acquired_at)
                 if conn is not None:
                     DB_POOL_IN_USE.dec()
                 self.sample_pool()
         finally:
-            DB_POOL_SECONDS.labels(outcome).observe(monotonic() - start)
             if outcome == "error":
+                DB_POOL_SECONDS.labels(outcome).observe(monotonic() - start)
                 # Keep acquisition telemetry consistent when checkout fails.
                 DB_POOL_ACQUIRING.dec()
                 self.sample_pool()

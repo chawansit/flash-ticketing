@@ -1,0 +1,260 @@
+{
+  "start": "2026-09-13T14:44:08.964604+00:00",
+  "end": "2026-09-13T14:54:08.964604+00:00",
+  "pgbouncer": {
+    "samples": 3000,
+    "peaks": {
+      "cl_active": 25.0,
+      "cl_waiting": 8.0,
+      "sv_active": 12.0,
+      "sv_idle": 11.0,
+      "sv_used": 0.0,
+      "maxwait_seconds": 0.146685
+    },
+    "waiting_samples": 5,
+    "maxwait_samples": 5,
+    "wait_examples": [
+      {
+        "utc": "2026-09-13T14:52:39.343988+00:00",
+        "cl_waiting": 8.0,
+        "sv_active": 12.0,
+        "sv_idle": 0.0,
+        "maxwait_seconds": 0.146685
+      },
+      {
+        "utc": "2026-09-13T14:52:39.143980+00:00",
+        "cl_waiting": 8.0,
+        "sv_active": 12.0,
+        "sv_idle": 0.0,
+        "maxwait_seconds": 0.055959
+      },
+      {
+        "utc": "2026-09-13T14:52:38.343982+00:00",
+        "cl_waiting": 5.0,
+        "sv_active": 12.0,
+        "sv_idle": 0.0,
+        "maxwait_seconds": 0.034321
+      },
+      {
+        "utc": "2026-09-13T14:46:06.945801+00:00",
+        "cl_waiting": 4.0,
+        "sv_active": 12.0,
+        "sv_idle": 0.0,
+        "maxwait_seconds": 0.031385
+      },
+      {
+        "utc": "2026-09-13T14:47:32.743986+00:00",
+        "cl_waiting": 1.0,
+        "sv_active": 12.0,
+        "sv_idle": 0.0,
+        "maxwait_seconds": 0.003226
+      }
+    ],
+    "counter_deltas": {
+      "server_assignments": 214873.0,
+      "wait_time_us": 2709573.0,
+      "wait_avg_us_per_assignment": 12.610113881222862
+    }
+  },
+  "pressure": {
+    "samples": 3000,
+    "replicas": {
+      "api_0": {
+        "samples": 3000,
+        "peaks": {
+          "ticketing_hold_inflight": 8.0,
+          "ticketing_db_pool_in_use": 6.0,
+          "ticketing_db_pool_acquiring": 1.0,
+          "ticketing_event_loop_lag_current_seconds": 0.08398856304120272
+        },
+        "rejected_delta": 10.0,
+        "rejection_samples": [
+          {
+            "utc": "2026-09-13T14:45:38.445559+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 6.0,
+            "ticketing_db_pool_in_use": 1.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.06724662304623052
+          },
+          {
+            "utc": "2026-09-13T14:45:38.930417+00:00",
+            "increment": 3.0,
+            "ticketing_hold_inflight": 6.0,
+            "ticketing_db_pool_in_use": 2.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.03196321701398119
+          },
+          {
+            "utc": "2026-09-13T14:45:39.322325+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 5.0,
+            "ticketing_db_pool_in_use": 1.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.0250681129982695
+          },
+          {
+            "utc": "2026-09-13T14:47:27.391584+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 8.0,
+            "ticketing_db_pool_in_use": 0.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.08398856304120272
+          },
+          {
+            "utc": "2026-09-13T14:47:27.830138+00:00",
+            "increment": 2.0,
+            "ticketing_hold_inflight": 4.0,
+            "ticketing_db_pool_in_use": 0.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.02568455197615549
+          },
+          {
+            "utc": "2026-09-13T14:52:57.931435+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 6.0,
+            "ticketing_db_pool_in_use": 2.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.04285009001614526
+          },
+          {
+            "utc": "2026-09-13T14:52:58.282460+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 4.0,
+            "ticketing_db_pool_in_use": 3.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.02285583200864494
+          }
+        ],
+        "ticketing_db_pool_acquire_seconds": {
+          "count": 11333.0,
+          "avg_ms": 0.036221778914646306
+        },
+        "ticketing_db_connection_hold_seconds": {
+          "count": 11333.0,
+          "avg_ms": 29.359167625023623
+        },
+        "ticketing_db_transaction_seconds": {
+          "count": 11333.0,
+          "avg_ms": 29.29690959737427
+        },
+        "ticketing_db_commit_seconds": {
+          "count": 11333.0,
+          "avg_ms": 3.628679920609963
+        },
+        "ticketing_event_loop_lag_seconds": {
+          "count": 11661.0,
+          "avg_ms": 1.4246185567205147
+        }
+      },
+      "api_1": {
+        "samples": 3000,
+        "peaks": {
+          "ticketing_hold_inflight": 8.0,
+          "ticketing_db_pool_in_use": 6.0,
+          "ticketing_db_pool_acquiring": 1.0,
+          "ticketing_event_loop_lag_current_seconds": 0.12277112202718854
+        },
+        "rejected_delta": 6.0,
+        "rejection_samples": [
+          {
+            "utc": "2026-09-13T14:46:54.465044+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 7.0,
+            "ticketing_db_pool_in_use": 0.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.05895041499752551
+          },
+          {
+            "utc": "2026-09-13T14:49:27.188661+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 4.0,
+            "ticketing_db_pool_in_use": 1.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.026739249005913734
+          },
+          {
+            "utc": "2026-09-13T14:49:30.897211+00:00",
+            "increment": 2.0,
+            "ticketing_hold_inflight": 2.0,
+            "ticketing_db_pool_in_use": 2.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.010217536007985473
+          },
+          {
+            "utc": "2026-09-13T14:49:43.707801+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 5.0,
+            "ticketing_db_pool_in_use": 2.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.027333922975230962
+          },
+          {
+            "utc": "2026-09-13T14:52:57.931435+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 4.0,
+            "ticketing_db_pool_in_use": 1.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.04997148999245837
+          }
+        ],
+        "ticketing_db_pool_acquire_seconds": {
+          "count": 11367.0,
+          "avg_ms": 0.03316909344196667
+        },
+        "ticketing_db_connection_hold_seconds": {
+          "count": 11365.0,
+          "avg_ms": 29.287736741074077
+        },
+        "ticketing_db_transaction_seconds": {
+          "count": 11365.0,
+          "avg_ms": 29.224403709158043
+        },
+        "ticketing_db_commit_seconds": {
+          "count": 11365.0,
+          "avg_ms": 3.546427411656807
+        },
+        "ticketing_event_loop_lag_seconds": {
+          "count": 11656.0,
+          "avg_ms": 1.4509267247855335
+        }
+      }
+    }
+  },
+  "backend": {
+    "samples": 292,
+    "errors": [],
+    "database_connections": {
+      "max": 13,
+      "avg": 12.0
+    },
+    "lock_waiters": {
+      "max": 0,
+      "avg": 0.0
+    },
+    "active_connections": {
+      "max": 9,
+      "avg": 1.6575342465753424
+    },
+    "overdue_active_holds": {
+      "max": 53,
+      "avg": 6.845890410958904
+    },
+    "oldest_overdue_seconds": {
+      "max": 1.456559,
+      "avg": 0.16758686301369863
+    },
+    "reconciliation_age_seconds": {
+      "max": 44.002389,
+      "avg": 36.59289828082191
+    },
+    "missing_maps": {
+      "max": 0,
+      "avg": 0.0
+    },
+    "maps_without_ttl": {
+      "max": 0,
+      "avg": 0.0
+    }
+  }
+}

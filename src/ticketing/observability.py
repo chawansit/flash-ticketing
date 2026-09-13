@@ -55,9 +55,22 @@ DB_POOL_SECONDS = Histogram(
 DB_POOL_RETURN_SECONDS = Histogram(
     "ticketing_db_pool_return_seconds", "Time spent returning a DB connection to the pool"
 )
+DB_CONNECTION_HOLD_SECONDS = Histogram(
+    "ticketing_db_connection_hold_seconds",
+    "Time from successful pool checkout through return of the connection",
+)
 DB_POOL_ACQUIRING = Gauge("ticketing_db_pool_acquiring", "Threads acquiring a connection")
 DB_POOL_IN_USE = Gauge("ticketing_db_pool_in_use", "Connections checked out")
 DB_POOL_STATE = Gauge("ticketing_db_pool_state", "Last sampled pool state", ["state"])
+EVENT_LOOP_LAG_SECONDS = Histogram(
+    "ticketing_event_loop_lag_seconds",
+    "Delay beyond the API event-loop probe schedule",
+    buckets=(0.0005, 0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.15, 0.25, 0.5, 1),
+)
+EVENT_LOOP_LAG_CURRENT_SECONDS = Gauge(
+    "ticketing_event_loop_lag_current_seconds",
+    "Most recently observed API event-loop scheduling delay",
+)
 
 WORK_SECONDS = Counter(
     "ticketing_worker_busy_seconds_total", "Operation wall time including I/O", ["operation"]

@@ -1,0 +1,304 @@
+{
+  "start": "2026-09-13T15:19:45.916136+00:00",
+  "end": "2026-09-13T15:29:45.958478+00:00",
+  "pgbouncer": {
+    "samples": 3000,
+    "peaks": {
+      "cl_active": 25.0,
+      "cl_waiting": 0.0,
+      "sv_active": 18.0,
+      "sv_idle": 19.0,
+      "sv_used": 8.0,
+      "maxwait_seconds": 0.0
+    },
+    "waiting_samples": 0,
+    "maxwait_samples": 0,
+    "wait_examples": [],
+    "counter_deltas": {
+      "server_assignments": 211296.0,
+      "wait_time_us": 303511.0,
+      "wait_avg_us_per_assignment": 1.4364256777222475
+    }
+  },
+  "pressure": {
+    "samples": 1200,
+    "replicas": {
+      "api_0": {
+        "samples": 1200,
+        "peaks": {
+          "ticketing_hold_inflight": 2.0,
+          "ticketing_db_pool_in_use": 2.0,
+          "ticketing_db_pool_acquiring": 0.0,
+          "ticketing_event_loop_lag_current_seconds": 0.01579692302038893
+        },
+        "rejected_delta": 7.0,
+        "rejection_samples": [
+          {
+            "utc": "2026-09-13T15:22:29.971485+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 0.0,
+            "ticketing_db_pool_in_use": 0.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.00039266800740733743
+          },
+          {
+            "utc": "2026-09-13T15:22:38.971312+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 1.0,
+            "ticketing_db_pool_in_use": 1.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.0007612190092913806
+          },
+          {
+            "utc": "2026-09-13T15:23:02.971317+00:00",
+            "increment": 3.0,
+            "ticketing_hold_inflight": 0.0,
+            "ticketing_db_pool_in_use": 0.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.000592766038607806
+          },
+          {
+            "utc": "2026-09-13T15:27:23.971318+00:00",
+            "increment": 2.0,
+            "ticketing_hold_inflight": 0.0,
+            "ticketing_db_pool_in_use": 0.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.00038328999653458595
+          }
+        ],
+        "ticketing_db_pool_acquire_seconds": {
+          "count": 5705.0,
+          "avg_ms": 0.02062653312190231
+        },
+        "ticketing_db_connection_hold_seconds": {
+          "count": 5705.0,
+          "avg_ms": 27.211194693504307
+        },
+        "ticketing_db_transaction_seconds": {
+          "count": 5705.0,
+          "avg_ms": 27.139891272704187
+        },
+        "ticketing_db_commit_seconds": {
+          "count": 5705.0,
+          "avg_ms": 4.4947643820127015
+        },
+        "ticketing_event_loop_lag_seconds": {
+          "count": 11779.0,
+          "avg_ms": 0.8830019113970144
+        }
+      },
+      "api_1": {
+        "samples": 1200,
+        "peaks": {
+          "ticketing_hold_inflight": 3.0,
+          "ticketing_db_pool_in_use": 3.0,
+          "ticketing_db_pool_acquiring": 0.0,
+          "ticketing_event_loop_lag_current_seconds": 0.01414060202660039
+        },
+        "rejected_delta": 3.0,
+        "rejection_samples": [
+          {
+            "utc": "2026-09-13T15:22:29.971485+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 1.0,
+            "ticketing_db_pool_in_use": 1.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.001075678039342165
+          },
+          {
+            "utc": "2026-09-13T15:22:38.971312+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 0.0,
+            "ticketing_db_pool_in_use": 0.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.00010072800796478987
+          },
+          {
+            "utc": "2026-09-13T15:22:39.971404+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 0.0,
+            "ticketing_db_pool_in_use": 0.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.0004910160205326974
+          }
+        ],
+        "ticketing_db_pool_acquire_seconds": {
+          "count": 5737.0,
+          "avg_ms": 0.018868559607169405
+        },
+        "ticketing_db_connection_hold_seconds": {
+          "count": 5737.0,
+          "avg_ms": 26.998369044662663
+        },
+        "ticketing_db_transaction_seconds": {
+          "count": 5737.0,
+          "avg_ms": 26.926041441888486
+        },
+        "ticketing_db_commit_seconds": {
+          "count": 5737.0,
+          "avg_ms": 4.231321883008565
+        },
+        "ticketing_event_loop_lag_seconds": {
+          "count": 11782.0,
+          "avg_ms": 0.8722174732277997
+        }
+      },
+      "api_2": {
+        "samples": 1200,
+        "peaks": {
+          "ticketing_hold_inflight": 2.0,
+          "ticketing_db_pool_in_use": 2.0,
+          "ticketing_db_pool_acquiring": 0.0,
+          "ticketing_event_loop_lag_current_seconds": 0.03276518301572651
+        },
+        "rejected_delta": 4.0,
+        "rejection_samples": [
+          {
+            "utc": "2026-09-13T15:22:38.971312+00:00",
+            "increment": 2.0,
+            "ticketing_hold_inflight": 0.0,
+            "ticketing_db_pool_in_use": 0.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.000178610032889992
+          },
+          {
+            "utc": "2026-09-13T15:22:39.971404+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 0.0,
+            "ticketing_db_pool_in_use": 0.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.0004620979889295995
+          },
+          {
+            "utc": "2026-09-13T15:28:54.971806+00:00",
+            "increment": 1.0,
+            "ticketing_hold_inflight": 2.0,
+            "ticketing_db_pool_in_use": 2.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.0001727449707686901
+          }
+        ],
+        "ticketing_db_pool_acquire_seconds": {
+          "count": 5707.0,
+          "avg_ms": 0.02091091207757498
+        },
+        "ticketing_db_connection_hold_seconds": {
+          "count": 5706.0,
+          "avg_ms": 27.029584638493333
+        },
+        "ticketing_db_transaction_seconds": {
+          "count": 5706.0,
+          "avg_ms": 26.95881523542603
+        },
+        "ticketing_db_commit_seconds": {
+          "count": 5706.0,
+          "avg_ms": 4.355417385338612
+        },
+        "ticketing_event_loop_lag_seconds": {
+          "count": 11780.0,
+          "avg_ms": 0.8818590863436264
+        }
+      },
+      "api_3": {
+        "samples": 1200,
+        "peaks": {
+          "ticketing_hold_inflight": 3.0,
+          "ticketing_db_pool_in_use": 3.0,
+          "ticketing_db_pool_acquiring": 0.0,
+          "ticketing_event_loop_lag_current_seconds": 0.009645791025832295
+        },
+        "rejected_delta": 8.0,
+        "rejection_samples": [
+          {
+            "utc": "2026-09-13T15:22:38.971312+00:00",
+            "increment": 2.0,
+            "ticketing_hold_inflight": 0.0,
+            "ticketing_db_pool_in_use": 0.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.0005475670332089067
+          },
+          {
+            "utc": "2026-09-13T15:23:02.971317+00:00",
+            "increment": 2.0,
+            "ticketing_hold_inflight": 0.0,
+            "ticketing_db_pool_in_use": 0.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.0018585700308904052
+          },
+          {
+            "utc": "2026-09-13T15:27:23.971318+00:00",
+            "increment": 2.0,
+            "ticketing_hold_inflight": 0.0,
+            "ticketing_db_pool_in_use": 0.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.0007277000113390386
+          },
+          {
+            "utc": "2026-09-13T15:28:55.471317+00:00",
+            "increment": 2.0,
+            "ticketing_hold_inflight": 1.0,
+            "ticketing_db_pool_in_use": 1.0,
+            "ticketing_db_pool_acquiring": 0.0,
+            "ticketing_event_loop_lag_current_seconds": 0.0007257580291479826
+          }
+        ],
+        "ticketing_db_pool_acquire_seconds": {
+          "count": 5755.0,
+          "avg_ms": 0.02080497900744193
+        },
+        "ticketing_db_connection_hold_seconds": {
+          "count": 5755.0,
+          "avg_ms": 27.153882447716747
+        },
+        "ticketing_db_transaction_seconds": {
+          "count": 5755.0,
+          "avg_ms": 27.082376504613478
+        },
+        "ticketing_db_commit_seconds": {
+          "count": 5755.0,
+          "avg_ms": 4.348704197927889
+        },
+        "ticketing_event_loop_lag_seconds": {
+          "count": 11785.0,
+          "avg_ms": 0.8571713554325577
+        }
+      }
+    }
+  },
+  "backend": {
+    "samples": 291,
+    "errors": [],
+    "database_connections": {
+      "max": 21,
+      "avg": 17.9553264604811
+    },
+    "lock_waiters": {
+      "max": 0,
+      "avg": 0.0
+    },
+    "active_connections": {
+      "max": 17,
+      "avg": 1.9106529209621994
+    },
+    "overdue_active_holds": {
+      "max": 79,
+      "avg": 9.161512027491408
+    },
+    "oldest_overdue_seconds": {
+      "max": 2.121162,
+      "avg": 0.22910775945017184
+    },
+    "reconciliation_age_seconds": {
+      "max": 45.886235,
+      "avg": 38.22611875257732
+    },
+    "missing_maps": {
+      "max": 0,
+      "avg": 0.0
+    },
+    "maps_without_ttl": {
+      "max": 0,
+      "avg": 0.0
+    }
+  }
+}

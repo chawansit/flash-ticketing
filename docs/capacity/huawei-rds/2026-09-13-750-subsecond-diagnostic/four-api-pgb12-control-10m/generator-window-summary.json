@@ -1,0 +1,46 @@
+{
+  "start": "2026-09-13T15:04:24.661253+00:00",
+  "end": "2026-09-13T15:14:24.661253+00:00",
+  "samples": 600,
+  "cpu_busy_p95": 16.646,
+  "cpu_busy_max": 21.178,
+  "generator_cpu_p95_one_core": 129.004,
+  "generator_cpu_max_one_core": 147.001,
+  "iowait_max": 0.251,
+  "steal_max": 0.0,
+  "pressure_avg10_max": {
+    "cpu": {
+      "some": 0.0,
+      "full": 0.0
+    },
+    "memory": {
+      "some": 0.0,
+      "full": 0.0
+    },
+    "io": {
+      "some": 0.0,
+      "full": 0.0
+    }
+  },
+  "generator_drops": 0,
+  "error_codes": {
+    "hold:503:ADMISSION_FULL": 12
+  },
+  "late_drop_examples": [],
+  "ping": {
+    "samples": 2895,
+    "avg_ms": 0.8628656303972366,
+    "p95_ms": 0.896,
+    "p99_ms": 0.921,
+    "max_ms": 1.5
+  },
+  "pgbouncer_tcp_delta": {
+    "ActiveOpens": 3,
+    "PassiveOpens": 10,
+    "AttemptFails": 0,
+    "EstabResets": 0,
+    "RetransSegs": 21,
+    "InErrs": 0,
+    "OutRsts": 3
+  }
+}

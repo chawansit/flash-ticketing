@@ -1,0 +1,83 @@
+{
+  "start": "2026-09-13T14:44:08.964604+00:00",
+  "end": "2026-09-13T14:54:08.964604+00:00",
+  "samples": 600,
+  "cpu_busy_p95": 21.258,
+  "cpu_busy_max": 36.216,
+  "generator_cpu_p95_one_core": 167.001,
+  "generator_cpu_max_one_core": 287.993,
+  "iowait_max": 0.378,
+  "steal_max": 0.0,
+  "pressure_avg10_max": {
+    "cpu": {
+      "some": 0.0,
+      "full": 0.0
+    },
+    "memory": {
+      "some": 0.0,
+      "full": 0.0
+    },
+    "io": {
+      "some": 0.0,
+      "full": 0.0
+    }
+  },
+  "generator_drops": 6,
+  "error_codes": {
+    "hold:503:ADMISSION_FULL": 16
+  },
+  "late_drop_examples": [
+    {
+      "index": 38047,
+      "utc": "2026-09-13T14:47:32.489636+00:00",
+      "lag_ms": 50.687,
+      "pending": 37
+    },
+    {
+      "index": 38048,
+      "utc": "2026-09-13T14:47:32.495099+00:00",
+      "lag_ms": 50.802,
+      "pending": 37
+    },
+    {
+      "index": 38050,
+      "utc": "2026-09-13T14:47:32.506265+00:00",
+      "lag_ms": 51.275,
+      "pending": 35
+    },
+    {
+      "index": 38051,
+      "utc": "2026-09-13T14:47:32.511252+00:00",
+      "lag_ms": 50.915,
+      "pending": 35
+    },
+    {
+      "index": 38052,
+      "utc": "2026-09-13T14:47:32.516417+00:00",
+      "lag_ms": 50.732,
+      "pending": 33
+    },
+    {
+      "index": 38053,
+      "utc": "2026-09-13T14:47:32.521628+00:00",
+      "lag_ms": 50.597,
+      "pending": 30
+    }
+  ],
+  "ping": {
+    "samples": 2893,
+    "avg_ms": 0.8714552367784306,
+    "p95_ms": 0.903,
+    "p99_ms": 0.944,
+    "max_ms": 6.32
+  },
+  "pgbouncer_tcp_delta": {
+    "ActiveOpens": 5,
+    "PassiveOpens": 13,
+    "AttemptFails": 0,
+    "EstabResets": 0,
+    "RetransSegs": 11,
+    "InErrs": 0,
+    "OutRsts": 1
+  }
+}

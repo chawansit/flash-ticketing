@@ -1,6 +1,6 @@
 # ADR 0034: Fixed-budget horizontal API scaling experiment
 
-Status: Accepted; two-replica sustained validation passed, four-replica sustained validation pending
+Status: Accepted; two- and four-replica sustained validation passed
 
 ## Context
 
@@ -96,4 +96,10 @@ At 600 RPS the two API containers averaged 54.368% and 54.277% of one core, Post
 
 Four replicas with pool/admission three each passed the 100-contender correctness preflight: exactly one HTTP 201 and one matching durable PostgreSQL owner. The other responses were eleven seat-busy conflicts and 88 bounded admission rejections; failed-response p95 was 44.205 ms. A startup validation failure first exposed that the API inherited simulator concurrency four while its pool was three. The horizontal override now constrains that otherwise-unused API setting to two. No traffic was sent until all four replicas were healthy.
 
-Sustained four-replica validation is pending. Full non-secret evidence is retained under `docs/capacity/huawei-horizontal-api`.
+Four-replica sustained validation later used pool three per replica and kept the
+aggregate API DB budget at twelve. After the bounded admission and upstream
+timeout decisions in ADRs 0037 and 0038, the topology passed 750 RPS for 30
+minutes: 1,350,000 requests completed with zero unexpected responses, transport
+errors or drops. All 67,500 acknowledged holds were durable with zero overlap
+and drained queues. The managed-RDS evidence is retained in the
+[750 RPS sub-second diagnostic](../capacity/huawei-rds/2026-09-13-750-subsecond-diagnostic/README.md).

@@ -1,0 +1,137 @@
+{
+  "contenders": 100,
+  "mode": "cold",
+  "workers": 4,
+  "total_lanes": 100,
+  "seat_id": "S1",
+  "event_id": "38c95669-44d7-4132-9afb-b9a29f4a9368",
+  "winners": [
+    {
+      "run_id": "65704741-cb50-4c39-91b3-a307d9268bf4",
+      "hold_id": "9600e91a-c9bf-4feb-bdf9-f5a49c1a6099"
+    }
+  ],
+  "start_utc": "2026-09-13T15:01:14.874202+00:00",
+  "end_utc": "2026-09-13T15:01:14.988794+00:00",
+  "start_skew_ms": 0.48899999999999993,
+  "statuses": {
+    "503": 83,
+    "409": 16,
+    "201": 1
+  },
+  "error_codes": {
+    "ADMISSION_FULL": 83,
+    "SEAT_BUSY": 16
+  },
+  "expected_conflicts": 16,
+  "one_http_winner_pass": true,
+  "accounting_pass": true,
+  "warm_reuse_pass": null,
+  "connect_attempts": 100,
+  "generator_cpu_seconds": 0.30509904499999996,
+  "max_worker_loop_lag_ms": 43.197231949307024,
+  "timing_ms": {
+    "dispatch_ms": {
+      "count": 100,
+      "p50": 34.02850701240823,
+      "p95": 44.33436394901946,
+      "p99": 46.1442309897393,
+      "max": 46.553238993510604
+    },
+    "lane_wait_ms": {
+      "count": 100,
+      "p50": 0.001468986738473177,
+      "p95": 0.005265988875180483,
+      "p99": 0.006274960469454527,
+      "max": 0.017709971871227026
+    },
+    "tcp_ms": {
+      "count": 100,
+      "p50": 7.927867001853883,
+      "p95": 9.859499987214804,
+      "p99": 10.894726030528545,
+      "max": 11.127919016871601
+    },
+    "before_io_ms": {
+      "count": 100,
+      "p50": 7.686373952310532,
+      "p95": 13.00260704010725,
+      "p99": 44.52183103421703,
+      "max": 46.79371300153434
+    },
+    "send_to_headers_ms": {
+      "count": 100,
+      "p50": 22.9522010195069,
+      "p95": 44.496550981421024,
+      "p99": 47.17507603345439,
+      "max": 63.543352007400244
+    },
+    "app_ms": {
+      "count": 100,
+      "p50": 0.09,
+      "p95": 38.69,
+      "p99": 40.18,
+      "max": 59.08
+    },
+    "protocol_queue_ms": {
+      "count": 0,
+      "p50": null,
+      "p95": null,
+      "p99": null,
+      "max": null
+    },
+    "asgi_headers_ms": {
+      "count": 0,
+      "p50": null,
+      "p95": null,
+      "p99": null,
+      "max": null
+    },
+    "outside_protocol_ms": {
+      "count": 0,
+      "p50": null,
+      "p95": null,
+      "p99": null,
+      "max": null
+    },
+    "outside_app_ms": {
+      "count": 100,
+      "p50": 43.58006697036326,
+      "p95": 49.591795004289594,
+      "p99": 76.28276201810688,
+      "max": 80.07870902085676
+    },
+    "client_ms": {
+      "count": 100,
+      "p50": 45.53308803588152,
+      "p95": 69.84549202024937,
+      "p99": 87.7364770276472,
+      "max": 94.3059379933402
+    },
+    "total_ms": {
+      "count": 100,
+      "p50": 81.39847998972982,
+      "p95": 95.74651898583397,
+      "p99": 97.61295595671982,
+      "max": 113.99449297459796
+    }
+  },
+  "failed_total_ms": {
+    "count": 99,
+    "p50": 81.39847998972982,
+    "p95": 95.74651898583397,
+    "p99": 97.61295595671982,
+    "max": 97.61295595671982
+  },
+  "failed_client_ms": {
+    "count": 99,
+    "p50": 45.53308803588152,
+    "p95": 69.84549202024937,
+    "p99": 94.3059379933402,
+    "max": 94.3059379933402
+  },
+  "note": "Merged request percentiles. Total includes dispatch and explicit lane queue. Outside-app residual is not pure ingress wait.",
+  "ingress_timing_complete": false,
+  "measurement_valid": true,
+  "availability_pass": false
+}

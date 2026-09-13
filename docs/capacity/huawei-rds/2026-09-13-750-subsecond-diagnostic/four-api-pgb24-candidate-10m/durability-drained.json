@@ -1,0 +1,62 @@
+{
+  "runs": [
+    {
+      "run_id": "1decd321-0f43-4399-8a58-aee97b242509",
+      "acknowledged_201": 5603,
+      "idempotency_records": 5603,
+      "distinct_holds": 5603,
+      "distinct_orders": 5603,
+      "broken_links": 0,
+      "active_holds": 0,
+      "overdue_holds": 0,
+      "pending_orders": 0,
+      "pass": true
+    },
+    {
+      "run_id": "9a89b824-92c6-4a12-b45f-134b1be7db20",
+      "acknowledged_201": 5636,
+      "idempotency_records": 5636,
+      "distinct_holds": 5636,
+      "distinct_orders": 5636,
+      "broken_links": 0,
+      "active_holds": 0,
+      "overdue_holds": 0,
+      "pending_orders": 0,
+      "pass": true
+    },
+    {
+      "run_id": "b522ab5f-233f-432b-aa98-7898c71fdc05",
+      "acknowledged_201": 5636,
+      "idempotency_records": 5636,
+      "distinct_holds": 5636,
+      "distinct_orders": 5636,
+      "broken_links": 0,
+      "active_holds": 0,
+      "overdue_holds": 0,
+      "pending_orders": 0,
+      "pass": true
+    },
+    {
+      "run_id": "d1433cd8-e922-4365-9076-89a71c9bb61a",
+      "acknowledged_201": 5603,
+      "idempotency_records": 5603,
+      "distinct_holds": 5603,
+      "distinct_orders": 5603,
+      "broken_links": 0,
+      "active_holds": 0,
+      "overdue_holds": 0,
+      "pending_orders": 0,
+      "pass": true
+    }
+  ],
+  "queues_snapshot": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0
+  },
+  "audited_holds": 22478,
+  "audited_seat_intervals": 22478,
+  "overlapping_load_hold_intervals": 0,
+  "durability_and_expiry_pass": true,
+  "note": "Run after expiry drain for workloads without explicit early release. Intervals use order creation to hold expiry and cover only selected load run IDs. Queue counts are global context; this is not a payment test."
+}

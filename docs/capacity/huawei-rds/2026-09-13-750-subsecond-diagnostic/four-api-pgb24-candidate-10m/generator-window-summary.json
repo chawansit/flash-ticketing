@@ -1,0 +1,38 @@
+{
+  "start": "2026-09-13T15:19:45.916136+00:00",
+  "end": "2026-09-13T15:29:45.958478+00:00",
+  "samples": 600,
+  "cpu_busy_p95": 16.792,
+  "cpu_busy_max": 21.006,
+  "generator_cpu_p95_one_core": 131.0,
+  "generator_cpu_max_one_core": 140.999,
+  "iowait_max": 0.251,
+  "steal_max": 0.0,
+  "pressure_avg10_max": {
+    "cpu": {
+      "some": 0.0,
+      "full": 0.0
+    },
+    "memory": {
+      "some": 0.0,
+      "full": 0.0
+    },
+    "io": {
+      "some": 0.0,
+      "full": 0.0
+    }
+  },
+  "generator_drops": 0,
+  "error_codes": {
+    "hold:503:ADMISSION_FULL": 22
+  },
+  "late_drop_examples": [],
+  "ping": {
+    "samples": 2895,
+    "avg_ms": 0.8655537132987909,
+    "p95_ms": 0.9,
+    "p99_ms": 0.933,
+    "max_ms": 2.48
+  },
+  "pgbouncer_tcp_delta": null
+}

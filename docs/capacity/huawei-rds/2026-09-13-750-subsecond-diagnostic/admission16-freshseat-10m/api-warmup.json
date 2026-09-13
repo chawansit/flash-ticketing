@@ -1,0 +1,31 @@
+{
+  "utc": "2026-09-13T15:53:16.418520+00:00",
+  "show_count": 800,
+  "remaining": 0,
+  "pass": true,
+  "history": [
+    {
+      "attempt": 1,
+      "counts": {
+        "ok": 597,
+        "503:SEATMAP_WARMING": 203
+      },
+      "remaining": 203
+    },
+    {
+      "attempt": 2,
+      "counts": {
+        "503:SEATMAP_WARMING": 21,
+        "ok": 182
+      },
+      "remaining": 21
+    },
+    {
+      "attempt": 3,
+      "counts": {
+        "ok": 21
+      },
+      "remaining": 0
+    }
+  ]
+}

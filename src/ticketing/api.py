@@ -1,8 +1,9 @@
+import asyncio
 import hashlib
 import hmac
 import logging
 import time
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from typing import Annotated, Literal
 from uuid import UUID
 
@@ -25,6 +26,8 @@ from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.postgres import Postgres
 from ticketing.infrastructure.reservations import PostgresReservations
 from ticketing.observability import (
+    EVENT_LOOP_LAG_CURRENT_SECONDS,
+    EVENT_LOOP_LAG_SECONDS,
     OUTCOMES,
     configure_logging,
     hold_phase,
@@ -36,6 +39,16 @@ security = HTTPBearer()
 log = logging.getLogger("ticketing.api")
 
 
+async def observe_event_loop_lag(interval_seconds: float = 0.05):
+    loop = asyncio.get_running_loop()
+    while True:
+        due = loop.time() + interval_seconds
+        await asyncio.sleep(interval_seconds)
+        lag = max(0.0, loop.time() - due)
+        EVENT_LOOP_LAG_CURRENT_SECONDS.set(lag)
+        EVENT_LOOP_LAG_SECONDS.observe(lag)
+
+
 @asynccontextmanager
 async def lifespan(app):
     settings.validate()
@@ -44,9 +57,15 @@ async def lifespan(app):
     cache = RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
     app.state.db, app.state.cache = db, cache
     app.state.reservations = Reservations(PostgresReservations(db, cache, settings.hold_seconds))
-    yield
-    db.close()
-    cache.redis.close()
+    loop_observer = asyncio.create_task(observe_event_loop_lag())
+    try:
+        yield
+    finally:
+        loop_observer.cancel()
+        with suppress(asyncio.CancelledError):
+            await loop_observer
+        db.close()
+        cache.redis.close()
 
 
 app = FastAPI(
