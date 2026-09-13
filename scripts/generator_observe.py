@@ -97,8 +97,9 @@ def _status_value(status: dict[str, str], name: str) -> int:
 def process_snapshot(match: str) -> dict[str, Any]:
     processes: list[dict[str, int]] = []
     needle = match.encode()
+    own_pid = str(os.getpid())
     for proc_dir in Path("/proc").iterdir():
-        if not proc_dir.name.isdigit():
+        if not proc_dir.name.isdigit() or proc_dir.name == own_pid:
             continue
         try:
             command = (proc_dir / "cmdline").read_bytes()
