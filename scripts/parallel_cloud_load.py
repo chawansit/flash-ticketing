@@ -22,6 +22,7 @@ p.add_argument("--mixed-hot-holds", action="store_true")
 p.add_argument("--burst", action="store_true")
 p.add_argument("--transport-diagnostics", action="store_true")
 p.add_argument("--keepalive-expiry", type=expiry_seconds, default=5.0)
+p.add_argument("--start-delay", type=float, default=30.0)
 a = p.parse_args()
 if a.burst:
     a.seconds = 240
@@ -37,13 +38,14 @@ if (
     or a.seconds < 1
     or len(m["show_ids"]) % a.workers
     or len(m["viewer_tokens"]) % len(m["show_ids"])
+    or not 1 <= a.start_delay <= 120
 ):
     p.error("Positive limits, rate >= workers, and evenly partitioned shows/viewers required")
 worker_rates = [a.rate // a.workers + (i < a.rate % a.workers) for i in range(a.workers)]
 
 
 a.output.mkdir(parents=True, exist_ok=True)
-start = (datetime.now(UTC) + timedelta(seconds=30)).isoformat()
+start = (datetime.now(UTC) + timedelta(seconds=a.start_delay)).isoformat()
 processes = []
 private_directory = TemporaryDirectory(prefix="flash-load-")
 try:
@@ -125,6 +127,7 @@ try:
         "keepalive_expiry_seconds": a.keepalive_expiry,
         "rate": a.rate,
         "seconds": a.seconds,
+        "start_delay_seconds": a.start_delay,
         "workers": a.workers,
         "worker_rates": worker_rates,
         "worker_exit_codes": codes,

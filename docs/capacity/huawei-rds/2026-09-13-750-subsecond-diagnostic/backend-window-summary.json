@@ -1,0 +1,22 @@
+{
+  "start": "2026-09-13T10:29:32.324160+00:00",
+  "end": "2026-09-13T10:59:32.329294+00:00",
+  "all_samples": 921,
+  "window_samples": 863,
+  "errors": 0,
+  "database_connections_max": 13,
+  "active_connections_max": 11,
+  "lock_waiters_max": 0,
+  "missing_maps_max": 0,
+  "maps_without_ttl_max": 0,
+  "minimum_ttl_min": 11,
+  "reconciliation_age_max": 44.50088,
+  "overdue_holds_max": 126,
+  "commit_count": 34252.0,
+  "commit_avg_ms": 3.5422348313263994,
+  "pool_acquire_count": 34252.0,
+  "pool_acquire_avg_ms": 27.92437761323547,
+  "checkpoint_requested_delta": 0,
+  "wal_sync_ms_delta": 0,
+  "wal_write_ms_delta": 0
+}

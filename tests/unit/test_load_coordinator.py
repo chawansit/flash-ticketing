@@ -26,13 +26,15 @@ Path(a.output).write_text(json.dumps({'measured_started_utc':a.start_at,
 ''')
     output = tmp_path / "result"
     subprocess.run([sys.executable, str(coordinator), "--manifest", str(manifest),
-                    "--rate", str(rate), "--seconds", "300", "--output", str(output)],
+                    "--rate", str(rate), "--seconds", "300", "--start-delay", "5",
+                    "--output", str(output)],
                    cwd=tmp_path, check=True, capture_output=True, timeout=20)
     summary = json.loads((output / "summary.json").read_text())
     assert summary["coordination_gate_pass"]
     assert summary["workload_gate_pass"]
     assert summary["gate_pass"]
     assert summary["worker_rates"] == expected
+    assert summary["start_delay_seconds"] == 5.0
     workers = [json.loads((output / f"worker-{i}.json").read_text()) for i in range(4)]
     assert [w["offered_rps"] for w in workers] == expected
     assert sum(w["offered_rps"] for w in workers) == rate

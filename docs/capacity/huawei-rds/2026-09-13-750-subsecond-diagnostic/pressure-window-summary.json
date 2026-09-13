@@ -1,0 +1,49 @@
+{
+  "start": "2026-09-13T10:29:32.324160+00:00",
+  "end": "2026-09-13T10:59:32.329294+00:00",
+  "samples": 9000,
+  "replicas": {
+    "api_0": {
+      "inflight_max": 8.0,
+      "pool_acquiring_max": 2.0,
+      "pool_in_use_max": 6.0,
+      "inflight_at_limit_samples": 1,
+      "pool_acquiring_samples": 2,
+      "pressure_examples": [
+        {
+          "utc": "2026-09-13T10:57:18.249618+00:00",
+          "inflight": 8.0,
+          "acquiring": 2.0,
+          "in_use": 6.0
+        },
+        {
+          "utc": "2026-09-13T10:58:39.249619+00:00",
+          "inflight": 7.0,
+          "acquiring": 1.0,
+          "in_use": 6.0
+        }
+      ]
+    },
+    "api_1": {
+      "inflight_max": 8.0,
+      "pool_acquiring_max": 2.0,
+      "pool_in_use_max": 6.0,
+      "inflight_at_limit_samples": 1,
+      "pool_acquiring_samples": 2,
+      "pressure_examples": [
+        {
+          "utc": "2026-09-13T10:57:18.249618+00:00",
+          "inflight": 8.0,
+          "acquiring": 2.0,
+          "in_use": 6.0
+        },
+        {
+          "utc": "2026-09-13T10:58:39.249619+00:00",
+          "inflight": 7.0,
+          "acquiring": 1.0,
+          "in_use": 6.0
+        }
+      ]
+    }
+  }
+}

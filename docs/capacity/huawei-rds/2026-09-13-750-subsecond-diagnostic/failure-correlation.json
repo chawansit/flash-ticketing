@@ -1,0 +1,42 @@
+{
+  "database_unavailable": {
+    "request_utc": "2026-09-13T10:57:18.261134+00:00",
+    "pressure_sample_utc": "2026-09-13T10:57:18.249618+00:00",
+    "offset_ms": 11.516,
+    "status": 503,
+    "error_code": "DATABASE_UNAVAILABLE",
+    "duration_ms": 154.25,
+    "hold_arrival_occupancy": 6,
+    "hold_limit": 8,
+    "db_enter_ms": 150.518,
+    "pool_timeout_ms": 150,
+    "replicas_at_sample": {
+      "api_0": {
+        "hold_inflight": 8,
+        "pool_in_use": 6,
+        "pool_acquiring": 2
+      },
+      "api_1": {
+        "hold_inflight": 8,
+        "pool_in_use": 6,
+        "pool_acquiring": 2
+      }
+    }
+  },
+  "admission_full": {
+    "request_utc": "2026-09-13T10:58:39.283003+00:00",
+    "pressure_sample_utc": "2026-09-13T10:58:39.249619+00:00",
+    "offset_ms": 33.384,
+    "status": 503,
+    "error_code": "ADMISSION_FULL",
+    "duration_ms": 0.09,
+    "hold_arrival_occupancy": 8,
+    "hold_limit": 8,
+    "observed_replica_at_sample": {
+      "hold_inflight": 7,
+      "pool_in_use": 6,
+      "pool_acquiring": 1
+    }
+  },
+  "note": "Synthetic request identifiers and payloads are omitted. Timing and bounded phase data came from structured API logs and the 200 ms observer."
+}

@@ -53,6 +53,42 @@ def arrival_plan(rate, seconds, burst=False):
         elapsed += duration
 
 
+async def fetch_initial_validators(client, shows, concurrency=16, max_attempts=3):
+    """Fetch bootstrap ETags quickly enough to stay within the seat-map TTL."""
+    if concurrency < 1 or max_attempts < 1:
+        raise ValueError("Positive bootstrap bounds required")
+    semaphore = asyncio.Semaphore(concurrency)
+    statuses = Counter()
+
+    async def fetch(show):
+        for attempt in range(max_attempts):
+            async with semaphore:
+                response = await client.get(f"/v1/events/{show}/availability")
+            code, _ = error_diagnostic(response)
+            statuses[f"{response.status_code}:{code}"] += 1
+            if response.status_code == 200:
+                return show, response.headers["etag"], attempt
+            if (
+                response.status_code == 503
+                and code == "SEATMAP_WARMING"
+                and attempt + 1 < max_attempts
+            ):
+                await asyncio.sleep(0.25 * (attempt + 1))
+                continue
+            response.raise_for_status()
+        raise AssertionError("Bootstrap attempt bound should return or raise")
+
+    rows = await asyncio.gather(*(fetch(show) for show in shows))
+    return (
+        {show: etag for show, etag, _ in rows},
+        {
+            "concurrency": concurrency,
+            "max_attempts": max_attempts,
+            "attempt_statuses": dict(statuses),
+            "retry_count": sum(attempt for _, _, attempt in rows),
+        },
+    )
+
 
 class TransportTrace:
     """Bounded phase-only diagnostics; never serialize exception text or trace payloads."""
@@ -120,11 +156,7 @@ async def run(args):
                            keepalive_expiry=getattr(args, "keepalive_expiry", 5.0)),
     ) as client:
         (await client.get("/health/ready")).raise_for_status()
-        initial = {}
-        for show in shows:
-            response = await client.get(f"/v1/events/{show}/availability")
-            response.raise_for_status()
-            initial[show] = response.headers["etag"]
+        initial, bootstrap = await fetch_initial_validators(client, shows)
         hot_show = manifest.get("hot_show_id")
         if hot_show and hot_show not in initial:
             response = await client.get(f"/v1/events/{hot_show}/availability")
@@ -285,6 +317,7 @@ async def run(args):
         "burst": args.burst,
         "utc": datetime.now(UTC).isoformat(),
         "measured_started_utc": measured_started_utc,
+        "bootstrap": bootstrap,
         "manifest_id": manifest["id"],
         "run_id": run_id,
         "target_origin": args.origin,
