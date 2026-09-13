@@ -1,0 +1,130 @@
+{
+  "mixed_hot_holds": false,
+  "expected_hot_conflicts": 0,
+  "hot_failed_p95_ms": null,
+  "phases": {
+    "0": {
+      "statuses": {
+        "read": {
+          "304": 145672,
+          "200": 110827
+        },
+        "hold": {
+          "201": 13500
+        }
+      },
+      "p95_ms": {
+        "read": 8.29479400999844,
+        "hold": 48.27455000486225
+      }
+    }
+  },
+  "read_hot_share": 0,
+  "burst": false,
+  "utc": "2026-09-13T05:06:58.710063+00:00",
+  "measured_started_utc": "2026-09-13T04:36:58.590471+00:00",
+  "manifest_id": "53bbcbad-abe8-4ba9-950e-3c1df27e7c3b",
+  "run_id": "5c67359d-4d5e-46dd-af28-b26193d637bc",
+  "target_origin": "http://private-api:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 150,
+  "seconds": 1800,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 5,
+  "generator_drops": 1,
+  "drop_reasons": {
+    "late": 1
+  },
+  "error_codes": {},
+  "error_examples": [],
+  "keepalive_expiry_seconds": 5.0,
+  "measured_tcp_connect_events": {
+    "read": {
+      "started": 422,
+      "complete": 422
+    },
+    "hold": {
+      "started": 9,
+      "complete": 9
+    }
+  },
+  "transport_error_types": {},
+  "transport_diagnostics_enabled": true,
+  "transport_phase_counts": {
+    "read": {
+      "connection.connect_tcp.started": 422,
+      "connection.connect_tcp.complete": 422,
+      "http11.send_request_headers.started": 256499,
+      "http11.send_request_headers.complete": 256499,
+      "http11.send_request_body.started": 256499,
+      "http11.send_request_body.complete": 256499,
+      "http11.receive_response_headers.started": 256499,
+      "http11.receive_response_headers.complete": 256499,
+      "http11.receive_response_body.started": 256499,
+      "http11.receive_response_body.complete": 256499,
+      "http11.response_closed.started": 256499,
+      "http11.response_closed.complete": 256499
+    },
+    "hold": {
+      "connection.connect_tcp.started": 9,
+      "connection.connect_tcp.complete": 9,
+      "http11.send_request_headers.started": 13500,
+      "http11.send_request_headers.complete": 13500,
+      "http11.send_request_body.started": 13500,
+      "http11.send_request_body.complete": 13500,
+      "http11.receive_response_headers.started": 13500,
+      "http11.receive_response_headers.complete": 13500,
+      "http11.receive_response_body.started": 13500,
+      "http11.receive_response_body.complete": 13500,
+      "http11.response_closed.started": 13500,
+      "http11.response_closed.complete": 13500
+    }
+  },
+  "transport_failure_examples": [],
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 1.0651713237166405,
+  "generator_cpu_seconds": 459.847737854,
+  "elapsed_seconds": 1799.9967486099922,
+  "completed_rps": 149.99971539309766,
+  "statuses": {
+    "read": {
+      "304": 145672,
+      "200": 110827
+    },
+    "hold": {
+      "201": 13500
+    },
+    "hot_hold": {}
+  },
+  "response_body_bytes": 2072902755,
+  "latency_ms": {
+    "read:304": {
+      "p50": 2.883713983464986,
+      "p95": 5.39598404429853,
+      "p99": 10.17655001487583
+    },
+    "hold:201": {
+      "p50": 29.154551040846854,
+      "p95": 48.27455000486225,
+      "p99": 75.45663299970329
+    },
+    "read:200": {
+      "p50": 3.5001080250367522,
+      "p95": 9.194404992740601,
+      "p99": 15.081353019922972
+    }
+  },
+  "read_p95_ms": 8.29479400999844,
+  "hold_p95_ms": 48.27455000486225,
+  "local_read_gate_pass": false,
+  "note": "95% reads/5% holds (mixed mode: 4% distinct, 1% hot). Known hot 409 codes remain in error_codes but are expected; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": false,
+  "phase_latency_gate_pass": true,
+  "hot_contention_gate_pass": true
+}

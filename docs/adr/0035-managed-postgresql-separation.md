@@ -1,6 +1,6 @@
 # ADR 0035: Separate PostgreSQL onto managed RDS
 
-Status: Proposed; implementation prepared, cloud validation pending RDS access
+Status: Accepted for staged capacity validation; production qualification pending verified TLS and RDS service telemetry
 
 ## Context
 
@@ -44,4 +44,10 @@ Rollback is a deployment rollback, not data replication: stop traffic, remove th
 
 ## Validation evidence
 
-RDS execution is pending the endpoint, credentials and CA bundle. Local preparation passed Compose structural validation, 75 unit tests, 57 integration tests and repository-wide Ruff checks. The preflight control against isolated PostgreSQL 17.6 passed five migration checksums, 17 required tables and nine required indexes. Its median TCP, connect and transaction times were 0.530 ms, 8.750 ms and 0.693 ms. The credential-free idle profiler completed all six representative plans. Cloud evidence will be stored without endpoints or credentials under `docs/capacity/huawei-rds`.
+Cloud execution used Huawei RDS for PostgreSQL 17.11 with 4 vCPU, 16 GiB memory and 100 GB storage. The effective `max_connections` setting was 768. Infrastructure preflight passed primary/read-write state, UTF-8, TLS 1.3, connectivity and transaction probes. Schema verification passed five migration checksums, 17 required tables and nine required indexes. The idle collector retained all six representative query plans.
+
+The matched admission-eight stages are retained in the [2026-09-13 report](../capacity/huawei-rds/2026-09-13-admission8-stages/README.md). At 400 RPS, all 720,000 requests completed with zero errors or drops. At 500 RPS, all 900,000 requests completed with zero errors or drops; worst-worker read p95 was 8.420 ms and hold p95 was 46.999 ms. All 45,000 acknowledged holds matched durable idempotency, hold and order records with zero overlapping intervals, and all queues drained.
+
+The 600 RPS stage processed 1,079,999 of 1,080,000 scheduled requests. One generator worker recorded one late read drop, so the strict gate failed and escalation stopped before 750 RPS. There were no HTTP, transport or task errors, all 54,000 holds returned 201 and the durability/overlap audit passed. This is a generator-limited test boundary, not proof that RDS or the backend saturated.
+
+The experiment used temporary `sslmode=require` without CA/hostname verification at the user's direction. `verify-full` remains required for production qualification. Huawei RDS CPU, IOPS, WAL/checkpoint and storage-latency metrics were not exported, so the accepted evidence establishes functional use of managed RDS and a 500 RPS operating point for this workload, but not the RDS saturation margin or maximum production capacity.

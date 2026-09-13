@@ -1,0 +1,156 @@
+{
+  "api_metrics": {
+    "flash-ticketing-api-2": {
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"+Inf\",outcome=\"ok\"}": 68832.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.005\",outcome=\"ok\"}": 0.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.01\",outcome=\"ok\"}": 857.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.025\",outcome=\"ok\"}": 46004.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.05\",outcome=\"ok\"}": 67813.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.075\",outcome=\"ok\"}": 68420.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.1\",outcome=\"ok\"}": 68536.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.25\",outcome=\"ok\"}": 68799.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.5\",outcome=\"ok\"}": 68832.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.75\",outcome=\"ok\"}": 68832.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"1.0\",outcome=\"ok\"}": 68832.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"10.0\",outcome=\"ok\"}": 68832.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"2.5\",outcome=\"ok\"}": 68832.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"5.0\",outcome=\"ok\"}": 68832.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"7.5\",outcome=\"ok\"}": 68832.0,
+      "ticketing_db_pool_acquire_seconds_count{outcome=\"ok\"}": 68832.0,
+      "ticketing_db_pool_acquire_seconds_created{outcome=\"ok\"}": 1789269521.0395863,
+      "ticketing_db_pool_acquire_seconds_sum{outcome=\"ok\"}": 1757.8198734020698,
+      "ticketing_db_pool_state{state=\"pool_available\"}": 5.0,
+      "ticketing_db_pool_state{state=\"pool_max\"}": 6.0,
+      "ticketing_db_pool_state{state=\"pool_size\"}": 5.0,
+      "ticketing_db_pool_state{state=\"requests_waiting\"}": 0.0,
+      "ticketing_hold_admission_total{outcome=\"admitted\"}": 67547.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"+Inf\"}": 67547.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"0.0\"}": 33645.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"1.0\"}": 66168.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"12.0\"}": 67547.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"16.0\"}": 67547.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"2.0\"}": 67429.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"32.0\"}": 67547.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"4.0\"}": 67536.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"6.0\"}": 67546.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"64.0\"}": 67547.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"8.0\"}": 67547.0,
+      "ticketing_hold_arrival_occupancy_count": 67547.0,
+      "ticketing_hold_arrival_occupancy_created": 1789269516.781638,
+      "ticketing_hold_arrival_occupancy_sum": 35435.0
+    },
+    "flash-ticketing-api-3": {
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"+Inf\",outcome=\"ok\"}": 68738.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.005\",outcome=\"ok\"}": 0.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.01\",outcome=\"ok\"}": 1012.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.025\",outcome=\"ok\"}": 45714.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.05\",outcome=\"ok\"}": 67675.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.075\",outcome=\"ok\"}": 68313.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.1\",outcome=\"ok\"}": 68434.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.25\",outcome=\"ok\"}": 68707.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.5\",outcome=\"ok\"}": 68738.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"0.75\",outcome=\"ok\"}": 68738.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"1.0\",outcome=\"ok\"}": 68738.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"10.0\",outcome=\"ok\"}": 68738.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"2.5\",outcome=\"ok\"}": 68738.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"5.0\",outcome=\"ok\"}": 68738.0,
+      "ticketing_db_pool_acquire_seconds_bucket{le=\"7.5\",outcome=\"ok\"}": 68738.0,
+      "ticketing_db_pool_acquire_seconds_count{outcome=\"ok\"}": 68738.0,
+      "ticketing_db_pool_acquire_seconds_created{outcome=\"ok\"}": 1789269521.1754,
+      "ticketing_db_pool_acquire_seconds_sum{outcome=\"ok\"}": 1760.3175897373585,
+      "ticketing_db_pool_state{state=\"pool_available\"}": 5.0,
+      "ticketing_db_pool_state{state=\"pool_max\"}": 6.0,
+      "ticketing_db_pool_state{state=\"pool_size\"}": 5.0,
+      "ticketing_db_pool_state{state=\"requests_waiting\"}": 0.0,
+      "ticketing_hold_admission_total{outcome=\"admitted\"}": 67453.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"+Inf\"}": 67453.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"0.0\"}": 33645.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"1.0\"}": 66126.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"12.0\"}": 67453.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"16.0\"}": 67453.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"2.0\"}": 67342.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"32.0\"}": 67453.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"4.0\"}": 67443.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"6.0\"}": 67452.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"64.0\"}": 67453.0,
+      "ticketing_hold_arrival_occupancy_bucket{le=\"8.0\"}": 67453.0,
+      "ticketing_hold_arrival_occupancy_count": 67453.0,
+      "ticketing_hold_arrival_occupancy_created": 1789269516.9052851,
+      "ticketing_hold_arrival_occupancy_sum": 35279.0
+    }
+  },
+  "note": "API metrics are cumulative since the admission-8 containers started; log counts use the exact measurement windows.",
+  "resource_snapshot": [
+    {
+      "BlockIO": "4.36MB / 0B",
+      "CPUPerc": "0.10%",
+      "Container": "flash-ticketing-api-2",
+      "ID": "8bb58bfd2f3c",
+      "MemPerc": "1.15%",
+      "MemUsage": "87.27MiB / 7.38GiB",
+      "Name": "flash-ticketing-api-2",
+      "NetIO": "6.28GB / 13.4GB",
+      "PIDs": "6"
+    },
+    {
+      "BlockIO": "0B / 0B",
+      "CPUPerc": "0.09%",
+      "Container": "flash-ticketing-api-3",
+      "ID": "479e28160161",
+      "MemPerc": "1.40%",
+      "MemUsage": "105.4MiB / 7.38GiB",
+      "Name": "flash-ticketing-api-3",
+      "NetIO": "6.29GB / 13.4GB",
+      "PIDs": "6"
+    },
+    {
+      "BlockIO": "2.7MB / 8.19kB",
+      "CPUPerc": "4.94%",
+      "Container": "flash-ticketing-pgbouncer-1",
+      "ID": "00ed57519e78",
+      "MemPerc": "0.04%",
+      "MemUsage": "2.965MiB / 7.38GiB",
+      "Name": "flash-ticketing-pgbouncer-1",
+      "NetIO": "12.2GB / 12.1GB",
+      "PIDs": "1"
+    },
+    {
+      "BlockIO": "860kB / 32.4GB",
+      "CPUPerc": "7.22%",
+      "Container": "flash-ticketing-redis-1",
+      "ID": "370d6c6283fc",
+      "MemPerc": "0.69%",
+      "MemUsage": "52.41MiB / 7.38GiB",
+      "Name": "flash-ticketing-redis-1",
+      "NetIO": "148GB / 47GB",
+      "PIDs": "6"
+    }
+  ],
+  "runs": {
+    "rds-400-admission8": {
+      "flash-ticketing-api-2": {
+        "admission_full_log_count": 0
+      },
+      "flash-ticketing-api-3": {
+        "admission_full_log_count": 0
+      }
+    },
+    "rds-500-admission8": {
+      "flash-ticketing-api-2": {
+        "admission_full_log_count": 0
+      },
+      "flash-ticketing-api-3": {
+        "admission_full_log_count": 0
+      }
+    },
+    "rds-600-admission8": {
+      "flash-ticketing-api-2": {
+        "admission_full_log_count": 0
+      },
+      "flash-ticketing-api-3": {
+        "admission_full_log_count": 0
+      }
+    }
+  },
+  "utc": "2026-09-13T05:10:59.244848+00:00"
+}

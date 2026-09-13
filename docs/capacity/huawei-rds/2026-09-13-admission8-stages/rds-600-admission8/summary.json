@@ -1,0 +1,61 @@
+{
+  "utc": "2026-09-13T05:06:59.371941+00:00",
+  "hot_read_share": 0,
+  "burst": false,
+  "mixed_hot_holds": false,
+  "keepalive_expiry_seconds": 5.0,
+  "rate": 600,
+  "seconds": 1800,
+  "workers": 4,
+  "worker_rates": [
+    150,
+    150,
+    150,
+    150
+  ],
+  "worker_exit_codes": [
+    0,
+    1,
+    0,
+    0
+  ],
+  "start_skew_ms": 11.626,
+  "generator_drops": 1,
+  "worst_worker_read_p95_ms": 8.324087015353143,
+  "worst_worker_hold_p95_ms": 48.63499500788748,
+  "transport_phase_counts": {
+    "read": {
+      "connection.connect_tcp.started": 1747,
+      "connection.connect_tcp.complete": 1747,
+      "http11.send_request_headers.started": 1025999,
+      "http11.send_request_headers.complete": 1025999,
+      "http11.send_request_body.started": 1025999,
+      "http11.send_request_body.complete": 1025999,
+      "http11.receive_response_headers.started": 1025999,
+      "http11.receive_response_headers.complete": 1025999,
+      "http11.receive_response_body.started": 1025999,
+      "http11.receive_response_body.complete": 1025999,
+      "http11.response_closed.started": 1025999,
+      "http11.response_closed.complete": 1025999
+    },
+    "hold": {
+      "connection.connect_tcp.started": 30,
+      "connection.connect_tcp.complete": 30,
+      "http11.send_request_headers.started": 54000,
+      "http11.send_request_headers.complete": 54000,
+      "http11.send_request_body.started": 54000,
+      "http11.send_request_body.complete": 54000,
+      "http11.receive_response_headers.started": 54000,
+      "http11.receive_response_headers.complete": 54000,
+      "http11.receive_response_body.started": 54000,
+      "http11.receive_response_body.complete": 54000,
+      "http11.response_closed.started": 54000,
+      "http11.response_closed.complete": 54000
+    }
+  },
+  "transport_errors": {},
+  "coordination_gate_pass": false,
+  "workload_gate_pass": false,
+  "gate_pass": false,
+  "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+}

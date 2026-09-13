@@ -37,7 +37,9 @@ Useful endpoints: [OpenAPI JSON](http://localhost:8000/openapi.json),
 
 ## Load-test results
 
-Latest experiment: [direct ASGI instrumentation, mixed-load limits and recovery validation](docs/capacity/overnight/README.md). Includes matched latency measurements, retained failed runs and durable seat-hold audits.
+Latest cloud capacity result: [Huawei RDS staged validation](docs/capacity/huawei-rds/2026-09-13-admission8-stages/README.md). The measured workload passed 500 RPS for 30 minutes; escalation stopped at a strict 600 RPS generator late-drop gate.
+
+Earlier experiment: [direct ASGI instrumentation, mixed-load limits and recovery validation](docs/capacity/overnight/README.md). Includes matched latency measurements, retained failed runs and durable seat-hold audits.
 
 [Inline service dependency experiment](docs/capacity/service-dependency/README.md): lower measured latency, but both controls recorded a read transport error; candidate not adopted.
 
