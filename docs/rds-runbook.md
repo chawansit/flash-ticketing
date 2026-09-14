@@ -66,7 +66,13 @@ The profiler executes only SELECT/EXPLAIN statements and rolls back its row lock
 
 ## Deployment
 
-Start the accepted two-replica comparison topology with pool/admission six per API and twelve in aggregate. Include the existing private-network, reconciliation, keep-alive and horizontal overrides used by ADR 0034. Use `compose.rds.yaml` after `compose.yaml` so local PostgreSQL is excluded and PgBouncer points to RDS. Do not print rendered Compose JSON because it contains interpolated secrets.
+Start the measured four-replica topology with a pool of three per API and twelve
+connections in aggregate. Set hold admission to the value accepted by the latest
+ADR; validate the rendered per-process value and aggregate budget before traffic.
+Include the existing private-network, reconciliation, keep-alive and horizontal
+overrides used by ADRs 0034--0038. Use `compose.rds.yaml` after `compose.yaml` so
+local PostgreSQL is excluded and PgBouncer points to RDS. Do not print rendered
+Compose JSON because it contains interpolated secrets.
 
 Verify every API, PgBouncer and worker is healthy. Confirm no `postgres` container is running in this Compose project before issuing traffic.
 
@@ -76,8 +82,9 @@ Use a fresh private development manifest for each long stage and delete it after
 
 1. 400 RPS control.
 2. 500 RPS for 30 minutes.
-3. 600 RPS for 30 minutes.
-4. If every gate passes, 750 RPS for 30 minutes.
+3. 750 RPS for ten minutes as a safety control, followed by a fresh 30-minute
+   confirmation. A previous clean result does not waive the repeatability gate.
+4. If both 750 RPS gates pass, run 800 RPS for ten minutes and then 30 minutes.
 5. If every gate passes, 1,000 RPS for 30 minutes.
 6. Stop at the first failed gate; do not rerun a failed rate until it passes by chance.
 

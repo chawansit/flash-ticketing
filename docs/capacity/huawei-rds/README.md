@@ -1,13 +1,25 @@
 # Huawei RDS capacity validation
 
-ADR 0035 prepared a matched test that moves PostgreSQL from the shared backend ECS to Huawei RDS while retaining local PgBouncer and an aggregate application pool budget of twelve. Cloud execution is now complete through the first failed staged gate.
+ADR 0035 prepared a matched test that moves PostgreSQL from the shared backend
+ECS to Huawei RDS while retaining local PgBouncer and an aggregate application
+pool budget of twelve.
 
-The latest [750 RPS sub-second diagnostic](2026-09-13-750-subsecond-diagnostic/README.md) confirms that **600 RPS for 30 minutes** remains the highest clean operating point measured for the 95% conditional seat-map read / 5% unique-seat hold workload. At 750 RPS, a 200 ms sample correlated both API pools at 6/6 and two acquirers with a 150 ms pool timeout, while three holds were rejected by admission and five generator arrivals were late. The corrected run had zero seat-map warming and preserved zero double-booking.
+The 2026-09-13 diagnostic produced one clean **750 RPS for 30 minutes** run for
+the 95% conditional seat-map read / 5% unique-seat hold workload: zero unexpected
+errors and drops, read/hold p95 8.251/51.050 ms, exact durability, zero overlap and
+drained queues.
 
-The earlier [600 RPS repeat and 750 RPS boundary report](2026-09-13-600-repeat-750-stage/README.md) establishes **600 RPS for 30 minutes** as the highest clean operating point measured for the 95% conditional seat-map read / 5% unique-seat hold workload. All 1,080,000 requests completed with zero errors or drops; read p95 was 8.439 ms, hold p95 was 48.778 ms and all 54,000 acknowledged holds passed the durable overlap audit. The 750 RPS stage failed with three `ADMISSION_FULL` responses and three generator late drops, so escalation stopped before 1,000 RPS.
+A [fresh 750 RPS repeatability control](2026-09-14-750-repeatability/README.md)
+then failed on one `ADMISSION_FULL` response about three seconds after load began.
+The partial audit remained correct, but the strict availability gate failed. The
+clean 750 result is therefore demonstrated once but is not yet a repeatable
+zero-error boundary. **600 RPS for 30 minutes remains the highest repeatable clean
+baseline** until ADR 0039 completes its safety and confirmation stages.
 
-The earlier [400 RPS RDS control](2026-09-13-control/README.md) used admission six and recorded one `ADMISSION_FULL` response. The matched admission-eight control completed 720,000 requests with zero errors or drops. The database connection budget remained unchanged.
-
+The [600 RPS repeat and 750 RPS boundary report](2026-09-13-600-repeat-750-stage/README.md)
+remains the historical pre-correction baseline. The earlier
+[400 RPS RDS control](2026-09-13-control/README.md) documents the first bounded
+admission comparison.
 ## Completed preparation
 
 - Added `compose.rds.yaml`; default rendering excludes the local PostgreSQL service, points PgBouncer upstream at RDS with certificate verification and directs migrations straight to RDS.
@@ -38,4 +50,4 @@ Compose structural checks passed for local-PostgreSQL exclusion, dependency remo
 
 ## Next evidence
 
-Sub-second admission and pool correlation is complete. Export Huawei RDS CPU, IOPS and storage-latency metrics around the correlated 150 ms pool timeout, then create an ADR before changing pool wait, admission, connection budgets or worker topology. Full commands and failure gates are in `docs/rds-runbook.md`.
+ADR 0039 is the active controlled candidate: admission five per API with database pool three unchanged. Run 750 RPS for ten minutes, then a fresh 30-minute confirmation only if every gate passes. Do not proceed to 800 RPS until both stages pass. Full commands and failure gates are in `docs/rds-runbook.md`.

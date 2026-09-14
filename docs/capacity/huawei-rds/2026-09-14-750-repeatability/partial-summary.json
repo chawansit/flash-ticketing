@@ -1,0 +1,126 @@
+{
+  "status": "failed_and_stopped_on_first_admission_rejection",
+  "start": "2026-09-14T10:56:34.505527+07:00",
+  "end": "2026-09-14T11:01:24.005508+07:00",
+  "pressure_samples": 580,
+  "replicas": {
+    "api_0": {
+      "samples": 580,
+      "rejected_delta": 1.0,
+      "hold_inflight_peak": 4.0,
+      "pool_in_use_peak": 3.0,
+      "pool_acquiring_peak": 1.0,
+      "event_loop_lag_peak_ms": 38.96732605062425
+    },
+    "api_1": {
+      "samples": 580,
+      "rejected_delta": 0,
+      "hold_inflight_peak": 3.0,
+      "pool_in_use_peak": 3.0,
+      "pool_acquiring_peak": 0.0,
+      "event_loop_lag_peak_ms": 41.3879330153577
+    },
+    "api_2": {
+      "samples": 580,
+      "rejected_delta": 0,
+      "hold_inflight_peak": 3.0,
+      "pool_in_use_peak": 3.0,
+      "pool_acquiring_peak": 0.0,
+      "event_loop_lag_peak_ms": 27.496616006828845
+    },
+    "api_3": {
+      "samples": 580,
+      "rejected_delta": 0,
+      "hold_inflight_peak": 3.0,
+      "pool_in_use_peak": 3.0,
+      "pool_acquiring_peak": 1.0,
+      "event_loop_lag_peak_ms": 16.88718202058226
+    }
+  },
+  "rejection_events": [
+    {
+      "utc": "2026-09-14T10:57:20.505508+07:00",
+      "replica": "api_0",
+      "increment": 1.0,
+      "hold_inflight": 0.0,
+      "pool_in_use": 0.0,
+      "pool_acquiring": 0.0,
+      "nearest_pgbouncer": {
+        "utc": "2026-09-14T10:57:20.498635+07:00",
+        "cl_active": 22.0,
+        "cl_waiting": 0.0,
+        "cl_active_cancel_req": 0.0,
+        "cl_waiting_cancel_req": 0.0,
+        "sv_active": 6.0,
+        "sv_active_cancel": 0.0,
+        "sv_being_canceled": 0.0,
+        "sv_idle": 9.0,
+        "sv_used": 0.0,
+        "sv_tested": 0.0,
+        "sv_login": 0.0,
+        "maxwait_seconds": 0.0,
+        "pools": 1.0
+      }
+    }
+  ],
+  "pgbouncer": {
+    "samples": 1771,
+    "cl_waiting_peak": 1.0,
+    "sv_active_peak": 14.0,
+    "maxwait_seconds_peak": 0.047323,
+    "waiting_samples": 1
+  },
+  "backend": {
+    "samples": 173,
+    "errors": 0,
+    "connections_peak": 18,
+    "active_connections_peak": 8,
+    "lock_waiters_peak": 0,
+    "missing_maps_peak": 0
+  },
+  "note": "Generator was intentionally terminated immediately after the first strict-gate admission rejection; exit 143 is operator stop, not a workload crash.",
+  "exact_partial_deltas": {
+    "api_0": {
+      "arrivals": 2332,
+      "occupancy_over_two": 2,
+      "pool_acquire_avg_ms": 0.09,
+      "connection_hold_avg_ms": 28.265,
+      "transaction_avg_ms": 28.194,
+      "commit_avg_ms": 4.376
+    },
+    "api_1": {
+      "arrivals": 2272,
+      "occupancy_over_two": 1,
+      "pool_acquire_avg_ms": 0.058,
+      "connection_hold_avg_ms": 28.052,
+      "transaction_avg_ms": 27.976,
+      "commit_avg_ms": 4.1
+    },
+    "api_2": {
+      "arrivals": 2286,
+      "occupancy_over_two": 0,
+      "pool_acquire_avg_ms": 0.037,
+      "connection_hold_avg_ms": 28.128,
+      "transaction_avg_ms": 28.055,
+      "commit_avg_ms": 4.11
+    },
+    "api_3": {
+      "arrivals": 2343,
+      "occupancy_over_two": 2,
+      "pool_acquire_avg_ms": 0.156,
+      "connection_hold_avg_ms": 28.557,
+      "transaction_avg_ms": 28.484,
+      "commit_avg_ms": 4.474
+    }
+  },
+  "preceding_pgbouncer_wait": {
+    "utc": "2026-09-14T03:57:19.898000+00:00",
+    "seconds_before_rejection_sample": 0.607,
+    "cl_active": 17,
+    "cl_waiting": 1,
+    "sv_active": 14,
+    "sv_idle": 0,
+    "sv_login": 1,
+    "maxwait_ms": 47.323
+  }
+}

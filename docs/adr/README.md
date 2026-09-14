@@ -68,3 +68,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0036: Bounded PgBouncer backend-pool headroom](0036-pgbouncer-backend-pool-headroom.md)
 - [0037: Fixed DB-pool admission headroom for four API replicas](0037-fixed-db-pool-admission-headroom.md)
 - [0038: Nginx upstream keep-alive margin](0038-nginx-upstream-keepalive-margin.md)
+
+- [0039: Admission headroom for repeatable four-API bursts](0039-admission-headroom-repeatability.md)

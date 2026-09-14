@@ -1,0 +1,15 @@
+{
+  "utc": "2026-09-14T03:57:02.702062+00:00",
+  "show_count": 800,
+  "remaining": 0,
+  "pass": true,
+  "history": [
+    {
+      "attempt": 1,
+      "counts": {
+        "ok": 800
+      },
+      "remaining": 0
+    }
+  ]
+}

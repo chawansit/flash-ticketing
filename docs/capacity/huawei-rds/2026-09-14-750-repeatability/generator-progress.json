@@ -1,0 +1,14 @@
+{
+  "status": "operator_terminated_after_strict_gate_failure",
+  "exit_code": 143,
+  "measured_start_utc": "2026-09-14T03:57:17.863000+00:00",
+  "workers": [
+    {"worker": 0, "rate_rps": 188, "last_scheduled": 56400, "drops": 0},
+    {"worker": 1, "rate_rps": 188, "last_scheduled": 56400, "drops": 0},
+    {"worker": 2, "rate_rps": 187, "last_scheduled": 56100, "drops": 0},
+    {"worker": 3, "rate_rps": 187, "last_scheduled": 56100, "drops": 0}
+  ],
+  "last_scheduled_total": 225000,
+  "drops_at_last_checkpoints": 0,
+  "final_request_summary_available": false
+}

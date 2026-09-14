@@ -121,6 +121,8 @@ Latest experiment: [direct ASGI instrumentation, mixed-load limits and recovery 
 
 - [Fixed-budget horizontal API validation](huawei-horizontal-api/README.md)
 
-- [Huawei RDS staged validation: 600 RPS clean, 750 RPS admission and generator boundary](huawei-rds/2026-09-13-600-repeat-750-stage/README.md)
+- [Huawei RDS staged validation: 600 RPS repeatable baseline and one clean 750 RPS run](huawei-rds/2026-09-13-600-repeat-750-stage/README.md)
 
 - [Huawei RDS 750 RPS sub-second diagnostic: correlated pool timeout and corrected seat-map bootstrap](huawei-rds/2026-09-13-750-subsecond-diagnostic/README.md)
+
+- [Huawei RDS 750 RPS repeatability control: failed on one admission rejection](huawei-rds/2026-09-14-750-repeatability/README.md)
