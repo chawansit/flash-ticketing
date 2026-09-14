@@ -70,3 +70,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0038: Nginx upstream keep-alive margin](0038-nginx-upstream-keepalive-margin.md)
 
 - [0039: Admission headroom for repeatable four-API bursts](0039-admission-headroom-repeatability.md)
+
+- [0040: Unattended distributed capacity-stage orchestration](0040-unattended-distributed-capacity-stages.md)

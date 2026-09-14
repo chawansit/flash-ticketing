@@ -106,3 +106,50 @@ After each case audit seat ownership, idempotency records, hold/order links, boo
 ## Rollback
 
 Stop traffic before switching database authority. Removing `compose.rds.yaml` and starting profile `local-database` restores the isolated local test stack and its own dataset. Never route new traffic to the old local database after RDS has accepted writes; that requires an explicit data migration and cutover plan.
+
+
+## Unattended distributed stage
+
+ADR 0040 provides a single operator command for a complete stage. It prepares a
+fresh isolated fixture, transfers the credential-bearing manifest through private
+temporary directories, deploys the bounded admission candidate, runs preflight,
+warmup, no-retry traffic, post-TTL durability checks, rollback and cleanup. It
+retains compact evidence under the requested local output directory.
+
+Before running it:
+
+- Install the same committed revision on the backend and generator ECSs so both
+  hosts contain the helper scripts.
+- Configure OpenSSH aliases and keys for both hosts; batch-mode SSH must succeed
+  without a password prompt.
+- Keep the RDS environment file and credentials only on the backend ECS.
+- Use a fresh, Git-ignored output path. Do not place a manifest in that directory.
+- Confirm no other benchmark or fixture job is active.
+
+Example safety stage:
+
+```sh
+python scripts/unattended_capacity_stage.py \
+  --backend-host flash-api \
+  --generator-host flash-generator \
+  --backend-dir /root/flash-ticketing-rds \
+  --generator-dir /root/flash-generator \
+  --origin http://BACKEND_PRIVATE_ADDRESS:8000 \
+  --output tmp/capacity/750-safety \
+  --rate 750 \
+  --seconds 600 \
+  --admission-candidate 5 \
+  --admission-rollback 4
+```
+
+Run `--dry-run` first to inspect the fixed phase order without contacting either
+ECS. The generator helper prefers `/root/http-load-venv/bin/python` when present
+and otherwise uses `python3`; set `FLASH_TICKETING_LOAD_PYTHON` on the
+generator only when its managed environment is elsewhere.
+
+A nonzero exit means at least one safety gate or cleanup step failed. Read
+`stage-result.json` first, then the redacted phase logs. Do not start a higher
+rate from a failed result. Verify `gates.rollback=true` before any later stage.
+Raw high-volume observer output stays on the backend ECS; compact load, admission,
+durability and rollback evidence is copied locally. Private manifests are removed
+from the operator and both ECSs in the cleanup path.
