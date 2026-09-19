@@ -29,10 +29,17 @@ def redact(value: str) -> str:
 
 
 class Transport:
-    def __init__(self, ssh: str, scp: str, log_dir: Path):
+    def __init__(self, ssh: str, scp: str, log_dir: Path, identity_file: Path | None = None):
         self.ssh = ssh
         self.scp = scp
         self.log_dir = log_dir
+        self.identity_file = identity_file
+
+    def _auth_options(self) -> list[str]:
+        options = ["-o", "BatchMode=yes"]
+        if self.identity_file is not None:
+            options.extend(["-i", str(self.identity_file), "-o", "IdentitiesOnly=yes"])
+        return options
 
     def _record(self, phase: str, result: subprocess.CompletedProcess[str]) -> None:
         payload = redact((result.stdout or "") + (result.stderr or ""))
@@ -47,7 +54,7 @@ class Transport:
         check: bool = True,
         timeout: int | None = None,
     ) -> subprocess.CompletedProcess[str]:
-        command = [self.ssh, "-o", "BatchMode=yes", host, shlex.join(argv)]
+        command = [self.ssh, *self._auth_options(), host, shlex.join(argv)]
         result = subprocess.run(
             command,
             capture_output=True,
@@ -62,7 +69,7 @@ class Transport:
         return result
 
     def copy_from(self, phase: str, host: str, remote: str, local: Path, recursive: bool = False) -> None:
-        command = [self.scp, "-q", "-o", "BatchMode=yes"]
+        command = [self.scp, "-q", *self._auth_options()]
         if recursive:
             command.append("-r")
         command.extend([f"{host}:{remote}", str(local)])
@@ -74,7 +81,7 @@ class Transport:
             raise RuntimeError(f"{phase} failed with exit code {result.returncode}")
 
     def copy_to(self, phase: str, local: Path, host: str, remote: str, recursive: bool = False) -> None:
-        command = [self.scp, "-q", "-o", "BatchMode=yes"]
+        command = [self.scp, "-q", *self._auth_options()]
         if recursive:
             command.append("-r")
         command.extend([str(local), f"{host}:{remote}"])
@@ -108,7 +115,8 @@ def evaluate(output: Path, load_exit: int | None, audit_exit: int | None, admiss
         "audit_exit_zero": audit_exit == 0,
         "durability": durability.get("durability_and_expiry_pass") is True,
         "overlap_zero": durability.get("overlapping_load_hold_intervals") == 0,
-        "queues_drained": all(value == 0 for value in durability.get("queues_snapshot", {}).values()),
+        "queues_drained": bool(durability.get("queues_snapshot"))
+        and all(value == 0 for value in durability["queues_snapshot"].values()),
         "rollback": rollback.get("pass") is True,
     }
     return {
@@ -137,6 +145,8 @@ def validate_args(args: argparse.Namespace) -> None:
             raise ValueError(f"Unsafe SSH host alias: {host}")
     if args.output.exists():
         raise ValueError("Use a fresh output directory")
+    if args.identity_file is not None and not args.identity_file.is_file():
+        raise ValueError("SSH identity file does not exist")
     if min(
         args.rate,
         args.seconds,
@@ -175,15 +185,16 @@ def main() -> None:
     parser.add_argument("--hold-expiry-wait", type=int, default=180)
     parser.add_argument("--ssh", default="ssh")
     parser.add_argument("--scp", default="scp")
+    parser.add_argument("--identity-file", type=Path)
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
     validate_args(args)
 
     run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid4().hex[:8]
     phases = [
+        "deploy bounded candidate and verify readiness",
         "prepare fresh fixture and private manifest",
         "transfer manifest through a private temporary directory",
-        "deploy bounded candidate and verify readiness",
         "preflight and start observers",
         "run no-retry load on separate generator",
         "collect compact results and admission gate",
@@ -198,7 +209,7 @@ def main() -> None:
     log_dir = args.output / "operator-logs"
     log_dir.mkdir()
     state_path = args.output / "state.json"
-    transport = Transport(args.ssh, args.scp, log_dir)
+    transport = Transport(args.ssh, args.scp, log_dir, args.identity_file)
     backend_helper = f"{args.backend_dir}/scripts/huawei_capacity_backend.sh"
     generator_helper = f"{args.generator_dir}/scripts/huawei_capacity_generator.sh"
     backend_prefix = ["env", f"FLASH_TICKETING_BACKEND_DIR={args.backend_dir}", "sh", backend_helper]
@@ -223,6 +234,16 @@ def main() -> None:
         )
 
     try:
+        deployed = True
+        transport.remote(
+            "deploy",
+            args.backend_host,
+            backend_prefix
+            + ["deploy", run_id, str(args.admission_candidate), str(args.admission_rollback)],
+            timeout=300,
+        )
+        checkpoint("deployed")
+
         transport.remote(
             "prepare",
             args.backend_host,
@@ -258,16 +279,6 @@ def main() -> None:
             )
         checkpoint("manifest_transferred")
 
-        deployed = True
-        transport.remote(
-            "deploy",
-            args.backend_host,
-            backend_prefix
-            + ["deploy", run_id, str(args.admission_candidate), str(args.admission_rollback)],
-            timeout=300,
-        )
-        checkpoint("deployed")
-
         transport.remote(
             "preflight",
             args.backend_host,
@@ -285,33 +296,42 @@ def main() -> None:
         observers = True
         checkpoint("observers_started")
 
-        load = transport.remote(
-            "load",
-            args.generator_host,
-            generator_prefix
-            + [
-                "run",
-                run_id,
-                f"/root/unattended-{run_id}-upload.json",
-                str(args.rate),
-                str(args.seconds),
-                str(args.workers),
-                str(args.seat_offset),
-            ],
-            check=False,
-            timeout=args.seconds + 240,
-        )
-        load_exit = load.returncode
-        checkpoint("load_finished")
+        try:
+            load = transport.remote(
+                "load",
+                args.generator_host,
+                generator_prefix
+                + [
+                    "run",
+                    run_id,
+                    f"/root/unattended-{run_id}-upload.json",
+                    str(args.rate),
+                    str(args.seconds),
+                    str(args.workers),
+                    str(args.seat_offset),
+                ],
+                check=False,
+                timeout=args.seconds + 240,
+            )
+            load_exit = load.returncode
+            checkpoint("load_finished")
+        except subprocess.TimeoutExpired:
+            load_exit = -1
+            error = f"Load SSH call timed out after {args.seconds + 240} seconds"
+            checkpoint("load_timed_out")
 
-        transport.remote(
+        stopped = transport.remote(
             "stop-observers",
             args.backend_host,
             backend_prefix + ["stop-observers", run_id],
             check=False,
-            timeout=60,
+            timeout=120,
         )
-        observers = False
+        if stopped.returncode:
+            reason = f"stop-observers failed with exit code {stopped.returncode}"
+            error = f"{error}; {reason}" if error else reason
+        else:
+            observers = False
 
         generator_parent = args.output / "generator"
         generator_parent.mkdir()
@@ -322,6 +342,10 @@ def main() -> None:
             generator_parent,
             recursive=True,
         )
+        load_dir = generator_parent / "public" / "load"
+        if not (load_dir / "summary.json").is_file() or len(list(load_dir.glob("worker-*.json"))) != args.workers:
+            raise RuntimeError("Incomplete generator evidence")
+
         transport.remote(
             "backend-load-dir",
             args.backend_host,
@@ -360,7 +384,11 @@ def main() -> None:
 
         def finish(label: str, operation) -> None:
             try:
-                operation()
+                outcome = operation()
+                if getattr(outcome, "returncode", 0):
+                    finalizer_errors.append(
+                        f"{label} failed with exit code {outcome.returncode}"
+                    )
             except (OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
                 finalizer_errors.append(f"{label}: {redact(repr(exc))}")
 

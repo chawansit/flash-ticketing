@@ -1,6 +1,6 @@
 # ADR 0040: Unattended distributed capacity-stage orchestration
 
-Status: Accepted for implementation
+Status: Accepted; load-timeout evidence handling amended by ADR 0041
 
 ## Context
 
@@ -21,9 +21,9 @@ artifacts.
 
 Add an operator-side Python orchestrator with two repository-owned remote helper
 scripts. The operator invokes one command using preconfigured SSH host aliases and
-key-based, batch-mode authentication. The backend helper prepares a new
-development-only fixture, exports the short-lived private manifest, deploys the
-bounded admission candidate, runs preflight and observers, performs the exact-run
+key-based, batch-mode authentication. The backend helper deploys the bounded admission candidate, prepares a new
+development-only fixture, exports the short-lived private manifest, runs
+preflight and observers, performs the exact-run
 post-TTL audit and restores the previous admission setting. The generator helper
 warms all target shows and runs the existing no-retry parallel load generator.
 

@@ -52,10 +52,10 @@ case "${1:-}" in
     run_paths "$2"
     shows=$3; seats=$4; sale_hours=$5; origin=$6; viewers=$7
     api=$(api_id)
-    docker exec -u 0 "$api" rm -f /tmp/capacity-fixture.json /tmp/private-load-manifest.json
+    docker exec -u 0 "$api" sh -lc 'mkdir -p /app/tmp && chown 10001:10001 /app/tmp && chmod 700 /app/tmp && rm -f /tmp/capacity-fixture.json /app/tmp/private-load-manifest.json'
     docker exec "$api" sh -lc 'cd /app && TEST_DATABASE_URL="$DATABASE_URL" TEST_REDIS_URL="$REDIS_URL" python scripts/prepare_capacity_fixture.py --output /tmp/capacity-fixture.json --shows "$1" --seats "$2" --sale-hours "$3"' sh "$shows" "$seats" "$sale_hours"
-    docker exec "$api" sh -lc 'cd /app && python scripts/export_load_manifest.py --results /tmp/capacity-fixture.json --origin "$1" --output /tmp/private-load-manifest.json --viewers "$2" --seat-offset 0' sh "$origin" "$viewers"
-    docker cp "$api":/tmp/private-load-manifest.json "$private/manifest.json"
+    docker exec "$api" sh -lc 'cd /app && python scripts/export_load_manifest.py --results /tmp/capacity-fixture.json --origin "$1" --output /app/tmp/private-load-manifest.json --viewers "$2" --seat-offset 0' sh "$origin" "$viewers"
+    docker cp "$api":/app/tmp/private-load-manifest.json "$private/manifest.json"
     docker cp "$api":/tmp/capacity-fixture.json "$public/fixture.json"
     chmod 600 "$private/manifest.json"
     ;;
@@ -80,6 +80,7 @@ case "${1:-}" in
     seconds=$3
     api=$(api_id)
     docker cp "$private/manifest.json" "$api":/tmp/private-load-manifest.json
+    docker exec -u 0 "$api" chown 10001:10001 /tmp/private-load-manifest.json
     docker exec -u 0 "$api" rm -f /tmp/capacity-preflight.json /tmp/capacity-queue-before.json
     docker exec "$api" sh -lc 'cd /app && STAGE_DATABASE_URL="$DATABASE_URL" python scripts/cloud_load_preflight.py --manifest /tmp/private-load-manifest.json --seconds "$1" --output /tmp/capacity-preflight.json' sh "$seconds"
     docker exec "$api" sh -lc 'cd /app && STAGE_DATABASE_URL="$DATABASE_URL" python scripts/capacity_queue_state.py --manifest /tmp/private-load-manifest.json --output /tmp/capacity-queue-before.json'
@@ -91,8 +92,8 @@ case "${1:-}" in
     run_paths "$2"
     seconds=$3
     urls=""
-    for name in flash-ticketing-api-2 flash-ticketing-api-3 flash-ticketing-api-4 flash-ticketing-api-5; do
-      ip=$(docker inspect -f '{{(index .NetworkSettings.Networks "flash-ticketing_default").IPAddress}}' "$name")
+    for id in $($compose ps -q api); do
+      ip=$(docker inspect -f '{{(index .NetworkSettings.Networks "flash-ticketing_default").IPAddress}}' "$id")
       urls="$urls --url http://$ip:8000/metrics"
     done
     nohup python3 scripts/cloud_pressure_observe.py $urls --seconds "$seconds" --interval 0.5 --output "$raw/pressure.ndjson" > "$raw/pressure.log" 2>&1 &
@@ -115,6 +116,13 @@ case "${1:-}" in
     api=$(api_id)
     docker cp "$api":/tmp/capacity-pgbouncer.jsonl "$raw/pgbouncer.jsonl" 2>/dev/null || true
     docker cp "$api":/tmp/capacity-backend.json "$raw/backend.json" 2>/dev/null || true
+    index=0
+    for id in $($compose ps -q api); do
+      docker logs --since 1h "$id" 2>&1 |
+        python3 scripts/extract_capacity_api_errors.py --limit 20 > "$public/api-errors-$index.json"
+      index=$((index + 1))
+    done
+    [ "$index" -eq 4 ]
     ;;
   audit)
     [ "$#" -eq 2 ]
@@ -129,8 +137,8 @@ case "${1:-}" in
     [ "$#" -eq 2 ]
     run_paths "$2"
     rejected=0
-    for name in flash-ticketing-api-2 flash-ticketing-api-3 flash-ticketing-api-4 flash-ticketing-api-5; do
-      ip=$(docker inspect -f '{{(index .NetworkSettings.Networks "flash-ticketing_default").IPAddress}}' "$name")
+    for id in $($compose ps -q api); do
+      ip=$(docker inspect -f '{{(index .NetworkSettings.Networks "flash-ticketing_default").IPAddress}}' "$id")
       value=$(curl -fsS "http://$ip:8000/metrics" | awk '/ticketing_hold_admission_total\{outcome="rejected"\}/ {print $2}')
       value=${value:-0}
       rejected=$(awk -v total="$rejected" -v item="$value" 'BEGIN {print total + item}')
@@ -153,7 +161,7 @@ case "${1:-}" in
     [ "$#" -eq 2 ]
     run_paths "$2"
     api=$(api_id)
-    docker exec -u 0 "$api" rm -f /tmp/private-load-manifest.json /tmp/capacity-fixture.json /tmp/capacity-preflight.json /tmp/capacity-queue-before.json /tmp/capacity-pgbouncer.jsonl /tmp/capacity-backend.json /tmp/capacity-durability.json
+    docker exec -u 0 "$api" rm -f /tmp/private-load-manifest.json /app/tmp/private-load-manifest.json /tmp/capacity-fixture.json /tmp/capacity-preflight.json /tmp/capacity-queue-before.json /tmp/capacity-pgbouncer.jsonl /tmp/capacity-backend.json /tmp/capacity-durability.json
     rm -rf "$private"
     ;;
   *)

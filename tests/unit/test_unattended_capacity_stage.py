@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import importlib.util
 import json
+import subprocess
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -19,7 +20,7 @@ class FakeTransport:
     instances: ClassVar[list] = []
     fail_phase: ClassVar[str | None] = None
 
-    def __init__(self, ssh, scp, log_dir):
+    def __init__(self, ssh, scp, log_dir, identity_file=None):
         self.calls = []
         self.private_manifest = None
         self.__class__.instances.append(self)
@@ -39,6 +40,8 @@ class FakeTransport:
         elif phase == "generator-evidence":
             target = local / "public" / "load"
             target.mkdir(parents=True)
+            for index in range(4):
+                (target / f"worker-{index}.json").write_text("{}", encoding="utf-8")
             (target / "summary.json").write_text(
                 json.dumps(
                     {
@@ -130,7 +133,7 @@ def test_success_orders_phases_cleans_manifest_and_passes(monkeypatch, tmp_path)
 
     fake = FakeTransport.instances[-1]
     phases = [phase for kind, phase in fake.calls if kind == "remote"]
-    assert phases.index("prepare") < phases.index("deploy") < phases.index("preflight")
+    assert phases.index("deploy") < phases.index("prepare") < phases.index("preflight")
     assert phases.index("load") < phases.index("durability-audit") < phases.index("rollback")
     assert phases[-2:] == ["generator-cleanup", "backend-cleanup"]
     assert fake.private_manifest is not None and not fake.private_manifest.exists()
@@ -174,3 +177,80 @@ def test_cleanup_failure_does_not_skip_remaining_cleanup(monkeypatch, tmp_path):
     result = json.loads((tmp_path / "cleanup-failed" / "stage-result.json").read_text())
     assert result["pass"] is False
     assert "generator cleanup" in result["error"]
+
+def test_load_timeout_still_collects_and_audits(monkeypatch, tmp_path):
+    class TimeoutTransport(FakeTransport):
+        def remote(self, phase, host, argv, check=True, timeout=None):
+            if phase == "load":
+                self.calls.append(("remote", phase))
+                raise subprocess.TimeoutExpired(["ssh"], timeout)
+            return super().remote(phase, host, argv, check=check, timeout=timeout)
+
+    TimeoutTransport.instances.clear()
+    TimeoutTransport.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", TimeoutTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "timed-out"))
+
+    with pytest.raises(SystemExit):
+        stage.main()
+
+    fake = TimeoutTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert "durability-audit" in phases
+    assert "rollback" in phases
+    result = json.loads((tmp_path / "timed-out" / "stage-result.json").read_text())
+    assert result["gates"]["audit_exit_zero"] is True
+    assert result["gates"]["load_exit_zero"] is False
+    assert result["pass"] is False
+
+
+def test_nonzero_load_still_audits(monkeypatch, tmp_path):
+    class FailedLoadTransport(FakeTransport):
+        def remote(self, phase, host, argv, check=True, timeout=None):
+            if phase == "load":
+                self.calls.append(("remote", phase))
+                return SimpleNamespace(returncode=1, stdout="", stderr="")
+            return super().remote(phase, host, argv, check=check, timeout=timeout)
+
+    FailedLoadTransport.instances.clear()
+    FailedLoadTransport.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", FailedLoadTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "failed-load"))
+
+    with pytest.raises(SystemExit):
+        stage.main()
+
+    fake = FailedLoadTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert "durability-audit" in phases
+    assert "rollback" in phases
+    result = json.loads((tmp_path / "failed-load" / "stage-result.json").read_text())
+    assert result["gates"]["audit_exit_zero"] is True
+    assert result["gates"]["load_exit_zero"] is False
+
+
+def test_incomplete_generator_evidence_still_rolls_back(monkeypatch, tmp_path):
+    class IncompleteTransport(FakeTransport):
+        def copy_from(self, phase, host, remote, local, recursive=False):
+            super().copy_from(phase, host, remote, local, recursive=recursive)
+            if phase == "generator-evidence":
+                (Path(local) / "public" / "load" / "worker-0.json").unlink()
+
+    IncompleteTransport.instances.clear()
+    IncompleteTransport.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", IncompleteTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "incomplete"))
+
+    with pytest.raises(SystemExit):
+        stage.main()
+
+    fake = IncompleteTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert "durability-audit" not in phases
+    assert "rollback" in phases
+    result = json.loads((tmp_path / "incomplete" / "stage-result.json").read_text())
+    assert "Incomplete generator evidence" in result["error"]
+    assert result["pass"] is False

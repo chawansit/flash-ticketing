@@ -48,6 +48,18 @@ These are idle single executions with warm buffers. Cumulative database/WAL coun
 
 Compose structural checks passed for local-PostgreSQL exclusion, dependency removal, PgBouncer upstream certificate verification, CA mounts and runtime routing. The full suites passed: 75 unit tests and 57 integration tests, with only two existing dependency deprecation warnings per suite. Repository-wide Ruff checks passed with the known Windows Docker executable-bit rule excluded.
 
-## Next evidence
+## Latest safety stage
 
-ADR 0039 is the active controlled candidate: admission five per API with database pool three unchanged. Run 750 RPS for ten minutes, then a fresh 30-minute confirmation only if every gate passes. Do not proceed to 800 RPS until both stages pass. Full commands and failure gates are in `docs/rds-runbook.md`.
+The [2026-09-19 fresh-fixture 750 RPS safety stage](2026-09-19-750-safety/README.md)
+completed 450,000 responses with one unexpected `503 DATABASE_UNAVAILABLE`.
+Worst-worker read/hold p95 was 4.225/37.785 ms with zero generator drops.
+An exact post-drain audit found all 22,499 acknowledged holds durable, zero
+overlapping seat intervals and empty queues. Availability and unattended-workflow
+gates failed, so this is not a passing capacity level. The highest repeatable
+clean baseline remains 600 RPS for 30 minutes.
+
+ADR 0041 amends the unattended runner so future load SSH timeouts still collect
+completed evidence and attempt the post-TTL audit. The next stage remains a
+fresh 750 RPS ten-minute safety test only after a reproducible deployment and
+healthy maintenance/reconciliation pools. No 30-minute or 800 RPS stage is
+authorized by the 2026-09-19 result.

@@ -110,10 +110,11 @@ Stop traffic before switching database authority. Removing `compose.rds.yaml` an
 
 ## Unattended distributed stage
 
-ADR 0040 provides a single operator command for a complete stage. It prepares a
-fresh isolated fixture, transfers the credential-bearing manifest through private
-temporary directories, deploys the bounded admission candidate, runs preflight,
-warmup, no-retry traffic, post-TTL durability checks, rollback and cleanup. It
+ADR 0040 provides a single operator command for a complete stage. It deploys
+the bounded admission candidate, prepares a fresh isolated fixture, transfers
+the credential-bearing manifest through private temporary directories, then
+runs preflight, warmup, no-retry traffic, post-TTL durability checks, rollback
+and cleanup. It
 retains compact evidence under the requested local output directory.
 
 Before running it:
@@ -139,11 +140,14 @@ python scripts/unattended_capacity_stage.py \
   --rate 750 \
   --seconds 600 \
   --admission-candidate 5 \
-  --admission-rollback 4
+  --admission-rollback 4 \
+  --identity-file tmp/capacity-auth/id_ed25519
 ```
 
 Run `--dry-run` first to inspect the fixed phase order without contacting either
-ECS. The generator helper prefers `/root/http-load-venv/bin/python` when present
+ECS. A temporary identity file may be supplied with `--identity-file`; remove
+its authorization from both ECSs and delete the local key after the stage.
+The generator helper prefers `/root/http-load-venv/bin/python` when present
 and otherwise uses `python3`; set `FLASH_TICKETING_LOAD_PYTHON` on the
 generator only when its managed environment is elsewhere.
 
