@@ -29,3 +29,4 @@ Reject invalid timeout settings during startup. Fail preflight if rendered/live 
 ## Validation evidence
 
 At decision time the 750-RPS stage failed strict availability on one 152-ms `PoolTimeout` while RDS WAL-path commit stalls reached 419 ms. The post-TTL audit confirmed all 22,499 acknowledged holds, zero overlaps and drained queues. Rendered configuration, unit tests, live deployment and candidate load results are pending and must be recorded separately after execution.
+The first 10-minute pass and failed 30-minute stage after e9370d4 did not test this candidate: live API images still contained the fixed 150-ms checkout timeout despite a 500-ms environment value. The long stage returned one 152.9-ms PoolTimeout, two generator late drops and lacked RDS wait samples because the observer rejected 1,800 seconds. ADR 0046 corrects image provenance and ADR 0047 corrects observer coverage before any new validation claim.

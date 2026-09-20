@@ -66,9 +66,13 @@ case "${1:-}" in
     printf '%s\n' "$fallback" > "$private/original-admission"
     chmod 600 "$private/original-admission"
     set_admission "$candidate"
+    $compose build api migrate
     $compose up -d --no-deps --force-recreate --scale api=4 api
     wait_apis
+    source_hash=$(sha256sum src/ticketing/infrastructure/postgres.py | cut -d " " -f 1)
     for id in $($compose ps -q api); do
+      image_hash=$(docker exec "$id" sha256sum /app/src/ticketing/infrastructure/postgres.py | cut -d " " -f 1)
+      [ "$image_hash" = "$source_hash" ]
       docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$id" |
         grep -qx "RESERVE_CONCURRENCY=$candidate"
     done

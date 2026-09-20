@@ -51,3 +51,21 @@ def test_read_only_wait_sample_is_aggregate_and_has_no_sql_or_ids():
     assert len(conn.calls) == 3
     assert all(sql.lstrip().startswith("SELECT") for sql in conn.calls)
     assert "query_ms" in row
+
+def test_long_stage_duration_is_accepted_but_still_bounded(tmp_path, monkeypatch, capsys):
+    import sys
+
+    import pytest
+
+    monkeypatch.delenv("RDS_DATABASE_URL", raising=False)
+    monkeypatch.setattr(sys, "argv", ["rds_wait_observe.py", "--seconds", "1800", "--output", str(tmp_path / "waits.jsonl")])
+    with pytest.raises(SystemExit) as accepted:
+        module.main()
+    assert accepted.value.code == 2
+    assert "Set RDS_DATABASE_URL" in capsys.readouterr().err
+
+    monkeypatch.setattr(sys, "argv", ["rds_wait_observe.py", "--seconds", "3601", "--output", str(tmp_path / "waits.jsonl")])
+    with pytest.raises(SystemExit) as rejected:
+        module.main()
+    assert rejected.value.code == 2
+    assert "Use 1..3600 seconds" in capsys.readouterr().err

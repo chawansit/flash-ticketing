@@ -75,8 +75,8 @@ def main() -> int:
     parser.add_argument("--interval", type=float, default=0.2)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    if not 1 <= args.seconds <= 900 or not 0.1 <= args.interval <= 2:
-        parser.error("Use 1..900 seconds and a 0.1..2 second interval")
+    if not 1 <= args.seconds <= 3600 or not 0.1 <= args.interval <= 2:
+        parser.error("Use 1..3600 seconds and a 0.1..2 second interval")
     if args.output.exists():
         parser.error("Use a fresh output file")
     dsn = os.getenv("RDS_DATABASE_URL")

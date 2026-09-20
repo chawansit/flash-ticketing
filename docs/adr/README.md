@@ -78,3 +78,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0043: Detach and poll long generator jobs](0043-detached-generator-job.md)
 - [0044: Restore the intended API keep-alive margin](0044-restore-server-keepalive-margin.md)
 - [0045: Bounded API pool wait through intermittent RDS commit stalls](0045-bounded-api-pool-wait.md)
+- [0046: Build the measured API image from the matched source revision](0046-build-measured-api-image.md)
+- [0047: Observe RDS waits for the full measured stage](0047-full-window-rds-wait-observation.md)
