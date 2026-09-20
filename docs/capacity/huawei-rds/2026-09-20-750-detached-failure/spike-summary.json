@@ -23,6 +23,20 @@
     "checkpoint_timed_delta_in_8s": 0,
     "checkpoint_requested_delta_in_8s": 0
   },
-  "provider_cpu_iops_storage_latency": "not captured",
-  "interpretation": "Transient long commits coincided with API pool saturation; underlying commit delay remains unproven."
+  "interpretation": "Transient long commits coincided with API pool saturation. Provider charts show no sustained RDS CPU or storage saturation, but the cause of the subsecond commit delay remains unproven.",
+  "provider_monitoring": {
+    "source": "operator-supplied Huawei RDS screenshots after the run",
+    "window_utc": "2026-09-20T01:40:00-01:44:59",
+    "display_resolution": "Max/1 minute",
+    "displayed_window_max_cpu_usage_percent": 8.75,
+    "displayed_window_max_iops_per_second": 113.2,
+    "displayed_window_max_disk_io_usage_percent": 8.2,
+    "displayed_window_max_disk_io_wait_percent": 1.34,
+    "displayed_window_max_write_io_latency_ms": 0.8,
+    "displayed_connection_usage_percent": 1.58,
+    "displayed_database_connections": 12,
+    "displayed_connections_in_use": 5,
+    "displayed_sessions_waiting": 0,
+    "interpretation_limit": "One-minute samples cannot isolate or exclude a roughly half-second commit stall."
+  }
 }

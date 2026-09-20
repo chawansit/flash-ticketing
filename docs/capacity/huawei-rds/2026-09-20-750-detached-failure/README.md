@@ -41,10 +41,25 @@ queue, but do **not** identify why commits slowed.
 
 A read-only PostgreSQL observer sampled zero lock waiters, advancing WAL and
 no new checkpoint over the surrounding eight seconds. Two-second samples
-can miss a short lock or I/O event. Huawei RDS provider CPU, IOPS and
-storage latency were not captured for this window, so an RDS storage or
-network root cause is not claimed. Do not increase pool timeouts, retry
-holds or raise the load ceiling from this evidence alone.
+can miss a short lock or I/O event.
+
+The operator subsequently supplied Huawei RDS monitoring screenshots for
+**01:40–01:44 UTC**, covering the 01:42:22 failure, displayed at
+**Max/1 minute** resolution. The highest displayed values across those
+minutes were CPU usage **8.75%**, IOPS **113.2/s** (all write IOPS), disk
+I/O usage **8.2%**, disk I/O wait **1.34%**, and write I/O latency
+**0.8 ms**. Connection usage was **1.58%** throughout; the dashboard
+showed 12 database connections, five connections in use, and zero sessions
+waiting. Read IOPS and read I/O latency were zero. Disk I/O wait and write
+latency both rose in the 01:42 minute, then fell again. These one-minute
+charts show no sustained RDS CPU, connection or storage saturation. They
+cannot resolve a roughly half-second commit spike, and dashboard connection
+counts are not a substitute for the subsecond API and PgBouncer samples.
+The measured API commit call includes client scheduling, network,
+PgBouncer and PostgreSQL time; it does not isolate an RDS WAL flush.
+Therefore neither RDS storage nor network is established as the root cause.
+Do not increase pool timeouts, retry holds or raise the load ceiling from
+this evidence alone.
 
 The exact post-expiry audit matched all 22,495 acknowledged holds to
 idempotency records, distinct holds and orders. Broken links, active or
@@ -57,9 +72,10 @@ The ADR 0043 detached runner received a definitive generator exit,
 collected evidence, audited after expiry and rolled back without a long
 SSH timeout. Its workflow mechanics passed this failure-path exercise.
 **750 RPS is still not a passing capacity level.** The next step is to
-obtain RDS CPU, IOPS and storage-latency metrics for this exact spike,
-investigate commit latency, and rerun a fresh 750 RPS safety stage only
-after an evidence-based correction. The highest repeatable clean
+capture finer-grained RDS wait/commit evidence and distinguish database,
+PgBouncer, network and API connection-return time during a targeted
+diagnostic run. Rerun a fresh 750 RPS safety stage only after an
+evidence-based correction. The highest repeatable clean
 30-minute baseline remains 600 RPS.
 
 Evidence: [stage result](stage-result.json),
