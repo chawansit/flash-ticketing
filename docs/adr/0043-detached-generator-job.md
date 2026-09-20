@@ -72,3 +72,10 @@ refused and stop terminates the process group. Live validation is pending.
 The operator also verifies equal 40-character Git commit IDs on backend and
 generator before deployment, as required by ADR 0040. A unit test proves a
 mismatch stops before any candidate deployment.
+
+Live failure-path validation: the 2026-09-20 matched-revision 750 RPS stage
+received a definitive generator exit code 1 through short status polls, copied
+all worker evidence, completed exact post-expiry audit, restored admission and
+removed private manifests. The execution/cleanup gate passed without a long
+SSH timeout. The workload itself failed on five unexpected database responses,
+so this validates the workflow mechanics but not 750 RPS capacity.

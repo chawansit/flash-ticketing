@@ -1,0 +1,28 @@
+{
+  "window_utc": "2026-09-20T01:42:22.174-01:42:22.674",
+  "api_db_pool_max_per_replica": 3,
+  "commit_histogram": {
+    "completed": 25,
+    "over_100_ms": 12,
+    "over_250_ms": 11,
+    "over_500_ms": 3
+  },
+  "pgbouncer_at_014222082": {
+    "client_waiting": 1,
+    "server_active": 15,
+    "server_idle": 0,
+    "maxwait_seconds": 0.006104
+  },
+  "pgbouncer_at_014222282": {
+    "client_waiting": 0,
+    "server_active": 16,
+    "server_idle": 2
+  },
+  "postgres_observer": {
+    "sampled_lock_waiters": 0,
+    "checkpoint_timed_delta_in_8s": 0,
+    "checkpoint_requested_delta_in_8s": 0
+  },
+  "provider_cpu_iops_storage_latency": "not captured",
+  "interpretation": "Transient long commits coincided with API pool saturation; underlying commit delay remains unproven."
+}

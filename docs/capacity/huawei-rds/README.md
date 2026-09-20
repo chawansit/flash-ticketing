@@ -74,3 +74,13 @@ execution gate: the operator SSH call timed out after the generator had finished
 ADR 0043 changes that long-call mechanism. Until the new workflow passes a
 fresh stage and the 30-minute confirmation passes, 600 RPS remains the highest
 repeatable clean 30-minute baseline.
+
+## 2026-09-20 detached-job safety result
+
+The [matched-revision 750 RPS detached-job stage](2026-09-20-750-detached-failure/README.md)
+completed 450,000 responses but returned five unexpected hold 503s in one
+brief database-pool/commit spike. Exact durability, zero double-booking,
+queue drain and rollback passed, and the new short-poll workflow completed
+without an SSH timeout. The strict availability gate failed, so no longer
+or higher-rate stage followed. The highest repeatable clean 30-minute
+baseline remains 600 RPS.
