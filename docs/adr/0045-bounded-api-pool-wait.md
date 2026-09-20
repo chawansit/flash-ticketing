@@ -1,6 +1,6 @@
 # ADR 0045: Bounded API pool wait through intermittent RDS commit stalls
 
-Status: Proposed for controlled validation; ADR 0037 and ADR 0039 remain in force
+Status: Accepted for the measured 750-RPS topology; ADR 0037 and ADR 0039 remain in force
 
 ## Context
 
@@ -30,3 +30,5 @@ Reject invalid timeout settings during startup. Fail preflight if rendered/live 
 
 At decision time the 750-RPS stage failed strict availability on one 152-ms `PoolTimeout` while RDS WAL-path commit stalls reached 419 ms. The post-TTL audit confirmed all 22,499 acknowledged holds, zero overlaps and drained queues. Rendered configuration, unit tests, live deployment and candidate load results are pending and must be recorded separately after execution.
 The first 10-minute pass and failed 30-minute stage after e9370d4 did not test this candidate: live API images still contained the fixed 150-ms checkout timeout despite a 500-ms environment value. The long stage returned one 152.9-ms PoolTimeout, two generator late drops and lacked RDS wait samples because the observer rejected 1,800 seconds. ADR 0046 corrects image provenance and ADR 0047 corrects observer coverage before any new validation claim.
+
+With rebuilt images verified by ADR 0046, a fresh 750-RPS ten-minute safety stage and a separate 30-minute confirmation both passed every strict gate. The latter completed 1,350,000 requests with zero unexpected responses or generator drops, 67,500 exactly durable holds, zero overlapping holds and drained queues. The 800-RPS ten-minute safety stage also passed, but its 30-minute confirmation failed on seven generator scheduling drops despite zero unexpected API responses; 800 RPS is not an accepted sustained capacity result. The candidate remains limited to the measured topology and does not resolve intermittent RDS WAL waits.

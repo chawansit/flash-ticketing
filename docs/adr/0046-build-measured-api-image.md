@@ -28,3 +28,5 @@ A build or readiness failure blocks traffic. The orchestrator must still restore
 ## Validation evidence
 
 Before this decision, the live container file showed `timeout=0.15` and `Postgres.__init__(url, maximum)` despite the e9370d4 checkout and `DB_POOL_WAIT_MS=500` environment. The corresponding API failure took 152.9 ms. Shell syntax, rebuilt image contents, healthy replicas and a fresh load stage remain to be verified after implementation.
+
+After implementation, both ECS checkouts matched revision 0764c28, `sh -n` passed on both, and the backend deploy compared the host and live API file hashes before load. Direct inspection inside a healthy API container found `timeout=wait_ms / 1000` and `DB_POOL_WAIT_MS=500`. The first truly image-matched 750-RPS safety and 30-minute confirmation passed all strict gates. The complete unit suite passed 123 tests and Ruff passed for the modified Python files.

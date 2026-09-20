@@ -27,3 +27,5 @@ An observer startup error, missing output or summarization error fails the execu
 ## Validation evidence
 
 The failed stage requested `--seconds 1800`; the observer log recorded `Use 1..900 seconds and a 0.1..2 second interval`, and the expected RDS wait file was absent. Unit validation of duration bounds, live image verification and a full-window long-stage observer summary remain pending.
+
+The rebuilt migrate image was inspected and contained the 3,600-second bound. The subsequent 750-RPS, 30-minute confirmation produced 18,308 RDS wait samples with zero sample errors and passed execution/cleanup. The 800-RPS, 30-minute stage produced 18,314 samples with zero sample errors; its separate workload gate failed because of seven generator scheduling drops. The full unit suite passed 123 tests.
