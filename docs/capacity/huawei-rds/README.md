@@ -94,3 +94,5 @@ the longest took 322.913 ms. A 100 ms RDS observer sampled up to 15 concurrent
 in either stage. The default Huawei PostgreSQL 17 and 18 parameter exports do
 not expose `track_wal_io_timing`. These short runs narrow the commit bottleneck
 but do not overturn the failed 750 RPS ten-minute gate or promote capacity.
+
+The [direct RDS versus PgBouncer WAL path probe](2026-09-20-wal-path-ab/README.md) reproduced intermittent long commits without PgBouncer and correlates them with sampled WAL waits (20 September 2026).
