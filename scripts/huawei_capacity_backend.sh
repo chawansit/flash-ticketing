@@ -106,7 +106,7 @@ case "${1:-}" in
     echo $! > "$private/backend.pid"
     nohup $compose run --rm --no-deps -T --name "ft-rds-wait-$2" --user root \
       -v "$raw:/evidence" migrate sh -lc \
-      'RDS_DATABASE_URL="$DATABASE_URL" python /app/scripts/rds_wait_observe.py --seconds "$1" --interval 0.2 --output /evidence/rds-waits.jsonl' \
+      'unset PGSSLROOTCERT; RDS_DATABASE_URL="$DATABASE_URL" python /app/scripts/rds_wait_observe.py --seconds "$1" --interval 0.2 --output /evidence/rds-waits.jsonl' \
       sh "$seconds" > "$raw/rds-waits.log" 2>&1 &
     echo $! > "$private/rds-waits.pid"
     ;;

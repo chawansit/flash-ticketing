@@ -25,6 +25,13 @@ locking, persistence, timeout, retry or admission behavior.
   failed RDS observer fails the evidence gate. The observer does not read SQL
   text or connection identifiers.
 
+The direct RDS preflight on 2026-09-20 found that the private migration
+container can reach RDS by TCP, but its configured CA file makes the
+certificate check fail. A TLS connection with sslmode=require and that CA
+setting removed succeeded. The observer alone clears PGSSLROOTCERT inside
+its disposable container; application and PgBouncer settings are unchanged.
+This diagnostic connection remains encrypted but does **not** verify RDS
+identity. It is evidence collection only, not a production TLS validation.
 Before any stage, build the API and migration images from the same verified
 commit as the backend checkout; a matching Git checkout alone does not prove
 the running container contains that revision. Confirm four healthy APIs,
