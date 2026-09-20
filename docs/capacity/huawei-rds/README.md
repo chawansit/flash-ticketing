@@ -84,3 +84,13 @@ queue drain and rollback passed, and the new short-poll workflow completed
 without an SSH timeout. The strict availability gate failed, so no longer
 or higher-rate stage followed. The highest repeatable clean 30-minute
 baseline remains 600 RPS.
+## 2026-09-20 100 ms WAL controls
+
+The [matched 600 and 750 RPS, three-minute diagnostics](2026-09-20-100ms-wal-controls/README.md)
+passed all short-stage safety gates with exact post-expiry audits and zero
+booking overlap. At 750 RPS, however, 31 successful commits exceeded 100 ms;
+the longest took 322.913 ms. A 100 ms RDS observer sampled up to 15 concurrent
+`WALWrite` waiters during the spike, with no WAL-buffer-full event or checkpoint
+in either stage. The default Huawei PostgreSQL 17 and 18 parameter exports do
+not expose `track_wal_io_timing`. These short runs narrow the commit bottleneck
+but do not overturn the failed 750 RPS ten-minute gate or promote capacity.

@@ -1,0 +1,1 @@
+{"counts": {"commit|ok": 1}, "longest_by_phase": {"commit": {"time": "2026-09-20T05:04:08.657861+00:00", "phase": "commit", "outcome": "ok", "duration_ms": 126.664}}, "last_events": [{"time": "2026-09-20T05:04:08.657861+00:00", "phase": "commit", "outcome": "ok", "duration_ms": 126.664}], "malformed_events": 0}
