@@ -27,6 +27,15 @@ commits of **166.781 ms** at 03:32:14.511 UTC and **160.559 ms** at
 03:32:11.423 UTC. The other two APIs logged no commits above the
 100 ms threshold.
 
+On a subsequent read-only correlation of the retained raw observer samples,
+the 03:32:10–03:32:15 UTC window showed **zero PgBouncer waiting clients**,
+**zero API pool acquisitions in progress**, and API event-loop lag below
+**1.9 ms** at every sampled second. PgBouncer had 6–9 active servers during
+that window. The RDS observer simultaneously sampled up to seven WALWrite
+waiters and one WalSync waiter. These samples make an API scheduler or
+PgBouncer client queue an unlikely explanation for the observed commit spike;
+they do not establish WAL fsync duration or a single root cause.
+
 PostgreSQL 17 describes WALWrite (LWLock) as waiting for WAL buffers to be
 written, and WalSync (IO) as waiting for a WAL file to reach durable storage.
 These observations support a **WAL-path contention hypothesis**, but
@@ -42,7 +51,18 @@ still governs capacity promotion.
 
 The next step is to measure WAL write/sync time and PgBouncer/API phase
 timings in the same subsecond window, then evaluate an explicit
-hypothesis. Do not weaken synchronous durability or increase the pool
+hypothesis. The follow-up live preflight found PostgreSQL 17.11 with
+`track_wal_io_timing=off`; the application role is not a superuser and lacks
+`SET` privilege for that parameter. Huawei documents that global RDS
+parameters cannot be changed through SQL and must be changed in the RDS
+console. The console UI was unavailable from this operator environment, so
+WAL timing was **not enabled**, and no further 750 RPS stage was started.
+If the parameter is exposed in the instance's Parameters page, enable it for
+a bounded diagnostic, verify the value from a fresh connection, and restore
+the prior value afterward. If it is not exposed, use provider-side WAL/storage
+telemetry rather than inferring timing from zero counters.
+
+Do not weaken synchronous durability or increase the pool
 timeout based on this diagnostic alone. Any transaction or scaling
 pattern change requires an ADR before implementation. A new 750 RPS
 ten-minute safety run and 30-minute confirmation are still required
@@ -64,3 +84,5 @@ remain outside the repository.
 PostgreSQL references:
 [wait event definitions](https://www.postgresql.org/docs/17/monitoring-stats.html)
 and [WAL timing setting](https://www.postgresql.org/docs/17/runtime-config-statistics.html).
+Huawei references: [global parameter restrictions](https://support.huaweicloud.com/intl/en-us/rds-pg_faq/rds_faq_0175.html)
+and [instance parameter controls](https://support.huaweicloud.com/intl/en-us/usermanual-rds-pg/rds_pg_configuration.html).
