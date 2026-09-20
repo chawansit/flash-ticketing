@@ -1,3 +1,4 @@
+import logging
 from contextlib import contextmanager
 from time import perf_counter as monotonic
 
@@ -19,6 +20,22 @@ from ticketing.observability import (
     DB_SECONDS,
     DB_TRANSACTION_BODY_SECONDS,
 )
+
+logger = logging.getLogger(__name__)
+SLOW_DB_PHASE_SECONDS = 0.1
+
+
+def record_slow_db_phase(phase: str, duration: float, outcome: str = "ok") -> None:
+    if duration >= SLOW_DB_PHASE_SECONDS:
+        logger.warning(
+            "slow_db_phase",
+            extra={"fields": {
+                "event": "slow_db_phase",
+                "phase": phase,
+                "duration_ms": round(duration * 1000, 3),
+                "outcome": outcome,
+            }},
+        )
 
 
 class MeasuredCursor(Cursor):
@@ -74,10 +91,14 @@ class Postgres:
                     DB_TRANSACTION_BODY_SECONDS.observe(body_done - body_started)
 
                     commit_started = monotonic()
+                    commit_outcome = "error"
                     try:
                         conn.commit()
+                        commit_outcome = "ok"
                     finally:
-                        DB_COMMIT_SECONDS.observe(monotonic() - commit_started)
+                        commit_duration = monotonic() - commit_started
+                        DB_COMMIT_SECONDS.observe(commit_duration)
+                        record_slow_db_phase("commit", commit_duration, commit_outcome)
                 except Exception as exc:
                     error_recorded["value"] = True
                     body_done = body_done or monotonic()
@@ -121,9 +142,15 @@ class Postgres:
                     yield conn
             finally:
                 return_started = monotonic()
-                if conn is not None:
-                    self.pool.putconn(conn)
-                DB_POOL_RETURN_SECONDS.observe(monotonic() - return_started)
+                return_outcome = "error"
+                try:
+                    if conn is not None:
+                        self.pool.putconn(conn)
+                    return_outcome = "ok"
+                finally:
+                    return_duration = monotonic() - return_started
+                    DB_POOL_RETURN_SECONDS.observe(return_duration)
+                    record_slow_db_phase("pool_return", return_duration, return_outcome)
                 DB_CONNECTION_HOLD_SECONDS.observe(monotonic() - acquired_at)
                 if conn is not None:
                     DB_POOL_IN_USE.dec()

@@ -91,6 +91,7 @@ case "${1:-}" in
     [ "$#" -eq 3 ]
     run_paths "$2"
     seconds=$3
+    date -u '+%Y-%m-%dT%H:%M:%SZ' > "$private/observe-start"
     urls=""
     for id in $($compose ps -q api); do
       ip=$(docker inspect -f '{{(index .NetworkSettings.Networks "flash-ticketing_default").IPAddress}}' "$id")
@@ -103,6 +104,11 @@ case "${1:-}" in
     echo $! > "$private/pgbouncer.pid"
     nohup docker exec "$api" sh -lc 'TEST_DATABASE_URL="$DATABASE_URL" API_METRICS_URL=http://127.0.0.1:8000/metrics python /app/scripts/cloud_benchmark_observe.py --fixtures /tmp/private-load-manifest.json --output /tmp/capacity-backend.json --seconds "$1"' sh "$seconds" > "$raw/backend.log" 2>&1 &
     echo $! > "$private/backend.pid"
+    nohup $compose run --rm --no-deps -T --name "ft-rds-wait-$2" --user root \
+      -v "$raw:/evidence" migrate sh -lc \
+      'RDS_DATABASE_URL="$DATABASE_URL" python /app/scripts/rds_wait_observe.py --seconds "$1" --interval 0.2 --output /evidence/rds-waits.jsonl' \
+      sh "$seconds" > "$raw/rds-waits.log" 2>&1 &
+    echo $! > "$private/rds-waits.pid"
     ;;
   stop-observers)
     [ "$#" -eq 2 ]
@@ -113,16 +119,27 @@ case "${1:-}" in
       kill "$pid" 2>/dev/null || true
       wait "$pid" 2>/dev/null || true
     done
+    docker rm -f "ft-rds-wait-$2" >/dev/null 2>&1 || true
+    observer_failed=0
+    if [ -s "$raw/rds-waits.jsonl" ]; then
+      python3 scripts/summarize_rds_waits.py "$raw/rds-waits.jsonl" > \
+        "$public/rds-waits-summary.json" || observer_failed=1
+    else
+      observer_failed=1
+    fi
     api=$(api_id)
     docker cp "$api":/tmp/capacity-pgbouncer.jsonl "$raw/pgbouncer.jsonl" 2>/dev/null || true
     docker cp "$api":/tmp/capacity-backend.json "$raw/backend.json" 2>/dev/null || true
+    since=$(cat "$private/observe-start")
     index=0
     for id in $($compose ps -q api); do
-      docker logs --since 1h "$id" 2>&1 |
+      docker logs --since "$since" "$id" 2>&1 |
         python3 scripts/extract_capacity_api_errors.py --limit 20 > "$public/api-errors-$index.json"
+      docker logs --since "$since" "$id" 2>&1 |
+        python3 scripts/summarize_slow_db_phases.py --limit 50 > "$public/db-slow-$index.json"
       index=$((index + 1))
     done
-    [ "$index" -eq 4 ]
+    [ "$index" -eq 4 ] && [ "$observer_failed" -eq 0 ]
     ;;
   audit)
     [ "$#" -eq 2 ]

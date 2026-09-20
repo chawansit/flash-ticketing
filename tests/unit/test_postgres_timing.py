@@ -6,6 +6,7 @@ import pytest
 from psycopg_pool import PoolTimeout
 
 from ticketing.api import observe_event_loop_lag
+from ticketing.infrastructure import postgres as postgres_module
 from ticketing.infrastructure.postgres import Postgres
 from ticketing.observability import (
     DB_CONNECTION_HOLD_SECONDS,
@@ -23,6 +24,15 @@ class FakeConnection:
 
     def __exit__(self, *exc):
         return False
+
+    def execute(self, query):
+        return None
+
+    def commit(self):
+        time.sleep(0.005)
+
+    def rollback(self):
+        return None
 
 
 class FakePool:
@@ -101,3 +111,21 @@ def test_event_loop_probe_records_samples():
         return sample_count() - before
 
     assert asyncio.run(run_probe()) >= 1
+
+
+def test_slow_commit_and_pool_return_log_bounded_phase_fields(monkeypatch, caplog):
+    db = Postgres.__new__(Postgres)
+    db.pool = FakePool()
+    monkeypatch.setattr(postgres_module, "SLOW_DB_PHASE_SECONDS", 0.001)
+
+    with db.transaction():
+        pass
+
+    phase_rows = [
+        record.fields
+        for record in caplog.records
+        if getattr(record, "fields", {}).get("event") == "slow_db_phase"
+    ]
+    assert {row["phase"] for row in phase_rows} == {"commit", "pool_return"}
+    assert all(row["outcome"] == "ok" and row["duration_ms"] >= 1 for row in phase_rows)
+    assert all(set(row) == {"event", "phase", "duration_ms", "outcome"} for row in phase_rows)

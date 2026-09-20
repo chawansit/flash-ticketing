@@ -90,6 +90,8 @@ Use a fresh private development manifest for each long stage and delete it after
 
 For every stage require zero unexpected responses, transport errors and generator drops; seat-map p95 below 150 ms; hold p95 below 300 ms; exact acknowledged persistence; zero broken links and overlapping seat intervals; and drained outbox, refresh and dead-letter queues. Record per-API CPU, PgBouncer queues, pool acquisition, query/body/commit timings, RDS CPU, connections, disk latency/IOPS, WAL and checkpoints.
 
+For the failed 2026-09-20 750 RPS spike, follow the [commit-spike diagnostic](capacity/huawei-rds/commit-spike-diagnostic.md) before another capacity claim.
+
 ## Failure validation
 
 Run faults serially after load and expiry drain. Never overlap faults.
