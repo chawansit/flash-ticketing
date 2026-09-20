@@ -13,10 +13,11 @@ import psycopg
 from psycopg.conninfo import make_conninfo
 
 ACTIVITY_SQL = """
-SELECT coalesce(state, 'unknown'), coalesce(wait_event_type, 'CPU'), count(*)
+SELECT coalesce(state, 'unknown'), coalesce(wait_event_type, 'CPU'),
+       coalesce(wait_event, 'none'), count(*)
 FROM pg_stat_activity
 WHERE datname = current_database() AND pid <> pg_backend_pid()
-GROUP BY 1, 2
+GROUP BY 1, 2, 3
 """
 WAL_SQL = """
 SELECT wal_write, wal_sync, wal_write_time, wal_sync_time
@@ -25,11 +26,17 @@ FROM pg_stat_wal
 
 
 def activity_counts(rows) -> dict:
-    states, waits = Counter(), Counter()
-    for state, wait_type, count in rows:
+    states, waits, events = Counter(), Counter(), Counter()
+    for state, wait_type, wait_event, count in rows:
         states[str(state)] += int(count)
         waits[str(wait_type)] += int(count)
-    return {"states": dict(states), "wait_types": dict(waits)}
+        if wait_type not in {"CPU", "Client"}:
+            events[str(wait_event)] += int(count)
+    return {
+        "states": dict(states),
+        "wait_types": dict(waits),
+        "wait_events": dict(events),
+    }
 
 
 def sample_connection(conn) -> dict:
@@ -77,10 +84,14 @@ def main() -> int:
     start = time.monotonic()
     due = start
     with conn, args.output.open("x", encoding="utf-8") as output:
+        wal_timing_enabled = (
+            conn.execute("SELECT current_setting('track_wal_io_timing')").fetchone()[0] == "on"
+        )
         output.write(json.dumps({
             "type": "metadata", "utc": datetime.now(UTC).isoformat(),
             "interval_seconds": args.interval, "seconds": args.seconds,
             "target": "direct_rds_redacted",
+            "wal_timing_enabled": wal_timing_enabled,
         }) + "\n")
         while time.monotonic() - start < args.seconds:
             row = {

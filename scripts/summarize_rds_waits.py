@@ -14,6 +14,8 @@ def summarize(lines) -> dict:
     max_query_ms = max_wake_lag_ms = max_wal_sync_delta_ms = 0.0
     max_interesting_waiters = 0
     wait_type_samples = Counter()
+    wait_event_samples = Counter()
+    wal_timing_enabled = None
     events = []
     previous_wal_sync_ms = None
     for line in lines:
@@ -21,7 +23,12 @@ def summarize(lines) -> dict:
             row = json.loads(line)
         except ValueError:
             continue
-        if not isinstance(row, dict) or row.get("type") != "sample":
+        if not isinstance(row, dict):
+            continue
+        if row.get("type") == "metadata":
+            wal_timing_enabled = row.get("wal_timing_enabled")
+            continue
+        if row.get("type") != "sample":
             continue
         samples += 1
         if row.get("error_type"):
@@ -39,6 +46,10 @@ def summarize(lines) -> dict:
         for kind, count in waits.items():
             if kind not in IGNORED_WAITS and int(count) > 0:
                 wait_type_samples[kind] += 1
+        wait_events = row.get("activity", {}).get("wait_events", {})
+        for event, count in wait_events.items():
+            if int(count) > 0:
+                wait_event_samples[event] += 1
         current_wal_sync_ms = float(row.get("wal", {}).get("sync_ms", 0))
         delta = (
             max(0.0, current_wal_sync_ms - previous_wal_sync_ms)
@@ -53,6 +64,8 @@ def summarize(lines) -> dict:
                     kind: int(count) for kind, count in waits.items()
                     if kind not in IGNORED_WAITS and int(count) > 0
                 },
+                "wait_events": {name: int(count) for name, count in wait_events.items()
+                                if int(count) > 0},
                 "wal_sync_delta_ms": round(delta, 3),
                 "query_ms": query_ms,
             }
@@ -67,6 +80,8 @@ def summarize(lines) -> dict:
         "max_wal_sync_delta_ms": max_wal_sync_delta_ms,
         "max_interesting_waiters": max_interesting_waiters,
         "wait_type_sample_counts": dict(wait_type_samples),
+        "wait_event_sample_counts": dict(wait_event_samples),
+        "wal_timing_enabled": wal_timing_enabled,
         "top_anomalies": [item[1] for item in events],
         "caveat": "Samples can miss shorter waits; WAL counters are global to the RDS instance.",
     }
