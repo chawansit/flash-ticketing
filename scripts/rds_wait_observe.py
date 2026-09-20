@@ -20,8 +20,13 @@ WHERE datname = current_database() AND pid <> pg_backend_pid()
 GROUP BY 1, 2, 3
 """
 WAL_SQL = """
-SELECT wal_write, wal_sync, wal_write_time, wal_sync_time
+SELECT wal_write, wal_sync, wal_write_time, wal_sync_time,
+       wal_bytes, wal_buffers_full
 FROM pg_stat_wal
+"""
+CHECKPOINT_SQL = """
+SELECT num_timed, num_requested, write_time, sync_time
+FROM pg_stat_checkpointer
 """
 
 
@@ -43,6 +48,7 @@ def sample_connection(conn) -> dict:
     started = time.perf_counter()
     activity = conn.execute(ACTIVITY_SQL).fetchall()
     wal = conn.execute(WAL_SQL).fetchone()
+    checkpoint = conn.execute(CHECKPOINT_SQL).fetchone()
     return {
         "activity": activity_counts(activity),
         "wal": {
@@ -50,6 +56,14 @@ def sample_connection(conn) -> dict:
             "syncs": wal[1],
             "write_ms": wal[2],
             "sync_ms": wal[3],
+            "bytes": int(wal[4]),
+            "buffers_full": wal[5],
+        },
+        "checkpointer": {
+            "timed": checkpoint[0],
+            "requested": checkpoint[1],
+            "write_ms": checkpoint[2],
+            "sync_ms": checkpoint[3],
         },
         "query_ms": round((time.perf_counter() - started) * 1000, 3),
     }

@@ -18,12 +18,15 @@ locking, persistence, timeout, retry or admission behavior.
 - The existing PgBouncer observer samples client waits and server occupancy
   every 0.2 seconds.
 - A new observer uses the **direct RDS URL** from the private migration
-  service, issuing read-only aggregate queries to pg_stat_activity and
-  pg_stat_wal every 0.2 seconds. Raw samples remain in the backend ECS
-  tmp/unattended-<run-id>/raw/rds-waits.jsonl; only
-  rds-waits-summary.json is copied into public stage evidence. A missing or
+  service, issuing read-only aggregate queries to `pg_stat_activity`,
+  `pg_stat_wal`, and `pg_stat_checkpointer` every 0.1 seconds. The latter two
+  expose WAL volume, WAL-buffer-full events, and checkpoint counts and timing
+  without a parameter change. Raw samples remain in the backend ECS
+  `tmp/unattended-<run-id>/raw/rds-waits.jsonl`; only
+  `rds-waits-summary.json` is copied into public stage evidence. A missing or
   failed RDS observer fails the evidence gate. The observer does not read SQL
-  text or connection identifiers.
+  text or connection identifiers. Samples cannot measure per-commit fsync
+  time or establish causation on their own.
 
 The direct RDS preflight on 2026-09-20 found that the private migration
 container can reach RDS by TCP, but its configured CA file makes the

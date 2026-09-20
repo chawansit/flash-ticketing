@@ -18,6 +18,9 @@ def summarize(lines) -> dict:
     wal_timing_enabled = None
     events = []
     previous_wal_sync_ms = None
+    previous_counters = None
+    counter_totals = Counter()
+    counter_max_steps = Counter()
     for line in lines:
         try:
             row = json.loads(line)
@@ -57,7 +60,25 @@ def summarize(lines) -> dict:
         )
         previous_wal_sync_ms = current_wal_sync_ms
         max_wal_sync_delta_ms = max(max_wal_sync_delta_ms, delta)
-        if interesting or delta >= 50 or query_ms >= 100:
+        counters = {
+            "wal_bytes": int(row.get("wal", {}).get("bytes", 0)),
+            "wal_buffers_full": int(row.get("wal", {}).get("buffers_full", 0)),
+            "checkpoints_timed": int(row.get("checkpointer", {}).get("timed", 0)),
+            "checkpoints_requested": int(row.get("checkpointer", {}).get("requested", 0)),
+            "checkpoint_write_ms": float(row.get("checkpointer", {}).get("write_ms", 0)),
+            "checkpoint_sync_ms": float(row.get("checkpointer", {}).get("sync_ms", 0)),
+        }
+        counter_deltas = {
+            name: max(0, value - previous_counters[name])
+            for name, value in counters.items()
+        } if previous_counters is not None else {}
+        previous_counters = counters
+        counter_totals.update(counter_deltas)
+        for name, value in counter_deltas.items():
+            counter_max_steps[name] = max(counter_max_steps[name], value)
+        if (interesting or delta >= 50 or query_ms >= 100
+                or counter_deltas.get("wal_buffers_full", 0)
+                or counter_deltas.get("checkpoints_requested", 0)):
             event = {
                 "utc": row.get("utc"),
                 "wait_types": {
@@ -68,6 +89,8 @@ def summarize(lines) -> dict:
                                 if int(count) > 0},
                 "wal_sync_delta_ms": round(delta, 3),
                 "query_ms": query_ms,
+                "counter_deltas": {name: value for name, value in counter_deltas.items()
+                                   if value},
             }
             events.append((max(interesting, delta / 50, query_ms / 100), event))
             events.sort(key=lambda item: item[0], reverse=True)
@@ -82,6 +105,8 @@ def summarize(lines) -> dict:
         "wait_type_sample_counts": dict(wait_type_samples),
         "wait_event_sample_counts": dict(wait_event_samples),
         "wal_timing_enabled": wal_timing_enabled,
+        "counter_totals": dict(counter_totals),
+        "counter_max_steps": dict(counter_max_steps),
         "top_anomalies": [item[1] for item in events],
         "caveat": "Samples can miss shorter waits; WAL counters are global to the RDS instance.",
     }

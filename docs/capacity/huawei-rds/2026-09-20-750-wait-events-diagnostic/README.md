@@ -57,10 +57,13 @@ hypothesis. The follow-up live preflight found PostgreSQL 17.11 with
 parameters cannot be changed through SQL and must be changed in the RDS
 console. The console UI was unavailable from this operator environment, so
 WAL timing was **not enabled**, and no further 750 RPS stage was started.
-If the parameter is exposed in the instance's Parameters page, enable it for
-a bounded diagnostic, verify the value from a fresh connection, and restore
-the prior value afterward. If it is not exposed, use provider-side WAL/storage
-telemetry rather than inferring timing from zero counters.
+The supplied Huawei default parameter-template exports for PostgreSQL 17
+(325 rows) and 18 (342 rows) do not expose `track_wal_io_timing`; both list
+`track_io_timing=on` and `log_checkpoints=on`. Neither setting is a substitute
+for WAL write/sync timing. We therefore use read-only WAL-buffer, checkpoint
+and wait-event counters, while treating coincident samples as a hypothesis
+rather than proof of fsync latency. The template exports describe defaults;
+the live instance setting above was checked independently.
 
 Do not weaken synchronous durability or increase the pool
 timeout based on this diagnostic alone. Any transaction or scaling

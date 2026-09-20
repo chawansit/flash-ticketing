@@ -15,12 +15,16 @@ def test_summary_retains_only_aggregate_waits_and_wal_deltas():
         json.dumps({"type": "sample", "utc": "2026-09-20T01:42:22Z",
                     "activity": {"wait_types": {"CPU": 2, "Client": 10, "IO": 1},
                                  "wait_events": {"WALSync": 1}},
-                    "wal": {"sync_ms": 100}, "query_ms": 3.5,
+                    "wal": {"sync_ms": 100, "bytes": 1000, "buffers_full": 4},
+                    "checkpointer": {"timed": 8, "requested": 2,
+                                     "write_ms": 100, "sync_ms": 30}, "query_ms": 3.5,
                     "observer_wake_lag_ms": 1, "password": "private"}),
         json.dumps({"type": "sample", "utc": "2026-09-20T01:42:22.200Z",
                     "activity": {"wait_types": {"CPU": 1, "Client": 10, "IO": 2},
                                  "wait_events": {"WALSync": 2}},
-                    "wal": {"sync_ms": 175}, "query_ms": 4.0,
+                    "wal": {"sync_ms": 175, "bytes": 1150, "buffers_full": 5},
+                    "checkpointer": {"timed": 8, "requested": 3,
+                                     "write_ms": 150, "sync_ms": 55}, "query_ms": 4.0,
                     "observer_wake_lag_ms": 2}),
     ]
     result = module.summarize(rows)
@@ -30,5 +34,10 @@ def test_summary_retains_only_aggregate_waits_and_wal_deltas():
     assert result["wait_type_sample_counts"] == {"IO": 2}
     assert result["wait_event_sample_counts"] == {"WALSync": 2}
     assert result["wal_timing_enabled"] is False
+    assert result["counter_totals"]["wal_bytes"] == 150
+    assert result["counter_totals"]["wal_buffers_full"] == 1
+    assert result["counter_totals"]["checkpoints_requested"] == 1
+    assert result["counter_max_steps"]["checkpoint_sync_ms"] == 25
+    assert result["top_anomalies"][0]["counter_deltas"]["wal_buffers_full"] == 1
     assert "private" not in json.dumps(result)
     assert result["sample_errors"] == 0

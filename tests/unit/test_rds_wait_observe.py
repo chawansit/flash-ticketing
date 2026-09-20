@@ -28,7 +28,9 @@ class FakeConn:
         if "pg_stat_activity" in sql:
             return FakeCursor([("active", "IO", "WALSync", 2), ("idle", "Client", "ClientRead", 3),
                                ("active", "IO", "WALSync", 1)])
-        return FakeCursor([], (15, 11, 4.0, 2.0))
+        if "pg_stat_wal" in sql:
+            return FakeCursor([], (15, 11, 4.0, 2.0, 8192, 3))
+        return FakeCursor([], (5, 2, 100.0, 30.0))
 
 
 def test_read_only_wait_sample_is_aggregate_and_has_no_sql_or_ids():
@@ -39,7 +41,13 @@ def test_read_only_wait_sample_is_aggregate_and_has_no_sql_or_ids():
         "wait_types": {"IO": 3, "Client": 3},
         "wait_events": {"WALSync": 3},
     }
-    assert row["wal"] == {"writes": 15, "syncs": 11, "write_ms": 4.0, "sync_ms": 2.0}
-    assert len(conn.calls) == 2
+    assert row["wal"] == {
+        "writes": 15, "syncs": 11, "write_ms": 4.0, "sync_ms": 2.0,
+        "bytes": 8192, "buffers_full": 3,
+    }
+    assert row["checkpointer"] == {
+        "timed": 5, "requested": 2, "write_ms": 100.0, "sync_ms": 30.0,
+    }
+    assert len(conn.calls) == 3
     assert all(sql.lstrip().startswith("SELECT") for sql in conn.calls)
     assert "query_ms" in row
