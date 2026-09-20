@@ -15,7 +15,7 @@ from uuid import uuid4
 
 import psycopg
 from psycopg import sql
-from psycopg.conninfo import make_conninfo
+from psycopg.conninfo import conninfo_to_dict, make_conninfo
 
 PAYLOAD = os.urandom(8192)
 
@@ -230,6 +230,7 @@ def main():
     parser.add_argument("--raw-output", type=Path, required=True)
     parser.add_argument("--wait-output", type=Path, required=True)
     parser.add_argument("--preflight", action="store_true")
+    parser.add_argument("--local-no-tls", action="store_true")
     args = parser.parse_args()
     paths = (args.output, args.raw_output, args.wait_output)
     if not 1 <= args.rate <= 50 or not 30 <= args.seconds <= 180:
@@ -242,7 +243,12 @@ def main():
     if not original_dsn:
         parser.error("TEST_DATABASE_URL is required")
     os.environ.pop("PGSSLROOTCERT", None)
-    dsn = make_conninfo(original_dsn, sslmode="require")
+    if args.local_no_tls:
+        if conninfo_to_dict(original_dsn).get("host") not in {"postgres", "localhost", "127.0.0.1"}:
+            parser.error("Plaintext is limited to a local PostgreSQL test host")
+        dsn = make_conninfo(original_dsn, sslmode="disable")
+    else:
+        dsn = make_conninfo(original_dsn, sslmode="require")
     with psycopg.connect(dsn, autocommit=True) as conn:
         settings = conn.execute(
             "SELECT current_setting('synchronous_commit'), "
@@ -250,7 +256,7 @@ def main():
         ).fetchone()
     passed = settings == ("on", "on", "off")
     if args.preflight:
-        print(json.dumps({"durability_preflight_pass": passed, "direct_tls": True}))
+        print(json.dumps({"durability_preflight_pass": passed, "direct_tls": not args.local_no_tls}))
         return 0 if passed else 1
     if not passed:
         raise RuntimeError("Durability preflight failed")
