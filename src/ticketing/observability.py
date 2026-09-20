@@ -17,6 +17,9 @@ REFRESH_PENDING = Gauge("ticketing_cache_refresh_pending", "Events awaiting cach
 REFRESH_AGE = Gauge("ticketing_cache_refresh_oldest_seconds", "Oldest dirty cache request age")
 DB_SECONDS = Histogram("ticketing_db_transaction_seconds", "Database transaction duration")
 DB_ERRORS = Counter("ticketing_db_errors_total", "Database errors", ["type"])
+DB_UNAVAILABLE = Counter(
+    "ticketing_db_unavailable_total", "Handled database-unavailable responses", ["cause"]
+)
 REQUEST_ID = ContextVar("request_id", default=None)
 
 

@@ -26,6 +26,7 @@ from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.postgres import Postgres
 from ticketing.infrastructure.reservations import PostgresReservations
 from ticketing.observability import (
+    DB_UNAVAILABLE,
     EVENT_LOOP_LAG_CURRENT_SECONDS,
     EVENT_LOOP_LAG_SECONDS,
     OUTCOMES,
@@ -163,6 +164,17 @@ async def contention_error(request, exc):
 
 
 async def unavailable_error(request, exc):
+    # Keep metric labels fixed even when a driver raises an exception subclass.
+    if isinstance(exc, PoolTimeout):
+        cause = "PoolTimeout"
+    elif isinstance(exc, TooManyRequests):
+        cause = "TooManyRequests"
+    elif isinstance(exc, QueryCanceled):
+        cause = "QueryCanceled"
+    else:
+        cause = "OperationalError"
+    request.state.db_failure_type = cause
+    DB_UNAVAILABLE.labels(cause).inc()
     return await business_error(request, Failure("DATABASE_UNAVAILABLE", 503))
 
 

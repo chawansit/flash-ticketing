@@ -74,3 +74,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0040: Unattended distributed capacity-stage orchestration](0040-unattended-distributed-capacity-stages.md)
 
 - [0041: Recover evidence after a timed-out load SSH call](0041-timeout-evidence-recovery.md)
+- [0042: Classify database-unavailable responses during capacity stages](0042-classify-database-unavailability.md)
