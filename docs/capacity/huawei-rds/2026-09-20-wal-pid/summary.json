@@ -1,0 +1,33 @@
+{
+  "started_utc": "2026-09-20T08:41:37.899357+00:00",
+  "rate": 40,
+  "seconds": 120,
+  "workers": 16,
+  "interval_ms": 20,
+  "cleanup_pass": true,
+  "completed": 4800,
+  "errors": 0,
+  "commit_p95_ms": 7.811,
+  "commit_p99_ms": 67.104,
+  "commit_max_ms": 253.031,
+  "max_schedule_lag_ms": 5.195,
+  "max_connection_wait_ms": 0.122,
+  "observer": {
+    "samples": 5999,
+    "query_errors": 0,
+    "max_query_ms": 17.027,
+    "max_wake_lag_ms": 5.421
+  },
+  "correlation": {
+    "slow_commits": 33,
+    "same_pid_wait_events": {
+      "WalSync": 5,
+      "WALWrite": 20,
+      "ClientRead,WALWrite": 4,
+      "ClientRead,WALWrite,WalSync": 1,
+      "WALWrite,WalSync": 1,
+      "ClientRead,WalSync": 2
+    }
+  },
+  "ended_utc": "2026-09-20T08:43:38.609351+00:00"
+}
