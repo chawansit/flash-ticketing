@@ -53,13 +53,13 @@ class MeasuredCursor(Cursor):
 
 
 class Postgres:
-    def __init__(self, url: str, maximum: int = 12):
+    def __init__(self, url: str, maximum: int = 12, wait_ms: int = 150):
         self.pool = ConnectionPool(
             url,
             open=True,
             min_size=1,
             max_size=maximum,
-            timeout=0.15,
+            timeout=wait_ms / 1000,
             max_waiting=maximum,
             kwargs={"row_factory": dict_row, "prepare_threshold": None, "cursor_factory": MeasuredCursor},
         )

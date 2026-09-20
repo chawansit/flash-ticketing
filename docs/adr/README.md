@@ -77,3 +77,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0042: Classify database-unavailable responses during capacity stages](0042-classify-database-unavailability.md)
 - [0043: Detach and poll long generator jobs](0043-detached-generator-job.md)
 - [0044: Restore the intended API keep-alive margin](0044-restore-server-keepalive-margin.md)
+- [0045: Bounded API pool wait through intermittent RDS commit stalls](0045-bounded-api-pool-wait.md)
