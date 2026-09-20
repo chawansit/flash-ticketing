@@ -145,7 +145,12 @@ python scripts/unattended_capacity_stage.py \
 ```
 
 Run `--dry-run` first to inspect the fixed phase order without contacting either
-ECS. A temporary identity file may be supplied with `--identity-file`; remove
+ECS. The live command verifies that both checkouts resolve to the same Git
+commit before changing admission. Under ADR 0043, the generator starts one
+detached, bounded job; the operator checks its short status response every
+ten seconds and stops its process group before private cleanup. A missing or
+malformed job status fails the stage and cannot promote a higher rate.
+A temporary identity file may be supplied with `--identity-file`; remove
 its authorization from both ECSs and delete the local key after the stage.
 The generator helper prefers `/root/http-load-venv/bin/python` when present
 and otherwise uses `python3`; set `FLASH_TICKETING_LOAD_PYTHON` on the

@@ -29,6 +29,12 @@ class FakeTransport:
         self.calls.append(("remote", phase))
         if phase == self.fail_phase:
             raise RuntimeError("token=should-not-leak")
+        if phase in {"backend-revision", "generator-revision"}:
+            return SimpleNamespace(returncode=0, stdout="a" * 40 + "\n", stderr="")
+        if phase == "load-status":
+            return SimpleNamespace(
+                returncode=0, stdout='{"state":"finished","exit_code":0}', stderr=""
+            )
         return SimpleNamespace(returncode=0, stdout="", stderr="")
 
     def copy_from(self, phase, host, remote, local, recursive=False):
@@ -134,7 +140,7 @@ def test_success_orders_phases_cleans_manifest_and_passes(monkeypatch, tmp_path)
     fake = FakeTransport.instances[-1]
     phases = [phase for kind, phase in fake.calls if kind == "remote"]
     assert phases.index("deploy") < phases.index("prepare") < phases.index("preflight")
-    assert phases.index("load") < phases.index("durability-audit") < phases.index("rollback")
+    assert phases.index("load-start") < phases.index("load-status") < phases.index("durability-audit") < phases.index("rollback")
     assert phases[-2:] == ["generator-cleanup", "backend-cleanup"]
     assert fake.private_manifest is not None and not fake.private_manifest.exists()
     assert json.loads((tmp_path / "result" / "stage-result.json").read_text())["pass"] is True
@@ -152,7 +158,7 @@ def test_preflight_failure_short_circuits_and_rolls_back(monkeypatch, tmp_path):
 
     fake = FakeTransport.instances[-1]
     phases = [phase for kind, phase in fake.calls if kind == "remote"]
-    assert "load" not in phases
+    assert "load-start" not in phases
     assert "rollback" in phases
     assert phases[-2:] == ["generator-cleanup", "backend-cleanup"]
     assert fake.private_manifest is not None and not fake.private_manifest.exists()
@@ -181,7 +187,7 @@ def test_cleanup_failure_does_not_skip_remaining_cleanup(monkeypatch, tmp_path):
 def test_load_timeout_still_collects_and_audits(monkeypatch, tmp_path):
     class TimeoutTransport(FakeTransport):
         def remote(self, phase, host, argv, check=True, timeout=None):
-            if phase == "load":
+            if phase == "load-status":
                 self.calls.append(("remote", phase))
                 raise subprocess.TimeoutExpired(["ssh"], timeout)
             return super().remote(phase, host, argv, check=check, timeout=timeout)
@@ -198,6 +204,7 @@ def test_load_timeout_still_collects_and_audits(monkeypatch, tmp_path):
     fake = TimeoutTransport.instances[-1]
     phases = [phase for kind, phase in fake.calls if kind == "remote"]
     assert "durability-audit" in phases
+    assert "load-stop" in phases
     assert "rollback" in phases
     result = json.loads((tmp_path / "timed-out" / "stage-result.json").read_text())
     assert result["gates"]["audit_exit_zero"] is True
@@ -208,9 +215,11 @@ def test_load_timeout_still_collects_and_audits(monkeypatch, tmp_path):
 def test_nonzero_load_still_audits(monkeypatch, tmp_path):
     class FailedLoadTransport(FakeTransport):
         def remote(self, phase, host, argv, check=True, timeout=None):
-            if phase == "load":
+            if phase == "load-status":
                 self.calls.append(("remote", phase))
-                return SimpleNamespace(returncode=1, stdout="", stderr="")
+                return SimpleNamespace(
+                    returncode=0, stdout='{"state":"finished","exit_code":1}', stderr=""
+                )
             return super().remote(phase, host, argv, check=check, timeout=timeout)
 
     FailedLoadTransport.instances.clear()
@@ -254,3 +263,93 @@ def test_incomplete_generator_evidence_still_rolls_back(monkeypatch, tmp_path):
     result = json.loads((tmp_path / "incomplete" / "stage-result.json").read_text())
     assert "Incomplete generator evidence" in result["error"]
     assert result["pass"] is False
+
+
+def test_malformed_generator_status_fails_closed_and_stops(monkeypatch, tmp_path):
+    class MalformedTransport(FakeTransport):
+        def remote(self, phase, host, argv, check=True, timeout=None):
+            if phase == "load-status":
+                self.calls.append(("remote", phase))
+                return SimpleNamespace(returncode=0, stdout='{"state":"finished","exit_code":"0"}', stderr="")
+            return super().remote(phase, host, argv, check=check, timeout=timeout)
+
+    MalformedTransport.instances.clear()
+    MalformedTransport.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", MalformedTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "malformed"))
+    with pytest.raises(SystemExit):
+        stage.main()
+    fake = MalformedTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert "load-stop" in phases
+    assert "durability-audit" in phases
+    result = json.loads((tmp_path / "malformed" / "stage-result.json").read_text())
+    assert result["gates"]["load_exit_zero"] is False
+    assert result["pass"] is False
+
+
+def test_failed_generator_stop_blocks_audit_and_rolls_back(monkeypatch, tmp_path):
+    FakeTransport.instances.clear()
+    FakeTransport.fail_phase = "load-stop"
+    monkeypatch.setattr(stage, "Transport", FakeTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "stop-failed"))
+    with pytest.raises(SystemExit):
+        stage.main()
+    fake = FakeTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert "durability-audit" not in phases
+    assert "load-stop-finally" in phases
+    assert "rollback" in phases
+    result = json.loads((tmp_path / "stop-failed" / "stage-result.json").read_text())
+    assert result["pass"] is False
+
+
+def test_running_status_is_polled_until_finished(monkeypatch, tmp_path):
+    class RunningThenFinished(FakeTransport):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.polls = 0
+
+        def remote(self, phase, host, argv, check=True, timeout=None):
+            if phase == "load-status":
+                self.polls += 1
+                if self.polls == 1:
+                    self.calls.append(("remote", phase))
+                    return SimpleNamespace(returncode=0, stdout='{"state":"running"}', stderr="")
+            return super().remote(phase, host, argv, check=check, timeout=timeout)
+
+    RunningThenFinished.instances.clear()
+    RunningThenFinished.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", RunningThenFinished)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "polled"))
+    stage.main()
+    fake = RunningThenFinished.instances[-1]
+    assert fake.polls == 2
+    assert json.loads((tmp_path / "polled" / "stage-result.json").read_text())["pass"] is True
+
+
+def test_mismatched_source_revision_stops_before_deployment(monkeypatch, tmp_path):
+    class MismatchedTransport(FakeTransport):
+        def remote(self, phase, host, argv, check=True, timeout=None):
+            if phase == "generator-revision":
+                self.calls.append(("remote", phase))
+                return SimpleNamespace(returncode=0, stdout="b" * 40 + "\n", stderr="")
+            return super().remote(phase, host, argv, check=check, timeout=timeout)
+
+    MismatchedTransport.instances.clear()
+    MismatchedTransport.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", MismatchedTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "revision-mismatch"))
+    with pytest.raises(SystemExit):
+        stage.main()
+    fake = MismatchedTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert "deploy" not in phases
+    assert "load-start" not in phases
+    result = json.loads((tmp_path / "revision-mismatch" / "stage-result.json").read_text())
+    assert result["pass"] is False
+    assert result["source_revision"] is None

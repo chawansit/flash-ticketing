@@ -63,3 +63,14 @@ completed evidence and attempt the post-TTL audit. The next stage remains a
 fresh 750 RPS ten-minute safety test only after a reproducible deployment and
 healthy maintenance/reconciliation pools. No 30-minute or 800 RPS stage is
 authorized by the 2026-09-19 result.
+
+## 2026-09-20 matched-revision safety control
+
+The [new 750 RPS, ten-minute control](2026-09-20-750-clean-workload/README.md)
+completed all 450,000 responses with zero unexpected responses or drops,
+22,500 successful holds, read/hold p95 8.503/51.384 ms and exact post-expiry
+integrity with zero overlaps or queue backlog. It still failed the unattended
+execution gate: the operator SSH call timed out after the generator had finished.
+ADR 0043 changes that long-call mechanism. Until the new workflow passes a
+fresh stage and the 30-minute confirmation passes, 600 RPS remains the highest
+repeatable clean 30-minute baseline.

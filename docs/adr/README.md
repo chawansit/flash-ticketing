@@ -75,3 +75,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 
 - [0041: Recover evidence after a timed-out load SSH call](0041-timeout-evidence-recovery.md)
 - [0042: Classify database-unavailable responses during capacity stages](0042-classify-database-unavailability.md)
+- [0043: Detach and poll long generator jobs](0043-detached-generator-job.md)
