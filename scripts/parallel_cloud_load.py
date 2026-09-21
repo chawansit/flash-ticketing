@@ -22,6 +22,9 @@ p.add_argument("--mixed-hot-holds", action="store_true")
 p.add_argument("--burst", action="store_true")
 p.add_argument("--transport-diagnostics", action="store_true")
 p.add_argument("--keepalive-expiry", type=expiry_seconds, default=5.0)
+p.add_argument("--max-attempts", type=int, choices=(1, 2), default=1)
+p.add_argument("--retry-base-delay-ms", type=float, default=25.0)
+p.add_argument("--late-delivery-window-ms", type=float, default=0.0)
 p.add_argument("--start-delay", type=float, default=30.0)
 a = p.parse_args()
 if a.burst:
@@ -86,6 +89,12 @@ try:
                 str(a.keepalive_expiry),
                 "--topology",
                 "separate-host",
+                "--max-attempts",
+                str(a.max_attempts),
+                "--retry-base-delay-ms",
+                str(a.retry_base_delay_ms),
+                "--late-delivery-window-ms",
+                str(a.late_delivery_window_ms),
                 "--output",
                 str(result_path),
             ]
@@ -115,6 +124,10 @@ try:
     for r in results:
         transport_error_types.update((r.get("transport_error_types") or {}).keys())
 
+    def sum_counter(field):
+        keys = {key for result in results for key in (result.get(field) or {})}
+        return {key: sum((result.get(field) or {}).get(key, 0) for result in results) for key in sorted(keys)}
+
     coordination_gate_pass = len(results) == a.workers and not any(codes) and skew is not None and skew <= 100
     workload_gate_pass = coordination_gate_pass and all(
         result.get("workload_gate_pass") is True for result in results
@@ -133,6 +146,16 @@ try:
         "worker_exit_codes": codes,
         "start_skew_ms": skew,
         "generator_drops": sum(r.get("generator_drops", 0) for r in results),
+        "late_deliveries": sum(r.get("late_deliveries", 0) for r in results),
+        "physical_http_attempts": sum(r.get("physical_http_attempts", 0) for r in results),
+        "first_attempt_failures": sum_counter("first_attempt_failures"),
+        "retry_attempts": sum_counter("retry_attempts"),
+        "retry_successes": sum_counter("retry_successes"),
+        "retry_exhausted": sum_counter("retry_exhausted"),
+        "attempt_transport_errors": sum_counter("attempt_transport_error_types"),
+        "max_attempts": a.max_attempts,
+        "retry_base_delay_ms": a.retry_base_delay_ms,
+        "late_delivery_window_ms": a.late_delivery_window_ms,
         "worst_worker_read_p95_ms": max(
             (r.get("read_p95_ms") for r in results if r.get("read_p95_ms") is not None), default=None
         ),

@@ -131,6 +131,12 @@ def evaluate(output: Path, load_exit: int | None, audit_exit: int | None, admiss
                 "generator_drops",
                 "worst_worker_read_p95_ms",
                 "worst_worker_hold_p95_ms",
+                "late_deliveries",
+                "physical_http_attempts",
+                "first_attempt_failures",
+                "retry_attempts",
+                "retry_successes",
+                "retry_exhausted",
             )
         },
         "admission_rejections": admission.get("admission_rejections"),
@@ -160,6 +166,10 @@ def validate_args(args: argparse.Namespace) -> None:
         raise ValueError("Stage limits must be positive")
     if args.seats < (args.rate * args.seconds * 5 // 100 + args.shows - 1) // args.shows:
         raise ValueError("Fresh fixture has insufficient unique seats for the requested stage")
+    if not 0 <= args.retry_base_delay_ms <= 5000:
+        raise ValueError("Retry delay must be between 0 and 5000 ms")
+    if not 0 <= args.late_delivery_window_ms <= 5000:
+        raise ValueError("Late-delivery window must be between 0 and 5000 ms")
     if not 1 <= args.admission_candidate <= 64 or not 1 <= args.admission_rollback <= 64:
         raise ValueError("Admission values must be between 1 and 64")
 
@@ -183,6 +193,9 @@ def main() -> None:
     parser.add_argument("--admission-candidate", type=int, required=True)
     parser.add_argument("--admission-rollback", type=int, required=True)
     parser.add_argument("--hold-expiry-wait", type=int, default=180)
+    parser.add_argument("--max-attempts", type=int, choices=(1, 2), default=1)
+    parser.add_argument("--retry-base-delay-ms", type=float, default=25.0)
+    parser.add_argument("--late-delivery-window-ms", type=float, default=0.0)
     parser.add_argument("--ssh", default="ssh")
     parser.add_argument("--scp", default="scp")
     parser.add_argument("--identity-file", type=Path)
@@ -196,7 +209,7 @@ def main() -> None:
         "prepare fresh fixture and private manifest",
         "transfer manifest through a private temporary directory",
         "preflight and start observers",
-        "start and poll bounded no-retry load on separate generator",
+        "start and poll bounded load on separate generator with explicit recovery settings",
         "collect compact results and admission gate",
         "wait for hold expiry and run exact durability audit",
         "restore admission, collect compact evidence and delete private manifests",
@@ -329,6 +342,9 @@ def main() -> None:
                     str(args.seconds),
                     str(args.workers),
                     str(args.seat_offset),
+                    str(args.max_attempts),
+                    str(args.retry_base_delay_ms),
+                    str(args.late_delivery_window_ms),
                 ],
                 timeout=60,
             )

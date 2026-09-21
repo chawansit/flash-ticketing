@@ -80,3 +80,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0045: Bounded API pool wait through intermittent RDS commit stalls](0045-bounded-api-pool-wait.md)
 - [0046: Build the measured API image from the matched source revision](0046-build-measured-api-image.md)
 - [0047: Observe RDS waits for the full measured stage](0047-full-window-rds-wait-observation.md)
+- [0048: Separate service-SLO diagnostics from capacity certification](0048-separate-service-slo-diagnostics-from-capacity-certification.md)
+- [0049: Bounded idempotent retry and late-delivery diagnostic](0049-bounded-idempotent-retry-diagnostic.md)
