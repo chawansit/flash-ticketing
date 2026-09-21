@@ -36,3 +36,11 @@ If the recovery attempt fails, the final error remains visible and the stage fai
 ## Validation evidence
 
 Unit tests must prove that a hold retry reuses its idempotency key, transient failures are bounded, permanent business conflicts are not retried, first-attempt failures remain observable, and late delivery does not erase scheduling-lag evidence. Cloud validation must begin with a ten-minute safety stage and proceed to 30 minutes only after all safety gates pass.
+
+Implemented validation on 21 September 2026 used revision `84c127d`, four API replicas, four generator workers, a primary rate of 800 RPS, a maximum of two HTTP attempts, 25 ms retry base delay, and a 250 ms late-delivery window. The local full test suite completed with 126 passed, 59 skipped, and three warnings; Ruff and shell syntax checks passed.
+
+The 10-minute Huawei safety stage accounted for all 480,000 logical requests with zero late deliveries, drops, first-attempt failures, retries, or final errors. Worst-worker read and hold p95 were 8.142 ms and 51.950 ms. The post-TTL audit found 24,000 durable holds, zero overlapping seat intervals, drained queues, and successful admission rollback.
+
+The subsequent 30-minute stage accounted for all 1,440,000 logical requests. Eleven requests arrived more than 50 ms behind their schedule and were delivered inside the 250 ms window; none became generator drops. There were exactly 1,440,000 physical HTTP attempts, zero first-attempt failures, zero retry attempts, and zero final errors. Worst-worker read and hold p95 were 8.096 ms and 54.263 ms. The post-TTL audit matched all 72,000 acknowledged holds to idempotency records and orders, found zero broken links and zero overlapping seat intervals, observed zero unpublished outbox events, pending refresh work, or dead letters, and restored admission to four per replica.
+
+This run validates late-delivery recovery and the retry instrumentation under a healthy workload. It does not demonstrate recovery from a real transient HTTP failure because no retryable first-attempt failure occurred. The result is a recovery diagnostic and does not supersede ADR 0048's no-retry capacity result.
