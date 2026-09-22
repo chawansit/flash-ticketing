@@ -172,6 +172,8 @@ def validate_args(args: argparse.Namespace) -> None:
         raise ValueError("Late-delivery window must be between 0 and 5000 ms")
     if not 1 <= args.admission_candidate <= 64 or not 1 <= args.admission_rollback <= 64:
         raise ValueError("Admission values must be between 1 and 64")
+    if not 1 <= args.maintenance_candidate <= 4 or not 1 <= args.maintenance_rollback <= 4:
+        raise ValueError("Maintenance replica counts must be between 1 and 4")
 
 
 def main() -> None:
@@ -192,6 +194,8 @@ def main() -> None:
     parser.add_argument("--seat-offset", type=int, default=0)
     parser.add_argument("--admission-candidate", type=int, required=True)
     parser.add_argument("--admission-rollback", type=int, required=True)
+    parser.add_argument("--maintenance-candidate", type=int, default=1)
+    parser.add_argument("--maintenance-rollback", type=int, default=1)
     parser.add_argument("--hold-expiry-wait", type=int, default=180)
     parser.add_argument("--max-attempts", type=int, choices=(1, 2), default=1)
     parser.add_argument("--retry-base-delay-ms", type=float, default=25.0)
@@ -271,7 +275,10 @@ def main() -> None:
             "deploy",
             args.backend_host,
             backend_prefix
-            + ["deploy", run_id, str(args.admission_candidate), str(args.admission_rollback)],
+            + [
+                "deploy", run_id, str(args.admission_candidate), str(args.admission_rollback),
+                str(args.maintenance_candidate), str(args.maintenance_rollback),
+            ],
             timeout=300,
         )
         checkpoint("deployed")
@@ -322,7 +329,7 @@ def main() -> None:
         transport.remote(
             "observe",
             args.backend_host,
-            backend_prefix + ["observe", run_id, str(args.seconds + 60)],
+            backend_prefix + ["observe", run_id, str(args.seconds + args.hold_expiry_wait + 300)],
             timeout=30,
         )
         observers = True
@@ -387,19 +394,6 @@ def main() -> None:
             if stopped_load.returncode:
                 raise RuntimeError(f"load-stop failed with exit code {stopped_load.returncode}")
 
-        stopped = transport.remote(
-            "stop-observers",
-            args.backend_host,
-            backend_prefix + ["stop-observers", run_id],
-            check=False,
-            timeout=120,
-        )
-        if stopped.returncode:
-            reason = f"stop-observers failed with exit code {stopped.returncode}"
-            error = f"{error}; {reason}" if error else reason
-        else:
-            observers = False
-
         generator_parent = args.output / "generator"
         generator_parent.mkdir()
         transport.copy_from(
@@ -444,6 +438,18 @@ def main() -> None:
         )
         audit_exit = audit.returncode
         checkpoint("audit_finished")
+        stopped = transport.remote(
+            "stop-observers",
+            args.backend_host,
+            backend_prefix + ["stop-observers", run_id],
+            check=False,
+            timeout=120,
+        )
+        if stopped.returncode:
+            reason = f"stop-observers failed with exit code {stopped.returncode}"
+            error = f"{error}; {reason}" if error else reason
+        else:
+            observers = False
     except (OSError, RuntimeError, subprocess.TimeoutExpired, ValueError, KeyboardInterrupt) as exc:
         error = redact(repr(exc))
     finally:

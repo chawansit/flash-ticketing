@@ -82,3 +82,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0047: Observe RDS waits for the full measured stage](0047-full-window-rds-wait-observation.md)
 - [0048: Separate service-SLO diagnostics from capacity certification](0048-separate-service-slo-diagnostics-from-capacity-certification.md)
 - [0049: Bounded idempotent retry and late-delivery diagnostic](0049-bounded-idempotent-retry-diagnostic.md)
+- [0050: Scale the maintenance worker for expiry-drain capacity](0050-scale-maintenance-expiry-drain.md)

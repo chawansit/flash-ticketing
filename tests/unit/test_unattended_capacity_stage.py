@@ -353,3 +353,26 @@ def test_mismatched_source_revision_stops_before_deployment(monkeypatch, tmp_pat
     result = json.loads((tmp_path / "revision-mismatch" / "stage-result.json").read_text())
     assert result["pass"] is False
     assert result["source_revision"] is None
+
+
+def test_maintenance_scaling_is_passed_and_observers_cover_audit(monkeypatch, tmp_path):
+    class CapturingTransport(FakeTransport):
+        def remote(self, phase, host, command, check=True, timeout=None):
+            if phase == "deploy":
+                self.deployment_command = command
+            return super().remote(phase, host, command, check=check, timeout=timeout)
+
+    CapturingTransport.instances.clear()
+    CapturingTransport.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", CapturingTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        argv(tmp_path / "scaled") + ["--maintenance-candidate", "2", "--maintenance-rollback", "1"],
+    )
+    stage.main()
+    fake = CapturingTransport.instances[-1]
+    assert fake.deployment_command[-2:] == ["2", "1"]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert phases.index("durability-audit") < phases.index("stop-observers") < phases.index("rollback")
