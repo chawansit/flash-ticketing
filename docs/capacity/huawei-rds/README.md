@@ -98,3 +98,12 @@ but do not overturn the failed 750 RPS ten-minute gate or promote capacity.
 The [direct RDS versus PgBouncer WAL path probe](2026-09-20-wal-path-ab/README.md) reproduced intermittent long commits without PgBouncer and correlates them with sampled WAL waits (20 September 2026).
 
 The [PID-correlated WAL probe](wal-pid-probe.md) completed a [bounded direct-RDS run](2026-09-20-wal-pid/README.md): every slow commit had a WAL wait sampled on the same backend.
+
+## 2026-09-22 1,000 RPS maintenance-drain diagnostic
+
+The [two-maintenance-worker comparison](2026-09-22-1000-maintenance-drain/README.md)
+kept overdue holds below one second at peak in the 15-minute stage and verified
+44,990 acknowledged holds with zero booking overlap. The eight-worker generator
+delivered all 900,000 scheduled requests. Ten final admission responses and 237
+pending seat-refresh requests at the fixed 180-second audit failed the strict
+and candidate SLO gates. No 30-minute capacity promotion was made.
