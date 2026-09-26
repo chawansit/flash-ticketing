@@ -86,3 +86,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0051: Assess 1,000 RPS recovery with a bounded service-error budget](0051-1000-rps-recovery-slo-diagnostic.md)
 - [0052: Scale the SeatsChanged Kafka consumer for refresh ingress](0052-scale-seatschanged-kafka-consumer.md)
 - [0053: Scale refresh maintenance to three workers](0053-scale-refresh-maintenance-to-three-workers.md)
+- [0054: Batch refresh leases and acknowledgements](0054-batch-refresh-persistence.md)

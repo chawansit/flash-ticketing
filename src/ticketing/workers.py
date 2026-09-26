@@ -171,51 +171,72 @@ def seat_state(row):
     }
 
 
-@measured_work("refresh_one")
-def refresh_one(db, cache, cooldown_ms=250):
+@measured_work("refresh_batch")
+def refresh_batch(db, cache, limit=10, cooldown_ms=250):
     token = uuid4()
     with db.transaction() as conn:
-        state = conn.execute("""SELECT count(*) AS n,
+        state = conn.execute(
+            """SELECT count(*) AS n,
             EXTRACT(EPOCH FROM clock_timestamp()-min(requested_at)) AS age
-            FROM seat_refresh_requests WHERE generation>completed_generation""").fetchone()
+            FROM seat_refresh_requests WHERE generation>completed_generation"""
+        ).fetchone()
         REFRESH_PENDING.set(state["n"])
         REFRESH_AGE.set(float(state["age"] or 0))
-        row = conn.execute("""SELECT * FROM seat_refresh_requests
+        rows = conn.execute(
+            """SELECT * FROM seat_refresh_requests
             WHERE generation>completed_generation AND next_attempt_at<=clock_timestamp()
             AND (lease_until IS NULL OR lease_until<clock_timestamp())
-            ORDER BY requested_at LIMIT 1 FOR UPDATE SKIP LOCKED""").fetchone()
-        if not row:
-            return False
-        claimed_at = conn.execute(
+            ORDER BY requested_at LIMIT %s FOR UPDATE SKIP LOCKED""",
+            (limit,),
+        ).fetchall()
+        if not rows:
+            return 0
+        claimed_at = conn.execute("SELECT clock_timestamp() AS claimed_at").fetchone()["claimed_at"]
+        conn.execute(
             """UPDATE seat_refresh_requests
             SET lease_token=%s,lease_until=clock_timestamp()+interval '30 seconds'
-            WHERE event_id=%s RETURNING clock_timestamp() AS claimed_at""",
-            (token, row["event_id"]),
-        ).fetchone()["claimed_at"]
-    # No SQL locks while writing Redis. The snapshot is fenced by inventory version.
-    if row["seat_ids"] is None:
-        snapshot(db, cache, row["event_id"])
-    else:
-        changed_snapshot(db, cache, row["event_id"], row["seat_ids"])
-    with db.transaction() as conn:
-        conn.execute(
-            """UPDATE seat_refresh_requests SET completed_generation=%s,
-            seat_ids=CASE WHEN generation=%s THEN NULL ELSE seat_ids END,
-            lease_until=NULL,lease_token=NULL,
-            next_attempt_at=clock_timestamp()+(%s * interval '1 millisecond'),
-            requested_at=CASE WHEN generation>%s THEN %s ELSE requested_at END
-            WHERE event_id=%s AND lease_token=%s""",
-            (
-                row["generation"],
-                row["generation"],
-                cooldown_ms,
-                row["generation"],
-                claimed_at,
-                row["event_id"],
-                token,
-            ),
+            WHERE event_id=ANY(%s)""",
+            (token, [row["event_id"] for row in rows]),
         )
-    return True
+    # No SQL locks while writing Redis. Every snapshot is fenced by inventory version.
+    completed, errors = [], []
+    for row in rows:
+        try:
+            if row["seat_ids"] is None:
+                snapshot(db, cache, row["event_id"])
+            else:
+                changed_snapshot(db, cache, row["event_id"], row["seat_ids"])
+            completed.append(row)
+        except Exception as exc:  # noqa: BLE001 - preserve successes, then re-raise
+            errors.append(exc)
+    if completed:
+        with db.transaction() as conn:
+            for row in completed:
+                conn.execute(
+                    """UPDATE seat_refresh_requests SET completed_generation=%s,
+                    seat_ids=CASE WHEN generation=%s THEN NULL ELSE seat_ids END,
+                    lease_until=NULL,lease_token=NULL,
+                    next_attempt_at=clock_timestamp()+(%s * interval '1 millisecond'),
+                    requested_at=CASE WHEN generation>%s THEN %s ELSE requested_at END
+                    WHERE event_id=%s AND lease_token=%s""",
+                    (
+                        row["generation"],
+                        row["generation"],
+                        cooldown_ms,
+                        row["generation"],
+                        claimed_at,
+                        row["event_id"],
+                        token,
+                    ),
+                )
+    if errors:
+        raise errors[0]
+    return len(completed)
+
+
+@measured_work("refresh_one")
+def refresh_one(db, cache, cooldown_ms=250):
+    return bool(refresh_batch(db, cache, limit=1, cooldown_ms=cooldown_ms))
 
 
 # --- Bounded proactive reconciliation -------------------------------------------------
@@ -542,10 +563,9 @@ def main():
                 elif role == "simulator":
                     work = simulate_batch(db, settings, executor)
                 elif role == "maintenance":
-                    for _ in range(10):
-                        if not refresh_one(db, cache, settings.refresh_cooldown_ms):
-                            break
-                        work = True
+                    work = (
+                        refresh_batch(db, cache, settings.refresh_batch_size, settings.refresh_cooldown_ms) > 0
+                    ) or work
                     for _ in range(100):
                         if not service.expire_one():
                             break
