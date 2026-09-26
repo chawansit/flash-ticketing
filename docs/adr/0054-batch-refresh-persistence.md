@@ -1,6 +1,6 @@
 # ADR 0054: Batch refresh leases and acknowledgements
 
-Status: Rejected for deployment after failed ten-row and two-row safety stages.
+Status: Accepted for corrected controlled validation; prior cloud comparisons used stale worker images.
 
 ## Context
 
@@ -48,3 +48,6 @@ The RDS trace shows the tradeoff: maximum interesting waiters fell from 17 in th
 The batch-size-two safety stage at revision `b8597aa` also failed. It dropped 18,723 of 300,000 scheduled requests, produced 9,212 first-attempt admission failures and 5,989 exhausted hold retries, and recorded read/hold p95 of 754.670/1,625.747 ms. Its 8,025 acknowledged holds were durable, overlap was zero, queues drained and rollback succeeded. Refresh generation and completion both reached 16,050, with final Kafka lag and pending refresh at zero.
 
 Unlike batch 10, this run recorded zero `wal_buffers_full`, but a timed checkpoint completed with 719,564 ms of checkpoint write time during the observation window and WAL waiters still peaked at 12. The result cannot isolate batch size from accumulated RDS/checkpoint pressure, but every service gate failed. Both batching candidates are rejected for deployment. Runtime code is restored to the previously tested unbatched implementation while this ADR remains as negative evidence. Any future comparison must begin after an idle baseline and run an unbatched control immediately before the candidate.
+
+
+The cloud stages labeled batch size 10 at revision `53dc656` and batch size 2 at revision `b8597aa` did not rebuild or recreate the maintenance image. They therefore exercised a stale unbatched worker and are invalid as batching comparisons. Their failed service gates and RDS traces remain recorded, but the prior rejection of batch sizes based on those stages is withdrawn. Corrected cloud validation requires ADR 0055's worker-image hash verification.
