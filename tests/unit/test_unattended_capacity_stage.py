@@ -355,7 +355,7 @@ def test_mismatched_source_revision_stops_before_deployment(monkeypatch, tmp_pat
     assert result["source_revision"] is None
 
 
-def test_maintenance_scaling_is_passed_and_observers_cover_audit(monkeypatch, tmp_path):
+def test_worker_scaling_is_passed_and_observers_cover_audit(monkeypatch, tmp_path):
     class CapturingTransport(FakeTransport):
         def remote(self, phase, host, command, check=True, timeout=None):
             if phase == "deploy":
@@ -369,10 +369,20 @@ def test_maintenance_scaling_is_passed_and_observers_cover_audit(monkeypatch, tm
     monkeypatch.setattr(
         sys,
         "argv",
-        argv(tmp_path / "scaled") + ["--maintenance-candidate", "2", "--maintenance-rollback", "1"],
+        argv(tmp_path / "scaled")
+        + [
+            "--maintenance-candidate",
+            "2",
+            "--maintenance-rollback",
+            "1",
+            "--consumer-candidate",
+            "2",
+            "--consumer-rollback",
+            "1",
+        ],
     )
     stage.main()
     fake = CapturingTransport.instances[-1]
-    assert fake.deployment_command[-2:] == ["2", "1"]
+    assert fake.deployment_command[-4:] == ["2", "1", "2", "1"]
     phases = [phase for kind, phase in fake.calls if kind == "remote"]
     assert phases.index("durability-audit") < phases.index("stop-observers") < phases.index("rollback")

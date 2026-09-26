@@ -64,11 +64,18 @@ def test_refresh_pipeline_reports_rates_and_failed_samples():
             "max_partition_lag": 5,
             "members": 1,
         },
+        {
+            "utc": "2026-09-22T00:00:20+00:00",
+            "total_lag": 0,
+            "max_partition_lag": 0,
+            "members": 1,
+        },
     ]
     result = summary.summarize(backend, kafka)
     assert result["backend_sample_errors"] == 1
     assert result["kafka_sample_errors"] == 1
     assert result["kafka_total_lag"]["max"] == 8
+    assert result["kafka_drain_after_peak_seconds"] == 10
     assert result["refresh_generated"] == {"delta": 50, "per_second": 5.0}
     assert result["refresh_completed"] == {"delta": 50, "per_second": 5.0}
     assert result["pending_refresh_last"] == 4

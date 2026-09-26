@@ -29,6 +29,19 @@ def summarize(backend_rows, kafka_rows):
     if not backend or not kafka:
         raise ValueError("Backend and Kafka traces both need valid samples")
     peak = max(kafka, key=lambda row: int(row.get("total_lag", 0)))
+    after_peak = [row for row in kafka if row["utc"] > peak["utc"]]
+    drained = next(
+        (row for row in after_peak if int(row.get("total_lag", 0)) == 0),
+        None,
+    )
+    drain_seconds = (
+        (
+            datetime.fromisoformat(drained["utc"])
+            - datetime.fromisoformat(peak["utc"])
+        ).total_seconds()
+        if drained
+        else None
+    )
     return {
         "backend_samples": len(backend),
         "backend_sample_errors": len(backend_rows) - len(backend),
@@ -42,6 +55,7 @@ def summarize(backend_rows, kafka_rows):
         "kafka_max_partition_lag": max(
             int(row.get("max_partition_lag", 0)) for row in kafka
         ),
+        "kafka_drain_after_peak_seconds": drain_seconds,
         "kafka_members": max(int(row.get("members", 0)) for row in kafka),
         "refresh_generated": _delta_rate(backend, "refresh_generation_total"),
         "refresh_completed": _delta_rate(

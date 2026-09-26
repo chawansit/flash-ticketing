@@ -174,6 +174,8 @@ def validate_args(args: argparse.Namespace) -> None:
         raise ValueError("Admission values must be between 1 and 64")
     if not 1 <= args.maintenance_candidate <= 4 or not 1 <= args.maintenance_rollback <= 4:
         raise ValueError("Maintenance replica counts must be between 1 and 4")
+    if not 1 <= args.consumer_candidate <= 6 or not 1 <= args.consumer_rollback <= 6:
+        raise ValueError("Consumer replica counts must be between 1 and 6")
 
 
 def main() -> None:
@@ -196,6 +198,8 @@ def main() -> None:
     parser.add_argument("--admission-rollback", type=int, required=True)
     parser.add_argument("--maintenance-candidate", type=int, default=1)
     parser.add_argument("--maintenance-rollback", type=int, default=1)
+    parser.add_argument("--consumer-candidate", type=int, default=1)
+    parser.add_argument("--consumer-rollback", type=int, default=1)
     parser.add_argument("--hold-expiry-wait", type=int, default=180)
     parser.add_argument("--max-attempts", type=int, choices=(1, 2), default=1)
     parser.add_argument("--retry-base-delay-ms", type=float, default=25.0)
@@ -278,6 +282,7 @@ def main() -> None:
             + [
                 "deploy", run_id, str(args.admission_candidate), str(args.admission_rollback),
                 str(args.maintenance_candidate), str(args.maintenance_rollback),
+                str(args.consumer_candidate), str(args.consumer_rollback),
             ],
             timeout=300,
         )

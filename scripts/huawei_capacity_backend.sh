@@ -55,6 +55,24 @@ wait_maintenance() {
   return 1
 }
 
+wait_consumers() {
+  expected=$1
+  attempt=0
+  while [ "$attempt" -lt 90 ]; do
+    total=0
+    running=0
+    for id in $($compose ps -q consumer); do
+      total=$((total + 1))
+      state=$(docker inspect -f '{{.State.Status}}' "$id")
+      [ "$state" = running ] && running=$((running + 1))
+    done
+    [ "$total" -eq "$expected" ] && [ "$running" -eq "$expected" ] && return 0
+    attempt=$((attempt + 1))
+    sleep 2
+  done
+  return 1
+}
+
 set_admission() {
   value=$1
   if grep -q '^API_ADMISSION_PER_INSTANCE=' "$env_file"; then
@@ -78,13 +96,18 @@ case "${1:-}" in
     chmod 600 "$private/manifest.json"
     ;;
   deploy)
-    [ "$#" -eq 6 ]
+    [ "$#" -eq 8 ]
     run_paths "$2"
     candidate=$3; fallback=$4; maintenance_candidate=$5; maintenance_fallback=$6
+    consumer_candidate=$7; consumer_fallback=$8
     original_maintenance=$($compose ps -q maintenance | wc -l | tr -d ' ')
+    original_consumers=$($compose ps -q consumer | wc -l | tr -d ' ')
     [ "$original_maintenance" -eq "$maintenance_fallback" ]
+    [ "$original_consumers" -eq "$consumer_fallback" ]
     printf '%s\n' "$original_maintenance" > "$private/original-maintenance"
     chmod 600 "$private/original-maintenance"
+    printf '%s\n' "$original_consumers" > "$private/original-consumers"
+    chmod 600 "$private/original-consumers"
     printf '%s\n' "$fallback" > "$private/original-admission"
     chmod 600 "$private/original-admission"
     set_admission "$candidate"
@@ -93,6 +116,8 @@ case "${1:-}" in
     wait_apis
     $compose up -d --no-deps --scale "maintenance=$maintenance_candidate" maintenance
     wait_maintenance "$maintenance_candidate"
+    $compose up -d --no-deps --scale "consumer=$consumer_candidate" consumer
+    wait_consumers "$consumer_candidate"
     source_hash=$(sha256sum src/ticketing/infrastructure/postgres.py | cut -d " " -f 1)
     for id in $($compose ps -q api); do
       image_hash=$(docker exec "$id" sha256sum /app/src/ticketing/infrastructure/postgres.py | cut -d " " -f 1)
@@ -100,7 +125,7 @@ case "${1:-}" in
       docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$id" |
         grep -qx "RESERVE_CONCURRENCY=$candidate"
     done
-    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"maintenance_replicas":%s,"pass":true}\n' "$candidate" "$maintenance_candidate" > "$public/deployment.json"
+    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"maintenance_replicas":%s,"consumer_replicas":%s,"pass":true}\n' "$candidate" "$maintenance_candidate" "$consumer_candidate" > "$public/deployment.json"
     ;;
   preflight)
     [ "$#" -eq 3 ]
@@ -212,12 +237,15 @@ case "${1:-}" in
     run_paths "$2"
     original=$(cat "$private/original-admission")
     original_maintenance=$(cat "$private/original-maintenance")
+    original_consumers=$(cat "$private/original-consumers")
     set_admission "$original"
     $compose up -d --no-deps --force-recreate --scale api=4 api
     wait_apis
     $compose up -d --no-deps --scale "maintenance=$original_maintenance" maintenance
     wait_maintenance "$original_maintenance"
-    printf '{"restored_admission":%s,"api_replicas":4,"maintenance_replicas":%s,"pass":true}\n' "$original" "$original_maintenance" > "$public/rollback.json"
+    $compose up -d --no-deps --scale "consumer=$original_consumers" consumer
+    wait_consumers "$original_consumers"
+    printf '{"restored_admission":%s,"api_replicas":4,"maintenance_replicas":%s,"consumer_replicas":%s,"pass":true}\n' "$original" "$original_maintenance" "$original_consumers" > "$public/rollback.json"
     ;;
   cleanup)
     [ "$#" -eq 2 ]
