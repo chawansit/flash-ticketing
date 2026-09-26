@@ -114,6 +114,15 @@ SELECT
     (SELECT count(*) FROM dead_letters)
 """.strip()
 
+REFRESH_FLOW_SQL = """
+SELECT
+    coalesce(sum(generation), 0),
+    coalesce(sum(completed_generation), 0),
+    coalesce((SELECT n_tup_ins FROM pg_stat_user_tables WHERE relname='outbox_events'), 0),
+    coalesce((SELECT n_tup_ins FROM pg_stat_user_tables WHERE relname='consumer_inbox'), 0)
+FROM seat_refresh_requests
+""".strip()
+
 ACTIVITY_SQL = """
 SELECT
     count(*),
@@ -179,6 +188,7 @@ with psycopg.connect(os.environ['TEST_DATABASE_URL'], autocommit=True) as conn:
                 overdue = cursor.execute(OVERDUE_SQL, (shows,)).fetchone()
                 age = cursor.execute(AGE_SQL, (shows,)).fetchone()
                 queues = cursor.execute(QUEUE_SQL).fetchone()
+                refresh_flow = cursor.execute(REFRESH_FLOW_SQL).fetchone()
                 activity = cursor.execute(ACTIVITY_SQL).fetchone()
                 wal = cursor.execute(WAL_SQL).fetchone()
                 bgw = cursor.execute(checkpoint_sql).fetchone()
@@ -191,6 +201,15 @@ with psycopg.connect(os.environ['TEST_DATABASE_URL'], autocommit=True) as conn:
             sample["pending_refresh"] = _to_int(queues[1]) if queues else 0
             sample["oldest_refresh_seconds"] = _to_float(queues[2]) if queues else 0.0
             sample["dead_letters"] = _to_int(queues[3]) if queues else 0
+            sample["refresh_generation_total"] = _to_int(refresh_flow[0]) if refresh_flow else 0
+            sample["refresh_completed_generation_total"] = (
+                _to_int(refresh_flow[1]) if refresh_flow else 0
+            )
+            # These pg_stat_user_tables counters are approximate flow indicators.
+            sample["outbox_rows_inserted"] = _to_int(refresh_flow[2]) if refresh_flow else 0
+            sample["consumer_inbox_rows_inserted"] = (
+                _to_int(refresh_flow[3]) if refresh_flow else 0
+            )
             sample["database_connections"] = _to_int(activity[0]) if activity else 0
             sample["lock_waiters"] = _to_int(activity[1]) if activity else 0
             sample["active_connections"] = _to_int(activity[2]) if activity else 0

@@ -132,6 +132,9 @@ case "${1:-}" in
     echo $! > "$private/pgbouncer.pid"
     nohup docker exec "$api" sh -lc 'TEST_DATABASE_URL="$DATABASE_URL" API_METRICS_URL=http://127.0.0.1:8000/metrics python /app/scripts/cloud_benchmark_observe.py --fixtures /tmp/private-load-manifest.json --output /tmp/capacity-backend.json --seconds "$1"' sh "$seconds" > "$raw/backend.log" 2>&1 &
     echo $! > "$private/backend.pid"
+    kafka=$($compose ps -q kafka)
+    nohup python3 scripts/kafka_lag_observe.py --container "$kafka" --seconds "$seconds"       --interval 2 --output "$raw/kafka-lag.ndjson" > "$raw/kafka-lag.log" 2>&1 &
+    echo $! > "$private/kafka-lag.pid"
     nohup $compose run --rm --no-deps -T --name "ft-rds-wait-$2" --user root \
       -v "$raw:/evidence" migrate sh -lc \
       'unset PGSSLROOTCERT; RDS_DATABASE_URL="$DATABASE_URL" python /app/scripts/rds_wait_observe.py --seconds "$1" --interval 0.1 --output /evidence/rds-waits.jsonl' \
@@ -159,6 +162,11 @@ case "${1:-}" in
     docker cp "$api":/tmp/capacity-pgbouncer.jsonl "$raw/pgbouncer.jsonl" 2>/dev/null || true
     if docker cp "$api":/tmp/capacity-backend.json "$raw/backend.json" 2>/dev/null; then
       python3 scripts/summarize_drain_trace.py "$raw/backend.json" > "$public/drain-trace-summary.json" || observer_failed=1
+      if [ -s "$raw/kafka-lag.ndjson" ]; then
+        python3 scripts/summarize_refresh_pipeline.py "$raw/backend.json"           "$raw/kafka-lag.ndjson" > "$public/refresh-pipeline-summary.json" || observer_failed=1
+      else
+        observer_failed=1
+      fi
     else
       observer_failed=1
     fi
