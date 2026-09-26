@@ -31,4 +31,4 @@ A build, recreation, replica-count or hash failure stops before load. Existing d
 
 ## Validation evidence
 
-Unit tests must cover the expanded deployment command and evidence fields. Shell syntax and the full unit suite must pass. Cloud preflight must show the expected replicas and matching hashes before any corrected batching result is accepted.
+The deployment regression test covers the expanded build, force-recreate commands, worker source-hash check and public evidence field. On 2026-09-26, Ruff passed for the changed Python files, the full unit suite passed with 132 tests, the focused PostgreSQL/Redis integration suite passed with 13 tests, and Alpine `sh -n` accepted the backend helper. Cloud preflight must still show the expected replicas and matching hashes before any corrected batching result is accepted.

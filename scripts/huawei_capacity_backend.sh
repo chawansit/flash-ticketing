@@ -111,12 +111,13 @@ case "${1:-}" in
     printf '%s\n' "$fallback" > "$private/original-admission"
     chmod 600 "$private/original-admission"
     set_admission "$candidate"
-    $compose build api migrate
+    $compose build api migrate publisher consumer maintenance
     $compose up -d --no-deps --force-recreate --scale api=4 api
     wait_apis
-    $compose up -d --no-deps --scale "maintenance=$maintenance_candidate" maintenance
+    $compose up -d --no-deps --force-recreate publisher
+    $compose up -d --no-deps --force-recreate --scale "maintenance=$maintenance_candidate" maintenance
     wait_maintenance "$maintenance_candidate"
-    $compose up -d --no-deps --scale "consumer=$consumer_candidate" consumer
+    $compose up -d --no-deps --force-recreate --scale "consumer=$consumer_candidate" consumer
     wait_consumers "$consumer_candidate"
     source_hash=$(sha256sum src/ticketing/infrastructure/postgres.py | cut -d " " -f 1)
     for id in $($compose ps -q api); do
@@ -125,7 +126,17 @@ case "${1:-}" in
       docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$id" |
         grep -qx "RESERVE_CONCURRENCY=$candidate"
     done
-    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"maintenance_replicas":%s,"consumer_replicas":%s,"pass":true}\n' "$candidate" "$maintenance_candidate" "$consumer_candidate" > "$public/deployment.json"
+    worker_source_hash=$(sha256sum src/ticketing/workers.py | cut -d " " -f 1)
+    for service in publisher maintenance consumer; do
+      ids=$($compose ps -q "$service")
+      [ -n "$ids" ]
+      for id in $ids; do
+        [ "$(docker inspect -f '{{.State.Status}}' "$id")" = running ]
+        image_hash=$(docker exec "$id" sha256sum /app/src/ticketing/workers.py | cut -d " " -f 1)
+        [ "$image_hash" = "$worker_source_hash" ]
+      done
+    done
+    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"maintenance_replicas":%s,"consumer_replicas":%s,"worker_source_verified":true,"pass":true}\n' "$candidate" "$maintenance_candidate" "$consumer_candidate" > "$public/deployment.json"
     ;;
   preflight)
     [ "$#" -eq 3 ]
