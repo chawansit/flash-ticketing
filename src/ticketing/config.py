@@ -18,7 +18,7 @@ class Settings:
     publisher_batch_size: int = int(os.getenv("PUBLISHER_BATCH_SIZE", "32"))
     simulator_concurrency: int = int(os.getenv("SIMULATOR_CONCURRENCY", "4"))
     refresh_cooldown_ms: int = int(os.getenv("REFRESH_COOLDOWN_MS", "250"))
-    refresh_batch_size: int = int(os.getenv("REFRESH_BATCH_SIZE", "10"))
+    refresh_batch_size: int = int(os.getenv("REFRESH_BATCH_SIZE", "2"))
     worker_port: int = int(os.getenv("WORKER_METRICS_PORT", "9101"))
     # Target reconciliation period per active event. Must stay below the seatmap TTL
     # used for read-side keepalive, which is refreshed by successful reads and full rebuilds.

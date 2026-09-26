@@ -172,7 +172,7 @@ def seat_state(row):
 
 
 @measured_work("refresh_batch")
-def refresh_batch(db, cache, limit=10, cooldown_ms=250):
+def refresh_batch(db, cache, limit=2, cooldown_ms=250):
     token = uuid4()
     with db.transaction() as conn:
         state = conn.execute(

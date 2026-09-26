@@ -1,6 +1,6 @@
 # ADR 0054: Batch refresh leases and acknowledgements
 
-Status: Accepted for implementation and controlled validation.
+Status: Accepted for revised two-row controlled validation; the ten-row candidate is rejected.
 
 ## Context
 
@@ -10,9 +10,9 @@ Each refresh currently commits one transaction to acquire a lease and another tr
 
 ## Decision
 
-Claim up to ten due event refreshes in one PostgreSQL transaction with one shared, unique batch lease token. Write each event snapshot to Redis outside the transaction. Acknowledge every successful event in one completion transaction using its captured generation, event identifier, lease token and claim timestamp. Preserve per-event generation fencing and cooldown behavior.
+Claim up to two due event refreshes in one PostgreSQL transaction with one shared, unique batch lease token. Write each event snapshot to Redis outside the transaction. Acknowledge every successful event in one completion transaction using its captured generation, event identifier, lease token and claim timestamp. Preserve per-event generation fencing and cooldown behavior.
 
-Process every claimed row even when one Redis write fails. Commit acknowledgements for successful rows, leave failed rows leased for the existing 30-second recovery window, and then surface the first failure. Keep `refresh_one` as a one-row compatibility wrapper. Make the worker batch size configurable from 1 through 100 with a default of 10.
+Process every claimed row even when one Redis write fails. Commit acknowledgements for successful rows, leave failed rows leased for the existing 30-second recovery window, and then surface the first failure. Keep `refresh_one` as a one-row compatibility wrapper. Make the worker batch size configurable from 1 through 100 with a default of 2.
 
 ## Alternatives considered
 
@@ -24,7 +24,7 @@ Process every claimed row even when one Redis write fails. Commit acknowledgemen
 
 ## Consequences
 
-The normal batch reduces refresh lease and acknowledgement commits by up to tenfold. Row updates and Redis operations remain per event. A larger lease group means one worker death can defer up to ten events until lease expiry, bounded by the existing 30-second lease. The configuration limit prevents unbounded recovery delay or transaction size.
+The normal batch reduces refresh lease and acknowledgement commits by up to twofold. Row updates and Redis operations remain per event. A larger lease group means one worker death can defer up to two events until lease expiry, bounded by the existing 30-second lease. The configuration limit prevents unbounded recovery delay or transaction size.
 
 ## Failure and recovery behavior
 
@@ -38,3 +38,8 @@ Cloud validation starts with one maintenance worker, two Kafka consumers and a f
 
 
 Implemented validation on 26 September 2026: focused Ruff checks passed; 131 unit tests passed; seven focused PostgreSQL/Redis integration tests passed, including partial batch failure, concurrent generation change, stale lease fencing and replay after a lost acknowledgement. The complete suite ran against local PostgreSQL and Redis with 189 passed, two skipped and two dependency deprecation warnings. No cloud capacity result is claimed yet.
+
+
+The first cloud safety stage used batch size 10, one maintenance worker and two consumers at revision `53dc656`. It failed and prohibits promotion. Of 300,000 scheduled requests, 17,564 were dropped by the generator. There were 9,846 first-attempt admission failures, 6,210 exhausted hold retries, read p95 of 762.981 ms and hold p95 of 1,580.281 ms. All 7,934 acknowledged holds were durable, overlap was zero, queues drained and rollback succeeded.
+
+The RDS trace shows the tradeoff: maximum interesting waiters fell from 17 in the unbatched three-worker run to 8 and WAL volume was 318.8 MB, but `wal_buffers_full` increased from zero to 474. A ten-row batch therefore reduced commit concurrency while creating damaging WAL bursts. Batch size 10 is rejected. The next isolated candidate is size 2 with one maintenance worker and two consumers; it must repeat the five-minute safety gate before any longer test.
