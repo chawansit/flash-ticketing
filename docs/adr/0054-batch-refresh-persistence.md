@@ -1,6 +1,6 @@
 # ADR 0054: Batch refresh leases and acknowledgements
 
-Status: Accepted for revised two-row controlled validation; the ten-row candidate is rejected.
+Status: Rejected for deployment after failed ten-row and two-row safety stages.
 
 ## Context
 
@@ -43,3 +43,8 @@ Implemented validation on 26 September 2026: focused Ruff checks passed; 131 uni
 The first cloud safety stage used batch size 10, one maintenance worker and two consumers at revision `53dc656`. It failed and prohibits promotion. Of 300,000 scheduled requests, 17,564 were dropped by the generator. There were 9,846 first-attempt admission failures, 6,210 exhausted hold retries, read p95 of 762.981 ms and hold p95 of 1,580.281 ms. All 7,934 acknowledged holds were durable, overlap was zero, queues drained and rollback succeeded.
 
 The RDS trace shows the tradeoff: maximum interesting waiters fell from 17 in the unbatched three-worker run to 8 and WAL volume was 318.8 MB, but `wal_buffers_full` increased from zero to 474. A ten-row batch therefore reduced commit concurrency while creating damaging WAL bursts. Batch size 10 is rejected. The next isolated candidate is size 2 with one maintenance worker and two consumers; it must repeat the five-minute safety gate before any longer test.
+
+
+The batch-size-two safety stage at revision `b8597aa` also failed. It dropped 18,723 of 300,000 scheduled requests, produced 9,212 first-attempt admission failures and 5,989 exhausted hold retries, and recorded read/hold p95 of 754.670/1,625.747 ms. Its 8,025 acknowledged holds were durable, overlap was zero, queues drained and rollback succeeded. Refresh generation and completion both reached 16,050, with final Kafka lag and pending refresh at zero.
+
+Unlike batch 10, this run recorded zero `wal_buffers_full`, but a timed checkpoint completed with 719,564 ms of checkpoint write time during the observation window and WAL waiters still peaked at 12. The result cannot isolate batch size from accumulated RDS/checkpoint pressure, but every service gate failed. Both batching candidates are rejected for deployment. Runtime code is restored to the previously tested unbatched implementation while this ADR remains as negative evidence. Any future comparison must begin after an idle baseline and run an unbatched control immediately before the candidate.

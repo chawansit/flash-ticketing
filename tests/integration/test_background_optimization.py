@@ -117,46 +117,6 @@ def test_refresh_failure_keeps_dirty_work(system, monkeypatch, after_write):
     assert refresh_row(db)["completed_generation"] == 1
 
 
-def test_refresh_batch_acknowledges_success_and_keeps_failed_work_leased(system):
-    _, db, event_id = system
-    failed_event = uuid4()
-    with db.transaction() as conn:
-        conn.execute(
-            """INSERT INTO events VALUES (%s,'Second','THB',clock_timestamp()-interval '1 day',
-            clock_timestamp()+interval '1 day')""",
-            (failed_event,),
-        )
-        conn.execute(
-            "INSERT INTO event_seats(event_id,seat_id,price) VALUES (%s,'A',100)",
-            (failed_event,),
-        )
-        workers.request_refresh(conn, event_id)
-        workers.request_refresh(conn, failed_event)
-
-    cache = Mock()
-
-    def put(target_event, *_):
-        if target_event == str(failed_event):
-            raise RuntimeError("cache unavailable")
-
-    cache.put.side_effect = put
-    with pytest.raises(RuntimeError, match="cache unavailable"):
-        workers.refresh_batch(db, cache, limit=10)
-
-    with db.transaction() as conn:
-        rows = conn.execute(
-            """SELECT event_id,generation,completed_generation,lease_token
-            FROM seat_refresh_requests ORDER BY event_id"""
-        ).fetchall()
-    state = {row["event_id"]: row for row in rows}
-    assert state[event_id]["completed_generation"] == state[event_id]["generation"] == 1
-    assert state[event_id]["lease_token"] is None
-    assert state[failed_event]["completed_generation"] == 0
-    assert state[failed_event]["generation"] == 1
-    assert state[failed_event]["lease_token"] is not None
-    assert cache.put.call_count == 2
-
-
 def test_stale_projector_cannot_ack_new_lease(system, monkeypatch):
     _, db, event_id = system
     workers.consume_event(db, None, changed(event_id))
