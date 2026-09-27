@@ -116,4 +116,7 @@ delivered all 300,000 requests with zero generator drops or transport errors,
 zero overlap and every queue drained. Three final `ADMISSION_FULL` responses
 (0.001%) fail strict capacity certification but remain below the separate 0.01%
 recovery-SLO diagnostic budget. This five-minute diagnostic validates the new
-background topology; it does not establish sustained 1,000 RPS capacity.
+background topology; it does not establish sustained 1,000 RPS capacity. A matched
+single-retry stage recovered one of three first-attempt rejections and left two
+final errors (0.000667%); exact durability and queue drain passed again. More
+retries are not adopted.

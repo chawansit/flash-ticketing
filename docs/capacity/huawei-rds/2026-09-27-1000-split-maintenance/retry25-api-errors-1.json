@@ -1,0 +1,1 @@
+{"request_log_lines": 76697, "error_codes": {"ADMISSION_FULL": 1}, "db_failure_types": {}, "last_errors": [{"time": "2026-09-27T02:08:02.372264+00:00", "request_id": "62f61ab5-1f05-4691-a171-728207cac81f", "route": "/v1/holds", "status": 503, "error_code": "ADMISSION_FULL", "duration_ms": 0.17, "db_failure_type": null}]}
