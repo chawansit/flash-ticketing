@@ -1,0 +1,45 @@
+{
+  "date": "2026-09-27",
+  "scope": "isolated-correctness-smoke",
+  "api_replicas": 4,
+  "single_command": {
+    "intake_http_status": 202,
+    "initial_persistence_status": "PENDING",
+    "final_persistence_status": "DURABLE",
+    "idempotent_replay_same_ids": true,
+    "postgres_linkage": {
+      "command": 1,
+      "hold": 1,
+      "order": 1,
+      "order_item": 1,
+      "seat_owner": 1,
+      "outbox": 1
+    },
+    "stream_length_after_drain": 0,
+    "pending_after_drain": 0
+  },
+  "same_seat_race": {
+    "contenders": 100,
+    "http_202": 1,
+    "http_409_seat_unavailable": 99,
+    "unexpected_or_transport_errors": 0,
+    "winner_persistence_status": "DURABLE",
+    "postgres_linkage": [1, 1, 1, 1],
+    "stream_length_after_drain": 0,
+    "pending_after_drain": 0,
+    "max_response_ms": 337.204
+  },
+  "rollback": {
+    "mode": "postgres",
+    "reservation_writer": "stopped",
+    "healthy_api_replicas": 4,
+    "readiness_checks": 5,
+    "runtime_errors": 0
+  },
+  "capacity_claim": false,
+  "remaining_gates": [
+    "managed-primary-failover-recovery",
+    "writer-restart-with-pending-work",
+    "distributed-1000-rps-validation"
+  ]
+}

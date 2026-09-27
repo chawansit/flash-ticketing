@@ -75,3 +75,11 @@ for the current certificate and endpoint. It does not retroactively change earli
 runs that used `sslmode=require`. PgBouncer and application containers had not yet been
 restarted with this setting at evidence capture time, so runtime upstream-TLS verification and
 readiness still require a controlled restart check.
+
+The controlled runtime rollout later on 2026-09-27 recreated PgBouncer with
+`server_tls_sslmode=verify-full`. A query through the application pool reported TLS 1.3,
+`TLS_AES_256_GCM_SHA384` and 256-bit encryption for the live PgBouncer-to-RDS session.
+All four API replicas returned healthy with zero restarts, load-balancer readiness passed five
+consecutive checks and the inspected application and worker logs contained no error-level
+entries. This closes the runtime upstream-TLS verification gate for the current certificate
+and endpoint; certificate rotation still requires the same preflight and controlled restart.

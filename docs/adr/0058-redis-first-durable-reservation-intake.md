@@ -168,3 +168,32 @@ affine write plus `WAIT 1 1000`. The standby acknowledged the write in approxima
 This verifies command compatibility, private reachability and one live replica at the time of
 the probe. It does not satisfy the primary-loss recovery gate: managed failover, reconnect,
 acknowledged-command survival and post-failover stream drain remain to be tested.
+
+## Isolated Huawei cloud smoke evidence on 2026-09-27
+
+The four-API RDS topology was temporarily switched to `redis-first` with one reservation
+writer after PgBouncer `verify-full` and DCS connectivity checks passed. The DCS endpoint
+reported master role with one connected replica. A connection-affine temporary write received
+one replica acknowledgement inside the configured 100 ms window and was deleted immediately.
+
+One authenticated hold returned HTTP 202/PENDING, advanced to DURABLE, and replayed with the
+same command, hold and order IDs. PostgreSQL contained exactly one matching command, active
+hold, pending order, order item, seat owner and transactional `SeatsChanged` outbox event. The
+event stream length and consumer-group pending count both returned to zero.
+
+A separate no-retry race sent 100 actors to one seat. It produced exactly one HTTP 202 winner
+and 99 HTTP 409 `SEAT_UNAVAILABLE` responses. The winner became DURABLE with exactly one
+matching command, hold, order and seat owner; stream length and pending count again drained to
+zero. The slowest response in this small ECS-local contention probe was 337.204 ms. This is
+correctness evidence, not a capacity or latency qualification.
+
+Every registered reservation stream was empty before rollback. The deployment was returned to
+`postgres` mode, the reservation writer was stopped, all four API replicas were healthy with
+zero restarts, readiness passed five consecutive checks and inspected runtime logs contained no
+error-level entries. Credential-bearing manifests were deleted. The compact evidence is
+retained in the [cloud smoke report](../capacity/huawei-rds/2026-09-27-redis-first-smoke/README.md).
+
+This satisfies the isolated single-command and 100-way contention portions of activation gate
+3. It does not satisfy DCS primary-loss recovery, writer-restart recovery in the managed
+environment, distributed 1,000 RPS load, provisional-age bounds under load or production
+activation. The measured deployment therefore remains in synchronous PostgreSQL mode.
