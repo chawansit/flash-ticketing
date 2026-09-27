@@ -1,0 +1,1 @@
+{"run_id":"20260927T063157Z-e50dfe28","victim":"beaf823ceca3","peer":"b9453abd16c9","stopped_at":"2026-09-27T06:33:35Z","outage_seconds":20,"stopped_state":"exited","peer_state_during_outage":"running","restarted_at":"2026-09-27T06:34:01Z","final_state":"running","pass":true}
