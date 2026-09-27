@@ -23,7 +23,7 @@ p.add_argument("--reservation-mode", choices=("postgres", "redis-first"), defaul
 p.add_argument("--burst", action="store_true")
 p.add_argument("--transport-diagnostics", action="store_true")
 p.add_argument("--keepalive-expiry", type=expiry_seconds, default=5.0)
-p.add_argument("--max-attempts", type=int, choices=(1, 2), default=1)
+p.add_argument("--max-attempts", type=int, choices=(1, 2, 3), default=1)
 p.add_argument("--retry-base-delay-ms", type=float, default=25.0)
 p.add_argument("--late-delivery-window-ms", type=float, default=0.0)
 p.add_argument("--start-delay", type=float, default=30.0)

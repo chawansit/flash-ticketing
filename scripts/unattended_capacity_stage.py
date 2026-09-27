@@ -203,7 +203,7 @@ def main() -> None:
     parser.add_argument("--consumer-candidate", type=int, default=1)
     parser.add_argument("--consumer-rollback", type=int, default=1)
     parser.add_argument("--hold-expiry-wait", type=int, default=180)
-    parser.add_argument("--max-attempts", type=int, choices=(1, 2), default=1)
+    parser.add_argument("--max-attempts", type=int, choices=(1, 2, 3), default=1)
     parser.add_argument("--retry-base-delay-ms", type=float, default=25.0)
     parser.add_argument("--late-delivery-window-ms", type=float, default=0.0)
     parser.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")

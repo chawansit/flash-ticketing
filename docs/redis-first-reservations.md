@@ -11,7 +11,8 @@ cloud load gates pass.
    records provisional ownership; stores the response; schedules expiry; and appends a command
    to the event's Redis Stream.
 3. Redis-first mode returns HTTP `202` with `persistence_status=PENDING`, a stable
-   `command_id`, `hold_id`, `order_id` and deadline.
+   `command_id`, `hold_id`, `order_id` and deadline. A same-key replay after writer commit
+   returns HTTP `201` with `persistence_status=DURABLE`; it is the same logical hold.
 4. The `reservation-writer` service consumes the command at least once. One PostgreSQL
    transaction revalidates the event and seats and writes the hold, pending order, items,
    idempotency response, command receipt and transactional outbox event.
@@ -63,6 +64,7 @@ Relevant settings:
   connection failure after dispatch returns `RESERVATION_DURABILITY_UNKNOWN`; the write may
   exist, so make only a bounded retry with the identical actor, payload and idempotency key.
   The API supplies `Retry-After: 1`. Never replace the key to recover an unknown result.
+  Clients may make at most two bounded same-key replays; the default remains no retry.
 - A database or writer outage leaves the stream item pending. `XAUTOCLAIM` transfers abandoned
   work to another writer after the lease interval.
 - Writers create consumer groups for every discovered event, reclaim abandoned deliveries,

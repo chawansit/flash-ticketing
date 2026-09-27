@@ -131,8 +131,8 @@ def test_durability_unknown_retries_same_idempotency_key(tmp_path, monkeypatch):
                 json={"code": "RESERVATION_DURABILITY_UNKNOWN"},
             )
         return httpx.Response(
-            202,
-            json={"command_id": "command", "persistence_status": "PENDING"},
+            201,
+            json={"command_id": "command", "persistence_status": "DURABLE"},
         )
 
     install_client(monkeypatch, response)
@@ -149,5 +149,5 @@ def test_durability_unknown_retries_same_idempotency_key(tmp_path, monkeypatch):
     assert result["retry_attempts"] == {reason: 1}
     assert result["retry_successes"] == {"hold": 1}
     assert result["retry_exhausted"] == {}
-    assert result["statuses"]["hold"] == {"202": 1}
+    assert result["statuses"]["hold"] == {"201": 1}
     assert result["workload_gate_pass"]

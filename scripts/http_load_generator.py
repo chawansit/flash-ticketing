@@ -149,8 +149,8 @@ async def run(args):
     retry_base_delay_ms = getattr(args, "retry_base_delay_ms", 25.0)
     late_delivery_window_ms = getattr(args, "late_delivery_window_ms", 0.0)
     reservation_mode = getattr(args, "reservation_mode", "postgres")
-    write_success_status = "202" if reservation_mode == "redis-first" else "201"
-    write_success_code = int(write_success_status)
+    write_success_statuses = {"201", "202"} if reservation_mode == "redis-first" else {"201"}
+    write_success_codes = {int(status) for status in write_success_statuses}
     if manifest.get("schema_version") != 1 or manifest.get("environment") != "development":
         raise ValueError("Expected a development manifest")
     if datetime.fromisoformat(manifest["expires_at"]) <= datetime.now(UTC) + timedelta(
@@ -307,13 +307,15 @@ async def run(args):
                         transport_phases[operation].update(event["phase"] for event in trace.events)
 
             final_success = (
-                status in ({"200", "304"} if operation == "read" else {write_success_status})
+                status in ({"200", "304"} if operation == "read" else write_success_statuses)
                 or (operation == "hot_hold" and status == "409"
                     and final_code in {"SEAT_BUSY", "SEAT_UNAVAILABLE"})
             )
             if attempts_used > 1:
                 (retry_successes if final_success else retry_exhausted)[operation] += 1
-            if response is not None and response.status_code not in ({write_success_code} if write else {200, 304}):
+            if response is not None and response.status_code not in (
+                write_success_codes if write else {200, 304}
+            ):
                 code, request_id = error_diagnostic(response)
                 if hot and status == "409" and code in {"SEAT_BUSY", "SEAT_UNAVAILABLE"}:
                     expected_hot_conflicts += 1
@@ -409,11 +411,16 @@ async def run(args):
         if status not in (
             {"200", "304"}
             if op == "read"
-            else {write_success_status, "409"} if op == "hot_hold" else {write_success_status}
+            else write_success_statuses | {"409"} if op == "hot_hold" else write_success_statuses
         )
     )
     unexpected += statuses["hot_hold"].get("409", 0) - expected_hot_conflicts
-    hot_failed = [v for k, values in latency.items() if k.startswith("hot_hold:") and k != f"hot_hold:{write_success_status}" for v in values]
+    hot_failed = [
+        value
+        for key, values in latency.items()
+        if key.startswith("hot_hold:") and key.removeprefix("hot_hold:") not in write_success_statuses
+        for value in values
+    ]
     result = {
         "reservation_mode": reservation_mode,
         "mixed_hot_holds": getattr(args, "mixed_hot_holds", False),
@@ -522,7 +529,7 @@ if __name__ == "__main__":
     parser.add_argument("--mixed-hot-holds", action="store_true")
     parser.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
     parser.add_argument("--keepalive-expiry", type=expiry_seconds, default=5.0)
-    parser.add_argument("--max-attempts", type=int, choices=(1, 2), default=1)
+    parser.add_argument("--max-attempts", type=int, choices=(1, 2, 3), default=1)
     parser.add_argument("--retry-base-delay-ms", type=nonnegative_milliseconds, default=25.0)
     parser.add_argument("--late-delivery-window-ms", type=nonnegative_milliseconds, default=0.0)
     parser.add_argument("--start-at", help="Optional coordinated UTC ISO start time")
