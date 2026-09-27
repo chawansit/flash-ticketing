@@ -53,6 +53,7 @@ class FakeTransport:
                     {
                         "rate": 750,
                         "seconds": 1,
+                        "reservation_mode": "redis-first",
                         "generator_drops": 0,
                         "transport_errors": {},
                         "worst_worker_read_p95_ms": 8,
@@ -114,6 +115,8 @@ def argv(output: Path) -> list[str]:
         "4",
         "--hold-expiry-wait",
         "1",
+        "--reservation-mode",
+        "redis-first",
     ]
 
 
@@ -360,6 +363,8 @@ def test_worker_scaling_is_passed_and_observers_cover_audit(monkeypatch, tmp_pat
         def remote(self, phase, host, command, check=True, timeout=None):
             if phase == "deploy":
                 self.deployment_command = command
+            if phase == "load-start":
+                self.load_command = command
             return super().remote(phase, host, command, check=check, timeout=timeout)
 
     CapturingTransport.instances.clear()
@@ -384,20 +389,25 @@ def test_worker_scaling_is_passed_and_observers_cover_audit(monkeypatch, tmp_pat
     )
     stage.main()
     fake = CapturingTransport.instances[-1]
-    assert fake.deployment_command[-5:] == ["2", "1", "2", "1", "1"]
+    assert fake.deployment_command[-6:] == ["2", "1", "2", "1", "1", "redis-first"]
+    assert fake.load_command[-1] == "redis-first"
     phases = [phase for kind, phase in fake.calls if kind == "remote"]
     assert phases.index("durability-audit") < phases.index("stop-observers") < phases.index("rollback")
 
 
 def test_backend_deploy_rebuilds_and_verifies_measured_worker_images():
     helper = (SCRIPT.parent / "huawei_capacity_backend.sh").read_text()
-    assert "$compose build api migrate publisher consumer maintenance refresh expiry" in helper
+    assert "$compose build api migrate publisher consumer maintenance refresh expiry reservation-writer" in helper
     assert '$compose up -d --no-deps --force-recreate publisher' in helper
     assert '--scale maintenance=0 maintenance' in helper
     assert '--force-recreate --scale refresh=1 refresh' in helper
     assert '--force-recreate --scale expiry=1 expiry' in helper
     assert '--force-recreate --scale "maintenance=$maintenance_candidate" maintenance' in helper
     assert '--force-recreate --scale "consumer=$consumer_candidate" consumer' in helper
+    assert '--scale reservation-writer=1 reservation-writer' in helper
+    assert '--scale "reservation-writer=$original_reservation_writers" reservation-writer' in helper
+    assert 'set_reservation_mode "$reservation_candidate"' in helper
+    assert 'set_reservation_mode "$original_reservation_mode"' in helper
     assert '--scale "refresh=$original_refresh" refresh' in helper
     assert '--scale "expiry=$original_expiry" expiry' in helper
     assert "src/ticketing/workers.py" in helper

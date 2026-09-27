@@ -44,3 +44,27 @@ def test_mixed_accounting_only_accepts_known_seat_conflicts(tmp_path,monkeypatch
     assert result['workload_gate_pass'] is passes
     assert result['expected_hot_conflicts']==int(passes)
     assert hot_calls==2
+
+
+def test_redis_first_counts_202_as_provisional_success(tmp_path, monkeypatch):
+    def response(request):
+        if request.method == 'GET':
+            return httpx.Response(200,json={},headers={'etag':'"v1"'})
+        return httpx.Response(202,json={'command_id':'command','hold_id':'hold','order_id':'order',
+                                       'persistence_status':'PENDING'})
+    original=httpx.AsyncClient
+    monkeypatch.setattr(generator.httpx,'AsyncClient',lambda **kwargs: original(**kwargs,transport=httpx.MockTransport(response)))
+    manifest=tmp_path/'manifest.json'
+    manifest.write_text(json.dumps({'schema_version':1,'environment':'development','id':'test',
+        'expires_at':(datetime.now(UTC)+timedelta(minutes=5)).isoformat(),'origin':'http://test',
+        'show_ids':['one'],'viewer_tokens':['test'],'seat_offset':0,'seats_per_show':300}))
+    args=SimpleNamespace(manifest=manifest,origin='http://test',output=tmp_path/'result.json',
+        rate=20,seconds=1,inflight=64,burst=False,start_at=None,topology='same-host',
+        transport_diagnostics=False,keepalive_expiry=5,mixed_hot_holds=False,
+        reservation_mode='redis-first')
+    asyncio.run(generator.run(args))
+    result=json.loads(args.output.read_text())
+    assert result['reservation_mode']=='redis-first'
+    assert result['statuses']=={'hold':{'202':1},'read':{'200':19},'hot_hold':{}}
+    assert result['error_codes']=={}
+    assert result['workload_gate_pass']

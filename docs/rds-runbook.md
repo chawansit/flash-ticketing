@@ -148,6 +148,7 @@ python scripts/unattended_capacity_stage.py \
   --admission-candidate 5 \
   --admission-rollback 4 \
   --split-maintenance \
+  --reservation-mode redis-first \
   --identity-file tmp/capacity-auth/id_ed25519
 ```
 
@@ -155,6 +156,13 @@ python scripts/unattended_capacity_stage.py \
 service is stopped and one refresh worker plus one expiry worker are verified
 before load. Rollback restores all three worker replica counts captured before
 deployment. Omit the flag to retain the combined maintenance topology.
+
+`--reservation-mode redis-first` starts one reservation writer before the API cutover and
+makes each generator count HTTP 202 as provisional success. The post-TTL audit then requires
+one `DURABLE` PostgreSQL command for every 202, complete hold/order/idempotency linkage, zero
+overlapping seat ownership and a fully drained Redis reservation stream. Rollback restores the
+reservation mode and writer replica count captured before deployment. Omit the option to retain
+the synchronous PostgreSQL path.
 
 Run `--dry-run` first to inspect the fixed phase order without contacting either
 ECS. The live command verifies that both checkouts resolve to the same Git

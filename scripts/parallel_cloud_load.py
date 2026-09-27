@@ -19,6 +19,7 @@ p.add_argument("--workers", type=int, default=4)
 p.add_argument("--seat-offset", type=int, default=0)
 p.add_argument("--hot-reads", action="store_true")
 p.add_argument("--mixed-hot-holds", action="store_true")
+p.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
 p.add_argument("--burst", action="store_true")
 p.add_argument("--transport-diagnostics", action="store_true")
 p.add_argument("--keepalive-expiry", type=expiry_seconds, default=5.0)
@@ -89,6 +90,8 @@ try:
                 str(a.keepalive_expiry),
                 "--topology",
                 "separate-host",
+                "--reservation-mode",
+                a.reservation_mode,
                 "--max-attempts",
                 str(a.max_attempts),
                 "--retry-base-delay-ms",
@@ -128,7 +131,16 @@ try:
         keys = {key for result in results for key in (result.get(field) or {})}
         return {key: sum((result.get(field) or {}).get(key, 0) for result in results) for key in sorted(keys)}
 
-    coordination_gate_pass = len(results) == a.workers and not any(codes) and skew is not None and skew <= 100
+    mode_gate_pass = all(
+        result.get("reservation_mode") == a.reservation_mode for result in results
+    )
+    coordination_gate_pass = (
+        len(results) == a.workers
+        and not any(codes)
+        and skew is not None
+        and skew <= 100
+        and mode_gate_pass
+    )
     workload_gate_pass = coordination_gate_pass and all(
         result.get("workload_gate_pass") is True for result in results
     )
@@ -137,6 +149,8 @@ try:
         "hot_read_share": 0.9 if a.hot_reads else 0,
         "burst": a.burst,
         "mixed_hot_holds": a.mixed_hot_holds,
+        "reservation_mode": a.reservation_mode,
+        "reservation_mode_gate_pass": mode_gate_pass,
         "keepalive_expiry_seconds": a.keepalive_expiry,
         "rate": a.rate,
         "seconds": a.seconds,

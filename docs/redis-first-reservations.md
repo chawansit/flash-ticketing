@@ -90,6 +90,32 @@ Terminal business conflicts emit a structured `reservation_command_failed` log w
 and fixed error code. Infrastructure failures remain pending and are reported by worker error
 metrics and logs.
 
+## Distributed validation
+
+The distributed tools require an explicit reservation mode so an HTTP 202 cannot be
+mistaken for a durable reservation. Run the generator with:
+
+```sh
+python scripts/parallel_cloud_load.py \
+  --manifest /private/load-manifest.json \
+  --output /private/load-results \
+  --rate 1000 \
+  --seconds 600 \
+  --workers 4 \
+  --reservation-mode redis-first
+```
+
+After the hold TTL and worker drain window, run `verify_cloud_holds.py` with both
+`TEST_DATABASE_URL` and `TEST_REDIS_URL`. The audit requires one PostgreSQL
+`reservation_commands` row in `DURABLE` state for every acknowledged HTTP 202, complete
+hold/order/idempotency linkage, zero overlapping seat intervals, and zero entries or pending
+messages across registered reservation streams. HTTP 202 is provisional and is never enough
+for a passing result by itself.
+
+The unattended RDS stage propagates `--reservation-mode redis-first`, starts the reservation
+writer before replacing the API replicas, verifies the effective API mode and worker source,
+and restores the captured mode and writer replica count during rollback.
+
 ## Activation gates still outstanding
 
 The code and local tests do not authorize production activation. The remaining gates are:
@@ -97,7 +123,8 @@ The code and local tests do not authorize production activation. The remaining g
 1. Deploy Redis with `noeviction`, AOF, a replica, monitored replication lag and a tested
    primary-failover procedure.
 2. Prove acknowledged provisional holds survive primary loss and writer restart.
-3. Extend the distributed generator and durability audit to treat HTTP 202 as provisional and
-   require every command to reach `DURABLE` or an explained `FAILED` state.
+3. Run the completed distributed durability workflow against the managed topology and retain
+   redacted evidence that every acknowledged HTTP 202 reached `DURABLE`, ownership did not
+   overlap and all reservation streams drained.
 4. Run an isolated no-retry 1,000 RPS comparison, then increase load only while command age,
    errors, overlap, PostgreSQL durability and final stream drain all pass.

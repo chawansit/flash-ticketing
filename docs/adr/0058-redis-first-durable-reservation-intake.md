@@ -197,3 +197,29 @@ This satisfies the isolated single-command and 100-way contention portions of ac
 3. It does not satisfy DCS primary-loss recovery, writer-restart recovery in the managed
 environment, distributed 1,000 RPS load, provisional-age bounds under load or production
 activation. The measured deployment therefore remains in synchronous PostgreSQL mode.
+
+## Distributed validation tooling on 2026-09-27
+
+The distributed load path now carries an explicit `postgres` or `redis-first` mode from the
+unattended stage through the coordinator to every generator. In Redis-first mode, HTTP 202 is
+counted only as provisional intake. The backend audit requires one `DURABLE`
+`reservation_commands` row for every acknowledged 202, complete hold/order/idempotency linkage,
+zero overlapping ownership, and zero entries and pending messages across reservation streams.
+The unattended deployment starts the reservation writer before the API cutover, verifies the
+effective API mode and worker source, and restores the captured mode and writer replica count
+on rollback.
+
+Validation executed against the rebuilt container image:
+
+- the focused generator, coordinator, audit and unattended-stage selection passed 25 tests;
+- the complete unit suite passed 142 tests with two dependency deprecation warnings;
+- Ruff passed for the changed Python files, excluding the existing Windows executable-bit
+  warning, and both shell helpers passed Alpine `sh -n`;
+- the audit executed against local PostgreSQL and Redis and reported matching zero provisional
+  acknowledgements, zero reservation stream entries, zero pending stream messages and a passing
+  durability/expiry gate. One unrelated pre-existing seat refresh request remained visible in
+  the global queue snapshot and is not hidden by the audit.
+
+This completes the tooling portion of activation gate 3. Managed writer-restart recovery, DCS
+primary failover and the distributed no-retry 1,000 RPS stage remain unexecuted, so the measured
+cloud deployment remains in synchronous PostgreSQL mode and no new capacity claim is made.
