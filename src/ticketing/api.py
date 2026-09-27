@@ -87,8 +87,9 @@ app = FastAPI(
     description="Assigned-seat reservations with database-enforced durable ownership. "
     "Default holds create pending orders synchronously; opt-in Redis-first intake returns "
     "an explicit provisional command until its PostgreSQL writer commits. All amounts are "
-    "integer minor units. Seat contention returns immediately; clients must not blindly "
-    "retry. Cached availability is advisory. No waiting room or frontend.",
+    "integer minor units. Seat contention returns immediately; ambiguous Redis-first "
+    "outcomes may be replayed only with the same idempotency key. Cached availability is "
+    "advisory. No waiting room or frontend.",
 )
 app.state.reserve_inflight = 0
 
@@ -310,7 +311,12 @@ HOLD_RESPONSES = {
 
 @app.post("/v1/holds", tags=["Reservations"], responses=HOLD_RESPONSES, status_code=201)
 def hold(body: HoldInput, who: Actor, svc: Service, key: Key, request: Request):
-    """Hold 1-8 seats idempotently. Redis-first mode returns 202 until PostgreSQL is durable."""
+    """Hold 1-8 seats idempotently.
+
+    Redis-first mode returns 202 until PostgreSQL is durable. A
+    RESERVATION_DURABILITY_UNKNOWN response may be replayed only with the identical
+    actor, payload and Idempotency-Key.
+    """
     observe_hold_phase("dispatch", time.monotonic() - request.state.hold_admitted_at)
     with hold_phase("rate_limit"):
         request.app.state.cache.rate_limit(who)

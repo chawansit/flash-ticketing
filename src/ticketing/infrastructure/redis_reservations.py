@@ -246,8 +246,12 @@ class RedisReservationIntake:
         except Failure:
             raise
         except RedisError as exc:
+            # Once a write has been dispatched, a connection failure cannot prove
+            # whether the atomic Lua operation ran. The only safe recovery is an
+            # identical replay using the same actor and idempotency key.
             RESERVATION_INTAKE.labels("redis_error").inc()
-            raise Failure("ADMISSION_UNAVAILABLE", 503) from exc
+            RESERVATION_INTAKE.labels("durability_unknown").inc()
+            raise Failure("RESERVATION_DURABILITY_UNKNOWN", 503) from exc
         failures = {
             -1: ("SEATMAP_WARMING", 503),
             -2: ("SALE_CLOSED", 409),

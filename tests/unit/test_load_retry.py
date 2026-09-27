@@ -116,3 +116,38 @@ def test_late_scheduled_requests_are_delivered_once_and_remain_observable(tmp_pa
     assert result["physical_http_attempts"] == 2
     assert result["workload_gate_pass"]
 
+
+
+def test_durability_unknown_retries_same_idempotency_key(tmp_path, monkeypatch):
+    post_keys = []
+
+    def response(request):
+        if request.method == "GET":
+            return httpx.Response(200, json={}, headers={"etag": '"v1"'})
+        post_keys.append(request.headers["Idempotency-Key"])
+        if len(post_keys) == 1:
+            return httpx.Response(
+                503,
+                json={"code": "RESERVATION_DURABILITY_UNKNOWN"},
+            )
+        return httpx.Response(
+            202,
+            json={"command_id": "command", "persistence_status": "PENDING"},
+        )
+
+    install_client(monkeypatch, response)
+    args = arguments(tmp_path)
+    args.reservation_mode = "redis-first"
+    asyncio.run(generator.run(args))
+    result = json.loads(args.output.read_text())
+
+    assert len(post_keys) == 2
+    assert post_keys[0] == post_keys[1]
+    reason = "hold:503:RESERVATION_DURABILITY_UNKNOWN"
+    assert result["physical_http_attempts"] == 21
+    assert result["first_attempt_failures"] == {reason: 1}
+    assert result["retry_attempts"] == {reason: 1}
+    assert result["retry_successes"] == {"hold": 1}
+    assert result["retry_exhausted"] == {}
+    assert result["statuses"]["hold"] == {"202": 1}
+    assert result["workload_gate_pass"]

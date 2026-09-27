@@ -59,8 +59,10 @@ Relevant settings:
 - Lua provides all-seat atomicity and one winner for a seat before PostgreSQL persistence.
 - Actor, idempotency key and request hash replay the same command; changed payloads return
   `IDEMPOTENCY_MISMATCH`.
-- `EVAL` and `WAIT` use one Redis connection. Insufficient replica acknowledgement returns
-  `RESERVATION_DURABILITY_UNKNOWN`; the write may exist, so retry only the same key.
+- `EVAL` and `WAIT` use one Redis connection. Insufficient replica acknowledgement or a
+  connection failure after dispatch returns `RESERVATION_DURABILITY_UNKNOWN`; the write may
+  exist, so make only a bounded retry with the identical actor, payload and idempotency key.
+  The API supplies `Retry-After: 1`. Never replace the key to recover an unknown result.
 - A database or writer outage leaves the stream item pending. `XAUTOCLAIM` transfers abandoned
   work to another writer after the lease interval.
 - Writers create consumer groups for every discovered event, reclaim abandoned deliveries,

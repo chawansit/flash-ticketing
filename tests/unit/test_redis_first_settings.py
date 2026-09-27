@@ -2,6 +2,7 @@ import json
 from dataclasses import replace
 
 import pytest
+from redis.exceptions import RedisError
 
 from ticketing.config import Settings
 from ticketing.domain import Failure
@@ -21,12 +22,15 @@ class FakePipeline:
         return self
 
     def execute(self):
+        if self.owner.fail_execute:
+            raise RedisError("ambiguous pipeline result")
         return [[1, json.dumps(self.owner.response)], self.owner.acknowledgements]
 
 class FakeRedis:
-    def __init__(self, response, acknowledgements=0):
+    def __init__(self, response, acknowledgements=0, fail_execute=False):
         self.response = response
         self.acknowledgements = acknowledgements
+        self.fail_execute = fail_execute
         self.registered = False
 
     def eval(self, *_args):
@@ -80,4 +84,24 @@ def test_insufficient_wait_acknowledgement_returns_unknown_outcome():
     intake = RedisReservationIntake(FakeCache(redis), replica_acks=1, wait_ms=50)
     with pytest.raises(Failure, match="RESERVATION_DURABILITY_UNKNOWN"):
         intake.enqueue("actor", "event", ["A"], "key")
+    assert not redis.registered
+
+
+def test_pipeline_connection_error_returns_unknown_outcome():
+    redis = FakeRedis(
+        {
+            "command_id": "command",
+            "hold_id": "hold",
+            "order_id": "order",
+            "seats": ["A"],
+            "persistence_status": "PENDING",
+        },
+        acknowledgements=1,
+        fail_execute=True,
+    )
+    intake = RedisReservationIntake(FakeCache(redis), replica_acks=1, wait_ms=50)
+
+    with pytest.raises(Failure, match="RESERVATION_DURABILITY_UNKNOWN"):
+        intake.enqueue("actor", "event", ["A"], "key")
+
     assert not redis.registered
