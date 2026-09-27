@@ -130,3 +130,11 @@ and zero queues at the fixed audit. The passing topology used two reservation wr
 Kafka consumers, split refresh/expiry workers and eight generator processes. Rollback restored
 the PostgreSQL reservation path. This is a five-minute safety result; managed Redis failover,
 writer-restart recovery and sustained confirmation remain outstanding.
+
+## 2026-09-27 Redis reservation-writer restart drill
+
+The [live writer-restart drill](2026-09-27-redis-writer-restart/README.md) stopped one of two
+reservation writers for 20 seconds during a five-minute 1,000 RPS Redis-first stage. All 15,000
+provisional holds became durable with zero broken links, overlap or queue backlog, so recovery
+passed. Two generator scheduling drops failed the independent strict capacity gate; this result
+does not replace the earlier no-fault 1,000 RPS safety pass.
