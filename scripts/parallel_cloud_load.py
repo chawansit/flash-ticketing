@@ -20,6 +20,7 @@ p.add_argument("--seat-offset", type=int, default=0)
 p.add_argument("--hot-reads", action="store_true")
 p.add_argument("--mixed-hot-holds", action="store_true")
 p.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
+p.add_argument("--write-percent", type=int, default=5)
 p.add_argument("--burst", action="store_true")
 p.add_argument("--transport-diagnostics", action="store_true")
 p.add_argument("--keepalive-expiry", type=expiry_seconds, default=5.0)
@@ -43,6 +44,7 @@ if (
     or len(m["show_ids"]) % a.workers
     or len(m["viewer_tokens"]) % len(m["show_ids"])
     or not 1 <= a.start_delay <= 120
+    or not 1 <= a.write_percent <= 100
 ):
     p.error("Positive limits, rate >= workers, and evenly partitioned shows/viewers required")
 worker_rates = [a.rate // a.workers + (i < a.rate % a.workers) for i in range(a.workers)]
@@ -92,6 +94,8 @@ try:
                 "separate-host",
                 "--reservation-mode",
                 a.reservation_mode,
+                "--write-percent",
+                str(a.write_percent),
                 "--max-attempts",
                 str(a.max_attempts),
                 "--retry-base-delay-ms",
@@ -150,6 +154,7 @@ try:
         "burst": a.burst,
         "mixed_hot_holds": a.mixed_hot_holds,
         "reservation_mode": a.reservation_mode,
+        "write_percent": a.write_percent,
         "reservation_mode_gate_pass": mode_gate_pass,
         "keepalive_expiry_seconds": a.keepalive_expiry,
         "rate": a.rate,

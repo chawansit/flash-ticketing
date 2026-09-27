@@ -116,6 +116,8 @@ def argv(output: Path) -> list[str]:
         "1",
         "--reservation-mode",
         "redis-first",
+        "--write-percent",
+        "20",
         "--reservation-writer-candidate",
         "2",
     ]
@@ -391,7 +393,7 @@ def test_worker_scaling_is_passed_and_observers_cover_audit(monkeypatch, tmp_pat
     stage.main()
     fake = CapturingTransport.instances[-1]
     assert fake.deployment_command[-7:] == ["2", "1", "2", "1", "1", "redis-first", "2"]
-    assert fake.load_command[-1] == "redis-first"
+    assert fake.load_command[-2:] == ["redis-first", "20"]
     phases = [phase for kind, phase in fake.calls if kind == "remote"]
     assert phases.index("durability-audit") < phases.index("stop-observers") < phases.index("rollback")
 

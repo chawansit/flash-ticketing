@@ -54,6 +54,10 @@ def arrival_plan(rate, seconds, burst=False):
         elapsed += duration
 
 
+def is_write_request(index, write_percent):
+    return index * write_percent % 100 < write_percent
+
+
 async def fetch_initial_validators(client, shows, concurrency=16, max_attempts=3):
     """Fetch bootstrap ETags quickly enough to stay within the seat-map TTL."""
     if concurrency < 1 or max_attempts < 1:
@@ -149,6 +153,7 @@ async def run(args):
     retry_base_delay_ms = getattr(args, "retry_base_delay_ms", 25.0)
     late_delivery_window_ms = getattr(args, "late_delivery_window_ms", 0.0)
     reservation_mode = getattr(args, "reservation_mode", "postgres")
+    write_percent = getattr(args, "write_percent", 5)
     write_success_statuses = {"201", "202"} if reservation_mode == "redis-first" else {"201"}
     write_success_codes = {int(status) for status in write_success_statuses}
     if manifest.get("schema_version") != 1 or manifest.get("environment") != "development":
@@ -203,7 +208,7 @@ async def run(args):
         for index, (due, phase) in enumerate(arrival_plan(args.rate, args.seconds, args.burst)):
             viewer = randomizer.randrange(len(tokens))
             show = shows[viewer % len(shows)]
-            write = index % 20 == 0
+            write = is_write_request(index, write_percent)
             hot = bool(getattr(args, "mixed_hot_holds", False) and index % 100 == 0)
             seat = manifest["seat_offset"] + counts[show]
             if hot:
@@ -445,7 +450,7 @@ async def run(args):
         "show_count": len(shows),
         "seats_per_show": 300,
         "viewers": len(tokens),
-        "write_percent": 5,
+        "write_percent": write_percent,
         "generator_drops": drops,
         "drop_reasons": dict(drop_reasons),
         "late_drop_threshold_ms": max(50.0, 1000 / args.rate),
@@ -528,6 +533,7 @@ if __name__ == "__main__":
     parser.add_argument("--transport-diagnostics", action="store_true")
     parser.add_argument("--mixed-hot-holds", action="store_true")
     parser.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
+    parser.add_argument("--write-percent", type=int, default=5)
     parser.add_argument("--keepalive-expiry", type=expiry_seconds, default=5.0)
     parser.add_argument("--max-attempts", type=int, choices=(1, 2, 3), default=1)
     parser.add_argument("--retry-base-delay-ms", type=nonnegative_milliseconds, default=25.0)
@@ -539,6 +545,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.burst:
         args.seconds = 240
-    if min(args.rate, args.seconds, args.inflight) < 1 or args.rate * (600 if args.burst else args.seconds) > 2000000:
+    if (min(args.rate, args.seconds, args.inflight) < 1 or not 1 <= args.write_percent <= 100
+            or args.rate * (600 if args.burst else args.seconds) > 2000000):
         parser.error("Use positive limits and at most 2000000 requests")
     asyncio.run(run(args))

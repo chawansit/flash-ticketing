@@ -30,3 +30,11 @@ def test_burst_limit_counts_all_three_phases(tmp_path):
                              "--rate", "4000", "--burst"], capture_output=True, text=True, timeout=10, check=False)
     assert result.returncode == 2
     assert "at most 2000000 requests" in result.stderr
+
+
+def test_configurable_write_mix_is_exact_and_evenly_distributed():
+    for percent in (5, 10, 20, 100):
+        selected = [index for index in range(100) if generator.is_write_request(index, percent)]
+        assert len(selected) == percent
+    assert [index for index in range(20) if generator.is_write_request(index, 10)] == [0, 10]
+    assert [index for index in range(10) if generator.is_write_request(index, 20)] == [0, 5]

@@ -18,16 +18,17 @@ import argparse,json
 from pathlib import Path
 p=argparse.ArgumentParser()
 p.add_argument('--manifest');p.add_argument('--output');p.add_argument('--rate',type=int)
-p.add_argument('--start-at');p.add_argument('--reservation-mode');a,_=p.parse_known_args()
+p.add_argument('--start-at');p.add_argument('--reservation-mode');p.add_argument('--write-percent',type=int);a,_=p.parse_known_args()
 m=json.loads(Path(a.manifest).read_text())
 Path(a.output).write_text(json.dumps({'measured_started_utc':a.start_at,
 'generator_drops':0,'read_p95_ms':1,'hold_p95_ms':1,'offered_rps':a.rate,'workload_gate_pass':True,
-'reservation_mode':a.reservation_mode,'shows':m['show_ids'],'viewers':m['viewer_tokens']}))
+'reservation_mode':a.reservation_mode,'write_percent':a.write_percent,'shows':m['show_ids'],'viewers':m['viewer_tokens']}))
 ''')
     output = tmp_path / "result"
     subprocess.run([sys.executable, str(coordinator), "--manifest", str(manifest),
                     "--rate", str(rate), "--seconds", "300", "--start-delay", "5",
-                    "--reservation-mode", "redis-first", "--output", str(output)],
+                    "--reservation-mode", "redis-first", "--write-percent", "20",
+                    "--output", str(output)],
                    cwd=tmp_path, check=True, capture_output=True, timeout=20)
     summary = json.loads((output / "summary.json").read_text())
     assert summary["coordination_gate_pass"]
@@ -36,9 +37,11 @@ Path(a.output).write_text(json.dumps({'measured_started_utc':a.start_at,
     assert summary["worker_rates"] == expected
     assert summary["reservation_mode"] == "redis-first"
     assert summary["reservation_mode_gate_pass"]
+    assert summary["write_percent"] == 20
     assert summary["start_delay_seconds"] == 5.0
     workers = [json.loads((output / f"worker-{i}.json").read_text()) for i in range(4)]
     assert [w["offered_rps"] for w in workers] == expected
+    assert all(w["write_percent"] == 20 for w in workers)
     assert sum(w["offered_rps"] for w in workers) == rate
     assert sorted(show for w in workers for show in w["shows"]) == list(range(8))
     assert sorted(viewer for w in workers for viewer in w["viewers"]) == sorted(

@@ -129,6 +129,7 @@ def evaluate(output: Path, load_exit: int | None, audit_exit: int | None, admiss
                 "rate",
                 "seconds",
                 "reservation_mode",
+                "write_percent",
                 "generator_drops",
                 "worst_worker_read_p95_ms",
                 "worst_worker_hold_p95_ms",
@@ -165,8 +166,11 @@ def validate_args(args: argparse.Namespace) -> None:
         args.hold_expiry_wait,
     ) < 1:
         raise ValueError("Stage limits must be positive")
-    if args.seats < (args.rate * args.seconds * 5 // 100 + args.shows - 1) // args.shows:
+    expected_writes = (args.rate * args.seconds * args.write_percent + 99) // 100
+    if args.seats < (expected_writes + args.shows - 1) // args.shows:
         raise ValueError("Fresh fixture has insufficient unique seats for the requested stage")
+    if not 1 <= args.write_percent <= 100:
+        raise ValueError("Write percentage must be between 1 and 100")
     if not 0 <= args.retry_base_delay_ms <= 5000:
         raise ValueError("Retry delay must be between 0 and 5000 ms")
     if not 0 <= args.late_delivery_window_ms <= 5000:
@@ -207,6 +211,7 @@ def main() -> None:
     parser.add_argument("--retry-base-delay-ms", type=float, default=25.0)
     parser.add_argument("--late-delivery-window-ms", type=float, default=0.0)
     parser.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
+    parser.add_argument("--write-percent", type=int, default=5)
     parser.add_argument("--reservation-writer-candidate", type=int, choices=(1, 2, 3, 4), default=1)
     parser.add_argument("--ssh", default="ssh")
     parser.add_argument("--scp", default="scp")
@@ -364,6 +369,7 @@ def main() -> None:
                     str(args.retry_base_delay_ms),
                     str(args.late_delivery_window_ms),
                     args.reservation_mode,
+                    str(args.write_percent),
                 ],
                 timeout=60,
             )
