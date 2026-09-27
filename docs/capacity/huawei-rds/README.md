@@ -142,3 +142,8 @@ does not replace the earlier no-fault 1,000 RPS safety pass.
 ## 2026-09-27 Huawei DCS switchover drill
 
 The [managed-DCS switchover drill](2026-09-27-dcs-failover/README.md) delivered all 300,000 requests at 500 RPS and observed the Redis endpoint recover in about 500 ms, but the reservation writers had an approximately 129-second persistence gap. Only 12,632 of 14,612 HTTP 202 provisional acknowledgements became durable; 1,980 expired before persistence. Zero overlap, queue drain and rollback passed, but exact durability failed. Redis-first production activation remains blocked pending the bounded recovery change in ADR 0060 and a passing repeat failover drill.
+
+
+## 2026-09-27 Huawei DCS bounded-recovery repeat
+
+The [bounded writer-recovery drill](2026-09-27-dcs-failover-recovery/README.md) reduced the prior writer stall and persisted all 45 Redis commands within the hold lifetime. Zero overlap, post-TTL cleanup and queue drain passed. The strict activation gate still failed because two hold requests returned HTTP 503 although both commands later became durable, producing 45 durable commands for 43 HTTP 202 acknowledgements. Redis-first activation remains blocked until the API provides an explicit same-idempotency-key resolution path for ambiguous failover outcomes.

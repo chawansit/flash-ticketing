@@ -1,0 +1,1 @@
+{"request_log_lines": 1096, "error_codes": {"SEATMAP_UNAVAILABLE": 1}, "db_failure_types": {}, "last_errors": [{"time": "2026-09-27T14:41:18.956627+00:00", "request_id": "59d13015-b65c-42cb-8d51-c7ee981562d3", "route": "/v1/events/{event_id}/availability", "status": 503, "error_code": "SEATMAP_UNAVAILABLE", "duration_ms": 0.95, "db_failure_type": null}]}

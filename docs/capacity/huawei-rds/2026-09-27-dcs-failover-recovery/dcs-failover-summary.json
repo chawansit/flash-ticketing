@@ -1,0 +1,12 @@
+{
+  "samples": 1440,
+  "failures": 1,
+  "error_type": "ConnectionError",
+  "previous_success_utc": "2026-09-27T14:41:18.513Z",
+  "failure_utc": "2026-09-27T14:41:18.763Z",
+  "next_success_utc": "2026-09-27T14:41:19.013Z",
+  "observed_success_gap_ms": 500.153,
+  "latency_ms_avg": 0.865,
+  "latency_ms_p95": 1.132,
+  "latency_ms_max": 7.092
+}
