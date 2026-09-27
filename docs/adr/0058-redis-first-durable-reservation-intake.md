@@ -155,3 +155,16 @@ Prometheus metrics. The synchronous PostgreSQL path remains the default.
 - Redis primary-loss recovery, replicated WAIT behavior on the target service, distributed
   cloud load, final command drain and higher-RPS capacity remain untested. Production activation
   and any capacity claim remain blocked.
+
+
+## Huawei DCS preflight evidence on 2026-09-27
+
+A Redis 7 master/standby DCS instance was probed from the API ECS over its private endpoint.
+The effective configuration reported AOF enabled, `appendfsync=everysec`,
+`maxmemory-policy=noeviction`, one connected standby and master role. The application client
+successfully executed Lua, Redis Stream group/read/ack/delete operations, and a connection-
+affine write plus `WAIT 1 1000`. The standby acknowledged the write in approximately 3.1 ms.
+
+This verifies command compatibility, private reachability and one live replica at the time of
+the probe. It does not satisfy the primary-loss recovery gate: managed failover, reconnect,
+acknowledged-command survival and post-failover stream drain remain to be tested.

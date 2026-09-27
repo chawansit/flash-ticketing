@@ -40,6 +40,10 @@ RESERVATION_MODE=postgres docker compose up -d --force-recreate api
 docker compose stop reservation-writer
 ```
 
+For the RDS deployment overlay, keep the DCS connection string only in the private
+`.env.rds` file as `DCS_REDIS_URL`. Use the read/write hostname so managed failover can
+move the endpoint; the read-only hostname must never serve reservation intake.
+
 Relevant settings:
 
 | Setting | Default | Purpose |
