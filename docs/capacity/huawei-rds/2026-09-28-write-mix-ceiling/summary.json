@@ -1,0 +1,101 @@
+{
+  "run_window": "2026-09-27/2026-09-28 Asia/Bangkok",
+  "source_revision": "5929222430a050743a8e924a5bf2fdcff6daf73d",
+  "topology": {
+    "total_rps": 1000,
+    "api_replicas": 4,
+    "admission_limit": 4,
+    "reservation_writer_replicas": 2,
+    "kafka_consumer_replicas": 2,
+    "generator_workers": 8,
+    "split_refresh_and_expiry": true,
+    "reservation_mode": "redis-first"
+  },
+  "stages": [
+    {
+      "write_percent": 10,
+      "duration_seconds": 180,
+      "physical_requests": 179807,
+      "generator_drops": 193,
+      "read_p95_ms": 291.126948,
+      "hold_p95_ms": 627.173078,
+      "expected_durable_holds_approx": 17980,
+      "durable_holds": 12838,
+      "overlapping_intervals": 0,
+      "queues_drained": true,
+      "rollback_passed": true,
+      "passed": false
+    },
+    {
+      "write_percent": 6,
+      "duration_seconds": 180,
+      "physical_requests": 180000,
+      "generator_drops": 0,
+      "read_p95_ms": 65.293898,
+      "hold_p95_ms": 133.085663,
+      "expected_durable_holds": 10800,
+      "durable_holds": 10800,
+      "overlapping_intervals": 0,
+      "queues_drained": true,
+      "rollback_passed": true,
+      "passed": true
+    },
+    {
+      "write_percent": 7,
+      "duration_seconds": 180,
+      "physical_requests": 180000,
+      "generator_drops": 0,
+      "read_p95_ms": 83.792786,
+      "hold_p95_ms": 185.235018,
+      "expected_durable_holds": 12600,
+      "durable_holds": 12600,
+      "overlapping_intervals": 0,
+      "queues_drained": true,
+      "rollback_passed": true,
+      "passed": true
+    },
+    {
+      "write_percent": 6,
+      "duration_seconds": 900,
+      "physical_requests": 899944,
+      "generator_drops": 56,
+      "read_p95_ms": 141.827537,
+      "hold_p95_ms": 299.790544,
+      "expected_durable_holds": 53997,
+      "durable_holds": 34781,
+      "observed_durable_holds_per_second": 38.645556,
+      "overlapping_intervals": 0,
+      "queues_drained": true,
+      "rollback_passed": true,
+      "passed": false
+    },
+    {
+      "write_percent": 3,
+      "duration_seconds": 900,
+      "physical_requests": 900000,
+      "generator_drops": 0,
+      "read_p95_ms": 28.531454,
+      "hold_p95_ms": 51.14515,
+      "expected_durable_holds": 27000,
+      "durable_holds": 27000,
+      "overlapping_intervals": 0,
+      "queues_drained": true,
+      "rollback_passed": true,
+      "passed": true
+    }
+  ],
+  "validated_planning_point": {
+    "duration_seconds": 900,
+    "total_rps": 1000,
+    "read_rps": 970,
+    "hold_rps": 30,
+    "scope": "exact tested topology and workload"
+  },
+  "short_burst_boundary": {
+    "duration_seconds": 180,
+    "total_rps": 1000,
+    "read_rps": 930,
+    "hold_rps": 70,
+    "production_capacity_claim": false
+  }
+}

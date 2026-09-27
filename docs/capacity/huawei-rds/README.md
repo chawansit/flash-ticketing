@@ -157,3 +157,14 @@ double-booking or queue backlog, so low-rate recovery correctness passed. The
 two durable replay responses took 6.238 and 7.192 seconds. ADR 0062 records that
 declared-failover latency as non-gating evidence. This result does not activate
 Redis-first for production or certify representative-load failover correctness.
+
+## 2026-09-28 Redis-first write-mix boundary
+
+The [write-mix capacity sequence](2026-09-28-write-mix-ceiling/README.md)
+establishes a 15-minute planning point of **1,000 total RPS with 970 seat-map
+reads/s and 30 holds/s**. The stage delivered all 900,000 requests with zero
+drops or errors, 28.53/51.15 ms worst-worker read/hold p95, exact durability for
+27,000 holds, zero overlap and drained queues. A 60 hold/s stage passed for three
+minutes but failed over 15 minutes, persisting only 34,781 of 53,997 provisional
+holds; 70 hold/s is therefore only a three-minute burst boundary. PostgreSQL
+reservation persistence and WAL waits remain the sustained write bottleneck.
