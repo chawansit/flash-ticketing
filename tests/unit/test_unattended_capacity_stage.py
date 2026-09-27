@@ -379,20 +379,27 @@ def test_worker_scaling_is_passed_and_observers_cover_audit(monkeypatch, tmp_pat
             "2",
             "--consumer-rollback",
             "1",
+            "--split-maintenance",
         ],
     )
     stage.main()
     fake = CapturingTransport.instances[-1]
-    assert fake.deployment_command[-4:] == ["2", "1", "2", "1"]
+    assert fake.deployment_command[-5:] == ["2", "1", "2", "1", "1"]
     phases = [phase for kind, phase in fake.calls if kind == "remote"]
     assert phases.index("durability-audit") < phases.index("stop-observers") < phases.index("rollback")
 
 
 def test_backend_deploy_rebuilds_and_verifies_measured_worker_images():
     helper = (SCRIPT.parent / "huawei_capacity_backend.sh").read_text()
-    assert "$compose build api migrate publisher consumer maintenance" in helper
+    assert "$compose build api migrate publisher consumer maintenance refresh expiry" in helper
     assert '$compose up -d --no-deps --force-recreate publisher' in helper
+    assert '--scale maintenance=0 maintenance' in helper
+    assert '--force-recreate --scale refresh=1 refresh' in helper
+    assert '--force-recreate --scale expiry=1 expiry' in helper
     assert '--force-recreate --scale "maintenance=$maintenance_candidate" maintenance' in helper
     assert '--force-recreate --scale "consumer=$consumer_candidate" consumer' in helper
+    assert '--scale "refresh=$original_refresh" refresh' in helper
+    assert '--scale "expiry=$original_expiry" expiry' in helper
     assert "src/ticketing/workers.py" in helper
+    assert '"split_maintenance":%s' in helper
     assert '"worker_source_verified":true' in helper

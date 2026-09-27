@@ -55,6 +55,42 @@ wait_maintenance() {
   return 1
 }
 
+wait_refresh() {
+  expected=$1
+  attempt=0
+  while [ "$attempt" -lt 90 ]; do
+    total=0
+    running=0
+    for id in $($compose ps -q refresh); do
+      total=$((total + 1))
+      state=$(docker inspect -f '{{.State.Status}}' "$id")
+      [ "$state" = running ] && running=$((running + 1))
+    done
+    [ "$total" -eq "$expected" ] && [ "$running" -eq "$expected" ] && return 0
+    attempt=$((attempt + 1))
+    sleep 2
+  done
+  return 1
+}
+
+wait_expiry() {
+  expected=$1
+  attempt=0
+  while [ "$attempt" -lt 90 ]; do
+    total=0
+    running=0
+    for id in $($compose ps -q expiry); do
+      total=$((total + 1))
+      state=$(docker inspect -f '{{.State.Status}}' "$id")
+      [ "$state" = running ] && running=$((running + 1))
+    done
+    [ "$total" -eq "$expected" ] && [ "$running" -eq "$expected" ] && return 0
+    attempt=$((attempt + 1))
+    sleep 2
+  done
+  return 1
+}
+
 wait_consumers() {
   expected=$1
   attempt=0
@@ -96,27 +132,57 @@ case "${1:-}" in
     chmod 600 "$private/manifest.json"
     ;;
   deploy)
-    [ "$#" -eq 8 ]
+    [ "$#" -eq 9 ]
     run_paths "$2"
     candidate=$3; fallback=$4; maintenance_candidate=$5; maintenance_fallback=$6
-    consumer_candidate=$7; consumer_fallback=$8
+    consumer_candidate=$7; consumer_fallback=$8; split_candidate=$9
+    [ "$split_candidate" -eq 0 ] || [ "$split_candidate" -eq 1 ]
     original_maintenance=$($compose ps -q maintenance | wc -l | tr -d ' ')
+    original_refresh=$($compose ps -q refresh | wc -l | tr -d ' ')
+    original_expiry=$($compose ps -q expiry | wc -l | tr -d ' ')
     original_consumers=$($compose ps -q consumer | wc -l | tr -d ' ')
     [ "$original_maintenance" -eq "$maintenance_fallback" ]
     [ "$original_consumers" -eq "$consumer_fallback" ]
     printf '%s\n' "$original_maintenance" > "$private/original-maintenance"
     chmod 600 "$private/original-maintenance"
+    printf '%s\n' "$original_refresh" > "$private/original-refresh"
+    chmod 600 "$private/original-refresh"
+    printf '%s\n' "$original_expiry" > "$private/original-expiry"
+    chmod 600 "$private/original-expiry"
     printf '%s\n' "$original_consumers" > "$private/original-consumers"
     chmod 600 "$private/original-consumers"
     printf '%s\n' "$fallback" > "$private/original-admission"
     chmod 600 "$private/original-admission"
     set_admission "$candidate"
-    $compose build api migrate publisher consumer maintenance
+    $compose build api migrate publisher consumer maintenance refresh expiry
     $compose up -d --no-deps --force-recreate --scale api=4 api
     wait_apis
     $compose up -d --no-deps --force-recreate publisher
-    $compose up -d --no-deps --force-recreate --scale "maintenance=$maintenance_candidate" maintenance
-    wait_maintenance "$maintenance_candidate"
+    if [ "$split_candidate" -eq 1 ]; then
+      $compose up -d --no-deps --scale maintenance=0 maintenance
+      wait_maintenance 0
+      $compose up -d --no-deps --force-recreate --scale refresh=1 refresh
+      wait_refresh 1
+      $compose up -d --no-deps --force-recreate --scale expiry=1 expiry
+      wait_expiry 1
+      deployed_maintenance=0
+      deployed_refresh=1
+      deployed_expiry=1
+      split_json=true
+      worker_services="publisher refresh expiry consumer"
+    else
+      $compose up -d --no-deps --scale refresh=0 refresh
+      wait_refresh 0
+      $compose up -d --no-deps --scale expiry=0 expiry
+      wait_expiry 0
+      $compose up -d --no-deps --force-recreate --scale "maintenance=$maintenance_candidate" maintenance
+      wait_maintenance "$maintenance_candidate"
+      deployed_maintenance=$maintenance_candidate
+      deployed_refresh=0
+      deployed_expiry=0
+      split_json=false
+      worker_services="publisher maintenance consumer"
+    fi
     $compose up -d --no-deps --force-recreate --scale "consumer=$consumer_candidate" consumer
     wait_consumers "$consumer_candidate"
     source_hash=$(sha256sum src/ticketing/infrastructure/postgres.py | cut -d " " -f 1)
@@ -127,7 +193,7 @@ case "${1:-}" in
         grep -qx "RESERVE_CONCURRENCY=$candidate"
     done
     worker_source_hash=$(sha256sum src/ticketing/workers.py | cut -d " " -f 1)
-    for service in publisher maintenance consumer; do
+    for service in $worker_services; do
       ids=$($compose ps -q "$service")
       [ -n "$ids" ]
       for id in $ids; do
@@ -136,7 +202,7 @@ case "${1:-}" in
         [ "$image_hash" = "$worker_source_hash" ]
       done
     done
-    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"maintenance_replicas":%s,"consumer_replicas":%s,"worker_source_verified":true,"pass":true}\n' "$candidate" "$maintenance_candidate" "$consumer_candidate" > "$public/deployment.json"
+    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"split_maintenance":%s,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"worker_source_verified":true,"pass":true}\n' "$candidate" "$split_json" "$deployed_maintenance" "$deployed_refresh" "$deployed_expiry" "$consumer_candidate" > "$public/deployment.json"
     ;;
   preflight)
     [ "$#" -eq 3 ]
@@ -248,15 +314,21 @@ case "${1:-}" in
     run_paths "$2"
     original=$(cat "$private/original-admission")
     original_maintenance=$(cat "$private/original-maintenance")
+    original_refresh=$(cat "$private/original-refresh")
+    original_expiry=$(cat "$private/original-expiry")
     original_consumers=$(cat "$private/original-consumers")
     set_admission "$original"
     $compose up -d --no-deps --force-recreate --scale api=4 api
     wait_apis
     $compose up -d --no-deps --scale "maintenance=$original_maintenance" maintenance
     wait_maintenance "$original_maintenance"
+    $compose up -d --no-deps --scale "refresh=$original_refresh" refresh
+    wait_refresh "$original_refresh"
+    $compose up -d --no-deps --scale "expiry=$original_expiry" expiry
+    wait_expiry "$original_expiry"
     $compose up -d --no-deps --scale "consumer=$original_consumers" consumer
     wait_consumers "$original_consumers"
-    printf '{"restored_admission":%s,"api_replicas":4,"maintenance_replicas":%s,"consumer_replicas":%s,"pass":true}\n' "$original" "$original_maintenance" "$original_consumers" > "$public/rollback.json"
+    printf '{"restored_admission":%s,"api_replicas":4,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"pass":true}\n' "$original" "$original_maintenance" "$original_refresh" "$original_expiry" "$original_consumers" > "$public/rollback.json"
     ;;
   cleanup)
     [ "$#" -eq 2 ]

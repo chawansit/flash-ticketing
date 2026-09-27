@@ -19,6 +19,7 @@ class Settings:
     simulator_concurrency: int = int(os.getenv("SIMULATOR_CONCURRENCY", "4"))
     refresh_cooldown_ms: int = int(os.getenv("REFRESH_COOLDOWN_MS", "250"))
     refresh_batch_size: int = int(os.getenv("REFRESH_BATCH_SIZE", "2"))
+    expiry_batch_size: int = int(os.getenv("EXPIRY_BATCH_SIZE", "8"))
     worker_port: int = int(os.getenv("WORKER_METRICS_PORT", "9101"))
     # Target reconciliation period per active event. Must stay below the seatmap TTL
     # used for read-side keepalive, which is refreshed by successful reads and full rebuilds.
@@ -51,6 +52,8 @@ class Settings:
             raise RuntimeError("REFRESH_COOLDOWN_MS must be between 1 and 5000")
         if not 1 <= self.refresh_batch_size <= 100:
             raise RuntimeError("REFRESH_BATCH_SIZE must be between 1 and 100")
+        if not 1 <= self.expiry_batch_size <= 100:
+            raise RuntimeError("EXPIRY_BATCH_SIZE must be between 1 and 100")
         if not 1 <= self.reconcile_interval_seconds < self.seatmap_ttl_seconds:
             raise RuntimeError("RECONCILE_INTERVAL_SECONDS must be below SEATMAP_TTL_SECONDS")
         if not 0 <= self.reconcile_window_seconds <= 86400:

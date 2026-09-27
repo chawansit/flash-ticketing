@@ -16,6 +16,7 @@ x-app: &app
     SIMULATOR_CONCURRENCY: ${SIMULATOR_CONCURRENCY:-4}
     REFRESH_COOLDOWN_MS: ${REFRESH_COOLDOWN_MS:-250}
     REFRESH_BATCH_SIZE: ${REFRESH_BATCH_SIZE:-2}
+    EXPIRY_BATCH_SIZE: ${EXPIRY_BATCH_SIZE:-8}
     RECONCILE_INTERVAL_SECONDS: ${RECONCILE_INTERVAL_SECONDS:-20}
     RECONCILE_WINDOW_SECONDS: ${RECONCILE_WINDOW_SECONDS:-300}
     RECONCILE_BATCH_SIZE: ${RECONCILE_BATCH_SIZE:-8}
@@ -113,6 +114,22 @@ services:
   maintenance:
     <<: *app
     command: ["python", "-m", "ticketing.workers", "maintenance"]
+  refresh:
+    <<: *app
+    profiles: ["split-maintenance"]
+    environment:
+      <<: *env
+      DB_POOL_MAX: ${MAINTENANCE_POOL_MAX:-2}
+      SIMULATOR_CONCURRENCY: ${MAINTENANCE_SIMULATOR_CONCURRENCY:-2}
+    command: ["python", "-m", "ticketing.workers", "refresh"]
+  expiry:
+    <<: *app
+    profiles: ["split-maintenance"]
+    environment:
+      <<: *env
+      DB_POOL_MAX: ${MAINTENANCE_POOL_MAX:-2}
+      SIMULATOR_CONCURRENCY: ${MAINTENANCE_SIMULATOR_CONCURRENCY:-2}
+    command: ["python", "-m", "ticketing.workers", "expiry"]
   reconciler:
     <<: *app
     command: ["python", "-m", "ticketing.workers", "reconciler"]

@@ -207,15 +207,22 @@ class PostgresReservations:
             {"event_id": str(order["event_id"]), "seats": [r["seat_id"] for r in released]},
         )
 
-    def expire_one(self):
+    def expire_batch(self, limit=8):
+        if not 1 <= limit <= 100:
+            raise ValueError("Expiry batch limit must be between 1 and 100")
         with self.db.transaction() as conn:
-            order = conn.execute("""SELECT o.* FROM orders o JOIN holds h ON h.id=o.hold_id
+            orders = conn.execute(
+                """SELECT o.* FROM orders o JOIN holds h ON h.id=o.hold_id
                 WHERE h.status='ACTIVE' AND h.expires_at <= clock_timestamp()
-                ORDER BY h.expires_at LIMIT 1 FOR UPDATE OF o SKIP LOCKED""").fetchone()
-            if not order:
-                return False
-            self._release(conn, order, "EXPIRED")
-            return True
+                ORDER BY h.expires_at LIMIT %s FOR UPDATE OF o SKIP LOCKED""",
+                (limit,),
+            ).fetchall()
+            for order in orders:
+                self._release(conn, order, "EXPIRED")
+            return len(orders)
+
+    def expire_one(self):
+        return bool(self.expire_batch(1))
 
     def initiate_payment(self, actor, order_id, key, outcome, delay_seconds, duplicates):
         request = {

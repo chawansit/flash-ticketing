@@ -45,6 +45,13 @@ Zero double-booking, exact acknowledged durability, zero broken links and zero q
 
 ## Validation evidence
 
-Before cloud deployment, tests must cover multi-order expiry, reclaimed-seat protection, concurrent expiry workers, batch rollback, configuration limits, dedicated role isolation, deployment verification and rollback. Ruff, the full unit suite, focused PostgreSQL/Redis integration tests and shell syntax must pass.
+Local validation completed on 2026-09-27:
 
-Cloud validation starts at 1,000 RPS for five minutes with four APIs, admission five, two consumers, one refresh worker and one expiry worker. Promotion follows the strict and diagnostic rules in ADR 0056. A 30-minute result is required for any sustained diagnostic claim.
+- Full Ruff validation passed after reconstructing executable bits from shebangs inside the disposable Linux test container; this avoids Docker Desktop marking every copied Windows file executable.
+- The full unit suite passed: 136 tests.
+- The focused PostgreSQL/Redis reservation suite passed: 13 tests, including bounded multi-order expiry, two concurrent expiry batches claiming each order once, reclaimed-seat protection and rollback of every mutation and outbox row after an injected mid-batch failure.
+- POSIX shell syntax validation passed for `scripts/huawei_capacity_backend.sh`.
+- Base and RDS Compose rendering passed. The rendered split services use the intended roles, `DB_POOL_MAX=2`, `SIMULATOR_CONCURRENCY=2` and the pooled RDS URL.
+- Deployment tests verify candidate selection, source-hash verification and restoration of the original maintenance, refresh and expiry replica counts.
+
+Cloud validation starts at 1,000 RPS for five minutes with four APIs, admission five, two consumers, one refresh worker and one expiry worker. Promotion follows the strict and diagnostic rules in ADR 0056. A 30-minute result is required for any sustained diagnostic claim. Cloud validation has not yet run for this decision.

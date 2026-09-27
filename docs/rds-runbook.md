@@ -143,8 +143,14 @@ python scripts/unattended_capacity_stage.py \
   --seconds 600 \
   --admission-candidate 5 \
   --admission-rollback 4 \
+  --split-maintenance \
   --identity-file tmp/capacity-auth/id_ed25519
 ```
+
+`--split-maintenance` activates the ADR 0057 candidate: the combined maintenance
+service is stopped and one refresh worker plus one expiry worker are verified
+before load. Rollback restores all three worker replica counts captured before
+deployment. Omit the flag to retain the combined maintenance topology.
 
 Run `--dry-run` first to inspect the fixed phase order without contacting either
 ECS. The live command verifies that both checkouts resolve to the same Git

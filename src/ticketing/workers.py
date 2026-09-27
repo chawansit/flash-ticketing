@@ -239,6 +239,11 @@ def refresh_one(db, cache, cooldown_ms=250):
     return bool(refresh_batch(db, cache, limit=1, cooldown_ms=cooldown_ms))
 
 
+@measured_work("expire_batch")
+def expire_batch(service, limit=8):
+    return service.expire_batch(limit)
+
+
 # --- Bounded proactive reconciliation -------------------------------------------------
 # The schema models scheduled inventory as `events` only. Proactive reconciliation is
 # therefore defined purely by the sale window that exists today: an event is active from
@@ -520,7 +525,10 @@ def simulate_batch(db, settings, executor):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("role", choices=["publisher", "consumer", "maintenance", "reconciler", "simulator"])
+    parser.add_argument(
+        "role",
+        choices=["publisher", "consumer", "maintenance", "refresh", "expiry", "reconciler", "simulator"],
+    )
     role = parser.parse_args().role
     configure_logging()
     settings = Settings()
@@ -566,10 +574,13 @@ def main():
                     work = (
                         refresh_batch(db, cache, settings.refresh_batch_size, settings.refresh_cooldown_ms) > 0
                     ) or work
-                    for _ in range(100):
-                        if not service.expire_one():
-                            break
-                        work = True
+                    work = expire_batch(service, settings.expiry_batch_size) > 0 or work
+                elif role == "refresh":
+                    work = (
+                        refresh_batch(db, cache, settings.refresh_batch_size, settings.refresh_cooldown_ms) > 0
+                    ) or work
+                elif role == "expiry":
+                    work = expire_batch(service, settings.expiry_batch_size) > 0 or work
                 elif role == "reconciler":
                     if time.monotonic() >= next_warm:
                         # Seeding, pruning and metric sampling are bounded and infrequent;

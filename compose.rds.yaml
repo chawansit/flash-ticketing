@@ -38,6 +38,10 @@ services:
     environment: *rds-runtime
   maintenance:
     environment: *rds-runtime
+  refresh:
+    environment: *rds-runtime
+  expiry:
+    environment: *rds-runtime
   reconciler:
     environment: *rds-runtime
   simulator:

@@ -198,6 +198,7 @@ def main() -> None:
     parser.add_argument("--admission-rollback", type=int, required=True)
     parser.add_argument("--maintenance-candidate", type=int, default=1)
     parser.add_argument("--maintenance-rollback", type=int, default=1)
+    parser.add_argument("--split-maintenance", action="store_true")
     parser.add_argument("--consumer-candidate", type=int, default=1)
     parser.add_argument("--consumer-rollback", type=int, default=1)
     parser.add_argument("--hold-expiry-wait", type=int, default=180)
@@ -283,6 +284,7 @@ def main() -> None:
                 "deploy", run_id, str(args.admission_candidate), str(args.admission_rollback),
                 str(args.maintenance_candidate), str(args.maintenance_rollback),
                 str(args.consumer_candidate), str(args.consumer_rollback),
+                str(int(args.split_maintenance)),
             ],
             timeout=300,
         )

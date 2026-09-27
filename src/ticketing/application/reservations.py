@@ -30,6 +30,9 @@ class Reservations:
     def expire_one(self):
         return self.store.expire_one()
 
+    def expire_batch(self, limit):
+        return self.store.expire_batch(limit)
+
     def initiate_payment(self, actor, order_id, key, outcome, delay_seconds, duplicates):
         if (
             outcome not in {"SUCCEEDED", "FAILED"}
