@@ -73,3 +73,28 @@ def test_provisional_acknowledgement_requires_durable_command(tmp_path,monkeypat
  with pytest.raises(SystemExit):
   runpy.run_path(str(Path(__file__).parents[2]/'scripts/verify_cloud_holds.py'),run_name='__main__')
  assert not json.loads(output.read_text())['durability_and_expiry_pass']
+
+
+def test_redis_first_durable_replay_counts_201_command(tmp_path,monkeypatch):
+ results=tmp_path/'runs';results.mkdir()
+ (results/'run.json').write_text(json.dumps({
+  'run_id':'a','reservation_mode':'redis-first',
+  'statuses':{'hold':{'201':1,'202':2}},
+ }))
+ class Connection:
+  def __enter__(self):return self
+  def __exit__(self,*args):pass
+  def execute(self,query,params=None):
+   if 'WITH selected AS' in query:return SimpleNamespace(fetchone=lambda:(3,3,0))
+   if params:return SimpleNamespace(fetchone=lambda:(3,3,3,0,0,0,0,3))
+   return SimpleNamespace(fetchone=lambda:(0,0,0))
+ monkeypatch.setattr('psycopg.connect',lambda *args,**kwargs:Connection())
+ monkeypatch.setenv('TEST_DATABASE_URL','unused')
+ monkeypatch.setenv('TEST_REDIS_URL','redis://unused')
+ monkeypatch.setattr('redis.Redis.from_url',lambda *args,**kwargs:RedisClient())
+ output=tmp_path/'verified.json'
+ monkeypatch.setattr(sys,'argv',['verify','--results',str(results),'--output',str(output)])
+ runpy.run_path(str(Path(__file__).parents[2]/'scripts/verify_cloud_holds.py'),run_name='__main__')
+ result=json.loads(output.read_text())
+ assert result['durability_and_expiry_pass']
+ assert result['runs'][0]['expected_durable_commands']==3

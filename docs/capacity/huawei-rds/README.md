@@ -147,3 +147,13 @@ The [managed-DCS switchover drill](2026-09-27-dcs-failover/README.md) delivered 
 ## 2026-09-27 Huawei DCS bounded-recovery repeat
 
 The [bounded writer-recovery drill](2026-09-27-dcs-failover-recovery/README.md) reduced the prior writer stall and persisted all 45 Redis commands within the hold lifetime. Zero overlap, post-TTL cleanup and queue drain passed. The strict activation gate still failed because two hold requests returned HTTP 503 although both commands later became durable, producing 45 durable commands for 43 HTTP 202 acknowledgements. Redis-first activation remains blocked until the API provides an explicit same-idempotency-key resolution path for ambiguous failover outcomes.
+
+## 2026-09-27 Huawei DCS same-key replay drill
+
+The [bounded same-key replay drill](2026-09-27-dcs-same-key-replay/README.md)
+recovered both ambiguous hold outcomes and all three transient seat-map errors
+during a real managed-DCS switchover. All 45 holds became durable with zero
+double-booking or queue backlog, so low-rate recovery correctness passed. The
+two durable replay responses took 6.238 and 7.192 seconds, failing the strict
+fault-stage latency gate. This result does not activate Redis-first for
+production or certify failover capacity.

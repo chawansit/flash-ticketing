@@ -1,0 +1,17 @@
+{
+  "interval_ms": 250,
+  "samples": 1920,
+  "failures": 1,
+  "failure": {
+    "type": "TimeoutError",
+    "latency_ms": 204.738
+  },
+  "last_success_before_unix": 1790522620.3115513,
+  "first_success_after_unix": 1790522620.8117101,
+  "success_gap_ms": 500.159,
+  "successful_latency_ms": {
+    "average": 0.937,
+    "p95": 1.239,
+    "max": 9.46
+  }
+}

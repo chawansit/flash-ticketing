@@ -1,0 +1,48 @@
+{
+  "runs": [
+    {
+      "run_id": "0bfdc41b-b853-4766-90a2-1df8005ecf1e",
+      "acknowledged_201": 1,
+      "acknowledged_202": 26,
+      "acknowledged_total": 27,
+      "expected_durable_commands": 27,
+      "idempotency_records": 27,
+      "distinct_holds": 27,
+      "distinct_orders": 27,
+      "broken_links": 0,
+      "active_holds": 0,
+      "overdue_holds": 0,
+      "pending_orders": 0,
+      "durable_commands": 27,
+      "pass": true
+    },
+    {
+      "run_id": "61b8c561-8ccd-4ead-b2b3-588c1a50295e",
+      "acknowledged_201": 1,
+      "acknowledged_202": 17,
+      "acknowledged_total": 18,
+      "expected_durable_commands": 18,
+      "idempotency_records": 18,
+      "distinct_holds": 18,
+      "distinct_orders": 18,
+      "broken_links": 0,
+      "active_holds": 0,
+      "overdue_holds": 0,
+      "pending_orders": 0,
+      "durable_commands": 18,
+      "pass": true
+    }
+  ],
+  "queues_snapshot": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0
+  },
+  "audited_holds": 45,
+  "audited_seat_intervals": 45,
+  "overlapping_load_hold_intervals": 0,
+  "durability_and_expiry_pass": true,
+  "note": "Run after expiry drain for workloads without explicit early release. HTTP 202 counts as provisional acknowledgement only when one matching reservation command is DURABLE. Intervals use order creation to hold expiry and cover only selected load run IDs. Queue counts are global context; this is not a payment test."
+}

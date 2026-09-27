@@ -45,3 +45,19 @@ Cloud validation starts with a low-rate real DCS switchover using bounded same-k
 Implementation validation before deployment: Ruff passed for all changed Python files; the complete unit suite passed 146 tests; and the Redis-first PostgreSQL/Redis integration file passed all nine tests, including the 100-contender same-seat race. The new unit cases prove pipeline errors use the unknown-outcome code and the load client replays the identical key while preserving first-attempt evidence.
 
 The first live retry drill used one replay with a one-second base backoff. All 45 commands became durable with zero overlap and drained queues. Four holds saw an initial unknown outcome: two replays returned HTTP 201 because the writer had already made them durable, but the harness incorrectly treated only HTTP 202 as Redis-first success; two exhausted the single replay before replica acknowledgement was available. Three read 503s recovered. This evidence did not pass activation. The follow-up implementation accepts both valid Redis-first success states and permits a second same-key replay; its targeted retry/coordinator/orchestration selection passed 23 tests before redeployment.
+
+The second managed-DCS drill used two bounded replays with a two-second base
+backoff. Across 900 logical requests, two holds returned an initial unknown
+outcome and three reads returned an initial availability error. All five
+recovered, no retry was exhausted, and the generator made 907 physical attempts
+with zero drops. The post-TTL audit verified all 45 logical holds and all 45
+reservation commands as durable, with zero broken links, ownership overlap or
+queue backlog. The DCS probe observed one timeout and a 500.159 ms
+success-to-success gap.
+
+Recovery correctness therefore passed. The two durable HTTP 201 replay responses
+took 6.238 and 7.192 seconds after bounded backoff, causing the strict
+fault-stage latency gate to fail. This low-rate result validates the same-key
+recovery decision but does not activate Redis-first for production or certify
+high-rate failover capacity. The detailed evidence is in
+[the managed DCS same-key replay report](../capacity/huawei-rds/2026-09-27-dcs-same-key-replay/README.md).

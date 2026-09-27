@@ -1,0 +1,47 @@
+{
+  "test_window": {
+    "utc": "2026-09-27T15:21:22Z/2026-09-27T15:24:21Z",
+    "asia_bangkok": "2026-09-27T22:21:22+07:00/2026-09-27T22:24:21+07:00"
+  },
+  "offered_rps": 5,
+  "duration_seconds": 180,
+  "workers": 2,
+  "logical_requests": 900,
+  "physical_http_attempts": 907,
+  "generator_drops": 0,
+  "late_deliveries": 0,
+  "first_attempt_failures": {
+    "hold:503:RESERVATION_DURABILITY_UNKNOWN": 2,
+    "read:503:SEATMAP_UNAVAILABLE": 3
+  },
+  "retry_attempts": {
+    "hold:503:RESERVATION_DURABILITY_UNKNOWN": 4,
+    "read:503:SEATMAP_UNAVAILABLE": 3
+  },
+  "retry_successes": {
+    "hold": 2,
+    "read": 3
+  },
+  "retry_exhausted": {},
+  "final_statuses": {
+    "hold": {
+      "202": 43,
+      "201": 2
+    },
+    "read": {
+      "304": 584,
+      "200": 271
+    }
+  },
+  "latency_ms": {
+    "worst_worker_read_p95": 8.208,
+    "accepted_202_hold_p95_max": 13.472,
+    "durable_201_replay_values": [
+      6238.133,
+      7192.054
+    ],
+    "worst_worker_hold_p95": 7192.054
+  },
+  "recovery_correctness_pass": true,
+  "strict_fault_stage_latency_gate_pass": false
+}

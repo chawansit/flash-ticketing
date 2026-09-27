@@ -1,0 +1,23 @@
+{
+  "candidate": {
+    "api_replicas": 4,
+    "admission_limit": 4,
+    "db_pool_per_api": 3,
+    "reservation_mode": "redis-first",
+    "reservation_writer_replicas": 2,
+    "maintenance_replicas": 0,
+    "refresh_replicas": 1,
+    "expiry_replicas": 1,
+    "consumer_replicas": 2
+  },
+  "rollback": {
+    "reservation_mode": "postgres",
+    "reservation_writer_replicas": 0,
+    "api_replicas": 4,
+    "maintenance_replicas": 1,
+    "refresh_replicas": 0,
+    "expiry_replicas": 0,
+    "consumer_replicas": 1,
+    "readiness_checks_passed": 5
+  }
+}

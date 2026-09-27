@@ -25,6 +25,14 @@ for path in a.results.rglob('*.json'):
             '201': acknowledged_201,
             '202': acknowledged_202,
             'total': acknowledged_201 + acknowledged_202,
+            # In redis-first mode HTTP 201 is a same-key replay observed after
+            # the original command became DURABLE. Direct PostgreSQL runs can
+            # still return 201 without creating a reservation command.
+            'expected_durable': (
+                acknowledged_201 + acknowledged_202
+                if result.get('reservation_mode') == 'redis-first'
+                else acknowledged_202
+            ),
         }
 if not runs:
     p.error('No completed worker results found')
@@ -51,14 +59,15 @@ with psycopg.connect(os.environ['TEST_DATABASE_URL'], autocommit=False) as conn:
         passed = (
             row[:3] == (acknowledged['total'],) * 3
             and all(n == 0 for n in row[3:7])
-            and row[7] == acknowledged['202']
+            and row[7] == acknowledged['expected_durable']
         )
         checks.append(dict(zip(
             ['run_id','acknowledged_201','acknowledged_202','acknowledged_total',
+             'expected_durable_commands',
              'idempotency_records','distinct_holds','distinct_orders','broken_links',
              'active_holds','overdue_holds','pending_orders','durable_commands','pass'],
             [run_id, acknowledged['201'], acknowledged['202'], acknowledged['total'],
-             *row, passed], strict=True)))
+             acknowledged['expected_durable'], *row, passed], strict=True)))
     # This harness never explicitly releases holds: expiry is the only reuse boundary.
     audited_holds, audited_intervals, overlaps = conn.execute("""WITH selected AS (
         SELECT DISTINCT h.id,h.event_id,h.expires_at,o.created_at,i.seat_id
