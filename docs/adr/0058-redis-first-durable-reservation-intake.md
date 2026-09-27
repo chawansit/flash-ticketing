@@ -220,6 +220,8 @@ Validation executed against the rebuilt container image:
   durability/expiry gate. One unrelated pre-existing seat refresh request remained visible in
   the global queue snapshot and is not hidden by the audit.
 
-This completes the tooling portion of activation gate 3. Managed writer-restart recovery, DCS
-primary failover and the distributed no-retry 1,000 RPS stage remain unexecuted, so the measured
-cloud deployment remains in synchronous PostgreSQL mode and no new capacity claim is made.
+This completes the tooling portion of activation gate 3. ADR 0059 subsequently records a
+passing five-minute no-retry 1,000 RPS safety stage with two reservation writers and exact
+15,000-command durability. Managed pending-command writer-restart recovery, DCS primary
+failover and a longer confirmation remain unexecuted. The cloud deployment therefore remains
+in synchronous PostgreSQL mode outside isolated tests, and no sustained capacity claim is made.

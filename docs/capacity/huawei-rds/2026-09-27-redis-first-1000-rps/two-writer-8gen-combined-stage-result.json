@@ -1,0 +1,50 @@
+{
+  "completed_at": "2026-09-27T05:58:19.437114+00:00",
+  "gates": {
+    "load_exit_zero": true,
+    "workload": true,
+    "generator_drops_zero": true,
+    "transport_errors_zero": true,
+    "read_p95": true,
+    "hold_p95": true,
+    "admission_zero": true,
+    "audit_exit_zero": true,
+    "durability": true,
+    "overlap_zero": true,
+    "queues_drained": false,
+    "rollback": true,
+    "execution_and_cleanup": true
+  },
+  "pass": false,
+  "request_summary": {
+    "rate": 1000,
+    "seconds": 300,
+    "reservation_mode": "redis-first",
+    "generator_drops": 0,
+    "worst_worker_read_p95_ms": 31.553615001030266,
+    "worst_worker_hold_p95_ms": 54.42800799937686,
+    "late_deliveries": 0,
+    "physical_http_attempts": 300000,
+    "first_attempt_failures": {},
+    "retry_attempts": {},
+    "retry_successes": {},
+    "retry_exhausted": {}
+  },
+  "admission_rejections": 0,
+  "audited_holds": 15000,
+  "overlapping_load_hold_intervals": 0,
+  "run_id": "20260927T054829Z-0b682f0a",
+  "source_revision": "8c687c948e7331e8e520d830c4c0634bd9bee1f1",
+  "error": null,
+  "completed_phases": [
+    "revisions_matched",
+    "deployed",
+    "prepared",
+    "manifest_transferred",
+    "preflight_passed",
+    "observers_started",
+    "load_finished",
+    "compact_results_collected",
+    "audit_finished"
+  ]
+}

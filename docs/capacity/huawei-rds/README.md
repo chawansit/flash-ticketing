@@ -120,3 +120,13 @@ background topology; it does not establish sustained 1,000 RPS capacity. A match
 single-retry stage recovered one of three first-attempt rejections and left two
 final errors (0.000667%); exact durability and queue drain passed again. More
 retries are not adopted.
+
+## 2026-09-27 Redis-first 1,000 RPS safety validation
+
+The [Redis-first safety stage](2026-09-27-redis-first-1000-rps/README.md) delivered all 300,000
+no-retry requests with zero errors or drops, 103.682/235.254 ms worst-worker read/hold p95,
+exact PostgreSQL durability for all 15,000 HTTP 202 provisional holds, zero ownership overlap
+and zero queues at the fixed audit. The passing topology used two reservation writers, two
+Kafka consumers, split refresh/expiry workers and eight generator processes. Rollback restored
+the PostgreSQL reservation path. This is a five-minute safety result; managed Redis failover,
+writer-restart recovery and sustained confirmation remain outstanding.

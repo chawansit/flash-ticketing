@@ -75,3 +75,31 @@ the two-writer result can pass the complete execution gate.
 
 Implementation tests and the two-writer cloud result are pending at decision acceptance time.
 No production activation or capacity claim follows until those results are appended.
+
+## Implementation and cloud validation on 2026-09-27
+
+The unattended stage now accepts one through four candidate reservation writers, starts and
+source-verifies the candidate before the API cutover, records the deployed count and restores
+the captured mode and replica count. The direct RDS wait observer retains its mounted TLS CA.
+The focused unattended-stage suite passed 13 tests, the full unit suite passed 142 tests with
+two dependency deprecation warnings, Ruff passed and both Huawei shell helpers passed Alpine
+`sh -n`.
+
+The first two-writer run made all 14,674 delivered provisional commands durable but exposed a
+separate four-process generator limit: 6,208 schedules were dropped. Eight generator processes
+then delivered all 300,000 requests and two writers made all 15,000 commands durable. The
+combined maintenance topology left 80 refresh rows at the fixed audit, so that stage correctly
+remained failed even though a later audit found zero.
+
+The final matched five-minute stage used eight generators, two reservation writers, two Kafka
+consumers and the ADR 0057 split refresh/expiry workers. It delivered all 300,000 no-retry
+requests with zero drops, late deliveries, transport errors or HTTP failures. Worst-worker
+read/hold p95 were 103.682/235.254 ms. All 15,000 provisional acknowledgements reached one
+PostgreSQL `DURABLE` command with exact hold/order/idempotency linkage, zero overlapping seat
+intervals and zero queues or reservation stream work at the fixed 180-second audit. Rollback
+and cleanup passed.
+
+This validates two writers for the isolated safety topology. It does not supersede the remaining
+DCS primary-failover and pending-command writer-restart gates, and five minutes is insufficient
+for a sustained production capacity claim. Compact evidence is published in the
+[Redis-first 1,000 RPS report](../capacity/huawei-rds/2026-09-27-redis-first-1000-rps/README.md).

@@ -124,8 +124,5 @@ The code and local tests do not authorize production activation. The remaining g
 1. Deploy Redis with `noeviction`, AOF, a replica, monitored replication lag and a tested
    primary-failover procedure.
 2. Prove acknowledged provisional holds survive primary loss and writer restart.
-3. Run the completed distributed durability workflow against the managed topology and retain
-   redacted evidence that every acknowledged HTTP 202 reached `DURABLE`, ownership did not
-   overlap and all reservation streams drained.
-4. Run an isolated no-retry 1,000 RPS comparison, then increase load only while command age,
-   errors, overlap, PostgreSQL durability and final stream drain all pass.
+3. Run a longer confirmation of the passing five-minute 1,000 RPS safety topology while command
+   age, errors, overlap, PostgreSQL durability and final stream drain all remain within gates.
