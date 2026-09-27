@@ -10,7 +10,11 @@ This runbook implements ADR 0035. It keeps PgBouncer on the backend ECS, moves o
 - Huawei CA bundle for hostname verification.
 - Security-group access from the backend ECS only.
 
-Place the CA bundle at `secrets/rds-ca.pem`, copy `.env.rds.example` to `.env.rds`, URL-encode reserved password characters in both URLs, and restrict both files to the deployment operator. Use an RDS hostname, not a raw IP, with `verify-full`.
+Place the valid CA certificate at `secrets/rds-ca.pem`, copy `.env.rds.example` to
+`.env.rds`, URL-encode reserved password characters in both URLs, and restrict both files to
+the deployment operator. Use `verify-full`. Prefer the RDS private hostname; a private IP is
+acceptable only when that exact IP is present in the live server certificate subject
+alternative names and the chain verifies against the installed CA.
 
 ## Preflight before migration
 
