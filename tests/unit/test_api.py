@@ -15,6 +15,8 @@ def test_openapi_and_auth():
     schema = client.get("/openapi.json").json()
     assert "HTTPBearer" in schema["components"]["securitySchemes"]
     assert "/v1/holds" in schema["paths"]
+    assert "202" in schema["paths"]["/v1/holds"]["post"]["responses"]
+    assert "/v1/reservation-commands/{event_id}/{command_id}" in schema["paths"]
     assert client.get(f"/v1/orders/{uuid4()}").status_code in {401, 403}
 
 

@@ -1,0 +1,43 @@
+{
+  "completed_at": "2026-09-20T05:17:08.252058+00:00",
+  "gates": {
+    "load_exit_zero": true,
+    "workload": true,
+    "generator_drops_zero": true,
+    "transport_errors_zero": true,
+    "read_p95": true,
+    "hold_p95": true,
+    "admission_zero": true,
+    "audit_exit_zero": true,
+    "durability": true,
+    "overlap_zero": true,
+    "queues_drained": true,
+    "rollback": true,
+    "execution_and_cleanup": true
+  },
+  "pass": true,
+  "request_summary": {
+    "rate": 750,
+    "seconds": 180,
+    "generator_drops": 0,
+    "worst_worker_read_p95_ms": 7.7047209997545,
+    "worst_worker_hold_p95_ms": 52.38159200234804
+  },
+  "admission_rejections": 0,
+  "audited_holds": 6750,
+  "overlapping_load_hold_intervals": 0,
+  "run_id": "20260920T050945Z-bd75d2ae",
+  "source_revision": "d5ff3e37733fa0cb20c329a8313e143a5d5618fe",
+  "error": null,
+  "completed_phases": [
+    "revisions_matched",
+    "deployed",
+    "prepared",
+    "manifest_transferred",
+    "preflight_passed",
+    "observers_started",
+    "load_finished",
+    "compact_results_collected",
+    "audit_finished"
+  ]
+}

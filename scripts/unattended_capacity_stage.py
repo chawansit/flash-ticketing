@@ -128,9 +128,16 @@ def evaluate(output: Path, load_exit: int | None, audit_exit: int | None, admiss
             for key in (
                 "rate",
                 "seconds",
+                "reservation_mode",
                 "generator_drops",
                 "worst_worker_read_p95_ms",
                 "worst_worker_hold_p95_ms",
+                "late_deliveries",
+                "physical_http_attempts",
+                "first_attempt_failures",
+                "retry_attempts",
+                "retry_successes",
+                "retry_exhausted",
             )
         },
         "admission_rejections": admission.get("admission_rejections"),
@@ -160,8 +167,16 @@ def validate_args(args: argparse.Namespace) -> None:
         raise ValueError("Stage limits must be positive")
     if args.seats < (args.rate * args.seconds * 5 // 100 + args.shows - 1) // args.shows:
         raise ValueError("Fresh fixture has insufficient unique seats for the requested stage")
+    if not 0 <= args.retry_base_delay_ms <= 5000:
+        raise ValueError("Retry delay must be between 0 and 5000 ms")
+    if not 0 <= args.late_delivery_window_ms <= 5000:
+        raise ValueError("Late-delivery window must be between 0 and 5000 ms")
     if not 1 <= args.admission_candidate <= 64 or not 1 <= args.admission_rollback <= 64:
         raise ValueError("Admission values must be between 1 and 64")
+    if not 1 <= args.maintenance_candidate <= 4 or not 1 <= args.maintenance_rollback <= 4:
+        raise ValueError("Maintenance replica counts must be between 1 and 4")
+    if not 1 <= args.consumer_candidate <= 6 or not 1 <= args.consumer_rollback <= 6:
+        raise ValueError("Consumer replica counts must be between 1 and 6")
 
 
 def main() -> None:
@@ -182,7 +197,17 @@ def main() -> None:
     parser.add_argument("--seat-offset", type=int, default=0)
     parser.add_argument("--admission-candidate", type=int, required=True)
     parser.add_argument("--admission-rollback", type=int, required=True)
+    parser.add_argument("--maintenance-candidate", type=int, default=1)
+    parser.add_argument("--maintenance-rollback", type=int, default=1)
+    parser.add_argument("--split-maintenance", action="store_true")
+    parser.add_argument("--consumer-candidate", type=int, default=1)
+    parser.add_argument("--consumer-rollback", type=int, default=1)
     parser.add_argument("--hold-expiry-wait", type=int, default=180)
+    parser.add_argument("--max-attempts", type=int, choices=(1, 2), default=1)
+    parser.add_argument("--retry-base-delay-ms", type=float, default=25.0)
+    parser.add_argument("--late-delivery-window-ms", type=float, default=0.0)
+    parser.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
+    parser.add_argument("--reservation-writer-candidate", type=int, choices=(1, 2, 3, 4), default=1)
     parser.add_argument("--ssh", default="ssh")
     parser.add_argument("--scp", default="scp")
     parser.add_argument("--identity-file", type=Path)
@@ -196,7 +221,7 @@ def main() -> None:
         "prepare fresh fixture and private manifest",
         "transfer manifest through a private temporary directory",
         "preflight and start observers",
-        "run no-retry load on separate generator",
+        "start and poll bounded load on separate generator with explicit recovery settings",
         "collect compact results and admission gate",
         "wait for hold expiry and run exact durability audit",
         "restore admission, collect compact evidence and delete private manifests",
@@ -223,7 +248,9 @@ def main() -> None:
     completed: list[str] = []
     deployed = False
     observers = False
+    load_start_attempted = False
     load_exit = audit_exit = admission_exit = None
+    source_revision = None
     error = None
 
     def checkpoint(phase: str) -> None:
@@ -234,12 +261,35 @@ def main() -> None:
         )
 
     try:
+        backend_revision = transport.remote(
+            "backend-revision",
+            args.backend_host,
+            ["git", "-C", args.backend_dir, "rev-parse", "HEAD"],
+            timeout=30,
+        ).stdout.strip()
+        generator_revision = transport.remote(
+            "generator-revision",
+            args.generator_host,
+            ["git", "-C", args.generator_dir, "rev-parse", "HEAD"],
+            timeout=30,
+        ).stdout.strip()
+        if not re.fullmatch(r"[0-9a-f]{40}", backend_revision) or backend_revision != generator_revision:
+            raise RuntimeError("Backend and generator source revisions do not match")
+        source_revision = backend_revision
+        checkpoint("revisions_matched")
+
         deployed = True
         transport.remote(
             "deploy",
             args.backend_host,
             backend_prefix
-            + ["deploy", run_id, str(args.admission_candidate), str(args.admission_rollback)],
+            + [
+                "deploy", run_id, str(args.admission_candidate), str(args.admission_rollback),
+                str(args.maintenance_candidate), str(args.maintenance_rollback),
+                str(args.consumer_candidate), str(args.consumer_rollback),
+                str(int(args.split_maintenance)), args.reservation_mode,
+                str(args.reservation_writer_candidate),
+            ],
             timeout=300,
         )
         checkpoint("deployed")
@@ -290,48 +340,71 @@ def main() -> None:
         transport.remote(
             "observe",
             args.backend_host,
-            backend_prefix + ["observe", run_id, str(args.seconds + 60)],
+            backend_prefix + ["observe", run_id, str(args.seconds + args.hold_expiry_wait + 300)],
             timeout=30,
         )
         observers = True
         checkpoint("observers_started")
 
+        load_start_attempted = True
         try:
-            load = transport.remote(
-                "load",
+            transport.remote(
+                "load-start",
                 args.generator_host,
                 generator_prefix
                 + [
-                    "run",
+                    "start",
                     run_id,
                     f"/root/unattended-{run_id}-upload.json",
                     str(args.rate),
                     str(args.seconds),
                     str(args.workers),
                     str(args.seat_offset),
+                    str(args.max_attempts),
+                    str(args.retry_base_delay_ms),
+                    str(args.late_delivery_window_ms),
+                    args.reservation_mode,
                 ],
-                check=False,
-                timeout=args.seconds + 240,
+                timeout=60,
             )
-            load_exit = load.returncode
-            checkpoint("load_finished")
-        except subprocess.TimeoutExpired:
+            deadline = time.monotonic() + args.seconds + 240
+            while True:
+                status_result = transport.remote(
+                    "load-status",
+                    args.generator_host,
+                    generator_prefix + ["status", run_id],
+                    timeout=30,
+                )
+                status = json.loads(status_result.stdout)
+                if not isinstance(status, dict):
+                    raise TypeError("Malformed generator job status")
+                if status.get("state") == "finished":
+                    code = status.get("exit_code")
+                    if isinstance(code, bool) or not isinstance(code, int) or not 0 <= code <= 255:
+                        raise ValueError("Malformed generator exit status")
+                    load_exit = code
+                    checkpoint("load_finished")
+                    break
+                if status.get("state") != "running":
+                    raise ValueError("Unexpected generator job state")
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise TimeoutError("Generator job exceeded its completion deadline")
+                time.sleep(min(10, remaining))
+        except (OSError, RuntimeError, TypeError, ValueError, subprocess.TimeoutExpired) as exc:
             load_exit = -1
-            error = f"Load SSH call timed out after {args.seconds + 240} seconds"
-            checkpoint("load_timed_out")
-
-        stopped = transport.remote(
-            "stop-observers",
-            args.backend_host,
-            backend_prefix + ["stop-observers", run_id],
-            check=False,
-            timeout=120,
-        )
-        if stopped.returncode:
-            reason = f"stop-observers failed with exit code {stopped.returncode}"
-            error = f"{error}; {reason}" if error else reason
-        else:
-            observers = False
+            error = f"Generator job failed: {redact(repr(exc))}"
+            checkpoint("load_failed")
+        finally:
+            stopped_load = transport.remote(
+                "load-stop",
+                args.generator_host,
+                generator_prefix + ["stop", run_id],
+                check=False,
+                timeout=30,
+            )
+            if stopped_load.returncode:
+                raise RuntimeError(f"load-stop failed with exit code {stopped_load.returncode}")
 
         generator_parent = args.output / "generator"
         generator_parent.mkdir()
@@ -377,6 +450,18 @@ def main() -> None:
         )
         audit_exit = audit.returncode
         checkpoint("audit_finished")
+        stopped = transport.remote(
+            "stop-observers",
+            args.backend_host,
+            backend_prefix + ["stop-observers", run_id],
+            check=False,
+            timeout=120,
+        )
+        if stopped.returncode:
+            reason = f"stop-observers failed with exit code {stopped.returncode}"
+            error = f"{error}; {reason}" if error else reason
+        else:
+            observers = False
     except (OSError, RuntimeError, subprocess.TimeoutExpired, ValueError, KeyboardInterrupt) as exc:
         error = redact(repr(exc))
     finally:
@@ -392,6 +477,17 @@ def main() -> None:
             except (OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
                 finalizer_errors.append(f"{label}: {redact(repr(exc))}")
 
+        if load_start_attempted:
+            finish(
+                "generator stop",
+                lambda: transport.remote(
+                    "load-stop-finally",
+                    args.generator_host,
+                    generator_prefix + ["stop", run_id],
+                    check=False,
+                    timeout=30,
+                ),
+            )
         if observers:
             finish(
                 "stop observers",
@@ -453,7 +549,7 @@ def main() -> None:
     result = evaluate(args.output, load_exit, audit_exit, admission_exit)
     result["gates"]["execution_and_cleanup"] = error is None
     result["pass"] = all(result["gates"].values())
-    result.update({"run_id": run_id, "error": error, "completed_phases": completed})
+    result.update({"run_id": run_id, "source_revision": source_revision, "error": error, "completed_phases": completed})
     (args.output / "stage-result.json").write_text(
         json.dumps(result, indent=2) + "\n", encoding="utf-8"
     )

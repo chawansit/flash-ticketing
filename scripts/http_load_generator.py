@@ -122,8 +122,33 @@ def expiry_seconds(value):
     return number
 
 
+def nonnegative_milliseconds(value):
+    number = float(value)
+    if not math.isfinite(number) or not 0 <= number <= 5000:
+        raise argparse.ArgumentTypeError("Milliseconds must be finite and in [0, 5000]")
+    return number
+
+
+RETRYABLE_CODES = frozenset({
+    "ADMISSION_FULL", "ADMISSION_UNAVAILABLE", "DATABASE_UNAVAILABLE", "RATE_LIMITED",
+    "RESOURCE_BUSY", "SEATMAP_WARMING", "SEATMAP_UNAVAILABLE",
+})
+
+
+def retryable_response(write, response, code):
+    if response.status_code in {429, 503} and code in RETRYABLE_CODES:
+        return True
+    return write and response.status_code == 409 and code == "RESOURCE_BUSY"
+
+
 async def run(args):
     manifest = json.loads(args.manifest.read_text())
+    max_attempts = getattr(args, "max_attempts", 1)
+    retry_base_delay_ms = getattr(args, "retry_base_delay_ms", 25.0)
+    late_delivery_window_ms = getattr(args, "late_delivery_window_ms", 0.0)
+    reservation_mode = getattr(args, "reservation_mode", "postgres")
+    write_success_status = "202" if reservation_mode == "redis-first" else "201"
+    write_success_code = int(write_success_status)
     if manifest.get("schema_version") != 1 or manifest.get("environment") != "development":
         raise ValueError("Expected a development manifest")
     if datetime.fromisoformat(manifest["expires_at"]) <= datetime.now(UTC) + timedelta(
@@ -142,9 +167,17 @@ async def run(args):
     transport_phases = defaultdict(Counter)
     expected_hot_conflicts = 0
     transport_errors = Counter()
+    attempt_transport_errors = Counter()
     transport_examples = []
     drop_reasons = Counter()
     late_drop_examples = []
+    late_delivery_examples = []
+    late_deliveries = 0
+    physical_http_attempts = 0
+    first_attempt_failures = Counter()
+    retry_attempts = Counter()
+    retry_successes = Counter()
+    retry_exhausted = Counter()
     validators, pending, lags = {}, set(), []
     task_errors = Counter()
     error_codes, error_examples = Counter(), []
@@ -189,51 +222,105 @@ async def run(args):
             workload.append((index, viewer, show, write, seat, due, phase, hot))
 
         async def request(item):
-            nonlocal bytes_received, expected_hot_conflicts
+            nonlocal bytes_received, expected_hot_conflicts, physical_http_attempts
             index, viewer, show, write, seat, _, phase, hot = item
             operation = "hot_hold" if hot else "hold" if write else "read"
             begin = perf_counter()
-            trace = TransportTrace() if getattr(args, "transport_diagnostics", False) else None
-            started_utc = datetime.now(UTC).isoformat() if trace else None
-            extensions = {"trace": trace} if trace else {}
-            try:
-                if write:
-                    response = await client.post(
-                        "/v1/holds",
-                        extensions=extensions,
-                        json={"event_id": show, "seat_ids": [f"S{seat}"]},
-                        headers={
-                            "Authorization": "Bearer " + tokens[viewer],
-                            "Idempotency-Key": f"{run_id}-{index}",
-                        },
-                    )
-                else:
-                    response = await client.get(
-                        f"/v1/events/{show}/availability", extensions=extensions, headers={"If-None-Match": validators.get((viewer, show), initial[show])}
-                    )
-                    if response.status_code == 200:
+            idempotency_key = f"{run_id}-{index}"
+            status = "transport_error"
+            response = None
+            final_code = None
+            attempts_used = 0
+
+            for attempt in range(1, max_attempts + 1):
+                attempts_used = attempt
+                physical_http_attempts += 1
+                trace = TransportTrace() if getattr(args, "transport_diagnostics", False) else None
+                started_utc = datetime.now(UTC).isoformat() if trace else None
+                extensions = {"trace": trace} if trace else {}
+                try:
+                    if write:
+                        response = await client.post(
+                            "/v1/holds",
+                            extensions=extensions,
+                            json={"event_id": show, "seat_ids": [f"S{seat}"]},
+                            headers={
+                                "Authorization": "Bearer " + tokens[viewer],
+                                "Idempotency-Key": idempotency_key,
+                            },
+                        )
+                    else:
+                        response = await client.get(
+                            f"/v1/events/{show}/availability",
+                            extensions=extensions,
+                            headers={"If-None-Match": validators.get((viewer, show), initial[show])},
+                        )
+                    bytes_received += len(response.content)
+                    status = str(response.status_code)
+                    final_code, request_id = error_diagnostic(response)
+                    if not write and response.status_code == 200:
                         validators[(viewer, show)] = response.headers["etag"]
-                status = str(response.status_code)
-                bytes_received += len(response.content)
-                if response.status_code not in ({201} if write else {200, 304}):
-                    code, request_id = error_diagnostic(response)
-                    if hot and status == "409" and code in {"SEAT_BUSY", "SEAT_UNAVAILABLE"}:
-                        expected_hot_conflicts += 1
-                    error_codes[f"{operation}:{status}:{code}"] += 1
-                    if len(error_examples) < 20:
-                        error_examples.append({"operation": operation, "status": status,
-                                               "code": code, "request_id": request_id})
-            except httpx.HTTPError as exc:
-                status = "transport_error"
-                transport_errors[type(exc).__name__] += 1
-                if trace and len(transport_examples) < 20:
-                    transport_examples.append({"index": index, "operation": operation, "started_utc": started_utc, "elapsed_ms": round((perf_counter()-begin)*1000, 3), **trace.failure(exc)})
-            if trace:
-                connection_counts[operation].update(
-                    event["phase"].rsplit(".", 1)[-1] for event in trace.events
-                    if event["phase"].startswith("connection.connect_tcp.")
-                )
-                transport_phases[operation].update(event["phase"] for event in trace.events)
+                    if retryable_response(write, response, final_code) and attempt < max_attempts:
+                        reason = f"{operation}:{status}:{final_code}"
+                        if attempt == 1:
+                            first_attempt_failures[reason] += 1
+                        retry_attempts[reason] += 1
+                        await asyncio.sleep(
+                            retry_base_delay_ms / 1000 * (2 ** (attempt - 1))
+                            * (0.5 + randomizer.random())
+                        )
+                        continue
+                    break
+                except httpx.HTTPError as exc:
+                    error_type = type(exc).__name__
+                    attempt_transport_errors[error_type] += 1
+                    if trace and len(transport_examples) < 20:
+                        transport_examples.append({
+                            "index": index, "attempt": attempt, "operation": operation,
+                            "started_utc": started_utc,
+                            "elapsed_ms": round((perf_counter() - begin) * 1000, 3),
+                            **trace.failure(exc),
+                        })
+                    if attempt < max_attempts:
+                        reason = f"{operation}:transport:{error_type}"
+                        if attempt == 1:
+                            first_attempt_failures[reason] += 1
+                        retry_attempts[reason] += 1
+                        await asyncio.sleep(
+                            retry_base_delay_ms / 1000 * (2 ** (attempt - 1))
+                            * (0.5 + randomizer.random())
+                        )
+                        continue
+                    status = "transport_error"
+                    transport_errors[error_type] += 1
+                    response = None
+                    final_code = None
+                    break
+                finally:
+                    if trace:
+                        connection_counts[operation].update(
+                            event["phase"].rsplit(".", 1)[-1] for event in trace.events
+                            if event["phase"].startswith("connection.connect_tcp.")
+                        )
+                        transport_phases[operation].update(event["phase"] for event in trace.events)
+
+            final_success = (
+                status in ({"200", "304"} if operation == "read" else {write_success_status})
+                or (operation == "hot_hold" and status == "409"
+                    and final_code in {"SEAT_BUSY", "SEAT_UNAVAILABLE"})
+            )
+            if attempts_used > 1:
+                (retry_successes if final_success else retry_exhausted)[operation] += 1
+            if response is not None and response.status_code not in ({write_success_code} if write else {200, 304}):
+                code, request_id = error_diagnostic(response)
+                if hot and status == "409" and code in {"SEAT_BUSY", "SEAT_UNAVAILABLE"}:
+                    expected_hot_conflicts += 1
+                error_codes[f"{operation}:{status}:{code}"] += 1
+                if len(error_examples) < 20:
+                    error_examples.append({
+                        "operation": operation, "status": status,
+                        "code": code, "request_id": request_id,
+                    })
             statuses[operation][status] += 1
             duration = (perf_counter() - begin) * 1000
             latency[operation + ":" + status].append(duration)
@@ -275,7 +362,22 @@ async def run(args):
             lags.append(late * 1000)
             late_threshold = max(0.05, 1 / args.rate)
             too_late = late > late_threshold
-            if too_late or len(pending) >= args.inflight:
+            recover_late = (
+                too_late
+                and late_delivery_window_ms > 0
+                and late * 1000 <= late_delivery_window_ms
+                and len(pending) < args.inflight
+            )
+            if recover_late:
+                late_deliveries += 1
+                if len(late_delivery_examples) < 20:
+                    late_delivery_examples.append({
+                        "index": index,
+                        "utc": datetime.now(UTC).isoformat(),
+                        "lag_ms": round(late * 1000, 3),
+                        "pending": len(pending),
+                    })
+            elif too_late or len(pending) >= args.inflight:
                 drops += 1
                 reason = "late" if too_late else "inflight_limit"
                 drop_reasons[reason] += 1
@@ -302,11 +404,16 @@ async def run(args):
         n
         for op, rows in statuses.items()
         for status, n in rows.items()
-        if status not in ({"200", "304"} if op == "read" else {"201", "409"} if op == "hot_hold" else {"201"})
+        if status not in (
+            {"200", "304"}
+            if op == "read"
+            else {write_success_status, "409"} if op == "hot_hold" else {write_success_status}
+        )
     )
     unexpected += statuses["hot_hold"].get("409", 0) - expected_hot_conflicts
-    hot_failed = [v for k, values in latency.items() if k.startswith("hot_hold:") and k != "hot_hold:201" for v in values]
+    hot_failed = [v for k, values in latency.items() if k.startswith("hot_hold:") and k != f"hot_hold:{write_success_status}" for v in values]
     result = {
+        "reservation_mode": reservation_mode,
         "mixed_hot_holds": getattr(args, "mixed_hot_holds", False),
         "expected_hot_conflicts": expected_hot_conflicts,
         "hot_failed_p95_ms": percentile(hot_failed, .95),
@@ -334,6 +441,17 @@ async def run(args):
         "drop_reasons": dict(drop_reasons),
         "late_drop_threshold_ms": max(50.0, 1000 / args.rate),
         "late_drop_examples": late_drop_examples,
+        "late_delivery_window_ms": late_delivery_window_ms,
+        "late_deliveries": late_deliveries,
+        "late_delivery_examples": late_delivery_examples,
+        "max_attempts": max_attempts,
+        "retry_base_delay_ms": retry_base_delay_ms,
+        "physical_http_attempts": physical_http_attempts,
+        "first_attempt_failures": dict(first_attempt_failures),
+        "retry_attempts": dict(retry_attempts),
+        "retry_successes": dict(retry_successes),
+        "retry_exhausted": dict(retry_exhausted),
+        "attempt_transport_error_types": dict(attempt_transport_errors),
         "error_codes": dict(error_codes),
         "error_examples": error_examples,
         "keepalive_expiry_seconds": getattr(args, "keepalive_expiry", 5.0),
@@ -366,7 +484,7 @@ async def run(args):
         and not task_errors
         and bool(reads)
         and percentile(reads, 0.95) <= 150,
-        "note": "95% reads/5% holds (mixed mode: 4% distinct, 1% hot). Known hot 409 codes remain in error_codes but are expected; bootstrap excluded. Topology is operator-declared, not verified. No backend durability/queue checks here.",
+        "note": "95% reads/5% holds (mixed mode: 4% distinct, 1% hot). Redis-first counts HTTP 202 as provisional intake only; the backend durability audit must still prove every command DURABLE. Known hot 409 codes remain in error_codes but are expected; bootstrap excluded. Topology is operator-declared, not verified.",
     }
     result["reservation_gate_pass"] = bool(holds) and percentile(holds, 0.95) <= 300
     result["accounting_pass"] = (
@@ -400,7 +518,11 @@ if __name__ == "__main__":
     parser.add_argument("--burst", action="store_true", help="Continuous 60s base/120s 4x/60s recovery")
     parser.add_argument("--transport-diagnostics", action="store_true")
     parser.add_argument("--mixed-hot-holds", action="store_true")
+    parser.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
     parser.add_argument("--keepalive-expiry", type=expiry_seconds, default=5.0)
+    parser.add_argument("--max-attempts", type=int, choices=(1, 2), default=1)
+    parser.add_argument("--retry-base-delay-ms", type=nonnegative_milliseconds, default=25.0)
+    parser.add_argument("--late-delivery-window-ms", type=nonnegative_milliseconds, default=0.0)
     parser.add_argument("--start-at", help="Optional coordinated UTC ISO start time")
     parser.add_argument(
         "--topology", choices=["same-host", "separate-host", "unverified"], default="unverified"

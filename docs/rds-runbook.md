@@ -10,7 +10,11 @@ This runbook implements ADR 0035. It keeps PgBouncer on the backend ECS, moves o
 - Huawei CA bundle for hostname verification.
 - Security-group access from the backend ECS only.
 
-Place the CA bundle at `secrets/rds-ca.pem`, copy `.env.rds.example` to `.env.rds`, URL-encode reserved password characters in both URLs, and restrict both files to the deployment operator. Use an RDS hostname, not a raw IP, with `verify-full`.
+Place the valid CA certificate at `secrets/rds-ca.pem`, copy `.env.rds.example` to
+`.env.rds`, URL-encode reserved password characters in both URLs, and restrict both files to
+the deployment operator. Use `verify-full`. Prefer the RDS private hostname; a private IP is
+acceptable only when that exact IP is present in the live server certificate subject
+alternative names and the chain verifies against the installed CA.
 
 ## Preflight before migration
 
@@ -90,6 +94,8 @@ Use a fresh private development manifest for each long stage and delete it after
 
 For every stage require zero unexpected responses, transport errors and generator drops; seat-map p95 below 150 ms; hold p95 below 300 ms; exact acknowledged persistence; zero broken links and overlapping seat intervals; and drained outbox, refresh and dead-letter queues. Record per-API CPU, PgBouncer queues, pool acquisition, query/body/commit timings, RDS CPU, connections, disk latency/IOPS, WAL and checkpoints.
 
+For the failed 2026-09-20 750 RPS spike, follow the [commit-spike diagnostic](capacity/huawei-rds/commit-spike-diagnostic.md) before another capacity claim.
+
 ## Failure validation
 
 Run faults serially after load and expiry drain. Never overlap faults.
@@ -141,11 +147,32 @@ python scripts/unattended_capacity_stage.py \
   --seconds 600 \
   --admission-candidate 5 \
   --admission-rollback 4 \
+  --split-maintenance \
+  --reservation-mode redis-first \
+  --reservation-writer-candidate 2 \
   --identity-file tmp/capacity-auth/id_ed25519
 ```
 
+`--split-maintenance` activates the ADR 0057 candidate: the combined maintenance
+service is stopped and one refresh worker plus one expiry worker are verified
+before load. Rollback restores all three worker replica counts captured before
+deployment. Omit the flag to retain the combined maintenance topology.
+
+`--reservation-mode redis-first` starts the configured reservation writers before the API cutover and
+makes each generator count HTTP 202 as provisional success. The post-TTL audit then requires
+one `DURABLE` PostgreSQL command for every 202, complete hold/order/idempotency linkage, zero
+overlapping seat ownership and a fully drained Redis reservation stream. Rollback restores the
+reservation mode and writer replica count captured before deployment. Use
+`--reservation-writer-candidate 2` only for the ADR 0059 bounded experiment. Omit the mode
+option to retain the synchronous PostgreSQL path.
+
 Run `--dry-run` first to inspect the fixed phase order without contacting either
-ECS. A temporary identity file may be supplied with `--identity-file`; remove
+ECS. The live command verifies that both checkouts resolve to the same Git
+commit before changing admission. Under ADR 0043, the generator starts one
+detached, bounded job; the operator checks its short status response every
+ten seconds and stops its process group before private cleanup. A missing or
+malformed job status fails the stage and cannot promote a higher rate.
+A temporary identity file may be supplied with `--identity-file`; remove
 its authorization from both ECSs and delete the local key after the stage.
 The generator helper prefers `/root/http-load-venv/bin/python` when present
 and otherwise uses `python3`; set `FLASH_TICKETING_LOAD_PYTHON` on the

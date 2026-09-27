@@ -1,0 +1,330 @@
+import hashlib
+import json
+from datetime import UTC, datetime, timedelta
+from uuid import uuid4
+
+from redis.exceptions import RedisError, ResponseError
+
+from ticketing.domain import Failure
+from ticketing.observability import RESERVATION_INTAKE, RESERVATION_REPLICA_ACKS
+
+ENQUEUE = """
+local map = KEYS[1]
+local idem = KEYS[2]
+local command = KEYS[3]
+local stream = KEYS[4]
+local expiry = KEYS[5]
+local meta = redis.call('HMGET',map,'version','updating','sale_starts_epoch','sale_ends_epoch','currency')
+if not meta[1] or meta[2] or not meta[3] or not meta[4] or not meta[5] then return {-1} end
+local now = tonumber(redis.call('TIME')[1])
+if now < tonumber(meta[3]) or now >= tonumber(meta[4]) then return {-2} end
+local previous_hash = redis.call('HGET',idem,'request_hash')
+if previous_hash then
+  if previous_hash ~= ARGV[1] then return {-3} end
+  return {2,redis.call('HGET',idem,'response')}
+end
+if redis.call('XLEN',stream) >= tonumber(ARGV[2]) then return {-4} end
+local seat_ids = cjson.decode(ARGV[3])
+local selected = {}
+local total = 0
+for _,seat_id in ipairs(seat_ids) do
+  local field = 'seat:'..seat_id
+  local raw = redis.call('HGET',map,field)
+  if not raw then return {-5} end
+  local seat = cjson.decode(raw)
+  local expired = seat.status == 'HELD' and tonumber(seat.reserved_until_epoch or 0) <= now
+  if seat.status == 'SOLD' or (seat.status == 'HELD' and not expired) then return {-6} end
+  total = total + tonumber(seat.price)
+  table.insert(selected,{field=field,seat=seat})
+end
+local response = cjson.decode(ARGV[4])
+response.total = total
+response.currency = meta[5]
+response.expires_at_epoch = now + tonumber(ARGV[5])
+response.expires_at = ARGV[6]
+response.persistence_status = 'PENDING'
+local response_json = cjson.encode(response)
+local version = tonumber(meta[1])
+for _,entry in ipairs(selected) do
+  local seat = entry.seat
+  seat.status = 'HELD'
+  seat.hold_id = response.hold_id
+  seat.reserved_until = response.expires_at
+  seat.reserved_until_epoch = response.expires_at_epoch
+  version = version + 1
+  seat.version = version
+  redis.call('HSET',map,entry.field,cjson.encode(seat))
+end
+redis.call('HSET',map,'version',version)
+redis.call('HSET',idem,'request_hash',ARGV[1],'response',response_json)
+redis.call('EXPIRE',idem,tonumber(ARGV[7]))
+redis.call('HSET',command,'status','PENDING','response',response_json,'payload',ARGV[8],
+  'created_at_epoch',now)
+redis.call('EXPIRE',command,tonumber(ARGV[7]))
+redis.call('ZADD',expiry,response.expires_at_epoch,response.command_id)
+redis.call('XADD',stream,'*','command_id',response.command_id,'payload',ARGV[8],'response',response_json,'created_at_epoch',now)
+return {1,response_json}
+"""
+
+MARK_DURABLE = """
+local status = redis.call('HGET',KEYS[1],'status')
+if not status then return 0 end
+if status == 'FAILED' then return -1 end
+if status == 'PENDING' then
+  redis.call('HSET',KEYS[1],'status','DURABLE')
+end
+return 1
+"""
+
+MARK_FAILED = """
+local command = KEYS[1]
+local map = KEYS[2]
+local expiry = KEYS[3]
+local status = redis.call('HGET',command,'status')
+if not status then return 0 end
+if status == 'DURABLE' then return -1 end
+local response = cjson.decode(redis.call('HGET',command,'response'))
+for _,seat_id in ipairs(cjson.decode(ARGV[1])) do
+  local field = 'seat:'..seat_id
+  local raw = redis.call('HGET',map,field)
+  if raw then
+    local seat = cjson.decode(raw)
+    if seat.hold_id == response.hold_id then
+      seat.status = 'AVAILABLE'
+      seat.hold_id = nil
+      seat.reserved_until = cjson.null
+      seat.reserved_until_epoch = cjson.null
+      local version = tonumber(redis.call('HGET',map,'version') or 0) + 1
+      seat.version = version
+      redis.call('HSET',map,'version',version,field,cjson.encode(seat))
+    end
+  end
+end
+redis.call('ZREM',expiry,response.command_id)
+redis.call('HSET',command,'status','FAILED','error_code',ARGV[2])
+return 1
+"""
+
+
+class RedisReservationIntake:
+    """Atomic provisional ownership and durable-command intake for one event hash slot."""
+
+    group = "reservation-writers"
+
+    def __init__(
+        self,
+        cache,
+        *,
+        hold_seconds=120,
+        replica_acks=0,
+        wait_ms=100,
+        max_backlog=10000,
+        retention_seconds=86400,
+    ):
+        self.cache = cache
+        self.redis = cache.redis
+        self.hold_seconds = hold_seconds
+        self.replica_acks = replica_acks
+        self.wait_ms = wait_ms
+        self.max_backlog = max_backlog
+        self.retention_seconds = retention_seconds
+
+    @staticmethod
+    def _tag(event):
+        return "{" + str(event) + "}"
+
+    @classmethod
+    def stream_key(cls, event):
+        return f"reservation-stream:{cls._tag(event)}"
+
+    @classmethod
+    def command_key(cls, event, command_id):
+        return f"reservation-command:{cls._tag(event)}:{command_id}"
+
+    @classmethod
+    def expiry_key(cls, event):
+        return f"reservation-expiry:{cls._tag(event)}"
+
+    @classmethod
+    def idem_key(cls, event, actor, key):
+        identity = hashlib.sha256(f"{actor}\0{key}".encode()).hexdigest()
+        return f"reservation-idem:{cls._tag(event)}:{identity}"
+
+    def enqueue(self, actor, event_id, seat_ids, key):
+        event = str(event_id)
+        seats = sorted(set(seat_ids))
+        request = {"event_id": event, "seats": seats}
+        request_hash = hashlib.sha256(
+            json.dumps(request, sort_keys=True, default=str).encode()
+        ).hexdigest()
+        command_id, hold_id, order_id = str(uuid4()), str(uuid4()), str(uuid4())
+        expires = datetime.now(UTC) + timedelta(seconds=self.hold_seconds)
+        response = {
+            "command_id": command_id,
+            "hold_id": hold_id,
+            "order_id": order_id,
+            "seats": seats,
+        }
+        payload = {
+            "command_id": command_id,
+            "actor": actor,
+            "idempotency_key": key,
+            "request_hash": request_hash,
+            "event_id": event,
+            "seat_ids": seats,
+            "hold_id": hold_id,
+            "order_id": order_id,
+            "expires_at": expires.isoformat(),
+        }
+        keys = (
+            self.cache.key(event),
+            self.idem_key(event, actor, key),
+            self.command_key(event, command_id),
+            self.stream_key(event),
+            self.expiry_key(event),
+        )
+        try:
+            arguments = (
+                ENQUEUE,
+                len(keys),
+                *keys,
+                request_hash,
+                self.max_backlog,
+                json.dumps(seats),
+                json.dumps(response),
+                self.hold_seconds,
+                expires.isoformat(),
+                self.retention_seconds,
+                json.dumps(payload),
+            )
+            acknowledged = None
+            if self.replica_acks:
+                # Redis WAIT applies to writes issued on the same connection. This pipeline
+                # pins EVAL and WAIT to one connection and Redis executes them in order.
+                pipe = self.redis.pipeline(transaction=False)
+                pipe.eval(*arguments)
+                pipe.wait(self.replica_acks, self.wait_ms)
+                result, acknowledged = pipe.execute()
+            else:
+                result = self.redis.eval(*arguments)
+            code = int(result[0])
+            if code in {1, 2}:
+                stored = json.loads(result[1])
+                if code == 2:
+                    stored = self.status(event, stored["command_id"])
+                if acknowledged is not None:
+                    RESERVATION_REPLICA_ACKS.observe(acknowledged)
+                    if acknowledged < self.replica_acks:
+                        RESERVATION_INTAKE.labels("durability_unknown").inc()
+                        raise Failure("RESERVATION_DURABILITY_UNKNOWN", 503)
+                # Registry is advisory. An accepted command must not become a 503 if
+                # this optimization fails; stream scanning is the recovery path.
+                try:
+                    self.redis.sadd("reservation-stream-registry", self.stream_key(event))
+                except RedisError:
+                    RESERVATION_INTAKE.labels("registry_error").inc()
+                RESERVATION_INTAKE.labels("accepted" if code == 1 else "replay").inc()
+                return stored
+        except Failure:
+            raise
+        except RedisError as exc:
+            RESERVATION_INTAKE.labels("redis_error").inc()
+            raise Failure("ADMISSION_UNAVAILABLE", 503) from exc
+        failures = {
+            -1: ("SEATMAP_WARMING", 503),
+            -2: ("SALE_CLOSED", 409),
+            -3: ("IDEMPOTENCY_MISMATCH", 409),
+            -4: ("RESERVATION_BACKLOG_FULL", 503),
+            -5: ("SEAT_NOT_FOUND", 404),
+            -6: ("SEAT_UNAVAILABLE", 409),
+        }
+        name, status = failures.get(code, ("ADMISSION_UNAVAILABLE", 503))
+        RESERVATION_INTAKE.labels(name.lower()).inc()
+        raise Failure(name, status)
+
+    def status(self, event_id, command_id, actor=None):
+        try:
+            row = self.redis.hgetall(self.command_key(event_id, command_id))
+        except RedisError as exc:
+            RESERVATION_INTAKE.labels("redis_error").inc()
+            raise Failure("ADMISSION_UNAVAILABLE", 503) from exc
+        if not row:
+            raise Failure("RESERVATION_COMMAND_NOT_FOUND", 404)
+        if actor is not None:
+            payload = json.loads(row["payload"])
+            if payload["actor"] != actor:
+                raise Failure("RESERVATION_COMMAND_NOT_FOUND", 404)
+        response = json.loads(row["response"])
+        response["persistence_status"] = row["status"]
+        if "error_code" in row:
+            response["error_code"] = row["error_code"]
+        return response
+
+    def streams(self, limit=5000):
+        keys = set(self.redis.smembers("reservation-stream-registry"))
+        cursor = 0
+        while len(keys) < limit:
+            cursor, found = self.redis.scan(cursor, match="reservation-stream:*", count=100)
+            keys.update(found)
+            if cursor == 0:
+                break
+        return sorted(keys)[:limit]
+
+    def ensure_group(self, stream):
+        try:
+            self.redis.xgroup_create(stream, self.group, id="0", mkstream=True)
+        except ResponseError as exc:
+            if "BUSYGROUP" not in str(exc):
+                raise
+
+    def messages(self, consumer, count=8, reclaim_idle_ms=30000):
+        streams = self.streams()
+        for stream in streams:
+            self.ensure_group(stream)
+
+        # Recover abandoned deliveries first. Once pending work is drained, read all
+        # event streams in one XREADGROUP call so an alphabetically earlier event
+        # cannot continuously starve later events.
+        for stream in streams:
+            _next, claimed, _deleted = self.redis.xautoclaim(
+                stream, self.group, consumer, reclaim_idle_ms, "0-0", count=count
+            )
+            if claimed:
+                for message_id, fields in claimed:
+                    yield stream, message_id, fields
+                return
+
+        if streams:
+            batches = self.redis.xreadgroup(
+                self.group,
+                consumer,
+                {stream: ">" for stream in streams},
+                count=count,
+                block=1,
+            )
+            if batches:
+                for stream, entries in batches:
+                    for message_id, fields in entries:
+                        yield stream, message_id, fields
+
+    def mark_durable(self, event_id, command_id):
+        return self.redis.eval(
+            MARK_DURABLE, 1, self.command_key(event_id, command_id)
+        )
+
+    def mark_failed(self, event_id, command_id, seat_ids, error_code):
+        return self.redis.eval(
+            MARK_FAILED,
+            3,
+            self.command_key(event_id, command_id),
+            self.cache.key(event_id),
+            self.expiry_key(event_id),
+            json.dumps(seat_ids),
+            error_code,
+        )
+
+    def acknowledge(self, stream, message_id):
+        pipe = self.redis.pipeline(transaction=False)
+        pipe.xack(stream, self.group, message_id)
+        pipe.xdel(stream, message_id)
+        pipe.execute()

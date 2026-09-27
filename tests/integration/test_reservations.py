@@ -122,6 +122,80 @@ def test_expiry_housekeeping_preserves_reclaimed_seat(system):
         )
 
 
+def test_expiry_batch_releases_multiple_orders_in_bounded_chunks(system):
+    svc, db, event_id = system
+    holds = [svc.reserve(f"actor-{seat}", event_id, [seat], f"hold-{seat}") for seat in "ABC"]
+    for hold in holds:
+        expire(db, hold)
+    with db.transaction() as conn:
+        before = conn.execute(
+            "SELECT count(*) AS n FROM outbox_events WHERE event_type='SeatsChanged'"
+        ).fetchone()["n"]
+
+    assert svc.expire_batch(2) == 2
+    assert svc.expire_batch(2) == 1
+    assert svc.expire_batch(2) == 0
+
+    with db.transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM holds WHERE status='EXPIRED'").fetchone()["n"] == 3
+        assert conn.execute("SELECT count(*) AS n FROM orders WHERE status='EXPIRED'").fetchone()["n"] == 3
+        assert conn.execute("SELECT count(*) AS n FROM event_seats WHERE hold_id IS NOT NULL").fetchone()["n"] == 0
+        after = conn.execute(
+            "SELECT count(*) AS n FROM outbox_events WHERE event_type='SeatsChanged'"
+        ).fetchone()["n"]
+    assert after - before == 3
+
+
+def test_concurrent_expiry_batches_claim_each_order_once(system):
+    svc, db, event_id = system
+    holds = [svc.reserve(f"actor-{seat}", event_id, [seat], f"hold-{seat}") for seat in "ABC"]
+    for hold in holds:
+        expire(db, hold)
+    gate = Barrier(2)
+
+    def run_batch(_):
+        gate.wait()
+        return svc.expire_batch(2)
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = list(executor.map(run_batch, range(2)))
+
+    assert sum(results) == 3
+    with db.transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM holds WHERE status='EXPIRED'").fetchone()["n"] == 3
+        assert conn.execute("SELECT count(*) AS n FROM orders WHERE status='EXPIRED'").fetchone()["n"] == 3
+        assert conn.execute("SELECT count(*) AS n FROM event_seats WHERE hold_id IS NOT NULL").fetchone()["n"] == 0
+
+
+def test_expiry_batch_rolls_back_every_order_on_failure(system, monkeypatch):
+    svc, db, event_id = system
+    holds = [svc.reserve(f"actor-{seat}", event_id, [seat], f"hold-{seat}") for seat in "AB"]
+    for hold in holds:
+        expire(db, hold)
+    with db.transaction() as conn:
+        outbox_before = conn.execute("SELECT count(*) AS n FROM outbox_events").fetchone()["n"]
+
+    original_release = svc.store._release
+    calls = 0
+
+    def fail_second_release(conn, order, state):
+        nonlocal calls
+        calls += 1
+        original_release(conn, order, state)
+        if calls == 2:
+            raise RuntimeError("injected expiry failure")
+
+    monkeypatch.setattr(svc.store, "_release", fail_second_release)
+    with pytest.raises(RuntimeError, match="injected expiry failure"):
+        svc.expire_batch(2)
+
+    with db.transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM holds WHERE status='ACTIVE'").fetchone()["n"] == 2
+        assert conn.execute("SELECT count(*) AS n FROM orders WHERE status='PENDING'").fetchone()["n"] == 2
+        assert conn.execute("SELECT count(*) AS n FROM event_seats WHERE hold_id IS NOT NULL").fetchone()["n"] == 2
+        assert conn.execute("SELECT count(*) AS n FROM outbox_events").fetchone()["n"] == outbox_before
+
+
 def test_failure_then_success_refunds_and_mismatch_rolls_back(system):
     svc, db, event_id = system
     hold = svc.reserve("one", event_id, ["A"], "hold")

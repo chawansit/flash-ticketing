@@ -32,11 +32,18 @@ services:
   api:
     environment: &rds-runtime
       DATABASE_URL: ${RDS_POOLED_DATABASE_URL:?Set RDS_POOLED_DATABASE_URL in the private RDS environment file}
+      REDIS_URL: ${DCS_REDIS_URL:?Set DCS_REDIS_URL in the private RDS environment file}
   publisher:
     environment: *rds-runtime
   consumer:
     environment: *rds-runtime
+  reservation-writer:
+    environment: *rds-runtime
   maintenance:
+    environment: *rds-runtime
+  refresh:
+    environment: *rds-runtime
+  expiry:
     environment: *rds-runtime
   reconciler:
     environment: *rds-runtime

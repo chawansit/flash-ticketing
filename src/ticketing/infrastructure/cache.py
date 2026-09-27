@@ -53,6 +53,10 @@ redis.call('HSET',KEYS[1],'version',version)
 if ARGV[1] == 'full' then
   redis.call('HSET',KEYS[1],'layout',ARGV[3],'layout_etag',ARGV[4])
   redis.call('HSETNX',KEYS[1],'incarnation',ARGV[5])
+  if ARGV[7] and ARGV[7] ~= '' then
+    redis.call('HSET',KEYS[1],'sale_starts_epoch',ARGV[7],
+      'sale_ends_epoch',ARGV[8],'currency',ARGV[9])
+  end
   redis.call('EXPIRE',KEYS[1],ttl_seconds)
 end
 redis.call('HDEL',KEYS[1],'updating')
@@ -174,7 +178,18 @@ class RedisSeats:
         )
         tag = '"layout:' + hashlib.sha256(layout.encode()).hexdigest() + '"'
         return self.redis.eval(
-            PUT, 1, self.key(event), "full", json.dumps(data["seats"], default=str), layout, tag, str(uuid4()), str(self._seatmap_ttl_seconds)
+            PUT,
+            1,
+            self.key(event),
+            "full",
+            json.dumps(data["seats"], default=str),
+            layout,
+            tag,
+            str(uuid4()),
+            str(self._seatmap_ttl_seconds),
+            str(data.get("sale_starts_epoch", "")),
+            str(data.get("sale_ends_epoch", "")),
+            data.get("currency", ""),
         )
 
     def patch(self, event, seats):

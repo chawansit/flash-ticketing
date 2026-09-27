@@ -37,6 +37,78 @@ wait_apis() {
   return 1
 }
 
+wait_maintenance() {
+  expected=$1
+  attempt=0
+  while [ "$attempt" -lt 90 ]; do
+    total=0
+    running=0
+    for id in $($compose ps -q maintenance); do
+      total=$((total + 1))
+      state=$(docker inspect -f '{{.State.Status}}' "$id")
+      [ "$state" = running ] && running=$((running + 1))
+    done
+    [ "$total" -eq "$expected" ] && [ "$running" -eq "$expected" ] && return 0
+    attempt=$((attempt + 1))
+    sleep 2
+  done
+  return 1
+}
+
+wait_refresh() {
+  expected=$1
+  attempt=0
+  while [ "$attempt" -lt 90 ]; do
+    total=0
+    running=0
+    for id in $($compose ps -q refresh); do
+      total=$((total + 1))
+      state=$(docker inspect -f '{{.State.Status}}' "$id")
+      [ "$state" = running ] && running=$((running + 1))
+    done
+    [ "$total" -eq "$expected" ] && [ "$running" -eq "$expected" ] && return 0
+    attempt=$((attempt + 1))
+    sleep 2
+  done
+  return 1
+}
+
+wait_expiry() {
+  expected=$1
+  attempt=0
+  while [ "$attempt" -lt 90 ]; do
+    total=0
+    running=0
+    for id in $($compose ps -q expiry); do
+      total=$((total + 1))
+      state=$(docker inspect -f '{{.State.Status}}' "$id")
+      [ "$state" = running ] && running=$((running + 1))
+    done
+    [ "$total" -eq "$expected" ] && [ "$running" -eq "$expected" ] && return 0
+    attempt=$((attempt + 1))
+    sleep 2
+  done
+  return 1
+}
+
+wait_consumers() {
+  expected=$1
+  attempt=0
+  while [ "$attempt" -lt 90 ]; do
+    total=0
+    running=0
+    for id in $($compose ps -q consumer); do
+      total=$((total + 1))
+      state=$(docker inspect -f '{{.State.Status}}' "$id")
+      [ "$state" = running ] && running=$((running + 1))
+    done
+    [ "$total" -eq "$expected" ] && [ "$running" -eq "$expected" ] && return 0
+    attempt=$((attempt + 1))
+    sleep 2
+  done
+  return 1
+}
+
 set_admission() {
   value=$1
   if grep -q '^API_ADMISSION_PER_INSTANCE=' "$env_file"; then
@@ -44,6 +116,34 @@ set_admission() {
   else
     printf 'API_ADMISSION_PER_INSTANCE=%s\n' "$value" >> "$env_file"
   fi
+}
+
+set_reservation_mode() {
+  value=$1
+  case "$value" in postgres|redis-first) ;; *) return 1 ;; esac
+  if grep -q '^RESERVATION_MODE=' "$env_file"; then
+    sed -i "s/^RESERVATION_MODE=.*/RESERVATION_MODE=$value/" "$env_file"
+  else
+    printf 'RESERVATION_MODE=%s\n' "$value" >> "$env_file"
+  fi
+}
+
+wait_reservation_writer() {
+  expected=$1
+  attempt=0
+  while [ "$attempt" -lt 90 ]; do
+    total=0
+    running=0
+    for id in $($compose ps -q reservation-writer); do
+      total=$((total + 1))
+      state=$(docker inspect -f '{{.State.Status}}' "$id")
+      [ "$state" = running ] && running=$((running + 1))
+    done
+    [ "$total" -eq "$expected" ] && [ "$running" -eq "$expected" ] && return 0
+    attempt=$((attempt + 1))
+    sleep 2
+  done
+  return 1
 }
 
 case "${1:-}" in
@@ -60,19 +160,104 @@ case "${1:-}" in
     chmod 600 "$private/manifest.json"
     ;;
   deploy)
-    [ "$#" -eq 4 ]
+    [ "$#" -eq 11 ]
     run_paths "$2"
-    candidate=$3; fallback=$4
+    candidate=$3; fallback=$4; maintenance_candidate=$5; maintenance_fallback=$6
+    consumer_candidate=$7; consumer_fallback=$8; split_candidate=$9
+    reservation_candidate=${10}
+    reservation_writer_candidate=${11}
+    case "$reservation_candidate" in postgres|redis-first) ;; *) exit 2 ;; esac
+    case "$reservation_writer_candidate" in 1|2|3|4) ;; *) exit 2 ;; esac
+    [ "$split_candidate" -eq 0 ] || [ "$split_candidate" -eq 1 ]
+    original_maintenance=$($compose ps -q maintenance | wc -l | tr -d ' ')
+    original_refresh=$($compose ps -q refresh | wc -l | tr -d ' ')
+    original_expiry=$($compose ps -q expiry | wc -l | tr -d ' ')
+    original_consumers=$($compose ps -q consumer | wc -l | tr -d ' ')
+    original_reservation_writers=$($compose ps -q reservation-writer | wc -l | tr -d ' ')
+    original_reservation_mode=$(sed -n 's/^RESERVATION_MODE=//p' "$env_file" | tail -n 1)
+    original_reservation_mode=${original_reservation_mode:-postgres}
+    case "$original_reservation_mode" in postgres|redis-first) ;; *) exit 2 ;; esac
+    [ "$original_maintenance" -eq "$maintenance_fallback" ]
+    [ "$original_consumers" -eq "$consumer_fallback" ]
+    printf '%s\n' "$original_maintenance" > "$private/original-maintenance"
+    chmod 600 "$private/original-maintenance"
+    printf '%s\n' "$original_refresh" > "$private/original-refresh"
+    chmod 600 "$private/original-refresh"
+    printf '%s\n' "$original_expiry" > "$private/original-expiry"
+    chmod 600 "$private/original-expiry"
+    printf '%s\n' "$original_consumers" > "$private/original-consumers"
+    chmod 600 "$private/original-consumers"
+    printf '%s\n' "$original_reservation_writers" > "$private/original-reservation-writers"
+    chmod 600 "$private/original-reservation-writers"
+    printf '%s\n' "$original_reservation_mode" > "$private/original-reservation-mode"
+    chmod 600 "$private/original-reservation-mode"
     printf '%s\n' "$fallback" > "$private/original-admission"
     chmod 600 "$private/original-admission"
     set_admission "$candidate"
+    set_reservation_mode "$reservation_candidate"
+    $compose build api migrate publisher consumer maintenance refresh expiry reservation-writer
+    if [ "$reservation_candidate" = redis-first ]; then
+      $compose up -d --no-deps --force-recreate --scale "reservation-writer=$reservation_writer_candidate" reservation-writer
+      wait_reservation_writer "$reservation_writer_candidate"
+      deployed_reservation_writers=$reservation_writer_candidate
+    else
+      $compose up -d --no-deps --scale reservation-writer=0 reservation-writer
+      wait_reservation_writer 0
+      deployed_reservation_writers=0
+    fi
     $compose up -d --no-deps --force-recreate --scale api=4 api
     wait_apis
+    $compose up -d --no-deps --force-recreate publisher
+    if [ "$split_candidate" -eq 1 ]; then
+      $compose up -d --no-deps --scale maintenance=0 maintenance
+      wait_maintenance 0
+      $compose up -d --no-deps --force-recreate --scale refresh=1 refresh
+      wait_refresh 1
+      $compose up -d --no-deps --force-recreate --scale expiry=1 expiry
+      wait_expiry 1
+      deployed_maintenance=0
+      deployed_refresh=1
+      deployed_expiry=1
+      split_json=true
+      worker_services="publisher refresh expiry consumer"
+    else
+      $compose up -d --no-deps --scale refresh=0 refresh
+      wait_refresh 0
+      $compose up -d --no-deps --scale expiry=0 expiry
+      wait_expiry 0
+      $compose up -d --no-deps --force-recreate --scale "maintenance=$maintenance_candidate" maintenance
+      wait_maintenance "$maintenance_candidate"
+      deployed_maintenance=$maintenance_candidate
+      deployed_refresh=0
+      deployed_expiry=0
+      split_json=false
+      worker_services="publisher maintenance consumer"
+    fi
+    $compose up -d --no-deps --force-recreate --scale "consumer=$consumer_candidate" consumer
+    wait_consumers "$consumer_candidate"
+    if [ "$reservation_candidate" = redis-first ]; then
+      worker_services="$worker_services reservation-writer"
+    fi
+    source_hash=$(sha256sum src/ticketing/infrastructure/postgres.py | cut -d " " -f 1)
     for id in $($compose ps -q api); do
+      image_hash=$(docker exec "$id" sha256sum /app/src/ticketing/infrastructure/postgres.py | cut -d " " -f 1)
+      [ "$image_hash" = "$source_hash" ]
       docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$id" |
         grep -qx "RESERVE_CONCURRENCY=$candidate"
+      docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$id" |
+        grep -qx "RESERVATION_MODE=$reservation_candidate"
     done
-    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"pass":true}\n' "$candidate" > "$public/deployment.json"
+    worker_source_hash=$(sha256sum src/ticketing/workers.py | cut -d " " -f 1)
+    for service in $worker_services; do
+      ids=$($compose ps -q "$service")
+      [ -n "$ids" ]
+      for id in $ids; do
+        [ "$(docker inspect -f '{{.State.Status}}' "$id")" = running ]
+        image_hash=$(docker exec "$id" sha256sum /app/src/ticketing/workers.py | cut -d " " -f 1)
+        [ "$image_hash" = "$worker_source_hash" ]
+      done
+    done
+    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"reservation_mode":"%s","reservation_writer_replicas":%s,"split_maintenance":%s,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"worker_source_verified":true,"pass":true}\n' "$candidate" "$reservation_candidate" "$deployed_reservation_writers" "$split_json" "$deployed_maintenance" "$deployed_refresh" "$deployed_expiry" "$consumer_candidate" > "$public/deployment.json"
     ;;
   preflight)
     [ "$#" -eq 3 ]
@@ -91,6 +276,7 @@ case "${1:-}" in
     [ "$#" -eq 3 ]
     run_paths "$2"
     seconds=$3
+    date -u '+%Y-%m-%dT%H:%M:%SZ' > "$private/observe-start"
     urls=""
     for id in $($compose ps -q api); do
       ip=$(docker inspect -f '{{(index .NetworkSettings.Networks "flash-ticketing_default").IPAddress}}' "$id")
@@ -103,6 +289,14 @@ case "${1:-}" in
     echo $! > "$private/pgbouncer.pid"
     nohup docker exec "$api" sh -lc 'TEST_DATABASE_URL="$DATABASE_URL" API_METRICS_URL=http://127.0.0.1:8000/metrics python /app/scripts/cloud_benchmark_observe.py --fixtures /tmp/private-load-manifest.json --output /tmp/capacity-backend.json --seconds "$1"' sh "$seconds" > "$raw/backend.log" 2>&1 &
     echo $! > "$private/backend.pid"
+    kafka=$($compose ps -q kafka)
+    nohup python3 scripts/kafka_lag_observe.py --container "$kafka" --seconds "$seconds"       --interval 2 --output "$raw/kafka-lag.ndjson" > "$raw/kafka-lag.log" 2>&1 &
+    echo $! > "$private/kafka-lag.pid"
+    nohup $compose run --rm --no-deps -T --name "ft-rds-wait-$2" --user root \
+      -v "$raw:/evidence" migrate sh -lc \
+      'RDS_DATABASE_URL="$DATABASE_URL" python /app/scripts/rds_wait_observe.py --seconds "$1" --interval 0.1 --output /evidence/rds-waits.jsonl' \
+      sh "$seconds" > "$raw/rds-waits.log" 2>&1 &
+    echo $! > "$private/rds-waits.pid"
     ;;
   stop-observers)
     [ "$#" -eq 2 ]
@@ -113,16 +307,36 @@ case "${1:-}" in
       kill "$pid" 2>/dev/null || true
       wait "$pid" 2>/dev/null || true
     done
+    docker rm -f "ft-rds-wait-$2" >/dev/null 2>&1 || true
+    observer_failed=0
+    if [ -s "$raw/rds-waits.jsonl" ]; then
+      python3 scripts/summarize_rds_waits.py "$raw/rds-waits.jsonl" > \
+        "$public/rds-waits-summary.json" || observer_failed=1
+    else
+      observer_failed=1
+    fi
     api=$(api_id)
     docker cp "$api":/tmp/capacity-pgbouncer.jsonl "$raw/pgbouncer.jsonl" 2>/dev/null || true
-    docker cp "$api":/tmp/capacity-backend.json "$raw/backend.json" 2>/dev/null || true
+    if docker cp "$api":/tmp/capacity-backend.json "$raw/backend.json" 2>/dev/null; then
+      python3 scripts/summarize_drain_trace.py "$raw/backend.json" > "$public/drain-trace-summary.json" || observer_failed=1
+      if [ -s "$raw/kafka-lag.ndjson" ]; then
+        python3 scripts/summarize_refresh_pipeline.py "$raw/backend.json"           "$raw/kafka-lag.ndjson" > "$public/refresh-pipeline-summary.json" || observer_failed=1
+      else
+        observer_failed=1
+      fi
+    else
+      observer_failed=1
+    fi
+    since=$(cat "$private/observe-start")
     index=0
     for id in $($compose ps -q api); do
-      docker logs --since 1h "$id" 2>&1 |
+      docker logs --since "$since" "$id" 2>&1 |
         python3 scripts/extract_capacity_api_errors.py --limit 20 > "$public/api-errors-$index.json"
+      docker logs --since "$since" "$id" 2>&1 |
+        python3 scripts/summarize_slow_db_phases.py --limit 50 > "$public/db-slow-$index.json"
       index=$((index + 1))
     done
-    [ "$index" -eq 4 ]
+    [ "$index" -eq 4 ] && [ "$observer_failed" -eq 0 ]
     ;;
   audit)
     [ "$#" -eq 2 ]
@@ -130,8 +344,10 @@ case "${1:-}" in
     api=$(api_id)
     docker exec -u 0 "$api" rm -rf /tmp/capacity-load /tmp/capacity-durability.json
     docker cp "$public/load" "$api":/tmp/capacity-load
-    docker exec "$api" sh -lc 'cd /app && TEST_DATABASE_URL="$DATABASE_URL" python scripts/verify_cloud_holds.py --results /tmp/capacity-load --output /tmp/capacity-durability.json'
+    audit_status=0
+    docker exec "$api" sh -lc 'cd /app && TEST_DATABASE_URL="$DATABASE_URL" TEST_REDIS_URL="$REDIS_URL" python scripts/verify_cloud_holds.py --results /tmp/capacity-load --output /tmp/capacity-durability.json' || audit_status=$?
     docker cp "$api":/tmp/capacity-durability.json "$public/durability.json"
+    exit "$audit_status"
     ;;
   gate)
     [ "$#" -eq 2 ]
@@ -152,10 +368,27 @@ case "${1:-}" in
     [ "$#" -eq 2 ]
     run_paths "$2"
     original=$(cat "$private/original-admission")
+    original_maintenance=$(cat "$private/original-maintenance")
+    original_refresh=$(cat "$private/original-refresh")
+    original_expiry=$(cat "$private/original-expiry")
+    original_consumers=$(cat "$private/original-consumers")
+    original_reservation_writers=$(cat "$private/original-reservation-writers")
+    original_reservation_mode=$(cat "$private/original-reservation-mode")
     set_admission "$original"
+    set_reservation_mode "$original_reservation_mode"
+    $compose up -d --no-deps --force-recreate --scale "reservation-writer=$original_reservation_writers" reservation-writer
+    wait_reservation_writer "$original_reservation_writers"
     $compose up -d --no-deps --force-recreate --scale api=4 api
     wait_apis
-    printf '{"restored_admission":%s,"api_replicas":4,"pass":true}\n' "$original" > "$public/rollback.json"
+    $compose up -d --no-deps --scale "maintenance=$original_maintenance" maintenance
+    wait_maintenance "$original_maintenance"
+    $compose up -d --no-deps --scale "refresh=$original_refresh" refresh
+    wait_refresh "$original_refresh"
+    $compose up -d --no-deps --scale "expiry=$original_expiry" expiry
+    wait_expiry "$original_expiry"
+    $compose up -d --no-deps --scale "consumer=$original_consumers" consumer
+    wait_consumers "$original_consumers"
+    printf '{"restored_admission":%s,"restored_reservation_mode":"%s","reservation_writer_replicas":%s,"api_replicas":4,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"pass":true}\n' "$original" "$original_reservation_mode" "$original_reservation_writers" "$original_maintenance" "$original_refresh" "$original_expiry" "$original_consumers" > "$public/rollback.json"
     ;;
   cleanup)
     [ "$#" -eq 2 ]

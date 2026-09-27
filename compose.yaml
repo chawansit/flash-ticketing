@@ -12,9 +12,16 @@ x-app: &app
     HOLD_SECONDS: ${HOLD_SECONDS:-120}
     DB_POOL_MAX: ${DB_POOL_MAX:-12}
     RESERVE_CONCURRENCY: ${RESERVE_CONCURRENCY:-12}
+    RESERVATION_MODE: ${RESERVATION_MODE:-postgres}
+    REDIS_RESERVE_CONCURRENCY: ${REDIS_RESERVE_CONCURRENCY:-128}
+    REDIS_RESERVATION_REPLICA_ACKS: ${REDIS_RESERVATION_REPLICA_ACKS:-0}
+    REDIS_RESERVATION_WAIT_MS: ${REDIS_RESERVATION_WAIT_MS:-100}
+    REDIS_RESERVATION_MAX_BACKLOG: ${REDIS_RESERVATION_MAX_BACKLOG:-10000}
     PUBLISHER_BATCH_SIZE: ${PUBLISHER_BATCH_SIZE:-32}
     SIMULATOR_CONCURRENCY: ${SIMULATOR_CONCURRENCY:-4}
     REFRESH_COOLDOWN_MS: ${REFRESH_COOLDOWN_MS:-250}
+    REFRESH_BATCH_SIZE: ${REFRESH_BATCH_SIZE:-2}
+    EXPIRY_BATCH_SIZE: ${EXPIRY_BATCH_SIZE:-8}
     RECONCILE_INTERVAL_SECONDS: ${RECONCILE_INTERVAL_SECONDS:-20}
     RECONCILE_WINDOW_SECONDS: ${RECONCILE_WINDOW_SECONDS:-300}
     RECONCILE_BATCH_SIZE: ${RECONCILE_BATCH_SIZE:-8}
@@ -61,7 +68,7 @@ services:
   redis:
     image: redis:7.4.5-alpine
     ports: ["127.0.0.1:6379:6379"]
-    command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "noeviction"]
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec", "--maxmemory", "256mb", "--maxmemory-policy", "noeviction"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 3s
@@ -109,9 +116,28 @@ services:
   consumer:
     <<: *app
     command: ["python", "-m", "ticketing.workers", "consumer"]
+  reservation-writer:
+    <<: *app
+    command: ["python", "-m", "ticketing.workers", "reservation-writer"]
   maintenance:
     <<: *app
     command: ["python", "-m", "ticketing.workers", "maintenance"]
+  refresh:
+    <<: *app
+    profiles: ["split-maintenance"]
+    environment:
+      <<: *env
+      DB_POOL_MAX: ${MAINTENANCE_POOL_MAX:-2}
+      SIMULATOR_CONCURRENCY: ${MAINTENANCE_SIMULATOR_CONCURRENCY:-2}
+    command: ["python", "-m", "ticketing.workers", "refresh"]
+  expiry:
+    <<: *app
+    profiles: ["split-maintenance"]
+    environment:
+      <<: *env
+      DB_POOL_MAX: ${MAINTENANCE_POOL_MAX:-2}
+      SIMULATOR_CONCURRENCY: ${MAINTENANCE_SIMULATOR_CONCURRENCY:-2}
+    command: ["python", "-m", "ticketing.workers", "expiry"]
   reconciler:
     <<: *app
     command: ["python", "-m", "ticketing.workers", "reconciler"]

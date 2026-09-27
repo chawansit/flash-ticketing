@@ -1,6 +1,6 @@
 import hashlib
 import json
-from datetime import timedelta
+from datetime import datetime, timedelta
 from uuid import uuid4
 
 from psycopg.types.json import Jsonb
@@ -125,6 +125,148 @@ class PostgresReservations:
                 },
             )
 
+    def persist_reservation_command(self, payload, response):
+        """Persist one Redis-first command exactly once.
+
+        Redis already owns the provisional lease. PostgreSQL still validates every durable
+        invariant and creates the hold, order, idempotency response and outbox atomically.
+        """
+        request = {"event_id": payload["event_id"], "seats": sorted(payload["seat_ids"])}
+        if digest(request) != payload["request_hash"]:
+            raise Failure("RESERVATION_COMMAND_MISMATCH", 422)
+        with self.db.transaction() as conn:
+            previous_command = conn.execute(
+                "SELECT request_hash,response FROM reservation_commands WHERE command_id=%s",
+                (payload["command_id"],),
+            ).fetchone()
+            if previous_command:
+                if previous_command["request_hash"] != payload["request_hash"]:
+                    raise Failure("RESERVATION_COMMAND_MISMATCH", 409)
+                return previous_command["response"]
+
+            replay = idem(
+                conn,
+                payload["actor"],
+                "hold",
+                payload["idempotency_key"],
+                request,
+            )
+            if replay is not None:
+                if (
+                    replay["hold_id"] != payload["hold_id"]
+                    or replay["order_id"] != payload["order_id"]
+                ):
+                    raise Failure("RESERVATION_COMMAND_MISMATCH", 409)
+                return replay
+
+            sale = conn.execute(
+                "SELECT * FROM events WHERE id=%s", (payload["event_id"],)
+            ).fetchone()
+            if not sale:
+                raise Failure("EVENT_NOT_FOUND", 404)
+            rows = conn.execute(
+                """SELECT * FROM event_seats WHERE event_id=%s
+                AND seat_id=ANY(%s) ORDER BY seat_id FOR UPDATE NOWAIT""",
+                (payload["event_id"], sorted(payload["seat_ids"])),
+            ).fetchall()
+            now = conn.execute("SELECT clock_timestamp() AS now").fetchone()["now"]
+            if not sale["sale_starts"] <= now < sale["sale_ends"]:
+                raise Failure("SALE_CLOSED")
+            if len(rows) != len(payload["seat_ids"]):
+                raise Failure("SEAT_NOT_FOUND", 404)
+            expires_at = datetime.fromisoformat(payload["expires_at"])
+            if expires_at <= now:
+                raise Failure("HOLD_EXPIRED")
+            if any(
+                row["booked_order_id"]
+                or (
+                    row["reserved_until"]
+                    and row["reserved_until"] > now
+                    and str(row["hold_id"]) != payload["hold_id"]
+                )
+                for row in rows
+            ):
+                raise Failure("SEAT_UNAVAILABLE")
+
+            total = sum(row["price"] for row in rows)
+            durable = {
+                **response,
+                "total": total,
+                "currency": sale["currency"],
+                "expires_at": expires_at.isoformat(),
+                "persistence_status": "DURABLE",
+            }
+            conn.execute(
+                "INSERT INTO holds VALUES (%s,%s,%s,%s,'ACTIVE')",
+                (
+                    payload["hold_id"],
+                    payload["actor"],
+                    payload["event_id"],
+                    payload["expires_at"],
+                ),
+            )
+            conn.execute(
+                """INSERT INTO orders(id,actor,hold_id,event_id,total,currency,status)
+                VALUES (%s,%s,%s,%s,%s,%s,'PENDING')""",
+                (
+                    payload["order_id"],
+                    payload["actor"],
+                    payload["hold_id"],
+                    payload["event_id"],
+                    total,
+                    sale["currency"],
+                ),
+            )
+            conn.execute(
+                """UPDATE event_seats SET hold_id=%s,reserved_until=%s,version=version+1
+                WHERE event_id=%s AND seat_id=ANY(%s)""",
+                (
+                    payload["hold_id"],
+                    payload["expires_at"],
+                    payload["event_id"],
+                    sorted(payload["seat_ids"]),
+                ),
+            )
+            for row in rows:
+                conn.execute(
+                    "INSERT INTO order_items VALUES (%s,%s,%s,%s)",
+                    (
+                        payload["order_id"],
+                        payload["event_id"],
+                        row["seat_id"],
+                        row["price"],
+                    ),
+                )
+            event(
+                conn,
+                payload["order_id"],
+                "SeatsChanged",
+                {"event_id": payload["event_id"], "seats": sorted(payload["seat_ids"])},
+            )
+            remember(
+                conn,
+                payload["actor"],
+                "hold",
+                payload["idempotency_key"],
+                durable,
+            )
+            conn.execute(
+                """INSERT INTO reservation_commands
+                (command_id,actor,idempotency_key,request_hash,event_id,hold_id,order_id,status,response)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,'DURABLE',%s)""",
+                (
+                    payload["command_id"],
+                    payload["actor"],
+                    payload["idempotency_key"],
+                    payload["request_hash"],
+                    payload["event_id"],
+                    payload["hold_id"],
+                    payload["order_id"],
+                    Jsonb(durable),
+                ),
+            )
+            return durable
+
     def checkout(self, actor, hold_id, key):
         with self.db.transaction() as conn:
             replay = idem(conn, actor, "order", key, {"hold_id": str(hold_id)})
@@ -207,15 +349,22 @@ class PostgresReservations:
             {"event_id": str(order["event_id"]), "seats": [r["seat_id"] for r in released]},
         )
 
-    def expire_one(self):
+    def expire_batch(self, limit=8):
+        if not 1 <= limit <= 100:
+            raise ValueError("Expiry batch limit must be between 1 and 100")
         with self.db.transaction() as conn:
-            order = conn.execute("""SELECT o.* FROM orders o JOIN holds h ON h.id=o.hold_id
+            orders = conn.execute(
+                """SELECT o.* FROM orders o JOIN holds h ON h.id=o.hold_id
                 WHERE h.status='ACTIVE' AND h.expires_at <= clock_timestamp()
-                ORDER BY h.expires_at LIMIT 1 FOR UPDATE OF o SKIP LOCKED""").fetchone()
-            if not order:
-                return False
-            self._release(conn, order, "EXPIRED")
-            return True
+                ORDER BY h.expires_at LIMIT %s FOR UPDATE OF o SKIP LOCKED""",
+                (limit,),
+            ).fetchall()
+            for order in orders:
+                self._release(conn, order, "EXPIRED")
+            return len(orders)
+
+    def expire_one(self):
+        return bool(self.expire_batch(1))
 
     def initiate_payment(self, actor, order_id, key, outcome, delay_seconds, duplicates):
         request = {
@@ -346,3 +495,22 @@ class PostgresReservations:
                 {"event_id": str(order["event_id"]), "seats": [r["seat_id"] for r in seats]},
             )
             return {"status": decision.lower()}
+
+
+
+
+class RedisFirstReservations:
+    """Route only hold creation through Redis; durable commerce remains PostgreSQL-backed."""
+
+    def __init__(self, durable, intake):
+        self.durable = durable
+        self.intake = intake
+
+    def reserve(self, actor, event_id, seat_ids, key):
+        return self.intake.enqueue(actor, event_id, seat_ids, key)
+
+    def command_status(self, event_id, command_id):
+        return self.intake.status(event_id, command_id)
+
+    def __getattr__(self, name):
+        return getattr(self.durable, name)

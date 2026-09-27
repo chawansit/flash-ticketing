@@ -6,9 +6,12 @@ import json
 import sys
 from collections import Counter, deque
 
+DB_FAILURE_TYPES = frozenset({"PoolTimeout", "TooManyRequests", "OperationalError", "QueryCanceled"})
+
 
 def summarize(lines, limit: int) -> dict:
     counts = Counter()
+    db_failure_types = Counter()
     examples = deque(maxlen=limit)
     requests = 0
     for line in lines:
@@ -23,12 +26,22 @@ def summarize(lines, limit: int) -> dict:
         if not code:
             continue
         counts[str(code)] += 1
-        examples.append(
-            {key: record.get(key) for key in (
-                "time", "request_id", "route", "status", "error_code", "duration_ms"
-            )}
-        )
-    return {"request_log_lines": requests, "error_codes": dict(counts), "last_errors": list(examples)}
+        cause = record.get("db_failure_type")
+        cause = cause if isinstance(cause, str) and cause in DB_FAILURE_TYPES else None
+        if cause:
+            db_failure_types[cause] += 1
+        example = {
+            key: record.get(key)
+            for key in ("time", "request_id", "route", "status", "error_code", "duration_ms")
+        }
+        example["db_failure_type"] = cause
+        examples.append(example)
+    return {
+        "request_log_lines": requests,
+        "error_codes": dict(counts),
+        "db_failure_types": dict(db_failure_types),
+        "last_errors": list(examples),
+    }
 
 
 def main() -> None:

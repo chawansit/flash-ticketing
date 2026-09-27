@@ -8,10 +8,13 @@ from uuid import uuid4
 import httpx
 import pytest
 from prometheus_client import REGISTRY
+from psycopg import OperationalError
+from psycopg.errors import QueryCanceled
+from psycopg_pool import PoolTimeout, TooManyRequests
 from starlette.requests import Request
 from starlette.responses import Response
 
-from ticketing.api import app, settings
+from ticketing.api import app, settings, unavailable_error
 from ticketing.http import RequestInstrumentation
 from ticketing.observability import HOLD_TRACE, TimedHoldResource, hold_phase
 
@@ -170,3 +173,45 @@ def test_error_diagnostic_allowlists_code_and_request_id():
         response = httpx.Response(503, json=body, headers={'X-Request-ID':'private-token'})
         assert error_diagnostic(response) == ('OTHER', None)
     assert error_diagnostic(httpx.Response(503, text='private non-json body')) == ('OTHER', None)
+
+
+@pytest.mark.parametrize("exception_type", [PoolTimeout, TooManyRequests, OperationalError, QueryCanceled])
+def test_database_unavailable_has_fixed_cause_and_unchanged_public_response(exception_type):
+    request = Request({"type": "http", "method": "POST", "path": "/v1/holds",
+                       "headers": [], "app": app})
+    request.state.request_id = "safe-request"
+    before = sample("ticketing_db_unavailable_total", {"cause": exception_type.__name__})
+    response = asyncio.run(unavailable_error(request, exception_type("private DSN")))
+    assert response.status_code == 503
+    assert b"DATABASE_UNAVAILABLE" in response.body
+    assert b"private DSN" not in response.body
+    assert request.state.db_failure_type == exception_type.__name__
+    assert sample("ticketing_db_unavailable_total", {"cause": exception_type.__name__}) == before + 1
+
+
+def test_database_unavailable_cause_reaches_structured_request_log(caplog):
+    async def scenario():
+        request = Request({"type": "http", "method": "POST", "path": "/v1/holds",
+                           "headers": [], "app": app})
+        async def fail(req):
+            return await unavailable_error(req, PoolTimeout("private DSN"))
+        return await instrumentation(request, fail)
+
+    with caplog.at_level("INFO", logger="ticketing.api"):
+        response = asyncio.run(scenario())
+    assert response.status_code == 503
+    fields = [r.fields for r in caplog.records if getattr(r, "fields", {}).get("status") == 503]
+    assert fields[-1]["db_failure_type"] == "PoolTimeout"
+    assert "private DSN" not in str(fields[-1])
+
+
+def test_database_failure_subclass_uses_fixed_cause_label():
+    class DriverOperationalError(OperationalError):
+        pass
+
+    request = Request({"type": "http", "method": "POST", "path": "/v1/holds",
+                       "headers": [], "app": app})
+    request.state.request_id = "safe-request"
+    response = asyncio.run(unavailable_error(request, DriverOperationalError("private DSN")))
+    assert response.status_code == 503
+    assert request.state.db_failure_type == "OperationalError"

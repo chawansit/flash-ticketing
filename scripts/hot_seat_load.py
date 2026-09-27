@@ -22,6 +22,8 @@ async def run(args):
         raise ValueError("Fresh credentials required")
     if len(m["viewer_tokens"]) < args.contenders or not 0 <= args.seat < m["seats_per_show"]:
         raise ValueError("Insufficient viewers or invalid seat")
+    reservation_mode = getattr(args, "reservation_mode", "postgres")
+    winner_status = "202" if reservation_mode == "redis-first" else "201"
     show, seat, run_id = m["show_ids"][0], f"S{args.seat}", str(uuid4())
     gate = asyncio.Event()
     rows = []
@@ -36,11 +38,11 @@ async def run(args):
                 r = await client.post("/v1/holds", json={"event_id": show, "seat_ids": [seat]},
                                       headers={"Authorization": "Bearer " + m["viewer_tokens"][index],
                                                "Idempotency-Key": f"{run_id}-{index}"})
-                code, request_id = error_diagnostic(r) if r.status_code != 201 else (None, None)
+                code, request_id = error_diagnostic(r) if str(r.status_code) != winner_status else (None, None)
                 rows.append({"index": index, "status": str(r.status_code), "code": code,
                              "request_id": request_id, "latency_ms": (perf_counter()-begin)*1000,
                              "dispatch_offset_ms": (begin-release)*1000,
-                             "hold_id": r.json().get("hold_id") if r.status_code == 201 else None})
+                             "hold_id": r.json().get("hold_id") if str(r.status_code) == winner_status else None})
             except httpx.HTTPError as exc:
                 rows.append({"index": index, "status": "transport_error", "code": type(exc).__name__,
                              "latency_ms": (perf_counter()-begin)*1000,
@@ -54,12 +56,13 @@ async def run(args):
     statuses = Counter(row["status"] for row in rows)
     expected = sum(row["status"] == "409" and row["code"] in {"SEAT_BUSY", "SEAT_UNAVAILABLE"} for row in rows)
     result = {"run_id": run_id, "measured_started_utc": started, "utc": datetime.now(UTC).isoformat(),
+              "reservation_mode": reservation_mode,
               "event_id": show, "seat_id": seat, "contenders": args.contenders,
               "statuses": {"hold": dict(statuses)}, "expected_conflicts": expected,
               "error_codes": dict(Counter(row["code"] for row in rows if row["code"])),
-              "http_one_winner_pass": statuses["201"] == 1,
-              "availability_gate_pass": statuses["201"] == 1 and expected == args.contenders-1,
-              "failed_response_p95_ms": percentile([r["latency_ms"] for r in rows if r["status"] != "201"], .95),
+              "http_one_winner_pass": statuses[winner_status] == 1,
+              "availability_gate_pass": statuses[winner_status] == 1 and expected == args.contenders-1,
+              "failed_response_p95_ms": percentile([r["latency_ms"] for r in rows if r["status"] != winner_status], .95),
               "dispatch_spread_ms": max(r["dispatch_offset_ms"] for r in rows), "requests": rows,
               "note": "One client barrier, not simultaneous server arrival. No retries. Durable ownership verified separately."}
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -75,4 +78,5 @@ if __name__ == "__main__":
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--contenders", type=int, choices=[100, 1000], required=True)
     p.add_argument("--seat", type=int, required=True)
+    p.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
     asyncio.run(run(p.parse_args()))

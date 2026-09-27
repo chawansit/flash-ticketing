@@ -1,8 +1,9 @@
 # Flash-sale ticketing MVP
 
-FastAPI backend for assigned-seat flash sales. PostgreSQL is the seat-ownership authority;
-Redis protects the reservation path and serves pre-warmed availability; Kafka delivers
-post-payment work. No frontend and no waiting room.
+FastAPI backend for assigned-seat flash sales. In the measured default mode PostgreSQL is the
+seat-ownership authority; Redis protects the reservation path and serves pre-warmed availability;
+Kafka delivers post-payment work. ADR 0058 adds an opt-in Redis-first provisional intake path.
+No frontend and no waiting room.
 
 ## Start locally
 
@@ -31,6 +32,13 @@ IDs for the same payment are also safe. Set `delay_seconds` longer than `HOLD_SE
 exercise refund processing. `FAILED` simulates a declined payment. A failed attempt is terminal
 for this MVP's checkout; start a fresh reservation to pay again.
 
+### Redis-first provisional intake
+
+[Redis-first reservation intake](docs/redis-first-reservations.md) is implemented behind
+`RESERVATION_MODE=redis-first`. It returns HTTP 202 while the dedicated writer makes the hold
+durable in PostgreSQL; poll `GET /v1/reservation-commands/{event_id}/{command_id}` before
+checkout. Production activation is blocked until replicated Redis failover and cloud load gates
+pass. The default remains `postgres`.
 Useful endpoints: [OpenAPI JSON](http://localhost:8000/openapi.json),
 [metrics](http://localhost:8000/metrics), [Prometheus](http://localhost:9090),
 `/health/live`, `/health/ready`.
@@ -84,9 +92,9 @@ E2E tests book one seed seat and create a fresh one-seat event for 100 synchroni
 src/ticketing/
   domain.py                 Pure payment decisions and business failures
   application/              Use cases and atomic persistence/cache ports
-  infrastructure/           PostgreSQL reservation adapter, pools, Redis Lua scripts
+  infrastructure/           PostgreSQL adapter, Redis Lua intake/cache, database pools
   api.py                    HTTP schemas, authentication, webhook signature validation
-  workers.py                Outbox publisher, Kafka consumer, expiry/cache, simulator
+  workers.py                Reservation writer, outbox/Kafka, expiry/cache, simulator
   cli.py                    Checksummed migrations, demo seed, token, dead-letter replay
   observability.py          JSON logging and Prometheus metrics
 migrations/                 Transactional, checksummed SQL migrations
@@ -115,7 +123,8 @@ See [architecture](docs/architecture.md), [failure scenarios](docs/failure-modes
   return a transient busy response while the original transaction commits; retry the **same** key
   after that request completes to obtain its original result.
 - Cache snapshots are advisory. `reserved_until` lets a future client display the hold deadline;
-  a cached HELD seat may already be reclaimable. PostgreSQL alone decides reservation success.
+  a cached HELD seat may already be reclaimable. PostgreSQL decides success in the default mode;
+  Redis-first mode explicitly returns provisional 202 until the PostgreSQL writer confirms it.
 - A real payment adapter must use provider idempotency and reconciliation; the simulated refund
   is a durable database state transition, not an external banking operation.
 

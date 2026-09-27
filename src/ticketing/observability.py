@@ -12,11 +12,34 @@ REQUESTS = Counter("ticketing_http_requests_total", "HTTP requests", ["route", "
 LATENCY = Histogram("ticketing_http_seconds", "HTTP latency", ["route"])
 OUTCOMES = Counter("ticketing_outcomes_total", "Business outcomes", ["operation", "outcome"])
 WORKER_ERRORS = Counter("ticketing_worker_errors_total", "Worker errors", ["role"])
+RESERVATION_INTAKE = Counter(
+    "ticketing_reservation_intake_total",
+    "Redis-first reservation intake outcomes",
+    ["outcome"],
+)
+RESERVATION_PERSISTENCE = Counter(
+    "ticketing_reservation_persistence_total",
+    "Redis-first PostgreSQL writer outcomes",
+    ["outcome"],
+)
+RESERVATION_COMMAND_AGE_SECONDS = Histogram(
+    "ticketing_reservation_command_age_seconds",
+    "Age of a Redis-first command when a writer handles it",
+    buckets=(0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5, 15, 30, 60),
+)
+RESERVATION_REPLICA_ACKS = Histogram(
+    "ticketing_reservation_replica_acknowledgements",
+    "Redis replicas acknowledging provisional reservation intake",
+    buckets=(0, 1, 2, 3, 5),
+)
 OUTBOX_AGE = Gauge("ticketing_outbox_oldest_seconds", "Oldest unpublished event age")
 REFRESH_PENDING = Gauge("ticketing_cache_refresh_pending", "Events awaiting cache refresh")
 REFRESH_AGE = Gauge("ticketing_cache_refresh_oldest_seconds", "Oldest dirty cache request age")
 DB_SECONDS = Histogram("ticketing_db_transaction_seconds", "Database transaction duration")
 DB_ERRORS = Counter("ticketing_db_errors_total", "Database errors", ["type"])
+DB_UNAVAILABLE = Counter(
+    "ticketing_db_unavailable_total", "Handled database-unavailable responses", ["cause"]
+)
 REQUEST_ID = ContextVar("request_id", default=None)
 
 

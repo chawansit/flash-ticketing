@@ -57,3 +57,29 @@ The follow-up [750 RPS sub-second diagnostic](../capacity/huawei-rds/2026-09-13-
 The experiment used temporary `sslmode=require` without CA/hostname verification at the user's direction. `verify-full` remains required for production qualification. Huawei RDS provider evidence for the original correlated window showed CPU no higher than 10.19%, write I/O latency no higher than 0.77 ms, write IOPS no higher than 115.07 and connection usage of 2.37%. These one-minute samples exclude sustained saturation but not a short transient.
 
 The later four-API [750 RPS sub-second diagnostic](../capacity/huawei-rds/2026-09-13-750-subsecond-diagnostic/README.md) passed 750 RPS for 30 minutes after ADRs 0037 and 0038. All 1,350,000 requests completed with zero unexpected errors or drops; read/hold p95 was 8.251/51.050 ms. All 67,500 acknowledged holds were durable with zero overlap and drained queues. This raises the demonstrated clean point to 750 RPS for that fixed topology and workload. It does not establish RDS saturation margin or maximum production capacity.
+
+
+## Verified RDS TLS evidence on 2026-09-27
+
+The Huawei RDS CA supplied by the operator was installed only in the ignored ECS secrets
+directory. Its SHA-256 fingerprint is
+`8371730be3e1b422ebfce86adeed5a6f340a862dbd502edfc49b5210a7f023b0` and its validity ends
+in 2046. The live RDS server certificate chains to that authority and includes the private
+RDS address in its subject alternative names, so libpq `verify-full` can validate the
+current private-IP endpoint.
+
+A direct migration-container session with `sslmode=verify-full` succeeded using TLS 1.3,
+`TLS_AES_256_GCM_SHA384`, and a 256-bit cipher. The additive
+`reservation_commands` migration was present. This closes the direct RDS TLS preflight gate
+for the current certificate and endpoint. It does not retroactively change earlier benchmark
+runs that used `sslmode=require`. PgBouncer and application containers had not yet been
+restarted with this setting at evidence capture time, so runtime upstream-TLS verification and
+readiness still require a controlled restart check.
+
+The controlled runtime rollout later on 2026-09-27 recreated PgBouncer with
+`server_tls_sslmode=verify-full`. A query through the application pool reported TLS 1.3,
+`TLS_AES_256_GCM_SHA384` and 256-bit encryption for the live PgBouncer-to-RDS session.
+All four API replicas returned healthy with zero restarts, load-balancer readiness passed five
+consecutive checks and the inspected application and worker logs contained no error-level
+entries. This closes the runtime upstream-TLS verification gate for the current certificate
+and endpoint; certificate rotation still requires the same preflight and controlled restart.

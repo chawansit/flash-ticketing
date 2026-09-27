@@ -1,0 +1,10 @@
+{
+  "request_log_lines": 457407,
+  "by_route_status_code_cause": {
+    "/v1/holds|503|DATABASE_UNAVAILABLE|PoolTimeout": 4,
+    "/health/ready|503|DATABASE_UNAVAILABLE|PoolTimeout": 1,
+    "/v1/holds|503|DATABASE_UNAVAILABLE|TooManyRequests": 1
+  },
+  "first_error_utc": "2026-09-20T01:42:22.292638+00:00",
+  "last_error_utc": "2026-09-20T01:42:22.440371+00:00"
+}

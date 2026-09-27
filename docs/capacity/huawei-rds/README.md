@@ -63,3 +63,70 @@ completed evidence and attempt the post-TTL audit. The next stage remains a
 fresh 750 RPS ten-minute safety test only after a reproducible deployment and
 healthy maintenance/reconciliation pools. No 30-minute or 800 RPS stage is
 authorized by the 2026-09-19 result.
+
+## 2026-09-20 matched-revision safety control
+
+The [new 750 RPS, ten-minute control](2026-09-20-750-clean-workload/README.md)
+completed all 450,000 responses with zero unexpected responses or drops,
+22,500 successful holds, read/hold p95 8.503/51.384 ms and exact post-expiry
+integrity with zero overlaps or queue backlog. It still failed the unattended
+execution gate: the operator SSH call timed out after the generator had finished.
+ADR 0043 changes that long-call mechanism. Until the new workflow passes a
+fresh stage and the 30-minute confirmation passes, 600 RPS remains the highest
+repeatable clean 30-minute baseline.
+
+## 2026-09-20 detached-job safety result
+
+The [matched-revision 750 RPS detached-job stage](2026-09-20-750-detached-failure/README.md)
+completed 450,000 responses but returned five unexpected hold 503s in one
+brief database-pool/commit spike. Exact durability, zero double-booking,
+queue drain and rollback passed, and the new short-poll workflow completed
+without an SSH timeout. The strict availability gate failed, so no longer
+or higher-rate stage followed. The highest repeatable clean 30-minute
+baseline remains 600 RPS.
+## 2026-09-20 100 ms WAL controls
+
+The [matched 600 and 750 RPS, three-minute diagnostics](2026-09-20-100ms-wal-controls/README.md)
+passed all short-stage safety gates with exact post-expiry audits and zero
+booking overlap. At 750 RPS, however, 31 successful commits exceeded 100 ms;
+the longest took 322.913 ms. A 100 ms RDS observer sampled up to 15 concurrent
+`WALWrite` waiters during the spike, with no WAL-buffer-full event or checkpoint
+in either stage. The default Huawei PostgreSQL 17 and 18 parameter exports do
+not expose `track_wal_io_timing`. These short runs narrow the commit bottleneck
+but do not overturn the failed 750 RPS ten-minute gate or promote capacity.
+
+The [direct RDS versus PgBouncer WAL path probe](2026-09-20-wal-path-ab/README.md) reproduced intermittent long commits without PgBouncer and correlates them with sampled WAL waits (20 September 2026).
+
+The [PID-correlated WAL probe](wal-pid-probe.md) completed a [bounded direct-RDS run](2026-09-20-wal-pid/README.md): every slow commit had a WAL wait sampled on the same backend.
+
+## 2026-09-22 1,000 RPS maintenance-drain diagnostic
+
+The [two-maintenance-worker comparison](2026-09-22-1000-maintenance-drain/README.md)
+kept overdue holds below one second at peak in the 15-minute stage and verified
+44,990 acknowledged holds with zero booking overlap. The eight-worker generator
+delivered all 900,000 scheduled requests. Ten final admission responses and 237
+pending seat-refresh requests at the fixed 180-second audit failed the strict
+and candidate SLO gates. No 30-minute capacity promotion was made.
+
+## 2026-09-27 1,000 RPS split-maintenance safety diagnostic
+
+The [dedicated refresh/expiry safety stage](2026-09-27-1000-split-maintenance/README.md)
+delivered all 300,000 requests with zero generator drops or transport errors,
+20.012/90.615 ms worst-worker read/hold p95, exact durability for 14,997 holds,
+zero overlap and every queue drained. Three final `ADMISSION_FULL` responses
+(0.001%) fail strict capacity certification but remain below the separate 0.01%
+recovery-SLO diagnostic budget. This five-minute diagnostic validates the new
+background topology; it does not establish sustained 1,000 RPS capacity. A matched
+single-retry stage recovered one of three first-attempt rejections and left two
+final errors (0.000667%); exact durability and queue drain passed again. More
+retries are not adopted.
+
+## 2026-09-27 Redis-first 1,000 RPS safety validation
+
+The [Redis-first safety stage](2026-09-27-redis-first-1000-rps/README.md) delivered all 300,000
+no-retry requests with zero errors or drops, 103.682/235.254 ms worst-worker read/hold p95,
+exact PostgreSQL durability for all 15,000 HTTP 202 provisional holds, zero ownership overlap
+and zero queues at the fixed audit. The passing topology used two reservation writers, two
+Kafka consumers, split refresh/expiry workers and eight generator processes. Rollback restored
+the PostgreSQL reservation path. This is a five-minute safety result; managed Redis failover,
+writer-restart recovery and sustained confirmation remain outstanding.

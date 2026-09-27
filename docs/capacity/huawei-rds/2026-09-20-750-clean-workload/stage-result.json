@@ -1,0 +1,41 @@
+{
+  "completed_at": "2026-09-20T01:21:03.883527+00:00",
+  "gates": {
+    "load_exit_zero": false,
+    "workload": true,
+    "generator_drops_zero": true,
+    "transport_errors_zero": true,
+    "read_p95": true,
+    "hold_p95": true,
+    "admission_zero": true,
+    "audit_exit_zero": true,
+    "durability": true,
+    "overlap_zero": true,
+    "queues_drained": true,
+    "rollback": true,
+    "execution_and_cleanup": false
+  },
+  "pass": false,
+  "request_summary": {
+    "rate": 750,
+    "seconds": 600,
+    "generator_drops": 0,
+    "worst_worker_read_p95_ms": 8.502782002324238,
+    "worst_worker_hold_p95_ms": 51.384020000114106
+  },
+  "admission_rejections": 0,
+  "audited_holds": 22500,
+  "overlapping_load_hold_intervals": 0,
+  "run_id": "20260920T010311Z-5e8b4863",
+  "error": "Load SSH call timed out after 840 seconds",
+  "completed_phases": [
+    "deployed",
+    "prepared",
+    "manifest_transferred",
+    "preflight_passed",
+    "observers_started",
+    "load_timed_out",
+    "compact_results_collected",
+    "audit_finished"
+  ]
+}

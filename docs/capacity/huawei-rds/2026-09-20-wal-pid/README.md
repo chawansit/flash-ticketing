@@ -1,0 +1,18 @@
+# PID-correlated direct-RDS WAL probe — 20 September 2026
+
+This diagnostic ran on the isolated Huawei RDS instance from **08:41:37 to 08:43:38 UTC** (**15:41:37–15:43:38 Bangkok time**). Source: `scripts/wal_pid_probe.py` at commit `406ce99`, SHA-256 verified after transfer to the API ECS. The deployed ticketing services remained on `d5ff3e3`; no application image, booking transaction, RDS parameter or durability setting changed. The probe used an encrypted direct RDS connection with `sslmode=require`; the private CA mismatch still prevents certificate identity validation for this diagnostic connection.
+
+Preflight confirmed `synchronous_commit=on`, `fsync=on` and read-write transactions. A separate, uniquely named logged table received incompressible 8 KiB inserts at **40 transactions/s for 120 seconds**, using 16 preconnected direct clients. A second direct connection sampled `pg_stat_activity` for those exact backend PIDs at 20 ms intervals. It collected **5,999 samples with zero query errors**, max query time **17.027 ms**, and max wake lag **5.421 ms**. All **4,800** inserts completed with zero errors; maximum scheduling lag was **5.195 ms**, and maximum client connection wait was **0.122 ms**. The script reported cleanup success, an independent catalogue query found **zero** remaining `capacity_wal_pid_%` tables, and the API remained ready.
+
+| Commit metric | Result |
+| --- | ---: |
+| p95 | 7.811 ms |
+| p99 | 67.104 ms |
+| maximum | 253.031 ms |
+| commits over 100 ms | 33 |
+
+All **33 slow commits** had a WAL-related wait sampled on **their own backend PID during that commit interval**. Among those commits, 26 had `WALWrite` (LWLock) and 9 had `WalSync` (IO); two had both, so the category totals overlap. Seven also had `ClientRead` in part of the interval. A missing event would be inconclusive at 20 ms resolution, but none of these 33 lacked a WAL event. The slow commits formed seven bursts. The largest had 11 slow commits from **15:42:18.340 to 15:42:18.802 Bangkok time**; another had nine from **15:42:11.366 to 15:42:11.808**. At one 20 ms sample, **nine backends waited on `WALWrite` while one waited on `WalSync`**; 65 samples contained both events. Exact backend matching is stronger evidence than the previous aggregate observer, which could only associate events by time.
+
+PostgreSQL describes [`WalSync` as waiting for a WAL file to reach durable storage and `WALWrite` as waiting for WAL buffers to be written](https://www.postgresql.org/docs/17/monitoring-stats.html). The result localizes the intermittent commit stall to the RDS WAL write/sync path rather than PgBouncer, API scheduling or the client connection pool. It does **not** separate physical storage service latency from PostgreSQL WAL serialization or managed replication internals, and it does not prove a safe RDS parameter change. `track_wal_io_timing` remains off, so per-call WAL timing is unavailable. Huawei's one-minute disk averages cannot resolve these subsecond bursts.
+
+This is a diagnostic, **not** a 750 RPS ticketing capacity qualification. Keep synchronous durability and existing admission gates. A next controlled test can compare the same offered write rate at lower and higher direct-RDS connection counts while reporting client queue wait and full transaction latency; any ticketing persistence or scaling change requires an ADR first. The compact machine-readable result is [`summary.json`](summary.json). Raw transaction intervals and PID samples remain private in ignored `tmp/capacity/wal-pid-20260920T084136Z/` for audit. The [probe runbook](../wal-pid-probe.md) documents bounds and recovery.
