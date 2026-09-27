@@ -91,3 +91,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0056: Promote verified batching under the recovery-SLO diagnostic](0056-promote-verified-batching-diagnostic.md)
 - [0057: Isolate refresh and expiry maintenance lanes](0057-isolate-refresh-expiry-maintenance.md)
 - [0058: Redis-first durable reservation intake](0058-redis-first-durable-reservation-intake.md)
+- [0059: Scale Redis reservation persistence writers](0059-scale-redis-reservation-writers.md)

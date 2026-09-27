@@ -112,9 +112,10 @@ hold/order/idempotency linkage, zero overlapping seat intervals, and zero entrie
 messages across registered reservation streams. HTTP 202 is provisional and is never enough
 for a passing result by itself.
 
-The unattended RDS stage propagates `--reservation-mode redis-first`, starts the reservation
-writer before replacing the API replicas, verifies the effective API mode and worker source,
-and restores the captured mode and writer replica count during rollback.
+The unattended RDS stage propagates `--reservation-mode redis-first`, starts the bounded
+`--reservation-writer-candidate` count before replacing the API replicas, verifies the effective
+API mode, writer replica count and worker source, and restores the captured mode and writer
+replica count during rollback.
 
 ## Activation gates still outstanding
 

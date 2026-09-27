@@ -117,6 +117,8 @@ def argv(output: Path) -> list[str]:
         "1",
         "--reservation-mode",
         "redis-first",
+        "--reservation-writer-candidate",
+        "2",
     ]
 
 
@@ -389,7 +391,7 @@ def test_worker_scaling_is_passed_and_observers_cover_audit(monkeypatch, tmp_pat
     )
     stage.main()
     fake = CapturingTransport.instances[-1]
-    assert fake.deployment_command[-6:] == ["2", "1", "2", "1", "1", "redis-first"]
+    assert fake.deployment_command[-7:] == ["2", "1", "2", "1", "1", "redis-first", "2"]
     assert fake.load_command[-1] == "redis-first"
     phases = [phase for kind, phase in fake.calls if kind == "remote"]
     assert phases.index("durability-audit") < phases.index("stop-observers") < phases.index("rollback")
@@ -404,7 +406,8 @@ def test_backend_deploy_rebuilds_and_verifies_measured_worker_images():
     assert '--force-recreate --scale expiry=1 expiry' in helper
     assert '--force-recreate --scale "maintenance=$maintenance_candidate" maintenance' in helper
     assert '--force-recreate --scale "consumer=$consumer_candidate" consumer' in helper
-    assert '--scale reservation-writer=1 reservation-writer' in helper
+    assert '--scale "reservation-writer=$reservation_writer_candidate" reservation-writer' in helper
+    assert 'wait_reservation_writer "$reservation_writer_candidate"' in helper
     assert '--scale "reservation-writer=$original_reservation_writers" reservation-writer' in helper
     assert 'set_reservation_mode "$reservation_candidate"' in helper
     assert 'set_reservation_mode "$original_reservation_mode"' in helper
@@ -413,3 +416,5 @@ def test_backend_deploy_rebuilds_and_verifies_measured_worker_images():
     assert "src/ticketing/workers.py" in helper
     assert '"split_maintenance":%s' in helper
     assert '"worker_source_verified":true' in helper
+    assert 'unset PGSSLROOTCERT' not in helper
+    assert 'RDS_DATABASE_URL="$DATABASE_URL"' in helper

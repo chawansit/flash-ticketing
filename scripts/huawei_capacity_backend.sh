@@ -160,12 +160,14 @@ case "${1:-}" in
     chmod 600 "$private/manifest.json"
     ;;
   deploy)
-    [ "$#" -eq 10 ]
+    [ "$#" -eq 11 ]
     run_paths "$2"
     candidate=$3; fallback=$4; maintenance_candidate=$5; maintenance_fallback=$6
     consumer_candidate=$7; consumer_fallback=$8; split_candidate=$9
     reservation_candidate=${10}
+    reservation_writer_candidate=${11}
     case "$reservation_candidate" in postgres|redis-first) ;; *) exit 2 ;; esac
+    case "$reservation_writer_candidate" in 1|2|3|4) ;; *) exit 2 ;; esac
     [ "$split_candidate" -eq 0 ] || [ "$split_candidate" -eq 1 ]
     original_maintenance=$($compose ps -q maintenance | wc -l | tr -d ' ')
     original_refresh=$($compose ps -q refresh | wc -l | tr -d ' ')
@@ -195,9 +197,9 @@ case "${1:-}" in
     set_reservation_mode "$reservation_candidate"
     $compose build api migrate publisher consumer maintenance refresh expiry reservation-writer
     if [ "$reservation_candidate" = redis-first ]; then
-      $compose up -d --no-deps --force-recreate --scale reservation-writer=1 reservation-writer
-      wait_reservation_writer 1
-      deployed_reservation_writers=1
+      $compose up -d --no-deps --force-recreate --scale "reservation-writer=$reservation_writer_candidate" reservation-writer
+      wait_reservation_writer "$reservation_writer_candidate"
+      deployed_reservation_writers=$reservation_writer_candidate
     else
       $compose up -d --no-deps --scale reservation-writer=0 reservation-writer
       wait_reservation_writer 0
@@ -292,7 +294,7 @@ case "${1:-}" in
     echo $! > "$private/kafka-lag.pid"
     nohup $compose run --rm --no-deps -T --name "ft-rds-wait-$2" --user root \
       -v "$raw:/evidence" migrate sh -lc \
-      'unset PGSSLROOTCERT; RDS_DATABASE_URL="$DATABASE_URL" python /app/scripts/rds_wait_observe.py --seconds "$1" --interval 0.1 --output /evidence/rds-waits.jsonl' \
+      'RDS_DATABASE_URL="$DATABASE_URL" python /app/scripts/rds_wait_observe.py --seconds "$1" --interval 0.1 --output /evidence/rds-waits.jsonl' \
       sh "$seconds" > "$raw/rds-waits.log" 2>&1 &
     echo $! > "$private/rds-waits.pid"
     ;;

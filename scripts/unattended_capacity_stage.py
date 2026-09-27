@@ -207,6 +207,7 @@ def main() -> None:
     parser.add_argument("--retry-base-delay-ms", type=float, default=25.0)
     parser.add_argument("--late-delivery-window-ms", type=float, default=0.0)
     parser.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
+    parser.add_argument("--reservation-writer-candidate", type=int, choices=(1, 2, 3, 4), default=1)
     parser.add_argument("--ssh", default="ssh")
     parser.add_argument("--scp", default="scp")
     parser.add_argument("--identity-file", type=Path)
@@ -287,6 +288,7 @@ def main() -> None:
                 str(args.maintenance_candidate), str(args.maintenance_rollback),
                 str(args.consumer_candidate), str(args.consumer_rollback),
                 str(int(args.split_maintenance)), args.reservation_mode,
+                str(args.reservation_writer_candidate),
             ],
             timeout=300,
         )
