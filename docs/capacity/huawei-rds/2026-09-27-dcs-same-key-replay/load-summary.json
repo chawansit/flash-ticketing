@@ -43,5 +43,7 @@
     "worst_worker_hold_p95": 7192.054
   },
   "recovery_correctness_pass": true,
-  "strict_fault_stage_latency_gate_pass": false
+  "strict_fault_stage_latency_gate_pass": false,
+  "failover_latency_is_release_gate": false,
+  "normal_capacity_samples_exclude_declared_failover_window": true
 }

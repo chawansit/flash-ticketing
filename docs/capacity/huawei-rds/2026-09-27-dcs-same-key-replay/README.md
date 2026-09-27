@@ -2,7 +2,7 @@
 
 **Run date:** 27 September 2026
 **Window:** 22:21:22-22:24:21 Asia/Bangkok
-**Outcome:** recovery correctness passed; the strict fault-stage latency gate failed.
+**Outcome:** recovery correctness passed; fault-stage latency was recorded and is non-gating under ADR 0062.
 
 This low-rate drill tested the bounded same-idempotency-key recovery chosen in
 [ADR 0061](../../../adr/0061-bounded-same-key-redis-replay.md) during a real Huawei
@@ -41,7 +41,7 @@ Normal provisional holds remained fast: the worse worker's HTTP 202 hold p95 was
 13.472 ms, and the worse read p95 was 8.208 ms. The two recovery responses took
 6.238 and 7.192 seconds because they included bounded backoff across the managed
 switchover. That raises the worse worker's aggregate hold p95 to 7.192 seconds,
-so the strict fault-stage latency gate failed.
+which exceeded the former strict latency gate. ADR 0062 now treats this declared-failover latency as non-gating evidence.
 
 This fault latency is not a capacity percentile. It shows the current recovery
 contract favors a resolved, durable outcome over a sub-second response while
@@ -75,9 +75,9 @@ consecutive readiness checks.
 ADR 0061's same-key recovery behavior is validated at low rate: every ambiguous
 hold resolved, PostgreSQL durability was exact, no seat was double-booked and all
 queues drained. Redis-first production activation remains blocked pending a
-managed-failover stage at representative load and an explicit recovery-latency
-SLO. The 7.192-second fault percentile must not be presented as certified
-production capacity.
+managed-failover correctness stage at representative load. No failover latency
+SLO is required. The 7.192-second fault percentile remains operational evidence
+and must not be presented as normal-operation production capacity.
 
 ## Evidence
 

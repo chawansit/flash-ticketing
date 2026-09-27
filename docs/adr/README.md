@@ -96,3 +96,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0060: Bound Redis reservation-writer failover recovery](0060-bounded-redis-writer-failover-recovery.md)
 
 - [0061: Resolve ambiguous Redis intake by bounded same-key replay](0061-bounded-same-key-redis-replay.md)
+
+- [0062: Treat managed-failover latency as non-gating evidence](0062-non-gating-failover-latency.md)

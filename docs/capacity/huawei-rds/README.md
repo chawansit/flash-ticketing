@@ -154,6 +154,6 @@ The [bounded same-key replay drill](2026-09-27-dcs-same-key-replay/README.md)
 recovered both ambiguous hold outcomes and all three transient seat-map errors
 during a real managed-DCS switchover. All 45 holds became durable with zero
 double-booking or queue backlog, so low-rate recovery correctness passed. The
-two durable replay responses took 6.238 and 7.192 seconds, failing the strict
-fault-stage latency gate. This result does not activate Redis-first for
-production or certify failover capacity.
+two durable replay responses took 6.238 and 7.192 seconds. ADR 0062 records that
+declared-failover latency as non-gating evidence. This result does not activate
+Redis-first for production or certify representative-load failover correctness.

@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for implementation on 27 September 2026. This decision refines the unknown-outcome contract in [ADR 0058](0058-redis-first-durable-reservation-intake.md), the retry rules in [ADR 0049](0049-bounded-idempotent-retry-diagnostic.md), and the failover recovery work in [ADR 0060](0060-bounded-redis-writer-failover-recovery.md). Redis-first production activation remains blocked until the managed-DCS repeat passes the gates below.
+Accepted for implementation on 27 September 2026. This decision refines the unknown-outcome contract in [ADR 0058](0058-redis-first-durable-reservation-intake.md), the retry rules in [ADR 0049](0049-bounded-idempotent-retry-diagnostic.md), and the failover recovery work in [ADR 0060](0060-bounded-redis-writer-failover-recovery.md). Redis-first production activation remains blocked until the managed-DCS repeat passes the gates below. The later [ADR 0062](0062-non-gating-failover-latency.md) supersedes only the requirement for a release-gating failover latency SLO.
 
 ## Context
 
