@@ -1,5 +1,6 @@
 import hashlib
 import json
+import time
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
@@ -120,7 +121,16 @@ class RedisReservationIntake:
         wait_ms=100,
         max_backlog=10000,
         retention_seconds=86400,
+        stream_batch_size=32,
+        stream_refresh_seconds=1.0,
+        stream_scan_steps=4,
     ):
+        if stream_batch_size <= 0:
+            raise ValueError("Stream batch size must be positive")
+        if stream_refresh_seconds < 0:
+            raise ValueError("Stream refresh interval must be nonnegative")
+        if stream_scan_steps <= 0:
+            raise ValueError("Stream scan steps must be positive")
         self.cache = cache
         self.redis = cache.redis
         self.hold_seconds = hold_seconds
@@ -128,6 +138,14 @@ class RedisReservationIntake:
         self.wait_ms = wait_ms
         self.max_backlog = max_backlog
         self.retention_seconds = retention_seconds
+        self.stream_batch_size = stream_batch_size
+        self.stream_refresh_seconds = stream_refresh_seconds
+        self.stream_scan_steps = stream_scan_steps
+        self._streams = []
+        self._stream_cursor = 0
+        self._scan_cursor = 0
+        self._last_stream_refresh = 0.0
+        self._known_groups = set()
 
     @staticmethod
     def _tag(event):
@@ -260,31 +278,67 @@ class RedisReservationIntake:
             response["error_code"] = row["error_code"]
         return response
 
-    def streams(self, limit=5000):
-        keys = set(self.redis.smembers("reservation-stream-registry"))
-        cursor = 0
-        while len(keys) < limit:
-            cursor, found = self.redis.scan(cursor, match="reservation-stream:*", count=100)
+    def _refresh_streams(self, limit=5000):
+        """Refresh discovery without ever walking the complete Redis keyspace in one poll."""
+        now = time.monotonic()
+        if self._streams and now - self._last_stream_refresh < self.stream_refresh_seconds:
+            return
+        keys = set(self._streams)
+        keys.update(self.redis.smembers("reservation-stream-registry"))
+        for _ in range(self.stream_scan_steps):
+            self._scan_cursor, found = self.redis.scan(
+                self._scan_cursor, match="reservation-stream:*", count=100
+            )
             keys.update(found)
-            if cursor == 0:
+            if self._scan_cursor == 0:
                 break
-        return sorted(keys)[:limit]
+        self._streams = sorted(keys)[:limit]
+        self._last_stream_refresh = now
+        if self._streams:
+            self._stream_cursor %= len(self._streams)
+        else:
+            self._stream_cursor = 0
+
+    def streams(self, limit=5000):
+        self._refresh_streams(limit)
+        return list(self._streams)
+
+    def _next_stream_batch(self):
+        if not self._streams:
+            return []
+        size = min(self.stream_batch_size, len(self._streams))
+        start = self._stream_cursor % len(self._streams)
+        batch = [self._streams[(start + offset) % len(self._streams)] for offset in range(size)]
+        self._stream_cursor = (start + size) % len(self._streams)
+        return batch
 
     def ensure_group(self, stream):
+        if stream in self._known_groups:
+            return
         try:
             self.redis.xgroup_create(stream, self.group, id="0", mkstream=True)
         except ResponseError as exc:
             if "BUSYGROUP" not in str(exc):
                 raise
+        self._known_groups.add(stream)
+
+    def reset_connection_state(self):
+        """Discard failover-era sockets and rebuild advisory discovery state."""
+        self.redis.connection_pool.disconnect()
+        self._streams = []
+        self._stream_cursor = 0
+        self._scan_cursor = 0
+        self._last_stream_refresh = 0.0
+        self._known_groups.clear()
 
     def messages(self, consumer, count=8, reclaim_idle_ms=30000):
-        streams = self.streams()
+        self._refresh_streams()
+        streams = self._next_stream_batch()
         for stream in streams:
             self.ensure_group(stream)
 
-        # Recover abandoned deliveries first. Once pending work is drained, read all
-        # event streams in one XREADGROUP call so an alphabetically earlier event
-        # cannot continuously starve later events.
+        # Reclaim and new-message reads are both bounded to one rotating subset. This
+        # prevents per-stream timeouts during failover from composing past the hold TTL.
         for stream in streams:
             _next, claimed, _deleted = self.redis.xautoclaim(
                 stream, self.group, consumer, reclaim_idle_ms, "0-0", count=count

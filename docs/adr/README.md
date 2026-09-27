@@ -92,3 +92,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0057: Isolate refresh and expiry maintenance lanes](0057-isolate-refresh-expiry-maintenance.md)
 - [0058: Redis-first durable reservation intake](0058-redis-first-durable-reservation-intake.md)
 - [0059: Scale Redis reservation persistence writers](0059-scale-redis-reservation-writers.md)
+
+- [0060: Bound Redis reservation-writer failover recovery](0060-bounded-redis-writer-failover-recovery.md)

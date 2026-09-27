@@ -14,6 +14,7 @@ from uuid import uuid4
 from kafka import KafkaConsumer, KafkaProducer, TopicPartition
 from prometheus_client import start_http_server
 from psycopg.types.json import Jsonb
+from redis.exceptions import RedisError
 
 from ticketing.application.reservations import Reservations
 from ticketing.config import Settings
@@ -709,8 +710,10 @@ def main():
                             work = True
                 if not work:
                     time.sleep(0.1)
-            except Exception:
+            except Exception as exc:
                 WORKER_ERRORS.labels(role).inc()
+                if role == "reservation-writer" and isinstance(exc, RedisError):
+                    intake.reset_connection_state()
                 log.exception("worker_iteration_failed", extra={"fields": {"role": role}})
                 time.sleep(1)
     finally:

@@ -1,0 +1,17 @@
+{
+  "sample_interval_ms": 250,
+  "samples": 738,
+  "successful_samples": 737,
+  "failed_samples": 1,
+  "longest_consecutive_failed_samples": 1,
+  "first_failure_unix": 1790491631.5650716,
+  "last_failure_unix": 1790491631.5650716,
+  "last_success_before_failure_unix": 1790491631.3149943,
+  "first_success_after_failure_unix": 1790491631.8151486,
+  "observed_recovery_window_ms": 500.154,
+  "error_types": [
+    "ConnectionError"
+  ],
+  "max_success_latency_ms": 11.2,
+  "pass": true
+}

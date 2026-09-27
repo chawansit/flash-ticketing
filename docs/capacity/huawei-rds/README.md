@@ -138,3 +138,7 @@ reservation writers for 20 seconds during a five-minute 1,000 RPS Redis-first st
 provisional holds became durable with zero broken links, overlap or queue backlog, so recovery
 passed. Two generator scheduling drops failed the independent strict capacity gate; this result
 does not replace the earlier no-fault 1,000 RPS safety pass.
+
+## 2026-09-27 Huawei DCS switchover drill
+
+The [managed-DCS switchover drill](2026-09-27-dcs-failover/README.md) delivered all 300,000 requests at 500 RPS and observed the Redis endpoint recover in about 500 ms, but the reservation writers had an approximately 129-second persistence gap. Only 12,632 of 14,612 HTTP 202 provisional acknowledgements became durable; 1,980 expired before persistence. Zero overlap, queue drain and rollback passed, but exact durability failed. Redis-first production activation remains blocked pending the bounded recovery change in ADR 0060 and a passing repeat failover drill.
