@@ -15,6 +15,11 @@ class Settings:
     pool_wait_ms: int = int(os.getenv("DB_POOL_WAIT_MS", "150"))
     seatmap_ttl_seconds: int = int(os.getenv("SEATMAP_TTL_SECONDS", "30"))
     reserve_concurrency: int = int(os.getenv("RESERVE_CONCURRENCY", "12"))
+    reservation_mode: str = os.getenv("RESERVATION_MODE", "postgres")
+    redis_reserve_concurrency: int = int(os.getenv("REDIS_RESERVE_CONCURRENCY", "128"))
+    redis_reservation_replica_acks: int = int(os.getenv("REDIS_RESERVATION_REPLICA_ACKS", "0"))
+    redis_reservation_wait_ms: int = int(os.getenv("REDIS_RESERVATION_WAIT_MS", "100"))
+    redis_reservation_max_backlog: int = int(os.getenv("REDIS_RESERVATION_MAX_BACKLOG", "10000"))
     publisher_batch_size: int = int(os.getenv("PUBLISHER_BATCH_SIZE", "32"))
     simulator_concurrency: int = int(os.getenv("SIMULATOR_CONCURRENCY", "4"))
     refresh_cooldown_ms: int = int(os.getenv("REFRESH_COOLDOWN_MS", "250"))
@@ -35,6 +40,11 @@ class Settings:
     reconcile_backoff_ms: int = int(os.getenv("RECONCILE_BACKOFF_MS", "1000"))
     reconcile_seed_batch: int = int(os.getenv("RECONCILE_SEED_BATCH", "200"))
 
+    @property
+    def hold_admission_limit(self):
+        if self.reservation_mode == "redis-first":
+            return self.redis_reserve_concurrency
+        return self.reserve_concurrency
     def validate(self):
         if self.environment != "development" and (
             self.jwt_secret.startswith("local-") or self.webhook_secret.startswith("local-")
@@ -44,6 +54,22 @@ class Settings:
             raise RuntimeError("Invalid positive configuration")
         if not 50 <= self.pool_wait_ms <= 1000:
             raise RuntimeError("DB_POOL_WAIT_MS must be between 50 and 1000")
+        if self.reservation_mode not in {"postgres", "redis-first"}:
+            raise RuntimeError("RESERVATION_MODE must be postgres or redis-first")
+        if not 1 <= self.redis_reserve_concurrency <= 10000:
+            raise RuntimeError("REDIS_RESERVE_CONCURRENCY must be between 1 and 10000")
+        if not 0 <= self.redis_reservation_replica_acks <= 5:
+            raise RuntimeError("REDIS_RESERVATION_REPLICA_ACKS must be between 0 and 5")
+        if (
+            self.reservation_mode == "redis-first"
+            and self.environment != "development"
+            and self.redis_reservation_replica_acks < 1
+        ):
+            raise RuntimeError("redis-first production mode requires a Redis replica acknowledgement")
+        if not 10 <= self.redis_reservation_wait_ms <= 1000:
+            raise RuntimeError("REDIS_RESERVATION_WAIT_MS must be between 10 and 1000")
+        if not 100 <= self.redis_reservation_max_backlog <= 1000000:
+            raise RuntimeError("REDIS_RESERVATION_MAX_BACKLOG must be between 100 and 1000000")
         if not 1 <= self.publisher_batch_size <= 100:
             raise RuntimeError("PUBLISHER_BATCH_SIZE must be between 1 and 100")
         if not 1 <= self.simulator_concurrency <= self.pool_max:

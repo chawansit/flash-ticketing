@@ -36,6 +36,8 @@ services:
     environment: *rds-runtime
   consumer:
     environment: *rds-runtime
+  reservation-writer:
+    environment: *rds-runtime
   maintenance:
     environment: *rds-runtime
   refresh:

@@ -24,7 +24,8 @@ from ticketing.domain import Failure
 from ticketing.http import RequestInstrumentation
 from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.postgres import Postgres
-from ticketing.infrastructure.reservations import PostgresReservations
+from ticketing.infrastructure.redis_reservations import RedisReservationIntake
+from ticketing.infrastructure.reservations import PostgresReservations, RedisFirstReservations
 from ticketing.observability import (
     DB_UNAVAILABLE,
     EVENT_LOOP_LAG_CURRENT_SECONDS,
@@ -57,7 +58,17 @@ async def lifespan(app):
     db = Postgres(settings.database_url, settings.pool_max, settings.pool_wait_ms)
     cache = RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
     app.state.db, app.state.cache = db, cache
-    app.state.reservations = Reservations(PostgresReservations(db, cache, settings.hold_seconds))
+    durable = PostgresReservations(db, cache, settings.hold_seconds)
+    intake = RedisReservationIntake(
+        cache,
+        hold_seconds=settings.hold_seconds,
+        replica_acks=settings.redis_reservation_replica_acks,
+        wait_ms=settings.redis_reservation_wait_ms,
+        max_backlog=settings.redis_reservation_max_backlog,
+    )
+    store = RedisFirstReservations(durable, intake) if settings.reservation_mode == "redis-first" else durable
+    app.state.reservation_intake = intake
+    app.state.reservations = Reservations(store)
     loop_observer = asyncio.create_task(observe_event_loop_lag())
     try:
         yield
@@ -73,10 +84,11 @@ app = FastAPI(
     title="Flash-sale Ticketing",
     version="0.1.0",
     lifespan=lifespan,
-    description="Assigned-seat reservations with database-enforced ownership. "
-    "Holds create pending orders atomically. All amounts are integer minor units. "
-    "Seat contention returns immediately; clients must not blindly retry. "
-    "Cached availability is advisory. No waiting room or frontend.",
+    description="Assigned-seat reservations with database-enforced durable ownership. "
+    "Default holds create pending orders synchronously; opt-in Redis-first intake returns "
+    "an explicit provisional command until its PostgreSQL writer commits. All amounts are "
+    "integer minor units. Seat contention returns immediately; clients must not blindly "
+    "retry. Cached availability is advisory. No waiting room or frontend.",
 )
 app.state.reserve_inflight = 0
 
@@ -290,14 +302,32 @@ def deltas(event_id: UUID, request: Request, since: int = 0):
     return {**snapshot, "seats": [s for s in snapshot["seats"] if s["version"] > since]}
 
 
-@app.post("/v1/holds", tags=["Reservations"], responses=ERRORS, status_code=201)
+HOLD_RESPONSES = {
+    **ERRORS,
+    202: {"description": "Redis-first provisional hold accepted; poll the command status"},
+}
+
+
+@app.post("/v1/holds", tags=["Reservations"], responses=HOLD_RESPONSES, status_code=201)
 def hold(body: HoldInput, who: Actor, svc: Service, key: Key, request: Request):
-    """Atomically hold 1â€“8 seats and create a pending order. Replays retain the original deadline."""
+    """Hold 1-8 seats idempotently. Redis-first mode returns 202 until PostgreSQL is durable."""
     observe_hold_phase("dispatch", time.monotonic() - request.state.hold_admitted_at)
     with hold_phase("rate_limit"):
         request.app.state.cache.rate_limit(who)
-    return svc.reserve(who, body.event_id, body.seat_ids, key)
+    result = svc.reserve(who, body.event_id, body.seat_ids, key)
+    if result.get("persistence_status") == "PENDING":
+        return JSONResponse(status_code=202, content=result)
+    return result
 
+
+@app.get(
+    "/v1/reservation-commands/{event_id}/{command_id}",
+    tags=["Reservations"],
+    responses=ERRORS,
+)
+def reservation_command(event_id: UUID, command_id: UUID, who: Actor, request: Request):
+    """Poll provisional Redis-first intake until it becomes DURABLE or FAILED."""
+    return request.app.state.reservation_intake.status(event_id, command_id, who)
 
 @app.get("/v1/holds/{hold_id}", tags=["Reservations"], responses=ERRORS)
 def get_hold(hold_id: UUID, who: Actor, svc: Service):

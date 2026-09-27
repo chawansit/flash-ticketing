@@ -56,6 +56,7 @@ class RequestInstrumentation:
         trace = {} if reservation else None
         trace_context = HOLD_TRACE.set(trace)
         arrival_occupancy = self.owner.state.reserve_inflight
+        hold_limit = getattr(self.config, "hold_admission_limit", self.config.reserve_concurrency)
         admitted = False
         response_headers_emitted = False
 
@@ -133,7 +134,7 @@ class RequestInstrumentation:
                         'connection_age_ms': round(connection_age_ms, 2),
                         'close_source': close_reason,
                         **({'hold_arrival_occupancy': arrival_occupancy,
-                           'hold_limit': self.config.reserve_concurrency,
+                           'hold_limit': hold_limit,
                            'hold_phase_ms': {k: round(v, 3) for k, v in trace.items()}}
                           if reservation else {}),
                     }
@@ -147,9 +148,9 @@ class RequestInstrumentation:
         try:
             if reservation:
                 HOLD_OCCUPANCY.observe(arrival_occupancy)
-                HOLD_LIMIT.set(self.config.reserve_concurrency)
+                HOLD_LIMIT.set(hold_limit)
             # One process/event loop: check and increment contain no await.
-            if reservation and self.owner.state.reserve_inflight >= self.config.reserve_concurrency:
+            if reservation and self.owner.state.reserve_inflight >= hold_limit:
                 HOLD_ADMISSION.labels('rejected').inc()
                 OUTCOMES.labels('request', 'ADMISSION_FULL').inc()
                 request.state.error_code = 'ADMISSION_FULL'
@@ -187,7 +188,7 @@ class RequestInstrumentation:
                         'connection_age_ms': round(connection_age_ms, 2),
                         'close_source': close_reason,
                         **({'hold_arrival_occupancy': arrival_occupancy,
-                           'hold_limit': self.config.reserve_concurrency,
+                           'hold_limit': hold_limit,
                            'hold_phase_ms': {k: round(v, 3) for k, v in trace.items()}}
                           if reservation else {}),
                     }

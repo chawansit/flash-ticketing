@@ -90,3 +90,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0055: Build and verify measured worker images](0055-build-and-verify-worker-images.md)
 - [0056: Promote verified batching under the recovery-SLO diagnostic](0056-promote-verified-batching-diagnostic.md)
 - [0057: Isolate refresh and expiry maintenance lanes](0057-isolate-refresh-expiry-maintenance.md)
+- [0058: Redis-first durable reservation intake](0058-redis-first-durable-reservation-intake.md)

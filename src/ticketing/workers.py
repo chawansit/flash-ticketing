@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import signal
+import socket
 import time
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -16,8 +17,10 @@ from psycopg.types.json import Jsonb
 
 from ticketing.application.reservations import Reservations
 from ticketing.config import Settings
+from ticketing.domain import Failure
 from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.postgres import Postgres
+from ticketing.infrastructure.redis_reservations import RedisReservationIntake
 from ticketing.infrastructure.reservations import PostgresReservations, event
 from ticketing.observability import (
     CACHE_ROWS,
@@ -31,6 +34,8 @@ from ticketing.observability import (
     RECONCILE_TRACKED,
     REFRESH_AGE,
     REFRESH_PENDING,
+    RESERVATION_COMMAND_AGE_SECONDS,
+    RESERVATION_PERSISTENCE,
     WORKER_ERRORS,
     configure_logging,
     measured_work,
@@ -45,11 +50,52 @@ def stop(*_):
     running = False
 
 
+@measured_work("reservation_write")
+def persist_reservation_batch(store, intake, consumer, limit=8):
+    handled = False
+    for stream, message_id, fields in intake.messages(consumer, count=limit):
+        handled = True
+        payload = json.loads(fields["payload"])
+        response = json.loads(fields["response"])
+        created_at = float(fields.get("created_at_epoch", time.time()))
+        RESERVATION_COMMAND_AGE_SECONDS.observe(max(0.0, time.time() - created_at))
+        try:
+            store.persist_reservation_command(payload, response)
+        except Failure as exc:
+            intake.mark_failed(
+                payload["event_id"],
+                payload["command_id"],
+                payload["seat_ids"],
+                exc.code,
+            )
+            RESERVATION_PERSISTENCE.labels("failed").inc()
+            log.warning(
+                "reservation_command_failed",
+                extra={"fields": {
+                    "event": "reservation_command_failed",
+                    "command_id": payload["command_id"],
+                    "error_code": exc.code,
+                }},
+            )
+            snapshot(store.db, intake.cache, payload["event_id"])
+            intake.acknowledge(stream, message_id)
+            continue
+        if intake.mark_durable(payload["event_id"], payload["command_id"]) != 1:
+            raise RuntimeError("reservation command metadata expired before durable acknowledgement")
+        intake.acknowledge(stream, message_id)
+        RESERVATION_PERSISTENCE.labels("durable").inc()
+    return handled
+
+
 @measured_work("snapshot")
 def snapshot(db, cache, event_id):
-    # One statement gives a consistent snapshot. A global sequence is not used: allocation
-    # order is not commit order. Sum of monotonically increasing row versions is monotonic.
+    # Event metadata and seats come from one transaction, then one Lua PUT publishes the
+    # complete intake/read snapshot atomically.
     with db.transaction() as conn:
+        sale = conn.execute(
+            "SELECT sale_starts,sale_ends,currency FROM events WHERE id=%s",
+            (event_id,),
+        ).fetchone()
         rows = conn.execute(
             """SELECT seat_id,price,hold_id,reserved_until,booked_order_id,version
             FROM event_seats WHERE event_id=%s ORDER BY seat_id""",
@@ -57,20 +103,32 @@ def snapshot(db, cache, event_id):
         ).fetchall()
     CACHE_ROWS.labels("full").inc(len(rows))
     version = sum(r["version"] for r in rows)
-    # Redis atomically preserves the last aggregate marker for unchanged seats.
     seats = [
         {
             "seat_id": r["seat_id"],
             "price": r["price"],
             "status": "SOLD" if r["booked_order_id"] else "HELD" if r["hold_id"] else "AVAILABLE",
             "reserved_until": r["reserved_until"],
+            "reserved_until_epoch": (
+                r["reserved_until"].timestamp() if r["reserved_until"] is not None else None
+            ),
             "version": version,
             "source_version": r["version"],
         }
         for r in rows
     ]
-    cache.put(str(event_id), version, {"event_id": str(event_id), "version": version, "seats": seats})
-
+    cache.put(
+        str(event_id),
+        version,
+        {
+            "event_id": str(event_id),
+            "version": version,
+            "sale_starts_epoch": sale["sale_starts"].timestamp(),
+            "sale_ends_epoch": sale["sale_ends"].timestamp(),
+            "currency": sale["currency"],
+            "seats": seats,
+        },
+    )
 
 @measured_work("publish_batch")
 def publish_batch(db, producer, limit=32):
@@ -167,9 +225,11 @@ def seat_state(row):
         "price": row["price"],
         "status": "SOLD" if row["booked_order_id"] else "HELD" if row["hold_id"] else "AVAILABLE",
         "reserved_until": row["reserved_until"],
+        "reserved_until_epoch": (
+            row["reserved_until"].timestamp() if row["reserved_until"] is not None else None
+        ),
         "source_version": row["version"],
     }
-
 
 @measured_work("refresh_batch")
 def refresh_batch(db, cache, limit=2, cooldown_ms=250):
@@ -527,7 +587,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "role",
-        choices=["publisher", "consumer", "maintenance", "refresh", "expiry", "reconciler", "simulator"],
+        choices=["publisher", "consumer", "reservation-writer", "maintenance", "refresh", "expiry", "reconciler", "simulator"],
     )
     role = parser.parse_args().role
     configure_logging()
@@ -539,7 +599,16 @@ def main():
     signal.signal(signal.SIGINT, stop)
     start_http_server(settings.worker_port)
     db, cache = Postgres(settings.database_url, settings.pool_max), RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
-    service = Reservations(PostgresReservations(db, cache, settings.hold_seconds))
+    store = PostgresReservations(db, cache, settings.hold_seconds)
+    service = Reservations(store)
+    intake = RedisReservationIntake(
+        cache,
+        hold_seconds=settings.hold_seconds,
+        replica_acks=settings.redis_reservation_replica_acks,
+        wait_ms=settings.redis_reservation_wait_ms,
+        max_backlog=settings.redis_reservation_max_backlog,
+    )
+    reservation_consumer = f"{socket.gethostname()}-{os.getpid()}"
     producer = consumer = executor = None
     try:
         if role == "simulator":
@@ -568,6 +637,10 @@ def main():
                 work = False
                 if role == "publisher":
                     work = publish_batch(db, producer, settings.publisher_batch_size)
+                elif role == "reservation-writer":
+                    work = persist_reservation_batch(
+                        store, intake, reservation_consumer, settings.publisher_batch_size
+                    )
                 elif role == "simulator":
                     work = simulate_batch(db, settings, executor)
                 elif role == "maintenance":
