@@ -1,6 +1,6 @@
 # ADR 0057: Isolate refresh and expiry maintenance lanes
 
-Status: Accepted for controlled validation; sustained 1,000 RPS remains unproven.
+Status: Accepted; five-minute recovery-SLO diagnostic passed, strict and sustained 1,000 RPS remain unproven.
 
 This decision supersedes ADR 0050's deferral of separate maintenance processes and follows ADR 0053's requirement to isolate WAL commit concurrency. ADR 0054's refresh batching and ADR 0056's strict versus diagnostic verdicts remain in force.
 
@@ -54,4 +54,8 @@ Local validation completed on 2026-09-27:
 - Base and RDS Compose rendering passed. The rendered split services use the intended roles, `DB_POOL_MAX=2`, `SIMULATOR_CONCURRENCY=2` and the pooled RDS URL.
 - Deployment tests verify candidate selection, source-hash verification and restoration of the original maintenance, refresh and expiry replica counts.
 
-Cloud validation starts at 1,000 RPS for five minutes with four APIs, admission five, two consumers, one refresh worker and one expiry worker. Promotion follows the strict and diagnostic rules in ADR 0056. A 30-minute result is required for any sustained diagnostic claim. Cloud validation has not yet run for this decision.
+Cloud validation started at 1,000 RPS for five minutes with four APIs, admission five, two consumers, one refresh worker and one expiry worker. Revision `62cb50d` delivered all 300,000 scheduled requests with zero generator drops, late deliveries or transport errors. Three final `ADMISSION_FULL` responses produced a 0.001% unexpected-response rate. Worst-worker read/hold p95 were 20.012/90.615 ms. All 14,997 acknowledged holds were durable, no held-seat intervals overlapped, and the fixed audit found no active or overdue holds, pending orders, broken links, unpublished outbox events, pending refresh rows or dead letters. Rollback restored admission four, one combined maintenance worker, no dedicated workers and one consumer.
+
+Refresh generation and completion both increased by 29,994. Pending refresh peaked at 557 and ended at zero; oldest refresh age peaked at 14.975 seconds. Overdue holds peaked at 19 with a maximum age of 0.319 seconds and ended at zero. The RDS observer recorded 463,314,864 WAL bytes, zero `wal_buffers_full` increments, no checkpoints and up to 14 interesting waiters. Successful API commit phases peaked at 254.560 ms.
+
+The automation's strict verdict is **fail** because three unexpected responses remain. The separately defined recovery-SLO diagnostic is **pass** because the final error rate stayed below 0.01% and every fidelity, latency, correctness, drain and rollback gate passed. This five-minute result validates the split-lane safety candidate but does not prove sustained 1,000 RPS. Evidence is published in [`docs/capacity/huawei-rds/2026-09-27-1000-split-maintenance`](../capacity/huawei-rds/2026-09-27-1000-split-maintenance/README.md).

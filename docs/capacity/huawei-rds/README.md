@@ -107,3 +107,13 @@ kept overdue holds below one second at peak in the 15-minute stage and verified
 delivered all 900,000 scheduled requests. Ten final admission responses and 237
 pending seat-refresh requests at the fixed 180-second audit failed the strict
 and candidate SLO gates. No 30-minute capacity promotion was made.
+
+## 2026-09-27 1,000 RPS split-maintenance safety diagnostic
+
+The [dedicated refresh/expiry safety stage](2026-09-27-1000-split-maintenance/README.md)
+delivered all 300,000 requests with zero generator drops or transport errors,
+20.012/90.615 ms worst-worker read/hold p95, exact durability for 14,997 holds,
+zero overlap and every queue drained. Three final `ADMISSION_FULL` responses
+(0.001%) fail strict capacity certification but remain below the separate 0.01%
+recovery-SLO diagnostic budget. This five-minute diagnostic validates the new
+background topology; it does not establish sustained 1,000 RPS capacity.
