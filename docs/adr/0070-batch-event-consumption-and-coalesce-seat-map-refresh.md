@@ -38,7 +38,8 @@ Introduce bounded micro-batching in event consumption and seat-map refresh.
 4. Pending seat-map refresh work is coalesced by event/show identifier. The
    existing generation fence retains the newest pending work and never moves a
    completed generation backwards.
-5. A refresh worker claims a bounded batch of 16 items, updates Redis, and
+5. A refresh worker claims a bounded batch of 16 items, reads all changed seats with
+   one PostgreSQL query, pipelines independent version-fenced Redis updates, and
    acknowledges successful items with one bounded PostgreSQL operation.
 6. Expiry remains a separate lane with its existing worker count.
 7. Kafka offsets are committed only after durable inbox and handler state commit.
@@ -119,17 +120,34 @@ second, no more than five to six interesting RDS waiters, seat-map read p95 belo
 confirmed capacity.
 ### Local implementation evidence
 
-The proposed design is implemented locally. Kafka polling is bounded to 100
-records with a 10 ms broker fetch window. Consecutive SeatsChanged records use
-one inbox transaction, duplicate event IDs are ignored, seat IDs are coalesced
-per event, and critical event handlers retain individual transactions. Successful
-refresh projections are acknowledged with one PostgreSQL update per batch.
+The proposed design is implemented. Kafka polling is bounded to 100 records with
+a 10 ms broker fetch window. Consecutive SeatsChanged records use one inbox
+transaction, duplicate event IDs are ignored, seat IDs are coalesced per event,
+and critical event handlers retain individual transactions. A refresh batch now
+reads changed seats with one PostgreSQL query, sends version-fenced cache patches
+through one non-transactional Redis pipeline, repairs cache misses with full
+snapshots, and acknowledges successful projections with one PostgreSQL update.
 Prometheus histograms expose consumer and refresh-ack batch sizes.
 
-The final complete unit and integration run passed 243 tests with two dependency
-deprecation warnings. Ruff passed for every changed Python file; the
-repository-wide Docker invocation was not used as evidence because Windows
-mounts mark all source files executable and trigger unrelated EXE002 findings.
+The final complete unit and integration run passed 245 tests with two dependency
+deprecation warnings. The focused batching suite passed 30 tests. Ruff passed for
+every changed Python file; the repository-wide Docker invocation was not used as
+evidence because Windows mounts mark all source files executable and trigger
+unrelated EXE002 findings.
 
-Cloud control, sustained validation and discovery stages remain future work.
-No higher production capacity is claimed by this local evidence.
+### First cloud control evidence
+
+The first three-minute 1,000 RPS, six-percent-write control at commit 6ca8845
+failed the strict capacity gate. It sent 179,996 of 180,000 requests with four
+generator drops, seat-map read p95 149.543 ms, and hold p95 322.123 ms. Exact
+durability was 10,800 of 10,800, overlap/double-booking was zero, every queue
+drained, and rollback passed. Maximum interesting RDS waiters fell from nine in
+the prior control to six; maximum Kafka lag was 29 and drained after 41.14
+seconds. Pending refresh work peaked at 410 and drained after 48.87 seconds.
+
+That run included batched inbox persistence and acknowledgement but still read
+and patched each show separately. It is evidence that the initial implementation
+was incomplete, not evidence of accepted capacity. The bulk changed-seat query
+and Redis pipeline described above were added afterward and have only local test
+evidence. A same-shape cloud rerun remains required before acceptance. No higher
+production capacity is claimed.

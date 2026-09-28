@@ -358,3 +358,38 @@ def test_consumer_batch_uses_only_first_payload_for_duplicate_event_id(system):
     row = refresh_row(db)
     assert row["generation"] == 1
     assert row["seat_ids"] == ["A"]
+
+def test_changed_snapshot_batch_reads_and_patches_multiple_events(system):
+    _, db, first_event = system
+    second_event = uuid4()
+    with db.transaction() as conn:
+        conn.execute(
+            """INSERT INTO events VALUES (%s,'Second','THB',clock_timestamp()-interval '1 day',
+            clock_timestamp()+interval '1 day')""",
+            (second_event,),
+        )
+        conn.execute(
+            "INSERT INTO event_seats(event_id,seat_id,price) VALUES (%s,'A',100)",
+            (second_event,),
+        )
+
+    cache = Mock()
+    cache.patch_many.return_value = [True, True]
+    requests = [
+        {"event_id": first_event, "seat_ids": ["A", "B"]},
+        {"event_id": second_event, "seat_ids": ["A"]},
+    ]
+
+    completed, errors = workers.changed_snapshot_batch(db, cache, requests)
+
+    assert completed == {first_event, second_event}
+    assert errors == []
+    updates = list(cache.patch_many.call_args.args[0])
+    assert [event_id for event_id, _seats in updates] == [
+        str(first_event),
+        str(second_event),
+    ]
+    assert [[seat["seat_id"] for seat in seats] for _event_id, seats in updates] == [
+        ["A", "B"],
+        ["A"],
+    ]

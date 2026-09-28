@@ -195,6 +195,19 @@ class RedisSeats:
     def patch(self, event, seats):
         return self.redis.eval(PUT, 1, self.key(event), "patch", json.dumps(seats, default=str)) >= 0
 
+    def patch_many(self, updates):
+        updates = list(updates)
+        if not updates:
+            return []
+        pipeline = self.redis.pipeline(transaction=False)
+        for event, seats in updates:
+            pipeline.eval(PUT, 1, self.key(event), "patch", json.dumps(seats, default=str))
+        results = pipeline.execute(raise_on_error=False)
+        for result in results:
+            if isinstance(result, RedisError):
+                raise result
+        return [int(result) >= 0 for result in results]
+
     def browse(self, event, kind, if_none_match=None):
         if kind not in {"layout", "availability"}:
             raise ValueError("Unknown browse representation")

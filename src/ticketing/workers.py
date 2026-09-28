@@ -315,6 +315,56 @@ def changed_snapshot(db, cache, event_id, seat_ids):
         snapshot(db, cache, event_id)
 
 
+def changed_snapshot_batch(db, cache, requests):
+    event_ids = []
+    seat_ids = []
+    for request in requests:
+        for seat_id in request["seat_ids"]:
+            event_ids.append(request["event_id"])
+            seat_ids.append(seat_id)
+
+    rows = []
+    if event_ids:
+        with db.transaction() as conn:
+            rows = conn.execute(
+                """WITH wanted(event_id,seat_id) AS (
+                    SELECT * FROM unnest(%s::uuid[],%s::text[])
+                )
+                SELECT seat.event_id,seat.seat_id,seat.price,seat.hold_id,
+                    seat.reserved_until,seat.booked_order_id,seat.version
+                FROM event_seats AS seat
+                JOIN wanted USING(event_id,seat_id)
+                ORDER BY seat.event_id,seat.seat_id""",
+                (event_ids, seat_ids),
+            ).fetchall()
+
+    grouped = {request["event_id"]: [] for request in requests}
+    for row in rows:
+        grouped[row["event_id"]].append(seat_state(row))
+    CACHE_ROWS.labels("patch").inc(len(rows))
+
+    try:
+        outcomes = cache.patch_many(
+            (str(request["event_id"]), grouped[request["event_id"]]) for request in requests
+        )
+    except Exception as exc:  # noqa: BLE001 - the lease remains retryable
+        return set(), [exc]
+    if len(outcomes) != len(requests):
+        return set(), [RuntimeError("cache patch batch returned the wrong outcome count")]
+
+    completed, errors = set(), []
+    for request, patched in zip(requests, outcomes, strict=True):
+        if patched:
+            completed.add(request["event_id"])
+            continue
+        try:
+            snapshot(db, cache, request["event_id"])
+            completed.add(request["event_id"])
+        except Exception as exc:  # noqa: BLE001 - preserve other successful projections
+            errors.append(exc)
+    return completed, errors
+
+
 def seat_state(row):
     return {
         "seat_id": row["seat_id"],
@@ -356,12 +406,16 @@ def refresh_batch(db, cache, limit=2, cooldown_ms=250):
         )
     # No SQL locks while writing Redis. Every snapshot is fenced by inventory version.
     completed, errors = [], []
+    partial = [row for row in rows if row["seat_ids"] is not None]
+    if partial:
+        projected, projection_errors = changed_snapshot_batch(db, cache, partial)
+        completed.extend(row for row in partial if row["event_id"] in projected)
+        errors.extend(projection_errors)
     for row in rows:
+        if row["seat_ids"] is not None:
+            continue
         try:
-            if row["seat_ids"] is None:
-                snapshot(db, cache, row["event_id"])
-            else:
-                changed_snapshot(db, cache, row["event_id"], row["seat_ids"])
+            snapshot(db, cache, row["event_id"])
             completed.append(row)
         except Exception as exc:  # noqa: BLE001 - preserve successes, then re-raise
             errors.append(exc)

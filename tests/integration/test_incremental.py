@@ -82,17 +82,18 @@ def test_incremental_dirty_overlap_and_missing_cache_recovery(system, cache, mon
         message = envelope(event, ["A"])
         workers.consume_event(db, cache, message)
         workers.consume_event(db, cache, message)
-        original = cache.patch
+        original = cache.patch_many
 
-        def overlap(event_id, seats):
-            assert [r["seat_id"] for r in seats] == ["A"]
-            result = original(event_id, seats)
+        def overlap(updates):
+            updates = list(updates)
+            assert [r["seat_id"] for r in updates[0][1]] == ["A"]
+            result = original(updates)
             svc.reserve("b", event, ["B"], "b")
             workers.consume_event(db, cache, envelope(event, ["B"]))
             return result
 
         with monkeypatch.context() as patch:
-            patch.setattr(cache, "patch", overlap)
+            patch.setattr(cache, "patch_many", overlap)
             workers.refresh_one(db, cache)
         with db.transaction() as conn:
             row = conn.execute("SELECT * FROM seat_refresh_requests").fetchone()
@@ -119,14 +120,14 @@ def test_incremental_write_then_crash_is_replayable(system, cache, monkeypatch):
         workers.snapshot(db, cache, event)
         svc.reserve("a", event, ["A"], "a")
         workers.consume_event(db, cache, envelope(event, ["A"]))
-        original = cache.patch
+        original = cache.patch_many
 
-        def fail(event_id, seats):
-            original(event_id, seats)
+        def fail(updates):
+            original(list(updates))
             raise RuntimeError("lost acknowledgement")
 
         with monkeypatch.context() as patch:
-            patch.setattr(cache, "patch", fail)
+            patch.setattr(cache, "patch_many", fail)
             with pytest.raises(RuntimeError):
                 workers.refresh_one(db, cache)
         first = cache.read(event)
@@ -202,3 +203,24 @@ def test_partial_lua_write_requires_full_repair(cache):
         assert result["seats"][0]["status"] == "SOLD"
     finally:
         cache.redis.delete(cache.key(event))
+
+def test_patch_many_pipelines_independent_atomic_updates(cache):
+    first, second, missing = str(uuid4()), str(uuid4()), str(uuid4())
+    try:
+        cache.put(first, 0, {"seats": [state("A", 0)]})
+        cache.put(second, 0, {"seats": [state("B", 0)]})
+
+        outcomes = cache.patch_many(
+            [
+                (first, [state("A", 1, "SOLD")]),
+                (second, [state("B", 2, "SOLD")]),
+                (missing, [state("C", 1, "SOLD")]),
+            ]
+        )
+
+        assert outcomes == [True, True, False]
+        assert cache.read(first)["seats"][0]["source_version"] == 1
+        assert cache.read(second)["seats"][0]["source_version"] == 2
+        assert not cache.redis.exists(cache.key(missing))
+    finally:
+        cache.redis.delete(cache.key(first), cache.key(second), cache.key(missing))
