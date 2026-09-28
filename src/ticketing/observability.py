@@ -38,6 +38,16 @@ RESERVATION_PERSISTENCE_BATCH_SIZE = Histogram(
     "Commands handled by one reservation-writer poll",
     buckets=(0, 1, 2, 4, 8, 16, 32, 64, 100),
 )
+EVENT_CONSUMER_BATCH_SIZE = Histogram(
+    "ticketing_event_consumer_batch_size",
+    "Kafka records handled by one bounded consumer batch",
+    buckets=(1, 2, 4, 8, 16, 32, 64, 100),
+)
+REFRESH_ACK_BATCH_SIZE = Histogram(
+    "ticketing_refresh_ack_batch_size",
+    "Successful refresh projections acknowledged by one PostgreSQL statement",
+    buckets=(1, 2, 4, 8, 16, 32, 64, 100),
+)
 RESERVATION_COMMAND_AGE_SECONDS = Histogram(
     "ticketing_reservation_command_age_seconds",
     "Age of a Redis-first command when a writer handles it",

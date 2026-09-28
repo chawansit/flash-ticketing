@@ -24,6 +24,7 @@ from ticketing.infrastructure.redis_reservations import RedisReservationIntake
 from ticketing.infrastructure.reservations import PostgresReservations, event
 from ticketing.observability import (
     CACHE_ROWS,
+    EVENT_CONSUMER_BATCH_SIZE,
     OUTBOX_AGE,
     RECONCILE_BACKLOG,
     RECONCILE_EVENTS,
@@ -32,6 +33,7 @@ from ticketing.observability import (
     RECONCILE_RECOVERED,
     RECONCILE_SECONDS,
     RECONCILE_TRACKED,
+    REFRESH_ACK_BATCH_SIZE,
     REFRESH_AGE,
     REFRESH_PENDING,
     RESERVATION_COMMAND_AGE_SECONDS,
@@ -364,25 +366,36 @@ def refresh_batch(db, cache, limit=2, cooldown_ms=250):
         except Exception as exc:  # noqa: BLE001 - preserve successes, then re-raise
             errors.append(exc)
     if completed:
+        REFRESH_ACK_BATCH_SIZE.observe(len(completed))
+        acknowledgements = [
+            {
+                "event_id": str(row["event_id"]),
+                "generation": row["generation"],
+                "claimed_at": claimed_at.isoformat(),
+            }
+            for row in completed
+        ]
         with db.transaction() as conn:
-            for row in completed:
-                conn.execute(
-                    """UPDATE seat_refresh_requests SET completed_generation=%s,
-                    seat_ids=CASE WHEN generation=%s THEN NULL ELSE seat_ids END,
+            conn.execute(
+                """WITH acknowledged AS (
+                    SELECT * FROM jsonb_to_recordset(%s::jsonb)
+                    AS item(event_id uuid,generation bigint,claimed_at timestamptz)
+                )
+                UPDATE seat_refresh_requests AS request
+                SET completed_generation=acknowledged.generation,
+                    seat_ids=CASE
+                        WHEN request.generation=acknowledged.generation THEN NULL
+                        ELSE request.seat_ids END,
                     lease_until=NULL,lease_token=NULL,
                     next_attempt_at=clock_timestamp()+(%s * interval '1 millisecond'),
-                    requested_at=CASE WHEN generation>%s THEN %s ELSE requested_at END
-                    WHERE event_id=%s AND lease_token=%s""",
-                    (
-                        row["generation"],
-                        row["generation"],
-                        cooldown_ms,
-                        row["generation"],
-                        claimed_at,
-                        row["event_id"],
-                        token,
-                    ),
-                )
+                    requested_at=CASE
+                        WHEN request.generation>acknowledged.generation
+                        THEN acknowledged.claimed_at ELSE request.requested_at END
+                FROM acknowledged
+                WHERE request.event_id=acknowledged.event_id
+                AND request.lease_token=%s""",
+                (Jsonb(acknowledgements), cooldown_ms, token),
+            )
     if errors:
         raise errors[0]
     return len(completed)
@@ -617,6 +630,97 @@ def consume_event(db, cache, envelope):
             raise ValueError("Unknown event type")
 
 
+@measured_work("consume_refresh_batch")
+def consume_refresh_batch(db, envelopes):
+    if not envelopes:
+        return 0
+    for envelope in envelopes:
+        if envelope["schema_version"] != 1:
+            raise ValueError("Unsupported event schema")
+        if envelope["event_type"] != "SeatsChanged":
+            raise ValueError("Only SeatsChanged events can be coalesced")
+
+    with db.transaction() as conn:
+        inserted = conn.execute(
+            """INSERT INTO consumer_inbox(consumer,event_id)
+            SELECT 'fulfillment',event_id FROM unnest(%s::uuid[]) AS event_id
+            ON CONFLICT DO NOTHING RETURNING event_id""",
+            ([envelope["event_id"] for envelope in envelopes],),
+        ).fetchall()
+        inserted_ids = {str(row["event_id"]) for row in inserted}
+        refreshes = {}
+        handled_ids = set()
+        for envelope in envelopes:
+            envelope_id = envelope["event_id"]
+            if envelope_id not in inserted_ids or envelope_id in handled_ids:
+                continue
+            handled_ids.add(envelope_id)
+            data = envelope["payload"]
+            target = data["event_id"]
+            seats = data.get("seats")
+            if target not in refreshes:
+                refreshes[target] = None if seats is None else set(seats)
+            elif refreshes[target] is not None:
+                if seats is None:
+                    refreshes[target] = None
+                else:
+                    refreshes[target].update(seats)
+        for event_id, seats in refreshes.items():
+            request_refresh(conn, event_id, None if seats is None else sorted(seats))
+    return len(inserted_ids)
+
+
+def consume_events(db, cache, envelopes):
+    pending_refresh = []
+
+    def flush_refresh():
+        if pending_refresh:
+            consume_refresh_batch(db, pending_refresh)
+            pending_refresh.clear()
+
+    for envelope in envelopes:
+        if envelope.get("event_type") == "SeatsChanged":
+            pending_refresh.append(envelope)
+            continue
+        flush_refresh()
+        consume_event(db, cache, envelope)
+    flush_refresh()
+
+
+def dead_letter_message(db, message):
+    with db.transaction() as conn:
+        conn.execute(
+            """INSERT INTO dead_letters(event_id,payload,error)
+            VALUES (%s,%s,%s)""",
+            (
+                uuid4(),
+                Jsonb({"raw": message.value.decode(errors="replace")}),
+                "Processing failed after 5 attempts; inspect worker logs",
+            ),
+        )
+
+
+def consume_kafka_messages(db, cache, messages):
+    EVENT_CONSUMER_BATCH_SIZE.observe(len(messages))
+    for attempt in range(5):
+        try:
+            consume_events(db, cache, [json.loads(message.value) for message in messages])
+            return
+        except Exception:
+            if attempt < 4:
+                time.sleep(0.2 * 2**attempt)
+                continue
+            log.exception("consumer_batch_failed")
+
+    # Isolate a poison message after the bounded batch retries. Already committed
+    # inbox rows make replay of valid records inexpensive and safe.
+    for message in messages:
+        try:
+            consume_event(db, cache, json.loads(message.value))
+        except Exception:
+            dead_letter_message(db, message)
+            log.exception("dead_letter")
+
 @measured_work("simulate_one")
 def simulate_one(db, settings):
     token = uuid4()
@@ -724,7 +828,8 @@ def main():
                 group_id="ticketing-fulfillment-v1",
                 enable_auto_commit=False,
                 auto_offset_reset="earliest",
-                max_poll_records=1,
+                max_poll_records=settings.consumer_batch_size,
+                fetch_max_wait_ms=settings.consumer_batch_wait_ms,
             )
         next_warm = 0
         while running:
@@ -767,41 +872,25 @@ def main():
                         or work
                     )
                 else:
-                    for messages in consumer.poll(timeout_ms=500, max_records=1).values():
-                        for message in messages:
-                            envelope = None
-                            for attempt in range(5):
-                                try:
-                                    envelope = json.loads(message.value)
-                                    consume_event(db, cache, envelope)
-                                    break
-                                except Exception:
-                                    if attempt == 4:
-                                        # Durable dead letter before committing Kafka offset.
-                                        try:
-                                            with db.transaction() as conn:
-                                                conn.execute(
-                                                    """INSERT INTO dead_letters(event_id,payload,error)
-                                                    VALUES (%s,%s,%s)""",
-                                                    (
-                                                        uuid4(),
-                                                        Jsonb(
-                                                            {"raw": message.value.decode(errors="replace")}
-                                                        ),
-                                                        "Processing failed after 5 attempts; inspect worker logs",
-                                                    ),
-                                                )
-                                        except Exception:
-                                            consumer.seek(
-                                                TopicPartition(message.topic, message.partition),
-                                                message.offset,
-                                            )
-                                            raise
-                                        log.exception("dead_letter")
-                                    else:
-                                        time.sleep(0.2 * 2**attempt)
-                            consumer.commit()
-                            work = True
+                    batches = consumer.poll(
+                        timeout_ms=500, max_records=settings.consumer_batch_size
+                    )
+                    starts = {
+                        TopicPartition(topic_partition.topic, topic_partition.partition): messages[0].offset
+                        for topic_partition, messages in batches.items()
+                        if messages
+                    }
+                    try:
+                        for messages in batches.values():
+                            if messages:
+                                consume_kafka_messages(db, cache, messages)
+                    except Exception:
+                        for topic_partition, offset in starts.items():
+                            consumer.seek(topic_partition, offset)
+                        raise
+                    if starts:
+                        consumer.commit()
+                        work = True
                 if not work:
                     time.sleep(0.1)
             except Exception as exc:

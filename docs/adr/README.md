@@ -103,4 +103,6 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0065: Filter empty reservation streams during bounded discovery](0065-filter-empty-reservation-streams-during-discovery.md)
 - [0066: Compact empty reservation-stream registry members](0066-compact-empty-reservation-stream-registry-members.md)
 - [0067: Throttle empty reservation discovery and repair scans](0067-throttle-empty-reservation-discovery-repair.md)
-- [0068: Scale Redis reservation persistence to three writers](0068-scale-reservation-persistence-to-three-writers.md)`n- [0069: Pair three reservation writers with split background lanes](0069-three-writers-with-split-background-lanes.md)
+- [0068: Scale Redis reservation persistence to three writers](0068-scale-reservation-persistence-to-three-writers.md)
+- [0069: Pair three reservation writers with split background lanes](0069-three-writers-with-split-background-lanes.md)
+- [0070: Batch event consumption and coalesce seat-map refresh work](0070-batch-event-consumption-and-coalesce-seat-map-refresh.md)

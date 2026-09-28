@@ -289,3 +289,72 @@ def test_simulator_failed_http_retries_after_lease(system, monkeypatch):
         conn.execute("UPDATE payment_attempts SET lease_until=clock_timestamp()-interval '1 second'")
     monkeypatch.setattr(workers.urllib.request, "urlopen", Mock(return_value=Response()))
     assert workers.simulate_one(db, Settings())
+
+
+def test_consumer_batch_coalesces_refreshes_and_replay_is_idempotent(system):
+    _, db, event_id = system
+    first = changed(event_id)
+    first["payload"]["seats"] = ["A", "B"]
+    second = changed(event_id)
+    second["payload"]["seats"] = ["B", "C"]
+
+    workers.consume_events(db, None, [first, second])
+
+    with db.transaction() as conn:
+        row = conn.execute("SELECT * FROM seat_refresh_requests").fetchone()
+        inbox_count = conn.execute("SELECT count(*) AS n FROM consumer_inbox").fetchone()["n"]
+    assert row["generation"] == 1
+    assert set(row["seat_ids"]) == {"A", "B", "C"}
+    assert inbox_count == 2
+
+    workers.consume_events(db, None, [first, second])
+
+    with db.transaction() as conn:
+        replayed = conn.execute("SELECT * FROM seat_refresh_requests").fetchone()
+        replayed_inbox_count = conn.execute(
+            "SELECT count(*) AS n FROM consumer_inbox"
+        ).fetchone()["n"]
+    assert replayed["generation"] == 1
+    assert set(replayed["seat_ids"]) == {"A", "B", "C"}
+    assert replayed_inbox_count == 2
+
+
+def test_consumer_batch_full_refresh_supersedes_partial_seats(system):
+    _, db, event_id = system
+    partial = changed(event_id)
+    partial["payload"]["seats"] = ["A"]
+    full = changed(event_id)
+
+    assert workers.consume_refresh_batch(db, [partial, full]) == 2
+
+    row = refresh_row(db)
+    assert row["generation"] == 1
+    assert row["seat_ids"] is None
+
+
+def test_consumer_batch_rejects_non_refresh_without_writing_inbox(system):
+    _, db, event_id = system
+    envelope = changed(event_id)
+    envelope["event_type"] = "TicketsIssued"
+
+    with pytest.raises(ValueError, match="Only SeatsChanged"):
+        workers.consume_refresh_batch(db, [envelope])
+
+    with db.transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM consumer_inbox").fetchone()["n"] == 0
+
+
+def test_consumer_batch_uses_only_first_payload_for_duplicate_event_id(system):
+    _, db, event_id = system
+    first = changed(event_id)
+    first["payload"]["seats"] = ["A"]
+    conflicting_duplicate = {
+        **first,
+        "payload": {"event_id": str(event_id), "seats": ["B"]},
+    }
+
+    assert workers.consume_refresh_batch(db, [first, conflicting_duplicate]) == 1
+
+    row = refresh_row(db)
+    assert row["generation"] == 1
+    assert row["seat_ids"] == ["A"]
