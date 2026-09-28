@@ -1,0 +1,1 @@
+{"candidate_admission":5,"api_replicas":4,"db_pool_per_api":3,"reservation_mode":"redis-first","reservation_writer_replicas":2,"reservation_writer_batch_size":4,"reservation_max_command_age_seconds":0,"split_maintenance":false,"maintenance_replicas":1,"refresh_replicas":0,"expiry_replicas":0,"consumer_replicas":1,"worker_source_verified":true,"pass":true}

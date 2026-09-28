@@ -1,0 +1,80 @@
+{
+  "runs": [
+    {
+      "run_id": "0ceb9098-5cd8-44d0-aebc-8ca9e659b29f",
+      "acknowledged_201": 0,
+      "acknowledged_202": 2700,
+      "acknowledged_total": 2700,
+      "expected_durable_commands": 2700,
+      "idempotency_records": 1774,
+      "distinct_holds": 1774,
+      "distinct_orders": 1774,
+      "broken_links": 0,
+      "active_holds": 0,
+      "overdue_holds": 0,
+      "pending_orders": 0,
+      "durable_commands": 1774,
+      "pass": false
+    },
+    {
+      "run_id": "33700879-b825-45bc-a141-a8efdfc0479d",
+      "acknowledged_201": 0,
+      "acknowledged_202": 2700,
+      "acknowledged_total": 2700,
+      "expected_durable_commands": 2700,
+      "idempotency_records": 1879,
+      "distinct_holds": 1879,
+      "distinct_orders": 1879,
+      "broken_links": 0,
+      "active_holds": 0,
+      "overdue_holds": 0,
+      "pending_orders": 0,
+      "durable_commands": 1879,
+      "pass": false
+    },
+    {
+      "run_id": "509f7428-d6b5-4236-972a-4098d0f45ada",
+      "acknowledged_201": 0,
+      "acknowledged_202": 2700,
+      "acknowledged_total": 2700,
+      "expected_durable_commands": 2700,
+      "idempotency_records": 1950,
+      "distinct_holds": 1950,
+      "distinct_orders": 1950,
+      "broken_links": 0,
+      "active_holds": 0,
+      "overdue_holds": 0,
+      "pending_orders": 0,
+      "durable_commands": 1950,
+      "pass": false
+    },
+    {
+      "run_id": "ffbd2709-108e-4db0-bdb0-e788c52249eb",
+      "acknowledged_201": 0,
+      "acknowledged_202": 2700,
+      "acknowledged_total": 2700,
+      "expected_durable_commands": 2700,
+      "idempotency_records": 1747,
+      "distinct_holds": 1747,
+      "distinct_orders": 1747,
+      "broken_links": 0,
+      "active_holds": 0,
+      "overdue_holds": 0,
+      "pending_orders": 0,
+      "durable_commands": 1747,
+      "pass": false
+    }
+  ],
+  "queues_snapshot": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "reservation_stream_entries": 2133,
+    "reservation_stream_pending": 1108
+  },
+  "audited_holds": 7350,
+  "audited_seat_intervals": 7350,
+  "overlapping_load_hold_intervals": 0,
+  "durability_and_expiry_pass": false,
+  "note": "Run after expiry drain for workloads without explicit early release. HTTP 202 counts as provisional acknowledgement only when one matching reservation command is DURABLE. Intervals use order creation to hold expiry and cover only selected load run IDs. Queue counts are global context; this is not a payment test."
+}

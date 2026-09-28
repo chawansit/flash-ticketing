@@ -1,0 +1,9 @@
+{
+  "unpublished_outbox": 0,
+  "pending_refresh": 0,
+  "dead_letters": 0,
+  "active_fixture_holds": 0,
+  "overdue_fixture_holds": 0,
+  "pending_fixture_orders": 0,
+  "pass": true
+}

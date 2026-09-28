@@ -175,3 +175,16 @@ services produced the complete confirmation pass.
 No Huawei load has yet run with the corrected total bound, a configured batch size above 1, or
 lag admission enabled. The cloud activation and capacity gates in this ADR therefore remain
 pending.
+
+A corrected hard-bound batch-size-4 diagnostic delivered all 180,000 scheduled HTTP requests
+with zero drops, late deliveries, transport errors, retries or admission rejections. Read p95
+was 29.572 ms and hold p95 was 54.694 ms. Its durability result is invalid as the canonical
+comparison, however: the read-only preflight checked PostgreSQL queues but omitted a global DCS
+reservation backlog from the preceding failed stage. Writers encountered commands up to 1,502
+seconds old, well beyond the 120-second hold TTL, while only 7,350 of the current fixture's
+10,800 provisional acknowledgements became durable. No overlap occurred.
+
+The capacity preflight now counts global reservation stream entries and consumer-group pending
+messages and fails before load unless both are zero. The focused clean-start and hard-bound tests
+passed four tests, and Ruff passed. The backlog must be drained under bounded recovery and the
+batch-size-4 stage repeated from a clean start before it can satisfy an activation gate.

@@ -7,6 +7,20 @@ import os
 from pathlib import Path
 
 import psycopg
+from redis import Redis
+from redis.exceptions import ResponseError
+
+
+def reservation_queue_state(redis_client) -> tuple[int, int]:
+    entries = pending = 0
+    for stream in redis_client.scan_iter(match="reservation-stream:*"):
+        entries += redis_client.xlen(stream)
+        try:
+            pending += redis_client.xpending(stream, "reservation-writers")["pending"]
+        except ResponseError as exc:
+            if "NOGROUP" not in str(exc):
+                raise
+    return entries, pending
 
 
 def main() -> None:
@@ -43,7 +57,15 @@ def main() -> None:
         "pending_fixture_orders",
     ]
     result = dict(zip(names, row, strict=True))
-    result["pass"] = all(value == 0 for value in row)
+    redis_url = os.getenv("TEST_REDIS_URL") or os.getenv("REDIS_URL")
+    if not redis_url:
+        raise RuntimeError("TEST_REDIS_URL or REDIS_URL is required")
+    stream_entries, stream_pending = reservation_queue_state(
+        Redis.from_url(redis_url, decode_responses=True)
+    )
+    result["reservation_stream_entries"] = stream_entries
+    result["reservation_stream_pending"] = stream_pending
+    result["pass"] = all(value == 0 for value in result.values())
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result), flush=True)
