@@ -253,6 +253,14 @@ class Availability(BaseModel):
     seats: list[AvailableSeat]
 
 
+class AvailabilityDelta(BaseModel):
+    event_id: UUID
+    from_version: int
+    version: int
+    reset_required: bool
+    seats: list[AvailableSeat]
+
+
 Conditional = Annotated[str | None, Header(alias="If-None-Match", max_length=8192)]
 BROWSE_RESPONSES = {**ERRORS, 304: {"description": "Unchanged representation; no response body"}}
 
@@ -295,13 +303,15 @@ def availability(event_id: UUID, request: Request, if_none_match: Conditional = 
     return browse_response(request, event_id, "availability", if_none_match)
 
 
-@app.get("/v1/events/{event_id}/seat-deltas", tags=["Browse"], responses=ERRORS)
+@app.get(
+    "/v1/events/{event_id}/seat-deltas",
+    tags=["Browse"],
+    response_model=AvailabilityDelta,
+    responses=ERRORS,
+)
 def deltas(event_id: UUID, request: Request, since: int = 0):
     """Current states changed since a snapshot version; use version from the response next time."""
-    snapshot = request.app.state.cache.read(str(event_id))
-    if since < 0 or since > snapshot["version"]:
-        raise Failure("INVALID_VERSION", 422)
-    return {**snapshot, "seats": [s for s in snapshot["seats"] if s["version"] > since]}
+    return request.app.state.cache.deltas(str(event_id), since)
 
 
 HOLD_RESPONSES = {

@@ -106,3 +106,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0068: Scale Redis reservation persistence to three writers](0068-scale-reservation-persistence-to-three-writers.md)
 - [0069: Pair three reservation writers with split background lanes](0069-three-writers-with-split-background-lanes.md)
 - [0070: Batch event consumption and coalesce seat-map refresh work](0070-batch-event-consumption-and-coalesce-seat-map-refresh.md)
+- [0071: Serve bounded versioned seat-map deltas after an initial snapshot](0071-bounded-versioned-seat-map-deltas.md)

@@ -25,9 +25,8 @@ def browse_system(system, monkeypatch):
     try:
         yield svc, db, event, cache, TestClient(app)
     finally:
-        cache.redis.delete(cache.key(event))
+        cache.redis.delete(cache.key(event), cache.delta_key(event))
         cache.redis.close()
-
 
 def test_http_conditional_layout_and_availability(browse_system):
     svc, db, event, cache, client = browse_system
@@ -66,7 +65,6 @@ def test_http_conditional_layout_and_availability(browse_system):
     schema = client.get("/openapi.json").json()
     assert "304" in schema["paths"]["/v1/events/{event_id}/availability"]["get"]["responses"]
 
-
 def test_successful_browse_refreshes_configured_ttl_in_one_read(browse_system):
     _, _, event, existing_cache, _ = browse_system
     existing_cache.redis.delete(existing_cache.key(event))
@@ -101,7 +99,6 @@ def test_successful_browse_refreshes_configured_ttl_in_one_read(browse_system):
         cache.redis.delete(cache.key(event))
         cache.redis.close()
 
-
 def test_cache_loss_and_interrupted_write_never_validate_old_body(browse_system):
     _, db, event, cache, client = browse_system
     path = f"/v1/events/{event}/availability"
@@ -114,7 +111,6 @@ def test_cache_loss_and_interrupted_write_never_validate_old_body(browse_system)
     rebuilt = client.get(path, headers={"If-None-Match": old})
     assert rebuilt.status_code == 200
     assert rebuilt.headers["etag"] != old
-
 
 def test_304_does_not_decode_seats_and_redis_outage_is_503(browse_system, monkeypatch):
     _, _, event, cache, _ = browse_system
@@ -129,7 +125,6 @@ def test_304_does_not_decode_seats_and_redis_outage_is_503(browse_system, monkey
     monkeypatch.setattr(cache.redis, "eval", offline)
     with pytest.raises(Failure, match="SEATMAP_UNAVAILABLE"):
         cache.browse(event, "availability", tag)
-
 
 def test_atomic_validator_body_during_updates(browse_system):
     _, _, event, cache, _ = browse_system
@@ -157,7 +152,6 @@ def test_atomic_validator_body_during_updates(browse_system):
             assert tag.endswith(":" + str(body["version"]) + '"')
         future.result()
 
-
 def test_encoded_reuse_still_checks_redis_and_incarnation(browse_system, monkeypatch):
     _, db, event, cache, client = browse_system
     path = f"/v1/events/{event}/availability"
@@ -183,7 +177,6 @@ def test_encoded_reuse_still_checks_redis_and_incarnation(browse_system, monkeyp
     monkeypatch.setattr(cache.redis, "eval", offline)
     assert client.get(path).status_code == 503
 
-
 def test_encoded_validator_body_remains_consistent_during_updates(browse_system):
     import json
 
@@ -205,3 +198,107 @@ def test_encoded_validator_body_remains_consistent_during_updates(browse_system)
         futures = [pool.submit(writer)] + [pool.submit(reader) for _ in range(4)]
         for future in futures:
             future.result()
+
+def test_versioned_deltas_avoid_full_map_reads_and_collapse_repeated_seats(browse_system):
+    svc, db, event, cache, client = browse_system
+    base = f"/v1/events/{event}"
+    initial = client.get(base + "/availability").json()
+    unchanged = client.get(base + f"/seat-deltas?since={initial['version']}")
+    assert unchanged.status_code == 200
+    assert unchanged.json() == {
+        "event_id": str(event),
+        "from_version": initial["version"],
+        "version": initial["version"],
+        "reset_required": False,
+        "seats": [],
+    }
+
+    held = svc.reserve("a", event, ["A"], "delta-hold")
+    changed_snapshot(db, cache, event, ["A"])
+    held_delta = client.get(base + f"/seat-deltas?since={initial['version']}").json()
+    assert held_delta["reset_required"] is False
+    assert held_delta["version"] > initial["version"]
+    assert held_delta["seats"][0]["seat_id"] == "A"
+    assert held_delta["seats"][0]["status"] == "HELD"
+    assert held_delta["seats"][0]["reserved_until"] is not None
+
+    svc.release("a", held["hold_id"])
+    changed_snapshot(db, cache, event, ["A"])
+    released = client.get(base + f"/seat-deltas?since={initial['version']}").json()
+    assert released["reset_required"] is False
+    assert released["version"] > held_delta["version"]
+    assert released["seats"] == [
+        {"seat_id": "A", "status": "AVAILABLE", "reserved_until": None}
+    ]
+
+def test_delta_history_gap_returns_full_reset_snapshot(browse_system):
+    svc, db, event, cache, client = browse_system
+    base = f"/v1/events/{event}"
+    initial = client.get(base + "/availability").json()
+    svc.reserve("a", event, ["A"], "delta-gap")
+    changed_snapshot(db, cache, event, ["A"])
+    current = cache.read(event)["version"]
+    assert current > initial["version"]
+
+    cache.redis.delete(cache.delta_key(event))
+    response = client.get(base + f"/seat-deltas?since={initial['version']}")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["reset_required"] is True
+    assert body["from_version"] == initial["version"]
+    assert body["version"] == current
+    assert len(body["seats"]) == 3
+    assert {seat["seat_id"] for seat in body["seats"]} == {"A", "B", "C"}
+
+def test_delta_history_is_bounded_and_trim_gap_fails_safe(browse_system):
+    _, _, event, cache, _ = browse_system
+    initial = cache.read(event)["version"]
+    source = max(seat["source_version"] for seat in cache.read(event)["seats"])
+    for offset in range(1, 514):
+        assert cache.patch(
+            event,
+            [{
+                "seat_id": "A",
+                "source_version": source + offset,
+                "price": 100,
+                "status": "HELD" if offset % 2 else "AVAILABLE",
+                "reserved_until": None,
+            }],
+        )
+    assert cache.redis.zcard(cache.delta_key(event)) == 512
+    reset = cache.deltas(event, initial)
+    assert reset["reset_required"] is True
+    assert len(reset["seats"]) == 3
+
+def test_delta_invalid_versions_are_rejected_and_openapi_documents_reset(browse_system):
+    _, _, event, cache, client = browse_system
+    version = cache.read(event)["version"]
+    path = f"/v1/events/{event}/seat-deltas"
+    for invalid in (-1, version + 1):
+        response = client.get(path, params={"since": invalid})
+        assert response.status_code == 422
+        assert response.json()["code"] == "INVALID_VERSION"
+
+    schema = client.get("/openapi.json").json()
+    response_schema = schema["paths"]["/v1/events/{event_id}/seat-deltas"]["get"]["responses"]["200"]
+    name = response_schema["content"]["application/json"]["schema"]["$ref"].rsplit("/", 1)[-1]
+    assert "reset_required" in schema["components"]["schemas"][name]["properties"]
+
+
+def test_recreated_delta_history_inherits_remaining_map_ttl(browse_system):
+    _, _, event, cache, _ = browse_system
+    source = max(seat["source_version"] for seat in cache.read(event)["seats"])
+    cache.redis.delete(cache.delta_key(event))
+    assert cache.patch(
+        event,
+        [{
+            "seat_id": "A",
+            "source_version": source + 1,
+            "price": 100,
+            "status": "HELD",
+            "reserved_until": None,
+        }],
+    )
+    map_ttl = cache.redis.ttl(cache.key(event))
+    delta_ttl = cache.redis.ttl(cache.delta_key(event))
+    assert 0 < delta_ttl <= map_ttl

@@ -400,7 +400,7 @@ def test_worker_scaling_is_passed_and_observers_cover_audit(monkeypatch, tmp_pat
     assert fake.deployment_command[-9:] == [
         "2", "1", "2", "1", "1", "redis-first", "2", "8", "60"
     ]
-    assert fake.load_command[-2:] == ["redis-first", "20"]
+    assert fake.load_command[-3:] == ["redis-first", "20", "availability"]
     phases = [phase for kind, phase in fake.calls if kind == "remote"]
     assert phases.index("durability-audit") < phases.index("stop-observers") < phases.index("rollback")
 

@@ -2,6 +2,7 @@
 
 import argparse
 import asyncio
+import hashlib
 import json
 import math
 import platform
@@ -58,8 +59,8 @@ def is_write_request(index, write_percent):
     return index * write_percent % 100 < write_percent
 
 
-async def fetch_initial_validators(client, shows, concurrency=16, max_attempts=3):
-    """Fetch bootstrap ETags quickly enough to stay within the seat-map TTL."""
+async def fetch_initial_state(client, shows, concurrency=16, max_attempts=3):
+    """Fetch bootstrap ETags and versions quickly enough to stay within the seat-map TTL."""
     if concurrency < 1 or max_attempts < 1:
         raise ValueError("Positive bootstrap bounds required")
     semaphore = asyncio.Semaphore(concurrency)
@@ -72,7 +73,12 @@ async def fetch_initial_validators(client, shows, concurrency=16, max_attempts=3
             code, _ = error_diagnostic(response)
             statuses[f"{response.status_code}:{code}"] += 1
             if response.status_code == 200:
-                return show, response.headers["etag"], attempt
+                try:
+                    body = response.json()
+                except ValueError:
+                    body = {}
+                version = body.get("version") if isinstance(body, dict) else None
+                return show, response.headers["etag"], int(version) if version is not None else None, attempt
             if (
                 response.status_code == 503
                 and code == "SEATMAP_WARMING"
@@ -85,14 +91,20 @@ async def fetch_initial_validators(client, shows, concurrency=16, max_attempts=3
 
     rows = await asyncio.gather(*(fetch(show) for show in shows))
     return (
-        {show: etag for show, etag, _ in rows},
+        {show: etag for show, etag, _, _ in rows},
+        {show: version for show, _, version, _ in rows},
         {
             "concurrency": concurrency,
             "max_attempts": max_attempts,
             "attempt_statuses": dict(statuses),
-            "retry_count": sum(attempt for _, _, attempt in rows),
+            "retry_count": sum(attempt for _, _, _, attempt in rows),
         },
     )
+
+
+async def fetch_initial_validators(client, shows, concurrency=16, max_attempts=3):
+    validators, _, summary = await fetch_initial_state(client, shows, concurrency, max_attempts)
+    return validators, summary
 
 
 class TransportTrace:
@@ -153,6 +165,7 @@ async def run(args):
     retry_base_delay_ms = getattr(args, "retry_base_delay_ms", 25.0)
     late_delivery_window_ms = getattr(args, "late_delivery_window_ms", 0.0)
     reservation_mode = getattr(args, "reservation_mode", "postgres")
+    read_mode = getattr(args, "read_mode", "availability")
     write_percent = getattr(args, "write_percent", 5)
     write_success_statuses = {"201", "202"} if reservation_mode == "redis-first" else {"201"}
     write_success_codes = {int(status) for status in write_success_statuses}
@@ -196,13 +209,16 @@ async def run(args):
                            keepalive_expiry=getattr(args, "keepalive_expiry", 5.0)),
     ) as client:
         (await client.get("/health/ready")).raise_for_status()
-        initial, bootstrap = await fetch_initial_validators(client, shows)
+        initial, initial_versions, bootstrap = await fetch_initial_state(client, shows)
+        if read_mode == "delta" and any(version is None for version in initial_versions.values()):
+            raise ValueError("Delta read mode requires snapshot versions")
         hot_show = manifest.get("hot_show_id")
         if hot_show and hot_show not in initial:
             response = await client.get(f"/v1/events/{hot_show}/availability")
             response.raise_for_status()
             initial[hot_show] = response.headers["etag"]
-        validators = {}
+            initial_versions[hot_show] = int(response.json()["version"])
+        validators, versions = {}, {}
         randomizer = random.Random(42)
         workload = []
         for index, (due, phase) in enumerate(arrival_plan(args.rate, args.seconds, args.burst)):
@@ -257,16 +273,29 @@ async def run(args):
                             },
                         )
                     else:
-                        response = await client.get(
-                            f"/v1/events/{show}/availability",
-                            extensions=extensions,
-                            headers={"If-None-Match": validators.get((viewer, show), initial[show])},
-                        )
+                        if read_mode == "delta":
+                            response = await client.get(
+                                f"/v1/events/{show}/seat-deltas",
+                                extensions=extensions,
+                                params={"since": versions.get((viewer, show), initial_versions[show])},
+                            )
+                        else:
+                            response = await client.get(
+                                f"/v1/events/{show}/availability",
+                                extensions=extensions,
+                                headers={"If-None-Match": validators.get((viewer, show), initial[show])},
+                            )
                     bytes_received += len(response.content)
                     status = str(response.status_code)
                     final_code, request_id = error_diagnostic(response)
                     if not write and response.status_code == 200:
-                        validators[(viewer, show)] = response.headers["etag"]
+                        if read_mode == "delta":
+                            returned_version = int(response.json()["version"])
+                            versions[(viewer, show)] = max(
+                                returned_version, versions.get((viewer, show), initial_versions[show])
+                            )
+                        else:
+                            validators[(viewer, show)] = response.headers["etag"]
                     if retryable_response(write, response, final_code) and attempt < max_attempts:
                         reason = f"{operation}:{status}:{final_code}"
                         if attempt == 1:
@@ -327,8 +356,14 @@ async def run(args):
                 error_codes[f"{operation}:{status}:{code}"] += 1
                 if len(error_examples) < 20:
                     error_examples.append({
-                        "operation": operation, "status": status,
-                        "code": code, "request_id": request_id,
+                        "operation": operation,
+                        "status": status,
+                        "code": code,
+                        "request_id": request_id,
+                        "content_type": response.headers.get("content-type"),
+                        "server": response.headers.get("server"),
+                        "body_bytes": len(response.content),
+                        "body_sha256": hashlib.sha256(response.content).hexdigest(),
                     })
             statuses[operation][status] += 1
             duration = (perf_counter() - begin) * 1000
@@ -428,6 +463,7 @@ async def run(args):
     ]
     result = {
         "reservation_mode": reservation_mode,
+        "read_mode": read_mode,
         "mixed_hot_holds": getattr(args, "mixed_hot_holds", False),
         "expected_hot_conflicts": expected_hot_conflicts,
         "hot_failed_p95_ms": percentile(hot_failed, .95),
@@ -533,6 +569,7 @@ if __name__ == "__main__":
     parser.add_argument("--transport-diagnostics", action="store_true")
     parser.add_argument("--mixed-hot-holds", action="store_true")
     parser.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
+    parser.add_argument("--read-mode", choices=("availability", "delta"), default="availability")
     parser.add_argument("--write-percent", type=int, default=5)
     parser.add_argument("--keepalive-expiry", type=expiry_seconds, default=5.0)
     parser.add_argument("--max-attempts", type=int, choices=(1, 2, 3), default=1)

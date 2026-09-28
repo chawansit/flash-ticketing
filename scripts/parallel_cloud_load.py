@@ -20,6 +20,7 @@ p.add_argument("--seat-offset", type=int, default=0)
 p.add_argument("--hot-reads", action="store_true")
 p.add_argument("--mixed-hot-holds", action="store_true")
 p.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
+p.add_argument("--read-mode", choices=("availability", "delta"), default="availability")
 p.add_argument("--write-percent", type=int, default=5)
 p.add_argument("--burst", action="store_true")
 p.add_argument("--transport-diagnostics", action="store_true")
@@ -94,6 +95,8 @@ try:
                 "separate-host",
                 "--reservation-mode",
                 a.reservation_mode,
+                "--read-mode",
+                a.read_mode,
                 "--write-percent",
                 str(a.write_percent),
                 "--max-attempts",
@@ -136,7 +139,9 @@ try:
         return {key: sum((result.get(field) or {}).get(key, 0) for result in results) for key in sorted(keys)}
 
     mode_gate_pass = all(
-        result.get("reservation_mode") == a.reservation_mode for result in results
+        result.get("reservation_mode") == a.reservation_mode
+        and result.get("read_mode", "availability") == a.read_mode
+        for result in results
     )
     coordination_gate_pass = (
         len(results) == a.workers
@@ -154,6 +159,7 @@ try:
         "burst": a.burst,
         "mixed_hot_holds": a.mixed_hot_holds,
         "reservation_mode": a.reservation_mode,
+        "read_mode": a.read_mode,
         "write_percent": a.write_percent,
         "reservation_mode_gate_pass": mode_gate_pass,
         "keepalive_expiry_seconds": a.keepalive_expiry,

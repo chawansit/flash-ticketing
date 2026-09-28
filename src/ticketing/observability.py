@@ -234,6 +234,11 @@ class TimedHoldResource:
             return self.resource.__exit__(*exc)
 
 
+SEAT_DELTA_OUTCOMES = Counter(
+    "ticketing_seat_delta_outcomes_total",
+    "Versioned seat-map delta outcomes",
+    ["outcome"],
+)
 BROWSE_BODY_OUTCOMES = Counter(
     "ticketing_browse_body_total", "Redis-validated browse representation outcomes", ["outcome"]
 )

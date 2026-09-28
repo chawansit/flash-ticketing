@@ -9,7 +9,12 @@ from redis import Redis
 from redis.exceptions import RedisError
 
 from ticketing.domain import Failure
-from ticketing.observability import BROWSE_BODY_BYTES, BROWSE_BODY_ENTRIES, BROWSE_BODY_OUTCOMES
+from ticketing.observability import (
+    BROWSE_BODY_BYTES,
+    BROWSE_BODY_ENTRIES,
+    BROWSE_BODY_OUTCOMES,
+    SEAT_DELTA_OUTCOMES,
+)
 
 ACQUIRE = """
 for i,k in ipairs(KEYS) do if redis.call('EXISTS',k)==1 then return 0 end end
@@ -27,8 +32,10 @@ PUT = """
 local exists = redis.call('HEXISTS',KEYS[1],'version') == 1
 local dirty = redis.call('HEXISTS',KEYS[1],'updating') == 1
 if ARGV[1] == 'patch' and (not exists or dirty) then return -1 end
+if ARGV[1] == 'full' and not exists then redis.call('DEL',KEYS[2]) end
 local rows = cjson.decode(ARGV[2])
 local version = tonumber(redis.call('HGET',KEYS[1],'version') or '0')
+local prior_version = version
 local changed = {}
 local ttl_seconds = tonumber(ARGV[6] or '30')
 if ARGV[1] == 'full' then version = 0 end
@@ -57,9 +64,23 @@ if ARGV[1] == 'full' then
     redis.call('HSET',KEYS[1],'sale_starts_epoch',ARGV[7],
       'sale_ends_epoch',ARGV[8],'currency',ARGV[9])
   end
-  redis.call('EXPIRE',KEYS[1],ttl_seconds)
 end
 redis.call('HDEL',KEYS[1],'updating')
+if #changed > 0 then
+  local entry = cjson.encode({from_version=prior_version,version=version,seats=changed})
+  redis.call('ZADD',KEYS[2],version,entry)
+  local map_ttl = redis.call('TTL',KEYS[1])
+  local delta_ttl = redis.call('TTL',KEYS[2])
+  if map_ttl > 0 and (delta_ttl < 0 or delta_ttl > map_ttl) then
+    redis.call('EXPIRE',KEYS[2],map_ttl)
+  end
+  local excess = redis.call('ZCARD',KEYS[2]) - tonumber(ARGV[10] or '512')
+  if excess > 0 then redis.call('ZREMRANGEBYRANK',KEYS[2],0,excess-1) end
+end
+if ARGV[1] == 'full' then
+  redis.call('EXPIRE',KEYS[1],ttl_seconds)
+  if redis.call('EXISTS',KEYS[2]) == 1 then redis.call('EXPIRE',KEYS[2],ttl_seconds) end
+end
 return version
 """
 BROWSE = """
@@ -84,6 +105,28 @@ for i=1,#fields,2 do
   if string.sub(fields[i],1,5) == 'seat:' then table.insert(result,fields[i+1]) end
 end
 redis.call('EXPIRE',KEYS[1],tonumber(ARGV[4]))
+return result
+"""
+DELTAS = """
+local meta = redis.call('HMGET',KEYS[1],'version','updating')
+if not meta[1] or meta[2] then return {503} end
+local version = tonumber(meta[1])
+local since = tonumber(ARGV[1])
+if not since or since < 0 or since > version then return {422,version} end
+redis.call('EXPIRE',KEYS[1],tonumber(ARGV[2]))
+if redis.call('EXISTS',KEYS[2]) == 1 then redis.call('EXPIRE',KEYS[2],tonumber(ARGV[2])) end
+if since == version then return {200,version} end
+local entries = redis.call('ZRANGEBYSCORE',KEYS[2],'('..since,'+inf')
+if #entries == 0 then return {409,version} end
+local expected = since
+local result = {200,version}
+for _,raw in ipairs(entries) do
+  local entry = cjson.decode(raw)
+  if tonumber(entry.from_version) ~= expected then return {409,version} end
+  expected = tonumber(entry.version)
+  table.insert(result,raw)
+end
+if expected ~= version then return {409,version} end
 return result
 """
 RATE = """
@@ -146,6 +189,10 @@ class RedisSeats:
     def key(event):
         return f"seatmap:v2:{{{event}}}"
 
+    @staticmethod
+    def delta_key(event):
+        return f"seatdelta:v1:{{{event}}}"
+
     def read(self, event):
         try:
             raw = self.redis.hgetall(self.key(event))
@@ -178,6 +225,7 @@ class RedisSeats:
         tag = '"layout:' + hashlib.sha256(layout.encode()).hexdigest() + '"'
         return (
             self.key(event),
+            self.delta_key(event),
             "full",
             json.dumps(data["seats"], default=str),
             layout,
@@ -187,11 +235,12 @@ class RedisSeats:
             str(data.get("sale_starts_epoch", "")),
             str(data.get("sale_ends_epoch", "")),
             data.get("currency", ""),
+            "512",
         )
 
     def put(self, event, version, data):
         # Source row versions, not aggregate snapshot order, fence racing updates.
-        return self.redis.eval(PUT, 1, *self._full_arguments(event, data))
+        return self.redis.eval(PUT, 2, *self._full_arguments(event, data))
 
     def put_many(self, updates):
         updates = list(updates)
@@ -199,7 +248,7 @@ class RedisSeats:
             return []
         pipeline = self.redis.pipeline(transaction=False)
         for event, _version, data in updates:
-            pipeline.eval(PUT, 1, *self._full_arguments(event, data))
+            pipeline.eval(PUT, 2, *self._full_arguments(event, data))
         results = pipeline.execute(raise_on_error=False)
         return [
             result if isinstance(result, RedisError) else int(result) >= 0
@@ -207,7 +256,9 @@ class RedisSeats:
         ]
 
     def patch(self, event, seats):
-        return self.redis.eval(PUT, 1, self.key(event), "patch", json.dumps(seats, default=str)) >= 0
+        return self.redis.eval(
+            PUT, 2, self.key(event), self.delta_key(event), "patch", json.dumps(seats, default=str)
+        ) >= 0
 
     def patch_many(self, updates):
         updates = list(updates)
@@ -215,12 +266,59 @@ class RedisSeats:
             return []
         pipeline = self.redis.pipeline(transaction=False)
         for event, seats in updates:
-            pipeline.eval(PUT, 1, self.key(event), "patch", json.dumps(seats, default=str))
+            pipeline.eval(
+                PUT, 2, self.key(event), self.delta_key(event), "patch", json.dumps(seats, default=str)
+            )
         results = pipeline.execute(raise_on_error=False)
         for result in results:
             if isinstance(result, RedisError):
                 raise result
         return [int(result) >= 0 for result in results]
+
+    def deltas(self, event, since):
+        try:
+            result = self.redis.eval(
+                DELTAS,
+                2,
+                self.key(event),
+                self.delta_key(event),
+                str(since),
+                str(self._seatmap_ttl_seconds),
+            )
+        except RedisError as exc:
+            raise Failure("SEATMAP_UNAVAILABLE", 503) from exc
+        status, version = int(result[0]), int(result[1]) if len(result) > 1 else None
+        if status == 503:
+            raise Failure("SEATMAP_WARMING", 503)
+        if status == 422:
+            raise Failure("INVALID_VERSION", 422)
+        if status == 409:
+            SEAT_DELTA_OUTCOMES.labels("reset").inc()
+            snapshot = self.read(event)
+            return {
+                "event_id": str(event),
+                "from_version": since,
+                "version": snapshot["version"],
+                "reset_required": True,
+                "seats": [
+                    {key: seat[key] for key in ("seat_id", "status", "reserved_until")}
+                    for seat in snapshot["seats"]
+                ],
+            }
+        latest = {}
+        for raw in result[2:]:
+            for seat in json.loads(raw)["seats"]:
+                latest[seat["seat_id"]] = {
+                    key: seat[key] for key in ("seat_id", "status", "reserved_until")
+                }
+        SEAT_DELTA_OUTCOMES.labels("delta" if latest else "empty").inc()
+        return {
+            "event_id": str(event),
+            "from_version": since,
+            "version": version,
+            "reset_required": False,
+            "seats": sorted(latest.values(), key=lambda seat: seat["seat_id"]),
+        }
 
     def browse(self, event, kind, if_none_match=None):
         if kind not in {"layout", "availability"}:

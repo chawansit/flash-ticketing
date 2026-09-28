@@ -213,6 +213,7 @@ def main() -> None:
     parser.add_argument("--retry-base-delay-ms", type=float, default=25.0)
     parser.add_argument("--late-delivery-window-ms", type=float, default=0.0)
     parser.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
+    parser.add_argument("--read-mode", choices=("availability", "delta"), default="availability")
     parser.add_argument("--write-percent", type=int, default=5)
     parser.add_argument("--reservation-writer-candidate", type=int, choices=(1, 2, 3, 4), default=1)
     parser.add_argument("--reservation-writer-batch-size", type=int, choices=range(1, 9), default=1)
@@ -384,6 +385,7 @@ def main() -> None:
                     str(args.late_delivery_window_ms),
                     args.reservation_mode,
                     str(args.write_percent),
+                    args.read_mode,
                 ],
                 timeout=60,
             )

@@ -166,11 +166,28 @@ worker summaries. Rollback passed in both runs. The workflow now performs bounde
 pre-warm after observers start and immediately before traffic. Its first cloud
 invocation failed closed before traffic because manifest string IDs were not normalized
 to UUIDs; rollback passed. Boundary normalization now has local regression coverage,
-and cloud validation of the corrected phase remains pending.
+and the corrected pre-warm then completed 800 shows in 4.941 seconds.
 
-That first valid run included batched inbox persistence and acknowledgement but still read
-and patched each show separately. It is evidence that the initial implementation
-was incomplete, not evidence of accepted capacity. The bulk changed-seat query
-and Redis pipeline described above were added afterward and have only local test
-evidence. A same-shape cloud rerun remains required before acceptance. No higher
+The bulk changed-seat query, Redis pipeline and bounded pre-warm were validated at
+commit a889b82. A three-minute 1,000 RPS, six-percent-write control dispatched all
+180,000 scheduled requests with zero generator drops. Read p95 was 125.510 ms and
+hold p95 was 275.734 ms. All 10,800 accepted holds were durable, double booking was
+zero, all queues drained and rollback passed. Maximum interesting RDS waiters was
+four and the maximum observed query was 9.911 ms.
+
+The subsequent 15-minute run did not pass the sustained capacity gate. It dispatched
+897,336 of 900,000 scheduled requests; 2,664 (0.296%) were dropped at the bounded
+generator in-flight limit. Read p95 was 403.157 ms and hold p95 was 892.393 ms.
+All 53,826 accepted holds were durable, double booking remained zero, admission
+rejections were zero, every queue drained and rollback passed. Kafka lag peaked at
+56 and returned to zero; the reservation writer's database batch and commit averages
+were 114.5 ms and 3.686 ms. RDS had at most eight interesting waiters and a 14.438 ms
+maximum observed query. Roughly 492,000 availability reads returned full HTTP 200
+bodies while roughly 349,000 returned 304, identifying changed full-map reads as the
+next measured pressure. Sixty-four HTTP 500 responses lacked request IDs in retained
+generator evidence; recreated containers no longer retained correlated logs, so their
+exact source is unresolved and must be captured in the next control.
+
+ADR 0071 proposes the next read-path experiment. ADR 0070 remains Proposed because
+its short control passed but its required sustained stage did not. No higher
 production capacity is claimed.
