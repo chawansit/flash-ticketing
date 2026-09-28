@@ -201,6 +201,7 @@ async def run(args):
     validators, pending, lags = {}, set(), []
     task_errors = Counter()
     error_codes, error_examples = Counter(), []
+    delta_observations = Counter()
     run_id = str(uuid4())
     async with httpx.AsyncClient(
         base_url=args.origin,
@@ -291,6 +292,10 @@ async def run(args):
                     if not write and response.status_code == 200:
                         if read_mode == "delta":
                             delta = response.json()
+                            delta_observations["responses"] += 1
+                            delta_observations["seats"] += len(delta["seats"])
+                            delta_observations["reset"] += int(delta.get("reset_required") is True)
+                            delta_observations["empty"] += int(not delta["seats"])
                             returned_version = int(delta["version"])
                             if delta.get("reset_required") is True:
                                 versions[(viewer, show)] = returned_version
@@ -528,6 +533,7 @@ async def run(args):
         "completed_rps": sum(sum(v.values()) for v in statuses.values()) / elapsed,
         "statuses": dict(statuses),
         "response_body_bytes": bytes_received,
+        "delta_observations": dict(delta_observations),
         "latency_ms": {
             key: {"p50": percentile(v, 0.5), "p95": percentile(v, 0.95), "p99": percentile(v, 0.99)}
             for key, v in latency.items()

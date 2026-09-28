@@ -173,6 +173,7 @@ try:
         "generator_drops": sum(r.get("generator_drops", 0) for r in results),
         "late_deliveries": sum(r.get("late_deliveries", 0) for r in results),
         "physical_http_attempts": sum(r.get("physical_http_attempts", 0) for r in results),
+        "delta_observations": sum_counter("delta_observations"),
         "first_attempt_failures": sum_counter("first_attempt_failures"),
         "retry_attempts": sum_counter("retry_attempts"),
         "retry_successes": sum_counter("retry_successes"),
