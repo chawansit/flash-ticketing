@@ -166,7 +166,7 @@ class RedisSeats:
         *,
         browse_entries=2048,
         browse_bytes=32 * 1024 * 1024,
-        seatmap_ttl_seconds=30,
+        seatmap_ttl_seconds=120,
         delta_history_entries=DELTA_HISTORY_LIMIT,
     ):
         if browse_entries < 0 or browse_bytes < 0:

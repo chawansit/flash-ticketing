@@ -90,7 +90,7 @@ retained event: the dedicated reconciler keeps a durable per-event schedule cove
 sale window, claims a bounded batch of the oldest-due rows under a token-fenced lease, and
 spends a fixed wall-clock budget per pass. Hold expiry and dirty-seat work run independently
 in maintenance; they no longer delay the start of a reconciliation pass.
-Only complete reconciliations extend the 30-second TTL, so the schedule interval is held
+Successful reads and complete reconciliations extend the 120-second retention TTL, so the schedule interval is held
 below it. Overload can still delay deadlines and expire maps; process isolation does not
 guarantee a freshness SLO. See [ADR 0016](adr/0016-isolated-reconciliation-worker.md). Seat inventory is static in this MVP.
 An interrupted-write marker makes partial Redis script writes unreadable until full repair.

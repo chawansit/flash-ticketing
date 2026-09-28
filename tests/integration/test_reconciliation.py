@@ -432,7 +432,7 @@ def test_reconciler_process_recovers_expired_map_without_maintenance(system, cac
             assert next(s for s in result['seats'] if s['seat_id']=='A')['status'] == 'HELD'
             with db.transaction() as conn:
                 assert conn.execute('SELECT status FROM holds WHERE id=%s', (held['hold_id'],)).fetchone()['status'] == 'ACTIVE'
-            assert 0 < cache.redis.ttl(key) <= 30
+            assert 0 < cache.redis.ttl(key) <= Settings().seatmap_ttl_seconds
         finally:
             proc.terminate()
             try:

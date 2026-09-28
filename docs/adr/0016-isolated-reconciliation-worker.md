@@ -2,6 +2,8 @@
 
 Status: Accepted; local/cloud correctness passed; sustained load has remaining admission failures.
 
+ADR 0074 supersedes the fixed 30-second seat-map TTL; isolated reconciliation remains accepted.
+
 ## Context
 The diagnostic 352-RPS run had 160 SEATMAP_WARMING reads. Reconciliation age
 reached 33.694 seconds against a 30-second map TTL. Maintenance currently performs

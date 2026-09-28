@@ -2,6 +2,8 @@
 
 Status: Accepted
 
+ADR 0074 supersedes the 30-second duration and hard-freshness framing; read-side TTL touch remains accepted.
+
 ## Context
 
 During long and concentrated availability workloads, `SEATMAP_WARMING` rose while traffic was still present. Investigation showed some seat-map keys were being garbage-collected by TTL and then re-generated only by background reconciliation windows. Meanwhile, read-heavy traffic continues to hit the same seat-maps every few seconds, so evicting those keys adds avoidable cold misses and load spikes.

@@ -5,6 +5,8 @@ Integration note: numerical results below were supplied by Claude on a different
 Date: 2026-09-08
 Status: Accepted; implemented and validated locally on 2026-09-08
 
+ADR 0074 supersedes the 30-second seat-map TTL and hard-freshness-bound wording; the bounded scheduler and fencing decisions remain accepted.
+
 Shared-loop reconciliation placement is superseded by [ADR 0016](0016-isolated-reconciliation-worker.md); ownership, fencing and bounded-work decisions remain accepted.
 
 ## Context

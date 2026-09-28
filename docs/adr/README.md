@@ -109,3 +109,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0071: Serve bounded versioned seat-map deltas after an initial snapshot](0071-bounded-versioned-seat-map-deltas.md)
 - [0072: Align the Nginx file-descriptor limit with its bounded connection budget](0072-align-nginx-file-descriptor-budget.md)
 - [0073: Encode seat-map delta responses in the synchronous read worker](0073-encode-seat-deltas-in-sync-worker.md)
+- [0074: Extend active seat-map retention beyond transient refresh gaps](0074-extend-active-seatmap-retention.md)

@@ -110,7 +110,7 @@ the oldest-due rows in bounded batches under token-fenced leases, and spends at 
 Maintenance performs hold expiry and dirty-seat refresh in a separate process. Deploy both
 roles using matching images; see [ADR 0016](adr/0016-isolated-reconciliation-worker.md).
 
-`RECONCILE_INTERVAL_SECONDS` defaults to 20 (1-29; must remain below the 30-second map TTL), `RECONCILE_WINDOW_SECONDS` to 300
+`RECONCILE_INTERVAL_SECONDS` defaults to 20 and must remain below the 120-second map retention TTL, `RECONCILE_WINDOW_SECONDS` to 300
 (0-86400), `RECONCILE_BATCH_SIZE` to 8 (1-100), `RECONCILE_BUDGET_MS` to 500 (50-5000),
 `RECONCILE_LEASE_SECONDS` to 30 (5-300), `RECONCILE_BACKOFF_MS` to 1000 (100-60000) and
 `RECONCILE_SEED_BATCH` to 200 (1-5000).

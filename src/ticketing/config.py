@@ -13,7 +13,7 @@ class Settings:
     hold_seconds: int = int(os.getenv("HOLD_SECONDS", "120"))
     pool_max: int = int(os.getenv("DB_POOL_MAX", "12"))
     pool_wait_ms: int = int(os.getenv("DB_POOL_WAIT_MS", "150"))
-    seatmap_ttl_seconds: int = int(os.getenv("SEATMAP_TTL_SECONDS", "30"))
+    seatmap_ttl_seconds: int = int(os.getenv("SEATMAP_TTL_SECONDS", "120"))
     reserve_concurrency: int = int(os.getenv("RESERVE_CONCURRENCY", "12"))
     reservation_mode: str = os.getenv("RESERVATION_MODE", "postgres")
     redis_reserve_concurrency: int = int(os.getenv("REDIS_RESERVE_CONCURRENCY", "128"))
