@@ -100,3 +100,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0062: Treat managed-failover latency as non-gating evidence](0062-non-gating-failover-latency.md)
 - [0063: Bound reservation persistence batches and reject stale intake](0063-bounded-reservation-persistence-batching.md)
 - [0064: Rotate bounded reservation-stream discovery fairly](0064-fair-bounded-reservation-stream-discovery.md)
+- [0065: Filter empty reservation streams during bounded discovery](0065-filter-empty-reservation-streams-during-discovery.md)

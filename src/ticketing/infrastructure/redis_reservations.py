@@ -317,10 +317,17 @@ class RedisReservationIntake:
         if ordered:
             size = min(limit, len(ordered))
             start = self._stream_window_cursor % len(ordered)
-            self._streams = [ordered[(start + offset) % len(ordered)] for offset in range(size)]
+            candidates = [ordered[(start + offset) % len(ordered)] for offset in range(size)]
+            pipe = self.redis.pipeline(transaction=False)
+            for stream in candidates:
+                pipe.xlen(stream)
+            lengths = pipe.execute()
+            self._streams = [
+                stream for stream, length in zip(candidates, lengths, strict=True) if length > 0
+            ]
             self._stream_window_cursor = (start + size) % len(ordered)
             self._stream_cursor = 0
-            self._stream_cycle_complete = False
+            self._stream_cycle_complete = not self._streams
         else:
             self._streams = []
             self._stream_cursor = 0

@@ -9,9 +9,23 @@ class FakePool:
         self.disconnects += 1
 
 
+class FakePipeline:
+    def __init__(self, redis):
+        self.redis = redis
+        self.streams = []
+
+    def xlen(self, stream):
+        self.streams.append(stream)
+        return self
+
+    def execute(self):
+        return [self.redis.lengths.get(stream, 1) for stream in self.streams]
+
+
 class FakeRedis:
-    def __init__(self, registry=()):
+    def __init__(self, registry=(), lengths=None):
         self.registry = set(registry)
+        self.lengths = lengths or {}
         self.connection_pool = FakePool()
         self.smembers_calls = 0
         self.scan_calls = 0
@@ -25,6 +39,9 @@ class FakeRedis:
     def scan(self, cursor, **_kwargs):
         self.scan_calls += 1
         return 0, []
+
+    def pipeline(self, **_kwargs):
+        return FakePipeline(self)
 
     def xgroup_create(self, stream, _group, **_kwargs):
         self.group_calls.append(stream)
@@ -140,3 +157,26 @@ def test_discovery_rotates_beyond_a_full_window_without_starvation():
     intake._refresh_streams(limit=5)
 
     assert intake.streams(limit=5) == [ordered[5], ordered[6], ordered[0], ordered[1], ordered[2]]
+
+
+def test_discovery_skips_empty_window_and_reaches_later_nonempty_streams():
+    streams = [f"reservation-stream:{{event-{index}}}" for index in range(7)]
+    ordered = tuple(sorted(streams))
+    lengths = {stream: 0 for stream in streams}
+    lengths[ordered[5]] = 1
+    lengths[ordered[6]] = 2
+    redis = FakeRedis(streams, lengths=lengths)
+    intake = RedisReservationIntake(
+        FakeCache(redis),
+        stream_batch_size=2,
+        stream_refresh_seconds=60,
+    )
+
+    intake._refresh_streams(limit=5)
+    assert intake._streams == []
+    assert intake._stream_cycle_complete is True
+
+    intake._refresh_streams(limit=5)
+
+    assert intake.streams(limit=5) == [ordered[5], ordered[6]]
+    assert intake._stream_window_cursor == 3
