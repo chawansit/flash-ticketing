@@ -486,7 +486,7 @@ def main() -> None:
             args.backend_host,
             backend_prefix + ["audit", run_id],
             check=False,
-            timeout=180,
+            timeout=300,
         )
         audit_exit = audit.returncode
         checkpoint("audit_finished")

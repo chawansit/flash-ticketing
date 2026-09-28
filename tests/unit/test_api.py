@@ -2,12 +2,14 @@ import hashlib
 import hmac
 import json
 import time
+from types import SimpleNamespace
 from unittest.mock import Mock
 from uuid import uuid4
 
+from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
 
-from ticketing.api import app, service, settings
+from ticketing.api import app, deltas, service, settings
 
 
 def test_openapi_and_auth():
@@ -51,3 +53,22 @@ def test_callback_signature_and_duplicate_payload_forwarding():
         store.callback.assert_called_once()
     finally:
         app.dependency_overrides.clear()
+
+def test_delta_handler_encodes_response_in_sync_worker():
+    event_id = uuid4()
+    payload = {
+        "event_id": str(event_id),
+        "from_version": 7,
+        "version": 8,
+        "reset_required": False,
+        "seats": [],
+    }
+    cache = Mock()
+    cache.deltas.return_value = payload
+    request = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(cache=cache)))
+
+    response = deltas(event_id, request, since=7)
+
+    assert isinstance(response, JSONResponse)
+    assert json.loads(response.body) == payload
+    cache.deltas.assert_called_once_with(str(event_id), 7)

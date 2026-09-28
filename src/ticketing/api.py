@@ -311,7 +311,7 @@ def availability(event_id: UUID, request: Request, if_none_match: Conditional = 
 )
 def deltas(event_id: UUID, request: Request, since: int = 0):
     """Current states changed since a snapshot version; use version from the response next time."""
-    return request.app.state.cache.deltas(str(event_id), since)
+    return JSONResponse(content=request.app.state.cache.deltas(str(event_id), since))
 
 
 HOLD_RESPONSES = {
