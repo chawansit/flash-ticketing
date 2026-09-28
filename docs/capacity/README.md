@@ -101,6 +101,8 @@ Latest: [database profiling and incremental projection measurements](incremental
 
 Latest read optimization: [300-seat cinema map comparison](seatmap/README.md).
 
+Latest bounded-delta control: [1,000 RPS short cloud validation](seatmap-delta/README.md).
+
 Latest integration: [bounded scheduler and conditional reads](reconciliation/local-integration.md).
 
 Follow-up: [three-minute read and expiry validation](reconciliation/sustained-validation.md).

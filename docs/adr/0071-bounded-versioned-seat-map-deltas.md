@@ -164,8 +164,18 @@ This is not evidence of a lost accepted reservation.
 
 The correction makes both direct Redis-first mutation paths append and trim the
 same bounded delta history inside their existing Lua transaction. The cloud
-observer also captures fixed-cardinality delta outcome counters so the next run
-can measure empty, delta and reset behavior directly. A same-topology cloud rerun
-is required before this ADR can be accepted.
+observer also captures fixed-cardinality delta outcome counters.
 
-No higher production capacity is claimed until those stages pass.
+The same-topology three-minute rerun at commit `39c5b67` passed every gate. It
+completed all 180,000 scheduled requests with zero drops, transport errors or
+retries. Worst-worker read p95 was 14.616 ms and hold p95 was 26.601 ms. All
+10,800 acknowledged holds were durable after expiry, overlapping seat intervals
+were zero, and every queue drained. Total measured response-body volume fell from
+954,518,611 bytes in the broken run to 34,717,504 bytes while the number of
+completed reads increased from 129,099 to 169,200. The load-balanced observer
+recorded empty and changed-delta outcomes in 246 samples and no reset series; this
+metric sample is diagnostic rather than an exact aggregate. [Compact cloud
+evidence](../capacity/seatmap-delta/README.md) is retained with the comparison.
+
+ADR acceptance and any higher production-capacity claim still require the
+15-minute 1,000 RPS stage.
