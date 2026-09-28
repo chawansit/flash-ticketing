@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ipaddress
 import json
 import re
 import shlex
@@ -12,6 +13,7 @@ import tempfile
 import time
 from datetime import UTC, datetime
 from pathlib import Path
+from urllib.parse import urlsplit
 from uuid import uuid4
 
 SAFE_HOST = re.compile(r"^[A-Za-z0-9_.@-]+$")
@@ -97,6 +99,19 @@ def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def origin_bind_ip(origin: str) -> str:
+    parsed = urlsplit(origin)
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        raise ValueError("Origin must be an HTTP(S) URL with an explicit IPv4 host")
+    try:
+        address = ipaddress.ip_address(parsed.hostname)
+    except ValueError as exc:
+        raise ValueError("Origin host must be an explicit IPv4 address") from exc
+    if address.version != 4:
+        raise ValueError("Origin host must be an explicit IPv4 address")
+    return str(address)
+
+
 def evaluate(output: Path, load_exit: int | None, audit_exit: int | None, admission_exit: int | None) -> dict:
     generator = output / "generator" / "public"
     backend = output / "backend" / "public"
@@ -153,6 +168,7 @@ def validate_args(args: argparse.Namespace) -> None:
             raise ValueError(f"Unsafe SSH host alias: {host}")
     if args.output.exists():
         raise ValueError("Use a fresh output directory")
+    origin_bind_ip(args.origin)
     if args.identity_file is not None and not args.identity_file.is_file():
         raise ValueError("SSH identity file does not exist")
     if min(
@@ -224,6 +240,7 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
     validate_args(args)
+    bind_ip = origin_bind_ip(args.origin)
 
     run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid4().hex[:8]
     phases = [
@@ -301,6 +318,7 @@ def main() -> None:
                 str(args.reservation_writer_candidate),
                 str(args.reservation_writer_batch_size),
                 str(args.reservation_max_command_age_seconds),
+                bind_ip,
             ],
             timeout=300,
         )

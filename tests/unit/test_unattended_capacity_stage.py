@@ -95,7 +95,7 @@ def argv(output: Path) -> list[str]:
         "--generator-host",
         "generator-test",
         "--origin",
-        "http://private.test:8000",
+        "http://10.1.137.69:8000",
         "--output",
         str(output),
         "--rate",
@@ -397,8 +397,8 @@ def test_worker_scaling_is_passed_and_observers_cover_audit(monkeypatch, tmp_pat
     )
     stage.main()
     fake = CapturingTransport.instances[-1]
-    assert fake.deployment_command[-9:] == [
-        "2", "1", "2", "1", "1", "redis-first", "2", "8", "60"
+    assert fake.deployment_command[-10:] == [
+        "2", "1", "2", "1", "1", "redis-first", "2", "8", "60", "10.1.137.69"
     ]
     assert fake.load_command[-3:] == ["redis-first", "20", "availability"]
     phases = [phase for kind, phase in fake.calls if kind == "remote"]
@@ -433,7 +433,14 @@ def test_backend_deploy_rebuilds_and_verifies_measured_worker_images():
     assert '"split_maintenance":%s' in helper
     assert '"worker_source_verified":true' in helper
     assert '--force-recreate load-balancer' in helper
+    assert '[ "$load_balancer_published_ip" = "$load_balancer_bind_ip" ]' in helper
     assert "load_balancer_nofile=$(docker exec \"$load_balancer_id\" sh -lc 'ulimit -Sn')" in helper
     assert '[ "$load_balancer_nofile" -ge 4096 ]' in helper
     assert 'unset PGSSLROOTCERT' not in helper
     assert 'RDS_DATABASE_URL="$DATABASE_URL"' in helper
+
+
+def test_origin_bind_ip_requires_explicit_ipv4():
+    assert stage.origin_bind_ip("http://10.1.137.69:8000") == "10.1.137.69"
+    with pytest.raises(ValueError, match="explicit IPv4"):
+        stage.origin_bind_ip("http://private.test:8000")

@@ -195,7 +195,7 @@ case "${1:-}" in
     chmod 600 "$private/manifest.json"
     ;;
   deploy)
-    [ "$#" -eq 13 ]
+    [ "$#" -eq 14 ]
     run_paths "$2"
     candidate=$3; fallback=$4; maintenance_candidate=$5; maintenance_fallback=$6
     consumer_candidate=$7; consumer_fallback=$8; split_candidate=$9
@@ -203,6 +203,10 @@ case "${1:-}" in
     reservation_writer_candidate=${11}
     reservation_writer_batch_candidate=${12}
     reservation_max_command_age_candidate=${13}
+    load_balancer_bind_ip=${14}
+    case "$load_balancer_bind_ip" in
+      ''|*[!0-9.]*) exit 2 ;;
+    esac
     case "$reservation_candidate" in postgres|redis-first) ;; *) exit 2 ;; esac
     case "$reservation_writer_candidate" in 1|2|3|4) ;; *) exit 2 ;; esac
     [ "$split_candidate" -eq 0 ] || [ "$split_candidate" -eq 1 ]
@@ -254,9 +258,13 @@ case "${1:-}" in
     fi
     $compose up -d --no-deps --force-recreate --scale api=4 api
     wait_apis
+    HORIZONTAL_BIND_IP=$load_balancer_bind_ip
+    export HORIZONTAL_BIND_IP
     $compose up -d --no-deps --force-recreate load-balancer
     wait_load_balancer
     load_balancer_id=$($compose ps -q load-balancer)
+    load_balancer_published_ip=$(docker inspect -f '{{(index (index .HostConfig.PortBindings "8000/tcp") 0).HostIp}}' "$load_balancer_id")
+    [ "$load_balancer_published_ip" = "$load_balancer_bind_ip" ]
     load_balancer_nofile=$(docker exec "$load_balancer_id" sh -lc 'ulimit -Sn')
     [ "$load_balancer_nofile" -ge 4096 ]
     $compose up -d --no-deps --force-recreate publisher
@@ -315,7 +323,7 @@ case "${1:-}" in
         [ "$image_hash" = "$worker_source_hash" ]
       done
     done
-    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"reservation_mode":"%s","reservation_writer_replicas":%s,"reservation_writer_batch_size":%s,"reservation_max_command_age_seconds":%s,"split_maintenance":%s,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"worker_source_verified":true,"load_balancer_nofile":%s,"pass":true}\n' "$candidate" "$reservation_candidate" "$deployed_reservation_writers" "$reservation_writer_batch_candidate" "$reservation_max_command_age_candidate" "$split_json" "$deployed_maintenance" "$deployed_refresh" "$deployed_expiry" "$consumer_candidate" "$load_balancer_nofile" > "$public/deployment.json"
+    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"reservation_mode":"%s","reservation_writer_replicas":%s,"reservation_writer_batch_size":%s,"reservation_max_command_age_seconds":%s,"split_maintenance":%s,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"worker_source_verified":true,"load_balancer_bind_ip":"%s","load_balancer_nofile":%s,"pass":true}\n' "$candidate" "$reservation_candidate" "$deployed_reservation_writers" "$reservation_writer_batch_candidate" "$reservation_max_command_age_candidate" "$split_json" "$deployed_maintenance" "$deployed_refresh" "$deployed_expiry" "$consumer_candidate" "$load_balancer_published_ip" "$load_balancer_nofile" > "$public/deployment.json"
     ;;
   warm)
     [ "$#" -eq 2 ]
