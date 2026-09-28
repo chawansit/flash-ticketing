@@ -1,3 +1,4 @@
+import json
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -272,6 +273,29 @@ def test_delta_history_is_bounded_and_trim_gap_fails_safe(browse_system):
     reset = cache.deltas(event, initial)
     assert reset["reset_required"] is True
     assert len(reset["seats"]) == 3
+
+def test_delta_history_distinguishes_missing_and_overlapping_ranges(browse_system):
+    _, _, event, cache, _ = browse_system
+    initial = cache.read(event)["version"]
+    current = initial + 2
+    cache.redis.hset(cache.key(event), "version", current)
+
+    cache.redis.delete(cache.delta_key(event))
+    cache.redis.zadd(cache.delta_key(event), {
+        json.dumps({"from_version": initial + 1, "version": current, "seats": []}): current,
+    })
+    missing_before = SEAT_DELTA_RESETS.labels("history_missing")._value.get()
+    assert cache.deltas(event, initial)["reset_required"] is True
+    assert SEAT_DELTA_RESETS.labels("history_missing")._value.get() == missing_before + 1
+
+    cache.redis.delete(cache.delta_key(event))
+    cache.redis.zadd(cache.delta_key(event), {
+        json.dumps({"from_version": initial, "version": current, "seats": []}): current,
+    })
+    overlap_before = SEAT_DELTA_RESETS.labels("history_overlap")._value.get()
+    assert cache.deltas(event, initial + 1)["reset_required"] is True
+    assert SEAT_DELTA_RESETS.labels("history_overlap")._value.get() == overlap_before + 1
+
 
 def test_delta_higher_prior_incarnation_version_returns_reset(browse_system):
     _, _, event, cache, client = browse_system

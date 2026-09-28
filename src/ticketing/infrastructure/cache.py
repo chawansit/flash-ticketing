@@ -138,7 +138,9 @@ local expected = since
 local result = {200,version}
 for _,raw in ipairs(entries) do
   local entry = cjson.decode(raw)
-  if tonumber(entry.from_version) ~= expected then return {409,version,'history_gap'} end
+  local entry_from = tonumber(entry.from_version)
+  if entry_from < expected then return {409,version,'history_overlap'} end
+  if entry_from > expected then return {409,version,'history_missing'} end
   expected = tonumber(entry.version)
   table.insert(result,raw)
 end
