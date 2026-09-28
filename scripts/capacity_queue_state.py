@@ -11,16 +11,32 @@ from redis import Redis
 from redis.exceptions import ResponseError
 
 
-def reservation_queue_state(redis_client) -> tuple[int, int]:
+def reservation_queue_state(redis_client, batch_size=256) -> tuple[int, int]:
     entries = pending = 0
-    for stream in redis_client.scan_iter(match="reservation-stream:*"):
-        entries += redis_client.xlen(stream)
-        try:
-            pending += redis_client.xpending(stream, "reservation-writers")["pending"]
-        except ResponseError as exc:
-            if "NOGROUP" not in str(exc):
-                raise
-    return entries, pending
+    cursor = 0
+    while True:
+        cursor, streams = redis_client.scan(
+            cursor=cursor, match="reservation-stream:*", count=1000
+        )
+        for start in range(0, len(streams), batch_size):
+            batch = streams[start:start + batch_size]
+            pipeline = redis_client.pipeline(transaction=False)
+            for stream in batch:
+                pipeline.xlen(stream)
+                pipeline.xpending(stream, "reservation-writers")
+            results = pipeline.execute(raise_on_error=False)
+            for index in range(0, len(results), 2):
+                length, group = results[index:index + 2]
+                if isinstance(length, ResponseError):
+                    raise length
+                entries += length
+                if isinstance(group, ResponseError):
+                    if "NOGROUP" not in str(group):
+                        raise group
+                else:
+                    pending += group["pending"]
+        if cursor == 0:
+            return entries, pending
 
 
 def main() -> None:
