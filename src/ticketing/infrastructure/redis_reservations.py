@@ -154,6 +154,8 @@ class RedisReservationIntake:
         self.stream_scan_steps = stream_scan_steps
         self._streams = []
         self._stream_cursor = 0
+        self._stream_window_cursor = 0
+        self._stream_cycle_complete = True
         self._scan_cursor = 0
         self._last_stream_refresh = 0.0
         self._known_groups = set()
@@ -296,8 +298,10 @@ class RedisReservationIntake:
         return response
 
     def _refresh_streams(self, limit=5000):
-        """Refresh discovery without ever walking the complete Redis keyspace in one poll."""
+        """Refresh one fair window without abandoning a partially polled window."""
         now = time.monotonic()
+        if self._streams and not self._stream_cycle_complete:
+            return
         if self._streams and now - self._last_stream_refresh < self.stream_refresh_seconds:
             return
         keys = set(self._streams)
@@ -309,12 +313,20 @@ class RedisReservationIntake:
             keys.update(found)
             if self._scan_cursor == 0:
                 break
-        self._streams = sorted(keys)[:limit]
-        self._last_stream_refresh = now
-        if self._streams:
-            self._stream_cursor %= len(self._streams)
-        else:
+        ordered = sorted(keys)
+        if ordered:
+            size = min(limit, len(ordered))
+            start = self._stream_window_cursor % len(ordered)
+            self._streams = [ordered[(start + offset) % len(ordered)] for offset in range(size)]
+            self._stream_window_cursor = (start + size) % len(ordered)
             self._stream_cursor = 0
+            self._stream_cycle_complete = False
+        else:
+            self._streams = []
+            self._stream_cursor = 0
+            self._stream_window_cursor = 0
+            self._stream_cycle_complete = True
+        self._last_stream_refresh = now
 
     def streams(self, limit=5000):
         self._refresh_streams(limit)
@@ -326,7 +338,10 @@ class RedisReservationIntake:
         size = min(self.stream_batch_size, len(self._streams))
         start = self._stream_cursor % len(self._streams)
         batch = [self._streams[(start + offset) % len(self._streams)] for offset in range(size)]
-        self._stream_cursor = (start + size) % len(self._streams)
+        next_cursor = start + size
+        self._stream_cursor = next_cursor % len(self._streams)
+        if next_cursor >= len(self._streams):
+            self._stream_cycle_complete = True
         return batch
 
     def ensure_group(self, stream):
@@ -344,6 +359,8 @@ class RedisReservationIntake:
         self.redis.connection_pool.disconnect()
         self._streams = []
         self._stream_cursor = 0
+        self._stream_window_cursor = 0
+        self._stream_cycle_complete = True
         self._scan_cursor = 0
         self._last_stream_refresh = 0.0
         self._known_groups.clear()

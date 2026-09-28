@@ -120,3 +120,23 @@ def test_messages_applies_count_as_a_hard_total_across_streams():
     assert len(messages) == 4
     ordered = tuple(sorted(streams))
     assert redis.read_batches == [(ordered[0],), (ordered[1],)]
+
+
+def test_discovery_rotates_beyond_a_full_window_without_starvation():
+    streams = [f"reservation-stream:{{event-{index}}}" for index in range(7)]
+    redis = FakeRedis(streams)
+    intake = RedisReservationIntake(
+        FakeCache(redis),
+        stream_batch_size=2,
+        stream_refresh_seconds=0,
+    )
+    ordered = tuple(sorted(streams))
+
+    intake._refresh_streams(limit=5)
+    assert intake.streams(limit=5) == list(ordered[:5])
+    for _ in range(3):
+        intake._next_stream_batch()
+
+    intake._refresh_streams(limit=5)
+
+    assert intake.streams(limit=5) == [ordered[5], ordered[6], ordered[0], ordered[1], ordered[2]]
