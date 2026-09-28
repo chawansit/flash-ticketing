@@ -1,0 +1,17 @@
+{
+  "worker": 5,
+  "generator_drops": 1,
+  "drop_reasons": {
+    "late": 1
+  },
+  "late_drop_examples": [
+    {
+      "index": 233250,
+      "utc": "2026-09-29T03:09:18.448612+07:00",
+      "lag_ms": 50.0,
+      "pending": 2
+    }
+  ],
+  "scheduling_lag_p99_ms": 1.3662870769621804,
+  "scheduling_lag_max_ms": 50.000477451249026
+}

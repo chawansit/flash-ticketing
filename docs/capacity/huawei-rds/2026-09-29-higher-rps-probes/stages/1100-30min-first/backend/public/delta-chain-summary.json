@@ -1,0 +1,11 @@
+{
+  "counts": {
+    "entries": 1952813,
+    "maps": 127552,
+    "wide_range": 26945
+  },
+  "examples": [],
+  "min_server_uptime_seconds": 109844,
+  "samples": 1993,
+  "server_identity_changes": 0
+}

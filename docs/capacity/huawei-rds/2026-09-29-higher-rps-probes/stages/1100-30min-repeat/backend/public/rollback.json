@@ -1,0 +1,1 @@
+{"restored_admission":4,"restored_reservation_mode":"postgres","restored_reservation_writer_batch_size":1,"restored_reservation_max_command_age_seconds":0,"reservation_writer_replicas":0,"api_replicas":4,"maintenance_replicas":1,"refresh_replicas":0,"expiry_replicas":0,"consumer_replicas":1,"pass":true}
