@@ -44,17 +44,27 @@ case "${1:-}" in
     [ ! -e "$private/job.pid" ]
     limit=$((seconds + 180))
     nohup setsid sh -c '
-      helper=$1; status=$2; limit=$3; shift 3
+      pid_file=$1; helper=$2; status=$3; limit=$4; shift 4
+      printf "%s\n" "$$" > "$pid_file.tmp"
+      mv "$pid_file.tmp" "$pid_file"
       timeout -k 10 "$limit" sh "$helper" run "$@"
       code=$?
       printf "{\"state\":\"finished\",\"exit_code\":%s}\n" "$code" > "$status.tmp"
       mv "$status.tmp" "$status"
       exit "$code"
-    ' sh "$repo/scripts/huawei_capacity_generator.sh" "$public/job-status.json" "$limit" \
+    ' sh "$private/job.pid" "$repo/scripts/huawei_capacity_generator.sh" "$public/job-status.json" "$limit" \
       "$run_id" "$manifest" "$rate" "$seconds" "$workers" "$seat_offset" \
       "$max_attempts" "$retry_base_delay_ms" "$late_delivery_window_ms" "$reservation_mode" "$write_percent" "$read_mode" \
       </dev/null > "$public/job-control.log" 2>&1 &
-    printf '%s\n' "$!" > "$private/job.pid"
+    attempt=0
+    while [ ! -f "$private/job.pid" ] && [ ! -f "$public/job-status.json" ] && [ "$attempt" -lt 50 ]; do
+      attempt=$((attempt + 1))
+      sleep 0.1
+    done
+    if [ ! -f "$public/job-status.json" ]; then
+      [ -f "$private/job.pid" ]
+      kill -0 "$(cat "$private/job.pid")" 2>/dev/null
+    fi
     printf '{"state":"started"}\n'
     ;;
   status)

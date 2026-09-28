@@ -98,7 +98,14 @@ def main():
             raw = pipeline.execute()
             replies = [(*atomic, plain) for atomic, plain in zip(raw[::2], raw[1::2], strict=True)]
             counts, examples = inspect_sample(batch, replies, previous)
-            output.write(json.dumps({"utc": datetime.now(UTC).isoformat(), "counts": counts, "examples": examples}) + "\n")
+            server = client.info("server")
+            output.write(json.dumps({
+                "utc": datetime.now(UTC).isoformat(),
+                "counts": counts,
+                "examples": examples,
+                "server_run_id": server.get("run_id"),
+                "server_uptime_seconds": server.get("uptime_in_seconds"),
+            }) + "\n")
             output.flush()
             time.sleep(max(0, args.interval - (time.monotonic() - started)))
 
