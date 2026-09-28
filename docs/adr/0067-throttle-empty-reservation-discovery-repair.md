@@ -1,7 +1,7 @@
 # ADR 0067: Throttle empty reservation discovery and repair scans
 
 Date: 2026-09-28
-Status: Accepted for implementation; production activation pending clean cloud validation
+Status: Accepted; cloud activation improved request performance but failed exact durability
 
 ## Context
 
@@ -57,5 +57,14 @@ Implementation validation completed on 2026-09-28:
   the immediate-reclaim integration test; that test passed when rerun in isolation.
 - A second full isolated Docker Compose run passed: 236 tests, with 2 dependency
   deprecation warnings and no failures.
-- The fresh Huawei activation stage remains pending and is required before changing
-  this ADR's activation status or making a capacity claim.
+- The fresh Huawei stage at revision a258443 sent 179,327 of 180,000 requests and
+  dropped 673 at the generator. It had no transport errors or admission rejections;
+  read and hold p95 were 33.852 ms and 60.337 ms.
+- The writers made 10,640 of 10,755 provisional commands durable. The remaining 115
+  completed as HOLD_EXPIRED, so exact durability failed. All queues drained, overlap
+  was zero and rollback passed.
+- Compared with the ADR 0066 activation stage, generator drops fell from 10,191 to
+  673 and both request latency percentiles improved substantially. This validates the
+  discovery-throttle behavior but does not establish 1,000 RPS production capacity.
+- ADR 0068 defines the next bounded writer-scaling experiment for the remaining
+  persistence-throughput limit.
