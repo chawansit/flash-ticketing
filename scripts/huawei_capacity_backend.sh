@@ -363,6 +363,9 @@ case "${1:-}" in
     nohup python3 scripts/cloud_cpu_observe.py --project flash-ticketing --seconds "$seconds" --output "$raw/cpu.json" > "$raw/cpu.log" 2>&1 &
     echo $! > "$private/cpu.pid"
     api=$(api_id)
+    docker cp "$private/manifest.json" "$api":/tmp/private-load-manifest.json
+    nohup docker exec "$api" sh -lc 'REDIS_URL="$REDIS_URL" python /app/scripts/observe_seat_delta_chain.py --manifest /tmp/private-load-manifest.json --output /tmp/capacity-delta-chain.jsonl --seconds "$1" --interval 1 --batch-size 64' sh "$seconds" > "$raw/delta-chain.log" 2>&1 &
+    echo $! > "$private/delta-chain.pid"
     nohup docker exec "$api" python /app/scripts/pgbouncer_pressure_observe.py --seconds "$seconds" --interval 0.2 --output /tmp/capacity-pgbouncer.jsonl > "$raw/pgbouncer.log" 2>&1 &
     echo $! > "$private/pgbouncer.pid"
     nohup docker exec "$api" sh -lc 'TEST_DATABASE_URL="$DATABASE_URL" API_METRICS_URL=http://127.0.0.1:8000/metrics python /app/scripts/cloud_benchmark_observe.py --fixtures /tmp/private-load-manifest.json --output /tmp/capacity-backend.json --seconds "$1"' sh "$seconds" > "$raw/backend.log" 2>&1 &
@@ -395,6 +398,11 @@ case "${1:-}" in
       observer_failed=1
     fi
     api=$(api_id)
+    if docker cp "$api":/tmp/capacity-delta-chain.jsonl "$raw/delta-chain.jsonl" 2>/dev/null; then
+      python3 scripts/summarize_seat_delta_chain.py "$raw/delta-chain.jsonl" > "$public/delta-chain-summary.json" || observer_failed=1
+    else
+      observer_failed=1
+    fi
     docker cp "$api":/tmp/capacity-pgbouncer.jsonl "$raw/pgbouncer.jsonl" 2>/dev/null || true
     if docker cp "$api":/tmp/capacity-backend.json "$raw/backend.json" 2>/dev/null; then
       python3 scripts/summarize_drain_trace.py "$raw/backend.json" > "$public/drain-trace-summary.json" || observer_failed=1
