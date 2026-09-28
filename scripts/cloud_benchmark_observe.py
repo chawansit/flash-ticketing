@@ -59,6 +59,7 @@ def _query_metrics() -> dict[str, float]:
         "ticketing_http_connection_age_seconds_count": True,
         "ticketing_http_connection_age_seconds_sum": True,
         "ticketing_db_pool_state": True,
+        "ticketing_seat_delta_outcomes_total": True,
     }
     request = Request(API_METRICS)
     request.add_header("Accept", "text/plain; version=0.0.4")

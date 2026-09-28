@@ -45,12 +45,18 @@ class FakeRedis:
 
 
 class FakeCache:
+    delta_history_entries = 512
+
     def __init__(self, redis):
         self.redis = redis
 
     @staticmethod
     def key(event):
         return f"seatmap:v2:{{{event}}}"
+
+    @staticmethod
+    def delta_key(event):
+        return f"seatdelta:v1:{{{event}}}"
 
 
 def test_production_redis_first_requires_replica_acknowledgement():

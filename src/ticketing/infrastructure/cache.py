@@ -16,6 +16,8 @@ from ticketing.observability import (
     SEAT_DELTA_OUTCOMES,
 )
 
+DELTA_HISTORY_LIMIT = 512
+
 ACQUIRE = """
 for i,k in ipairs(KEYS) do if redis.call('EXISTS',k)==1 then return 0 end end
 for i,k in ipairs(KEYS) do redis.call('SET',k,ARGV[1],'PX',ARGV[2]) end
@@ -144,15 +146,26 @@ return 1
 
 
 class RedisSeats:
-    def __init__(self, url, *, browse_entries=2048, browse_bytes=32 * 1024 * 1024, seatmap_ttl_seconds=30):
+    def __init__(
+        self,
+        url,
+        *,
+        browse_entries=2048,
+        browse_bytes=32 * 1024 * 1024,
+        seatmap_ttl_seconds=30,
+        delta_history_entries=DELTA_HISTORY_LIMIT,
+    ):
         if browse_entries < 0 or browse_bytes < 0:
             raise ValueError("Browse cache limits must be nonnegative")
         if seatmap_ttl_seconds <= 0:
             raise ValueError("Seatmap TTL must be positive")
+        if delta_history_entries <= 0:
+            raise ValueError("Delta history limit must be positive")
         self._browse_entries = browse_entries
         self._browse_bytes = browse_bytes
         self._seatmap_ttl_seconds = seatmap_ttl_seconds
         self._seatmap_ttl_ms = seatmap_ttl_seconds * 1000
+        self.delta_history_entries = delta_history_entries
         self._bodies = OrderedDict()
         self._body_bytes = 0
         self._body_lock = Lock()
@@ -235,7 +248,7 @@ class RedisSeats:
             str(data.get("sale_starts_epoch", "")),
             str(data.get("sale_ends_epoch", "")),
             data.get("currency", ""),
-            "512",
+            str(self.delta_history_entries),
         )
 
     def put(self, event, version, data):

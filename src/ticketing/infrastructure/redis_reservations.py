@@ -15,6 +15,7 @@ local idem = KEYS[2]
 local command = KEYS[3]
 local stream = KEYS[4]
 local expiry = KEYS[5]
+local delta = KEYS[6]
 local meta = redis.call('HMGET',map,'version','updating','sale_starts_epoch','sale_ends_epoch','currency')
 if not meta[1] or meta[2] or not meta[3] or not meta[4] or not meta[5] then return {-1} end
 local now = tonumber(redis.call('TIME')[1])
@@ -55,6 +56,8 @@ response.expires_at = ARGV[7]
 response.persistence_status = 'PENDING'
 local response_json = cjson.encode(response)
 local version = tonumber(meta[1])
+local prior_version = version
+local changed = {}
 for _,entry in ipairs(selected) do
   local seat = entry.seat
   seat.status = 'HELD'
@@ -64,8 +67,20 @@ for _,entry in ipairs(selected) do
   version = version + 1
   seat.version = version
   redis.call('HSET',map,entry.field,cjson.encode(seat))
+  table.insert(changed,seat)
 end
 redis.call('HSET',map,'version',version)
+if #changed > 0 then
+  local delta_entry = cjson.encode({from_version=prior_version,version=version,seats=changed})
+  redis.call('ZADD',delta,version,delta_entry)
+  local excess = redis.call('ZCARD',delta) - tonumber(ARGV[10])
+  if excess > 0 then redis.call('ZREMRANGEBYRANK',delta,0,excess-1) end
+  local map_ttl = redis.call('TTL',map)
+  local delta_ttl = redis.call('TTL',delta)
+  if map_ttl > 0 and (delta_ttl < 0 or delta_ttl > map_ttl) then
+    redis.call('EXPIRE',delta,map_ttl)
+  end
+end
 redis.call('HSET',idem,'request_hash',ARGV[1],'response',response_json)
 redis.call('EXPIRE',idem,tonumber(ARGV[8]))
 redis.call('HSET',command,'status','PENDING','response',response_json,'payload',ARGV[9],
@@ -90,10 +105,14 @@ MARK_FAILED = """
 local command = KEYS[1]
 local map = KEYS[2]
 local expiry = KEYS[3]
+local delta = KEYS[4]
 local status = redis.call('HGET',command,'status')
 if not status then return 0 end
 if status == 'DURABLE' then return -1 end
 local response = cjson.decode(redis.call('HGET',command,'response'))
+local version = tonumber(redis.call('HGET',map,'version') or 0)
+local prior_version = version
+local changed = {}
 for _,seat_id in ipairs(cjson.decode(ARGV[1])) do
   local field = 'seat:'..seat_id
   local raw = redis.call('HGET',map,field)
@@ -104,10 +123,22 @@ for _,seat_id in ipairs(cjson.decode(ARGV[1])) do
       seat.hold_id = nil
       seat.reserved_until = cjson.null
       seat.reserved_until_epoch = cjson.null
-      local version = tonumber(redis.call('HGET',map,'version') or 0) + 1
+      version = version + 1
       seat.version = version
       redis.call('HSET',map,'version',version,field,cjson.encode(seat))
+      table.insert(changed,seat)
     end
+  end
+end
+if #changed > 0 then
+  local delta_entry = cjson.encode({from_version=prior_version,version=version,seats=changed})
+  redis.call('ZADD',delta,version,delta_entry)
+  local excess = redis.call('ZCARD',delta) - tonumber(ARGV[3])
+  if excess > 0 then redis.call('ZREMRANGEBYRANK',delta,0,excess-1) end
+  local map_ttl = redis.call('TTL',map)
+  local delta_ttl = redis.call('TTL',delta)
+  if map_ttl > 0 and (delta_ttl < 0 or delta_ttl > map_ttl) then
+    redis.call('EXPIRE',delta,map_ttl)
   end
 end
 redis.call('ZREM',expiry,response.command_id)
@@ -216,6 +247,7 @@ class RedisReservationIntake:
             self.command_key(event, command_id),
             self.stream_key(event),
             self.expiry_key(event),
+            self.cache.delta_key(event),
         )
         try:
             arguments = (
@@ -231,6 +263,7 @@ class RedisReservationIntake:
                 expires.isoformat(),
                 self.retention_seconds,
                 json.dumps(payload),
+                self.cache.delta_history_entries,
             )
             acknowledged = None
             if self.replica_acks:
@@ -427,12 +460,14 @@ class RedisReservationIntake:
     def mark_failed(self, event_id, command_id, seat_ids, error_code):
         return self.redis.eval(
             MARK_FAILED,
-            3,
+            4,
             self.command_key(event_id, command_id),
             self.cache.key(event_id),
             self.expiry_key(event_id),
+            self.cache.delta_key(event_id),
             json.dumps(seat_ids),
             error_code,
+            self.cache.delta_history_entries,
         )
 
     def acknowledge(self, stream, message_id):

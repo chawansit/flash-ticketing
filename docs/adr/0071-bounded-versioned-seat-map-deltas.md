@@ -28,9 +28,10 @@ does not remove the hot-path work that the sustained run exposed.
 Retain `/availability` as the initial snapshot and recovery representation, and
 make `/seat-deltas` a bounded versioned change feed for subsequent polling.
 
-1. Each atomic Redis seat-map patch records one change entry containing the prior
-   aggregate version, the resulting aggregate version and only the selected current
-   states that changed.
+1. Every atomic Redis seat-map mutation records one change entry containing the
+   prior aggregate version, the resulting aggregate version and only the selected
+   current states that changed. This includes projector patches, Redis-first
+   provisional holds, and compensation releases.
 2. The change feed is stored in a Redis sorted set in the same cluster hash slot as
    the seat-map hash. The resulting aggregate version is the score. Updating the map and appending the change entry occur in one Lua
    invocation.
@@ -99,9 +100,12 @@ cost on every request.
 
 ## Failure and recovery behavior
 
-- A command failure is retried by durable reconciliation. If Redis reports an error
-  after a map update but before recording its delta, continuity validation detects the
-  gap and returns a full reset snapshot.
+- The seat mutation and its delta entry share one Redis Lua invocation. An
+  ambiguous connection failure is recovered through the existing idempotent command
+  replay; Redis cannot expose only one half of the atomic mutation.
+- If a future direct mutation path advances the aggregate version without adding a
+  delta entry, continuity validation detects the gap and returns a full reset
+  snapshot instead of returning incomplete changes.
 - If the delta history is lost while the map remains, the next delta request returns
   a full reset snapshot. It never returns an incomplete change set.
 - If the map is missing or marked updating, reads continue to fail closed with
@@ -132,12 +136,36 @@ This decision is proposed. Required evidence before acceptance:
 
 The bounded sorted-set change history, continuity-checked reset fallback, TTL
 inheritance, OpenAPI response model, fixed-cardinality metrics and explicit
-snapshot-plus-delta load mode are implemented. The final complete unit and
-integration suite passed 253 tests with two dependency deprecation warnings.
-Focused real-Redis coverage passed 12 browse tests, including empty and changed
+snapshot-plus-delta load mode are implemented. Before the cloud run, the complete
+unit and integration suite passed 253 tests with two dependency deprecation
+warnings. After correcting direct Redis-first mutations, the complete suite
+passed 254 tests with the same two warnings. Focused real-Redis coverage includes
+empty and changed
 deltas, repeated-seat collapse, bounded trim, missing history, invalid versions and
 recreated-history TTL. Ruff passed for all changed Python files when excluding the
 documented Windows executable-bit mount artifact. The Huawei generator shell passed
-a Linux syntax check. Cloud validation remains pending.
+a Linux syntax check. The first cloud validation at commit `3e61c75` did not pass. The three-minute
+1,000 RPS, six-percent-write run dispatched 137,400 of 180,000 requests and
+dropped 42,600 at the generator's bounded in-flight gate. Read p95 was 921.095 ms
+and hold p95 was 1,283.302 ms. Eighty-four requests timed out. Nginx also returned
+small HTML 500 responses without application request IDs, which is consistent
+with upstream pressure rather than a classified application response. The
+workload returned roughly 116-121 MB per worker for only about 16,000 reads,
+showing that clients received near-full reset bodies rather than bounded deltas.
+
+The failed run exposed an implementation gap: Redis-first provisional holds and
+compensation releases advanced the aggregate map version directly but did not
+append a delta entry. Continuity validation therefore correctly rejected the
+gapped history and returned safe full snapshots. The audited data still had zero
+overlapping seat intervals and empty queues. Seven of eight per-worker durability
+checks passed; one had 1,020 durable commands for 1,019 acknowledged HTTP 202
+responses, so the combined durability gate failed because equality is required.
+This is not evidence of a lost accepted reservation.
+
+The correction makes both direct Redis-first mutation paths append and trim the
+same bounded delta history inside their existing Lua transaction. The cloud
+observer also captures fixed-cardinality delta outcome counters so the next run
+can measure empty, delta and reset behavior directly. A same-topology cloud rerun
+is required before this ADR can be accepted.
 
 No higher production capacity is claimed until those stages pass.

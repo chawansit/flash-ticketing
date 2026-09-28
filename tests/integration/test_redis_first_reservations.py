@@ -77,6 +77,44 @@ def test_one_of_100_concurrent_intakes_wins_and_writer_is_replay_safe(redis_firs
         assert conn.execute("SELECT count(*) AS n FROM outbox_events").fetchone()["n"] == 1
 
 
+def test_redis_first_hold_and_compensation_preserve_delta_continuity(redis_first):
+    _store, intake, cache, _db, event_id = redis_first
+    initial = cache.read(str(event_id))
+
+    pending = intake.enqueue("actor", event_id, ["A"], "delta-hold")
+    held = cache.deltas(str(event_id), initial["version"])
+    assert held["reset_required"] is False
+    assert held["version"] > initial["version"]
+    assert held["seats"] == [
+        {
+            "seat_id": "A",
+            "status": "HELD",
+            "reserved_until": pending["expires_at"],
+        }
+    ]
+    map_ttl = cache.redis.ttl(cache.key(event_id))
+    delta_ttl = cache.redis.ttl(cache.delta_key(event_id))
+    assert 0 < delta_ttl <= map_ttl
+
+    assert intake.mark_failed(
+        event_id, pending["command_id"], ["A"], "SEAT_UNAVAILABLE"
+    ) == 1
+    released = cache.deltas(str(event_id), held["version"])
+    assert released == {
+        "event_id": str(event_id),
+        "from_version": held["version"],
+        "version": held["version"] + 1,
+        "reset_required": False,
+        "seats": [
+            {
+                "seat_id": "A",
+                "status": "AVAILABLE",
+                "reserved_until": None,
+            }
+        ],
+    }
+
+
 def test_changed_idempotency_payload_is_rejected(redis_first):
     _store, intake, _cache, _db, event_id = redis_first
     intake.enqueue("actor", event_id, ["A"], "same")
