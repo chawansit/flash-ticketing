@@ -20,7 +20,7 @@ The prior reconciler had `cache.py` SHA-256 `215a97bb…`; the current seat-map 
 
 The after-run observer counted 25,967 repeated observations of a nonpositive `0→0` bootstrap delta entry. This entry does not advance the cursor; it is distinct from version regression, overlap and tail mismatch. It should be removed before longer delta-feed validation. Both stage rollback and the fixed post-TTL audit passed. The synthetic sale windows were retired without deleting database rows; tracked synthetic reconciliation work returned to zero.
 
-Next: remove zero-length bootstrap history in a separate ADR-backed change, validate the delta chain again, then run a sustained stage before claiming production capacity.
+Next: run a sustained stage before claiming production capacity. The post-TTL SQL/Redis verifier took several minutes even for 1,800 holds, so its execution time must be checked before a much larger run.
 
 ## Zero-length bootstrap delta follow-up
 
