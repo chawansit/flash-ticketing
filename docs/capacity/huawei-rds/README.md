@@ -168,3 +168,14 @@ drops or errors, 28.53/51.15 ms worst-worker read/hold p95, exact durability for
 minutes but failed over 15 minutes, persisting only 34,781 of 53,997 provisional
 holds; 70 hold/s is therefore only a three-minute burst boundary. PostgreSQL
 reservation persistence and WAL waits remain the sustained write bottleneck.
+
+## 2026-09-28 Redis-first three-writer 1,000 RPS safety stage
+
+The [three-writer safety stage](2026-09-28-redis-three-writer-1000rps-3m/README.md)
+sent all 180,000 requests in three minutes with zero drops or errors,
+88.374/188.229 ms worst-worker read/hold p95, exact durability for all 10,800
+provisional holds, zero overlap and drained queues. Three reservation writers
+reduced average command age to 1.392 seconds and removed the 115 expiries seen
+with two writers at the same 6% write mix. This is a short safety result; the
+15-minute production planning point remains 1,000 total RPS with 30 writes/s
+until a sustained 60-write/s confirmation passes.

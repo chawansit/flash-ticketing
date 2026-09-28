@@ -1,0 +1,212 @@
+{
+  "utc": "2026-09-28T04:41:27.413799+00:00",
+  "show_count": 800,
+  "remaining": 0,
+  "pass": true,
+  "history": [
+    {
+      "attempt": 1,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 2,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 3,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 4,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 5,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 6,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 7,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 8,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 9,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 10,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 11,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 12,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 13,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 14,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 15,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 16,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 17,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 18,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 19,
+      "counts": {
+        "503:SEATMAP_WARMING": 800
+      },
+      "remaining": 800
+    },
+    {
+      "attempt": 20,
+      "counts": {
+        "503:SEATMAP_WARMING": 770,
+        "ok": 30
+      },
+      "remaining": 770
+    },
+    {
+      "attempt": 21,
+      "counts": {
+        "ok": 142,
+        "503:SEATMAP_WARMING": 658
+      },
+      "remaining": 658
+    },
+    {
+      "attempt": 22,
+      "counts": {
+        "ok": 229,
+        "503:SEATMAP_WARMING": 571
+      },
+      "remaining": 571
+    },
+    {
+      "attempt": 23,
+      "counts": {
+        "ok": 342,
+        "503:SEATMAP_WARMING": 458
+      },
+      "remaining": 458
+    },
+    {
+      "attempt": 24,
+      "counts": {
+        "ok": 425,
+        "503:SEATMAP_WARMING": 375
+      },
+      "remaining": 375
+    },
+    {
+      "attempt": 25,
+      "counts": {
+        "ok": 548,
+        "503:SEATMAP_WARMING": 252
+      },
+      "remaining": 252
+    },
+    {
+      "attempt": 26,
+      "counts": {
+        "ok": 643,
+        "503:SEATMAP_WARMING": 157
+      },
+      "remaining": 157
+    },
+    {
+      "attempt": 27,
+      "counts": {
+        "ok": 746,
+        "503:SEATMAP_WARMING": 54
+      },
+      "remaining": 54
+    },
+    {
+      "attempt": 28,
+      "counts": {
+        "ok": 800
+      },
+      "remaining": 0
+    }
+  ]
+}

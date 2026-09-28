@@ -1,7 +1,7 @@
 # ADR 0068: Scale Redis reservation persistence to three writers
 
 Date: 2026-09-28
-Status: Accepted for a bounded three-writer cloud experiment
+Status: Accepted for the short three-writer safety topology; sustained confirmation pending
 
 ## Context
 
@@ -52,4 +52,20 @@ The baseline is revision a258443 at 1,000 RPS for 180 seconds with 6% writes, fo
 - PostgreSQL batch and commit averages were 101.779 ms and 2.650 ms.
 - All queues drained, overlap was zero and rollback passed.
 
-The three-writer, eight-generator activation stage is pending.
+The three-writer activation stage passed on revision 35a5a3e:
+
+- Eight generators sent all 180,000 requests with zero drops, late deliveries,
+  transport errors, first-attempt failures or retries.
+- Worst-worker read and hold p95 were 88.374 ms and 188.229 ms.
+- All 10,800 provisional commands became durable with exact hold, order and
+  idempotency linkage. No command expired.
+- Average command age was 1.392 seconds and its p95 upper histogram bucket was
+  five seconds. The writers used 2,773 PostgreSQL batches for 10,800 commands,
+  or 3.895 commands per database batch.
+- PostgreSQL batch and commit averages were 107.099 ms and 3.827 ms. The RDS
+  observer sampled at most seven interesting waiters.
+- Ownership overlap, admission rejections and final queue counts were zero.
+  Rollback and cleanup passed.
+
+This accepts three writers for the short 6% write safety topology. It does not
+establish sustained production capacity; a longer confirmation remains required.
