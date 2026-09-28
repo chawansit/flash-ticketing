@@ -1,0 +1,401 @@
+{
+  "reservation_mode": "redis-first",
+  "mixed_hot_holds": false,
+  "expected_hot_conflicts": 0,
+  "hot_failed_p95_ms": null,
+  "phases": {
+    "0": {
+      "statuses": {
+        "read": {
+          "304": 21667,
+          "200": 19174
+        },
+        "hold": {
+          "202": 2615
+        }
+      },
+      "p95_ms": {
+        "read": 126.18532100168522,
+        "hold": 165.89881599793443
+      }
+    }
+  },
+  "read_hot_share": 0,
+  "burst": false,
+  "utc": "2026-09-28T02:23:47.291222+00:00",
+  "measured_started_utc": "2026-09-28T02:20:47.275499+00:00",
+  "bootstrap": {
+    "concurrency": 16,
+    "max_attempts": 3,
+    "attempt_statuses": {
+      "200:OTHER": 200
+    },
+    "retry_count": 0
+  },
+  "manifest_id": "d2dbc2b7-1f7b-4f02-94e7-d47bb7833198",
+  "run_id": "4d21556f-0346-4437-9303-09f8059e5bec",
+  "target_origin": "http://10.1.137.69:8000",
+  "generator_hostname": "generator-ecs",
+  "platform": "Linux-6.8.0-136-generic-x86_64-with-glibc2.39",
+  "topology_declared": "separate-host",
+  "offered_rps": 250,
+  "seconds": 180,
+  "show_count": 200,
+  "seats_per_show": 300,
+  "viewers": 2000,
+  "write_percent": 6,
+  "generator_drops": 1544,
+  "drop_reasons": {
+    "inflight_limit": 29,
+    "late": 1515
+  },
+  "late_drop_threshold_ms": 50.0,
+  "late_drop_examples": [
+    {
+      "index": 6431,
+      "utc": "2026-09-28T02:21:13.251772+00:00",
+      "lag_ms": 252.175,
+      "pending": 27
+    },
+    {
+      "index": 6432,
+      "utc": "2026-09-28T02:21:13.260502+00:00",
+      "lag_ms": 256.906,
+      "pending": 27
+    },
+    {
+      "index": 6433,
+      "utc": "2026-09-28T02:21:13.264475+00:00",
+      "lag_ms": 256.88,
+      "pending": 24
+    },
+    {
+      "index": 6434,
+      "utc": "2026-09-28T02:21:13.271818+00:00",
+      "lag_ms": 260.223,
+      "pending": 24
+    },
+    {
+      "index": 6435,
+      "utc": "2026-09-28T02:21:13.278544+00:00",
+      "lag_ms": 262.949,
+      "pending": 23
+    },
+    {
+      "index": 6436,
+      "utc": "2026-09-28T02:21:13.284257+00:00",
+      "lag_ms": 264.661,
+      "pending": 21
+    },
+    {
+      "index": 6437,
+      "utc": "2026-09-28T02:21:13.289544+00:00",
+      "lag_ms": 265.949,
+      "pending": 21
+    },
+    {
+      "index": 6438,
+      "utc": "2026-09-28T02:21:13.294315+00:00",
+      "lag_ms": 266.72,
+      "pending": 20
+    },
+    {
+      "index": 6439,
+      "utc": "2026-09-28T02:21:13.302307+00:00",
+      "lag_ms": 270.712,
+      "pending": 20
+    },
+    {
+      "index": 6440,
+      "utc": "2026-09-28T02:21:13.308854+00:00",
+      "lag_ms": 273.258,
+      "pending": 18
+    },
+    {
+      "index": 6441,
+      "utc": "2026-09-28T02:21:13.313509+00:00",
+      "lag_ms": 273.914,
+      "pending": 17
+    },
+    {
+      "index": 6442,
+      "utc": "2026-09-28T02:21:13.319125+00:00",
+      "lag_ms": 275.53,
+      "pending": 16
+    },
+    {
+      "index": 6443,
+      "utc": "2026-09-28T02:21:13.323833+00:00",
+      "lag_ms": 276.238,
+      "pending": 14
+    },
+    {
+      "index": 6444,
+      "utc": "2026-09-28T02:21:13.329277+00:00",
+      "lag_ms": 277.682,
+      "pending": 14
+    },
+    {
+      "index": 6445,
+      "utc": "2026-09-28T02:21:13.333539+00:00",
+      "lag_ms": 277.944,
+      "pending": 12
+    },
+    {
+      "index": 6446,
+      "utc": "2026-09-28T02:21:13.337243+00:00",
+      "lag_ms": 277.648,
+      "pending": 12
+    },
+    {
+      "index": 6447,
+      "utc": "2026-09-28T02:21:13.339272+00:00",
+      "lag_ms": 275.677,
+      "pending": 11
+    },
+    {
+      "index": 6448,
+      "utc": "2026-09-28T02:21:13.344642+00:00",
+      "lag_ms": 277.047,
+      "pending": 11
+    },
+    {
+      "index": 6449,
+      "utc": "2026-09-28T02:21:13.348394+00:00",
+      "lag_ms": 276.8,
+      "pending": 10
+    },
+    {
+      "index": 6450,
+      "utc": "2026-09-28T02:21:13.349221+00:00",
+      "lag_ms": 273.627,
+      "pending": 10
+    }
+  ],
+  "late_delivery_window_ms": 250.0,
+  "late_deliveries": 4687,
+  "late_delivery_examples": [
+    {
+      "index": 6367,
+      "utc": "2026-09-28T02:21:12.793796+00:00",
+      "lag_ms": 50.201,
+      "pending": 17
+    },
+    {
+      "index": 6368,
+      "utc": "2026-09-28T02:21:12.799685+00:00",
+      "lag_ms": 52.09,
+      "pending": 18
+    },
+    {
+      "index": 6369,
+      "utc": "2026-09-28T02:21:12.805459+00:00",
+      "lag_ms": 53.865,
+      "pending": 18
+    },
+    {
+      "index": 6370,
+      "utc": "2026-09-28T02:21:12.810278+00:00",
+      "lag_ms": 54.685,
+      "pending": 18
+    },
+    {
+      "index": 6371,
+      "utc": "2026-09-28T02:21:12.817440+00:00",
+      "lag_ms": 57.845,
+      "pending": 19
+    },
+    {
+      "index": 6372,
+      "utc": "2026-09-28T02:21:12.823143+00:00",
+      "lag_ms": 59.549,
+      "pending": 19
+    },
+    {
+      "index": 6373,
+      "utc": "2026-09-28T02:21:12.830376+00:00",
+      "lag_ms": 62.782,
+      "pending": 20
+    },
+    {
+      "index": 6374,
+      "utc": "2026-09-28T02:21:12.837499+00:00",
+      "lag_ms": 65.906,
+      "pending": 21
+    },
+    {
+      "index": 6375,
+      "utc": "2026-09-28T02:21:12.845581+00:00",
+      "lag_ms": 69.988,
+      "pending": 21
+    },
+    {
+      "index": 6376,
+      "utc": "2026-09-28T02:21:12.850972+00:00",
+      "lag_ms": 71.379,
+      "pending": 21
+    },
+    {
+      "index": 6377,
+      "utc": "2026-09-28T02:21:12.858619+00:00",
+      "lag_ms": 75.025,
+      "pending": 22
+    },
+    {
+      "index": 6378,
+      "utc": "2026-09-28T02:21:12.865254+00:00",
+      "lag_ms": 77.661,
+      "pending": 21
+    },
+    {
+      "index": 6379,
+      "utc": "2026-09-28T02:21:12.870665+00:00",
+      "lag_ms": 79.073,
+      "pending": 21
+    },
+    {
+      "index": 6380,
+      "utc": "2026-09-28T02:21:12.876257+00:00",
+      "lag_ms": 80.664,
+      "pending": 21
+    },
+    {
+      "index": 6381,
+      "utc": "2026-09-28T02:21:12.882630+00:00",
+      "lag_ms": 83.037,
+      "pending": 22
+    },
+    {
+      "index": 6382,
+      "utc": "2026-09-28T02:21:12.889471+00:00",
+      "lag_ms": 85.878,
+      "pending": 23
+    },
+    {
+      "index": 6383,
+      "utc": "2026-09-28T02:21:12.894758+00:00",
+      "lag_ms": 87.164,
+      "pending": 24
+    },
+    {
+      "index": 6384,
+      "utc": "2026-09-28T02:21:12.903021+00:00",
+      "lag_ms": 91.428,
+      "pending": 24
+    },
+    {
+      "index": 6385,
+      "utc": "2026-09-28T02:21:12.908883+00:00",
+      "lag_ms": 93.288,
+      "pending": 22
+    },
+    {
+      "index": 6386,
+      "utc": "2026-09-28T02:21:12.916368+00:00",
+      "lag_ms": 96.774,
+      "pending": 23
+    }
+  ],
+  "max_attempts": 2,
+  "retry_base_delay_ms": 25.0,
+  "physical_http_attempts": 43456,
+  "first_attempt_failures": {},
+  "retry_attempts": {},
+  "retry_successes": {},
+  "retry_exhausted": {},
+  "attempt_transport_error_types": {},
+  "error_codes": {},
+  "error_examples": [],
+  "keepalive_expiry_seconds": 5.0,
+  "measured_tcp_connect_events": {
+    "read": {
+      "started": 389,
+      "complete": 389
+    },
+    "hold": {
+      "started": 24,
+      "complete": 24
+    }
+  },
+  "transport_error_types": {},
+  "transport_diagnostics_enabled": true,
+  "transport_phase_counts": {
+    "read": {
+      "connection.connect_tcp.started": 389,
+      "connection.connect_tcp.complete": 389,
+      "http11.send_request_headers.started": 40841,
+      "http11.send_request_headers.complete": 40841,
+      "http11.send_request_body.started": 40841,
+      "http11.send_request_body.complete": 40841,
+      "http11.receive_response_headers.started": 40841,
+      "http11.receive_response_headers.complete": 40841,
+      "http11.receive_response_body.started": 40841,
+      "http11.receive_response_body.complete": 40841,
+      "http11.response_closed.started": 40841,
+      "http11.response_closed.complete": 40841
+    },
+    "hold": {
+      "connection.connect_tcp.started": 24,
+      "connection.connect_tcp.complete": 24,
+      "http11.send_request_headers.started": 2615,
+      "http11.send_request_headers.complete": 2615,
+      "http11.send_request_body.started": 2615,
+      "http11.send_request_body.complete": 2615,
+      "http11.receive_response_headers.started": 2615,
+      "http11.receive_response_headers.complete": 2615,
+      "http11.receive_response_body.started": 2615,
+      "http11.receive_response_body.complete": 2615,
+      "http11.response_closed.started": 2615,
+      "http11.response_closed.complete": 2615
+    }
+  },
+  "transport_failure_examples": [],
+  "task_error_types": {},
+  "scheduling_lag_p95_ms": 249.29664399678586,
+  "scheduling_lag_p99_ms": 251.41318300302373,
+  "scheduling_lag_p999_ms": 263.59731900447514,
+  "scheduling_lag_max_ms": 277.9443870022078,
+  "scheduling_lag_over_10ms": 6435,
+  "scheduling_lag_over_25ms": 6306,
+  "scheduling_lag_over_50ms": 6202,
+  "generator_cpu_seconds": 103.823725913,
+  "elapsed_seconds": 180.00561906400253,
+  "completed_rps": 241.41468597460198,
+  "statuses": {
+    "read": {
+      "304": 21667,
+      "200": 19174
+    },
+    "hold": {
+      "202": 2615
+    },
+    "hot_hold": {}
+  },
+  "response_body_bytes": 359926909,
+  "latency_ms": {
+    "read:304": {
+      "p50": 7.2973529968294315,
+      "p95": 115.76135399809573,
+      "p99": 279.5007739987341
+    },
+    "hold:202": {
+      "p50": 17.08879999932833,
+      "p95": 165.89881599793443,
+      "p99": 365.0482350058155
+    },
+    "read:200": {
+      "p50": 11.790887998358812,
+      "p95": 136.28952500585,
+      "p99": 309.4495140030631
+    }
+  },
+  "read_p95_ms": 126.18532100168522,
+  "hold_p95_ms": 165.89881599793443,
+  "local_read_gate_pass": false,
+  "note": "95% reads/5% holds (mixed mode: 4% distinct, 1% hot). Redis-first counts HTTP 202 as provisional intake only; the backend durability audit must still prove every command DURABLE. Known hot 409 codes remain in error_codes but are expected; bootstrap excluded. Topology is operator-declared, not verified.",
+  "reservation_gate_pass": true,
+  "accounting_pass": true,
+  "workload_gate_pass": false,
+  "phase_latency_gate_pass": true,
+  "hot_contention_gate_pass": true
+}

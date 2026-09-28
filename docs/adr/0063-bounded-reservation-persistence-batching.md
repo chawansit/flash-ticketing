@@ -154,5 +154,24 @@ lag admission disabled.
   run had one transient Redis socket timeout in the seat-map TTL test; that test passed alone
   and the complete confirmation run then passed.
 
-No Huawei load has been run with batch size above 1 or lag admission enabled. The cloud
-activation and capacity gates in this ADR therefore remain pending.
+A Huawei 1,000 RPS / 6% write diagnostic then ran for three minutes with two writers and a
+configured batch size of 1. Read p95 was 131.707 ms, hold p95 was 174.686 ms, admission
+rejections and overlapping hold intervals were zero, but 5,535 journeys were dropped by the
+generator coordination gate. Only 9,566 of 10,455 provisional acknowledgements became durable;
+575 commands reached PostgreSQL after their holds expired, and the final reservation stream
+still contained 371 entries with 62 pending. This is a failed stage, not a capacity pass.
+
+The diagnostic also showed that Redis applies ``XREADGROUP COUNT`` per stream. Because one poll
+included up to eight streams, configured batch size 1 produced an average observed batch of
+1.765 and a p95 bucket of 8. The run is retained as diagnostic evidence but is not the canonical
+batch-size-1 comparison required above. The reader now polls each selected stream separately
+while carrying one total remaining budget, so the setting is a hard transaction-wide bound and
+no fetched message is left assigned but unreturned. The focused unit/integration selection
+passed 15 tests and the canonical complete isolated Compose suite passed 230 tests with two
+dependency deprecation warnings. A preceding full invocation failed its two HTTP end-to-end
+tests because the disposable API services had not been started; starting and seeding those
+services produced the complete confirmation pass.
+
+No Huawei load has yet run with the corrected total bound, a configured batch size above 1, or
+lag admission enabled. The cloud activation and capacity gates in this ADR therefore remain
+pending.

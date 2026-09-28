@@ -63,9 +63,12 @@ def test_stream_polling_rotates_over_bounded_batches_and_caches_groups():
 
     ordered = tuple(sorted(streams))
     assert redis.read_batches == [
-        ordered[0:2],
-        ordered[2:4],
-        (ordered[4], ordered[0]),
+        (ordered[0],),
+        (ordered[1],),
+        (ordered[2],),
+        (ordered[3],),
+        (ordered[4],),
+        (ordered[0],),
     ]
     assert redis.smembers_calls == 1
     assert redis.scan_calls == 1
@@ -93,3 +96,27 @@ def test_discovery_scan_is_bounded_and_connection_reset_rebuilds_state():
     assert intake._known_groups == set()
     assert list(intake.messages("writer")) == []
     assert redis.scan_calls == 4
+
+class PerStreamCountRedis(FakeRedis):
+    def xreadgroup(self, _group, _consumer, streams, **kwargs):
+        self.read_batches.append(tuple(streams))
+        stream = next(iter(streams))
+        count = kwargs["count"]
+        entries = [(f"{index}-0", {"payload": "{}"}) for index in range(min(2, count))]
+        return [(stream, entries)]
+
+
+def test_messages_applies_count_as_a_hard_total_across_streams():
+    streams = [f"reservation-stream:{{event-{index}}}" for index in range(3)]
+    redis = PerStreamCountRedis(streams)
+    intake = RedisReservationIntake(
+        FakeCache(redis),
+        stream_batch_size=3,
+        stream_refresh_seconds=60,
+    )
+
+    messages = list(intake.messages("writer", count=4))
+
+    assert len(messages) == 4
+    ordered = tuple(sorted(streams))
+    assert redis.read_batches == [(ordered[0],), (ordered[1],)]
