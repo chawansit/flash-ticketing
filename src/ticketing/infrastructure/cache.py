@@ -163,8 +163,7 @@ class RedisSeats:
             ),
         }
 
-    def put(self, event, version, data):
-        # Source row versions, not aggregate snapshot order, fence racing updates.
+    def _full_arguments(self, event, data):
         layout = json.dumps(
             {
                 "event_id": str(event),
@@ -177,9 +176,7 @@ class RedisSeats:
             separators=(",", ":"),
         )
         tag = '"layout:' + hashlib.sha256(layout.encode()).hexdigest() + '"'
-        return self.redis.eval(
-            PUT,
-            1,
+        return (
             self.key(event),
             "full",
             json.dumps(data["seats"], default=str),
@@ -191,6 +188,23 @@ class RedisSeats:
             str(data.get("sale_ends_epoch", "")),
             data.get("currency", ""),
         )
+
+    def put(self, event, version, data):
+        # Source row versions, not aggregate snapshot order, fence racing updates.
+        return self.redis.eval(PUT, 1, *self._full_arguments(event, data))
+
+    def put_many(self, updates):
+        updates = list(updates)
+        if not updates:
+            return []
+        pipeline = self.redis.pipeline(transaction=False)
+        for event, _version, data in updates:
+            pipeline.eval(PUT, 1, *self._full_arguments(event, data))
+        results = pipeline.execute(raise_on_error=False)
+        return [
+            result if isinstance(result, RedisError) else int(result) >= 0
+            for result in results
+        ]
 
     def patch(self, event, seats):
         return self.redis.eval(PUT, 1, self.key(event), "patch", json.dumps(seats, default=str)) >= 0

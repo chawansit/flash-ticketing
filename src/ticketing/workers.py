@@ -315,6 +315,82 @@ def changed_snapshot(db, cache, event_id, seat_ids):
         snapshot(db, cache, event_id)
 
 
+def full_snapshot_batch(db, cache, event_ids):
+    event_ids = list(dict.fromkeys(event_ids))
+    if not event_ids:
+        return set(), []
+    if len(event_ids) == 1:
+        try:
+            snapshot(db, cache, event_ids[0])
+            return {event_ids[0]}, []
+        except Exception as exc:  # noqa: BLE001 - the durable lease remains retryable
+            return set(), [exc]
+
+    with db.transaction() as conn:
+        rows = conn.execute(
+            """SELECT event.id AS event_id,event.sale_starts,event.sale_ends,event.currency,
+                seat.seat_id,seat.price,seat.hold_id,seat.reserved_until,
+                seat.booked_order_id,seat.version
+            FROM events AS event
+            LEFT JOIN event_seats AS seat ON seat.event_id=event.id
+            WHERE event.id=ANY(%s)
+            ORDER BY event.id,seat.seat_id""",
+            (event_ids,),
+        ).fetchall()
+
+    grouped = {
+        event_id: {"metadata": None, "seats": []}
+        for event_id in event_ids
+    }
+    for row in rows:
+        group = grouped[row["event_id"]]
+        group["metadata"] = row
+        if row["seat_id"] is not None:
+            group["seats"].append(seat_state(row))
+    CACHE_ROWS.labels("full").inc(sum(len(group["seats"]) for group in grouped.values()))
+
+    updates, errors = [], []
+    for event_id in event_ids:
+        group = grouped[event_id]
+        metadata = group["metadata"]
+        if metadata is None:
+            errors.append(RuntimeError(f"event {event_id} disappeared during refresh"))
+            continue
+        seats = group["seats"]
+        version = sum(seat["source_version"] for seat in seats)
+        updates.append(
+            (
+                str(event_id),
+                version,
+                {
+                    "event_id": str(event_id),
+                    "version": version,
+                    "sale_starts_epoch": metadata["sale_starts"].timestamp(),
+                    "sale_ends_epoch": metadata["sale_ends"].timestamp(),
+                    "currency": metadata["currency"],
+                    "seats": seats,
+                },
+            )
+        )
+    try:
+        outcomes = cache.put_many(updates)
+    except Exception as exc:  # noqa: BLE001 - the complete batch remains retryable
+        return set(), [*errors, exc]
+    if len(outcomes) != len(updates):
+        return set(), [*errors, RuntimeError("cache full batch returned the wrong outcome count")]
+
+    completed = set()
+    event_by_key = {str(event_id): event_id for event_id in event_ids}
+    for update, outcome in zip(updates, outcomes, strict=True):
+        if isinstance(outcome, Exception):
+            errors.append(outcome)
+        elif outcome:
+            completed.add(event_by_key[update[0]])
+        else:
+            errors.append(RuntimeError(f"cache rejected full snapshot for event {update[0]}"))
+    return completed, errors
+
+
 def changed_snapshot_batch(db, cache, requests):
     event_ids = []
     seat_ids = []
@@ -411,14 +487,13 @@ def refresh_batch(db, cache, limit=2, cooldown_ms=250):
         projected, projection_errors = changed_snapshot_batch(db, cache, partial)
         completed.extend(row for row in partial if row["event_id"] in projected)
         errors.extend(projection_errors)
-    for row in rows:
-        if row["seat_ids"] is not None:
-            continue
-        try:
-            snapshot(db, cache, row["event_id"])
-            completed.append(row)
-        except Exception as exc:  # noqa: BLE001 - preserve successes, then re-raise
-            errors.append(exc)
+    full = [row for row in rows if row["seat_ids"] is None]
+    if full:
+        projected, projection_errors = full_snapshot_batch(
+            db, cache, [row["event_id"] for row in full]
+        )
+        completed.extend(row for row in full if row["event_id"] in projected)
+        errors.extend(projection_errors)
     if completed:
         REFRESH_ACK_BATCH_SIZE.observe(len(completed))
         acknowledgements = [

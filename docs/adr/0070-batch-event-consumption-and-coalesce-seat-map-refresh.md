@@ -38,9 +38,11 @@ Introduce bounded micro-batching in event consumption and seat-map refresh.
 4. Pending seat-map refresh work is coalesced by event/show identifier. The
    existing generation fence retains the newest pending work and never moves a
    completed generation backwards.
-5. A refresh worker claims a bounded batch of 16 items, reads all changed seats with
-   one PostgreSQL query, pipelines independent version-fenced Redis updates, and
-   acknowledges successful items with one bounded PostgreSQL operation.
+5. A refresh worker claims a bounded batch of 16 items. Incremental work reads all
+   changed seats with one PostgreSQL query; cold-start and repair work reads complete
+   snapshots for all shows in the batch with one PostgreSQL query. Both paths pipeline
+   independent version-fenced Redis updates and acknowledge successful items with one
+   bounded PostgreSQL operation.
 6. Expiry remains a separate lane with its existing worker count.
 7. Kafka offsets are committed only after durable inbox and handler state commit.
    Delivery remains at least once; database idempotency makes replay safe.
@@ -93,6 +95,9 @@ them consumed.
   successfully committed inbox rows are replay-safe.
 - If Redis is unavailable, refresh work remains retryable and its durable target
   generation is retained.
+- A Redis pipeline result is evaluated per show. Successful full snapshots may be
+  acknowledged while failed shows retain their leases for bounded replay. If the
+  pipeline itself cannot execute, the complete batch remains retryable.
 - If a worker stops after updating Redis but before completion, repeating the same
   or newer generation is safe.
 - Coalescing always retains the latest generation, preventing stale replay from
@@ -129,8 +134,8 @@ through one non-transactional Redis pipeline, repairs cache misses with full
 snapshots, and acknowledges successful projections with one PostgreSQL update.
 Prometheus histograms expose consumer and refresh-ack batch sizes.
 
-The final complete unit and integration run passed 245 tests with two dependency
-deprecation warnings. The focused batching suite passed 30 tests. Ruff passed for
+The final complete unit and integration run passed 247 tests with two dependency
+deprecation warnings. The focused batching suite passed 42 tests. Ruff passed for
 every changed Python file; the repository-wide Docker invocation was not used as
 evidence because Windows mounts mark all source files executable and trigger
 unrelated EXE002 findings.
@@ -145,7 +150,14 @@ drained, and rollback passed. Maximum interesting RDS waiters fell from nine in
 the prior control to six; maximum Kafka lag was 29 and drained after 41.14
 seconds. Pending refresh work peaked at 410 and drained after 48.87 seconds.
 
-That run included batched inbox persistence and acknowledgement but still read
+A later run at commit fb34add was invalid as a capacity benchmark: cold cache warming
+for 800 newly-created shows consumed about 267 seconds inside a timeout that also
+covered the 180-second measurement. The generator was terminated before writing
+worker summaries, and rollback passed. This exposed sequential cold full-snapshot
+rebuilds; bounded full-snapshot database reads, Redis pipelines, and fixture
+pre-warming were added afterward.
+
+That first valid run included batched inbox persistence and acknowledgement but still read
 and patched each show separately. It is evidence that the initial implementation
 was incomplete, not evidence of accepted capacity. The bulk changed-seat query
 and Redis pipeline described above were added afterward and have only local test

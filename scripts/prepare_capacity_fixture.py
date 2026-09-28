@@ -13,7 +13,7 @@ import psycopg
 from ticketing.config import Settings
 from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.postgres import Postgres
-from ticketing.workers import snapshot
+from ticketing.workers import full_snapshot_batch
 
 
 def parse_args() -> argparse.Namespace:
@@ -70,8 +70,13 @@ def main() -> None:
     db = Postgres(database_url)
     cache = RedisSeats(redis_url)
     try:
-        for event_id in event_ids:
-            snapshot(db, cache, event_id)
+        for offset in range(0, len(event_ids), 16):
+            batch = event_ids[offset : offset + 16]
+            completed, errors = full_snapshot_batch(db, cache, batch)
+            if errors or completed != set(batch):
+                raise RuntimeError("Failed to pre-warm the complete capacity fixture") from (
+                    errors[0] if errors else None
+                )
     finally:
         db.close()
         cache.redis.close()

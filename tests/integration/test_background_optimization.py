@@ -135,11 +135,13 @@ def test_refresh_batch_acknowledges_success_and_keeps_failed_work_leased(system)
 
     cache = Mock()
 
-    def put(target_event, *_):
-        if target_event == str(failed_event):
-            raise RuntimeError("cache unavailable")
+    def put_many(updates):
+        return [
+            RuntimeError("cache unavailable") if target_event == str(failed_event) else True
+            for target_event, _version, _data in updates
+        ]
 
-    cache.put.side_effect = put
+    cache.put_many.side_effect = put_many
     with pytest.raises(RuntimeError, match="cache unavailable"):
         workers.refresh_batch(db, cache, limit=10)
 
@@ -154,7 +156,7 @@ def test_refresh_batch_acknowledges_success_and_keeps_failed_work_leased(system)
     assert state[failed_event]["completed_generation"] == 0
     assert state[failed_event]["generation"] == 1
     assert state[failed_event]["lease_token"] is not None
-    assert cache.put.call_count == 2
+    assert cache.put_many.call_count == 1
 
 
 def test_stale_projector_cannot_ack_new_lease(system, monkeypatch):
@@ -391,5 +393,37 @@ def test_changed_snapshot_batch_reads_and_patches_multiple_events(system):
     ]
     assert [[seat["seat_id"] for seat in seats] for _event_id, seats in updates] == [
         ["A", "B"],
+        ["A"],
+    ]
+
+
+def test_full_snapshot_batch_reads_and_pipelines_multiple_events(system):
+    _, db, first_event = system
+    second_event = uuid4()
+    with db.transaction() as conn:
+        conn.execute(
+            """INSERT INTO events VALUES (%s,'Second','THB',clock_timestamp()-interval '1 day',
+            clock_timestamp()+interval '1 day')""",
+            (second_event,),
+        )
+        conn.execute(
+            "INSERT INTO event_seats(event_id,seat_id,price) VALUES (%s,'A',100)",
+            (second_event,),
+        )
+
+    cache = Mock()
+    cache.put_many.return_value = [True, True]
+
+    completed, errors = workers.full_snapshot_batch(db, cache, [first_event, second_event])
+
+    assert completed == {first_event, second_event}
+    assert errors == []
+    updates = cache.put_many.call_args.args[0]
+    assert [event_id for event_id, _version, _data in updates] == [
+        str(first_event),
+        str(second_event),
+    ]
+    assert [[seat["seat_id"] for seat in data["seats"]] for _, _, data in updates] == [
+        ["A", "B", "C"],
         ["A"],
     ]

@@ -224,3 +224,20 @@ def test_patch_many_pipelines_independent_atomic_updates(cache):
         assert not cache.redis.exists(cache.key(missing))
     finally:
         cache.redis.delete(cache.key(first), cache.key(second), cache.key(missing))
+
+
+def test_put_many_pipelines_independent_full_snapshots(cache):
+    first, second = str(uuid4()), str(uuid4())
+    try:
+        outcomes = cache.put_many(
+            [
+                (first, 0, {"seats": [state("A", 0)]}),
+                (second, 0, {"seats": [state("B", 0)]}),
+            ]
+        )
+
+        assert outcomes == [True, True]
+        assert cache.read(first)["seats"][0]["seat_id"] == "A"
+        assert cache.read(second)["seats"][0]["seat_id"] == "B"
+    finally:
+        cache.redis.delete(cache.key(first), cache.key(second))
