@@ -329,8 +329,9 @@ case "${1:-}" in
     [ "$#" -eq 2 ]
     run_paths "$2"
     api=$(api_id)
-    docker cp "$private/manifest.json" "$api":/tmp/private-load-manifest.json
-    docker exec -u 0 "$api" chown 10001:10001 /tmp/private-load-manifest.json
+    docker cp "$private/manifest.json" "$api":/tmp/private-load-manifest.next.json
+    docker exec -u 0 "$api" chown 10001:10001 /tmp/private-load-manifest.next.json
+    docker exec -u 0 "$api" mv -f /tmp/private-load-manifest.next.json /tmp/private-load-manifest.json
     docker exec -u 0 "$api" rm -f /tmp/capacity-prewarm.json
     docker exec "$api" sh -lc 'cd /app && STAGE_DATABASE_URL="$DATABASE_URL" TEST_REDIS_URL="$REDIS_URL" python scripts/warm_capacity_fixture_cache.py --manifest /tmp/private-load-manifest.json --output /tmp/capacity-prewarm.json --batch-size 16'
     docker cp "$api":/tmp/capacity-prewarm.json "$public/prewarm.json"
