@@ -81,3 +81,11 @@ Required post-change evidence before acceptance:
 ### Local implementation evidence
 
 The configured default and `RedisSeats` fallback now use 120 seconds. The existing explicit short-TTL integration tests remain unchanged. Focused browse, reconciliation and configuration coverage passed 34 tests. The complete unit/integration suite passed 256 tests with two dependency deprecation warnings, and Ruff passed for all Python source, tests and scripts with cache disabled and the documented Windows executable-bit artifact ignored. Cloud comparison remains pending; these local results do not establish a capacity increase.
+
+### First cloud comparison
+
+Run `20260928T134138Z-d639d930` at revision `38fdfc9` did not validate the 120-second candidate. It completed 171,424 of 180,000 scheduled requests and dropped 8,576 at the bounded generator gate. Worst-worker read p95 was 659.759 ms and hold p95 was 1,629.320 ms. There were no transport errors or admission rejections. The audit still proved exact durability for all 10,264 acknowledged holds, zero overlapping intervals and fully drained queues.
+
+The first 90 seconds had zero reset snapshots and read/hold p95 near 10-12/23-29 ms. During seconds 120-150, when the first holds expired, reset snapshots rose to 7,890 and response bodies totaled 152.6 MB. During seconds 150-180 there were 12,651 resets and 239.9 MB of response bodies. Scrape-aligned counters classified 13,053 resets as `history_gap`, 7,396 as `ahead` and 28 as `tail_gap`. Host CPU averaged 85.945% and peaked at 99.449%; the four API containers averaged 40.056-43.606% of one core each and Kafka averaged 68.846%.
+
+This run was environmentally confounded and cannot accept or reject the TTL decision. A read-only RDS audit after the run found 11,201 simultaneously active synthetic capacity events, 10,461 due reconciliation rows and an oldest due age of 280.049 seconds. This is 5.6 times the stated maximum target inventory of about 2,000 screens. Repeated stages each created 800 six-hour fixtures, so background reconciliation load accumulated across comparisons. A controlled rerun requires an isolated development fixture set at or below the target inventory. Existing synthetic rows should be preserved for audit and excluded from the active sale window only with explicit operator authorization.
