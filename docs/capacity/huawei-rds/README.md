@@ -179,3 +179,11 @@ reduced average command age to 1.392 seconds and removed the 115 expiries seen
 with two writers at the same 6% write mix. This is a short safety result; the
 15-minute production planning point remains 1,000 total RPS with 30 writes/s
 until a sustained 60-write/s confirmation passes.
+
+## 2026-09-28 Redis-first split-background sustained diagnostic
+
+The [15-minute split-background diagnostic](2026-09-28-redis-split-background-1000rps-15m/README.md)
+drained every correctness queue and made all 53,998 delivered holds durable, but
+67 generator drops and 161.799/343.946 ms read/hold p95 failed request gates.
+The topology is rejected for sustained 60-write/s capacity; the planning point
+remains 1,000 RPS with 30 writes/s.

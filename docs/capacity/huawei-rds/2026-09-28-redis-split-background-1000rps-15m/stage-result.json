@@ -1,0 +1,51 @@
+{
+  "completed_at": "2026-09-28T05:57:35.759376+00:00",
+  "gates": {
+    "load_exit_zero": false,
+    "workload": false,
+    "generator_drops_zero": false,
+    "transport_errors_zero": true,
+    "read_p95": false,
+    "hold_p95": false,
+    "admission_zero": true,
+    "audit_exit_zero": true,
+    "durability": true,
+    "overlap_zero": true,
+    "queues_drained": true,
+    "rollback": true,
+    "execution_and_cleanup": true
+  },
+  "pass": false,
+  "request_summary": {
+    "rate": 1000,
+    "seconds": 900,
+    "reservation_mode": "redis-first",
+    "write_percent": 6,
+    "generator_drops": 67,
+    "worst_worker_read_p95_ms": 161.7990090016974,
+    "worst_worker_hold_p95_ms": 343.94633500050986,
+    "late_deliveries": 0,
+    "physical_http_attempts": 899933,
+    "first_attempt_failures": {},
+    "retry_attempts": {},
+    "retry_successes": {},
+    "retry_exhausted": {}
+  },
+  "admission_rejections": 0,
+  "audited_holds": 53998,
+  "overlapping_load_hold_intervals": 0,
+  "run_id": "20260928T053302Z-c63b418f",
+  "source_revision": "de30607810e175536f25f84e440254d9e5ab27cd",
+  "error": null,
+  "completed_phases": [
+    "revisions_matched",
+    "deployed",
+    "prepared",
+    "manifest_transferred",
+    "preflight_passed",
+    "observers_started",
+    "load_finished",
+    "compact_results_collected",
+    "audit_finished"
+  ]
+}

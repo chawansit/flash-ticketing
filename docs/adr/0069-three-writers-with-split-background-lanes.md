@@ -1,7 +1,7 @@
 # ADR 0069: Pair three reservation writers with split background lanes
 
 Date: 2026-09-28
-Status: Accepted for a bounded sustained cloud experiment
+Status: Rejected for sustained 60-write/s production capacity
 
 ## Context
 
@@ -52,5 +52,24 @@ The sustained baseline at revision 560ec2b produced:
 - Final Kafka lag 34,011 and pending refresh 670; expiry cleanup was incomplete.
 - Successful rollback.
 
-The split-lane sustained activation stage is pending.
+The split-lane sustained stage failed the request gate:
+
+- 899,933 of 900,000 requests were sent; generator drops were 67. There were no
+  transport, HTTP or admission errors and no retry was used.
+- Worst-worker read and hold p95 rose to 161.799 ms and 343.946 ms.
+- All 53,998 delivered provisional commands became durable. Command age averaged
+  1.622 seconds, writer failures and ownership overlap were zero.
+- Two consumers processed 107,996 events and ended at zero Kafka lag. Refresh
+  generation and completion were both 107,996; pending refresh, overdue holds,
+  outbox and dead letters all ended at zero.
+- RDS sampling observed at most nine interesting waiters, including up to eight
+  concurrent WALWrite waits. PostgreSQL reservation batch and commit averages
+  were 116.169 ms and 3.226 ms.
+- Rollback and cleanup passed.
+
+The split topology fixes the downstream queue deficit but consumes enough shared
+database and host capacity to miss request fidelity and latency targets. It is
+rejected as the sustained 60-write/s production topology. No additional worker
+concurrency is authorized by this ADR. The confirmed 15-minute planning point
+remains 1,000 total RPS with 30 reservation writes per second.
 
