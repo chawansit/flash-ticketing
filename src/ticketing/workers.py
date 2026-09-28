@@ -9,7 +9,7 @@ import socket
 import time
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from kafka import KafkaConsumer, KafkaProducer, TopicPartition
 from prometheus_client import start_http_server
@@ -316,7 +316,7 @@ def changed_snapshot(db, cache, event_id, seat_ids):
 
 
 def full_snapshot_batch(db, cache, event_ids):
-    event_ids = list(dict.fromkeys(event_ids))
+    event_ids = list(dict.fromkeys(UUID(str(event_id)) for event_id in event_ids))
     if not event_ids:
         return set(), []
     if len(event_ids) == 1:

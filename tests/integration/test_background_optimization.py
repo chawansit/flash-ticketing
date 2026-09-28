@@ -414,7 +414,9 @@ def test_full_snapshot_batch_reads_and_pipelines_multiple_events(system):
     cache = Mock()
     cache.put_many.return_value = [True, True]
 
-    completed, errors = workers.full_snapshot_batch(db, cache, [first_event, second_event])
+    completed, errors = workers.full_snapshot_batch(
+        db, cache, [str(first_event), str(second_event)]
+    )
 
     assert completed == {first_event, second_event}
     assert errors == []

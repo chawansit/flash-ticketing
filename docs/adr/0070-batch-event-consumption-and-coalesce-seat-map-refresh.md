@@ -163,8 +163,10 @@ reads and Redis pipelines then reduced fixture creation to about nine seconds, b
 the 30-second cache TTL elapsed during later orchestration, so HTTP warmup again
 waited for periodic reconciliation and the generator was terminated before writing
 worker summaries. Rollback passed in both runs. The workflow now performs bounded
-pre-warm after observers start and immediately before traffic; cloud validation of
-that phase remains pending.
+pre-warm after observers start and immediately before traffic. Its first cloud
+invocation failed closed before traffic because manifest string IDs were not normalized
+to UUIDs; rollback passed. Boundary normalization now has local regression coverage,
+and cloud validation of the corrected phase remains pending.
 
 That first valid run included batched inbox persistence and acknowledgement but still read
 and patched each show separately. It is evidence that the initial implementation
