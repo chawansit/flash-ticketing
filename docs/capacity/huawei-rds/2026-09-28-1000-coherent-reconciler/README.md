@@ -21,3 +21,7 @@ The prior reconciler had `cache.py` SHA-256 `215a97bb…`; the current seat-map 
 The after-run observer counted 25,967 repeated observations of a nonpositive `0→0` bootstrap delta entry. This entry does not advance the cursor; it is distinct from version regression, overlap and tail mismatch. It should be removed before longer delta-feed validation. Both stage rollback and the fixed post-TTL audit passed. The synthetic sale windows were retired without deleting database rows; tracked synthetic reconciliation work returned to zero.
 
 Next: remove zero-length bootstrap history in a separate ADR-backed change, validate the delta chain again, then run a sustained stage before claiming production capacity.
+
+## Zero-length bootstrap delta follow-up
+
+At revision `8020a05`, the same 1,000 RPS / 30-second fixture used ADR 0079's advancing-version-only delta publication. All 30,000 requests were delivered without drops, unexpected errors, retries or admission rejections. Worst-worker read/hold p95 were 11.557/24.630 ms. All 1,800 acknowledged holds were durable, no booking intervals overlapped, fixed-audit queues drained and rollback passed. The atomic DCS observer sampled 426 times and reported **zero** nonpositive ranges, version regressions, overlaps, gaps or tail mismatches. It observed no DCS server identity change. The 800 synthetic sale windows were retired without row deletion. This validates the short delta-feed correction; a longer steady-state run is still required for production capacity.

@@ -1,6 +1,6 @@
 # ADR 0079: Omit zero-length bootstrap seat-map delta entries
 
-Status: Accepted for local behavior; cloud observation pending
+Status: Accepted; short cloud observation passed, sustained capacity remains unproven
 
 ## Context
 
@@ -28,4 +28,4 @@ Redis Lua still updates the map and any advancing delta in one atomic invocation
 
 ## Validation evidence
 
-The coherent-reconciler cloud stage at revision `c8b3963` passed 30,000/30,000 requests, 1,800/1,800 durable holds, zero booking overlap, queue drain and rollback. Its observer saw 427 samples, zero regressions/overlaps/tail mismatches, and 25,967 repeated nonpositive bootstrap-edge observations. The real-Redis test now proves a zero-version bootstrap has no delta entry and a later advancing patch creates exactly the `0→2` edge returned without a reset. The complete incremental and browse integration suites passed: 21 tests. The focused deployment plus bootstrap suite passed: 16 tests. Ruff passed for changed Python files (ignoring the Windows executable-bit artifact). A further cloud observation and sustained capacity test remain unverified.
+The coherent-reconciler cloud stage at revision `c8b3963` passed 30,000/30,000 requests, 1,800/1,800 durable holds, zero booking overlap, queue drain and rollback. Its observer saw 427 samples, zero regressions/overlaps/tail mismatches, and 25,967 repeated nonpositive bootstrap-edge observations. The real-Redis test now proves a zero-version bootstrap has no delta entry and a later advancing patch creates exactly the `0→2` edge returned without a reset. The complete incremental and browse integration suites passed: 21 tests. The focused deployment plus bootstrap suite passed: 16 tests. Ruff passed for changed Python files (ignoring the Windows executable-bit artifact). A controlled Huawei RDS/DCS rerun at revision `8020a05` delivered 30,000/30,000 scheduled requests at 1,000 RPS for 30 seconds with zero drops, transport errors, retries or admission rejections. Worst-worker read/hold p95 were 11.557/24.630 ms. All 1,800 acknowledged holds were durable, booking overlap was zero, all fixed-audit queues drained and rollback passed. The atomic DCS observer collected 426 samples with zero nonpositive ranges, version regressions, overlaps, gaps or tail mismatches; DCS server identity did not change. The 800 synthetic sale windows were retired without row deletion. Sustained capacity remains unverified. The compact result appears in [`docs/capacity/huawei-rds/2026-09-28-1000-coherent-reconciler`](../capacity/huawei-rds/2026-09-28-1000-coherent-reconciler/README.md).
