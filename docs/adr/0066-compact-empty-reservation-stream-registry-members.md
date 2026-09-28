@@ -1,7 +1,7 @@
 # ADR 0066: Compact empty reservation-stream registry members
 
 Date: 2026-09-28
-Status: Accepted for implementation; production activation pending clean cloud validation
+Status: Accepted for registry compaction; repair cadence superseded by ADR 0067
 
 ## Context
 
@@ -55,4 +55,15 @@ Implementation validation completed on 2026-09-28:
 - Focused discovery, compaction-failure, hard-batch and queue-preflight tests passed: 7 tests.
 - Ruff passed for the changed implementation and tests.
 - The isolated Docker Compose suite passed: 235 tests, with 2 dependency deprecation warnings and no failures.
-- Huawei registry shrink and the fresh 1,000 RPS cloud stage remain production-activation gates.
+- Before the activation stage, bounded idle writers compacted the registry to zero
+  members while 7,236 historical stream keys remained empty.
+- The fresh 1,000 RPS, 6% write, batch-size-4 stage sent 169,809 of 180,000
+  scheduled requests and dropped 10,191 at the generator. It had no HTTP response
+  or transport errors. Read p95 was 121.681 ms and hold p95 was 175.596 ms.
+- PostgreSQL made 10,180 of 10,182 provisional commands durable. Two commands
+  expired, average command age was 16.691 seconds, overlap double-booking was zero,
+  and every measured queue was empty at the fixed audit.
+- This stage proved compaction and bounded recovery behavior, but failed request
+  fidelity. Continuous idle SCAN repair was identified as remaining interference;
+  ADR 0067 supersedes that repair cadence. This result does not establish production
+  capacity.

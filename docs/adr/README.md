@@ -102,3 +102,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0064: Rotate bounded reservation-stream discovery fairly](0064-fair-bounded-reservation-stream-discovery.md)
 - [0065: Filter empty reservation streams during bounded discovery](0065-filter-empty-reservation-streams-during-discovery.md)
 - [0066: Compact empty reservation-stream registry members](0066-compact-empty-reservation-stream-registry-members.md)
+- [0067: Throttle empty reservation discovery and repair scans](0067-throttle-empty-reservation-discovery-repair.md)

@@ -176,7 +176,7 @@ def test_discovery_skips_empty_window_and_reaches_later_nonempty_streams():
     intake = RedisReservationIntake(
         FakeCache(redis),
         stream_batch_size=2,
-        stream_refresh_seconds=60,
+        stream_refresh_seconds=0,
     )
 
     intake._refresh_streams(limit=5)
@@ -208,3 +208,33 @@ def test_registry_compaction_failure_keeps_nonempty_stream_eligible():
     intake._refresh_streams(limit=2)
 
     assert intake.streams(limit=2) == [streams[1]]
+
+
+def test_empty_discovery_throttles_registry_refresh_and_scan_repair():
+    redis = FakeRedis()
+    intake = RedisReservationIntake(
+        FakeCache(redis),
+        stream_batch_size=2,
+        stream_refresh_seconds=10,
+        stream_scan_refresh_seconds=60,
+    )
+
+    assert list(intake.messages("writer")) == []
+    assert list(intake.messages("writer")) == []
+    assert redis.smembers_calls == 1
+    assert redis.scan_calls == 1
+
+    intake._last_stream_refresh -= 11
+    assert list(intake.messages("writer")) == []
+    assert redis.smembers_calls == 2
+    assert redis.scan_calls == 1
+
+    intake._last_stream_refresh -= 11
+    intake._last_scan_refresh -= 61
+    assert list(intake.messages("writer")) == []
+    assert redis.smembers_calls == 3
+    assert redis.scan_calls == 2
+
+    intake.reset_connection_state()
+    assert list(intake.messages("writer")) == []
+    assert redis.scan_calls == 3

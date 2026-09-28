@@ -133,12 +133,13 @@ class RedisReservationIntake:
         retention_seconds=86400,
         stream_batch_size=32,
         stream_refresh_seconds=1.0,
+        stream_scan_refresh_seconds=60.0,
         stream_scan_steps=4,
     ):
         if stream_batch_size <= 0:
             raise ValueError("Stream batch size must be positive")
-        if stream_refresh_seconds < 0:
-            raise ValueError("Stream refresh interval must be nonnegative")
+        if stream_refresh_seconds < 0 or stream_scan_refresh_seconds < 0:
+            raise ValueError("Stream refresh intervals must be nonnegative")
         if stream_scan_steps <= 0:
             raise ValueError("Stream scan steps must be positive")
         self.cache = cache
@@ -151,6 +152,7 @@ class RedisReservationIntake:
         self.retention_seconds = retention_seconds
         self.stream_batch_size = stream_batch_size
         self.stream_refresh_seconds = stream_refresh_seconds
+        self.stream_scan_refresh_seconds = stream_scan_refresh_seconds
         self.stream_scan_steps = stream_scan_steps
         self._streams = []
         self._stream_cursor = 0
@@ -158,6 +160,7 @@ class RedisReservationIntake:
         self._stream_cycle_complete = True
         self._scan_cursor = 0
         self._last_stream_refresh = 0.0
+        self._last_scan_refresh = 0.0
         self._known_groups = set()
 
     @staticmethod
@@ -302,17 +305,19 @@ class RedisReservationIntake:
         now = time.monotonic()
         if self._streams and not self._stream_cycle_complete:
             return
-        if self._streams and now - self._last_stream_refresh < self.stream_refresh_seconds:
+        if now - self._last_stream_refresh < self.stream_refresh_seconds:
             return
         keys = set(self._streams)
         keys.update(self.redis.smembers("reservation-stream-registry"))
-        for _ in range(self.stream_scan_steps):
-            self._scan_cursor, found = self.redis.scan(
-                self._scan_cursor, match="reservation-stream:*", count=100
-            )
-            keys.update(found)
-            if self._scan_cursor == 0:
-                break
+        if now - self._last_scan_refresh >= self.stream_scan_refresh_seconds:
+            for _ in range(self.stream_scan_steps):
+                self._scan_cursor, found = self.redis.scan(
+                    self._scan_cursor, match="reservation-stream:*", count=100
+                )
+                keys.update(found)
+                if self._scan_cursor == 0:
+                    break
+            self._last_scan_refresh = now
         ordered = sorted(keys)
         if ordered:
             size = min(limit, len(ordered))
@@ -376,6 +381,7 @@ class RedisReservationIntake:
         self._stream_cycle_complete = True
         self._scan_cursor = 0
         self._last_stream_refresh = 0.0
+        self._last_scan_refresh = 0.0
         self._known_groups.clear()
 
     def messages(self, consumer, count=8, reclaim_idle_ms=30000):
