@@ -364,6 +364,8 @@ case "${1:-}" in
     echo $! > "$private/cpu.pid"
     api=$(api_id)
     docker cp "$private/manifest.json" "$api":/tmp/private-load-manifest.json
+    docker exec -u 0 "$api" chown 10001:10001 /tmp/private-load-manifest.json
+    docker exec "$api" sh -lc 'REDIS_URL="$REDIS_URL" python /app/scripts/observe_seat_delta_chain.py --manifest /tmp/private-load-manifest.json --output /tmp/capacity-delta-chain-smoke.jsonl --seconds 0.1 --interval 0.1 --batch-size 1'
     nohup docker exec "$api" sh -lc 'REDIS_URL="$REDIS_URL" python /app/scripts/observe_seat_delta_chain.py --manifest /tmp/private-load-manifest.json --output /tmp/capacity-delta-chain.jsonl --seconds "$1" --interval 1 --batch-size 64' sh "$seconds" > "$raw/delta-chain.log" 2>&1 &
     echo $! > "$private/delta-chain.pid"
     nohup docker exec "$api" python /app/scripts/pgbouncer_pressure_observe.py --seconds "$seconds" --interval 0.2 --output /tmp/capacity-pgbouncer.jsonl > "$raw/pgbouncer.log" 2>&1 &

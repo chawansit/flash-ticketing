@@ -107,7 +107,7 @@ def main():
                 "server_uptime_seconds": server.get("uptime_in_seconds"),
             }) + "\n")
             output.flush()
-            time.sleep(max(0, args.interval - (time.monotonic() - started)))
+            time.sleep(max(0, min(args.interval - (time.monotonic() - started), deadline - time.monotonic())))
 
 
 if __name__ == "__main__":

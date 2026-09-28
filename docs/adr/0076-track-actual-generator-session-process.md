@@ -1,6 +1,6 @@
 # ADR 0076: Track the actual generator session process
 
-Status: Proposed
+Status: Accepted
 
 ## Context
 
@@ -41,3 +41,7 @@ Acceptance requires a focused test of the session-leader PID publication and sto
 ### Implementation evidence
 
 The generator now has its session leader atomically publish its own PID before the launcher reports started. A five-second bounded start wait checks that the published PID is live. A real generator-ECS isolated smoke test on 2026-09-28 exercised the candidate script with a fake three-second helper: status progressed from started to running to finished with exit code zero, and the published PID matched the process group ID. A second fake long-running helper progressed from started to running to stopped with exit code -1 after the existing group-stop path. Linux shell syntax validation passed. A cloud capacity stage using this change remains required before acceptance.
+
+### Cloud validation
+
+Run 20260928T161113Z-108402fb at revision 18a3890 confirmed that the coordinator observed the generator running and then load_finished without a missing-PID error. The load wrote all eight worker summaries and the durability audit confirmed 3,570 acknowledged holds, zero overlapping booking intervals and drained queues. The overall stage still failed its capacity gates: 451 generator drops, read/hold p95 of 322.638/716.695 ms, and a separate DCS observer permission error caused observer collection to fail. Those failures do not invalidate the generator process-supervision result, but no capacity result is accepted from this run.
