@@ -150,6 +150,8 @@ python scripts/unattended_capacity_stage.py \
   --split-maintenance \
   --reservation-mode redis-first \
   --reservation-writer-candidate 2 \
+  --reservation-writer-batch-size 8 \
+  --reservation-max-command-age-seconds 60 \
   --identity-file tmp/capacity-auth/id_ed25519
 ```
 
@@ -165,6 +167,13 @@ overlapping seat ownership and a fully drained Redis reservation stream. Rollbac
 reservation mode and writer replica count captured before deployment. Use
 `--reservation-writer-candidate 2` only for the ADR 0059 bounded experiment. Omit the mode
 option to retain the synchronous PostgreSQL path.
+
+For the ADR 0063 isolated experiment, `--reservation-writer-batch-size` selects one through
+eight commands per PostgreSQL commit and `--reservation-max-command-age-seconds` rejects new
+provisional holds for an event when its oldest unacknowledged command reaches that age. Keep the
+age at or below 90 seconds for the 120-second hold TTL. Both values are verified in the deployed
+containers, captured in `deployment.json`, restored during rollback and recorded in
+`rollback.json`. Defaults are batch size 1 and age 0 (disabled).
 
 Run `--dry-run` first to inspect the fixed phase order without contacting either
 ECS. The live command verifies that both checkouts resolve to the same Git

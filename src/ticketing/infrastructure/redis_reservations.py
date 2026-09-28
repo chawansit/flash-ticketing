@@ -25,7 +25,16 @@ if previous_hash then
   return {2,redis.call('HGET',idem,'response')}
 end
 if redis.call('XLEN',stream) >= tonumber(ARGV[2]) then return {-4} end
-local seat_ids = cjson.decode(ARGV[3])
+local max_age = tonumber(ARGV[3])
+if max_age > 0 then
+  local oldest = redis.call('XRANGE',stream,'-','+','COUNT',1)
+  if oldest[1] then
+    local separator = string.find(oldest[1][1],'-')
+    local oldest_seconds = math.floor(tonumber(string.sub(oldest[1][1],1,separator-1)) / 1000)
+    if now - oldest_seconds >= max_age then return {-7} end
+  end
+end
+local seat_ids = cjson.decode(ARGV[4])
 local selected = {}
 local total = 0
 for _,seat_id in ipairs(seat_ids) do
@@ -38,11 +47,11 @@ for _,seat_id in ipairs(seat_ids) do
   total = total + tonumber(seat.price)
   table.insert(selected,{field=field,seat=seat})
 end
-local response = cjson.decode(ARGV[4])
+local response = cjson.decode(ARGV[5])
 response.total = total
 response.currency = meta[5]
-response.expires_at_epoch = now + tonumber(ARGV[5])
-response.expires_at = ARGV[6]
+response.expires_at_epoch = now + tonumber(ARGV[6])
+response.expires_at = ARGV[7]
 response.persistence_status = 'PENDING'
 local response_json = cjson.encode(response)
 local version = tonumber(meta[1])
@@ -58,12 +67,12 @@ for _,entry in ipairs(selected) do
 end
 redis.call('HSET',map,'version',version)
 redis.call('HSET',idem,'request_hash',ARGV[1],'response',response_json)
-redis.call('EXPIRE',idem,tonumber(ARGV[7]))
-redis.call('HSET',command,'status','PENDING','response',response_json,'payload',ARGV[8],
+redis.call('EXPIRE',idem,tonumber(ARGV[8]))
+redis.call('HSET',command,'status','PENDING','response',response_json,'payload',ARGV[9],
   'created_at_epoch',now)
-redis.call('EXPIRE',command,tonumber(ARGV[7]))
+redis.call('EXPIRE',command,tonumber(ARGV[8]))
 redis.call('ZADD',expiry,response.expires_at_epoch,response.command_id)
-redis.call('XADD',stream,'*','command_id',response.command_id,'payload',ARGV[8],'response',response_json,'created_at_epoch',now)
+redis.call('XADD',stream,'*','command_id',response.command_id,'payload',ARGV[9],'response',response_json,'created_at_epoch',now)
 return {1,response_json}
 """
 
@@ -120,6 +129,7 @@ class RedisReservationIntake:
         replica_acks=0,
         wait_ms=100,
         max_backlog=10000,
+        max_command_age_seconds=0,
         retention_seconds=86400,
         stream_batch_size=32,
         stream_refresh_seconds=1.0,
@@ -137,6 +147,7 @@ class RedisReservationIntake:
         self.replica_acks = replica_acks
         self.wait_ms = wait_ms
         self.max_backlog = max_backlog
+        self.max_command_age_seconds = max_command_age_seconds
         self.retention_seconds = retention_seconds
         self.stream_batch_size = stream_batch_size
         self.stream_refresh_seconds = stream_refresh_seconds
@@ -208,6 +219,7 @@ class RedisReservationIntake:
                 *keys,
                 request_hash,
                 self.max_backlog,
+                self.max_command_age_seconds,
                 json.dumps(seats),
                 json.dumps(response),
                 self.hold_seconds,
@@ -259,6 +271,7 @@ class RedisReservationIntake:
             -4: ("RESERVATION_BACKLOG_FULL", 503),
             -5: ("SEAT_NOT_FOUND", 404),
             -6: ("SEAT_UNAVAILABLE", 409),
+            -7: ("RESERVATION_PERSISTENCE_LAGGING", 503),
         }
         name, status = failures.get(code, ("ADMISSION_UNAVAILABLE", 503))
         RESERVATION_INTAKE.labels(name.lower()).inc()

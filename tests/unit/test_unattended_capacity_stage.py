@@ -120,6 +120,10 @@ def argv(output: Path) -> list[str]:
         "20",
         "--reservation-writer-candidate",
         "2",
+        "--reservation-writer-batch-size",
+        "8",
+        "--reservation-max-command-age-seconds",
+        "60",
     ]
 
 
@@ -392,7 +396,9 @@ def test_worker_scaling_is_passed_and_observers_cover_audit(monkeypatch, tmp_pat
     )
     stage.main()
     fake = CapturingTransport.instances[-1]
-    assert fake.deployment_command[-7:] == ["2", "1", "2", "1", "1", "redis-first", "2"]
+    assert fake.deployment_command[-9:] == [
+        "2", "1", "2", "1", "1", "redis-first", "2", "8", "60"
+    ]
     assert fake.load_command[-2:] == ["redis-first", "20"]
     phases = [phase for kind, phase in fake.calls if kind == "remote"]
     assert phases.index("durability-audit") < phases.index("stop-observers") < phases.index("rollback")
@@ -414,6 +420,10 @@ def test_backend_deploy_rebuilds_and_verifies_measured_worker_images():
     assert '--scale "reservation-writer=$original_reservation_writers" reservation-writer' in helper
     assert 'set_reservation_mode "$reservation_candidate"' in helper
     assert 'set_reservation_mode "$original_reservation_mode"' in helper
+    assert 'set_reservation_writer_batch_size "$original_reservation_writer_batch"' in helper
+    assert 'set_reservation_max_command_age "$original_reservation_max_command_age"' in helper
+    assert '"reservation_writer_batch_size":%s' in helper
+    assert '"reservation_max_command_age_seconds":%s' in helper
     assert '--scale "refresh=$original_refresh" refresh' in helper
     assert '--scale "expiry=$original_expiry" expiry' in helper
     assert "src/ticketing/workers.py" in helper

@@ -18,7 +18,6 @@ from redis.exceptions import RedisError
 
 from ticketing.application.reservations import Reservations
 from ticketing.config import Settings
-from ticketing.domain import Failure
 from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.postgres import Postgres
 from ticketing.infrastructure.redis_reservations import RedisReservationIntake
@@ -55,121 +54,131 @@ def stop(*_):
 
 
 @measured_work("reservation_write")
-def persist_reservation_batch(store, intake, consumer, limit=8):
-    handled = False
-    handled_count = 0
+def persist_reservation_batch(store, intake, consumer, limit=1):
+    messages = list(intake.messages(consumer, count=limit))
+    RESERVATION_PERSISTENCE_BATCH_SIZE.observe(len(messages))
+    if not messages:
+        return False
+
+    commands = []
+    for stream, message_id, fields in messages:
+        payload = json.loads(fields["payload"])
+        response = json.loads(fields["response"])
+        created_at = float(fields.get("created_at_epoch", time.time()))
+        command_age = max(0.0, time.time() - created_at)
+        RESERVATION_COMMAND_AGE_SECONDS.observe(command_age)
+        commands.append(
+            {
+                "stream": stream,
+                "message_id": message_id,
+                "payload": payload,
+                "response": response,
+                "command_age": command_age,
+            }
+        )
+
+    started = time.perf_counter()
     try:
-        for stream, message_id, fields in intake.messages(consumer, count=limit):
-            handled = True
-            handled_count += 1
-            payload = json.loads(fields["payload"])
-            response = json.loads(fields["response"])
-            created_at = float(fields.get("created_at_epoch", time.time()))
-            command_age = max(0.0, time.time() - created_at)
-            RESERVATION_COMMAND_AGE_SECONDS.observe(command_age)
+        outcomes = store.persist_reservation_commands(
+            [(command["payload"], command["response"]) for command in commands]
+        )
+    except Exception:
+        RESERVATION_PERSISTENCE_PHASE_SECONDS.labels("postgres_batch", "error").observe(
+            time.perf_counter() - started
+        )
+        RESERVATION_PERSISTENCE.labels("transient_error").inc(len(commands))
+        raise
+    RESERVATION_PERSISTENCE_PHASE_SECONDS.labels("postgres_batch", "ok").observe(
+        time.perf_counter() - started
+    )
+    if len(outcomes) != len(commands):
+        RESERVATION_PERSISTENCE.labels("outcome_mismatch").inc(len(commands))
+        raise RuntimeError("reservation persistence batch returned the wrong outcome count")
 
-            started = time.perf_counter()
+    failed_events = set()
+    for command, (outcome, value) in zip(commands, outcomes, strict=True):
+        payload = command["payload"]
+        if outcome == "failed":
+            error_code = str(value.code or "UNKNOWN")
+            RESERVATION_PERSISTENCE.labels("failed").inc()
+            RESERVATION_PERSISTENCE_FAILURES.labels(error_code).inc()
+            compensate_started = time.perf_counter()
             try:
-                store.persist_reservation_command(payload, response)
-            except Failure as exc:
-                RESERVATION_PERSISTENCE_PHASE_SECONDS.labels("postgres", "failed").observe(
-                    time.perf_counter() - started
+                intake.mark_failed(
+                    payload["event_id"],
+                    payload["command_id"],
+                    payload["seat_ids"],
+                    error_code,
                 )
-                error_code = str(exc.code or "UNKNOWN")
-                RESERVATION_PERSISTENCE.labels("failed").inc()
-                RESERVATION_PERSISTENCE_FAILURES.labels(error_code).inc()
-                compensate_started = time.perf_counter()
-                try:
-                    intake.mark_failed(
-                        payload["event_id"],
-                        payload["command_id"],
-                        payload["seat_ids"],
-                        error_code,
-                    )
-                except Exception:
-                    RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
-                        "redis_compensate", "error"
-                    ).observe(time.perf_counter() - compensate_started)
-                    RESERVATION_PERSISTENCE.labels("compensation_error").inc()
-                    raise
+            except Exception:
                 RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
-                    "redis_compensate", "ok"
+                    "redis_compensate", "error"
                 ).observe(time.perf_counter() - compensate_started)
-                log.warning(
-                    "reservation_command_failed",
-                    extra={"fields": {
-                        "event": "reservation_command_failed",
-                        "command_id": payload["command_id"],
-                        "error_code": error_code,
-                        "command_age_seconds": round(command_age, 6),
-                    }},
-                )
-                snapshot(store.db, intake.cache, payload["event_id"])
-                acknowledge_started = time.perf_counter()
-                try:
-                    intake.acknowledge(stream, message_id)
-                except Exception:
-                    RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
-                        "redis_acknowledge", "error"
-                    ).observe(time.perf_counter() - acknowledge_started)
-                    RESERVATION_PERSISTENCE.labels("acknowledgement_error").inc()
-                    raise
-                RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
-                    "redis_acknowledge", "ok"
-                ).observe(time.perf_counter() - acknowledge_started)
-                continue
-            except Exception:
-                RESERVATION_PERSISTENCE_PHASE_SECONDS.labels("postgres", "error").observe(
-                    time.perf_counter() - started
-                )
-                RESERVATION_PERSISTENCE.labels("transient_error").inc()
+                RESERVATION_PERSISTENCE.labels("compensation_error").inc()
                 raise
-            RESERVATION_PERSISTENCE_PHASE_SECONDS.labels("postgres", "ok").observe(
-                time.perf_counter() - started
+            RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+                "redis_compensate", "ok"
+            ).observe(time.perf_counter() - compensate_started)
+            failed_events.add(payload["event_id"])
+            log.warning(
+                "reservation_command_failed",
+                extra={"fields": {
+                    "event": "reservation_command_failed",
+                    "command_id": payload["command_id"],
+                    "error_code": error_code,
+                    "command_age_seconds": round(command["command_age"], 6),
+                }},
             )
+            continue
 
-            mark_started = time.perf_counter()
-            try:
-                marked = intake.mark_durable(payload["event_id"], payload["command_id"])
-            except Exception:
-                RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
-                    "redis_mark_durable", "error"
-                ).observe(time.perf_counter() - mark_started)
-                RESERVATION_PERSISTENCE.labels("mark_durable_error").inc()
-                raise
+        if outcome != "durable":
+            RESERVATION_PERSISTENCE.labels("outcome_invalid").inc()
+            raise RuntimeError(f"unknown reservation persistence outcome: {outcome}")
+        mark_started = time.perf_counter()
+        try:
+            marked = intake.mark_durable(payload["event_id"], payload["command_id"])
+        except Exception:
             RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
-                "redis_mark_durable", "ok"
+                "redis_mark_durable", "error"
             ).observe(time.perf_counter() - mark_started)
-            if marked != 1:
-                RESERVATION_PERSISTENCE.labels("metadata_expired").inc()
-                log.error(
-                    "reservation_command_metadata_expired",
-                    extra={"fields": {
-                        "event": "reservation_command_metadata_expired",
-                        "command_id": payload["command_id"],
-                        "command_age_seconds": round(command_age, 6),
-                        "mark_result": marked,
-                    }},
-                )
-                raise RuntimeError(
-                    "reservation command metadata expired before durable acknowledgement"
-                )
-            acknowledge_started = time.perf_counter()
-            try:
-                intake.acknowledge(stream, message_id)
-            except Exception:
-                RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
-                    "redis_acknowledge", "error"
-                ).observe(time.perf_counter() - acknowledge_started)
-                RESERVATION_PERSISTENCE.labels("acknowledgement_error").inc()
-                raise
+            RESERVATION_PERSISTENCE.labels("mark_durable_error").inc()
+            raise
+        RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+            "redis_mark_durable", "ok"
+        ).observe(time.perf_counter() - mark_started)
+        if marked != 1:
+            RESERVATION_PERSISTENCE.labels("metadata_expired").inc()
+            log.error(
+                "reservation_command_metadata_expired",
+                extra={"fields": {
+                    "event": "reservation_command_metadata_expired",
+                    "command_id": payload["command_id"],
+                    "command_age_seconds": round(command["command_age"], 6),
+                    "mark_result": marked,
+                }},
+            )
+            raise RuntimeError(
+                "reservation command metadata expired before durable acknowledgement"
+            )
+        RESERVATION_PERSISTENCE.labels("durable").inc()
+
+    for event_id in failed_events:
+        snapshot(store.db, intake.cache, event_id)
+
+    for command in commands:
+        acknowledge_started = time.perf_counter()
+        try:
+            intake.acknowledge(command["stream"], command["message_id"])
+        except Exception:
             RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
-                "redis_acknowledge", "ok"
+                "redis_acknowledge", "error"
             ).observe(time.perf_counter() - acknowledge_started)
-            RESERVATION_PERSISTENCE.labels("durable").inc()
-    finally:
-        RESERVATION_PERSISTENCE_BATCH_SIZE.observe(handled_count)
-    return handled
+            RESERVATION_PERSISTENCE.labels("acknowledgement_error").inc()
+            raise
+        RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+            "redis_acknowledge", "ok"
+        ).observe(time.perf_counter() - acknowledge_started)
+    return True
 
 @measured_work("snapshot")
 def snapshot(db, cache, event_id):
@@ -192,6 +201,7 @@ def snapshot(db, cache, event_id):
             "seat_id": r["seat_id"],
             "price": r["price"],
             "status": "SOLD" if r["booked_order_id"] else "HELD" if r["hold_id"] else "AVAILABLE",
+            "hold_id": str(r["hold_id"]) if r["hold_id"] else None,
             "reserved_until": r["reserved_until"],
             "reserved_until_epoch": (
                 r["reserved_until"].timestamp() if r["reserved_until"] is not None else None
@@ -691,6 +701,7 @@ def main():
         replica_acks=settings.redis_reservation_replica_acks,
         wait_ms=settings.redis_reservation_wait_ms,
         max_backlog=settings.redis_reservation_max_backlog,
+        max_command_age_seconds=settings.redis_reservation_max_command_age_seconds,
     )
     reservation_consumer = f"{socket.gethostname()}-{os.getpid()}"
     producer = consumer = executor = None
@@ -723,7 +734,7 @@ def main():
                     work = publish_batch(db, producer, settings.publisher_batch_size)
                 elif role == "reservation-writer":
                     work = persist_reservation_batch(
-                        store, intake, reservation_consumer, settings.publisher_batch_size
+                        store, intake, reservation_consumer, settings.reservation_writer_batch_size
                     )
                 elif role == "simulator":
                     work = simulate_batch(db, settings, executor)

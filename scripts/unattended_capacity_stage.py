@@ -181,6 +181,8 @@ def validate_args(args: argparse.Namespace) -> None:
         raise ValueError("Maintenance replica counts must be between 1 and 4")
     if not 1 <= args.consumer_candidate <= 6 or not 1 <= args.consumer_rollback <= 6:
         raise ValueError("Consumer replica counts must be between 1 and 6")
+    if not 0 <= args.reservation_max_command_age_seconds <= 90:
+        raise ValueError("Reservation maximum command age must be between 0 and 90 seconds")
 
 
 def main() -> None:
@@ -213,6 +215,8 @@ def main() -> None:
     parser.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
     parser.add_argument("--write-percent", type=int, default=5)
     parser.add_argument("--reservation-writer-candidate", type=int, choices=(1, 2, 3, 4), default=1)
+    parser.add_argument("--reservation-writer-batch-size", type=int, choices=range(1, 9), default=1)
+    parser.add_argument("--reservation-max-command-age-seconds", type=int, default=0)
     parser.add_argument("--ssh", default="ssh")
     parser.add_argument("--scp", default="scp")
     parser.add_argument("--identity-file", type=Path)
@@ -294,6 +298,8 @@ def main() -> None:
                 str(args.consumer_candidate), str(args.consumer_rollback),
                 str(int(args.split_maintenance)), args.reservation_mode,
                 str(args.reservation_writer_candidate),
+                str(args.reservation_writer_batch_size),
+                str(args.reservation_max_command_age_seconds),
             ],
             timeout=300,
         )

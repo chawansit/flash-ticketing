@@ -105,3 +105,24 @@ def test_pipeline_connection_error_returns_unknown_outcome():
         intake.enqueue("actor", "event", ["A"], "key")
 
     assert not redis.registered
+
+def test_reservation_writer_batch_size_is_bounded():
+    with pytest.raises(RuntimeError, match="RESERVATION_WRITER_BATCH_SIZE"):
+        replace(Settings(), reservation_writer_batch_size=0).validate()
+    with pytest.raises(RuntimeError, match="RESERVATION_WRITER_BATCH_SIZE"):
+        replace(Settings(), reservation_writer_batch_size=9).validate()
+    replace(Settings(), reservation_writer_batch_size=8).validate()
+
+
+def test_reservation_lag_threshold_preserves_expiry_margin():
+    with pytest.raises(RuntimeError, match="leave 30 seconds"):
+        replace(
+            Settings(),
+            hold_seconds=120,
+            redis_reservation_max_command_age_seconds=91,
+        ).validate()
+    replace(
+        Settings(),
+        hold_seconds=120,
+        redis_reservation_max_command_age_seconds=90,
+    ).validate()

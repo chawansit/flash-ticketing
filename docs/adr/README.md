@@ -98,3 +98,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0061: Resolve ambiguous Redis intake by bounded same-key replay](0061-bounded-same-key-redis-replay.md)
 
 - [0062: Treat managed-failover latency as non-gating evidence](0062-non-gating-failover-latency.md)
+- [0063: Bound reservation persistence batches and reject stale intake](0063-bounded-reservation-persistence-batching.md)

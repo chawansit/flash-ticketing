@@ -20,6 +20,10 @@ class Settings:
     redis_reservation_replica_acks: int = int(os.getenv("REDIS_RESERVATION_REPLICA_ACKS", "0"))
     redis_reservation_wait_ms: int = int(os.getenv("REDIS_RESERVATION_WAIT_MS", "100"))
     redis_reservation_max_backlog: int = int(os.getenv("REDIS_RESERVATION_MAX_BACKLOG", "10000"))
+    redis_reservation_max_command_age_seconds: int = int(
+        os.getenv("REDIS_RESERVATION_MAX_COMMAND_AGE_SECONDS", "0")
+    )
+    reservation_writer_batch_size: int = int(os.getenv("RESERVATION_WRITER_BATCH_SIZE", "1"))
     publisher_batch_size: int = int(os.getenv("PUBLISHER_BATCH_SIZE", "32"))
     simulator_concurrency: int = int(os.getenv("SIMULATOR_CONCURRENCY", "4"))
     refresh_cooldown_ms: int = int(os.getenv("REFRESH_COOLDOWN_MS", "250"))
@@ -70,6 +74,17 @@ class Settings:
             raise RuntimeError("REDIS_RESERVATION_WAIT_MS must be between 10 and 1000")
         if not 100 <= self.redis_reservation_max_backlog <= 1000000:
             raise RuntimeError("REDIS_RESERVATION_MAX_BACKLOG must be between 100 and 1000000")
+        if self.redis_reservation_max_command_age_seconds < 0:
+            raise RuntimeError("REDIS_RESERVATION_MAX_COMMAND_AGE_SECONDS must be nonnegative")
+        if (
+            self.redis_reservation_max_command_age_seconds
+            and self.redis_reservation_max_command_age_seconds > self.hold_seconds - 30
+        ):
+            raise RuntimeError(
+                "REDIS_RESERVATION_MAX_COMMAND_AGE_SECONDS must leave 30 seconds before hold expiry"
+            )
+        if not 1 <= self.reservation_writer_batch_size <= 8:
+            raise RuntimeError("RESERVATION_WRITER_BATCH_SIZE must be between 1 and 8")
         if not 1 <= self.publisher_batch_size <= 100:
             raise RuntimeError("PUBLISHER_BATCH_SIZE must be between 1 and 100")
         if not 1 <= self.simulator_concurrency <= self.pool_max:

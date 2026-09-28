@@ -65,6 +65,7 @@ async def lifespan(app):
         replica_acks=settings.redis_reservation_replica_acks,
         wait_ms=settings.redis_reservation_wait_ms,
         max_backlog=settings.redis_reservation_max_backlog,
+        max_command_age_seconds=settings.redis_reservation_max_command_age_seconds,
     )
     store = RedisFirstReservations(durable, intake) if settings.reservation_mode == "redis-first" else durable
     app.state.reservation_intake = intake

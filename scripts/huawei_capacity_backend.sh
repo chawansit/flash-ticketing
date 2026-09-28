@@ -128,6 +128,27 @@ set_reservation_mode() {
   fi
 }
 
+set_reservation_writer_batch_size() {
+  value=$1
+  case "$value" in 1|2|3|4|5|6|7|8) ;; *) return 1 ;; esac
+  if grep -q '^RESERVATION_WRITER_BATCH_SIZE=' "$env_file"; then
+    sed -i "s/^RESERVATION_WRITER_BATCH_SIZE=.*/RESERVATION_WRITER_BATCH_SIZE=$value/" "$env_file"
+  else
+    printf 'RESERVATION_WRITER_BATCH_SIZE=%s\n' "$value" >> "$env_file"
+  fi
+}
+
+set_reservation_max_command_age() {
+  value=$1
+  case "$value" in ''|*[!0-9]*) return 1 ;; esac
+  [ "$value" -le 90 ]
+  if grep -q '^REDIS_RESERVATION_MAX_COMMAND_AGE_SECONDS=' "$env_file"; then
+    sed -i "s/^REDIS_RESERVATION_MAX_COMMAND_AGE_SECONDS=.*/REDIS_RESERVATION_MAX_COMMAND_AGE_SECONDS=$value/" "$env_file"
+  else
+    printf 'REDIS_RESERVATION_MAX_COMMAND_AGE_SECONDS=%s\n' "$value" >> "$env_file"
+  fi
+}
+
 wait_reservation_writer() {
   expected=$1
   attempt=0
@@ -160,12 +181,14 @@ case "${1:-}" in
     chmod 600 "$private/manifest.json"
     ;;
   deploy)
-    [ "$#" -eq 11 ]
+    [ "$#" -eq 13 ]
     run_paths "$2"
     candidate=$3; fallback=$4; maintenance_candidate=$5; maintenance_fallback=$6
     consumer_candidate=$7; consumer_fallback=$8; split_candidate=$9
     reservation_candidate=${10}
     reservation_writer_candidate=${11}
+    reservation_writer_batch_candidate=${12}
+    reservation_max_command_age_candidate=${13}
     case "$reservation_candidate" in postgres|redis-first) ;; *) exit 2 ;; esac
     case "$reservation_writer_candidate" in 1|2|3|4) ;; *) exit 2 ;; esac
     [ "$split_candidate" -eq 0 ] || [ "$split_candidate" -eq 1 ]
@@ -177,6 +200,10 @@ case "${1:-}" in
     original_reservation_mode=$(sed -n 's/^RESERVATION_MODE=//p' "$env_file" | tail -n 1)
     original_reservation_mode=${original_reservation_mode:-postgres}
     case "$original_reservation_mode" in postgres|redis-first) ;; *) exit 2 ;; esac
+    original_reservation_writer_batch=$(sed -n 's/^RESERVATION_WRITER_BATCH_SIZE=//p' "$env_file" | tail -n 1)
+    original_reservation_writer_batch=${original_reservation_writer_batch:-1}
+    original_reservation_max_command_age=$(sed -n 's/^REDIS_RESERVATION_MAX_COMMAND_AGE_SECONDS=//p' "$env_file" | tail -n 1)
+    original_reservation_max_command_age=${original_reservation_max_command_age:-0}
     [ "$original_maintenance" -eq "$maintenance_fallback" ]
     [ "$original_consumers" -eq "$consumer_fallback" ]
     printf '%s\n' "$original_maintenance" > "$private/original-maintenance"
@@ -191,10 +218,16 @@ case "${1:-}" in
     chmod 600 "$private/original-reservation-writers"
     printf '%s\n' "$original_reservation_mode" > "$private/original-reservation-mode"
     chmod 600 "$private/original-reservation-mode"
+    printf '%s\n' "$original_reservation_writer_batch" > "$private/original-reservation-writer-batch"
+    chmod 600 "$private/original-reservation-writer-batch"
+    printf '%s\n' "$original_reservation_max_command_age" > "$private/original-reservation-max-command-age"
+    chmod 600 "$private/original-reservation-max-command-age"
     printf '%s\n' "$fallback" > "$private/original-admission"
     chmod 600 "$private/original-admission"
     set_admission "$candidate"
     set_reservation_mode "$reservation_candidate"
+    set_reservation_writer_batch_size "$reservation_writer_batch_candidate"
+    set_reservation_max_command_age "$reservation_max_command_age_candidate"
     $compose build api migrate publisher consumer maintenance refresh expiry reservation-writer
     if [ "$reservation_candidate" = redis-first ]; then
       $compose up -d --no-deps --force-recreate --scale "reservation-writer=$reservation_writer_candidate" reservation-writer
@@ -246,6 +279,8 @@ case "${1:-}" in
         grep -qx "RESERVE_CONCURRENCY=$candidate"
       docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$id" |
         grep -qx "RESERVATION_MODE=$reservation_candidate"
+      docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$id" |
+        grep -qx "REDIS_RESERVATION_MAX_COMMAND_AGE_SECONDS=$reservation_max_command_age_candidate"
     done
     worker_source_hash=$(sha256sum src/ticketing/workers.py | cut -d " " -f 1)
     for service in $worker_services; do
@@ -254,10 +289,14 @@ case "${1:-}" in
       for id in $ids; do
         [ "$(docker inspect -f '{{.State.Status}}' "$id")" = running ]
         image_hash=$(docker exec "$id" sha256sum /app/src/ticketing/workers.py | cut -d " " -f 1)
+        if [ "$service" = reservation-writer ]; then
+          docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$id" |
+            grep -qx "RESERVATION_WRITER_BATCH_SIZE=$reservation_writer_batch_candidate"
+        fi
         [ "$image_hash" = "$worker_source_hash" ]
       done
     done
-    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"reservation_mode":"%s","reservation_writer_replicas":%s,"split_maintenance":%s,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"worker_source_verified":true,"pass":true}\n' "$candidate" "$reservation_candidate" "$deployed_reservation_writers" "$split_json" "$deployed_maintenance" "$deployed_refresh" "$deployed_expiry" "$consumer_candidate" > "$public/deployment.json"
+    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"reservation_mode":"%s","reservation_writer_replicas":%s,"reservation_writer_batch_size":%s,"reservation_max_command_age_seconds":%s,"split_maintenance":%s,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"worker_source_verified":true,"pass":true}\n' "$candidate" "$reservation_candidate" "$deployed_reservation_writers" "$reservation_writer_batch_candidate" "$reservation_max_command_age_candidate" "$split_json" "$deployed_maintenance" "$deployed_refresh" "$deployed_expiry" "$consumer_candidate" > "$public/deployment.json"
     ;;
   preflight)
     [ "$#" -eq 3 ]
@@ -393,8 +432,12 @@ case "${1:-}" in
     original_consumers=$(cat "$private/original-consumers")
     original_reservation_writers=$(cat "$private/original-reservation-writers")
     original_reservation_mode=$(cat "$private/original-reservation-mode")
+    original_reservation_writer_batch=$(cat "$private/original-reservation-writer-batch")
+    original_reservation_max_command_age=$(cat "$private/original-reservation-max-command-age")
     set_admission "$original"
     set_reservation_mode "$original_reservation_mode"
+    set_reservation_writer_batch_size "$original_reservation_writer_batch"
+    set_reservation_max_command_age "$original_reservation_max_command_age"
     $compose up -d --no-deps --force-recreate --scale "reservation-writer=$original_reservation_writers" reservation-writer
     wait_reservation_writer "$original_reservation_writers"
     $compose up -d --no-deps --force-recreate --scale api=4 api
@@ -407,7 +450,7 @@ case "${1:-}" in
     wait_expiry "$original_expiry"
     $compose up -d --no-deps --scale "consumer=$original_consumers" consumer
     wait_consumers "$original_consumers"
-    printf '{"restored_admission":%s,"restored_reservation_mode":"%s","reservation_writer_replicas":%s,"api_replicas":4,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"pass":true}\n' "$original" "$original_reservation_mode" "$original_reservation_writers" "$original_maintenance" "$original_refresh" "$original_expiry" "$original_consumers" > "$public/rollback.json"
+    printf '{"restored_admission":%s,"restored_reservation_mode":"%s","restored_reservation_writer_batch_size":%s,"restored_reservation_max_command_age_seconds":%s,"reservation_writer_replicas":%s,"api_replicas":4,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"pass":true}\n' "$original" "$original_reservation_mode" "$original_reservation_writer_batch" "$original_reservation_max_command_age" "$original_reservation_writers" "$original_maintenance" "$original_refresh" "$original_expiry" "$original_consumers" > "$public/rollback.json"
     ;;
   cleanup)
     [ "$#" -eq 2 ]

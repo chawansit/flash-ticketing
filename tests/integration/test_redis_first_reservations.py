@@ -162,25 +162,25 @@ def test_expired_provisional_can_be_reclaimed_without_losing_new_owner(redis_fir
 def test_writer_failure_leaves_pending_message_for_reclaim(redis_first, monkeypatch):
     store, intake, _cache, _db, event_id = redis_first
     pending = intake.enqueue("actor", event_id, ["A"], "key")
-    original = store.persist_reservation_command
+    original = store.persist_reservation_commands
 
     def unavailable(*_args):
         raise RuntimeError("database unavailable")
 
-    monkeypatch.setattr(store, "persist_reservation_command", unavailable)
+    monkeypatch.setattr(store, "persist_reservation_commands", unavailable)
     with pytest.raises(RuntimeError, match="database unavailable"):
         persist_reservation_batch(store, intake, "failed-writer", 8)
 
     stream = intake.stream_key(event_id)
     assert intake.redis.xpending(stream, intake.group)["pending"] == 1
 
-    monkeypatch.setattr(store, "persist_reservation_command", original)
+    monkeypatch.setattr(store, "persist_reservation_commands", original)
     claimed = list(intake.messages("recovery-writer", count=8, reclaim_idle_ms=0))
     assert len(claimed) == 1
     claimed_stream, message_id, fields = claimed[0]
     payload = json.loads(fields["payload"])
     response = json.loads(fields["response"])
-    original(payload, response)
+    assert original([(payload, response)])[0][0] == "durable"
     intake.mark_durable(event_id, pending["command_id"])
     intake.acknowledge(claimed_stream, message_id)
 
@@ -233,3 +233,85 @@ def test_new_messages_are_read_across_event_streams_without_starvation(redis_fir
         if keys:
             cache.redis.delete(*keys)
         cache.redis.srem("reservation-stream-registry", second_stream)
+
+def test_batched_writer_isolates_deterministic_failure_with_savepoint(redis_first):
+    store, intake, _cache, db, event_id = redis_first
+    owner = intake.enqueue("existing", event_id, ["C"], "existing")
+    assert persist_reservation_batch(store, intake, "test-writer", 8)
+
+    durable = intake.enqueue("durable", event_id, ["A"], "durable")
+    failed = intake.enqueue("failed", event_id, ["B"], "failed")
+    with db.transaction() as conn:
+        conn.execute(
+            """UPDATE event_seats SET booked_order_id=%s,hold_id=NULL,
+            reserved_until=NULL,version=version+1 WHERE event_id=%s AND seat_id='B'""",
+            (owner["order_id"], event_id),
+        )
+
+    assert persist_reservation_batch(store, intake, "batch-writer", 8)
+    assert intake.status(event_id, durable["command_id"])["persistence_status"] == "DURABLE"
+    failed_status = intake.status(event_id, failed["command_id"])
+    assert failed_status["persistence_status"] == "FAILED"
+    assert failed_status["error_code"] == "SEAT_UNAVAILABLE"
+    assert intake.redis.xlen(intake.stream_key(event_id)) == 0
+    with db.transaction() as conn:
+        assert (
+            conn.execute(
+                "SELECT count(*) AS n FROM reservation_commands WHERE command_id=ANY(%s)",
+                ([durable["command_id"], failed["command_id"]],),
+            ).fetchone()["n"]
+            == 1
+        )
+
+
+def test_post_commit_redis_failure_replays_complete_batch(redis_first, monkeypatch):
+    store, intake, _cache, db, event_id = redis_first
+    first = intake.enqueue("first", event_id, ["A"], "first")
+    second = intake.enqueue("second", event_id, ["B"], "second")
+    original_mark = intake.mark_durable
+
+    def unavailable(*_args):
+        raise RuntimeError("redis unavailable after commit")
+
+    monkeypatch.setattr(intake, "mark_durable", unavailable)
+    with pytest.raises(RuntimeError, match="redis unavailable after commit"):
+        persist_reservation_batch(store, intake, "failed-writer", 8)
+
+    with db.transaction() as conn:
+        assert (
+            conn.execute(
+                "SELECT count(*) AS n FROM reservation_commands WHERE command_id=ANY(%s)",
+                ([first["command_id"], second["command_id"]],),
+            ).fetchone()["n"]
+            == 2
+        )
+    stream = intake.stream_key(event_id)
+    assert intake.redis.xpending(stream, intake.group)["pending"] == 2
+
+    monkeypatch.setattr(intake, "mark_durable", original_mark)
+    original_messages = intake.messages
+
+    def immediate_reclaim(consumer, count=8):
+        yield from original_messages(consumer, count=count, reclaim_idle_ms=0)
+
+    monkeypatch.setattr(intake, "messages", immediate_reclaim)
+    assert persist_reservation_batch(store, intake, "recovery-writer", 8)
+    assert intake.status(event_id, first["command_id"])["persistence_status"] == "DURABLE"
+    assert intake.status(event_id, second["command_id"])["persistence_status"] == "DURABLE"
+    assert intake.redis.xpending(stream, intake.group)["pending"] == 0
+    assert intake.redis.xlen(stream) == 0
+
+
+def test_oldest_command_age_rejects_new_intake_but_allows_replay(redis_first):
+    import time
+
+    _store, _intake, cache, _db, event_id = redis_first
+    intake = RedisReservationIntake(cache, hold_seconds=120, max_command_age_seconds=1)
+    first = intake.enqueue("first", event_id, ["A"], "same-key")
+    time.sleep(1.1)
+
+    assert intake.enqueue("first", event_id, ["A"], "same-key") == first
+    with pytest.raises(Failure, match="RESERVATION_PERSISTENCE_LAGGING"):
+        intake.enqueue("second", event_id, ["B"], "second-key")
+    seats = {seat["seat_id"]: seat for seat in cache.read(str(event_id))["seats"]}
+    assert seats["B"]["status"] == "AVAILABLE"
