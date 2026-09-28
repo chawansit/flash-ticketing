@@ -66,3 +66,11 @@ Acceptance requires unit and integration coverage for matching, missing and chan
 ### Local implementation evidence
 
 The availability and delta response schemas now expose `incarnation`; delta reads validate it before numeric version continuity, and the load generator carries `(incarnation, version)` per viewer and show. Missing or changed incarnation returns the existing full-reset response and the current composite cursor. Focused API, bootstrap, browse and Redis-first coverage passed 31 tests. After correcting one stale mock discovered by the first full run, the complete unit/integration suite passed 257 tests with two dependency deprecation warnings. Repository-wide Ruff passed with cache disabled and the documented Windows executable-bit artifact ignored. Cloud validation remains pending, so the ADR remains Proposed.
+
+### First cloud validation
+
+Run `20260928T151516Z-5e6057c2` at revision `7bdabe0` exercised composite cursors at 1,000 offered RPS for 60 seconds. It completed 59,999 of 60,000 scheduled requests with one bounded generator drop, no transport errors and no admission rejections. Worst-worker read p95 was 354.453 ms and hold p95 was 767.069 ms. All 3,600 acknowledged holds became durable, overlapping hold intervals were zero and all queues drained.
+
+The run did not satisfy this ADR's reset acceptance condition. Clients observed 12,193 reset snapshots. Scrape-aligned counters recorded 6,152 `history_overlap`, zero `history_missing`, 4,577 `ahead` and 1,464 `tail_gap`; these categories account for every observed reset, so `incarnation_mismatch` was zero. The result confirms that the generator and server carried matching incarnations, but it also proves there is a second same-incarnation cursor/range concurrency problem. Composite cursor identity remains necessary for rebuild correctness but is insufficient to meet the performance gate by itself.
+
+The run therefore leaves this ADR Proposed. No production-capacity increase is claimed. The next measurement must capture map version, incarnation and delta range edges while the load is live; the retained history keys had expired by the time a post-run detailed audit was attempted. Any decision to relax strict range equality requires a separate ADR because it changes delta replay semantics.
