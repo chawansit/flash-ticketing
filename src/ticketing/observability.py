@@ -239,6 +239,11 @@ SEAT_DELTA_OUTCOMES = Counter(
     "Versioned seat-map delta outcomes",
     ["outcome"],
 )
+SEAT_DELTA_RESETS = Counter(
+    "ticketing_seat_delta_resets_total",
+    "Seat-map delta reset fallbacks by bounded cause",
+    ["reason"],
+)
 SEAT_DELTA_PHASE_SECONDS = Histogram(
     "ticketing_seat_delta_phase_seconds",
     "Seat-map delta read wall time by bounded phase",

@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from ticketing.api import app
 from ticketing.domain import Failure
 from ticketing.infrastructure.cache import RedisSeats
+from ticketing.observability import SEAT_DELTA_RESETS
 from ticketing.workers import changed_snapshot, snapshot
 
 pytestmark = pytest.mark.integration
@@ -241,7 +242,9 @@ def test_delta_history_gap_returns_full_reset_snapshot(browse_system):
     assert current > initial["version"]
 
     cache.redis.delete(cache.delta_key(event))
+    resets_before = SEAT_DELTA_RESETS.labels("missing_history")._value.get()
     response = client.get(base + f"/seat-deltas?since={initial['version']}")
+    assert SEAT_DELTA_RESETS.labels("missing_history")._value.get() == resets_before + 1
     assert response.status_code == 200
     body = response.json()
     assert body["reset_required"] is True

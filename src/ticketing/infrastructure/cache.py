@@ -17,6 +17,7 @@ from ticketing.observability import (
     SEAT_DELTA_OUTCOMES,
     SEAT_DELTA_PHASE_SECONDS,
     SEAT_DELTA_RAW_ENTRIES,
+    SEAT_DELTA_RESETS,
     SEAT_DELTA_RESULT_SEATS,
 )
 
@@ -127,21 +128,21 @@ if not meta[1] or meta[2] then return {503} end
 local version = tonumber(meta[1])
 local since = tonumber(ARGV[1])
 if not since or since < 0 then return {422,version} end
-if since > version then return {409,version} end
+if since > version then return {409,version,'ahead'} end
 redis.call('EXPIRE',KEYS[1],tonumber(ARGV[2]))
 if redis.call('EXISTS',KEYS[2]) == 1 then redis.call('EXPIRE',KEYS[2],tonumber(ARGV[2])) end
 if since == version then return {200,version} end
 local entries = redis.call('ZRANGEBYSCORE',KEYS[2],'('..since,'+inf')
-if #entries == 0 then return {409,version} end
+if #entries == 0 then return {409,version,'missing_history'} end
 local expected = since
 local result = {200,version}
 for _,raw in ipairs(entries) do
   local entry = cjson.decode(raw)
-  if tonumber(entry.from_version) ~= expected then return {409,version} end
+  if tonumber(entry.from_version) ~= expected then return {409,version,'history_gap'} end
   expected = tonumber(entry.version)
   table.insert(result,raw)
 end
-if expected ~= version then return {409,version} end
+if expected ~= version then return {409,version,'tail_gap'} end
 return result
 """
 RATE = """
@@ -324,7 +325,9 @@ class RedisSeats:
         if status == 422:
             raise Failure("INVALID_VERSION", 422)
         if status == 409:
+            reason = result[2] if len(result) > 2 else "unknown"
             SEAT_DELTA_OUTCOMES.labels("reset").inc()
+            SEAT_DELTA_RESETS.labels(reason).inc()
             snapshot = self.read(event)
             return {
                 "event_id": str(event),

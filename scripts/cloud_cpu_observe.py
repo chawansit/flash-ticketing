@@ -9,9 +9,12 @@ from pathlib import Path
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--seconds',type=int,required=True)
 p.add_argument('--output',type=Path,required=True)
+p.add_argument('--project',default='flash-cloud-bench')
 a=p.parse_args()
 if not 1<=a.seconds<=2400 or a.output.exists():p.error('Use a fresh output and 1..2400 seconds')
-ids=subprocess.check_output(['docker','ps','-q','--filter','label=com.docker.compose.project=flash-cloud-bench'],text=True).split()
+ids=subprocess.check_output([
+ 'docker','ps','-q','--filter',f'label=com.docker.compose.project={a.project}'
+],text=True).split()
 if not ids:raise SystemExit('No benchmark containers')
 end=time.monotonic()+a.seconds
 rows=[]
