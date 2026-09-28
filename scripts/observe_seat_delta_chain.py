@@ -15,16 +15,27 @@ from pathlib import Path
 
 from redis import Redis
 
+READ_CHAIN = """
+local meta=redis.call('HMGET',KEYS[1],'version','incarnation')
+local rows=redis.call('ZRANGE',KEYS[2],-16,-1)
+return {meta,rows}
+"""
+
 
 def inspect_sample(show_ids, replies, previous):
     counts = Counter()
     examples = []
-    for show_id, (meta, rows) in zip(show_ids, replies, strict=True):
+    for show_id, reply in zip(show_ids, replies, strict=True):
+        meta, rows = reply[:2]
+        plain = reply[2] if len(reply) > 2 else None
         version_raw, incarnation = meta
         if version_raw is None or incarnation is None:
             counts["map_missing"] += 1
             continue
         version = int(version_raw)
+        if plain and plain[1] == incarnation and plain[0] is not None and int(plain[0]) < version:
+            counts["plain_read_behind_atomic"] += 1
+            examples.append({"kind": "plain_read_behind_atomic", "atomic": version, "plain": int(plain[0])})
         prior = previous.get(show_id)
         if prior and prior[0] == incarnation and version < prior[1]:
             counts["same_incarnation_regression"] += 1
@@ -82,10 +93,11 @@ def main():
             pipeline = client.pipeline(transaction=False)
             for show_id in batch:
                 slot = "{" + show_id + "}"
+                pipeline.eval(READ_CHAIN, 2, "seatmap:v2:" + slot, "seatdelta:v1:" + slot)
                 pipeline.hmget("seatmap:v2:" + slot, "version", "incarnation")
-                pipeline.zrange("seatdelta:v1:" + slot, -16, -1)
             raw = pipeline.execute()
-            counts, examples = inspect_sample(batch, list(zip(raw[::2], raw[1::2], strict=True)), previous)
+            replies = [(*atomic, plain) for atomic, plain in zip(raw[::2], raw[1::2], strict=True)]
+            counts, examples = inspect_sample(batch, replies, previous)
             output.write(json.dumps({"utc": datetime.now(UTC).isoformat(), "counts": counts, "examples": examples}) + "\n")
             output.flush()
             time.sleep(max(0, args.interval - (time.monotonic() - started)))

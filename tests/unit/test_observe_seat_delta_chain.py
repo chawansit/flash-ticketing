@@ -36,3 +36,11 @@ def test_observer_detects_tail_and_incarnation_change():
     assert counts["incarnation_change"] == 1
     assert counts.get("same_incarnation_regression", 0) == 0
     assert counts["tail_mismatch"] == 1
+
+
+def test_observer_detects_plain_read_behind_atomic_lua():
+    counts, examples = module.inspect_sample(
+        ["show"], [(["11", "same"], [entry(10, 11)], ["9", "same"])], {}
+    )
+    assert counts["plain_read_behind_atomic"] == 1
+    assert examples[0] == {"kind": "plain_read_behind_atomic", "atomic": 11, "plain": 9}
