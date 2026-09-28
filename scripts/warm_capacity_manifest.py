@@ -33,7 +33,7 @@ async def run(args: argparse.Namespace) -> int:
                     except Exception as exc:  # noqa: BLE001
                         return index, type(exc).__name__
 
-            rows = await asyncio.gather(*(one(index) for index in unresolved))
+            rows = await asyncio.gather(*(one(index) for index in range(len(manifest["show_ids"]))))
             counts = Counter(code for _, code in rows)
             unresolved = {index for index, code in rows if code != "ok"}
             history.append({"attempt": attempt, "counts": dict(counts), "remaining": len(unresolved)})
