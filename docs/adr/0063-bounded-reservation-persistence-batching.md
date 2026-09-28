@@ -188,3 +188,6 @@ The capacity preflight now counts global reservation stream entries and consumer
 messages and fails before load unless both are zero. The focused clean-start and hard-bound tests
 passed four tests, and Ruff passed. The backlog must be drained under bounded recovery and the
 batch-size-4 stage repeated from a clean start before it can satisfy an activation gate.
+## Follow-up validation on 2026-09-29
+
+The later 1,000 RPS / 6% Redis-first hold stages with three writers, batch size four and a 60-second oldest-command guard passed 5, 15 and 30 minutes. The 30-minute stage completed 1,800,000 requests and all 108,000 provisional holds became durable with zero overlap and drained queues. A 1,200 RPS five-minute probe also passed all gates, but the matching 15-minute stage failed with 32 hold HTTP 503 responses classified as `RESERVATION_PERSISTENCE_LAGGING`. Its other 64,768 accepted holds all became durable, no overlap occurred, and final queues drained. The stale-intake guard therefore preserved correctness under overload; it did not make 1,200 RPS a valid sustained capacity point. The compact comparison is in [the higher-RPS report](../capacity/huawei-rds/2026-09-29-higher-rps-probes/README.md). No threshold was increased and no recovery gate was relaxed.

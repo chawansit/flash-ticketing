@@ -1,0 +1,22 @@
+{
+  "error_code": "RESERVATION_PERSISTENCE_LAGGING",
+  "total": 32,
+  "workers": [
+    {
+      "worker": "api-errors-0",
+      "persistence_lagging": 7
+    },
+    {
+      "worker": "api-errors-1",
+      "persistence_lagging": 7
+    },
+    {
+      "worker": "api-errors-2",
+      "persistence_lagging": 13
+    },
+    {
+      "worker": "api-errors-3",
+      "persistence_lagging": 5
+    }
+  ]
+}
