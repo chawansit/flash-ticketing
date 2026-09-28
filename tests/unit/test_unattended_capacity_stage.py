@@ -432,5 +432,8 @@ def test_backend_deploy_rebuilds_and_verifies_measured_worker_images():
     assert "src/ticketing/workers.py" in helper
     assert '"split_maintenance":%s' in helper
     assert '"worker_source_verified":true' in helper
+    assert '--force-recreate load-balancer' in helper
+    assert "load_balancer_nofile=$(docker exec \"$load_balancer_id\" sh -lc 'ulimit -Sn')" in helper
+    assert '[ "$load_balancer_nofile" -ge 4096 ]' in helper
     assert 'unset PGSSLROOTCERT' not in helper
     assert 'RDS_DATABASE_URL="$DATABASE_URL"' in helper

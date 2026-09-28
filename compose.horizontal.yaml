@@ -10,6 +10,10 @@ services:
 
   load-balancer:
     image: nginx:1.27.5-alpine
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     ports:
       - "${HORIZONTAL_BIND_IP:-127.0.0.1}:8000:8000"
     volumes:

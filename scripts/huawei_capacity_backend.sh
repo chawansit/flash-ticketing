@@ -20,6 +20,20 @@ api_id() {
   $compose ps -q api | head -n 1
 }
 
+wait_load_balancer() {
+  attempt=0
+  while [ "$attempt" -lt 90 ]; do
+    id=$($compose ps -q load-balancer)
+    if [ -n "$id" ]; then
+      state=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$id")
+      [ "$state" = healthy ] && return 0
+    fi
+    attempt=$((attempt + 1))
+    sleep 2
+  done
+  return 1
+}
+
 wait_apis() {
   attempt=0
   while [ "$attempt" -lt 90 ]; do
@@ -240,6 +254,11 @@ case "${1:-}" in
     fi
     $compose up -d --no-deps --force-recreate --scale api=4 api
     wait_apis
+    $compose up -d --no-deps --force-recreate load-balancer
+    wait_load_balancer
+    load_balancer_id=$($compose ps -q load-balancer)
+    load_balancer_nofile=$(docker exec "$load_balancer_id" sh -lc 'ulimit -Sn')
+    [ "$load_balancer_nofile" -ge 4096 ]
     $compose up -d --no-deps --force-recreate publisher
     if [ "$split_candidate" -eq 1 ]; then
       $compose up -d --no-deps --scale maintenance=0 maintenance
@@ -296,7 +315,7 @@ case "${1:-}" in
         [ "$image_hash" = "$worker_source_hash" ]
       done
     done
-    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"reservation_mode":"%s","reservation_writer_replicas":%s,"reservation_writer_batch_size":%s,"reservation_max_command_age_seconds":%s,"split_maintenance":%s,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"worker_source_verified":true,"pass":true}\n' "$candidate" "$reservation_candidate" "$deployed_reservation_writers" "$reservation_writer_batch_candidate" "$reservation_max_command_age_candidate" "$split_json" "$deployed_maintenance" "$deployed_refresh" "$deployed_expiry" "$consumer_candidate" > "$public/deployment.json"
+    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"reservation_mode":"%s","reservation_writer_replicas":%s,"reservation_writer_batch_size":%s,"reservation_max_command_age_seconds":%s,"split_maintenance":%s,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"worker_source_verified":true,"load_balancer_nofile":%s,"pass":true}\n' "$candidate" "$reservation_candidate" "$deployed_reservation_writers" "$reservation_writer_batch_candidate" "$reservation_max_command_age_candidate" "$split_json" "$deployed_maintenance" "$deployed_refresh" "$deployed_expiry" "$consumer_candidate" "$load_balancer_nofile" > "$public/deployment.json"
     ;;
   warm)
     [ "$#" -eq 2 ]

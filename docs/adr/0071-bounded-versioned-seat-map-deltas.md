@@ -206,6 +206,7 @@ during the load, and every worker showed the same 422-to-503 pattern. The
 correction specified above preserves versions during in-place full reconciliation
 and makes incarnation reset behavior explicit on both server and client.
 
+At commit `2c2c2f5`, the corrected three-minute 1,000 RPS control passed all gates: 180,000 physical attempts, zero drops, transport errors and retries, read p95 20.637 ms, hold p95 33.962 ms, 10,800 durable holds, zero overlap and drained queues. The following 15-minute run no longer showed the 422-to-503 version-reset failure, but failed for an independent edge limit recorded in ADR 0072: Nginx exhausted its 1,024 file-descriptor process limit even though `worker_connections` was configured for 4,096. That run completed 775,280 physical attempts, dropped 124,720 scheduled requests and recorded 168 read timeouts. It does not validate sustained delta capacity.
 The corrected implementation passed the focused Redis lifecycle, browse reset and
 generator reset regression suite (16 tests), Ruff on every changed Python file, and
 the complete unit/integration suite (254 tests; two dependency deprecation warnings)
