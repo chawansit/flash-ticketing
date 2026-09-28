@@ -407,8 +407,13 @@ def test_worker_scaling_is_passed_and_observers_cover_audit(monkeypatch, tmp_pat
 
 def test_backend_deploy_rebuilds_and_verifies_measured_worker_images():
     helper = (SCRIPT.parent / "huawei_capacity_backend.sh").read_text()
-    assert "$compose build api migrate publisher consumer maintenance refresh expiry reservation-writer" in helper
+    assert "$compose build api migrate publisher consumer maintenance refresh expiry reconciler reservation-writer" in helper
     assert '$compose up -d --no-deps --force-recreate publisher' in helper
+    assert '--force-recreate --scale reconciler=1 reconciler' in helper
+    assert 'wait_reconciler 1' in helper
+    assert 'worker_services="publisher refresh expiry consumer reconciler"' in helper
+    assert 'cache_source_hash=$(sha256sum src/ticketing/infrastructure/cache.py' in helper
+    assert '[ "$cache_image_hash" = "$cache_source_hash" ]' in helper
     assert '--scale maintenance=0 maintenance' in helper
     assert '--force-recreate --scale refresh=1 refresh' in helper
     assert '--force-recreate --scale expiry=1 expiry' in helper

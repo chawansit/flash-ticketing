@@ -69,6 +69,24 @@ wait_maintenance() {
   return 1
 }
 
+wait_reconciler() {
+  expected=$1
+  attempt=0
+  while [ "$attempt" -lt 90 ]; do
+    total=0
+    running=0
+    for id in $($compose ps -q reconciler); do
+      total=$((total + 1))
+      state=$(docker inspect -f '{{.State.Status}}' "$id")
+      [ "$state" = running ] && running=$((running + 1))
+    done
+    [ "$total" -eq "$expected" ] && [ "$running" -eq "$expected" ] && return 0
+    attempt=$((attempt + 1))
+    sleep 2
+  done
+  return 1
+}
+
 wait_refresh() {
   expected=$1
   attempt=0
@@ -213,6 +231,7 @@ case "${1:-}" in
     original_maintenance=$($compose ps -q maintenance | wc -l | tr -d ' ')
     original_refresh=$($compose ps -q refresh | wc -l | tr -d ' ')
     original_expiry=$($compose ps -q expiry | wc -l | tr -d ' ')
+    original_reconciler=$($compose ps -q reconciler | wc -l | tr -d ' ')
     original_consumers=$($compose ps -q consumer | wc -l | tr -d ' ')
     original_reservation_writers=$($compose ps -q reservation-writer | wc -l | tr -d ' ')
     original_reservation_mode=$(sed -n 's/^RESERVATION_MODE=//p' "$env_file" | tail -n 1)
@@ -224,6 +243,7 @@ case "${1:-}" in
     original_reservation_max_command_age=${original_reservation_max_command_age:-0}
     [ "$original_maintenance" -eq "$maintenance_fallback" ]
     [ "$original_consumers" -eq "$consumer_fallback" ]
+    [ "$original_reconciler" -eq 1 ]
     printf '%s\n' "$original_maintenance" > "$private/original-maintenance"
     chmod 600 "$private/original-maintenance"
     printf '%s\n' "$original_refresh" > "$private/original-refresh"
@@ -246,7 +266,7 @@ case "${1:-}" in
     set_reservation_mode "$reservation_candidate"
     set_reservation_writer_batch_size "$reservation_writer_batch_candidate"
     set_reservation_max_command_age "$reservation_max_command_age_candidate"
-    $compose build api migrate publisher consumer maintenance refresh expiry reservation-writer
+    $compose build api migrate publisher consumer maintenance refresh expiry reconciler reservation-writer
     if [ "$reservation_candidate" = redis-first ]; then
       $compose up -d --no-deps --force-recreate --scale "reservation-writer=$reservation_writer_candidate" reservation-writer
       wait_reservation_writer "$reservation_writer_candidate"
@@ -268,6 +288,8 @@ case "${1:-}" in
     load_balancer_nofile=$(docker exec "$load_balancer_id" sh -lc 'ulimit -Sn')
     [ "$load_balancer_nofile" -ge 4096 ]
     $compose up -d --no-deps --force-recreate publisher
+    $compose up -d --no-deps --force-recreate --scale reconciler=1 reconciler
+    wait_reconciler 1
     if [ "$split_candidate" -eq 1 ]; then
       $compose up -d --no-deps --scale maintenance=0 maintenance
       wait_maintenance 0
@@ -279,7 +301,7 @@ case "${1:-}" in
       deployed_refresh=1
       deployed_expiry=1
       split_json=true
-      worker_services="publisher refresh expiry consumer"
+      worker_services="publisher refresh expiry consumer reconciler"
     else
       $compose up -d --no-deps --scale refresh=0 refresh
       wait_refresh 0
@@ -291,7 +313,7 @@ case "${1:-}" in
       deployed_refresh=0
       deployed_expiry=0
       split_json=false
-      worker_services="publisher maintenance consumer"
+      worker_services="publisher maintenance consumer reconciler"
     fi
     $compose up -d --no-deps --force-recreate --scale "consumer=$consumer_candidate" consumer
     wait_consumers "$consumer_candidate"
@@ -299,7 +321,10 @@ case "${1:-}" in
       worker_services="$worker_services reservation-writer"
     fi
     source_hash=$(sha256sum src/ticketing/infrastructure/postgres.py | cut -d " " -f 1)
+    cache_source_hash=$(sha256sum src/ticketing/infrastructure/cache.py | cut -d " " -f 1)
     for id in $($compose ps -q api); do
+      cache_image_hash=$(docker exec "$id" sha256sum /app/src/ticketing/infrastructure/cache.py | cut -d " " -f 1)
+      [ "$cache_image_hash" = "$cache_source_hash" ]
       image_hash=$(docker exec "$id" sha256sum /app/src/ticketing/infrastructure/postgres.py | cut -d " " -f 1)
       [ "$image_hash" = "$source_hash" ]
       docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$id" |
@@ -315,6 +340,8 @@ case "${1:-}" in
       [ -n "$ids" ]
       for id in $ids; do
         [ "$(docker inspect -f '{{.State.Status}}' "$id")" = running ]
+        cache_image_hash=$(docker exec "$id" sha256sum /app/src/ticketing/infrastructure/cache.py | cut -d " " -f 1)
+        [ "$cache_image_hash" = "$cache_source_hash" ]
         image_hash=$(docker exec "$id" sha256sum /app/src/ticketing/workers.py | cut -d " " -f 1)
         if [ "$service" = reservation-writer ]; then
           docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$id" |
@@ -323,7 +350,7 @@ case "${1:-}" in
         [ "$image_hash" = "$worker_source_hash" ]
       done
     done
-    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"reservation_mode":"%s","reservation_writer_replicas":%s,"reservation_writer_batch_size":%s,"reservation_max_command_age_seconds":%s,"split_maintenance":%s,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"worker_source_verified":true,"load_balancer_bind_ip":"%s","load_balancer_nofile":%s,"pass":true}\n' "$candidate" "$reservation_candidate" "$deployed_reservation_writers" "$reservation_writer_batch_candidate" "$reservation_max_command_age_candidate" "$split_json" "$deployed_maintenance" "$deployed_refresh" "$deployed_expiry" "$consumer_candidate" "$load_balancer_published_ip" "$load_balancer_nofile" > "$public/deployment.json"
+    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"reservation_mode":"%s","reservation_writer_replicas":%s,"reservation_writer_batch_size":%s,"reservation_max_command_age_seconds":%s,"split_maintenance":%s,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"reconciler_replicas":1,"worker_source_verified":true,"load_balancer_bind_ip":"%s","load_balancer_nofile":%s,"pass":true}\n' "$candidate" "$reservation_candidate" "$deployed_reservation_writers" "$reservation_writer_batch_candidate" "$reservation_max_command_age_candidate" "$split_json" "$deployed_maintenance" "$deployed_refresh" "$deployed_expiry" "$consumer_candidate" "$load_balancer_published_ip" "$load_balancer_nofile" > "$public/deployment.json"
     ;;
   warm)
     [ "$#" -eq 2 ]
