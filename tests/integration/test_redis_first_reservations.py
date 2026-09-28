@@ -78,7 +78,7 @@ def test_one_of_100_concurrent_intakes_wins_and_writer_is_replay_safe(redis_firs
 
 
 def test_redis_first_hold_and_compensation_preserve_delta_continuity(redis_first):
-    _store, intake, cache, _db, event_id = redis_first
+    _store, intake, cache, db, event_id = redis_first
     initial = cache.read(str(event_id))
 
     pending = intake.enqueue("actor", event_id, ["A"], "delta-hold")
@@ -92,6 +92,12 @@ def test_redis_first_hold_and_compensation_preserve_delta_continuity(redis_first
             "reserved_until": pending["expires_at"],
         }
     ]
+
+    # Periodic full reconciliation must not roll back the provisional aggregate
+    # version or discard its contiguous delta when PostgreSQL has not caught up.
+    snapshot(db, cache, event_id)
+    assert cache.deltas(str(event_id), initial["version"]) == held
+
     map_ttl = cache.redis.ttl(cache.key(event_id))
     delta_ttl = cache.redis.ttl(cache.delta_key(event_id))
     assert 0 < delta_ttl <= map_ttl

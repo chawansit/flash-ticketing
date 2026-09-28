@@ -79,13 +79,14 @@ def test_delta_read_mode_bootstraps_snapshot_then_advances_versions(tmp_path, mo
         if request.url.path.endswith("/seat-deltas"):
             since = int(request.url.params["since"])
             delta_since.append(since)
+            reset = len(delta_since) == 1
             return httpx.Response(
                 200,
                 json={
                     "event_id": "one",
                     "from_version": since,
-                    "version": since + 1,
-                    "reset_required": False,
+                    "version": 3 if reset else since + 1,
+                    "reset_required": reset,
                     "seats": [],
                 },
             )
@@ -129,6 +130,5 @@ def test_delta_read_mode_bootstraps_snapshot_then_advances_versions(tmp_path, mo
     result = json.loads(args.output.read_text())
     assert result["read_mode"] == "delta"
     assert result["workload_gate_pass"] is True
-    assert delta_since
-    assert min(delta_since) == 5
-    assert max(delta_since) > 5
+    assert delta_since[:2] == [5, 3]
+    assert max(delta_since[1:]) > 3

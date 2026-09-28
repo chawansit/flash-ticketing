@@ -40,18 +40,26 @@ local version = tonumber(redis.call('HGET',KEYS[1],'version') or '0')
 local prior_version = version
 local changed = {}
 local ttl_seconds = tonumber(ARGV[6] or '30')
-if ARGV[1] == 'full' then version = 0 end
+local rebuild = ARGV[1] == 'full' and not exists
+local source_total = 0
+if rebuild then version = 0 end
 for _,seat in ipairs(rows) do
   local raw = redis.call('HGET',KEYS[1],'seat:'..seat.seat_id)
   local old = raw and cjson.decode(raw) or nil
   local newer = not old or tonumber(seat.source_version) > tonumber(old.source_version)
   local selected = newer and seat or old
   if ARGV[1] == 'full' then
+    source_total = source_total + tonumber(selected.source_version)
+  end
+  if rebuild then
     version = version + tonumber(selected.source_version)
   elseif newer then
     version = version + tonumber(seat.source_version) - (old and tonumber(old.source_version) or 0)
   end
-  if newer or dirty then table.insert(changed, selected) end
+  if rebuild or newer or dirty then table.insert(changed, selected) end
+end
+if ARGV[1] == 'full' and not rebuild and source_total > version then
+  version = source_total
 end
 redis.call('HSET',KEYS[1],'updating',1)
 for _,seat in ipairs(changed) do
@@ -114,7 +122,8 @@ local meta = redis.call('HMGET',KEYS[1],'version','updating')
 if not meta[1] or meta[2] then return {503} end
 local version = tonumber(meta[1])
 local since = tonumber(ARGV[1])
-if not since or since < 0 or since > version then return {422,version} end
+if not since or since < 0 then return {422,version} end
+if since > version then return {409,version} end
 redis.call('EXPIRE',KEYS[1],tonumber(ARGV[2]))
 if redis.call('EXISTS',KEYS[2]) == 1 then redis.call('EXPIRE',KEYS[2],tonumber(ARGV[2])) end
 if since == version then return {200,version} end

@@ -270,14 +270,20 @@ def test_delta_history_is_bounded_and_trim_gap_fails_safe(browse_system):
     assert reset["reset_required"] is True
     assert len(reset["seats"]) == 3
 
-def test_delta_invalid_versions_are_rejected_and_openapi_documents_reset(browse_system):
+def test_delta_higher_prior_incarnation_version_returns_reset(browse_system):
     _, _, event, cache, client = browse_system
     version = cache.read(event)["version"]
     path = f"/v1/events/{event}/seat-deltas"
-    for invalid in (-1, version + 1):
-        response = client.get(path, params={"since": invalid})
-        assert response.status_code == 422
-        assert response.json()["code"] == "INVALID_VERSION"
+
+    invalid = client.get(path, params={"since": -1})
+    assert invalid.status_code == 422
+    assert invalid.json()["code"] == "INVALID_VERSION"
+
+    response = client.get(path, params={"since": version + 1})
+    assert response.status_code == 200
+    assert response.json()["reset_required"] is True
+    assert response.json()["from_version"] == version + 1
+    assert response.json()["version"] == version
 
     schema = client.get("/openapi.json").json()
     response_schema = schema["paths"]["/v1/events/{event_id}/seat-deltas"]["get"]["responses"]["200"]

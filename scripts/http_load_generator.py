@@ -290,10 +290,15 @@ async def run(args):
                     final_code, request_id = error_diagnostic(response)
                     if not write and response.status_code == 200:
                         if read_mode == "delta":
-                            returned_version = int(response.json()["version"])
-                            versions[(viewer, show)] = max(
-                                returned_version, versions.get((viewer, show), initial_versions[show])
-                            )
+                            delta = response.json()
+                            returned_version = int(delta["version"])
+                            if delta.get("reset_required") is True:
+                                versions[(viewer, show)] = returned_version
+                            else:
+                                versions[(viewer, show)] = max(
+                                    returned_version,
+                                    versions.get((viewer, show), initial_versions[show]),
+                                )
                         else:
                             validators[(viewer, show)] = response.headers["etag"]
                     if retryable_response(write, response, final_code) and attempt < max_attempts:

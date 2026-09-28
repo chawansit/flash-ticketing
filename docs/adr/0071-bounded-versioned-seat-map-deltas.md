@@ -55,6 +55,16 @@ make `/seat-deltas` a bounded versioned change feed for subsequent polling.
 9. The load generator may model production clients by taking one initial snapshot
    per viewer and then applying deltas. Capacity comparisons must report the read
    mode and may not compare snapshot polling and delta polling as identical workloads.
+10. A full reconciliation of an existing map preserves a monotonically increasing
+    aggregate version. It applies only source-version-fenced changes and repairs a
+    lagging aggregate to at least the sum of retained source versions; it does not
+    recompute a lower version that discards provisional Redis mutations.
+11. Cache loss creates a new incarnation whose reconstructed aggregate version may
+    be lower than a client version from the lost incarnation. A client version above
+    the current version therefore receives a full `reset_required: true` snapshot.
+    Negative or malformed versions remain validation errors.
+12. On any reset response, a client replaces its local version with the returned
+    version even when it is lower. Normal contiguous deltas remain monotonic.
 
 This extends ADR 0010 and ADR 0017. It supersedes their decision to defer an indexed
 delta representation now that sustained cloud evidence identifies full changed-map
@@ -110,8 +120,10 @@ cost on every request.
   a full reset snapshot. It never returns an incomplete change set.
 - If the map is missing or marked updating, reads continue to fail closed with
   `SEATMAP_WARMING`; reconciliation or rollout pre-warm restores it.
-- A cache rebuild starts a new bounded history. Versions outside that history receive
-  a reset snapshot.
+- A full reconciliation of an existing map cannot lower its aggregate version.
+  If the entire map is lost, the rebuilt incarnation may start at a lower durable
+  version; clients with a higher prior-incarnation version receive a full reset
+  snapshot and replace their local version.
 - Redis outage continues to return `SEATMAP_UNAVAILABLE`; PostgreSQL is not exposed
   as a browse fallback.
 - Duplicate or replayed source rows remain fenced by their durable source versions
@@ -177,5 +189,27 @@ recorded empty and changed-delta outcomes in 246 samples and no reset series; th
 metric sample is diagnostic rather than an exact aggregate. [Compact cloud
 evidence](../capacity/seatmap-delta/README.md) is retained with the comparison.
 
-ADR acceptance and any higher production-capacity claim still require the
-15-minute 1,000 RPS stage.
+The first 15-minute rerun at commit `ac8d299` did not pass the workload gate.
+It scheduled and physically attempted all 900,000 requests with zero generator
+drops, transport errors or retries. Worst-worker read p95 was 15.540 ms and hold
+p95 was 28.813 ms. All 49,775 accepted holds were durable after expiry,
+overlapping intervals were zero, every queue drained, and rollback completed.
+
+The sustained run exposed a second lifecycle gap. Periodic full reconciliation
+recomputed a lower aggregate version after provisional Redis mutations. The
+server safely returned reset snapshots, but the generator retained
+`max(old_version, returned_version)`; it then sent a prior-incarnation version
+that was above the current map and received repeated 422 responses. Those invalid
+reads did not renew the map TTL, producing a later cascade of
+`SEATMAP_WARMING` responses. Backend samples recorded reset outcomes beginning
+during the load, and every worker showed the same 422-to-503 pattern. The
+correction specified above preserves versions during in-place full reconciliation
+and makes incarnation reset behavior explicit on both server and client.
+
+The corrected implementation passed the focused Redis lifecycle, browse reset and
+generator reset regression suite (16 tests), Ruff on every changed Python file, and
+the complete unit/integration suite (254 tests; two dependency deprecation warnings)
+on 2026-09-28. Cloud validation remains pending.
+
+ADR acceptance and any higher production-capacity claim require a corrected
+15-minute 1,000 RPS rerun.
