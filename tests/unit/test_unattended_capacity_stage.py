@@ -409,6 +409,8 @@ def test_backend_deploy_rebuilds_and_verifies_measured_worker_images():
     assert '--force-recreate --scale "consumer=$consumer_candidate" consumer' in helper
     assert '--scale "reservation-writer=$reservation_writer_candidate" reservation-writer' in helper
     assert 'wait_reservation_writer "$reservation_writer_candidate"' in helper
+    assert "summarize_reservation_writer_logs.py" in helper
+    assert "summarize_reservation_writer_metrics.py" in helper
     assert '--scale "reservation-writer=$original_reservation_writers" reservation-writer' in helper
     assert 'set_reservation_mode "$reservation_candidate"' in helper
     assert 'set_reservation_mode "$original_reservation_mode"' in helper

@@ -336,6 +336,25 @@ case "${1:-}" in
         python3 scripts/summarize_slow_db_phases.py --limit 50 > "$public/db-slow-$index.json"
       index=$((index + 1))
     done
+    writer_ids=$($compose ps -q reservation-writer)
+    if [ -n "$writer_ids" ]; then
+      writer_metrics="$raw/reservation-writer-metrics.prom"
+      : > "$writer_metrics"
+      for id in $writer_ids; do
+        ip=$(docker inspect -f '{{(index .NetworkSettings.Networks "flash-ticketing_default").IPAddress}}' "$id")
+        curl -fsS "http://$ip:9101/metrics" >> "$writer_metrics" || observer_failed=1
+        docker logs --since "$since" "$id" 2>&1
+      done | python3 scripts/summarize_reservation_writer_logs.py --limit 20 > \
+        "$public/reservation-writer-summary.json" || observer_failed=1
+      if [ -s "$writer_metrics" ]; then
+        python3 scripts/summarize_reservation_writer_metrics.py < "$writer_metrics" > \
+          "$public/reservation-writer-metrics.json" || observer_failed=1
+      else
+        observer_failed=1
+      fi
+    else
+      observer_failed=1
+    fi
     [ "$index" -eq 4 ] && [ "$observer_failed" -eq 0 ]
     ;;
   audit)

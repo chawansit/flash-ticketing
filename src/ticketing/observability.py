@@ -22,10 +22,29 @@ RESERVATION_PERSISTENCE = Counter(
     "Redis-first PostgreSQL writer outcomes",
     ["outcome"],
 )
+RESERVATION_PERSISTENCE_FAILURES = Counter(
+    "ticketing_reservation_persistence_failures_total",
+    "Deterministic Redis-first persistence failures by bounded domain code",
+    ["code"],
+)
+RESERVATION_PERSISTENCE_PHASE_SECONDS = Histogram(
+    "ticketing_reservation_persistence_phase_seconds",
+    "Reservation-writer phase wall time",
+    ["phase", "outcome"],
+    buckets=(0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5),
+)
+RESERVATION_PERSISTENCE_BATCH_SIZE = Histogram(
+    "ticketing_reservation_persistence_batch_size",
+    "Commands handled by one reservation-writer poll",
+    buckets=(0, 1, 2, 4, 8, 16, 32, 64, 100),
+)
 RESERVATION_COMMAND_AGE_SECONDS = Histogram(
     "ticketing_reservation_command_age_seconds",
     "Age of a Redis-first command when a writer handles it",
-    buckets=(0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5, 15, 30, 60),
+    buckets=(
+        0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5, 15, 30, 60,
+        90, 120, 180, 300,
+    ),
 )
 RESERVATION_REPLICA_ACKS = Histogram(
     "ticketing_reservation_replica_acknowledgements",

@@ -37,6 +37,9 @@ from ticketing.observability import (
     REFRESH_PENDING,
     RESERVATION_COMMAND_AGE_SECONDS,
     RESERVATION_PERSISTENCE,
+    RESERVATION_PERSISTENCE_BATCH_SIZE,
+    RESERVATION_PERSISTENCE_FAILURES,
+    RESERVATION_PERSISTENCE_PHASE_SECONDS,
     WORKER_ERRORS,
     configure_logging,
     measured_work,
@@ -54,39 +57,119 @@ def stop(*_):
 @measured_work("reservation_write")
 def persist_reservation_batch(store, intake, consumer, limit=8):
     handled = False
-    for stream, message_id, fields in intake.messages(consumer, count=limit):
-        handled = True
-        payload = json.loads(fields["payload"])
-        response = json.loads(fields["response"])
-        created_at = float(fields.get("created_at_epoch", time.time()))
-        RESERVATION_COMMAND_AGE_SECONDS.observe(max(0.0, time.time() - created_at))
-        try:
-            store.persist_reservation_command(payload, response)
-        except Failure as exc:
-            intake.mark_failed(
-                payload["event_id"],
-                payload["command_id"],
-                payload["seat_ids"],
-                exc.code,
-            )
-            RESERVATION_PERSISTENCE.labels("failed").inc()
-            log.warning(
-                "reservation_command_failed",
-                extra={"fields": {
-                    "event": "reservation_command_failed",
-                    "command_id": payload["command_id"],
-                    "error_code": exc.code,
-                }},
-            )
-            snapshot(store.db, intake.cache, payload["event_id"])
-            intake.acknowledge(stream, message_id)
-            continue
-        if intake.mark_durable(payload["event_id"], payload["command_id"]) != 1:
-            raise RuntimeError("reservation command metadata expired before durable acknowledgement")
-        intake.acknowledge(stream, message_id)
-        RESERVATION_PERSISTENCE.labels("durable").inc()
-    return handled
+    handled_count = 0
+    try:
+        for stream, message_id, fields in intake.messages(consumer, count=limit):
+            handled = True
+            handled_count += 1
+            payload = json.loads(fields["payload"])
+            response = json.loads(fields["response"])
+            created_at = float(fields.get("created_at_epoch", time.time()))
+            command_age = max(0.0, time.time() - created_at)
+            RESERVATION_COMMAND_AGE_SECONDS.observe(command_age)
 
+            started = time.perf_counter()
+            try:
+                store.persist_reservation_command(payload, response)
+            except Failure as exc:
+                RESERVATION_PERSISTENCE_PHASE_SECONDS.labels("postgres", "failed").observe(
+                    time.perf_counter() - started
+                )
+                error_code = str(exc.code or "UNKNOWN")
+                RESERVATION_PERSISTENCE.labels("failed").inc()
+                RESERVATION_PERSISTENCE_FAILURES.labels(error_code).inc()
+                compensate_started = time.perf_counter()
+                try:
+                    intake.mark_failed(
+                        payload["event_id"],
+                        payload["command_id"],
+                        payload["seat_ids"],
+                        error_code,
+                    )
+                except Exception:
+                    RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+                        "redis_compensate", "error"
+                    ).observe(time.perf_counter() - compensate_started)
+                    RESERVATION_PERSISTENCE.labels("compensation_error").inc()
+                    raise
+                RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+                    "redis_compensate", "ok"
+                ).observe(time.perf_counter() - compensate_started)
+                log.warning(
+                    "reservation_command_failed",
+                    extra={"fields": {
+                        "event": "reservation_command_failed",
+                        "command_id": payload["command_id"],
+                        "error_code": error_code,
+                        "command_age_seconds": round(command_age, 6),
+                    }},
+                )
+                snapshot(store.db, intake.cache, payload["event_id"])
+                acknowledge_started = time.perf_counter()
+                try:
+                    intake.acknowledge(stream, message_id)
+                except Exception:
+                    RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+                        "redis_acknowledge", "error"
+                    ).observe(time.perf_counter() - acknowledge_started)
+                    RESERVATION_PERSISTENCE.labels("acknowledgement_error").inc()
+                    raise
+                RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+                    "redis_acknowledge", "ok"
+                ).observe(time.perf_counter() - acknowledge_started)
+                continue
+            except Exception:
+                RESERVATION_PERSISTENCE_PHASE_SECONDS.labels("postgres", "error").observe(
+                    time.perf_counter() - started
+                )
+                RESERVATION_PERSISTENCE.labels("transient_error").inc()
+                raise
+            RESERVATION_PERSISTENCE_PHASE_SECONDS.labels("postgres", "ok").observe(
+                time.perf_counter() - started
+            )
+
+            mark_started = time.perf_counter()
+            try:
+                marked = intake.mark_durable(payload["event_id"], payload["command_id"])
+            except Exception:
+                RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+                    "redis_mark_durable", "error"
+                ).observe(time.perf_counter() - mark_started)
+                RESERVATION_PERSISTENCE.labels("mark_durable_error").inc()
+                raise
+            RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+                "redis_mark_durable", "ok"
+            ).observe(time.perf_counter() - mark_started)
+            if marked != 1:
+                RESERVATION_PERSISTENCE.labels("metadata_expired").inc()
+                log.error(
+                    "reservation_command_metadata_expired",
+                    extra={"fields": {
+                        "event": "reservation_command_metadata_expired",
+                        "command_id": payload["command_id"],
+                        "command_age_seconds": round(command_age, 6),
+                        "mark_result": marked,
+                    }},
+                )
+                raise RuntimeError(
+                    "reservation command metadata expired before durable acknowledgement"
+                )
+            acknowledge_started = time.perf_counter()
+            try:
+                intake.acknowledge(stream, message_id)
+            except Exception:
+                RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+                    "redis_acknowledge", "error"
+                ).observe(time.perf_counter() - acknowledge_started)
+                RESERVATION_PERSISTENCE.labels("acknowledgement_error").inc()
+                raise
+            RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+                "redis_acknowledge", "ok"
+            ).observe(time.perf_counter() - acknowledge_started)
+            RESERVATION_PERSISTENCE.labels("durable").inc()
+    finally:
+        RESERVATION_PERSISTENCE_BATCH_SIZE.observe(handled_count)
+    return handled
 
 @measured_work("snapshot")
 def snapshot(db, cache, event_id):
