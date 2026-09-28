@@ -1,5 +1,6 @@
 import hashlib
 import json
+import time
 from collections import OrderedDict
 from contextlib import contextmanager
 from threading import Lock
@@ -14,6 +15,9 @@ from ticketing.observability import (
     BROWSE_BODY_ENTRIES,
     BROWSE_BODY_OUTCOMES,
     SEAT_DELTA_OUTCOMES,
+    SEAT_DELTA_PHASE_SECONDS,
+    SEAT_DELTA_RAW_ENTRIES,
+    SEAT_DELTA_RESULT_SEATS,
 )
 
 DELTA_HISTORY_LIMIT = 512
@@ -298,6 +302,7 @@ class RedisSeats:
         return [int(result) >= 0 for result in results]
 
     def deltas(self, event, since):
+        redis_started = time.monotonic()
         try:
             result = self.redis.eval(
                 DELTAS,
@@ -309,6 +314,10 @@ class RedisSeats:
             )
         except RedisError as exc:
             raise Failure("SEATMAP_UNAVAILABLE", 503) from exc
+        finally:
+            SEAT_DELTA_PHASE_SECONDS.labels("redis").observe(
+                time.monotonic() - redis_started
+            )
         status, version = int(result[0]), int(result[1]) if len(result) > 1 else None
         if status == 503:
             raise Failure("SEATMAP_WARMING", 503)
@@ -327,12 +336,18 @@ class RedisSeats:
                     for seat in snapshot["seats"]
                 ],
             }
+        SEAT_DELTA_RAW_ENTRIES.observe(max(0, len(result) - 2))
+        collapse_started = time.monotonic()
         latest = {}
         for raw in result[2:]:
             for seat in json.loads(raw)["seats"]:
                 latest[seat["seat_id"]] = {
                     key: seat[key] for key in ("seat_id", "status", "reserved_until")
                 }
+        SEAT_DELTA_PHASE_SECONDS.labels("collapse").observe(
+            time.monotonic() - collapse_started
+        )
+        SEAT_DELTA_RESULT_SEATS.observe(len(latest))
         SEAT_DELTA_OUTCOMES.labels("delta" if latest else "empty").inc()
         return {
             "event_id": str(event),

@@ -360,6 +360,8 @@ case "${1:-}" in
     done
     nohup python3 scripts/cloud_pressure_observe.py $urls --seconds "$seconds" --interval 0.5 --output "$raw/pressure.ndjson" > "$raw/pressure.log" 2>&1 &
     echo $! > "$private/pressure.pid"
+    nohup python3 scripts/cloud_cpu_observe.py --seconds "$seconds" --output "$raw/cpu.json" > "$raw/cpu.log" 2>&1 &
+    echo $! > "$private/cpu.pid"
     api=$(api_id)
     nohup docker exec "$api" python /app/scripts/pgbouncer_pressure_observe.py --seconds "$seconds" --interval 0.2 --output /tmp/capacity-pgbouncer.jsonl > "$raw/pgbouncer.log" 2>&1 &
     echo $! > "$private/pgbouncer.pid"
@@ -385,6 +387,7 @@ case "${1:-}" in
     done
     docker rm -f "ft-rds-wait-$2" >/dev/null 2>&1 || true
     observer_failed=0
+    [ -s "$raw/cpu.json" ] || observer_failed=1
     if [ -s "$raw/rds-waits.jsonl" ]; then
       python3 scripts/summarize_rds_waits.py "$raw/rds-waits.jsonl" > \
         "$public/rds-waits-summary.json" || observer_failed=1

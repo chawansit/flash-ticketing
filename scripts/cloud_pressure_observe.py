@@ -26,6 +26,7 @@ METRIC_PREFIXES = (
     "ticketing_db_transaction_seconds_",
     "ticketing_db_commit_seconds_",
     "ticketing_event_loop_lag_",
+    "ticketing_seat_delta_",
 )
 
 

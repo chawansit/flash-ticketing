@@ -130,5 +130,6 @@ def test_delta_read_mode_bootstraps_snapshot_then_advances_versions(tmp_path, mo
     result = json.loads(args.output.read_text())
     assert result["read_mode"] == "delta"
     assert result["workload_gate_pass"] is True
+    assert result["time_windows"]["0"]["delta_observations"]["responses"] > 0
     assert delta_since[:2] == [5, 3]
     assert max(delta_since[1:]) > 3

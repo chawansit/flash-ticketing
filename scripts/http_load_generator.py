@@ -181,6 +181,11 @@ async def run(args):
         raise ValueError("Result must not overwrite credentials")
     shows, tokens = manifest["show_ids"], manifest["viewer_tokens"]
     phase_statuses, phase_latency = defaultdict(lambda: defaultdict(Counter)), defaultdict(lambda: defaultdict(list))
+    window_statuses = defaultdict(lambda: defaultdict(Counter))
+    window_latency = defaultdict(lambda: defaultdict(list))
+    window_bytes = Counter()
+    window_delta_observations = defaultdict(Counter)
+    window_drops = Counter()
     statuses, latency = defaultdict(Counter), defaultdict(list)
     counts, bytes_received, drops = Counter(), 0, 0
     connection_counts = defaultdict(Counter)
@@ -247,7 +252,8 @@ async def run(args):
 
         async def request(item):
             nonlocal bytes_received, expected_hot_conflicts, physical_http_attempts
-            index, viewer, show, write, seat, _, phase, hot = item
+            index, viewer, show, write, seat, scheduled_seconds, phase, hot = item
+            window = str(int(scheduled_seconds // 30) * 30)
             operation = "hot_hold" if hot else "hold" if write else "read"
             begin = perf_counter()
             idempotency_key = f"{run_id}-{index}"
@@ -287,6 +293,7 @@ async def run(args):
                                 headers={"If-None-Match": validators.get((viewer, show), initial[show])},
                             )
                     bytes_received += len(response.content)
+                    window_bytes[window] += len(response.content)
                     status = str(response.status_code)
                     final_code, request_id = error_diagnostic(response)
                     if not write and response.status_code == 200:
@@ -296,6 +303,12 @@ async def run(args):
                             delta_observations["seats"] += len(delta["seats"])
                             delta_observations["reset"] += int(delta.get("reset_required") is True)
                             delta_observations["empty"] += int(not delta["seats"])
+                            window_delta_observations[window]["responses"] += 1
+                            window_delta_observations[window]["seats"] += len(delta["seats"])
+                            window_delta_observations[window]["reset"] += int(
+                                delta.get("reset_required") is True
+                            )
+                            window_delta_observations[window]["empty"] += int(not delta["seats"])
                             returned_version = int(delta["version"])
                             if delta.get("reset_required") is True:
                                 versions[(viewer, show)] = returned_version
@@ -380,6 +393,8 @@ async def run(args):
             latency[operation + ":" + status].append(duration)
             phase_statuses[str(phase)][operation][status] += 1
             phase_latency[str(phase)][operation].append(duration)
+            window_statuses[window][operation][status] += 1
+            window_latency[window][operation].append(duration)
 
         if datetime.fromisoformat(manifest["expires_at"]) <= datetime.now(UTC) + timedelta(
             seconds=args.seconds + 60
@@ -433,6 +448,7 @@ async def run(args):
                     })
             elif too_late or len(pending) >= args.inflight:
                 drops += 1
+                window_drops[str(int(item[5] // 30) * 30)] += 1
                 reason = "late" if too_late else "inflight_limit"
                 drop_reasons[reason] += 1
                 if too_late and len(late_drop_examples) < 20:
@@ -480,6 +496,21 @@ async def run(args):
         "phases": {phase: {"statuses": dict(rows), "p95_ms": {
             op: percentile(values, 0.95) for op, values in phase_latency[phase].items()
         }} for phase, rows in phase_statuses.items()},
+        "time_windows": {
+            window: {
+                "start_seconds": int(window),
+                "end_seconds": min(int(window) + 30, args.seconds),
+                "statuses": dict(window_statuses[window]),
+                "p95_ms": {
+                    operation: percentile(values, 0.95)
+                    for operation, values in window_latency[window].items()
+                },
+                "response_body_bytes": window_bytes[window],
+                "delta_observations": dict(window_delta_observations[window]),
+                "generator_drops": window_drops[window],
+            }
+            for window in sorted(set(window_statuses) | set(window_drops), key=int)
+        },
         "read_hot_share": 0.9 if hot_show else 0,
         "burst": args.burst,
         "utc": datetime.now(UTC).isoformat(),

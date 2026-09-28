@@ -239,6 +239,22 @@ SEAT_DELTA_OUTCOMES = Counter(
     "Versioned seat-map delta outcomes",
     ["outcome"],
 )
+SEAT_DELTA_PHASE_SECONDS = Histogram(
+    "ticketing_seat_delta_phase_seconds",
+    "Seat-map delta read wall time by bounded phase",
+    ["phase"],
+    buckets=(0.0005, 0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1),
+)
+SEAT_DELTA_RAW_ENTRIES = Histogram(
+    "ticketing_seat_delta_raw_entries",
+    "Retained history entries returned by one Redis delta read",
+    buckets=(0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512),
+)
+SEAT_DELTA_RESULT_SEATS = Histogram(
+    "ticketing_seat_delta_result_seats",
+    "Distinct seat states returned by one delta response",
+    buckets=(0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 300),
+)
 BROWSE_BODY_OUTCOMES = Counter(
     "ticketing_browse_body_total", "Redis-validated browse representation outcomes", ["outcome"]
 )
