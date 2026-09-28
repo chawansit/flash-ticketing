@@ -205,19 +205,20 @@ def test_versioned_deltas_avoid_full_map_reads_and_collapse_repeated_seats(brows
     svc, db, event, cache, client = browse_system
     base = f"/v1/events/{event}"
     initial = client.get(base + "/availability").json()
-    unchanged = client.get(base + f"/seat-deltas?since={initial['version']}")
+    unchanged = client.get(base + f"/seat-deltas?since={initial['version']}&incarnation={initial['incarnation']}")
     assert unchanged.status_code == 200
     assert unchanged.json() == {
         "event_id": str(event),
         "from_version": initial["version"],
         "version": initial["version"],
+        "incarnation": initial["incarnation"],
         "reset_required": False,
         "seats": [],
     }
 
     held = svc.reserve("a", event, ["A"], "delta-hold")
     changed_snapshot(db, cache, event, ["A"])
-    held_delta = client.get(base + f"/seat-deltas?since={initial['version']}").json()
+    held_delta = client.get(base + f"/seat-deltas?since={initial['version']}&incarnation={initial['incarnation']}").json()
     assert held_delta["reset_required"] is False
     assert held_delta["version"] > initial["version"]
     assert held_delta["seats"][0]["seat_id"] == "A"
@@ -226,7 +227,7 @@ def test_versioned_deltas_avoid_full_map_reads_and_collapse_repeated_seats(brows
 
     svc.release("a", held["hold_id"])
     changed_snapshot(db, cache, event, ["A"])
-    released = client.get(base + f"/seat-deltas?since={initial['version']}").json()
+    released = client.get(base + f"/seat-deltas?since={initial['version']}&incarnation={initial['incarnation']}").json()
     assert released["reset_required"] is False
     assert released["version"] > held_delta["version"]
     assert released["seats"] == [
@@ -244,7 +245,7 @@ def test_delta_history_gap_returns_full_reset_snapshot(browse_system):
 
     cache.redis.delete(cache.delta_key(event))
     resets_before = SEAT_DELTA_RESETS.labels("missing_history")._value.get()
-    response = client.get(base + f"/seat-deltas?since={initial['version']}")
+    response = client.get(base + f"/seat-deltas?since={initial['version']}&incarnation={initial['incarnation']}")
     assert SEAT_DELTA_RESETS.labels("missing_history")._value.get() == resets_before + 1
     assert response.status_code == 200
     body = response.json()
@@ -256,8 +257,8 @@ def test_delta_history_gap_returns_full_reset_snapshot(browse_system):
 
 def test_delta_history_is_bounded_and_trim_gap_fails_safe(browse_system):
     _, _, event, cache, _ = browse_system
-    initial = cache.read(event)["version"]
-    source = max(seat["source_version"] for seat in cache.read(event)["seats"])
+    initial = cache.read(event)
+    source = max(seat["source_version"] for seat in initial["seats"])
     for offset in range(1, 514):
         assert cache.patch(
             event,
@@ -270,52 +271,66 @@ def test_delta_history_is_bounded_and_trim_gap_fails_safe(browse_system):
             }],
         )
     assert cache.redis.zcard(cache.delta_key(event)) == 512
-    reset = cache.deltas(event, initial)
+    reset = cache.deltas(event, initial["version"], initial["incarnation"])
     assert reset["reset_required"] is True
     assert len(reset["seats"]) == 3
 
 def test_delta_history_distinguishes_missing_and_overlapping_ranges(browse_system):
     _, _, event, cache, _ = browse_system
-    initial = cache.read(event)["version"]
-    current = initial + 2
+    initial = cache.read(event)
+    current = initial["version"] + 2
     cache.redis.hset(cache.key(event), "version", current)
 
     cache.redis.delete(cache.delta_key(event))
     cache.redis.zadd(cache.delta_key(event), {
-        json.dumps({"from_version": initial + 1, "version": current, "seats": []}): current,
+        json.dumps({"from_version": initial["version"] + 1, "version": current, "seats": []}): current,
     })
     missing_before = SEAT_DELTA_RESETS.labels("history_missing")._value.get()
-    assert cache.deltas(event, initial)["reset_required"] is True
+    assert cache.deltas(event, initial["version"], initial["incarnation"])["reset_required"] is True
     assert SEAT_DELTA_RESETS.labels("history_missing")._value.get() == missing_before + 1
 
     cache.redis.delete(cache.delta_key(event))
     cache.redis.zadd(cache.delta_key(event), {
-        json.dumps({"from_version": initial, "version": current, "seats": []}): current,
+        json.dumps({"from_version": initial["version"], "version": current, "seats": []}): current,
     })
     overlap_before = SEAT_DELTA_RESETS.labels("history_overlap")._value.get()
-    assert cache.deltas(event, initial + 1)["reset_required"] is True
+    assert cache.deltas(
+        event, initial["version"] + 1, initial["incarnation"]
+    )["reset_required"] is True
     assert SEAT_DELTA_RESETS.labels("history_overlap")._value.get() == overlap_before + 1
 
 
-def test_delta_higher_prior_incarnation_version_returns_reset(browse_system):
+def test_delta_higher_prior_or_different_incarnation_returns_reset(browse_system):
     _, _, event, cache, client = browse_system
-    version = cache.read(event)["version"]
+    snapshot = cache.read(event)
+    version = snapshot["version"]
+    incarnation = snapshot["incarnation"]
     path = f"/v1/events/{event}/seat-deltas"
 
-    invalid = client.get(path, params={"since": -1})
+    invalid = client.get(path, params={"since": -1, "incarnation": incarnation})
     assert invalid.status_code == 422
     assert invalid.json()["code"] == "INVALID_VERSION"
 
-    response = client.get(path, params={"since": version + 1})
+    response = client.get(path, params={"since": version + 1, "incarnation": incarnation})
     assert response.status_code == 200
     assert response.json()["reset_required"] is True
     assert response.json()["from_version"] == version + 1
     assert response.json()["version"] == version
+    assert response.json()["incarnation"] == incarnation
+
+    mismatch_before = SEAT_DELTA_RESETS.labels("incarnation_mismatch")._value.get()
+    mismatch = client.get(path, params={"since": version, "incarnation": "old-map"})
+    assert mismatch.status_code == 200
+    assert mismatch.json()["reset_required"] is True
+    assert mismatch.json()["incarnation"] == incarnation
+    assert SEAT_DELTA_RESETS.labels("incarnation_mismatch")._value.get() == mismatch_before + 1
 
     schema = client.get("/openapi.json").json()
     response_schema = schema["paths"]["/v1/events/{event_id}/seat-deltas"]["get"]["responses"]["200"]
     name = response_schema["content"]["application/json"]["schema"]["$ref"].rsplit("/", 1)[-1]
-    assert "reset_required" in schema["components"]["schemas"][name]["properties"]
+    properties = schema["components"]["schemas"][name]["properties"]
+    assert "reset_required" in properties
+    assert "incarnation" in properties
 
 
 def test_recreated_delta_history_inherits_remaining_map_ttl(browse_system):

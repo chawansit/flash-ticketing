@@ -83,8 +83,7 @@ duplicate OrderPaid events. SeatsChanged now commits a durable refresh generatio
 entry together. Maintenance coalesces generations, leases refresh work, writes Redis outside
 SQL locks, then acknowledges only the captured generation and matching token. A newer request
 remains dirty, retaining its changed-seat IDs. Routine refreshes read only those rows and
-merge into a Redis hash using per-seat source versions. The sum of cached source versions
-forms the map cursor; unchanged seats preserve their delta cursor. Full reconciliation
+merge into a Redis hash using per-seat source versions. The sum of cached source versions forms the version component of the map cursor; the Redis map incarnation identifies its history. Clients reuse both fields, so a rebuild triggers one explicit full reset even when old and new numeric version ranges overlap. Unchanged seats preserve their delta cursor. Full reconciliation
 repairs cache loss or missed notifications. It is no longer a periodic sweep of every
 retained event: the dedicated reconciler keeps a durable per-event schedule covering events inside their
 sale window, claims a bounded batch of the oldest-due rows under a token-fenced lease, and

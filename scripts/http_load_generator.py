@@ -78,7 +78,12 @@ async def fetch_initial_state(client, shows, concurrency=16, max_attempts=3):
                 except ValueError:
                     body = {}
                 version = body.get("version") if isinstance(body, dict) else None
-                return show, response.headers["etag"], int(version) if version is not None else None, attempt
+                incarnation = body.get("incarnation") if isinstance(body, dict) else None
+                return (
+                    show, response.headers["etag"],
+                    int(version) if version is not None else None,
+                    str(incarnation) if incarnation is not None else None, attempt,
+                )
             if (
                 response.status_code == 503
                 and code == "SEATMAP_WARMING"
@@ -91,19 +96,22 @@ async def fetch_initial_state(client, shows, concurrency=16, max_attempts=3):
 
     rows = await asyncio.gather(*(fetch(show) for show in shows))
     return (
-        {show: etag for show, etag, _, _ in rows},
-        {show: version for show, _, version, _ in rows},
+        {show: etag for show, etag, _, _, _ in rows},
+        {show: version for show, _, version, _, _ in rows},
+        {show: incarnation for show, _, _, incarnation, _ in rows},
         {
             "concurrency": concurrency,
             "max_attempts": max_attempts,
             "attempt_statuses": dict(statuses),
-            "retry_count": sum(attempt for _, _, _, attempt in rows),
+            "retry_count": sum(attempt for _, _, _, _, attempt in rows),
         },
     )
 
 
 async def fetch_initial_validators(client, shows, concurrency=16, max_attempts=3):
-    validators, _, summary = await fetch_initial_state(client, shows, concurrency, max_attempts)
+    validators, _, _, summary = await fetch_initial_state(
+        client, shows, concurrency, max_attempts
+    )
     return validators, summary
 
 
@@ -215,16 +223,22 @@ async def run(args):
                            keepalive_expiry=getattr(args, "keepalive_expiry", 5.0)),
     ) as client:
         (await client.get("/health/ready")).raise_for_status()
-        initial, initial_versions, bootstrap = await fetch_initial_state(client, shows)
-        if read_mode == "delta" and any(version is None for version in initial_versions.values()):
-            raise ValueError("Delta read mode requires snapshot versions")
+        initial, initial_versions, initial_incarnations, bootstrap = await fetch_initial_state(
+            client, shows
+        )
+        if read_mode == "delta" and (
+            any(version is None for version in initial_versions.values())
+            or any(incarnation is None for incarnation in initial_incarnations.values())
+        ):
+            raise ValueError("Delta read mode requires composite snapshot cursors")
         hot_show = manifest.get("hot_show_id")
         if hot_show and hot_show not in initial:
             response = await client.get(f"/v1/events/{hot_show}/availability")
             response.raise_for_status()
             initial[hot_show] = response.headers["etag"]
             initial_versions[hot_show] = int(response.json()["version"])
-        validators, versions = {}, {}
+            initial_incarnations[hot_show] = str(response.json()["incarnation"])
+        validators, versions, incarnations = {}, {}, {}
         randomizer = random.Random(42)
         workload = []
         for index, (due, phase) in enumerate(arrival_plan(args.rate, args.seconds, args.burst)):
@@ -284,7 +298,14 @@ async def run(args):
                             response = await client.get(
                                 f"/v1/events/{show}/seat-deltas",
                                 extensions=extensions,
-                                params={"since": versions.get((viewer, show), initial_versions[show])},
+                                params={
+                                    "since": versions.get(
+                                        (viewer, show), initial_versions[show]
+                                    ),
+                                    "incarnation": incarnations.get(
+                                        (viewer, show), initial_incarnations[show]
+                                    ),
+                                },
                             )
                         else:
                             response = await client.get(
@@ -310,6 +331,7 @@ async def run(args):
                             )
                             window_delta_observations[window]["empty"] += int(not delta["seats"])
                             returned_version = int(delta["version"])
+                            incarnations[(viewer, show)] = str(delta["incarnation"])
                             if delta.get("reset_required") is True:
                                 versions[(viewer, show)] = returned_version
                             else:

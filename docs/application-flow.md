@@ -8,7 +8,7 @@ This describes the implemented backend. See the [system diagrams](system-diagram
 |---|---|---|
 | Browse events | `GET /v1/events` | Event metadata from PostgreSQL |
 | Browse seats | `GET /v1/events/{event_id}/seats` | Pre-warmed Redis snapshot; availability is advisory |
-| Refresh changed seats | `GET /v1/events/{event_id}/seat-deltas?since=VERSION` | Changed current seat states from the cached snapshot; client polls this endpoint |
+| Refresh changed seats | `GET /v1/events/{event_id}/seat-deltas?since=VERSION&incarnation=ID` | Changed current seat states from the cached snapshot; client reuses both cursor fields returned by the prior response |
 | Reserve | `POST /v1/holds` with user token and `Idempotency-Key` | Atomically creates a hold, pending order and price snapshots for 1–8 seats |
 | Resolve checkout order | Optional `POST /v1/orders` with hold ID and idempotency key | Returns the order already created with the hold |
 | Start simulated payment | `POST /v1/orders/{order_id}/payments` with idempotency key | Persists one payment attempt and returns HTTP 202 |

@@ -70,15 +70,17 @@ def test_redis_first_counts_202_as_provisional_success(tmp_path, monkeypatch):
 
 def test_delta_read_mode_bootstraps_snapshot_then_advances_versions(tmp_path, monkeypatch):
     delta_since = []
+    delta_incarnations = []
 
     def response(request):
         if request.url.path == "/health/ready":
             return httpx.Response(200, json={})
         if request.url.path.endswith("/availability"):
-            return httpx.Response(200, json={"version": 5, "seats": []}, headers={"etag": '"v5"'})
+            return httpx.Response(200, json={"version": 5, "incarnation": "map-1", "seats": []}, headers={"etag": '"v5"'})
         if request.url.path.endswith("/seat-deltas"):
             since = int(request.url.params["since"])
             delta_since.append(since)
+            delta_incarnations.append(request.url.params["incarnation"])
             reset = len(delta_since) == 1
             return httpx.Response(
                 200,
@@ -86,6 +88,9 @@ def test_delta_read_mode_bootstraps_snapshot_then_advances_versions(tmp_path, mo
                     "event_id": "one",
                     "from_version": since,
                     "version": 3 if reset else since + 1,
+                    "incarnation": (
+                        "map-2" if reset else request.url.params["incarnation"]
+                    ),
                     "reset_required": reset,
                     "seats": [],
                 },
@@ -132,4 +137,5 @@ def test_delta_read_mode_bootstraps_snapshot_then_advances_versions(tmp_path, mo
     assert result["workload_gate_pass"] is True
     assert result["time_windows"]["0"]["delta_observations"]["responses"] > 0
     assert delta_since[:2] == [5, 3]
+    assert delta_incarnations[:2] == ["map-1", "map-2"]
     assert max(delta_since[1:]) > 3

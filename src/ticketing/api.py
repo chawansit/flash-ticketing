@@ -250,6 +250,7 @@ class AvailableSeat(BaseModel):
 class Availability(BaseModel):
     event_id: UUID
     version: int
+    incarnation: str
     seats: list[AvailableSeat]
 
 
@@ -257,6 +258,7 @@ class AvailabilityDelta(BaseModel):
     event_id: UUID
     from_version: int
     version: int
+    incarnation: str
     reset_required: bool
     seats: list[AvailableSeat]
 
@@ -309,9 +311,11 @@ def availability(event_id: UUID, request: Request, if_none_match: Conditional = 
     response_model=AvailabilityDelta,
     responses=ERRORS,
 )
-def deltas(event_id: UUID, request: Request, since: int = 0):
-    """Current states changed since a snapshot version; use version from the response next time."""
-    return JSONResponse(content=request.app.state.cache.deltas(str(event_id), since))
+def deltas(event_id: UUID, request: Request, since: int = 0, incarnation: str | None = None):
+    """Changes since a composite snapshot cursor; reuse incarnation and version."""
+    return JSONResponse(
+        content=request.app.state.cache.deltas(str(event_id), since, incarnation)
+    )
 
 
 HOLD_RESPONSES = {

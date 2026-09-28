@@ -114,7 +114,7 @@ if ARGV[1] == 'layout' then
   redis.call('EXPIRE',KEYS[1],tonumber(ARGV[4]))
   return {200,tag,layout}
 end
-local result = {200,tag,meta[1]}
+local result = {200,tag,meta[1],meta[2]}
 local fields = redis.call('HGETALL',KEYS[1])
 for i=1,#fields,2 do
   if string.sub(fields[i],1,5) == 'seat:' then table.insert(result,fields[i+1]) end
@@ -123,19 +123,22 @@ redis.call('EXPIRE',KEYS[1],tonumber(ARGV[4]))
 return result
 """
 DELTAS = """
-local meta = redis.call('HMGET',KEYS[1],'version','updating')
-if not meta[1] or meta[2] then return {503} end
+local meta = redis.call('HMGET',KEYS[1],'version','updating','incarnation')
+if not meta[1] or meta[2] or not meta[3] then return {503} end
 local version = tonumber(meta[1])
 local since = tonumber(ARGV[1])
 if not since or since < 0 then return {422,version} end
+if ARGV[3] == '' or ARGV[3] ~= meta[3] then
+  return {409,version,'incarnation_mismatch'}
+end
 if since > version then return {409,version,'ahead'} end
 redis.call('EXPIRE',KEYS[1],tonumber(ARGV[2]))
 if redis.call('EXISTS',KEYS[2]) == 1 then redis.call('EXPIRE',KEYS[2],tonumber(ARGV[2])) end
-if since == version then return {200,version} end
+if since == version then return {200,version,meta[3]} end
 local entries = redis.call('ZRANGEBYSCORE',KEYS[2],'('..since,'+inf')
 if #entries == 0 then return {409,version,'missing_history'} end
 local expected = since
-local result = {200,version}
+local result = {200,version,meta[3]}
 for _,raw in ipairs(entries) do
   local entry = cjson.decode(raw)
   local entry_from = tonumber(entry.from_version)
@@ -233,6 +236,7 @@ class RedisSeats:
         return {
             "event_id": str(event),
             "version": int(raw["version"]),
+            "incarnation": raw["incarnation"],
             "seats": sorted(
                 [json.loads(value) for key, value in raw.items() if key.startswith("seat:")],
                 key=lambda seat: seat["seat_id"],
@@ -304,7 +308,7 @@ class RedisSeats:
                 raise result
         return [int(result) >= 0 for result in results]
 
-    def deltas(self, event, since):
+    def deltas(self, event, since, incarnation=None):
         redis_started = time.monotonic()
         try:
             result = self.redis.eval(
@@ -314,6 +318,7 @@ class RedisSeats:
                 self.delta_key(event),
                 str(since),
                 str(self._seatmap_ttl_seconds),
+                incarnation or "",
             )
         except RedisError as exc:
             raise Failure("SEATMAP_UNAVAILABLE", 503) from exc
@@ -335,16 +340,18 @@ class RedisSeats:
                 "event_id": str(event),
                 "from_version": since,
                 "version": snapshot["version"],
+                "incarnation": snapshot["incarnation"],
                 "reset_required": True,
                 "seats": [
                     {key: seat[key] for key in ("seat_id", "status", "reserved_until")}
                     for seat in snapshot["seats"]
                 ],
             }
-        SEAT_DELTA_RAW_ENTRIES.observe(max(0, len(result) - 2))
+        incarnation = result[2]
+        SEAT_DELTA_RAW_ENTRIES.observe(max(0, len(result) - 3))
         collapse_started = time.monotonic()
         latest = {}
-        for raw in result[2:]:
+        for raw in result[3:]:
             for seat in json.loads(raw)["seats"]:
                 latest[seat["seat_id"]] = {
                     key: seat[key] for key in ("seat_id", "status", "reserved_until")
@@ -358,6 +365,7 @@ class RedisSeats:
             "event_id": str(event),
             "from_version": since,
             "version": version,
+            "incarnation": incarnation,
             "reset_required": False,
             "seats": sorted(latest.values(), key=lambda seat: seat["seat_id"]),
         }
@@ -385,13 +393,14 @@ class RedisSeats:
             return status, tag, None
         if kind == "layout":
             return status, tag, json.loads(result[2])
-        seats = [json.loads(raw) for raw in result[3:]]
+        seats = [json.loads(raw) for raw in result[4:]]
         return (
             status,
             tag,
             {
                 "event_id": str(event),
                 "version": int(result[2]),
+                "incarnation": result[3],
                 "seats": [
                     {key: seat[key] for key in ("seat_id", "status", "reserved_until")}
                     for seat in sorted(seats, key=lambda seat: seat["seat_id"])

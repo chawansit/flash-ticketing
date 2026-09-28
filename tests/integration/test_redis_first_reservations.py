@@ -82,7 +82,7 @@ def test_redis_first_hold_and_compensation_preserve_delta_continuity(redis_first
     initial = cache.read(str(event_id))
 
     pending = intake.enqueue("actor", event_id, ["A"], "delta-hold")
-    held = cache.deltas(str(event_id), initial["version"])
+    held = cache.deltas(str(event_id), initial["version"], initial["incarnation"])
     assert held["reset_required"] is False
     assert held["version"] > initial["version"]
     assert held["seats"] == [
@@ -96,7 +96,7 @@ def test_redis_first_hold_and_compensation_preserve_delta_continuity(redis_first
     # Periodic full reconciliation must not roll back the provisional aggregate
     # version or discard its contiguous delta when PostgreSQL has not caught up.
     snapshot(db, cache, event_id)
-    assert cache.deltas(str(event_id), initial["version"]) == held
+    assert cache.deltas(str(event_id), initial["version"], initial["incarnation"]) == held
 
     map_ttl = cache.redis.ttl(cache.key(event_id))
     delta_ttl = cache.redis.ttl(cache.delta_key(event_id))
@@ -105,11 +105,12 @@ def test_redis_first_hold_and_compensation_preserve_delta_continuity(redis_first
     assert intake.mark_failed(
         event_id, pending["command_id"], ["A"], "SEAT_UNAVAILABLE"
     ) == 1
-    released = cache.deltas(str(event_id), held["version"])
+    released = cache.deltas(str(event_id), held["version"], held["incarnation"])
     assert released == {
         "event_id": str(event_id),
         "from_version": held["version"],
         "version": held["version"] + 1,
+        "incarnation": held["incarnation"],
         "reset_required": False,
         "seats": [
             {

@@ -60,6 +60,7 @@ def test_delta_handler_encodes_response_in_sync_worker():
         "event_id": str(event_id),
         "from_version": 7,
         "version": 8,
+        "incarnation": "map-1",
         "reset_required": False,
         "seats": [],
     }
@@ -67,8 +68,8 @@ def test_delta_handler_encodes_response_in_sync_worker():
     cache.deltas.return_value = payload
     request = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(cache=cache)))
 
-    response = deltas(event_id, request, since=7)
+    response = deltas(event_id, request, since=7, incarnation="map-1")
 
     assert isinstance(response, JSONResponse)
     assert json.loads(response.body) == payload
-    cache.deltas.assert_called_once_with(str(event_id), 7)
+    cache.deltas.assert_called_once_with(str(event_id), 7, "map-1")
