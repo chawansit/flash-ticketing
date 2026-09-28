@@ -1,6 +1,6 @@
 # ADR 0078: Keep the reconciler on the same seat-map writer version as the API
 
-Status: Proposed
+Status: Accepted; short cloud validation passed, sustained capacity remains unproven
 
 ## Context
 
@@ -30,4 +30,4 @@ A failed reconciler rebuild or hash check prevents load. Reconciliation claims r
 
 ## Validation evidence
 
-Before implementation, the active old reconciler command was `python -m ticketing.workers reconciler`; its Redis host matched the current refresh worker. Its Lua full-snapshot code recomputed aggregate `version` from source rows. The live atomic observer recorded the anomaly counts above without a DCS server-identity change. Acceptance requires a focused deployment test, shell syntax check, a short controlled load with zero same-incarnation regressions/overlaps/tail mismatches, exact durable holds, zero booking overlap and a drained fixed audit. Longer latency and production-capacity claims remain separate.
+Before implementation, the active old reconciler command was `python -m ticketing.workers reconciler`; its Redis host matched the current refresh worker. Its Lua full-snapshot code recomputed aggregate `version` from source rows. The live atomic observer recorded the anomaly counts above without a DCS server-identity change. The focused deployment suite passed 14 tests, shell syntax passed, and Ruff passed with only the Windows executable-bit artifact ignored. At revision `c8b3963`, the stage rebuilt the reconciler and verified its `cache.py` hash matched the active API/refresh image. The controlled 1,000 RPS, 30-second rerun dispatched all 30,000 requests without drops, transport errors, retries or admission rejections. Worst-worker read/hold p95 were 12.824/26.776 ms. All 1,800 acknowledged holds were durable; booking overlap was zero, queues drained and rollback passed. The atomic observer collected 427 samples with zero same-incarnation regressions, overlaps or tail mismatches and zero DCS identity changes. It still counted 25,967 observations of nonpositive bootstrap ranges (`0→0`), a separate inert history-entry issue. The 800 synthetic sale windows were retired without row deletion and their reconciliation queue returned to zero. A 30-second result does not establish sustained production capacity. The compact result is recorded in [`docs/capacity/huawei-rds/2026-09-28-1000-coherent-reconciler`](../capacity/huawei-rds/2026-09-28-1000-coherent-reconciler/README.md).

@@ -81,7 +81,7 @@ if ARGV[1] == 'full' then
   end
 end
 redis.call('HDEL',KEYS[1],'updating')
-if #changed > 0 then
+if #changed > 0 and version > prior_version then
   local entry = cjson.encode({from_version=prior_version,version=version,seats=changed})
   redis.call('ZADD',KEYS[2],version,entry)
   local map_ttl = redis.call('TTL',KEYS[1])

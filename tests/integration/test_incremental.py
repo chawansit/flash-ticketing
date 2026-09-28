@@ -43,7 +43,17 @@ def test_patch_replay_and_racing_old_full_snapshot(cache):
     try:
         assert not cache.patch(event, [state("A", 1)])
         cache.put(event, 0, initial)
+        bootstrap = cache.read(event)
+        assert bootstrap["version"] == 0
+        assert cache.redis.zcard(cache.delta_key(event)) == 0
+        assert cache.deltas(event, 0, bootstrap["incarnation"])["seats"] == []
         assert cache.patch(event, [state("A", 2, "SOLD")])
+        history = [json.loads(value) for value in cache.redis.zrange(cache.delta_key(event), 0, -1)]
+        assert [(entry["from_version"], entry["version"]) for entry in history] == [(0, 2)]
+        first_delta = cache.deltas(event, 0, bootstrap["incarnation"])
+        assert first_delta["reset_required"] is False
+        assert first_delta["version"] == 2
+        assert [seat["seat_id"] for seat in first_delta["seats"]] == ["A"]
         first = cache.read(event)
         assert first["version"] == 2
         assert cache.patch(event, [state("B", 1)])
@@ -62,7 +72,7 @@ def test_patch_replay_and_racing_old_full_snapshot(cache):
         assert not cache.patch(event, [state("A", 3)])
         assert not cache.redis.exists(cache.key(event))
     finally:
-        cache.redis.delete(cache.key(event))
+        cache.redis.delete(cache.key(event), cache.delta_key(event))
 
 
 def envelope(event, seats):

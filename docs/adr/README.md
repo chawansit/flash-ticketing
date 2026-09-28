@@ -114,3 +114,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0076: Track the actual generator session process](0076-track-actual-generator-session-process.md)
 - [0077: Atomically publish the private cloud load manifest](0077-atomically-publish-private-load-manifest.md)
 - [0078: Keep the reconciler on the same seat-map writer version as the API](0078-coherent-reconciler-image.md)
+- [0079: Omit zero-length bootstrap seat-map delta entries](0079-omit-zero-length-bootstrap-deltas.md)
