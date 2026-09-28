@@ -298,6 +298,16 @@ case "${1:-}" in
     done
     printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"reservation_mode":"%s","reservation_writer_replicas":%s,"reservation_writer_batch_size":%s,"reservation_max_command_age_seconds":%s,"split_maintenance":%s,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"worker_source_verified":true,"pass":true}\n' "$candidate" "$reservation_candidate" "$deployed_reservation_writers" "$reservation_writer_batch_candidate" "$reservation_max_command_age_candidate" "$split_json" "$deployed_maintenance" "$deployed_refresh" "$deployed_expiry" "$consumer_candidate" > "$public/deployment.json"
     ;;
+  warm)
+    [ "$#" -eq 2 ]
+    run_paths "$2"
+    api=$(api_id)
+    docker cp "$private/manifest.json" "$api":/tmp/private-load-manifest.json
+    docker exec -u 0 "$api" chown 10001:10001 /tmp/private-load-manifest.json
+    docker exec -u 0 "$api" rm -f /tmp/capacity-prewarm.json
+    docker exec "$api" sh -lc 'cd /app && STAGE_DATABASE_URL="$DATABASE_URL" TEST_REDIS_URL="$REDIS_URL" python scripts/warm_capacity_fixture_cache.py --manifest /tmp/private-load-manifest.json --output /tmp/capacity-prewarm.json --batch-size 16'
+    docker cp "$api":/tmp/capacity-prewarm.json "$public/prewarm.json"
+    ;;
   preflight)
     [ "$#" -eq 3 ]
     run_paths "$2"
@@ -460,7 +470,7 @@ case "${1:-}" in
     rm -rf "$private"
     ;;
   *)
-    echo "usage: $0 {prepare|deploy|preflight|observe|stop-observers|gate|audit|rollback|cleanup} ..." >&2
+    echo "usage: $0 {prepare|deploy|warm|preflight|observe|stop-observers|gate|audit|rollback|cleanup} ..." >&2
     exit 2
     ;;
 esac

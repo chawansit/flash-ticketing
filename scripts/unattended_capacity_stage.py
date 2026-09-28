@@ -357,6 +357,14 @@ def main() -> None:
         observers = True
         checkpoint("observers_started")
 
+        transport.remote(
+            "prewarm",
+            args.backend_host,
+            backend_prefix + ["warm", run_id],
+            timeout=180,
+        )
+        checkpoint("prewarmed")
+
         load_start_attempted = True
         try:
             transport.remote(

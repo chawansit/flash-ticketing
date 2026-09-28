@@ -48,6 +48,9 @@ Introduce bounded micro-batching in event consumption and seat-map refresh.
    Delivery remains at least once; database idempotency makes replay safe.
 8. Batch size and collection time are bounded configuration values. Admission
    and database connection budgets remain bounded.
+9. Capacity and rollout workflows pre-warm the active show set in bounded batches
+   immediately before traffic. HTTP warmup remains a validation step and does not
+   depend on the periodic reconciler to recreate an entire expired catalog.
 
 This decision extends ADR 0003 and ADR 0054. It supersedes ADR 0052 only where
 that decision relies on added consumer concurrency as the primary way to increase
@@ -104,6 +107,9 @@ them consumed.
   overwriting newer availability.
 - Batches are bounded so failure cannot monopolize the connection pool or create
   unbounded retry work.
+- A failed rollout pre-warm stops traffic activation. Existing APIs continue to fail
+  closed with SEATMAP_WARMING on missing maps while durable reconciliation remains
+  the recovery path.
 
 ## Validation evidence
 
@@ -150,12 +156,15 @@ drained, and rollback passed. Maximum interesting RDS waiters fell from nine in
 the prior control to six; maximum Kafka lag was 29 and drained after 41.14
 seconds. Pending refresh work peaked at 410 and drained after 48.87 seconds.
 
-A later run at commit fb34add was invalid as a capacity benchmark: cold cache warming
-for 800 newly-created shows consumed about 267 seconds inside a timeout that also
-covered the 180-second measurement. The generator was terminated before writing
-worker summaries, and rollback passed. This exposed sequential cold full-snapshot
-rebuilds; bounded full-snapshot database reads, Redis pipelines, and fixture
-pre-warming were added afterward.
+Runs at commits fb34add and 37d3b17 were invalid as capacity benchmarks. In
+the first, cold cache warming for 800 new shows consumed about 267 seconds inside
+a timeout that also covered the 180-second measurement. Bounded full-snapshot
+reads and Redis pipelines then reduced fixture creation to about nine seconds, but
+the 30-second cache TTL elapsed during later orchestration, so HTTP warmup again
+waited for periodic reconciliation and the generator was terminated before writing
+worker summaries. Rollback passed in both runs. The workflow now performs bounded
+pre-warm after observers start and immediately before traffic; cloud validation of
+that phase remains pending.
 
 That first valid run included batched inbox persistence and acknowledgement but still read
 and patched each show separately. It is evidence that the initial implementation

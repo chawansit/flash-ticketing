@@ -150,6 +150,7 @@ def test_success_orders_phases_cleans_manifest_and_passes(monkeypatch, tmp_path)
     fake = FakeTransport.instances[-1]
     phases = [phase for kind, phase in fake.calls if kind == "remote"]
     assert phases.index("deploy") < phases.index("prepare") < phases.index("preflight")
+    assert phases.index("observe") < phases.index("prewarm") < phases.index("load-start")
     assert phases.index("load-start") < phases.index("load-status") < phases.index("durability-audit") < phases.index("rollback")
     assert phases[-2:] == ["generator-cleanup", "backend-cleanup"]
     assert fake.private_manifest is not None and not fake.private_manifest.exists()
@@ -416,6 +417,8 @@ def test_backend_deploy_rebuilds_and_verifies_measured_worker_images():
     assert '--scale "reservation-writer=$reservation_writer_candidate" reservation-writer' in helper
     assert 'wait_reservation_writer "$reservation_writer_candidate"' in helper
     assert "summarize_reservation_writer_logs.py" in helper
+    assert "warm_capacity_fixture_cache.py" in helper
+    assert '"$public/prewarm.json"' in helper
     assert "summarize_reservation_writer_metrics.py" in helper
     assert '--scale "reservation-writer=$original_reservation_writers" reservation-writer' in helper
     assert 'set_reservation_mode "$reservation_candidate"' in helper
