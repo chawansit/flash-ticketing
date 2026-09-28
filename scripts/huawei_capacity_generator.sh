@@ -24,7 +24,7 @@ case "${1:-}" in
     chmod 700 "$private"
     cp "$manifest" "$private/manifest.json"
     chmod 600 "$private/manifest.json"
-    "$python_bin" scripts/warm_capacity_manifest.py --manifest "$private/manifest.json" --output "$public/warmup.json"
+    "$python_bin" scripts/warm_capacity_manifest.py --manifest "$private/manifest.json" --output "$public/warmup.json" --attempts 90
     "$python_bin" scripts/parallel_cloud_load.py --manifest "$private/manifest.json" --output "$public/load" --rate "$rate" --seconds "$seconds" --workers "$workers" --seat-offset "$seat_offset" --transport-diagnostics --keepalive-expiry 5 --start-delay 15 \
       --max-attempts "$max_attempts" --retry-base-delay-ms "$retry_base_delay_ms" \
       --late-delivery-window-ms "$late_delivery_window_ms" \
