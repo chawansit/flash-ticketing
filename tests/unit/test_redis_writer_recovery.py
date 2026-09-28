@@ -1,3 +1,5 @@
+from redis.exceptions import RedisError
+
 from ticketing.infrastructure.redis_reservations import RedisReservationIntake
 
 
@@ -29,6 +31,7 @@ class FakeRedis:
         self.connection_pool = FakePool()
         self.smembers_calls = 0
         self.scan_calls = 0
+        self.srem_calls = []
         self.group_calls = []
         self.read_batches = []
 
@@ -42,6 +45,10 @@ class FakeRedis:
 
     def pipeline(self, **_kwargs):
         return FakePipeline(self)
+
+    def srem(self, key, *streams):
+        self.srem_calls.append((key, streams))
+        self.registry.difference_update(streams)
 
     def xgroup_create(self, stream, _group, **_kwargs):
         self.group_calls.append(stream)
@@ -178,5 +185,26 @@ def test_discovery_skips_empty_window_and_reaches_later_nonempty_streams():
 
     intake._refresh_streams(limit=5)
 
-    assert intake.streams(limit=5) == [ordered[5], ordered[6]]
-    assert intake._stream_window_cursor == 3
+    assert set(intake.streams(limit=5)) == {ordered[5], ordered[6]}
+    assert redis.srem_calls == [("reservation-stream-registry", tuple(ordered[:5]))]
+    assert redis.registry == {ordered[5], ordered[6]}
+
+
+class CompactionFailureRedis(FakeRedis):
+    def srem(self, _key, *_streams):
+        raise RedisError("registry unavailable")
+
+
+def test_registry_compaction_failure_keeps_nonempty_stream_eligible():
+    streams = ["reservation-stream:{empty}", "reservation-stream:{active}"]
+    lengths = {streams[0]: 0, streams[1]: 1}
+    redis = CompactionFailureRedis(streams, lengths=lengths)
+    intake = RedisReservationIntake(
+        FakeCache(redis),
+        stream_batch_size=2,
+        stream_refresh_seconds=60,
+    )
+
+    intake._refresh_streams(limit=2)
+
+    assert intake.streams(limit=2) == [streams[1]]

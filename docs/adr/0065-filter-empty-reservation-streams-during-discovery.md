@@ -1,7 +1,7 @@
 # ADR 0065: Filter empty reservation streams during bounded discovery
 
 Date: 2026-09-28
-Status: Accepted for implementation; production activation pending clean cloud validation
+Status: Accepted for filtering; registry-retention detail superseded by ADR 0066 after failed cloud activation
 
 ## Context
 
@@ -64,3 +64,12 @@ Implementation validation completed on 2026-09-28:
 - The isolated Docker Compose suite passed: 234 tests, with 2 dependency deprecation warnings and no failures.
 - Bounded Huawei recovery reduced the failed stage backlog from 1,551 entries to zero; pending ended at zero, batch size returned to 1, recovery writers stopped and all four API containers remained healthy.
 - The fresh post-implementation 1,000 RPS capacity stage remains the production-activation gate.
+
+
+Cloud activation evidence on 2026-09-28:
+
+- The clean 1,000 RPS stage sent 176,868 of 180,000 scheduled requests and dropped 3,132; no response or transport error occurred.
+- Read and hold p95 were 73.049 ms and 108.032 ms.
+- Durable commands improved to 10,492 of 10,623 provisional acknowledgements; 131 commands failed with HOLD_EXPIRED.
+- Reservation streams ended at zero entries and zero pending, double-booking remained zero, but 482 refresh rows remained at the fixed audit instant before later draining.
+- Production activation failed. ADR 0066 supersedes the decision to retain every empty advisory registry member.

@@ -322,6 +322,12 @@ class RedisReservationIntake:
             for stream in candidates:
                 pipe.xlen(stream)
             lengths = pipe.execute()
+            empty = [stream for stream, length in zip(candidates, lengths, strict=True) if length == 0]
+            if empty:
+                try:
+                    self.redis.srem("reservation-stream-registry", *empty)
+                except RedisError:
+                    RESERVATION_INTAKE.labels("registry_error").inc()
             self._streams = [
                 stream for stream, length in zip(candidates, lengths, strict=True) if length > 0
             ]
