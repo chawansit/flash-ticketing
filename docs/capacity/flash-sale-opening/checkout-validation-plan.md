@@ -1,7 +1,8 @@
 # End-to-end flash-sale validation protocol
 
-Status: proposed measurement protocol. It has **not** been executed, and the
-current opening-burst evidence does not certify payment or ticket capacity.
+Status: proposed measurement protocol. A bounded Redis-first HTTP journey
+probe is implemented and unit-tested, but it has **not** been run against Huawei.
+The opening-burst evidence does not certify payment or ticket capacity.
 
 ## Objective and counting rule
 
@@ -72,3 +73,23 @@ The 2026-09-29 opening probe only tests read/hold HTTP traffic and
 post-TTL reservation durability. It contains no paid-ticket throughput
 measurement. The size and timing of the 10:00 visitor burst remain input
 parameters until the expected unique-visitor count is supplied.
+
+
+## Bounded journey smoke probe
+
+The development-only HTTP probe in scripts/checkout_journey_probe.py uses a
+fresh private load manifest. It sends a provisional hold, polls the reservation
+command until DURABLE, starts simulated payment with configurable duplicate
+callbacks, then polls the order until FULFILLED with exactly one ticket. It
+checks distinct order and ticket IDs across its bounded journeys and writes
+aggregate outcomes only; it never writes bearer tokens or individual IDs to
+its result. The probe is limited to 1,000 journeys and a 110-second per-journey
+deadline, below the current 120-second hold TTL. It is deliberately not an
+arrival-rate generator and does not replace PostgreSQL/Kafka audit.
+
+Focused unit tests cover waiting for durability before payment, refusing
+payment after a failed reservation command, and rejecting an invalid
+two-ticket outcome, and confirming its result excludes private tokens and IDs.
+The probe still needs a fresh isolated cloud fixture,
+service readiness and a real development-environment smoke run before its
+results can be used in the one-hour capacity series.
