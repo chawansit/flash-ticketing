@@ -60,7 +60,11 @@ def fulfilled(index):
         "outcome": "fulfilled",
         "order_id": f"order-{index}",
         "ticket_id": f"ticket-{index}",
+        "hold_http_ms": 3,
+        "command_durable_wait_ms": 7,
         "durable_ms": 10,
+        "payment_http_ms": 4,
+        "ticket_wait_ms": 16,
         "payment_to_ticket_ms": 20,
         "hold_to_ticket_ms": 30,
     }
@@ -78,6 +82,10 @@ def test_open_loop_accounts_for_every_scheduled_journey(monkeypatch, tmp_path):
     assert result["fulfilled_by_deadline"] == 5
     assert result["generator_drops"] == 0
     assert result["distinct_tickets"] == 5
+    assert result["hold_http_p95_ms"] == 3
+    assert result["command_durable_wait_p95_ms"] == 7
+    assert result["payment_http_p95_ms"] == 4
+    assert result["ticket_wait_p95_ms"] == 16
     assert result["pass"]
 
 

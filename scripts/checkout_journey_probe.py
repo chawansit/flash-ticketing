@@ -35,6 +35,7 @@ async def journey(client, manifest, index, run_id, timeout_seconds, poll_seconds
             json={"event_id": show, "seat_ids": [f"S{seat}"]},
             headers={**headers, "Idempotency-Key": f"{run_id}-{index}-hold"},
         )
+        hold_http_ms = (perf_counter() - started) * 1000
         if hold.status_code != 202:
             return {"outcome": f"hold_http_{hold.status_code}"}
         response = hold.json()
@@ -47,6 +48,7 @@ async def journey(client, manifest, index, run_id, timeout_seconds, poll_seconds
             state = command.json()["persistence_status"]
             if state == "DURABLE":
                 durable_ms = (perf_counter() - started) * 1000
+                command_durable_wait_ms = durable_ms - hold_http_ms
                 break
             if state == "FAILED":
                 return {"outcome": "command_failed"}
@@ -62,6 +64,7 @@ async def journey(client, manifest, index, run_id, timeout_seconds, poll_seconds
             json={"outcome": "SUCCEEDED", "delay_seconds": 0, "duplicates": duplicates},
             headers={**headers, "Idempotency-Key": f"{run_id}-{index}-payment"},
         )
+        payment_http_ms = (perf_counter() - payment_started) * 1000
         if payment.status_code != 202:
             return {"outcome": f"payment_http_{payment.status_code}", "durable_ms": durable_ms}
         while perf_counter() < deadline:
@@ -70,12 +73,17 @@ async def journey(client, manifest, index, run_id, timeout_seconds, poll_seconds
                 return {"outcome": f"order_http_{order.status_code}", "durable_ms": durable_ms}
             body = order.json()
             if body["status"] == "FULFILLED":
+                ticket_wait_ms = (perf_counter() - payment_started) * 1000 - payment_http_ms
                 tickets = body.get("tickets", [])
                 if len(tickets) != 1:
                     return {"outcome": "ticket_count_mismatch", "durable_ms": durable_ms}
                 return {
                     "outcome": "fulfilled",
                     "durable_ms": durable_ms,
+                    "hold_http_ms": hold_http_ms,
+                    "command_durable_wait_ms": command_durable_wait_ms,
+                    "payment_http_ms": payment_http_ms,
+                    "ticket_wait_ms": ticket_wait_ms,
                     "payment_to_ticket_ms": (perf_counter() - payment_started) * 1000,
                     "hold_to_ticket_ms": (perf_counter() - started) * 1000,
                     "order_id": order_id,

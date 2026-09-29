@@ -1,0 +1,143 @@
+{
+  "date_utc": "2026-09-29",
+  "scope": "Development-only one-minute synthetic paid-ticket journeys; no retries; one callback/payment; 0.2s order polling. 4 API replicas with 3 DB connections and 12 waiters each, 4 Kafka consumers, 8 payment simulator threads, 500 generator in-flight. Show count scales to preserve 300 distinct seats/show. Not a one-hour capacity result.",
+  "stages": [
+    {
+      "label": "45_per_second_four_consumers",
+      "source_revision": "cad7e30a421aa731c54d343eb4026c082333bfa9",
+      "rate_target_per_second": 45,
+      "dispatch_seconds": 60,
+      "shows": 9,
+      "scheduled": 2700,
+      "dispatched": 2700,
+      "generator_drops": 0,
+      "strict_runner_pass": true,
+      "fulfilled_by_deadline": 2700,
+      "unexpected_outcomes": {},
+      "retry_attempts": 0,
+      "dispatch_lag_p95_ms": 20.18116132239811,
+      "durable_p95_ms": 2388.068056985503,
+      "payment_to_ticket_p95_ms": 2892.582938016858,
+      "hold_to_ticket_p95_ms": 5002.275376027683,
+      "kafka": {
+        "samples": 24,
+        "sample_errors": 0,
+        "max_total_lag": 142,
+        "max_partition_lag": 59,
+        "partition_lag_peaks": {
+          "3": 38,
+          "2": 59,
+          "1": 59,
+          "0": 47,
+          "5": 11,
+          "4": 19
+        },
+        "last_total_lag": 0,
+        "members_min": 4,
+        "members_max": 4,
+        "drain_after_peak_seconds": 58.067613
+      },
+      "pipeline_peaks": {
+        "pending_orders": 103,
+        "paid_unfulfilled": 33,
+        "pending_callback_deliveries": 23,
+        "unpublished_outbox": 35,
+        "db_lock_waiters": 0
+      },
+      "worker_busy_seconds": {
+        "consumer": 109.3754315887345,
+        "publisher": 59.84530019943486,
+        "simulator": 338.0103449107846
+      },
+      "api_counter_deltas": {
+        "pool_acquire:ok": 13256.0
+      },
+      "post_ttl_audit": {
+        "orders": 2700,
+        "fulfilled_orders": 2700,
+        "succeeded_payments": 2700,
+        "bookings": 2700,
+        "tickets": 2700,
+        "callback_delivery_attempts": 2700,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "pass": true
+      },
+      "fixture_retired": true,
+      "rollback_pass": true,
+      "api_pool_waiters_restored": true,
+      "simulator_restored": true
+    },
+    {
+      "label": "60_per_second_four_consumers",
+      "source_revision": "cad7e30a421aa731c54d343eb4026c082333bfa9",
+      "rate_target_per_second": 60,
+      "dispatch_seconds": 60,
+      "shows": 12,
+      "scheduled": 3600,
+      "dispatched": 2772,
+      "generator_drops": 828,
+      "strict_runner_pass": false,
+      "fulfilled_by_deadline": 2772,
+      "unexpected_outcomes": {},
+      "retry_attempts": 0,
+      "dispatch_lag_p95_ms": 140.30326568172313,
+      "durable_p95_ms": 12489.329175004968,
+      "payment_to_ticket_p95_ms": 14230.992947006598,
+      "hold_to_ticket_p95_ms": 21037.04738500528,
+      "kafka": {
+        "samples": 22,
+        "sample_errors": 0,
+        "max_total_lag": 206,
+        "max_partition_lag": 83,
+        "partition_lag_peaks": {
+          "1": 83,
+          "0": 73,
+          "3": 68,
+          "2": 55,
+          "5": 10,
+          "4": 9
+        },
+        "last_total_lag": 0,
+        "members_min": 4,
+        "members_max": 4,
+        "drain_after_peak_seconds": 13.132199
+      },
+      "pipeline_peaks": {
+        "pending_orders": 261,
+        "paid_unfulfilled": 36,
+        "pending_callback_deliveries": 48,
+        "unpublished_outbox": 22,
+        "db_lock_waiters": 0
+      },
+      "worker_busy_seconds": {
+        "consumer": 109.50655414289213,
+        "publisher": 60.57534185209079,
+        "simulator": 337.042315288767
+      },
+      "api_counter_deltas": {
+        "pool_acquire:ok": 10223.0
+      },
+      "post_ttl_audit": {
+        "orders": 2772,
+        "fulfilled_orders": 2772,
+        "succeeded_payments": 2772,
+        "bookings": 2772,
+        "tickets": 2772,
+        "callback_delivery_attempts": 2772,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "pass": true
+      },
+      "fixture_retired": true,
+      "rollback_pass": true,
+      "api_pool_waiters_restored": true,
+      "simulator_restored": true
+    }
+  ],
+  "interpretation": "45/s strict pass is a short control, not a production rate. 60/s strict fail with drops and long durable-hold latency; Kafka/PAID backlog are smaller than in the failed two-consumer 45/s stage. Further diagnosis must separate hold HTTP and command durability time before altering fulfillment transactions."
+}

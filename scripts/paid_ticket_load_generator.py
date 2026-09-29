@@ -62,7 +62,10 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
     scheduled = validate(args, manifest)
     outcomes = Counter()
     attempts = Counter()
-    latencies = {"durable_ms": [], "payment_to_ticket_ms": [], "hold_to_ticket_ms": []}
+    latencies = {key: [] for key in (
+        "hold_http_ms", "command_durable_wait_ms", "durable_ms",
+        "payment_http_ms", "ticket_wait_ms", "payment_to_ticket_ms", "hold_to_ticket_ms",
+    )}
     unique_orders = set()
     unique_tickets = set()
     active = set()
@@ -142,7 +145,11 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
         "retry_attempts": 0,
         "dispatch_lag_p95_ms": percentile(dispatch_lags, 0.95),
         "dispatch_lag_max_ms": max(dispatch_lags, default=0),
+        "hold_http_p95_ms": percentile(latencies["hold_http_ms"], 0.95),
+        "command_durable_wait_p95_ms": percentile(latencies["command_durable_wait_ms"], 0.95),
         "durable_p95_ms": percentile(latencies["durable_ms"], 0.95),
+        "payment_http_p95_ms": percentile(latencies["payment_http_ms"], 0.95),
+        "ticket_wait_p95_ms": percentile(latencies["ticket_wait_ms"], 0.95),
         "payment_to_ticket_p95_ms": percentile(latencies["payment_to_ticket_ms"], 0.95),
         "hold_to_ticket_p95_ms": percentile(latencies["hold_to_ticket_ms"], 0.95),
         "elapsed_seconds": finished - started,

@@ -61,6 +61,11 @@ def test_waits_for_durable_before_payment_and_counts_one_ticket():
     assert result["outcome"] == "fulfilled"
     assert result["ticket_id"] == "t1"
     assert result["durable_ms"] > 0
+    assert result["hold_http_ms"] > 0
+    assert result["command_durable_wait_ms"] > 0
+    assert result["payment_http_ms"] > 0
+    assert result["ticket_wait_ms"] > 0
+    assert abs(result["durable_ms"] - result["hold_http_ms"] - result["command_durable_wait_ms"]) < 0.01
     assert result["hold_to_ticket_ms"] >= result["durable_ms"]
     assert payment_calls == 1
     assert order_polls == 2

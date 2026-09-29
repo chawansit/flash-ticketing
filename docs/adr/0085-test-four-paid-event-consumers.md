@@ -7,3 +7,17 @@
 - **Consequences:** Four consumers may reduce per-consumer partition load but also increase potential client DB connections and PgBouncer contention. CPU and WAL work per event are unchanged. Four of six Kafka partitions will have one owner each and two owners will handle two; expect uneven work. This is an experiment, not a promoted production setting.
 - **Failure/recovery behavior:** Any strict gate failure stops escalation. Kafka offset commits remain after durable inbox/ticket transactions; replay remains idempotent. If a consumer restarts, Kafka rebalances partitions and processing resumes. The runner retires synthetic fixtures, audits accepted payments after TTL and restores the original one-consumer deployment; partial rollback is treated as failure.
 - **Validation evidence:** The [two-consumer failed stage and partition lag](../capacity/flash-sale-opening/paid-ticket-kafka-lag-2026-09-29.json) motivate the comparison. The four-consumer stage has not run at decision time. Record revision, exact workload, strict verdict, Kafka lag, post-TTL audit and rollback before evaluating the candidate.
+
+## Executed evidence
+
+The one-minute 45/s candidate passed: 2,700/2,700 distinct paid tickets
+by deadline, zero generator drops or retries, Kafka lag peak 142 and
+hold-to-ticket p95 5.00 s. Post-TTL audit verified zero duplicate
+bookings and empty queues. The runner restored one consumer. A following
+60/s diagnostic with the same candidate failed: 828/3,600 scheduled
+journeys dropped, hold-to-durable p95 12.49 s and hold-to-ticket p95
+21.04 s. Kafka lag peaked at 206, PAID orders waiting for ticket at 36,
+and all 2,772 accepted payments had unique tickets after TTL. Rollback
+again restored one consumer. Four consumers remain an experimental
+candidate, not a production promotion. See the
+[aggregate comparison](../capacity/flash-sale-opening/paid-ticket-four-consumers-2026-09-29.json).

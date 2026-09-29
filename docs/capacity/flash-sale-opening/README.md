@@ -371,3 +371,33 @@ stage remains **failed**. This evidence motivates bounded paid-event
 batching, but it does not prove that batching will reach 45/s or the
 83.34 completed tickets/s business minimum. See the
 [redacted Kafka diagnostic](paid-ticket-kafka-lag-2026-09-29.json).
+
+## Four-consumer paid-ticket diagnostic
+
+With four Kafka consumers and the same 45/s one-callback workload, the
+60-second stage on revision cad7e30 **passed** all strict, post-TTL and
+rollback gates. It dispatched 2,700/2,700 buyers with zero retries or
+drops; all had distinct paid tickets by the deadline. Hold-to-ticket p95
+was 5.00 s versus 23.55 s in the failed two-consumer repeat, and peak
+Kafka group lag fell from 912 to 142. No double booking or dead letters
+were found. This is a one-minute synthetic diagnostic, not a sustained
+production capacity estimate. The original one-consumer topology was
+restored.
+
+At 60/s, four consumers **failed**: only 2,772/3,600 journeys were
+dispatched, with 828 generator drops and hold-to-ticket p95 of 21.04 s.
+Hold-to-durable p95 grew from 2.39 s at 45/s to 12.49 s; peak PAID
+waiting for tickets was only 36, and Kafka lag peaked at 206 before
+draining. All 2,772 accepted payments later had unique tickets, callback
+deliveries completed and post-TTL integrity passed. Rollback and fixture
+retirement passed. This points to a substantial pre-fulfillment delay
+under 60/s, but the current probe does not separate HTTP hold latency
+from command-durability polling. Stop escalation; instrument those
+phases before changing fulfillment transactions. See the
+[redacted four-consumer comparison](paid-ticket-four-consumers-2026-09-29.json).
+
+The paid-journey probe now reports separate p95 durations for the hold
+HTTP request, command-durability wait, payment-initiation HTTP request
+and ticket wait, in addition to end-to-end spans. These fields contain
+only aggregate timings. The next same-rate diagnostic can identify
+which upstream phase grows at 60/s without changing the sale path.
