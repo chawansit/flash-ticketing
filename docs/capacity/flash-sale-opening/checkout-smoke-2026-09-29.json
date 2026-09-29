@@ -1,0 +1,60 @@
+{
+  "date_utc": "2026-09-29",
+  "profile": "bounded development-only Redis-first checkout smoke",
+  "deployed_source_revision": "cdbba10fd58ffd13c8e763a2bace2a17927a6adb",
+  "user_journeys": 10,
+  "concurrency": 5,
+  "duplicate_delivery_target_per_payment": 3,
+  "fulfilled": 10,
+  "distinct_orders": 10,
+  "distinct_tickets": 10,
+  "durable_p95_ms": 435.2889340079855,
+  "payment_to_ticket_p95_ms": 460.31169401248917,
+  "hold_to_ticket_p95_ms": 687.1664950158447,
+  "post_drain_database_audit": {
+    "orders": 10,
+    "fulfilled_orders": 10,
+    "succeeded_payments": 10,
+    "bookings": 10,
+    "tickets": 10,
+    "payment_callbacks": 10,
+    "incomplete_callback_deliveries": 0,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 10,
+    "pass": true
+  },
+  "post_drain_queue_state": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "active_fixture_holds": 0,
+    "overdue_fixture_holds": 0,
+    "pending_fixture_orders": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "pass": true
+  },
+  "fixture_retirement": {
+    "expected_shows": 2,
+    "retired_shows": 2,
+    "pass": true
+  },
+  "rollback": {
+    "restored_admission": 4,
+    "restored_reservation_mode": "postgres",
+    "restored_reservation_writer_batch_size": 1,
+    "restored_reservation_max_command_age_seconds": 0,
+    "reservation_writer_replicas": 0,
+    "api_replicas": 4,
+    "maintenance_replicas": 1,
+    "refresh_replicas": 0,
+    "expiry_replicas": 0,
+    "consumer_replicas": 1,
+    "pass": true
+  },
+  "pass": true,
+  "scope_note": "Small functional smoke; no arrival-rate or 300000 tickets/hour capacity claim."
+}

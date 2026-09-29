@@ -149,3 +149,25 @@ and [rollback](stages/opening-300-repeat/rollback.json).
 
 The [end-to-end ticket validation protocol](checkout-validation-plan.md) defines
 the separate one-hour measurement needed for the 300,000-ticket target.
+
+## Paid-ticket checkout smoke — 2026-09-29
+
+A bounded functional probe exercised the actual Huawei API, PostgreSQL RDS,
+Redis/DCS, simulator and Kafka/consumer path on two fresh, isolated development
+shows. Ten concurrent-style journeys (maximum five in flight) each waited for
+a Redis-first hold to become PostgreSQL-durable, initiated a successful
+simulated payment with three callback delivery attempts, and observed one
+issued ticket. All ten reached FULFILLED. PostgreSQL then showed 10 orders,
+10 successful payments, 10 bookings and 10 tickets; the callback delivery
+targets were complete, the outbox and reservation queues were empty, and no
+duplicate booked seat or dead letter was found. The fixture sale windows were
+closed and the prior PostgreSQL reservation mode was restored.
+
+The hold-to-ticket p95 was 687.17 ms for this tiny sample; payment-to-ticket
+p95 was 460.31 ms. These are **functional smoke timings**, not capacity
+percentiles. The deployed application revision was `cdbba10`. See the
+[redacted aggregate result](checkout-smoke-2026-09-29.json). The new reusable
+probe/audit/runner scripts on this branch were transferred as test tooling;
+they were not part of the deployed application image. A measured
+300,000-paid-tickets/hour result still requires a distributed, controlled
+arrival-rate generator and a one-hour run.

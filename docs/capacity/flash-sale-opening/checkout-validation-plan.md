@@ -1,7 +1,7 @@
 # End-to-end flash-sale validation protocol
 
 Status: proposed measurement protocol. A bounded Redis-first HTTP journey
-probe is implemented and unit-tested, but it has **not** been run against Huawei.
+probe was run on Huawei on 2026-09-29; the small functional smoke passed.
 The opening-burst evidence does not certify payment or ticket capacity.
 
 ## Objective and counting rule
@@ -90,6 +90,6 @@ arrival-rate generator and does not replace PostgreSQL/Kafka audit.
 Focused unit tests cover waiting for durability before payment, refusing
 payment after a failed reservation command, and rejecting an invalid
 two-ticket outcome, and confirming its result excludes private tokens and IDs.
-The probe still needs a fresh isolated cloud fixture,
-service readiness and a real development-environment smoke run before its
-results can be used in the one-hour capacity series.
+The 2026-09-29 smoke used a fresh isolated cloud fixture and verified all ten
+paid-ticket journeys against PostgreSQL and drained queues. It does not
+measure an arrival rate or establish one-hour paid-ticket capacity.
