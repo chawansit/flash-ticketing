@@ -109,8 +109,12 @@ the other gates passed. The original helper produced no failure reason.
 The raw observer files and compact summaries were present, so the
 available evidence cannot identify which individual check failed.
 A follow-up change records explicit observer failure labels and preserves
-them in compact evidence. Do not promote this result to a passed
-opening-sale capacity point or rerun merely to obtain a pass.
+them in compact evidence. The old stop helper invoked shell wait on processes
+started by an earlier shell; that does not wait for those non-child processes
+to flush samples. It now uses a bounded process-exit check before summarizing.
+This timing race is a plausible cause, **not a proven attribution** for the
+old run. Do not promote this result to a passed opening-sale capacity point
+or rerun merely to obtain a pass.
 
 Evidence: [failed stage verdict](stages/opening-300-first/stage-result.json),
 [generator summary](stages/opening-300-first/generator-summary.json),

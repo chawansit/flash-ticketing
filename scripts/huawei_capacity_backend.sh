@@ -413,13 +413,6 @@ case "${1:-}" in
   stop-observers)
     [ "$#" -eq 2 ]
     run_paths "$2"
-    for file in "$private"/*.pid; do
-      [ -f "$file" ] || continue
-      pid=$(cat "$file")
-      kill "$pid" 2>/dev/null || true
-      wait "$pid" 2>/dev/null || true
-    done
-    docker rm -f "ft-rds-wait-$2" >/dev/null 2>&1 || true
     observer_failed=0
     observer_errors="$public/observer-stop-errors.txt"
     [ -f "$observer_errors" ] || : > "$observer_errors"
@@ -427,6 +420,24 @@ case "${1:-}" in
       observer_failed=1
       printf '%s\n' "$1" >> "$observer_errors"
     }
+    for file in "$private"/*.pid; do
+      [ -f "$file" ] || continue
+      pid=$(cat "$file")
+      kill "$pid" 2>/dev/null || true
+      attempt=0
+      while kill -0 "$pid" 2>/dev/null; do
+        state=$(ps -o stat= -p "$pid" 2>/dev/null || true)
+        case "$state" in ''|Z*) break ;; esac
+        if [ "$attempt" -ge 50 ]; then
+          observer_fail observer_shutdown_timeout
+          kill -KILL "$pid" 2>/dev/null || true
+          break
+        fi
+        attempt=$((attempt + 1))
+        sleep 0.1
+      done
+    done
+    docker rm -f "ft-rds-wait-$2" >/dev/null 2>&1 || true
     [ -s "$raw/cpu.json" ] || observer_fail cpu_sample_missing
     if [ -s "$raw/rds-waits.jsonl" ]; then
       python3 scripts/summarize_rds_waits.py "$raw/rds-waits.jsonl" > \
