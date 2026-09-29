@@ -120,3 +120,29 @@ Evidence: [failed stage verdict](stages/opening-300-first/stage-result.json),
 [generator summary](stages/opening-300-first/generator-summary.json),
 [post-TTL audit](stages/opening-300-first/durability.json), and
 [rollback](stages/opening-300-first/rollback.json).
+
+
+## Observer-fix validation
+
+After changing observer teardown to wait for process exit and record failed
+checks, the unchanged base-300 opening workload was repeated on revision
+cdbba10. **This repeat passed every strict stage gate**, including observer
+collection and rollback. All 144,000 scheduled requests were sent once:
+135,356 reads returned HTTP 200 and 8,644 holds returned provisional HTTP
+202, with zero generator drops, transport errors, retries, or admission
+rejections. Worst-worker read/hold p95 was 10.35/21.03 ms. Post-TTL audit
+verified 8,644 durable holds, zero overlapping seat intervals, zero broken
+links and all queues at zero. The audit took 14.84 seconds. The observer
+failure-label file was empty. Synthetic fixtures were retired afterward.
+
+This is **one passing five-minute opening profile**, with a 30-second peak
+of 1,200 RPS. The first base-300 result remains failed in the evidence.
+Neither run validates sustained 1,200 RPS (the earlier 15-minute flat run
+failed), simultaneous contention for the same seat, 300,000 paid and issued
+tickets in one hour, or a production SLA.
+
+Evidence: [passed stage verdict](stages/opening-300-repeat/stage-result.json),
+[generator summary](stages/opening-300-repeat/generator-summary.json),
+[post-TTL audit](stages/opening-300-repeat/durability.json),
+[reservation-writer metrics](stages/opening-300-repeat/reservation-writer-metrics.json),
+and [rollback](stages/opening-300-repeat/rollback.json).
