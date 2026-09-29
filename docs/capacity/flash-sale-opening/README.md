@@ -496,3 +496,16 @@ bookings and all queues drained. Rollback passed. The run remains a
 strict failure and cannot establish 60/s, let alone the 83.34/s average
 needed for 300,000 paid tickets/hour. See the
 [redacted two-process diagnostic](paid-ticket-sharded-generator-2026-09-29.json).
+
+A same-topology two-process 60/s stage with the synthetic command/order
+poll interval increased from 0.2 to 1.0 second also **failed**:
+2,699/3,600 dispatched, 901 drops, 105 order GET 503s and 19 payment
+POST 503s. DB-pool acquisition errors rose from 53 to 135 and Kafka
+lag peaked at 864. Observed order GETs were 12,101, compared with
+10,872 in the preceding 0.2-second stage; longer in-flight journeys
+may have offset the slower cadence. These separate runs do not prove
+that polling caused the failure. After TTL, 2,680 paid orders had
+2,680 unique tickets, 19 unpaid orders expired, all queues drained,
+and rollback passed. Slower polling alone is not promoted. See the
+[redacted polling diagnostic](paid-ticket-slower-polling-2026-09-29.json)
+and [ADR 0088](../../adr/0088-bound-synthetic-checkout-status-polling.md).

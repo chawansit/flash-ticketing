@@ -4,6 +4,7 @@ from typing import Any, Protocol
 
 class Database(Protocol):
     def transaction(self) -> AbstractContextManager[Any]: ...
+    def connection(self) -> AbstractContextManager[Any]: ...
 
 
 class SeatCache(Protocol):

@@ -124,3 +124,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0086: Isolate synthetic generator HTTP connection-pool headroom](0086-isolate-generator-http-pool-headroom.md)
 - [0087: Shard the synthetic paid-journey generator](0087-shard-paid-load-generator-for-capacity-validation.md)
 - [0088: Bound synthetic checkout-status polling](0088-bound-synthetic-checkout-status-polling.md)
+- [0089: Use a single-statement PostgreSQL order-status read](0089-single-statement-order-status-read.md)

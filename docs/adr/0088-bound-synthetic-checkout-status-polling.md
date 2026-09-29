@@ -7,3 +7,13 @@
 - **Consequences:** Fewer polls may lower PostgreSQL connection demand and generator HTTP contention, but each buyer can observe durability or ticket issuance up to roughly 0.8 seconds later than with 0.2-second polling, and completion-deadline passes may worsen. This test does not change application behavior or payment correctness. A future production API/client contract must define its own bounded polling/backoff and notification SLO.
 - **Failure/recovery behavior:** If the stage drops work, returns unexpected errors, misses the completion deadline, leaves a payment without exactly one ticket, double-books a seat, or leaves queues nonempty after the bounded drain window, mark it failed and restore the original backend topology. After payment 503, audit durable state after TTL; do not assume every dispatched order was paid. Retire only the isolated fixture and retain redacted counts.
 - **Validation evidence:** The [two-process 0.2-second control](../capacity/flash-sale-opening/paid-ticket-sharded-generator-2026-09-29.json) failed with 891 drops, 51 buyer-visible 503s and 53 DB-pool acquisition errors. The 1.0-second candidate has not been run at decision time. The runner already accepts an explicit `--paid-poll-seconds` value, so no application code change is required for this diagnostic.
+
+The 1.0-second candidate was executed against the same backend source
+revision and topology. It failed: 901 drops, 124 buyer-visible 503s and
+135 DB-pool acquisition errors, versus 891, 51 and 53 at 0.2 seconds.
+Observed order GETs rose from 10,872 to 12,101 because the time spent
+in-flight also changed; per-request polling cadence alone does not
+predict total read volume. The corrected post-TTL audit found 2,680
+paid orders with 2,680 unique tickets, 19 expired unpaid orders, zero
+duplicates and empty queues. [Redacted evidence](../capacity/flash-sale-opening/paid-ticket-slower-polling-2026-09-29.json).
+This candidate is rejected as a standalone capacity improvement.

@@ -1,0 +1,65 @@
+{
+  "date_utc": "2026-09-29",
+  "source_revision": "9ca687f5de942edf1bd4b034bbacb66ed31cbfc7",
+  "profile": "60 paid journeys/s for 60 s; two synchronized generator processes; 500 total in-flight; four API replicas, four Kafka consumers, eight simulator threads, 12 DB pool waiters per API; 1.0 s command and order polling; one callback/payment; zero retries",
+  "strict_pass": false,
+  "scheduled": 3600,
+  "dispatched": 2699,
+  "generator_drops": 901,
+  "fulfilled_by_deadline": 2575,
+  "outcomes": {
+    "fulfilled": 2575,
+    "order_http_503": 105,
+    "payment_http_503": 19
+  },
+  "physical_http_attempts": {
+    "holds": 2699,
+    "reservation_commands": 4169,
+    "payments": 2699,
+    "orders": 12101
+  },
+  "transport_phase_p95_ms_mode": "worst shard p95, not combined percentile",
+  "transport_phase_p95_ms": {
+    "hold_pre_send": 3943.3,
+    "hold_response_header_wait": 69.51,
+    "payment_pre_send": 3449.52,
+    "payment_response_header_wait": 177.97
+  },
+  "end_to_end_p95_ms": {
+    "hold_to_ticket": 22597.86,
+    "payment_to_ticket": 18863.07
+  },
+  "api": {
+    "db_pool_acquire_errors": 135,
+    "order_get_503": 105,
+    "payment_post_503": 19,
+    "pool_waiting_peak_per_replica": 10,
+    "pool_size_per_replica": 3,
+    "pool_acquire_ok_mean_ms": 16.77,
+    "db_select_mean_ms": 3.65,
+    "db_commit_mean_ms": 3.13,
+    "db_connection_hold_mean_ms": 30.5
+  },
+  "pipeline": {
+    "kafka_group_lag_peak": 864,
+    "kafka_group_lag_final": 0,
+    "paid_waiting_ticket_peak": 219,
+    "pending_callbacks_peak": 205
+  },
+  "post_ttl": {
+    "orders": 2699,
+    "paid_orders": 2680,
+    "tickets": 2680,
+    "expired_unpaid_orders": 19,
+    "pending_orders": 0,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "callbacks_delivered": 2680,
+    "pass": true
+  },
+  "queue_drain_pass": true,
+  "rollback_pass": true,
+  "interpretation": "At the same 60/s offered rate, changing synthetic command/order polling from 0.2 to 1.0 s did not reduce observed GET count or DB-pool contention in this failed stage. Longer in-flight journeys and backlog may have offset the lower configured polling frequency. Cross-run timings are observational rather than a causal isolate. No sustained capacity claim follows."
+}
