@@ -1,0 +1,66 @@
+{
+  "date_utc": "2026-09-29",
+  "source_revision": "b9d8f2a0c9bc2298b5a9b2ecb2ae3defb8f76926",
+  "profile": "60 paid journeys/s for 60s; 500 in-flight; shared client maximum connections 1000; four consumers; one callback/payment; no retries",
+  "strict_pass": false,
+  "scheduled": 3600,
+  "dispatched": 2551,
+  "generator_drops": 1049,
+  "fulfilled_by_deadline": 2551,
+  "outcomes": {
+    "fulfilled": 2551
+  },
+  "http_max_connections": 1000,
+  "generator_max_in_flight": 500,
+  "dispatch_lag_p95_ms": 839.2572320008185,
+  "transport_phase_p95_ms": {
+    "holds": {
+      "pre_send_ms": 7277.330254990375,
+      "response_wait_ms": 50.65138600184582,
+      "connect_ms": 85.12149401940405
+    },
+    "payments": {
+      "pre_send_ms": 7495.199033990502,
+      "response_wait_ms": 85.61683999141678,
+      "connect_ms": 82.67150100436993
+    }
+  },
+  "transport_phase_samples": {
+    "holds": {
+      "pre_send_ms": 2551,
+      "response_wait_ms": 2551,
+      "connect_ms": 36
+    },
+    "payments": {
+      "pre_send_ms": 2551,
+      "response_wait_ms": 2551,
+      "connect_ms": 30
+    }
+  },
+  "http_timing_p95_ms": {
+    "hold_http_p95_ms": 7377.353638003115,
+    "hold_app_p95_ms": 12.57,
+    "payment_http_p95_ms": 7625.4781569878105,
+    "payment_app_p95_ms": 57.79,
+    "hold_to_ticket_p95_ms": 25477.32792602619
+  },
+  "api_counter_deltas": {
+    "pool_acquire:ok": 12247.0
+  },
+  "post_ttl": {
+    "orders": 2551,
+    "fulfilled_orders": 2551,
+    "expired_orders": 0,
+    "succeeded_payments": 2551,
+    "bookings": 2551,
+    "tickets": 2551,
+    "duplicate_booked_seats": 0,
+    "dead_letters": 0,
+    "pass": true
+  },
+  "fixture_retired": true,
+  "rollback_pass": true,
+  "api_pool_waiters_restored": true,
+  "simulator_restored": true,
+  "interpretation": "Doubling the shared HTTP client connection limit did not remove pre-send delay or generator drops. A single-process client remains an unverified generator-side limiter; no backend 60/s capacity claim is supported. The candidate is not promoted."
+}

@@ -467,3 +467,15 @@ expired unpaid orders, zero duplicate bookings and empty queues.
 Fixture retirement and deployment rollback passed. The strict stage
 remains **failed** due to drops and 503s. See the
 [redacted transport trace](paid-ticket-client-pool-trace-2026-09-29.json).
+
+Increasing only the shared generator HTTP pool from 500 to 1,000
+connections at 60/s on revision b9d8f2a also **failed**: 2,551/3,600
+dispatched, 1,049 drops. Hold/payment pre-send p95 was 7.28/7.50 s,
+worse than the 500-connection control; response-header waits remained
+51/86 ms. All 2,551 dispatched payments were ticketed, post-TTL
+integrity and rollback passed, and no checkout 503 was observed. A
+larger connection limit alone is not a remedy. Next, split the fixed
+60/s offered load across two independent generator processes, each
+with disjoint shows and half the original in-flight budget, to test
+whether the single-process client is the limit. See the
+[redacted pool comparison](paid-ticket-client-pool-headroom-2026-09-29.json).

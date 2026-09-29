@@ -7,3 +7,11 @@
 - **Consequences:** The generator may open up to 1,000 sockets, though at most 500 journeys are active and each issues one request at a time. The generator ECS has 8 vCPUs, 16 GiB RAM and a 65,535 file-descriptor limit; the stage still needs runtime resource observation. A higher client limit may expose a previously hidden API/DB bottleneck. It must not be interpreted as an application throughput optimization.
 - **Failure/recovery behavior:** On any strict failure, stop escalation, audit accepted and ambiguous payments after TTL, restore the original one-consumer/three-waiter/four-simulator deployment and retire synthetic fixtures. The client limit is process-local and disappears when the generator exits. No reservation, payment idempotency, Kafka delivery or TTL semantics change.
 - **Validation evidence:** The motivating [redacted transport trace and corrected audit](../capacity/flash-sale-opening/paid-ticket-client-pool-trace-2026-09-29.json) show pre-send p95 above six seconds while FastAPI time is below 61 ms. The existing HTTPX trace hook was verified against a local HTTP server. The 1,000-connection comparison has not yet run at decision time.
+
+## Executed comparison
+
+The 1,000-connection candidate failed its strict 60/s stage: 1,049
+generator drops, 2,551/3,600 dispatched, hold/payment pre-send p95
+7.28/7.50 s. All dispatched payments had unique tickets after TTL,
+and rollback passed. Connection headroom alone is rejected as the
+remedy. See the [aggregate result](../capacity/flash-sale-opening/paid-ticket-client-pool-headroom-2026-09-29.json).
