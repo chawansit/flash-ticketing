@@ -85,7 +85,7 @@ waiter_check = (
     f'cd {BACKEND}; for id in $({COMPOSE} ps -q api); do docker exec "$id" printenv DB_POOL_MAX_WAITING; done'
 )
 state = {"run": RUN, "phases": [], "pass": False, "error": None}
-deployed = prepared = probe_attempted = observer_started = simulator_changed = False
+deployed = prepared = probe_attempted = observer_started = kafka_observer_started = simulator_changed = False
 
 
 def step(label, host, argv, timeout=120):
@@ -209,6 +209,17 @@ try:
         )
         backend_exec("observer-start", observer_shell, 30)
         observer_started = True
+        kafka_shell = (
+            f"cd {BACKEND}; kafka=$({COMPOSE} ps -q kafka); "
+            'test -n "$kafka" || exit 1; '
+            f'nohup python3 scripts/kafka_lag_observe.py --container "$kafka" '
+            f"--seconds {args.paid_seconds + 120} --interval 2 "
+            f"--output tmp/unattended-{RUN}/raw/paid-kafka-lag.ndjson "
+            f"> tmp/unattended-{RUN}/raw/paid-kafka-lag.log 2>&1 < /dev/null & "
+            f"echo $! > tmp/unattended-{RUN}/private/paid-kafka-lag.pid"
+        )
+        backend_exec("kafka-observer-start", kafka_shell, 30)
+        kafka_observer_started = True
 
     with tempfile.TemporaryDirectory(prefix="checkout-private-") as temp:
         manifest = Path(temp) / "manifest.json"
@@ -402,6 +413,46 @@ finally:
         if not state["observer_pass"]:
             state["pass"] = False
             state["error"] = (state["error"] or "") + "; paid pipeline observer failed"
+    if kafka_observer_started:
+        try:
+            kafka_stop_shell = (
+                f"cd {BACKEND}; pid=$(cat tmp/unattended-{RUN}/private/paid-kafka-lag.pid); "
+                'kill "$pid" 2>/dev/null || true; sleep 1; '
+                f"test -s tmp/unattended-{RUN}/raw/paid-kafka-lag.ndjson"
+            )
+            backend_exec("kafka-observer-stop", kafka_stop_shell, 30)
+            transport.copy_from(
+                "kafka-lag-trace",
+                API_HOST,
+                f"{BACKEND}/tmp/unattended-{RUN}/raw/paid-kafka-lag.ndjson",
+                OUT / "paid-kafka-lag.ndjson",
+            )
+            summary = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "scripts/summarize_paid_kafka_lag.py"),
+                    str(OUT / "paid-kafka-lag.ndjson"),
+                    "--output",
+                    str(OUT / "paid-kafka-lag-summary.json"),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=30,
+            )
+            state["kafka_observer_pass"] = summary.returncode == 0
+            if state["kafka_observer_pass"]:
+                lag = json.loads((OUT / "paid-kafka-lag-summary.json").read_text(encoding="utf-8"))
+                state["kafka_observer_pass"] = (
+                    lag["samples"] >= 5
+                    and lag["sample_errors"] == 0
+                    and lag["members_max"] == args.consumer_candidate
+                )
+        except Exception:  # noqa: BLE001 - rollback must proceed
+            state["kafka_observer_pass"] = False
+        if not state["kafka_observer_pass"]:
+            state["pass"] = False
+            state["error"] = (state["error"] or "") + "; Kafka lag observer failed"
     if probe_attempted and not (OUT / "probe.json").exists():
         try:
             transport.copy_from(
