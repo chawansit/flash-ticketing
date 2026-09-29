@@ -123,3 +123,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0085: Test four paid-event Kafka consumers](0085-test-four-paid-event-consumers.md)
 - [0086: Isolate synthetic generator HTTP connection-pool headroom](0086-isolate-generator-http-pool-headroom.md)
 - [0087: Shard the synthetic paid-journey generator](0087-shard-paid-load-generator-for-capacity-validation.md)
+- [0088: Bound synthetic checkout-status polling](0088-bound-synthetic-checkout-status-polling.md)
