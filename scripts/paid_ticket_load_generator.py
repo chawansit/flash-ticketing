@@ -75,7 +75,7 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
     active = set()
     dispatch_lags = []
     transport = {key: {phase: [] for phase in ("pre_send_ms", "response_wait_ms", "connect_ms")}
-                 for key in ("holds", "payments")}
+                 for key in ("holds", "reservation_commands", "payments", "orders")}
     dropped = dispatched = fulfilled_by_deadline = 0
     run_id = uuid4().hex
 

@@ -521,3 +521,9 @@ tickets, 14 expired unpaid orders, no duplicates and drained queues;
 rollback passed. The change is not a validated capacity improvement.
 See the [redacted order-read candidate](paid-ticket-single-query-order-read-2026-09-29.json)
 and [ADR 0089](../../adr/0089-single-statement-order-status-read.md).
+
+The generator transport trace now includes reservation-command and order
+status GETs, in addition to hold and payment requests. The next same-profile
+60/s diagnostic will show whether those frequent polls are occupying the
+shared client connection pools; this instrumentation does not alter the
+request schedule, application code or correctness gates.
