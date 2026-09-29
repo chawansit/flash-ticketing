@@ -83,6 +83,8 @@ def test_open_loop_accounts_for_every_scheduled_journey(monkeypatch, tmp_path):
     assert result["generator_drops"] == 0
     assert result["distinct_tickets"] == 5
     assert result["hold_http_p95_ms"] == 3
+    assert result["hold_app_p95_ms"] is None
+    assert result["hold_app_timing_samples"] == 0
     assert result["command_durable_wait_p95_ms"] == 7
     assert result["payment_http_p95_ms"] == 4
     assert result["ticket_wait_p95_ms"] == 16

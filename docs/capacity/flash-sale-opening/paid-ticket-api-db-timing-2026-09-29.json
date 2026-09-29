@@ -1,0 +1,65 @@
+{
+  "date_utc": "2026-09-29",
+  "source_revision": "6f8fc8f2ff588725d9f431f92a4113d4b9d832a0",
+  "profile": "60 paid journeys/s for 60s; four consumers; one callback/payment; 500 generator in-flight; zero retries; 12 isolated shows x 300 seats",
+  "strict_pass": false,
+  "scheduled": 3600,
+  "dispatched": 2759,
+  "generator_drops": 841,
+  "fulfilled_by_deadline": 2759,
+  "phase_p95_ms": {
+    "hold_http_p95_ms": 7078.209110011812,
+    "command_durable_wait_p95_ms": 7158.980233012699,
+    "durable_p95_ms": 11495.567418984137,
+    "payment_http_p95_ms": 6677.988600975368,
+    "ticket_wait_p95_ms": 13098.023613012629,
+    "hold_to_ticket_p95_ms": 22146.25300001353
+  },
+  "api": {
+    "observed_replicas": 4,
+    "duration_mean_ms": {
+      "db_query:SELECT": 2.5798046228765035,
+      "db_query:BEGIN": 3.814254668413679,
+      "db_pool_acquire:ok": 1.540841378863318,
+      "db_query:SET": 1.696562517960159,
+      "event_loop_lag:all": 0.8219986216633691,
+      "db_commit:all": 2.7358552725515115,
+      "db_query:INSERT": 1.9486146687489305,
+      "db_connection_hold:all": 25.972892101336964,
+      "db_query:UPDATE": 1.9063466189894318
+    },
+    "event_loop_lag_current_peak_ms": 31.970094016287476,
+    "pool_peaks_per_replica": {
+      "pool_acquiring": 4.0,
+      "pool_in_use": 3.0,
+      "pool_state:pool_size": 3.0,
+      "pool_state:pool_available": 3.0,
+      "pool_state:requests_waiting": 3.0,
+      "pool_state:pool_max": 3.0
+    },
+    "counter_deltas": {
+      "pool_acquire:ok": 12447.0
+    }
+  },
+  "kafka_max_total_lag": 307,
+  "kafka_last_total_lag": 0,
+  "pipeline_peaks": {
+    "pending_orders": 270,
+    "paid_unfulfilled": 69,
+    "pending_callback_deliveries": 65,
+    "unpublished_outbox": 25,
+    "db_lock_waiters": 0
+  },
+  "post_ttl": {
+    "orders": 2759,
+    "tickets": 2759,
+    "duplicate_booked_seats": 0,
+    "dead_letters": 0,
+    "pass": true
+  },
+  "fixture_retired": true,
+  "rollback_pass": true,
+  "api_pool_waiters_restored": true,
+  "simulator_restored": true,
+  "interpretation": "API DB duration means and sampled event-loop lag are low relative to buyer-visible p95. Means cannot rule out tails. Need compare existing Server-Timing app duration per HTTP response against client elapsed time and sample host/RDS resources before attributing root cause."
+}

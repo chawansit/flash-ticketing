@@ -421,3 +421,23 @@ per-replica Prometheus counter deltas, plus the highest sampled API
 event-loop lag gauge. These are diagnostics, not substitutes for
 per-request p95s or Cloud Eye RDS CPU/storage metrics. A further
 same-profile stage is required to populate them.
+
+That 60/s repeat on revision 6f8fc8f still **failed**: 2,759/3,600
+dispatched, 841 drops and all dispatched buyers eventually ticketed.
+The per-API mean DB SELECT was 2.58 ms, commit 2.74 ms, pool
+acquisition 1.54 ms and connection hold 25.97 ms. Sampled API
+event-loop lag averaged 0.82 ms, with a 31.97 ms peak gauge. These
+means do not rule out tails, but are far below the 7.08 s hold HTTP
+and 6.68 s payment HTTP p95 seen by buyers. No DB pool rejection or
+sampled lock waiter occurred; Kafka lag reached 307 and drained.
+Post-TTL integrity and rollback passed. The existing API
+`Server-Timing: app;dur` response header can directly split time
+inside FastAPI from the remaining client/proxy time on the next
+diagnostic. See the [redacted API/DB timing evidence](paid-ticket-api-db-timing-2026-09-29.json).
+
+The generator now extracts the already-emitted `Server-Timing: app;dur`
+header on hold and payment responses. It reports how many responses
+had the header, API duration p95, and the remaining client-observed
+duration p95 for each operation. A read-only check from the generator
+ECS confirmed the header survives the Nginx proxy. A same-profile
+load stage is still required to locate the long HTTP tails.

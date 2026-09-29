@@ -63,8 +63,10 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
     outcomes = Counter()
     attempts = Counter()
     latencies = {key: [] for key in (
-        "hold_http_ms", "command_durable_wait_ms", "durable_ms",
-        "payment_http_ms", "ticket_wait_ms", "payment_to_ticket_ms", "hold_to_ticket_ms",
+        "hold_http_ms", "hold_app_ms", "hold_client_excess_ms",
+        "command_durable_wait_ms", "durable_ms", "payment_http_ms",
+        "payment_app_ms", "payment_client_excess_ms", "ticket_wait_ms",
+        "payment_to_ticket_ms", "hold_to_ticket_ms",
     )}
     unique_orders = set()
     unique_tickets = set()
@@ -108,7 +110,9 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
                 if perf_counter() <= completion_deadline:
                     fulfilled_by_deadline += 1
                 for key, values in latencies.items():
-                    values.append(row[key])
+                    value = row.get(key)
+                    if value is not None:
+                        values.append(value)
 
         for index in range(scheduled):
             due = started + index / args.rate
@@ -146,9 +150,15 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
         "dispatch_lag_p95_ms": percentile(dispatch_lags, 0.95),
         "dispatch_lag_max_ms": max(dispatch_lags, default=0),
         "hold_http_p95_ms": percentile(latencies["hold_http_ms"], 0.95),
+        "hold_app_p95_ms": percentile(latencies["hold_app_ms"], 0.95),
+        "hold_client_excess_p95_ms": percentile(latencies["hold_client_excess_ms"], 0.95),
+        "hold_app_timing_samples": len(latencies["hold_app_ms"]),
         "command_durable_wait_p95_ms": percentile(latencies["command_durable_wait_ms"], 0.95),
         "durable_p95_ms": percentile(latencies["durable_ms"], 0.95),
         "payment_http_p95_ms": percentile(latencies["payment_http_ms"], 0.95),
+        "payment_app_p95_ms": percentile(latencies["payment_app_ms"], 0.95),
+        "payment_client_excess_p95_ms": percentile(latencies["payment_client_excess_ms"], 0.95),
+        "payment_app_timing_samples": len(latencies["payment_app_ms"]),
         "ticket_wait_p95_ms": percentile(latencies["ticket_wait_ms"], 0.95),
         "payment_to_ticket_p95_ms": percentile(latencies["payment_to_ticket_ms"], 0.95),
         "hold_to_ticket_p95_ms": percentile(latencies["hold_to_ticket_ms"], 0.95),

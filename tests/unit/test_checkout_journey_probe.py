@@ -29,7 +29,8 @@ def test_waits_for_durable_before_payment_and_counts_one_ticket():
         nonlocal command_polls, payment_calls, order_polls
         if request.method == "POST" and request.url.path == "/v1/holds":
             assert request.headers["Idempotency-Key"].endswith("-hold")
-            return httpx.Response(202, json={"command_id": "c1", "order_id": "o1"})
+            return httpx.Response(202, json={"command_id": "c1", "order_id": "o1"},
+                                  headers={"Server-Timing": "app;dur=1.25"})
         if request.method == "GET" and request.url.path.endswith("/c1"):
             command_polls += 1
             return httpx.Response(
@@ -39,7 +40,8 @@ def test_waits_for_durable_before_payment_and_counts_one_ticket():
             assert command_polls == 2
             assert request.headers["Idempotency-Key"].endswith("-payment")
             payment_calls += 1
-            return httpx.Response(202, json={"payment_id": "p1"})
+            return httpx.Response(202, json={"payment_id": "p1"},
+                                  headers={"Server-Timing": "app;dur=2.50"})
         if request.method == "GET" and request.url.path == "/v1/orders/o1":
             order_polls += 1
             return httpx.Response(
@@ -62,6 +64,10 @@ def test_waits_for_durable_before_payment_and_counts_one_ticket():
     assert result["ticket_id"] == "t1"
     assert result["durable_ms"] > 0
     assert result["hold_http_ms"] > 0
+    assert result["hold_app_ms"] == 1.25
+    assert result["payment_app_ms"] == 2.5
+    assert result["hold_client_excess_ms"] >= 0
+    assert result["payment_client_excess_ms"] >= 0
     assert result["command_durable_wait_ms"] > 0
     assert result["payment_http_ms"] > 0
     assert result["ticket_wait_ms"] > 0
@@ -163,3 +169,11 @@ def test_aggregate_result_omits_private_tokens_and_ids(monkeypatch, tmp_path):
         value in result_path.read_text()
         for value in ("private-test-token", "private-command", "private-order", "private-ticket")
     )
+
+
+def test_server_timing_parser_ignores_missing_or_unrelated_entries():
+    assert probe.app_duration_ms(httpx.Response(200)) is None
+    assert probe.app_duration_ms(httpx.Response(200, headers={"Server-Timing": "cache;dur=3"})) is None
+    assert probe.app_duration_ms(
+        httpx.Response(200, headers={"Server-Timing": "cache;dur=3, app;dur=4.25"})
+    ) == 4.25

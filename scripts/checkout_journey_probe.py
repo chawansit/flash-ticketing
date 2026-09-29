@@ -8,6 +8,7 @@ import argparse
 import asyncio
 import json
 import math
+import re
 from collections import Counter
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -19,6 +20,12 @@ import httpx
 
 def percentile(values, fraction):
     return sorted(values)[math.ceil(len(values) * fraction) - 1] if values else None
+
+
+def app_duration_ms(response):
+    value = response.headers.get("server-timing", "")
+    match = re.search(r"(?:^|,)\s*app;dur=([0-9]+(?:\.[0-9]+)?)", value)
+    return float(match.group(1)) if match else None
 
 
 async def journey(client, manifest, index, run_id, timeout_seconds, poll_seconds, duplicates):
@@ -36,6 +43,7 @@ async def journey(client, manifest, index, run_id, timeout_seconds, poll_seconds
             headers={**headers, "Idempotency-Key": f"{run_id}-{index}-hold"},
         )
         hold_http_ms = (perf_counter() - started) * 1000
+        hold_app_ms = app_duration_ms(hold)
         if hold.status_code != 202:
             return {"outcome": f"hold_http_{hold.status_code}"}
         response = hold.json()
@@ -65,6 +73,7 @@ async def journey(client, manifest, index, run_id, timeout_seconds, poll_seconds
             headers={**headers, "Idempotency-Key": f"{run_id}-{index}-payment"},
         )
         payment_http_ms = (perf_counter() - payment_started) * 1000
+        payment_app_ms = app_duration_ms(payment)
         if payment.status_code != 202:
             return {"outcome": f"payment_http_{payment.status_code}", "durable_ms": durable_ms}
         while perf_counter() < deadline:
@@ -81,8 +90,17 @@ async def journey(client, manifest, index, run_id, timeout_seconds, poll_seconds
                     "outcome": "fulfilled",
                     "durable_ms": durable_ms,
                     "hold_http_ms": hold_http_ms,
+                    "hold_app_ms": hold_app_ms,
+                    "hold_client_excess_ms": (
+                        max(0.0, hold_http_ms - hold_app_ms) if hold_app_ms is not None else None
+                    ),
                     "command_durable_wait_ms": command_durable_wait_ms,
                     "payment_http_ms": payment_http_ms,
+                    "payment_app_ms": payment_app_ms,
+                    "payment_client_excess_ms": (
+                        max(0.0, payment_http_ms - payment_app_ms)
+                        if payment_app_ms is not None else None
+                    ),
                     "ticket_wait_ms": ticket_wait_ms,
                     "payment_to_ticket_ms": (perf_counter() - payment_started) * 1000,
                     "hold_to_ticket_ms": (perf_counter() - started) * 1000,
