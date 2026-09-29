@@ -120,3 +120,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0082: Test two Kafka consumers for paid-ticket fulfillment](0082-two-consumer-paid-fulfillment-diagnostic.md)
 - [0083: Decouple bounded API DB-pool waiters from connection count](0083-bounded-api-db-pool-waiters.md)
 - [0084: Bound OrderPaid fulfillment batches](0084-bound-orderpaid-consumer-batches.md)
+- [0085: Test four paid-event Kafka consumers](0085-test-four-paid-event-consumers.md)
