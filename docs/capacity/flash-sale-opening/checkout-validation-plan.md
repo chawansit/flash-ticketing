@@ -3,6 +3,10 @@
 Status: proposed measurement protocol. A bounded Redis-first HTTP journey
 probe was run on Huawei on 2026-09-29; the small functional smoke passed.
 The opening-burst evidence does not certify payment or ticket capacity.
+A 30-second scheduled paid-ticket stage passed at 30 purchases/s on the
+development simulator, but no sustained hourly stage has passed. Failed stages
+and their accepted-order audits are recorded in
+[the paid-ticket stage evidence](paid-ticket-stages-2026-09-29.json).
 
 ## Objective and counting rule
 

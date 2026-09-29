@@ -171,3 +171,94 @@ probe/audit/runner scripts on this branch were transferred as test tooling;
 they were not part of the deployed application image. A measured
 300,000-paid-tickets/hour result still requires a distributed, controlled
 arrival-rate generator and a one-hour run.
+## Controlled paid-ticket stages — 2026-09-29
+
+A scheduled development-only journey generator now measures paid and issued
+tickets rather than treating hold HTTP responses as completed sales. It records
+scheduled/dispatched journeys, generator drops, physical HTTP attempts, retry
+count, dispatch lag and completion by a fixed deadline. The short-stage runner
+uses a fresh isolated fixture, three simulated callback deliveries per payment,
+PostgreSQL/queue audit, fixture retirement and topology rollback. Failed stages
+remain failed even when every accepted order eventually produces a ticket.
+The [aggregate evidence](paid-ticket-stages-2026-09-29.json) contains no
+credentials, buyer tokens or individual order/ticket IDs.
+
+| Stage | Strict result | Scheduled / dispatched / tickets observed | Drops / unexpected responses | Hold-to-ticket p95 |
+| --- | --- | --- | --- | --- |
+| 10 purchases/s for 30 s, in-flight 100, poll 0.2 s | Pass | 300 / 300 / 300 | 0 / 0 | 0.69 s |
+| 30 purchases/s for 30 s, in-flight 100, poll 0.2 s | Fail | 900 / 769 / 766 | 131 / three order GET 503 | 5.23 s |
+| 30 purchases/s for 30 s, in-flight 250, poll 0.2 s | Pass | 900 / 900 / 900 | 0 / 0 | 9.90 s |
+| 30 purchases/s for 30 s, in-flight 250, poll 1 s | Fail | 900 / 874 / 873 | 26 / one order GET 503 | 10.25 s |
+
+The 30/s failure with in-flight 100 was partly a generator limit: increasing
+that limit to 250 allowed all 900 journeys to dispatch and finish in the
+otherwise matching run. Slower order polling did not improve the strict gate
+in its single comparison run. Each accepted journey in both failed stages was
+subsequently audited as a durable fulfilled order and unique ticket (769 and
+874 respectively); all callback delivery targets and queues drained. The
+failed-stage audit does **not** convert those stages into passes because
+scheduled buyers were dropped and status reads returned 503.
+
+Even the passing 30/s run took 38.7 seconds to finish journeys scheduled over
+30 seconds, with payment-to-ticket p95 at 7.63 seconds. This suggests backlog
+during the burst, but these snapshots do not isolate whether the simulator,
+payment callback handler, Kafka consumer or PostgreSQL transaction path is the
+limiter. Before raising the paid-ticket rate, collect stage-aligned payment
+queue depth, simulator throughput and busy time, callback latency, outbox age,
+consumer lag and RDS waits. The 300,000 tickets/hour goal requires at least
+83.34 durable tickets/s for a full hour; no hourly result has been measured.
+## Stage-aligned payment pipeline diagnostic
+
+A one-minute 30-purchases/s run failed the strict gate at both four and eight
+development simulator threads. [The paired aggregate evidence](paid-ticket-pipeline-2026-09-29.json)
+records one-second samples. With four threads, 1,733/1,800 journeys were
+dispatched, 67 dropped, callback backlog peaked at 254 attempts, and
+hold-to-ticket p95 was 23.20 s. The simulator accumulated 247 busy seconds
+over 62 sampled seconds on four threads. All 1,733 accepted journeys were
+fulfilled and audited after drain.
+
+With eight threads, 1,735/1,800 were dispatched, 65 dropped, and 17 unexpected
+503 responses occurred (13 order reads, four payment starts). Peak callback
+backlog fell to 25, but PAID orders awaiting fulfillment peaked at 279 instead
+of 53; hold-to-ticket p95 rose to 25.80 s. This is evidence that simulator
+concurrency alone moved pressure downstream, not a passed capacity gain.
+After hold expiry, 1,731 paid orders had 1,731 tickets and four payment-rejected
+orders were EXPIRED. All 5,193 callback delivery targets completed, no
+duplicate booking was found, and queues drained. The eight-thread setting was
+restored to four under [ADR 0081](../../adr/0081-bound-development-payment-simulator-concurrency.md).
+
+The next experiment should instrument API admission/connection waits, payment
+webhook latency and PAID-to-FULFILLED event lag per worker while keeping a
+fixed paid-journey rate. Do not infer a one-hour sales rate from these
+one-minute diagnostic runs.
+
+## API pool saturation in paid-ticket validation
+
+Two further one-minute development-only stages kept 30 scheduled paid
+journeys/s, four API replicas, a three-connection/three-waiter DB pool per API,
+one Kafka consumer, eight simulator threads, three callback deliveries and
+zero generator retries. Only order-status polling changed from 0.2 to 1
+second. Both stages **failed** the strict gate.
+
+| Poll interval | Dispatched / scheduled | Generator drops | Checkout HTTP 503 | API DB-pool `TooManyRequests` | Peak PAID awaiting ticket | Hold-to-ticket p95 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0.2 s | 1,757 / 1,800 | 43 | 15 | 28 | 296 | 24.91 s |
+| 1 s | 1,694 / 1,800 | 106 | 9 | 13 | 355 | 26.49 s |
+
+The per-replica metrics identify the 503 source as the API DB pool rejecting
+waiters (`TooManyRequests`), not PostgreSQL lock waits. The pool reached its
+three-connection ceiling and three waiting requests per replica. The 28 and
+13 DB-pool failures include webhook and other routes; the checkout HTTP 503
+column counts only buyer-visible order reads/payment starts. Slower polling
+reduced those failures but also reduced completed journeys and increased the
+PAID-to-FULFILLED backlog, so it is not a capacity fix. The single consumer
+was active for about 52 of 60 sampled seconds in each comparison; this
+suggests fulfillment processing needs a separate controlled scaling test.
+
+Post-TTL read-only audits found 1,756 and 1,693 successfully paid orders,
+respectively, each with exactly one ticket. The one payment-rejected order in
+each stage expired. All callback targets completed, no duplicate booking
+was found, queues drained, synthetic fixtures were retired, and the simulator
+and API topology were restored. This integrity result does not change either
+strict stage failure. See the [redacted API-pool comparison](paid-ticket-api-pool-2026-09-29.json).
+A one-hour 300,000-ticket result remains unmeasured.

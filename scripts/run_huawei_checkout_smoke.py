@@ -4,6 +4,8 @@ import argparse
 import ipaddress
 import json
 import re
+import subprocess
+import sys
 import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
@@ -22,7 +24,23 @@ parser.add_argument("--origin", required=True)
 parser.add_argument("--identity-file", type=Path, required=True)
 parser.add_argument("--admission-candidate", type=int, required=True)
 parser.add_argument("--admission-rollback", type=int, required=True)
+parser.add_argument("--paid-rate", type=int, default=0)
+parser.add_argument("--paid-seconds", type=int, default=30)
+parser.add_argument("--paid-concurrency", type=int, default=100)
+parser.add_argument("--paid-poll-seconds", type=float, default=0.2)
+parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8), default=4)
+parser.add_argument("--shows", type=int, default=2)
+parser.add_argument("--viewers", type=int, default=20)
 args = parser.parse_args()
+EXPECTED = args.paid_rate * args.paid_seconds if args.paid_rate else 10
+if not 0 <= args.paid_rate <= 100 or not 1 <= args.paid_seconds <= 300:
+    parser.error("Bounded paid-stage rate/duration required")
+if not 1 <= args.shows <= 1000 or not 1 <= args.viewers <= 50000:
+    parser.error("Invalid fixture size")
+if not 1 <= args.paid_concurrency <= 1000 or not 0.05 <= args.paid_poll_seconds <= 2:
+    parser.error("Invalid paid-stage concurrency")
+if EXPECTED > args.shows * 300 or EXPECTED > 300000:
+    parser.error("This smoke runner supports at most 300000 distinct tickets")
 BACKEND = args.backend_dir
 GENERATOR = args.generator_dir
 API_HOST = args.backend_host
@@ -53,7 +71,7 @@ prefix = [
     f"{BACKEND}/scripts/huawei_capacity_backend.sh",
 ]
 state = {"run": RUN, "phases": [], "pass": False, "error": None}
-deployed = prepared = False
+deployed = prepared = probe_attempted = observer_started = simulator_changed = False
 
 
 def step(label, host, argv, timeout=120):
@@ -117,10 +135,34 @@ try:
         ],
         300,
     )
-    step("prepare", API_HOST, prefix + ["prepare", RUN, "2", "300", "1", ORIGIN, "20"], 300)
+    if args.simulator_concurrency_candidate != 4:
+        simulator_config = (
+            f'cd {BACKEND}; id=$({COMPOSE} ps -q simulator); test -n "$id"; '
+            "docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' \"$id\" "
+            "| grep -E '^(SIMULATOR_CONCURRENCY|DB_POOL_MAX)='"
+        )
+        original_simulator = step("simulator-original", API_HOST, ["sh", "-lc", simulator_config], 30).stdout
+        if "SIMULATOR_CONCURRENCY=4" not in original_simulator or "DB_POOL_MAX=12" not in original_simulator:
+            raise RuntimeError("Unexpected simulator baseline configuration")
+        simulator_changed = True
+        simulator_apply = (
+            f"cd {BACKEND}; SIMULATOR_CONCURRENCY={args.simulator_concurrency_candidate} "
+            f"{COMPOSE} up -d --no-deps --force-recreate simulator; "
+            f"id=$({COMPOSE} ps -q simulator); "
+            'test -n "$id"; '
+            "docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' \"$id\" "
+            f"| grep -qx 'SIMULATOR_CONCURRENCY={args.simulator_concurrency_candidate}'"
+        )
+        step("simulator-candidate", API_HOST, ["sh", "-lc", simulator_apply], 120)
+    step(
+        "prepare",
+        API_HOST,
+        prefix + ["prepare", RUN, str(args.shows), "300", "1", ORIGIN, str(args.viewers)],
+        300,
+    )
     prepared = True
     step("warm", API_HOST, prefix + ["warm", RUN], 180)
-    step("preflight", API_HOST, prefix + ["preflight", RUN, "90"], 120)
+    step("preflight", API_HOST, prefix + ["preflight", RUN, str(max(90, args.paid_seconds + 120))], 120)
     transport.copy_from(
         "queue-before",
         API_HOST,
@@ -129,6 +171,25 @@ try:
     )
     if not json.loads((OUT / "queue-before.json").read_text())["pass"]:
         raise RuntimeError("Preflight queues are not drained")
+
+    if args.paid_rate:
+        transport.copy_to(
+            "observer-upload",
+            ROOT / "scripts/observe_paid_pipeline.py",
+            API_HOST,
+            f"/root/unattended-{RUN}-observer.py",
+        )
+        observer_shell = (
+            f"cd {BACKEND}; api=$({COMPOSE} ps -q api | head -n 1); "
+            f'docker cp /root/unattended-{RUN}-observer.py "$api":/tmp/paid-observer.py; '
+            'docker exec "$api" sh -lc \''
+            'TEST_DATABASE_URL="$DATABASE_URL" nohup python /tmp/paid-observer.py '
+            "--manifest /tmp/private-load-manifest.json "
+            f"--output /tmp/paid-observer.jsonl --seconds {args.paid_seconds + 120} "
+            "> /tmp/paid-observer.log 2>&1 < /dev/null & echo $! > /tmp/paid-observer.pid'"
+        )
+        backend_exec("observer-start", observer_shell, 30)
+        observer_started = True
 
     with tempfile.TemporaryDirectory(prefix="checkout-private-") as temp:
         manifest = Path(temp) / "manifest.json"
@@ -143,10 +204,46 @@ try:
         GEN_HOST,
         f"/root/unattended-{RUN}-probe.py",
     )
-    step(
-        "probe",
-        GEN_HOST,
-        [
+    if args.paid_rate:
+        script_dir = f"/root/unattended-{RUN}-scripts"
+        step("generator-script-directory", GEN_HOST, ["mkdir", "-m", "700", script_dir], 30)
+        transport.copy_to(
+            "journey-library-upload",
+            ROOT / "scripts/checkout_journey_probe.py",
+            GEN_HOST,
+            f"{script_dir}/checkout_journey_probe.py",
+        )
+        transport.copy_to(
+            "paid-generator-upload",
+            ROOT / "scripts/paid_ticket_load_generator.py",
+            GEN_HOST,
+            f"{script_dir}/paid_ticket_load_generator.py",
+        )
+        generator_args = [
+            "/root/http-load-venv/bin/python",
+            f"{script_dir}/paid_ticket_load_generator.py",
+            "--manifest",
+            f"/root/unattended-{RUN}-upload.json",
+            "--origin",
+            ORIGIN,
+            "--output",
+            f"/root/unattended-{RUN}-probe-result.json",
+            "--rate",
+            str(args.paid_rate),
+            "--seconds",
+            str(args.paid_seconds),
+            "--completion-deadline-seconds",
+            str(args.paid_seconds + 120),
+            "--concurrency",
+            str(args.paid_concurrency),
+            "--poll-seconds",
+            str(args.paid_poll_seconds),
+            "--duplicates",
+            "3",
+        ]
+        probe_timeout = args.paid_seconds + 180
+    else:
+        generator_args = [
             "/root/http-load-venv/bin/python",
             f"/root/unattended-{RUN}-probe.py",
             "--manifest",
@@ -161,9 +258,10 @@ try:
             "5",
             "--duplicates",
             "3",
-        ],
-        180,
-    )
+        ]
+        probe_timeout = 180
+    probe_attempted = True
+    step("probe", GEN_HOST, generator_args, probe_timeout)
     transport.copy_from(
         "probe-result", GEN_HOST, f"/root/unattended-{RUN}-probe-result.json", OUT / "probe.json"
     )
@@ -178,7 +276,7 @@ try:
         "for n in $(seq 1 30); do "
         f'if docker exec "$api" sh -lc \'TEST_DATABASE_URL="$DATABASE_URL" '
         "python /tmp/checkout-audit.py --manifest /tmp/private-load-manifest.json "
-        f"--expected 10 --output /tmp/checkout-audit-'$n'.json' "
+        f"--expected {EXPECTED} --output /tmp/checkout-audit-'$n'.json' "
         f'>/dev/null; then docker cp "$api":/tmp/checkout-audit-$n.json '
         f"{BACKEND}/tmp/unattended-{RUN}/public/checkout-audit.json; exit 0; fi; "
         "sleep 2; done; exit 1"
@@ -211,6 +309,62 @@ try:
 except Exception as exc:  # noqa: BLE001 - always attempt teardown
     state["error"] = str(exc)
 finally:
+    if observer_started:
+        try:
+            observer_stop_shell = (
+                f"cd {BACKEND}; api=$({COMPOSE} ps -q api | head -n 1); "
+                'docker exec "$api" sh -lc \''
+                "if test -f /tmp/paid-observer.pid; then "
+                'kill "$(cat /tmp/paid-observer.pid)" 2>/dev/null || true; fi\'; '
+                "sleep 1; "
+                f'docker cp "$api":/tmp/paid-observer.jsonl '
+                f"{BACKEND}/tmp/unattended-{RUN}/public/paid-pipeline.jsonl"
+            )
+            backend_exec("observer-stop", observer_stop_shell, 45)
+            transport.copy_from(
+                "observer-trace",
+                API_HOST,
+                f"{BACKEND}/tmp/unattended-{RUN}/public/paid-pipeline.jsonl",
+                OUT / "paid-pipeline.jsonl",
+            )
+            summary = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "scripts/summarize_paid_pipeline.py"),
+                    str(OUT / "paid-pipeline.jsonl"),
+                    "--output",
+                    str(OUT / "paid-pipeline-summary.json"),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=30,
+            )
+            state["observer_pass"] = summary.returncode == 0
+            if state["observer_pass"]:
+                observer_summary = json.loads(
+                    (OUT / "paid-pipeline-summary.json").read_text(encoding="utf-8")
+                )
+                state["observer_pass"] = (
+                    observer_summary["api"]["observed_replicas"] == 4
+                    and observer_summary["api_metrics_errors"] == 0
+                    and observer_summary["database_errors"] == 0
+                )
+        except Exception:  # noqa: BLE001 - rollback must proceed
+            state["observer_pass"] = False
+        if not state["observer_pass"]:
+            state["pass"] = False
+            state["error"] = (state["error"] or "") + "; paid pipeline observer failed"
+    if probe_attempted and not (OUT / "probe.json").exists():
+        try:
+            transport.copy_from(
+                "probe-result-after-failure",
+                GEN_HOST,
+                f"/root/unattended-{RUN}-probe-result.json",
+                OUT / "probe.json",
+            )
+        except Exception as exc:  # noqa: BLE001 - retain original stage failure
+            state["probe_result_collection_error"] = type(exc).__name__
     if prepared:
         try:
             transport.copy_to(
@@ -243,6 +397,51 @@ finally:
         except Exception as exc:  # noqa: BLE001 - always attempt teardown
             state["error"] = (state["error"] or "") + "; rollback: " + str(exc)
             state["pass"] = False
+    if args.paid_rate and state["error"] and (OUT / "probe.json").exists():
+        accepted = json.loads((OUT / "probe.json").read_text()).get("dispatched", 0)
+        if accepted:
+            try:
+                audit_result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(ROOT / "scripts/audit_checkout_fixture_after_failure.py"),
+                        "--backend-host",
+                        API_HOST,
+                        "--backend-dir",
+                        BACKEND,
+                        "--identity-file",
+                        str(KEY),
+                        "--run-id",
+                        RUN,
+                        "--expected",
+                        str(accepted),
+                        "--output",
+                        str(OUT / "post-failure-audit"),
+                    ],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                    timeout=180,
+                )
+                state["post_failure_audit_pass"] = audit_result.returncode == 0
+            except subprocess.TimeoutExpired:
+                state["post_failure_audit_pass"] = False
+    if simulator_changed:
+        try:
+            simulator_restore = (
+                f"cd {BACKEND}; SIMULATOR_CONCURRENCY=4 {COMPOSE} "
+                "up -d --no-deps --force-recreate simulator; "
+                f"id=$({COMPOSE} ps -q simulator); "
+                'test -n "$id"; '
+                "docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' \"$id\" "
+                "| grep -qx 'SIMULATOR_CONCURRENCY=4'"
+            )
+            step("simulator-restore", API_HOST, ["sh", "-lc", simulator_restore], 120)
+            state["simulator_restored"] = True
+        except Exception as exc:  # noqa: BLE001 - continue scratch cleanup
+            state["simulator_restored"] = False
+            state["error"] = (state["error"] or "") + "; simulator restore: " + str(exc)
+            state["pass"] = False
     transport.remote(
         "container-scratch-cleanup",
         API_HOST,
@@ -269,6 +468,38 @@ finally:
             f"/root/unattended-{RUN}-upload.json",
             f"/root/unattended-{RUN}-probe.py",
             f"/root/unattended-{RUN}-probe-result.json",
+        ],
+        check=False,
+        timeout=30,
+    )
+    if args.paid_rate:
+        transport.remote(
+            "generator-script-cleanup",
+            GEN_HOST,
+            [
+                "sh",
+                "-lc",
+                (
+                    f"rm -f /root/unattended-{RUN}-scripts/checkout_journey_probe.py "
+                    f"/root/unattended-{RUN}-scripts/paid_ticket_load_generator.py; "
+                    f"rmdir /root/unattended-{RUN}-scripts"
+                ),
+            ],
+            check=False,
+            timeout=30,
+        )
+    transport.remote(
+        "observer-scratch-cleanup",
+        API_HOST,
+        [
+            "sh",
+            "-lc",
+            (
+                f"cd {BACKEND}; api=$({COMPOSE} ps -q api | head -n 1); "
+                'docker exec -u 0 "$api" rm -f /tmp/paid-observer.py '
+                "/tmp/paid-observer.jsonl /tmp/paid-observer.log /tmp/paid-observer.pid; "
+                f"rm -f /root/unattended-{RUN}-observer.py"
+            ),
         ],
         check=False,
         timeout=30,

@@ -1,0 +1,169 @@
+{
+  "date_utc": "2026-09-29",
+  "application_revision": "cdbba10fd58ffd13c8e763a2bace2a17927a6adb",
+  "purpose": "Diagnose checkout HTTP 503 and paid-to-ticket backlog, not establish capacity",
+  "workload": "30 scheduled paid journeys/s for 60s; simulator 8 threads; one consumer; four API replicas with max three DB connections and max three waiters each; no retries; three duplicate callbacks",
+  "comparisons": [
+    {
+      "label": "poll_0_2_seconds",
+      "strict_stage_pass": false,
+      "scheduled": 1800,
+      "dispatched": 1757,
+      "generator_drops": 43,
+      "fulfilled_by_deadline": 1742,
+      "unexpected_http_outcomes": {
+        "order_http_503": 14,
+        "payment_http_503": 1
+      },
+      "physical_http_attempts": {
+        "holds": 1757,
+        "reservation_commands": 2263,
+        "payments": 1757,
+        "orders": 13674
+      },
+      "retry_attempts": 0,
+      "hold_to_ticket_p95_ms": 24906.990752002457,
+      "payment_to_ticket_p95_ms": 20558.719897991978,
+      "api": {
+        "observed_replicas": 4,
+        "counter_deltas": {
+          "db_503:TooManyRequests": 28.0,
+          "http_503:/v1/orders/{order_id}:GET": 14.0,
+          "pool_acquire:ok": 20763.0,
+          "pool_acquire:error": 28.0,
+          "http_503:/v1/orders/{order_id}/payments:POST": 1.0
+        },
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 2.0,
+          "pool_in_use": 3.0,
+          "pool_state:pool_size": 3.0,
+          "pool_state:pool_available": 3.0,
+          "pool_state:requests_waiting": 1.0,
+          "pool_state:pool_max": 3.0
+        },
+        "counter_reset_detected": false
+      },
+      "api_metrics_errors": 0,
+      "paid_unfulfilled_peak": 296,
+      "callback_deliveries_pending_peak": 29,
+      "consumer_busy_seconds": 51.72346101736184,
+      "consumer_max_active": 1.0,
+      "post_ttl_audit": {
+        "orders": 1757,
+        "fulfilled_orders": 1756,
+        "expired_orders": 1,
+        "pending_orders": 0,
+        "payment_attempts": 1756,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 1756,
+        "bookings": 1756,
+        "tickets": 1756,
+        "payment_callbacks": 1756,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 5268,
+        "callback_delivery_target": 5268,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 1757,
+        "expected_paid": 1756,
+        "pass": true
+      },
+      "post_ttl_queue": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "active_fixture_holds": 0,
+        "overdue_fixture_holds": 0,
+        "pending_fixture_orders": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "pass": true
+      },
+      "fixture_retired": true,
+      "simulator_restored": true
+    },
+    {
+      "label": "poll_1_second",
+      "strict_stage_pass": false,
+      "scheduled": 1800,
+      "dispatched": 1694,
+      "generator_drops": 106,
+      "fulfilled_by_deadline": 1685,
+      "unexpected_http_outcomes": {
+        "order_http_503": 8,
+        "payment_http_503": 1
+      },
+      "physical_http_attempts": {
+        "holds": 1694,
+        "reservation_commands": 2519,
+        "payments": 1694,
+        "orders": 12455
+      },
+      "retry_attempts": 0,
+      "hold_to_ticket_p95_ms": 26486.043882003287,
+      "payment_to_ticket_p95_ms": 24153.194226993946,
+      "api": {
+        "observed_replicas": 4,
+        "counter_deltas": {
+          "http_503:/v1/orders/{order_id}:GET": 8.0,
+          "pool_acquire:ok": 19294.0,
+          "pool_acquire:error": 13.0,
+          "db_503:TooManyRequests": 13.0,
+          "http_503:/v1/orders/{order_id}/payments:POST": 1.0
+        },
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 3.0,
+          "pool_in_use": 3.0,
+          "pool_state:pool_size": 3.0,
+          "pool_state:pool_available": 3.0,
+          "pool_state:requests_waiting": 3.0,
+          "pool_state:pool_max": 3.0
+        },
+        "counter_reset_detected": false
+      },
+      "api_metrics_errors": 0,
+      "paid_unfulfilled_peak": 355,
+      "callback_deliveries_pending_peak": 32,
+      "consumer_busy_seconds": 51.10857464792207,
+      "consumer_max_active": 1.0,
+      "post_ttl_audit": {
+        "orders": 1694,
+        "fulfilled_orders": 1693,
+        "expired_orders": 1,
+        "pending_orders": 0,
+        "payment_attempts": 1693,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 1693,
+        "bookings": 1693,
+        "tickets": 1693,
+        "payment_callbacks": 1693,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 5079,
+        "callback_delivery_target": 5079,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 1694,
+        "expected_paid": 1693,
+        "pass": true
+      },
+      "post_ttl_queue": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "active_fixture_holds": 0,
+        "overdue_fixture_holds": 0,
+        "pending_fixture_orders": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "pass": true
+      },
+      "fixture_retired": true,
+      "simulator_restored": true
+    }
+  ],
+  "conclusion": "Both stages failed. API DB pool TooManyRequests caused 503; slower polling did not remove failures and paid-to-ticket backlog remained. Post-TTL integrity and queue drain passed."
+}
