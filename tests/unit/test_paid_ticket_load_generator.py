@@ -36,6 +36,7 @@ def args(tmp_path, rate=5, concurrency=10):
         seconds=1,
         completion_deadline_seconds=3,
         concurrency=concurrency,
+        http_max_connections=concurrency,
         duplicates=3,
         timeout_seconds=2,
         poll_seconds=0.1,
@@ -81,6 +82,7 @@ def test_open_loop_accounts_for_every_scheduled_journey(monkeypatch, tmp_path):
     assert result["scheduled"] == result["dispatched"] == result["fulfilled"] == 5
     assert result["fulfilled_by_deadline"] == 5
     assert result["generator_drops"] == 0
+    assert result["http_max_connections"] == 10
     assert result["distinct_tickets"] == 5
     assert result["hold_http_p95_ms"] == 3
     assert result["hold_app_p95_ms"] is None
@@ -116,3 +118,16 @@ def test_insufficient_seats_rejected_before_dispatch(tmp_path):
         assert "insufficient distinct seats" in str(exc)
     else:
         raise AssertionError("Expected fixture-capacity rejection")
+
+
+def test_generator_allows_pool_headroom_without_raising_journey_cap(tmp_path):
+    candidate = args(tmp_path, concurrency=10)
+    candidate.http_max_connections = 20
+    assert generator.validate(candidate, manifest()) == 5
+    candidate.http_max_connections = 9
+    try:
+        generator.validate(candidate, manifest())
+    except ValueError as exc:
+        assert "HTTP connection limit" in str(exc)
+    else:
+        raise AssertionError("Expected bounded pool rejection")

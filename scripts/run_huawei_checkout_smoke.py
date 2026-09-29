@@ -27,6 +27,7 @@ parser.add_argument("--admission-rollback", type=int, required=True)
 parser.add_argument("--paid-rate", type=int, default=0)
 parser.add_argument("--paid-seconds", type=int, default=30)
 parser.add_argument("--paid-concurrency", type=int, default=100)
+parser.add_argument("--paid-http-max-connections", type=int, default=0)
 parser.add_argument("--paid-poll-seconds", type=float, default=0.2)
 parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8), default=4)
 parser.add_argument("--consumer-candidate", type=int, choices=(1, 2, 4), default=1)
@@ -42,6 +43,10 @@ if not 1 <= args.shows <= 1000 or not 1 <= args.viewers <= 50000:
     parser.error("Invalid fixture size")
 if not 1 <= args.paid_concurrency <= 1000 or not 0.05 <= args.paid_poll_seconds <= 2:
     parser.error("Invalid paid-stage concurrency")
+if args.paid_http_max_connections and not (
+    args.paid_concurrency <= args.paid_http_max_connections <= 4000
+):
+    parser.error("HTTP connection limit must fit bounded journey concurrency")
 if EXPECTED > args.shows * 300 or EXPECTED > 300000:
     parser.error("This smoke runner supports at most 300000 distinct tickets")
 BACKEND = args.backend_dir
@@ -266,6 +271,8 @@ try:
             str(args.paid_seconds + 120),
             "--concurrency",
             str(args.paid_concurrency),
+            "--http-max-connections",
+            str(args.paid_http_max_connections or args.paid_concurrency),
             "--poll-seconds",
             str(args.paid_poll_seconds),
             "--duplicates",

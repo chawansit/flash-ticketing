@@ -37,6 +37,8 @@ def validate(args, manifest):
         raise ValueError("Maximum 300000 scheduled journeys")
     if not 1 <= args.concurrency <= 1000 or not 1 <= args.duplicates <= 10:
         raise ValueError("Concurrency or callback count outside bounded limits")
+    if not args.concurrency <= args.http_max_connections <= 4000:
+        raise ValueError("HTTP connection limit must fit bounded journey concurrency")
     if not 1 <= args.timeout_seconds <= 110 or not 0.05 <= args.poll_seconds <= 2:
         raise ValueError("Timeout or poll interval outside bounded limits")
     if args.completion_deadline_seconds < args.seconds:
@@ -117,7 +119,7 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
     async with httpx.AsyncClient(
         base_url=args.origin,
         timeout=10,
-        limits=httpx.Limits(max_connections=args.concurrency),
+        limits=httpx.Limits(max_connections=args.http_max_connections),
         event_hooks={"request": [on_request], "response": [on_response]},
     ) as client:
         (await client.get("/health/ready")).raise_for_status()
@@ -183,6 +185,8 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
         "outcomes": dict(outcomes),
         "physical_http_attempts": dict(attempts),
         "retry_attempts": 0,
+        "generator_max_in_flight": args.concurrency,
+        "http_max_connections": args.http_max_connections,
         "transport_phase_p95_ms": {
             route: {phase: percentile(values, 0.95) for phase, values in phases.items()}
             for route, phases in transport.items()
@@ -232,10 +236,13 @@ def main():
     parser.add_argument("--seconds", required=True, type=int)
     parser.add_argument("--completion-deadline-seconds", required=True, type=int)
     parser.add_argument("--concurrency", type=int, default=100)
+    parser.add_argument("--http-max-connections", type=int)
     parser.add_argument("--duplicates", type=int, default=3)
     parser.add_argument("--timeout-seconds", type=int, default=90)
     parser.add_argument("--poll-seconds", type=float, default=0.2)
     args = parser.parse_args()
+    if args.http_max_connections is None:
+        args.http_max_connections = args.concurrency
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
     result = asyncio.run(scheduled_journeys(args, manifest))
     args.output.parent.mkdir(parents=True, exist_ok=True)
