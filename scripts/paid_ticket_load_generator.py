@@ -72,17 +72,53 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
     unique_tickets = set()
     active = set()
     dispatch_lags = []
+    transport = {key: {phase: [] for phase in ("pre_send_ms", "response_wait_ms", "connect_ms")}
+                 for key in ("holds", "payments")}
     dropped = dispatched = fulfilled_by_deadline = 0
     run_id = uuid4().hex
 
     async def on_request(request):
-        attempts[endpoint(request.url.path)] += 1
+        route = endpoint(request.url.path)
+        attempts[route] += 1
+        if route not in transport:
+            return
+        stamps = {"start": perf_counter()}
+        request.extensions["checkout_trace_stamps"] = stamps
+
+        async def trace(event, _info):
+            if event in (
+                "connection.connect_tcp.started",
+                "connection.connect_tcp.complete",
+                "http11.send_request_headers.started",
+                "http11.receive_response_headers.started",
+                "http11.receive_response_headers.complete",
+            ):
+                stamps.setdefault(event, perf_counter())
+
+        request.extensions["trace"] = trace
+
+    async def on_response(response):
+        route = endpoint(response.request.url.path)
+        if route not in transport:
+            return
+        stamps = response.request.extensions.get("checkout_trace_stamps", {})
+        pairs = {
+            "pre_send_ms": ("start", "http11.send_request_headers.started"),
+            "response_wait_ms": (
+                "http11.receive_response_headers.started",
+                "http11.receive_response_headers.complete",
+            ),
+            "connect_ms": ("connection.connect_tcp.started", "connection.connect_tcp.complete"),
+        }
+        for phase, (start, end) in pairs.items():
+            if start in stamps and end in stamps:
+                transport[route][phase].append(max(0.0, (stamps[end] - stamps[start]) * 1000))
 
     async with httpx.AsyncClient(
         base_url=args.origin,
         timeout=10,
         limits=httpx.Limits(max_connections=args.concurrency),
-        event_hooks={"request": [on_request]},
+        event_hooks={"request": [on_request], "response": [on_response]},
     ) as client:
         (await client.get("/health/ready")).raise_for_status()
         attempts.clear()
@@ -147,6 +183,14 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
         "outcomes": dict(outcomes),
         "physical_http_attempts": dict(attempts),
         "retry_attempts": 0,
+        "transport_phase_p95_ms": {
+            route: {phase: percentile(values, 0.95) for phase, values in phases.items()}
+            for route, phases in transport.items()
+        },
+        "transport_phase_samples": {
+            route: {phase: len(values) for phase, values in phases.items()}
+            for route, phases in transport.items()
+        },
         "dispatch_lag_p95_ms": percentile(dispatch_lags, 0.95),
         "dispatch_lag_max_ms": max(dispatch_lags, default=0),
         "hold_http_p95_ms": percentile(latencies["hold_http_ms"], 0.95),

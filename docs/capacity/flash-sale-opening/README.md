@@ -441,3 +441,11 @@ had the header, API duration p95, and the remaining client-observed
 duration p95 for each operation. A read-only check from the generator
 ECS confirmed the header survives the Nginx proxy. A same-profile
 load stage is still required to locate the long HTTP tails.
+
+A bounded diagnostic trace in the generator now records, for hold and
+payment requests, elapsed time before sending HTTP headers, elapsed time
+waiting for response headers, and TCP connect time. It reports only
+aggregate p95s and sample counts. The installed HTTP client trace hook
+was exercised against a local HTTP server; missing trace events are
+reported as missing samples rather than inferred as zero. This can
+separate generator-side connection-pool wait from Nginx/upstream wait.
