@@ -8,7 +8,7 @@ from pathlib import Path
 import psycopg
 
 
-def audit(conn, show_ids, expected, expected_paid=None):
+def audit(conn, show_ids, expected, expected_paid=None, callback_duplicates=3):
     expected_paid = expected if expected_paid is None else expected_paid
     with conn.transaction():
         conn.execute("SET TRANSACTION READ ONLY")
@@ -68,6 +68,7 @@ def audit(conn, show_ids, expected, expected_paid=None):
     result = dict(zip(names, values, strict=True))
     result["expected"] = expected
     result["expected_paid"] = expected_paid
+    result["expected_callback_deliveries_per_payment"] = callback_duplicates
     result["pass"] = (
         result["orders"] == expected
         and result["expired_orders"] == expected - expected_paid
@@ -79,7 +80,9 @@ def audit(conn, show_ids, expected, expected_paid=None):
             for key in ("fulfilled_orders", "succeeded_payments", "bookings", "tickets")
         )
         and result["payment_callbacks"] >= expected_paid
-        and result["callback_delivery_attempts"] == result["callback_delivery_target"] == expected_paid * 3
+        and result["callback_delivery_attempts"]
+        == result["callback_delivery_target"]
+        == expected_paid * callback_duplicates
         and all(
             result[key] == 0
             for key in (
@@ -99,12 +102,14 @@ def main():
     parser.add_argument("--manifest", required=True, type=Path)
     parser.add_argument("--expected", required=True, type=int)
     parser.add_argument("--expected-paid", type=int)
+    parser.add_argument("--callback-duplicates", type=int, default=3)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
     if (
         not 1 <= args.expected <= 300000
         or args.expected_paid is not None
         and not 0 <= args.expected_paid <= args.expected
+        or not 1 <= args.callback_duplicates <= 10
         or args.output.exists()
     ):
         parser.error("Expected 1-300000 journeys and a fresh output path")
@@ -115,7 +120,9 @@ def main():
     if not url:
         raise RuntimeError("TEST_DATABASE_URL is required")
     with psycopg.connect(url, autocommit=True) as conn:
-        result = audit(conn, manifest["show_ids"], args.expected, args.expected_paid)
+        result = audit(
+            conn, manifest["show_ids"], args.expected, args.expected_paid, args.callback_duplicates
+        )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result), flush=True)

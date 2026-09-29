@@ -295,7 +295,8 @@ try:
         "for n in $(seq 1 30); do "
         f'if docker exec "$api" sh -lc \'TEST_DATABASE_URL="$DATABASE_URL" '
         "python /tmp/checkout-audit.py --manifest /tmp/private-load-manifest.json "
-        f"--expected {EXPECTED} --output /tmp/checkout-audit-'$n'.json' "
+        f"--expected {EXPECTED} --callback-duplicates {args.callback_duplicates} "
+        "--output /tmp/checkout-audit-'$n'.json' "
         f'>/dev/null; then docker cp "$api":/tmp/checkout-audit-$n.json '
         f"{BACKEND}/tmp/unattended-{RUN}/public/checkout-audit.json; exit 0; fi; "
         "sleep 2; done; exit 1"
@@ -464,6 +465,8 @@ finally:
                         RUN,
                         "--expected",
                         str(accepted),
+                        "--callback-duplicates",
+                        str(args.callback_duplicates),
                         "--output",
                         str(OUT / "post-failure-audit"),
                     ],

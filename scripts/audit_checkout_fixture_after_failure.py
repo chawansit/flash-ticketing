@@ -14,6 +14,7 @@ p.add_argument("--identity-file", required=True, type=Path)
 p.add_argument("--run-id", required=True)
 p.add_argument("--expected", required=True, type=int)
 p.add_argument("--expected-paid", type=int)
+p.add_argument("--callback-duplicates", type=int, default=3)
 p.add_argument("--output", required=True, type=Path)
 a = p.parse_args()
 if not re.fullmatch(r"checkout-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{6}", a.run_id):
@@ -22,6 +23,7 @@ if (
     not 1 <= a.expected <= 300000
     or a.expected_paid is not None
     and not 0 <= a.expected_paid <= a.expected
+    or not 1 <= a.callback_duplicates <= 10
     or a.output.exists()
 ):
     p.error("Expected count or fresh output path required")
@@ -46,7 +48,8 @@ try:
         f'&& docker cp {fixture} "$api":/tmp/failed-fixture.json '
         f'&& docker exec "$api" sh -lc \'TEST_DATABASE_URL="$DATABASE_URL" '
         f"python /tmp/failed-audit.py --manifest /tmp/failed-fixture.json "
-        f"--expected {a.expected} {paid_option} --output /tmp/failed-audit.json' "
+        f"--expected {a.expected} {paid_option} --callback-duplicates {a.callback_duplicates} "
+        "--output /tmp/failed-audit.json' "
         f'&& docker exec "$api" sh -lc \'TEST_DATABASE_URL="$DATABASE_URL" '
         'TEST_REDIS_URL="$REDIS_URL" python /app/scripts/capacity_queue_state.py '
         "--manifest /tmp/failed-fixture.json --output /tmp/failed-queue.json' "

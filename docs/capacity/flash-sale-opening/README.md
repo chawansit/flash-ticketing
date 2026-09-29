@@ -332,3 +332,22 @@ The next controlled capacity stage uses one callback per payment at 45/s,
 while keeping the three-delivery profile as a separate correctness stress.
 This comparison changes workload and cannot by itself promote a higher
 production capacity estimate.
+
+
+The subsequent **45/s, one-delivery** stage also failed its strict gate:
+2,550/2,700 journeys were dispatched, 150 dropped at the generator's
+in-flight limit, and hold-to-ticket p95 was 19.94 seconds. Reducing callback
+multiplicity lowered peak pending deliveries from 296 to 41, while peak
+PAID orders awaiting tickets rose from 22 to 140. The single publisher
+accumulated 57.8 busy seconds across 57 sampled seconds; both consumers
+combined accumulated 87.7 busy seconds. These measurements do not by
+themselves prove which event-processing stage is primary; Kafka partition
+lag must be captured before scaling a worker. API pool 503s stayed at zero.
+
+The original failure-audit script incorrectly assumed exactly three
+callback deliveries per payment. A corrected read-only post-TTL audit with
+the declared one-delivery target passed: all 2,550 accepted payments had
+one ticket, 2,550/2,550 callbacks completed, there was no double-booking,
+and all queues were empty. The runner stage remains **failed** because
+150 scheduled buyers were dropped. See the updated
+[callback-profile evidence](paid-ticket-callback-mix-2026-09-29.json).
