@@ -468,3 +468,15 @@ def test_opening_burst_requires_correct_duration_and_fresh_seat_capacity(monkeyp
     monkeypatch.setattr(sys, "argv", requested)
     stage.main()
     assert not (tmp_path / "opening").exists()
+
+
+
+def test_opening_burst_checks_each_worker_shard_not_just_global_average(monkeypatch, tmp_path):
+    requested = argv(tmp_path / "skewed")
+    requested.extend(["--opening-burst", "--dry-run"])
+    requested[requested.index("--seconds") + 1] = "300"
+    requested[requested.index("--rate") + 1] = "5"
+    requested[requested.index("--seats") + 1] = "150"
+    monkeypatch.setattr(sys, "argv", requested)
+    with pytest.raises(ValueError, match="insufficient unique seats"):
+        stage.main()

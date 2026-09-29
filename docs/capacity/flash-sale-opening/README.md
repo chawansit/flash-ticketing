@@ -1,6 +1,6 @@
 # Flash-sale opening workload
 
-Status: test harness implemented; Huawei opening-sale run and end-to-end ticket
+Status: first Huawei opening control measured; end-to-end ticket
 capacity are **not yet measured**. This profile changes only the load generator and
 stage fixture calculation. It does not add a waiting room or change reservation,
 payment, or persistence architecture.
@@ -25,8 +25,10 @@ The old burst profile has one minute at base rate before its peak, unlike a
 | 30–120 s | 2 x base | 500 RPS | 600 RPS |
 | 120–300 s | base | 250 RPS | 300 RPS |
 
-Total offered requests equal 480 times the base rate. At 6% holds this is
-7,200 holds for base 250 or 8,640 for base 300. This is a **five-minute
+Total offered requests equal 480 times the base rate. With eight generator
+workers selecting 6% holds independently, this is 7,202 scheduled holds at base
+250 or 8,644 at base 300. The two or four extra holds are per-worker rounding.
+This is a **five-minute
 opening diagnostic**, not a one-hour sales simulation or a model of how many
 distinct people simultaneously click at precisely 10:00. The read/hold mix is
 fixed for the diagnostic. Real visitor counts, polling cadence, hot-seat
@@ -66,3 +68,26 @@ If measurements show admission must absorb arrivals beyond safe hold capacity,
 propose a waiting-room or rate-shaping architecture in a new ADR before
 implementation. This document does not select that architecture or assume
 that horizontal scale is linear.
+
+## First measured opening control
+
+On 2026-09-29, the Huawei control stage at base 250 RPS passed every strict
+gate on revision db373f1. It offered 1,000 RPS immediately for 30 seconds,
+then 500 RPS for 90 seconds and 250 RPS for 180 seconds. All 120,000
+scheduled requests were sent once without retries or generator drops:
+112,798 reads returned HTTP 200 and 7,202 holds returned provisional HTTP
+202. Worst-worker p95 was 10.15 ms for reads and 20.48 ms for holds. The
+post-TTL audit verified all 7,202 holds, with zero overlapping seat intervals,
+zero broken links and zero remaining queues; rollback passed. The audit took
+16.22 seconds. Synthetic sale fixtures were subsequently retired and the
+active capacity and due work returned to zero.
+
+This is a disjoint-seat opening diagnostic, **not** proof of 300,000 paid
+tickets/hour or hot-seat contention capacity. The next controlled stage is
+base 300 RPS, peaking at 1,200 RPS, only while the environment is clean.
+
+Evidence: [strict stage verdict](stages/opening-250/stage-result.json),
+[generator summary](stages/opening-250/generator-summary.json),
+[post-TTL audit](stages/opening-250/durability.json), and
+[rollback](stages/opening-250/rollback.json).
+

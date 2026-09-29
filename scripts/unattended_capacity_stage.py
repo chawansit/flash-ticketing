@@ -189,8 +189,22 @@ def validate_args(args: argparse.Namespace) -> None:
     scheduled_requests = args.rate * (480 if args.opening_burst else args.seconds)
     if scheduled_requests > 2_000_000:
         raise ValueError("Stage exceeds the two-million-request generator limit")
-    expected_writes = (scheduled_requests * args.write_percent + 99) // 100
-    if args.seats < (expected_writes + args.shows - 1) // args.shows:
+    if args.rate < args.workers or args.shows % args.workers:
+        raise ValueError("Rate must cover every worker and shows must partition evenly")
+    phase_requests_per_rate = 480 if args.opening_burst else args.seconds
+    worker_rates = [
+        args.rate // args.workers + (index < args.rate % args.workers)
+        for index in range(args.workers)
+    ]
+    expected_writes_per_worker = [
+        (worker_rate * phase_requests_per_rate * args.write_percent + 99) // 100
+        for worker_rate in worker_rates
+    ]
+    shows_per_worker = args.shows // args.workers
+    if args.seats < max(
+        (count + shows_per_worker - 1) // shows_per_worker
+        for count in expected_writes_per_worker
+    ):
         raise ValueError("Fresh fixture has insufficient unique seats for the requested stage")
     if not 1 <= args.write_percent <= 100:
         raise ValueError("Write percentage must be between 1 and 100")
