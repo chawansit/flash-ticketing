@@ -1,0 +1,86 @@
+{
+  "date_utc": "2026-09-29",
+  "profile": "45 scheduled paid journeys/s for 60s; one callback/payment; 0.2s order polling; zero retries",
+  "source_revision": "a7a394dca394e0f94675d3d253ec208fd685c8b5",
+  "topology": {
+    "api_replicas": 4,
+    "api_db_connections_each": 3,
+    "api_db_waiters_each": 12,
+    "kafka_consumers": 2,
+    "kafka_partitions": 6,
+    "simulator_threads": 8,
+    "generator_max_in_flight": 500
+  },
+  "strict_pass": false,
+  "scheduled": 2700,
+  "dispatched": 2268,
+  "generator_drops": 432,
+  "fulfilled_by_deadline": 2268,
+  "outcomes": {
+    "fulfilled": 2268
+  },
+  "retry_attempts": 0,
+  "dispatch_lag_p95_ms": 2201.7386241059285,
+  "durable_p95_ms": 10714.28386901971,
+  "payment_to_ticket_p95_ms": 17318.016514996998,
+  "hold_to_ticket_p95_ms": 23553.762652998557,
+  "kafka_lag": {
+    "samples": 22,
+    "sample_errors": 0,
+    "max_total_lag": 912,
+    "max_partition_lag": 217,
+    "partition_lag_peaks": {
+      "5": 134,
+      "3": 167,
+      "4": 146,
+      "1": 217,
+      "2": 140,
+      "0": 146
+    },
+    "last_total_lag": 0,
+    "members_min": 2,
+    "members_max": 2,
+    "drain_after_peak_seconds": 31.505595
+  },
+  "pipeline_peaks": {
+    "pending_orders": 219,
+    "paid_unfulfilled": 223,
+    "pending_callback_deliveries": 24,
+    "unpublished_outbox": 27,
+    "db_lock_waiters": 0
+  },
+  "worker_busy_seconds": {
+    "publisher": 58.90516752237454,
+    "consumer": 87.90953270337195,
+    "simulator": 286.2809174232534
+  },
+  "worker_max_active": {
+    "publisher": 1.0,
+    "consumer": 2.0,
+    "simulator": 8.0
+  },
+  "api_counter_deltas": {
+    "pool_acquire:ok": 12053.0
+  },
+  "post_ttl_audit": {
+    "orders": 2268,
+    "fulfilled_orders": 2268,
+    "payment_attempts": 2268,
+    "succeeded_payments": 2268,
+    "bookings": 2268,
+    "tickets": 2268,
+    "payment_callbacks": 2268,
+    "callback_delivery_attempts": 2268,
+    "callback_delivery_target": 2268,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "pass": true
+  },
+  "fixture_retired": true,
+  "rollback_pass": true,
+  "api_pool_waiters_restored": true,
+  "simulator_restored": true,
+  "interpretation": "Both acceptance and fulfillment slow under this workload. Kafka lag is distributed over all six partitions; this alone does not isolate cost per event or prove DB batching will pass 45/s. This failed stage must not be promoted."
+}

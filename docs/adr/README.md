@@ -119,3 +119,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0081: Bound development payment-simulator concurrency during paid-ticket validation](0081-bound-development-payment-simulator-concurrency.md)
 - [0082: Test two Kafka consumers for paid-ticket fulfillment](0082-two-consumer-paid-fulfillment-diagnostic.md)
 - [0083: Decouple bounded API DB-pool waiters from connection count](0083-bounded-api-db-pool-waiters.md)
+- [0084: Bound OrderPaid fulfillment batches](0084-bound-orderpaid-consumer-batches.md)

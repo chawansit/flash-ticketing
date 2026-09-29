@@ -351,3 +351,23 @@ one ticket, 2,550/2,550 callbacks completed, there was no double-booking,
 and all queues were empty. The runner stage remains **failed** because
 150 scheduled buyers were dropped. See the updated
 [callback-profile evidence](paid-ticket-callback-mix-2026-09-29.json).
+
+## Stage-aligned Kafka lag at 45 paid journeys/s
+
+A repeat 45/s, one-callback, 60-second stage on revision a7a394d **failed**:
+2,268 of 2,700 journeys were dispatched, 432 were dropped at the 500
+in-flight cap, and hold-to-ticket p95 was 23.55 seconds. The Kafka group
+had two members throughout 22 valid samples; total lag peaked at 912 and
+then drained to zero. All six partitions accumulated lag (per-partition
+peaks 134–217). The outbox peak was 27 and PAID orders awaiting tickets
+peaked at 223. Durable hold p95 was also 10.71 seconds, so ticket issuance
+is not the only source of journey latency.
+
+After TTL, all 2,268 dispatched buyers had unique paid tickets; 2,268
+callbacks completed, no double booking or dead letters were found, and
+the synthetic fixture was retired. Rollback restored one consumer, three
+API DB-pool waiters per replica, and four simulator threads. The strict
+stage remains **failed**. This evidence motivates bounded paid-event
+batching, but it does not prove that batching will reach 45/s or the
+83.34 completed tickets/s business minimum. See the
+[redacted Kafka diagnostic](paid-ticket-kafka-lag-2026-09-29.json).
