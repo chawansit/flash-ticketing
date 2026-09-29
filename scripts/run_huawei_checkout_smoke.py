@@ -31,6 +31,7 @@ parser.add_argument("--paid-poll-seconds", type=float, default=0.2)
 parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8), default=4)
 parser.add_argument("--consumer-candidate", type=int, choices=(1, 2), default=1)
 parser.add_argument("--api-pool-waiters-candidate", type=int, choices=(3, 12), default=3)
+parser.add_argument("--callback-duplicates", type=int, choices=(1, 3), default=3)
 parser.add_argument("--shows", type=int, default=2)
 parser.add_argument("--viewers", type=int, default=20)
 args = parser.parse_args()
@@ -257,7 +258,7 @@ try:
             "--poll-seconds",
             str(args.paid_poll_seconds),
             "--duplicates",
-            "3",
+            str(args.callback_duplicates),
         ]
         probe_timeout = args.paid_seconds + 180
     else:
@@ -275,7 +276,7 @@ try:
             "--concurrency",
             "5",
             "--duplicates",
-            "3",
+            str(args.callback_duplicates),
         ]
         probe_timeout = 180
     probe_attempted = True

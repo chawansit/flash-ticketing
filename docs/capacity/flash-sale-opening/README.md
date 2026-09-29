@@ -307,3 +307,28 @@ measured a drain window. The candidate was rolled back. The
 failure. A corrected runner will allow at most 120 seconds for queues to
 drain, record initial/final counts and elapsed time, and repeat the same
 stage before any capacity claim.
+
+
+## Callback multiplicity and the 45/s boundary
+
+With two consumers and twelve bounded API DB-pool waiters, the 30/s,
+60-second stage using **three callback deliveries for every payment**
+passed all runner and post-TTL gates: 1,800/1,800 scheduled buyers got a
+durable ticket by deadline, with zero unexpected HTTP responses, zero
+duplicate booking and drained queues. Hold-to-ticket p95 was 1.14 seconds.
+
+The matching **45/s, three-delivery** stage failed: 2,206/2,700 buyers
+were dispatched, 494 were dropped at the generator's bounded in-flight
+limit, and hold-to-ticket p95 rose to 22.53 seconds. Peak pending
+callback deliveries reached 296. No API pool failure was observed.
+All 2,206 accepted payments ultimately had unique tickets, all 6,618
+delivery targets completed after drain and post-TTL queues were empty.
+The stage remains a strict failure. See the
+[redacted callback-mix evidence](paid-ticket-callback-mix-2026-09-29.json).
+
+Sending three callbacks for every payment is an intentional idempotency
+stress profile, not an assumed production payment-provider duplicate rate.
+The next controlled capacity stage uses one callback per payment at 45/s,
+while keeping the three-delivery profile as a separate correctness stress.
+This comparison changes workload and cannot by itself promote a higher
+production capacity estimate.

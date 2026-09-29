@@ -37,7 +37,10 @@ abandoned inventory correctly; adding extra seats would conceal that behavior.
    validate the 202/PENDING-to-DURABLE boundary and duplicate payment
    callbacks. Audit every issued ticket against its booking and payment.
 3. Increase completed-journey throughput in controlled stages, holding
-   the same code/image versions and connection budget. At each stage,
+   the same code/image versions and connection budget. Use one payment
+   callback delivery per purchase for the normal-payment capacity profile;
+   run three-delivery duplicate-callback stress as a separate profile.
+   Neither profile may hide first-attempt failures with retries. At each stage,
    check request fidelity, reservation guard, payment backlog, Kafka lag,
    ticket issuance delay, PostgreSQL waits and full queue drain. Stop
    at the first failed gate.

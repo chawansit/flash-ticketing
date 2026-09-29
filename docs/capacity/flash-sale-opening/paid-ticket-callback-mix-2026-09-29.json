@@ -1,0 +1,172 @@
+{
+  "date_utc": "2026-09-29",
+  "application_revision": "d5f9421f50364de9061cc3ad3c01ba3d9f950540",
+  "workload_common": "four API replicas, three DB connections and twelve waiters each, two consumers, eight simulator threads, 500 max generator in-flight, 0.2s order polling, no retries",
+  "scope_note": "Three callbacks per every payment is an idempotency stress profile, not an assumed real provider duplicate rate. A separate one-callback profile is required for normal-payment capacity.",
+  "stages": [
+    {
+      "label": "30_per_second_three_deliveries",
+      "rate_target_per_second": 30,
+      "callback_delivery_target_per_payment": 3,
+      "strict_runner_pass": true,
+      "scheduled": 1800,
+      "dispatched": 1800,
+      "generator_drops": 0,
+      "fulfilled_by_deadline": 1800,
+      "unexpected_outcomes": {},
+      "retry_attempts": 0,
+      "hold_to_ticket_p95_ms": 1136.061368015362,
+      "payment_to_ticket_p95_ms": 718.6037120118272,
+      "peak_pending_orders": 19,
+      "peak_pending_callback_deliveries": 58,
+      "peak_paid_unfulfilled": 14,
+      "simulator_busy_seconds": 382.0815563892247,
+      "simulator_max_active": 8.0,
+      "api": {
+        "observed_replicas": 4,
+        "counter_deltas": {
+          "pool_acquire:ok": 12559.0
+        },
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 0,
+          "pool_in_use": 3.0,
+          "pool_state:pool_size": 3.0,
+          "pool_state:pool_available": 3.0,
+          "pool_state:requests_waiting": 0,
+          "pool_state:pool_max": 3.0
+        },
+        "counter_reset_detected": false
+      },
+      "post_ttl_audit": {
+        "orders": 1800,
+        "fulfilled_orders": 1800,
+        "expired_orders": 0,
+        "pending_orders": 0,
+        "payment_attempts": 1800,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 1800,
+        "bookings": 1800,
+        "tickets": 1800,
+        "payment_callbacks": 1800,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 5400,
+        "callback_delivery_target": 5400,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 1800,
+        "expected_paid": 1800,
+        "pass": true
+      },
+      "post_ttl_queue": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "active_fixture_holds": 0,
+        "overdue_fixture_holds": 0,
+        "pending_fixture_orders": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "pass": true
+      },
+      "rollback": {
+        "restored_admission": 4,
+        "restored_reservation_mode": "postgres",
+        "restored_reservation_writer_batch_size": 1,
+        "restored_reservation_max_command_age_seconds": 0,
+        "reservation_writer_replicas": 0,
+        "api_replicas": 4,
+        "maintenance_replicas": 1,
+        "refresh_replicas": 0,
+        "expiry_replicas": 0,
+        "consumer_replicas": 1,
+        "pass": true
+      },
+      "api_pool_waiters_restored": true,
+      "simulator_restored": true
+    },
+    {
+      "label": "45_per_second_three_deliveries",
+      "rate_target_per_second": 45,
+      "callback_delivery_target_per_payment": 3,
+      "strict_runner_pass": false,
+      "scheduled": 2700,
+      "dispatched": 2206,
+      "generator_drops": 494,
+      "fulfilled_by_deadline": 2206,
+      "unexpected_outcomes": {},
+      "retry_attempts": 0,
+      "hold_to_ticket_p95_ms": 22534.450585982995,
+      "payment_to_ticket_p95_ms": 15738.902615004918,
+      "peak_pending_orders": 376,
+      "peak_pending_callback_deliveries": 296,
+      "peak_paid_unfulfilled": 22,
+      "simulator_busy_seconds": 445.50203904436785,
+      "simulator_max_active": 8.0,
+      "api": {
+        "observed_replicas": 4,
+        "counter_deltas": {
+          "pool_acquire:ok": 17423.0
+        },
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 3.0,
+          "pool_in_use": 3.0,
+          "pool_state:pool_size": 3.0,
+          "pool_state:pool_available": 3.0,
+          "pool_state:requests_waiting": 3.0,
+          "pool_state:pool_max": 3.0
+        },
+        "counter_reset_detected": false
+      },
+      "post_ttl_audit": {
+        "orders": 2206,
+        "fulfilled_orders": 2206,
+        "expired_orders": 0,
+        "pending_orders": 0,
+        "payment_attempts": 2206,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 2206,
+        "bookings": 2206,
+        "tickets": 2206,
+        "payment_callbacks": 2206,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 6618,
+        "callback_delivery_target": 6618,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 2206,
+        "expected_paid": 2206,
+        "pass": true
+      },
+      "post_ttl_queue": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "active_fixture_holds": 0,
+        "overdue_fixture_holds": 0,
+        "pending_fixture_orders": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "pass": true
+      },
+      "rollback": {
+        "restored_admission": 4,
+        "restored_reservation_mode": "postgres",
+        "restored_reservation_writer_batch_size": 1,
+        "restored_reservation_max_command_age_seconds": 0,
+        "reservation_writer_replicas": 0,
+        "api_replicas": 4,
+        "maintenance_replicas": 1,
+        "refresh_replicas": 0,
+        "expiry_replicas": 0,
+        "consumer_replicas": 1,
+        "pass": true
+      },
+      "api_pool_waiters_restored": true,
+      "simulator_restored": true
+    }
+  ]
+}

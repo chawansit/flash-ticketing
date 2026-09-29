@@ -19,3 +19,17 @@ was restored to three waiters, one consumer and four simulator threads.
 This is not an overall passing stage. The runner will be corrected to
 measure a fixed 120-second queue-drain window and the same workload
 repeated. [Redacted first-trial evidence](../capacity/flash-sale-opening/paid-ticket-pool-waiters-2026-09-29.json).
+
+The corrected one-minute 30/s repeat with a measured queue gate passed:
+1,800/1,800 dispatched buyers became durable paid orders and tickets by
+deadline, no HTTP 503 or retry occurred, all 5,400 intentional callback
+deliveries completed, and post-TTL queues and duplicate-booking checks
+passed. The queue was already empty at the first bounded sample; the
+measurement reported eight seconds from beginning the queue-check command
+through that first sample, not eight seconds of observed backlog.
+Rollback restored three waiters, one consumer and four simulator threads.
+The twelve-waiter cap remains an experimental candidate because this is a
+short stage. A following 45/s stage with three callback deliveries per
+payment failed from 494 generator drops and callback backlog despite no
+API pool error. Both results are in
+[the flash-sale capacity record](../capacity/flash-sale-opening/README.md).
