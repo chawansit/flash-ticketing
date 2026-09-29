@@ -1,0 +1,65 @@
+{
+  "date_utc": "2026-09-29",
+  "source_revision": "b874844af43e567044b5781f6bf48555730535d2",
+  "profile": "60 paid journeys/s for 60 s; two synchronized generator processes; 0.2 s polling; four API replicas and four Kafka consumers; 500 total in-flight; eight simulator threads; 12 DB pool waiters per API; one callback/payment; zero retries; single-statement order GET candidate",
+  "strict_pass": false,
+  "scheduled": 3600,
+  "dispatched": 2714,
+  "generator_drops": 886,
+  "fulfilled_by_deadline": 2665,
+  "outcomes": {
+    "fulfilled": 2665,
+    "order_http_503": 35,
+    "payment_http_503": 14
+  },
+  "physical_http_attempts": {
+    "holds": 2714,
+    "reservation_commands": 3940,
+    "payments": 2714,
+    "orders": 14220
+  },
+  "transport_phase_p95_ms_mode": "worst shard p95, not combined percentile",
+  "transport_phase_p95_ms": {
+    "hold_pre_send": 5189.11,
+    "hold_response_header_wait": 87.89,
+    "payment_pre_send": 4474.25,
+    "payment_response_header_wait": 163.02
+  },
+  "end_to_end_p95_ms": {
+    "hold_to_ticket": 23713.29,
+    "payment_to_ticket": 20823.92
+  },
+  "api": {
+    "db_pool_acquire_errors": 57,
+    "order_get_503": 35,
+    "payment_post_503": 14,
+    "pool_waiting_peak_per_replica": 7,
+    "pool_size_per_replica": 3,
+    "pool_acquire_ok_mean_ms": 8.37,
+    "db_select_mean_ms": 4.58,
+    "db_commit_mean_ms": 4.28,
+    "db_connection_hold_mean_ms": 24.33
+  },
+  "pipeline": {
+    "kafka_group_lag_peak": 662,
+    "kafka_group_lag_final": 0,
+    "paid_waiting_ticket_peak": 161,
+    "pending_callbacks_peak": 221
+  },
+  "post_ttl": {
+    "orders": 2714,
+    "paid_orders": 2700,
+    "tickets": 2700,
+    "expired_unpaid_orders": 14,
+    "pending_orders": 0,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "callbacks_delivered": 2700,
+    "pass": true
+  },
+  "queue_drain_pass": true,
+  "rollback_pass": true,
+  "interpretation": "The real-PostgreSQL 10-journey smoke passed, and the one-minute 60/s same-profile load remained a strict failure. Mean API DB connection hold was lower than the previous control (24.33 vs 29.46 ms), but dispatch drops, DB-pool rejections and buyer-visible 503s persisted. The order-read candidate is not promoted as a capacity fix; this single run cannot attribute the mean difference causally."
+}

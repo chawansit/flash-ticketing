@@ -509,3 +509,15 @@ that polling caused the failure. After TTL, 2,680 paid orders had
 and rollback passed. Slower polling alone is not promoted. See the
 [redacted polling diagnostic](paid-ticket-slower-polling-2026-09-29.json)
 and [ADR 0088](../../adr/0088-bound-synthetic-checkout-status-polling.md).
+
+A 10-journey real-PostgreSQL smoke of the single-statement order-read
+candidate passed. The subsequent same-profile two-process 60/s stage on
+revision b874844 **failed**: 2,714/3,600 dispatched, 886 drops, 35
+order GET 503s and 14 payment POST 503s. Mean API DB connection hold
+was 24.33 ms versus 29.46 ms in the preceding 0.2-second control, but
+57 DB-pool acquisitions still failed and hold-to-ticket p95 was 23.71 s.
+Post-TTL exact audit confirmed 2,700 paid orders with 2,700 unique
+tickets, 14 expired unpaid orders, no duplicates and drained queues;
+rollback passed. The change is not a validated capacity improvement.
+See the [redacted order-read candidate](paid-ticket-single-query-order-read-2026-09-29.json)
+and [ADR 0089](../../adr/0089-single-statement-order-status-read.md).

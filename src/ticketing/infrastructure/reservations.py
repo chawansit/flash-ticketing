@@ -322,23 +322,15 @@ class PostgresReservations:
             )
 
     def get_order(self, actor, order_id):
-        with self.db.connection() as conn:
-            conn.execute("SET LOCAL statement_timeout = '1500ms'")
-            row = conn.execute(
-                """SELECT o.*,
-                       COALESCE((
-                           SELECT jsonb_agg(
-                               jsonb_build_object('id', t.id::text, 'seat_id', b.seat_id)
-                               ORDER BY b.seat_id
-                           )
-                           FROM bookings b JOIN tickets t ON t.booking_id=b.id
-                           WHERE b.order_id=o.id
-                       ), '[]'::jsonb) AS tickets
-                FROM orders o WHERE o.id=%s AND o.actor=%s""",
-                (order_id, actor),
-            ).fetchone()
+        with self.db.transaction() as conn:
+            row = conn.execute("SELECT * FROM orders WHERE id=%s AND actor=%s", (order_id, actor)).fetchone()
             if not row:
                 raise Failure("ORDER_NOT_FOUND", 404)
+            row["tickets"] = conn.execute(
+                """SELECT t.id,b.seat_id FROM tickets t JOIN bookings b
+                ON b.id=t.booking_id WHERE b.order_id=%s ORDER BY b.seat_id""",
+                (order_id,),
+            ).fetchall()
             return row
 
     def get_hold(self, actor, hold_id):
