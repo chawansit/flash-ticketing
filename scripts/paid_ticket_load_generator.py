@@ -6,7 +6,7 @@ import json
 from collections import Counter
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from time import perf_counter
+from time import perf_counter, time
 from uuid import uuid4
 
 import httpx
@@ -124,6 +124,12 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
     ) as client:
         (await client.get("/health/ready")).raise_for_status()
         attempts.clear()
+        if args.start_at_epoch is not None:
+            delay = args.start_at_epoch - time()
+            if delay < -0.5 or delay > 60:
+                raise ValueError("Synchronized generator start missed or too far ahead")
+            await asyncio.sleep(max(0.0, delay))
+        started_utc = datetime.now(UTC).isoformat()
         started = perf_counter()
         completion_deadline = started + args.completion_deadline_seconds
 
@@ -170,6 +176,7 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
     fulfilled = outcomes["fulfilled"]
     result = {
         "measured_at_utc": datetime.now(UTC).isoformat(),
+        "started_at_utc": started_utc,
         "kind": "scheduled_paid_ticket_journeys",
         "rate_target_per_second": args.rate,
         "dispatch_seconds": args.seconds,
@@ -237,6 +244,7 @@ def main():
     parser.add_argument("--completion-deadline-seconds", required=True, type=int)
     parser.add_argument("--concurrency", type=int, default=100)
     parser.add_argument("--http-max-connections", type=int)
+    parser.add_argument("--start-at-epoch", type=float)
     parser.add_argument("--duplicates", type=int, default=3)
     parser.add_argument("--timeout-seconds", type=int, default=90)
     parser.add_argument("--poll-seconds", type=float, default=0.2)

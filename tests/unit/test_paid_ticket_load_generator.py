@@ -37,6 +37,7 @@ def args(tmp_path, rate=5, concurrency=10):
         completion_deadline_seconds=3,
         concurrency=concurrency,
         http_max_connections=concurrency,
+        start_at_epoch=None,
         duplicates=3,
         timeout_seconds=2,
         poll_seconds=0.1,

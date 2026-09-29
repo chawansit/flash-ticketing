@@ -28,6 +28,7 @@ parser.add_argument("--paid-rate", type=int, default=0)
 parser.add_argument("--paid-seconds", type=int, default=30)
 parser.add_argument("--paid-concurrency", type=int, default=100)
 parser.add_argument("--paid-http-max-connections", type=int, default=0)
+parser.add_argument("--paid-generator-shards", type=int, choices=(1, 2), default=1)
 parser.add_argument("--paid-poll-seconds", type=float, default=0.2)
 parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8), default=4)
 parser.add_argument("--consumer-candidate", type=int, choices=(1, 2, 4), default=1)
@@ -47,6 +48,11 @@ if args.paid_http_max_connections and not (
     args.paid_concurrency <= args.paid_http_max_connections <= 4000
 ):
     parser.error("HTTP connection limit must fit bounded journey concurrency")
+if args.paid_generator_shards == 2 and (
+    args.paid_rate % 2 or args.paid_concurrency % 2 or args.shows < 2 or args.viewers < 2
+    or args.paid_http_max_connections
+):
+    parser.error("Two shards require even rate/concurrency and default per-shard HTTP pools")
 if EXPECTED > args.shows * 300 or EXPECTED > 300000:
     parser.error("This smoke runner supports at most 300000 distinct tickets")
 BACKEND = args.backend_dir
@@ -254,9 +260,17 @@ try:
             GEN_HOST,
             f"{script_dir}/paid_ticket_load_generator.py",
         )
+        if args.paid_generator_shards == 2:
+            transport.copy_to(
+                "sharded-generator-upload",
+                ROOT / "scripts/paid_ticket_sharded_generator.py",
+                GEN_HOST,
+                f"{script_dir}/paid_ticket_sharded_generator.py",
+            )
         generator_args = [
             "/root/http-load-venv/bin/python",
-            f"{script_dir}/paid_ticket_load_generator.py",
+            f"{script_dir}/paid_ticket_sharded_generator.py"
+            if args.paid_generator_shards == 2 else f"{script_dir}/paid_ticket_load_generator.py",
             "--manifest",
             f"/root/unattended-{RUN}-upload.json",
             "--origin",
@@ -271,13 +285,15 @@ try:
             str(args.paid_seconds + 120),
             "--concurrency",
             str(args.paid_concurrency),
-            "--http-max-connections",
-            str(args.paid_http_max_connections or args.paid_concurrency),
             "--poll-seconds",
             str(args.paid_poll_seconds),
             "--duplicates",
             str(args.callback_duplicates),
         ]
+        if args.paid_generator_shards == 1:
+            generator_args.extend([
+                "--http-max-connections", str(args.paid_http_max_connections or args.paid_concurrency)
+            ])
         probe_timeout = args.paid_seconds + 180
     else:
         generator_args = [
@@ -591,7 +607,8 @@ finally:
                 "-lc",
                 (
                     f"rm -f /root/unattended-{RUN}-scripts/checkout_journey_probe.py "
-                    f"/root/unattended-{RUN}-scripts/paid_ticket_load_generator.py; "
+                    f"/root/unattended-{RUN}-scripts/paid_ticket_load_generator.py "
+                    f"/root/unattended-{RUN}-scripts/paid_ticket_sharded_generator.py; "
                     f"rmdir /root/unattended-{RUN}-scripts"
                 ),
             ],
