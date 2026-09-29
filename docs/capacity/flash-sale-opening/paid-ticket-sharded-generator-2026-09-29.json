@@ -1,0 +1,64 @@
+{
+  "date_utc": "2026-09-29",
+  "source_revision": "9ca687f5de942edf1bd4b034bbacb66ed31cbfc7",
+  "profile": "60 paid journeys/s for 60 s; two synchronized generator processes at 30/s each, 250 in-flight and 250 HTTP connections per process; disjoint shows/viewers; four API replicas and four Kafka consumers; one callback/payment; no retries",
+  "strict_pass": false,
+  "scheduled": 3600,
+  "dispatched": 2709,
+  "generator_drops": 891,
+  "fulfilled_by_deadline": 2658,
+  "outcomes": {
+    "fulfilled": 2658,
+    "order_http_503": 43,
+    "payment_http_503": 8
+  },
+  "transport_phase_p95_ms_mode": "worst shard p95, not a combined percentile",
+  "transport_phase_p95_ms": {
+    "hold_pre_send": 5308.32,
+    "hold_response_header_wait": 78.62,
+    "payment_pre_send": 4489.16,
+    "payment_response_header_wait": 190.46
+  },
+  "fastapi_app_p95_ms": {
+    "hold": 24.47,
+    "payment": 148.8
+  },
+  "end_to_end_p95_ms": {
+    "hold_to_ticket": 22102.65,
+    "payment_to_ticket": 18717.79
+  },
+  "api": {
+    "db_pool_acquire_errors": 53,
+    "order_get_503": 43,
+    "payment_post_503": 8,
+    "pool_waiting_peak_per_replica": 10,
+    "pool_size_per_replica": 3,
+    "pool_acquire_ok_mean_ms": 12.49,
+    "db_select_mean_ms": 3.35,
+    "db_commit_mean_ms": 3.36,
+    "db_connection_hold_mean_ms": 29.46
+  },
+  "pipeline": {
+    "kafka_group_lag_peak": 749,
+    "kafka_group_lag_final": 0,
+    "kafka_drain_after_peak_seconds": 27.07,
+    "paid_waiting_ticket_peak": 177,
+    "pending_callbacks_peak": 158
+  },
+  "post_ttl": {
+    "orders": 2709,
+    "paid_orders": 2701,
+    "tickets": 2701,
+    "expired_unpaid_orders": 8,
+    "pending_orders": 0,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "callbacks_delivered": 2701,
+    "pass": true
+  },
+  "queue_drain_pass": true,
+  "rollback_pass": true,
+  "interpretation": "The two-process generator reduced worst-shard pre-send tails versus the single-process 60/s trace but still dropped 891 scheduled journeys. It also exposed DB pool rejections and Kafka/consumer backlog. This is a failed one-minute synthetic stage, not evidence of sustained 60/s capacity. Every successfully paid order eventually received one ticket; eight unpaid orders expired."
+}

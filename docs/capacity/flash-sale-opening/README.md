@@ -479,3 +479,20 @@ larger connection limit alone is not a remedy. Next, split the fixed
 with disjoint shows and half the original in-flight budget, to test
 whether the single-process client is the limit. See the
 [redacted pool comparison](paid-ticket-client-pool-headroom-2026-09-29.json).
+
+The synchronized two-process 60/s diagnostic on revision 9ca687f also
+**failed**: 2,709/3,600 journeys dispatched, 891 generator drops, 43
+order-poll GET 503s and eight payment POST 503s. Each process used a
+disjoint fixture and half the original in-flight/HTTP connection budget.
+The worse shard hold/payment pre-send p95 was 5.31/4.49 s, compared
+with 6.10/6.75 s in the earlier single-process trace; these are
+independent runs, not a controlled backend pass. API DB-pool acquisition
+failed 53 times, with up to ten requests waiting per replica on a
+three-connection pool. Kafka lag peaked at 749 and later reached zero.
+The first post-TTL audit caught eight unpaid orders before expiry; a
+second read-only audit after expiry verified 2,701 paid orders with
+2,701 unique tickets, eight expired unpaid orders, zero duplicate
+bookings and all queues drained. Rollback passed. The run remains a
+strict failure and cannot establish 60/s, let alone the 83.34/s average
+needed for 300,000 paid tickets/hour. See the
+[redacted two-process diagnostic](paid-ticket-sharded-generator-2026-09-29.json).

@@ -43,20 +43,23 @@ try:
     t.copy_to("audit-upload", Path(__file__).with_name("audit_checkout_smoke.py"), a.backend_host, audit_file)
     paid_option = f"--expected-paid {a.expected_paid}" if a.expected_paid is not None else ""
     shell = (
-        f"cd {a.backend_dir}; api=$({compose} ps -q api | head -n 1); "
-        f'test -n "$api" && docker cp {audit_file} "$api":/tmp/failed-audit.py '
-        f'&& docker cp {fixture} "$api":/tmp/failed-fixture.json '
-        f'&& docker exec "$api" sh -lc \'TEST_DATABASE_URL="$DATABASE_URL" '
+        f"cd {a.backend_dir} || exit 2; api=$({compose} ps -q api | head -n 1); "
+        f'test -n "$api" || exit 2; docker cp {audit_file} "$api":/tmp/failed-audit.py || exit 2; '
+        f'docker cp {fixture} "$api":/tmp/failed-fixture.json || exit 2; '
+        'docker exec -u 0 "$api" rm -f /tmp/failed-audit.json /tmp/failed-queue.json || exit 2; '
+        f'docker exec "$api" sh -lc \'TEST_DATABASE_URL="$DATABASE_URL" '
         f"python /tmp/failed-audit.py --manifest /tmp/failed-fixture.json "
         f"--expected {a.expected} {paid_option} --callback-duplicates {a.callback_duplicates} "
-        "--output /tmp/failed-audit.json' "
-        f'&& docker exec "$api" sh -lc \'TEST_DATABASE_URL="$DATABASE_URL" '
+        "--output /tmp/failed-audit.json'; audit_rc=$?; "
+        f'docker exec "$api" sh -lc \'TEST_DATABASE_URL="$DATABASE_URL" '
         'TEST_REDIS_URL="$REDIS_URL" python /app/scripts/capacity_queue_state.py '
-        "--manifest /tmp/failed-fixture.json --output /tmp/failed-queue.json' "
-        f'&& docker cp "$api":/tmp/failed-audit.json {a.backend_dir}/tmp/unattended-{a.run_id}/public/failed-audit.json '
-        f'&& docker cp "$api":/tmp/failed-queue.json {a.backend_dir}/tmp/unattended-{a.run_id}/public/failed-queue.json'
+        "--manifest /tmp/failed-fixture.json --output /tmp/failed-queue.json'; queue_rc=$?; "
+        f'docker cp "$api":/tmp/failed-audit.json {a.backend_dir}/tmp/unattended-{a.run_id}/public/failed-audit.json; audit_copy_rc=$?; '
+        f'docker cp "$api":/tmp/failed-queue.json {a.backend_dir}/tmp/unattended-{a.run_id}/public/failed-queue.json; queue_copy_rc=$?; '
+        'test "$audit_copy_rc" -eq 0 && test "$queue_copy_rc" -eq 0 || exit 3; '
+        'test "$audit_rc" -eq 0 && test "$queue_rc" -eq 0'
     )
-    t.remote("audit-and-queue", a.backend_host, ["sh", "-lc", shell], timeout=120)
+    audit_command = t.remote("audit-and-queue", a.backend_host, ["sh", "-lc", shell], check=False, timeout=120)
     t.copy_from(
         "audit-download",
         a.backend_host,
@@ -77,6 +80,8 @@ try:
             }
         )
     )
+    if audit_command.returncode:
+        raise SystemExit(1)
 finally:
     cleanup = (
         f"cd {a.backend_dir}; api=$({compose} ps -q api | head -n 1); "
