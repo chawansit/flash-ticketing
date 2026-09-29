@@ -449,3 +449,21 @@ aggregate p95s and sample counts. The installed HTTP client trace hook
 was exercised against a local HTTP server; missing trace events are
 reported as missing samples rather than inferred as zero. This can
 separate generator-side connection-pool wait from Nginx/upstream wait.
+
+The 60/s trace stage on revision c278b31 **failed**: 2,830/3,600
+dispatched, 770 generator drops, four order GET 503s and two payment
+POST 503s. Hold pre-send p95 was 6.10 s versus 42 ms response-header
+wait and 11.91 ms FastAPI time. Payment pre-send p95 was 6.75 s
+versus 91 ms response-header wait and 60.44 ms FastAPI time. The
+long tail is mainly before the shared generator client sends headers,
+not inside FastAPI or the observed Nginx/upstream wait. Only 22/2,830
+hold and 37/2,830 payment requests opened new TCP connections, so
+connect duration cannot explain the stage-wide p95.
+
+The immediate automated failure audit assumed every dispatched payment
+succeeded and failed when two payment POSTs returned 503. A corrected
+read-only audit after TTL verified 2,828 paid orders/tickets, two
+expired unpaid orders, zero duplicate bookings and empty queues.
+Fixture retirement and deployment rollback passed. The strict stage
+remains **failed** due to drops and 503s. See the
+[redacted transport trace](paid-ticket-client-pool-trace-2026-09-29.json).

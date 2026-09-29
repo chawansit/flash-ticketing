@@ -121,3 +121,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0083: Decouple bounded API DB-pool waiters from connection count](0083-bounded-api-db-pool-waiters.md)
 - [0084: Bound OrderPaid fulfillment batches](0084-bound-orderpaid-consumer-batches.md)
 - [0085: Test four paid-event Kafka consumers](0085-test-four-paid-event-consumers.md)
+- [0086: Isolate synthetic generator HTTP connection-pool headroom](0086-isolate-generator-http-pool-headroom.md)

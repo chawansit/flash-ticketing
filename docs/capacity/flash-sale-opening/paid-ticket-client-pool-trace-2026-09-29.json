@@ -1,0 +1,95 @@
+{
+  "date_utc": "2026-09-29",
+  "source_revision": "c278b31183734ecf17eeaeab89f3e66ef435183e",
+  "profile": "60 paid journeys/s for 60s; four consumers; one callback/payment; 500 generator in-flight; 500 HTTPX maximum connections; no retries",
+  "strict_pass": false,
+  "scheduled": 3600,
+  "dispatched": 2830,
+  "generator_drops": 770,
+  "fulfilled_by_deadline": 2824,
+  "outcomes": {
+    "fulfilled": 2824,
+    "order_http_503": 4,
+    "payment_http_503": 2
+  },
+  "retry_attempts": 0,
+  "http_timing_p95_ms": {
+    "hold_http_p95_ms": 6171.491429995513,
+    "hold_app_p95_ms": 11.91,
+    "hold_client_excess_p95_ms": 6165.551429995513,
+    "payment_http_p95_ms": 6917.974923009751,
+    "payment_app_p95_ms": 60.44,
+    "payment_client_excess_p95_ms": 6857.845715997163
+  },
+  "server_timing_samples": {
+    "hold": 2824,
+    "payment": 2824
+  },
+  "transport_phase_p95_ms": {
+    "holds": {
+      "pre_send_ms": 6098.436740023317,
+      "response_wait_ms": 42.075370001839474,
+      "connect_ms": 106.53916301089339
+    },
+    "payments": {
+      "pre_send_ms": 6747.789044020465,
+      "response_wait_ms": 90.69850199739449,
+      "connect_ms": 112.35988300177269
+    }
+  },
+  "transport_phase_samples": {
+    "holds": {
+      "pre_send_ms": 2830,
+      "response_wait_ms": 2830,
+      "connect_ms": 22
+    },
+    "payments": {
+      "pre_send_ms": 2830,
+      "response_wait_ms": 2830,
+      "connect_ms": 37
+    }
+  },
+  "api_503_counter_deltas": {
+    "http_503:/v1/orders/{order_id}:GET": 4.0,
+    "db_503:TooManyRequests": 6.0,
+    "pool_acquire:error": 6.0,
+    "http_503:/v1/orders/{order_id}/payments:POST": 2.0
+  },
+  "api_duration_mean_ms": {
+    "db_connection_hold:all": 26.432087627669752,
+    "db_commit:all": 3.218023505081574,
+    "db_pool_acquire:ok": 2.0156859908567535,
+    "db_query:UPDATE": 1.8791777887741397,
+    "event_loop_lag:all": 0.7935935678794762,
+    "db_query:SET": 1.6560519650720258,
+    "db_query:BEGIN": 3.736326656905154,
+    "db_query:INSERT": 1.8997349137178814,
+    "db_query:SELECT": 2.4686264648106264,
+    "db_pool_acquire:error": 0.07290283489661913
+  },
+  "kafka_max_total_lag": 210,
+  "post_ttl_corrected_audit": {
+    "orders": 2830,
+    "fulfilled_orders": 2828,
+    "expired_orders": 2,
+    "pending_orders": 0,
+    "payment_attempts": 2828,
+    "succeeded_payments": 2828,
+    "bookings": 2828,
+    "tickets": 2828,
+    "callback_delivery_attempts": 2828,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 2830,
+    "expected_paid": 2828,
+    "pass": true
+  },
+  "post_ttl_queue_pass": true,
+  "fixture_retired": true,
+  "rollback_pass": true,
+  "api_pool_waiters_restored": true,
+  "simulator_restored": true,
+  "interpretation": "The shared generator HTTP client spends seconds before send_request_headers. HTTP response-header wait and FastAPI Server-Timing are tens of milliseconds. Only a small sample established TCP connect times; changing max connection pool headroom is a controlled diagnostic, not proof that production ingress is unlimited. Two payment POST 503s left orders that expired; four order GET 503s were buyer-visible despite eventual tickets."
+}
