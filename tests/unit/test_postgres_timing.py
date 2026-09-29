@@ -129,6 +129,8 @@ def test_slow_commit_and_pool_return_log_bounded_phase_fields(monkeypatch, caplo
     assert {row["phase"] for row in phase_rows} == {"commit", "pool_return"}
     assert all(row["outcome"] == "ok" and row["duration_ms"] >= 1 for row in phase_rows)
     assert all(set(row) == {"event", "phase", "duration_ms", "outcome"} for row in phase_rows)
+
+
 def test_pool_checkout_timeout_is_bounded_and_configurable(monkeypatch):
     captured = []
 
@@ -139,6 +141,8 @@ def test_pool_checkout_timeout_is_bounded_and_configurable(monkeypatch):
     monkeypatch.setattr(postgres_module, "ConnectionPool", CapturingPool)
     Postgres("postgresql://example", 3)
     Postgres("postgresql://example", 3, 500)
+    Postgres("postgresql://example", 3, 500, 12)
 
-    assert [pool["timeout"] for pool in captured] == [0.15, 0.5]
-    assert all(pool["max_size"] == 3 and pool["max_waiting"] == 3 for pool in captured)
+    assert [pool["timeout"] for pool in captured] == [0.15, 0.5, 0.5]
+    assert all(pool["max_size"] == 3 for pool in captured)
+    assert [pool["max_waiting"] for pool in captured] == [3, 3, 12]

@@ -12,6 +12,9 @@ class Settings:
     environment: str = os.getenv("ENVIRONMENT", "development")
     hold_seconds: int = int(os.getenv("HOLD_SECONDS", "120"))
     pool_max: int = int(os.getenv("DB_POOL_MAX", "12"))
+    pool_max_waiting: int | None = (
+        int(os.environ["DB_POOL_MAX_WAITING"]) if "DB_POOL_MAX_WAITING" in os.environ else None
+    )
     pool_wait_ms: int = int(os.getenv("DB_POOL_WAIT_MS", "150"))
     seatmap_ttl_seconds: int = int(os.getenv("SEATMAP_TTL_SECONDS", "120"))
     reserve_concurrency: int = int(os.getenv("RESERVE_CONCURRENCY", "12"))
@@ -51,13 +54,21 @@ class Settings:
         if self.reservation_mode == "redis-first":
             return self.redis_reserve_concurrency
         return self.reserve_concurrency
+
     def validate(self):
         if self.environment != "development" and (
             self.jwt_secret.startswith("local-") or self.webhook_secret.startswith("local-")
         ):
             raise RuntimeError("Configure JWT_SECRET and WEBHOOK_SECRET outside development")
-        if self.hold_seconds < 1 or self.pool_max < 1 or self.reserve_concurrency < 1 or self.seatmap_ttl_seconds < 1:
+        if (
+            self.hold_seconds < 1
+            or self.pool_max < 1
+            or self.reserve_concurrency < 1
+            or self.seatmap_ttl_seconds < 1
+        ):
             raise RuntimeError("Invalid positive configuration")
+        if self.pool_max_waiting is not None and not 1 <= self.pool_max_waiting <= 64:
+            raise RuntimeError("DB_POOL_MAX_WAITING must be between 1 and 64")
         if not 50 <= self.pool_wait_ms <= 1000:
             raise RuntimeError("DB_POOL_WAIT_MS must be between 50 and 1000")
         if self.reservation_mode not in {"postgres", "redis-first"}:

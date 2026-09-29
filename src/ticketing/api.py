@@ -55,7 +55,7 @@ async def observe_event_loop_lag(interval_seconds: float = 0.05):
 async def lifespan(app):
     settings.validate()
     configure_logging()
-    db = Postgres(settings.database_url, settings.pool_max, settings.pool_wait_ms)
+    db = Postgres(settings.database_url, settings.pool_max, settings.pool_wait_ms, settings.pool_max_waiting)
     cache = RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
     app.state.db, app.state.cache = db, cache
     durable = PostgresReservations(db, cache, settings.hold_seconds)
@@ -313,9 +313,7 @@ def availability(event_id: UUID, request: Request, if_none_match: Conditional = 
 )
 def deltas(event_id: UUID, request: Request, since: int = 0, incarnation: str | None = None):
     """Changes since a composite snapshot cursor; reuse incarnation and version."""
-    return JSONResponse(
-        content=request.app.state.cache.deltas(str(event_id), since, incarnation)
-    )
+    return JSONResponse(content=request.app.state.cache.deltas(str(event_id), since, incarnation))
 
 
 HOLD_RESPONSES = {
@@ -349,6 +347,7 @@ def hold(body: HoldInput, who: Actor, svc: Service, key: Key, request: Request):
 def reservation_command(event_id: UUID, command_id: UUID, who: Actor, request: Request):
     """Poll provisional Redis-first intake until it becomes DURABLE or FAILED."""
     return request.app.state.reservation_intake.status(event_id, command_id, who)
+
 
 @app.get("/v1/holds/{hold_id}", tags=["Reservations"], responses=ERRORS)
 def get_hold(hold_id: UUID, who: Actor, svc: Service):

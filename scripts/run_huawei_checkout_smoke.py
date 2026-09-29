@@ -30,6 +30,7 @@ parser.add_argument("--paid-concurrency", type=int, default=100)
 parser.add_argument("--paid-poll-seconds", type=float, default=0.2)
 parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8), default=4)
 parser.add_argument("--consumer-candidate", type=int, choices=(1, 2), default=1)
+parser.add_argument("--api-pool-waiters-candidate", type=int, choices=(3, 12), default=3)
 parser.add_argument("--shows", type=int, default=2)
 parser.add_argument("--viewers", type=int, default=20)
 args = parser.parse_args()
@@ -68,9 +69,20 @@ transport = Transport("ssh", "scp", logs, KEY)
 prefix = [
     "env",
     f"FLASH_TICKETING_BACKEND_DIR={BACKEND}",
+    f"API_POOL_MAX_WAITING={args.api_pool_waiters_candidate}",
     "sh",
     f"{BACKEND}/scripts/huawei_capacity_backend.sh",
 ]
+rollback_prefix = [
+    "env",
+    f"FLASH_TICKETING_BACKEND_DIR={BACKEND}",
+    "API_POOL_MAX_WAITING=3",
+    "sh",
+    f"{BACKEND}/scripts/huawei_capacity_backend.sh",
+]
+waiter_check = (
+    f'cd {BACKEND}; for id in $({COMPOSE} ps -q api); do docker exec "$id" printenv DB_POOL_MAX_WAITING; done'
+)
 state = {"run": RUN, "phases": [], "pass": False, "error": None}
 deployed = prepared = probe_attempted = observer_started = simulator_changed = False
 
@@ -136,6 +148,11 @@ try:
         ],
         300,
     )
+    waiting_values = step(
+        "api-pool-waiters-candidate", API_HOST, ["sh", "-lc", waiter_check], 30
+    ).stdout.splitlines()
+    if waiting_values != [str(args.api_pool_waiters_candidate)] * 4:
+        raise RuntimeError("Candidate API waiter cap not active on all four replicas")
     if args.simulator_concurrency_candidate != 4:
         simulator_config = (
             f'cd {BACKEND}; id=$({COMPOSE} ps -q simulator); test -n "$id"; '
@@ -388,7 +405,7 @@ finally:
             state["pass"] = False
     if deployed:
         try:
-            step("rollback", API_HOST, prefix + ["rollback", RUN], 300)
+            step("rollback", API_HOST, rollback_prefix + ["rollback", RUN], 300)
             transport.copy_from(
                 "rollback-result",
                 API_HOST,
@@ -396,6 +413,9 @@ finally:
                 OUT / "rollback.json",
             )
             state["pass"] = state["pass"] and json.loads((OUT / "rollback.json").read_text())["pass"]
+            restored_waiters = backend_exec("api-pool-waiters-restored", waiter_check, 30).stdout.splitlines()
+            state["api_pool_waiters_restored"] = restored_waiters == ["3"] * 4
+            state["pass"] = state["pass"] and state["api_pool_waiters_restored"]
         except Exception as exc:  # noqa: BLE001 - always attempt teardown
             state["error"] = (state["error"] or "") + "; rollback: " + str(exc)
             state["pass"] = False

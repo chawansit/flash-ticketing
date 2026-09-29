@@ -29,12 +29,14 @@ def record_slow_db_phase(phase: str, duration: float, outcome: str = "ok") -> No
     if duration >= SLOW_DB_PHASE_SECONDS:
         logger.warning(
             "slow_db_phase",
-            extra={"fields": {
-                "event": "slow_db_phase",
-                "phase": phase,
-                "duration_ms": round(duration * 1000, 3),
-                "outcome": outcome,
-            }},
+            extra={
+                "fields": {
+                    "event": "slow_db_phase",
+                    "phase": phase,
+                    "duration_ms": round(duration * 1000, 3),
+                    "outcome": outcome,
+                }
+            },
         )
 
 
@@ -53,14 +55,14 @@ class MeasuredCursor(Cursor):
 
 
 class Postgres:
-    def __init__(self, url: str, maximum: int = 12, wait_ms: int = 150):
+    def __init__(self, url: str, maximum: int = 12, wait_ms: int = 150, maximum_waiting: int | None = None):
         self.pool = ConnectionPool(
             url,
             open=True,
             min_size=1,
             max_size=maximum,
             timeout=wait_ms / 1000,
-            max_waiting=maximum,
+            max_waiting=maximum if maximum_waiting is None else maximum_waiting,
             kwargs={"row_factory": dict_row, "prepare_threshold": None, "cursor_factory": MeasuredCursor},
         )
 
