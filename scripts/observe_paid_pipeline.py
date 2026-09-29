@@ -8,6 +8,7 @@ import socket
 import time
 from datetime import UTC, datetime
 from pathlib import Path
+from urllib.parse import urlsplit
 from urllib.request import urlopen
 
 import psycopg
@@ -63,18 +64,24 @@ def api_metrics(address):
 
 
 def worker_counters(role, operation, url):
-    result = {}
-    with urlopen(url, timeout=2) as response:
-        for line in response.read().decode("utf-8").splitlines():
-            if not line or line.startswith("#") or " " not in line:
-                continue
-            name, value = line.rsplit(" ", 1)
-            if name == f'ticketing_worker_operations_total{{operation="{operation}",outcome="ok"}}':
-                result[f"{role}_calls"] = float(value)
-            elif name == f'ticketing_worker_busy_seconds_total{{operation="{operation}"}}':
-                result[f"{role}_busy_seconds"] = float(value)
-            elif name == f'ticketing_worker_active{{operation="{operation}"}}':
-                result[f"{role}_active"] = float(value)
+    parsed = urlsplit(url)
+    addresses = api_replicas(parsed.hostname, parsed.port or 80)
+    result = {f"{role}_replicas": len(addresses)}
+    for address in addresses:
+        with urlopen(f"http://{address}:{parsed.port or 80}{parsed.path}", timeout=2) as response:
+            for line in response.read().decode("utf-8").splitlines():
+                if not line or line.startswith("#") or " " not in line:
+                    continue
+                name, value = line.rsplit(" ", 1)
+                if name == f'ticketing_worker_operations_total{{operation="{operation}",outcome="ok"}}':
+                    key = f"{role}_calls"
+                elif name == f'ticketing_worker_busy_seconds_total{{operation="{operation}"}}':
+                    key = f"{role}_busy_seconds"
+                elif name == f'ticketing_worker_active{{operation="{operation}"}}':
+                    key = f"{role}_active"
+                else:
+                    continue
+                result[key] = result.get(key, 0) + float(value)
     return result
 
 

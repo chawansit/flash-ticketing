@@ -46,3 +46,30 @@ def test_summary_aggregates_counter_deltas_and_per_replica_peaks():
     assert api["counter_deltas"]["db_503:PoolTimeout"] == 5
     assert api["pool_peaks_per_replica"]["pool_in_use"] == 7
     assert api["counter_reset_detected"] is False
+
+
+def test_worker_counters_sum_both_consumer_replicas(monkeypatch):
+    monkeypatch.setattr(observe_paid_pipeline, "api_replicas", lambda host, port: ["replica-a", "replica-b"])
+
+    def open_metric(url, timeout):
+        count = 10 if "replica-a" in url else 12
+        return BytesIO(
+            (
+                'ticketing_worker_operations_total{operation="consume_event",outcome="ok"} '
+                f"{count}\n"
+                'ticketing_worker_busy_seconds_total{operation="consume_event"} '
+                f"{count / 2}\n"
+                'ticketing_worker_active{operation="consume_event"} 1\n'
+            ).encode()
+        )
+
+    monkeypatch.setattr(observe_paid_pipeline, "urlopen", open_metric)
+    result = observe_paid_pipeline.worker_counters(
+        "consumer", "consume_event", "http://consumer:9101/metrics"
+    )
+    assert result == {
+        "consumer_replicas": 2,
+        "consumer_calls": 22,
+        "consumer_busy_seconds": 11,
+        "consumer_active": 2,
+    }

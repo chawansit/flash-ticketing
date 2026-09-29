@@ -117,3 +117,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0079: Omit zero-length bootstrap seat-map delta entries](0079-omit-zero-length-bootstrap-deltas.md)
 - [0080: Batch read-only durability audit by load run](0080-batch-read-only-durability-audit.md)
 - [0081: Bound development payment-simulator concurrency during paid-ticket validation](0081-bound-development-payment-simulator-concurrency.md)
+- [0082: Test two Kafka consumers for paid-ticket fulfillment](0082-two-consumer-paid-fulfillment-diagnostic.md)

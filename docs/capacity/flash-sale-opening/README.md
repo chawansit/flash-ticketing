@@ -262,3 +262,27 @@ was found, queues drained, synthetic fixtures were retired, and the simulator
 and API topology were restored. This integrity result does not change either
 strict stage failure. See the [redacted API-pool comparison](paid-ticket-api-pool-2026-09-29.json).
 A one-hour 300,000-ticket result remains unmeasured.
+
+
+## Two-consumer paid-fulfillment diagnostic
+
+Under [ADR 0082](../../adr/0082-two-consumer-paid-fulfillment-diagnostic.md),
+one bounded repeat changed only the Kafka consumer count from one to two.
+The 30 paid-journeys/s, 60-second development stage sent all 1,800
+scheduled journeys with zero generator drops. Peak PAID orders awaiting a
+ticket fell from 296 to 9 and hold-to-ticket p95 from 24.91 to 1.11 seconds.
+The quicker completion also reduced physical order-status GETs from 13,674
+to 5,149, though fixture and timing variability prevent attributing every
+difference to the consumer change.
+
+The strict stage **still failed**: four order GETs and one payment POST
+returned 503. Per-replica API metrics recorded 12 DB-pool
+`TooManyRequests` failures across all routes. No retry hid these
+responses. After TTL, the 1,799 paid orders each had one ticket and the
+payment-rejected order expired; 5,397 callback delivery targets completed,
+zero double-booking was found and every queue drained. The fixture was
+retired; rollback restored one consumer and the original simulator setting.
+The [redacted one-versus-two comparison](paid-ticket-two-consumers-2026-09-29.json)
+is a diagnostic, not a passed production capacity test. The next isolated
+work is removing API pool 503s without extending transaction time or
+weakening the strict ticket gate, then repeating the two-consumer stage.

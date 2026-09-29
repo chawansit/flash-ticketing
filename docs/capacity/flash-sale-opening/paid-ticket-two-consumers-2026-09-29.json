@@ -1,0 +1,194 @@
+{
+  "date_utc": "2026-09-29",
+  "application_revision": "cdbba10fd58ffd13c8e763a2bace2a17927a6adb",
+  "workload": "30 scheduled paid journeys/s for 60s, 500 max in-flight, 0.2s status polling, simulator 8 threads, four API replicas, no retries, three callback deliveries",
+  "comparison_caveat": "Different fresh fixture and run, no strict stage pass; this identifies a likely fulfillment constraint but is not a production capacity certification.",
+  "comparisons": [
+    {
+      "label": "one_consumer",
+      "consumer_replicas_observed": 1,
+      "strict_stage_pass": false,
+      "scheduled": 1800,
+      "dispatched": 1757,
+      "generator_drops": 43,
+      "fulfilled_by_deadline": 1742,
+      "unexpected_outcomes": {
+        "order_http_503": 14,
+        "payment_http_503": 1
+      },
+      "physical_http_attempts": {
+        "holds": 1757,
+        "reservation_commands": 2263,
+        "payments": 1757,
+        "orders": 13674
+      },
+      "retry_attempts": 0,
+      "hold_to_ticket_p95_ms": 24906.990752002457,
+      "payment_to_ticket_p95_ms": 20558.719897991978,
+      "peak_paid_unfulfilled": 296,
+      "peak_pending_callback_deliveries": 29,
+      "consumer_busy_seconds": 51.72346101736184,
+      "consumer_max_active": 1.0,
+      "api": {
+        "observed_replicas": 4,
+        "counter_deltas": {
+          "db_503:TooManyRequests": 28.0,
+          "http_503:/v1/orders/{order_id}:GET": 14.0,
+          "pool_acquire:ok": 20763.0,
+          "pool_acquire:error": 28.0,
+          "http_503:/v1/orders/{order_id}/payments:POST": 1.0
+        },
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 2.0,
+          "pool_in_use": 3.0,
+          "pool_state:pool_size": 3.0,
+          "pool_state:pool_available": 3.0,
+          "pool_state:requests_waiting": 1.0,
+          "pool_state:pool_max": 3.0
+        },
+        "counter_reset_detected": false
+      },
+      "api_metrics_errors": 0,
+      "post_ttl_audit": {
+        "orders": 1757,
+        "fulfilled_orders": 1756,
+        "expired_orders": 1,
+        "pending_orders": 0,
+        "payment_attempts": 1756,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 1756,
+        "bookings": 1756,
+        "tickets": 1756,
+        "payment_callbacks": 1756,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 5268,
+        "callback_delivery_target": 5268,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 1757,
+        "expected_paid": 1756,
+        "pass": true
+      },
+      "post_ttl_queue": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "active_fixture_holds": 0,
+        "overdue_fixture_holds": 0,
+        "pending_fixture_orders": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "pass": true
+      },
+      "rollback": {
+        "restored_admission": 4,
+        "restored_reservation_mode": "postgres",
+        "restored_reservation_writer_batch_size": 1,
+        "restored_reservation_max_command_age_seconds": 0,
+        "reservation_writer_replicas": 0,
+        "api_replicas": 4,
+        "maintenance_replicas": 1,
+        "refresh_replicas": 0,
+        "expiry_replicas": 0,
+        "consumer_replicas": 1,
+        "pass": true
+      },
+      "simulator_restored": true
+    },
+    {
+      "label": "two_consumers",
+      "consumer_replicas_observed": 2,
+      "strict_stage_pass": false,
+      "scheduled": 1800,
+      "dispatched": 1800,
+      "generator_drops": 0,
+      "fulfilled_by_deadline": 1795,
+      "unexpected_outcomes": {
+        "payment_http_503": 1,
+        "order_http_503": 4
+      },
+      "physical_http_attempts": {
+        "holds": 1800,
+        "reservation_commands": 3892,
+        "payments": 1800,
+        "orders": 5149
+      },
+      "retry_attempts": 0,
+      "hold_to_ticket_p95_ms": 1107.4036750069354,
+      "payment_to_ticket_p95_ms": 715.957754990086,
+      "peak_paid_unfulfilled": 9,
+      "peak_pending_callback_deliveries": 73,
+      "consumer_busy_seconds": 56.88348544033943,
+      "consumer_max_active": 2.0,
+      "api": {
+        "observed_replicas": 4,
+        "counter_deltas": {
+          "pool_acquire:error": 12.0,
+          "http_503:/v1/orders/{order_id}:GET": 4.0,
+          "pool_acquire:ok": 12571.0,
+          "db_503:TooManyRequests": 12.0,
+          "http_503:/v1/orders/{order_id}/payments:POST": 1.0
+        },
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 2.0,
+          "pool_in_use": 3.0,
+          "pool_state:pool_size": 3.0,
+          "pool_state:pool_available": 3.0,
+          "pool_state:requests_waiting": 2.0,
+          "pool_state:pool_max": 3.0
+        },
+        "counter_reset_detected": false
+      },
+      "api_metrics_errors": 0,
+      "post_ttl_audit": {
+        "orders": 1800,
+        "fulfilled_orders": 1799,
+        "expired_orders": 1,
+        "pending_orders": 0,
+        "payment_attempts": 1799,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 1799,
+        "bookings": 1799,
+        "tickets": 1799,
+        "payment_callbacks": 1799,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 5397,
+        "callback_delivery_target": 5397,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 1800,
+        "expected_paid": 1799,
+        "pass": true
+      },
+      "post_ttl_queue": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "active_fixture_holds": 0,
+        "overdue_fixture_holds": 0,
+        "pending_fixture_orders": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "pass": true
+      },
+      "rollback": {
+        "restored_admission": 4,
+        "restored_reservation_mode": "postgres",
+        "restored_reservation_writer_batch_size": 1,
+        "restored_reservation_max_command_age_seconds": 0,
+        "reservation_writer_replicas": 0,
+        "api_replicas": 4,
+        "maintenance_replicas": 1,
+        "refresh_replicas": 0,
+        "expiry_replicas": 0,
+        "consumer_replicas": 1,
+        "pass": true
+      },
+      "simulator_restored": true
+    }
+  ]
+}

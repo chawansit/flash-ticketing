@@ -29,6 +29,7 @@ parser.add_argument("--paid-seconds", type=int, default=30)
 parser.add_argument("--paid-concurrency", type=int, default=100)
 parser.add_argument("--paid-poll-seconds", type=float, default=0.2)
 parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8), default=4)
+parser.add_argument("--consumer-candidate", type=int, choices=(1, 2), default=1)
 parser.add_argument("--shows", type=int, default=2)
 parser.add_argument("--viewers", type=int, default=20)
 args = parser.parse_args()
@@ -124,7 +125,7 @@ try:
             str(args.admission_rollback),
             "1",
             "1",
-            "1",
+            str(args.consumer_candidate),
             "1",
             "0",
             "redis-first",
@@ -347,6 +348,7 @@ finally:
                 )
                 state["observer_pass"] = (
                     observer_summary["api"]["observed_replicas"] == 4
+                    and observer_summary["consumer"]["max_replicas"] == args.consumer_candidate
                     and observer_summary["api_metrics_errors"] == 0
                     and observer_summary["database_errors"] == 0
                 )

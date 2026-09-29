@@ -43,6 +43,7 @@ def summarize(rows):
                 else None
             ),
             "max_active": max((row.get(f"{role}_active", 0) for row in rows), default=None),
+            "max_replicas": max((row.get(f"{role}_replicas", 0) for row in rows), default=None),
             "metrics_errors": sum(f"{role}_metrics_error" in row for row in rows),
         }
     result["database_errors"] = sum("database_error" in row for row in rows)
