@@ -1,0 +1,68 @@
+{
+  "date_utc": "2026-09-29",
+  "source_revision": "517e56fbb8db92f0a29e6f1cd28aa487e731003c",
+  "profile": "60 paid journeys/s for 60s, one callback/payment, four consumers, 500 generator in-flight, zero retries, 12 isolated shows x 300 seats",
+  "strict_pass": false,
+  "scheduled": 3600,
+  "dispatched": 2719,
+  "generator_drops": 881,
+  "fulfilled_by_deadline": 2719,
+  "unexpected_outcomes": {},
+  "dispatch_lag_p95_ms": 54.32054732227698,
+  "dispatch_lag_max_ms": 2134.4690846453886,
+  "phase_p95_ms": {
+    "hold_http_p95_ms": 8333.87888802099,
+    "command_durable_wait_p95_ms": 8278.537930018501,
+    "durable_p95_ms": 13226.014382991707,
+    "payment_http_p95_ms": 8254.537807020824,
+    "ticket_wait_p95_ms": 11224.397143989336,
+    "payment_to_ticket_p95_ms": 15780.16015700996,
+    "hold_to_ticket_p95_ms": 23002.932452014647
+  },
+  "kafka_lag": {
+    "samples": 27,
+    "sample_errors": 0,
+    "max_total_lag": 299,
+    "max_partition_lag": 109,
+    "partition_lag_peaks": {
+      "1": 103,
+      "0": 109,
+      "3": 61,
+      "2": 70,
+      "5": 10,
+      "4": 10
+    },
+    "last_total_lag": 0,
+    "members_min": 4,
+    "members_max": 4,
+    "drain_after_peak_seconds": 16.576972
+  },
+  "pipeline_peaks": {
+    "pending_orders": 275,
+    "paid_unfulfilled": 66,
+    "pending_callback_deliveries": 55,
+    "unpublished_outbox": 23,
+    "db_lock_waiters": 0
+  },
+  "api_counter_deltas": {
+    "pool_acquire:ok": 11041.0
+  },
+  "post_ttl_audit": {
+    "orders": 2719,
+    "fulfilled_orders": 2719,
+    "succeeded_payments": 2719,
+    "bookings": 2719,
+    "tickets": 2719,
+    "callback_delivery_attempts": 2719,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "pass": true
+  },
+  "fixture_retired": true,
+  "rollback_pass": true,
+  "api_pool_waiters_restored": true,
+  "simulator_restored": true,
+  "interpretation": "All four journey phases have long tails. Percentiles are calculated independently and must not be added. Kafka lag drained and PAID backlog was moderate, so no single fulfillment-only explanation is supported. API process vs database/pooler time requires direct metric sampling."
+}

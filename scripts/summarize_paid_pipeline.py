@@ -55,10 +55,11 @@ def summarize(rows):
     counters = {}
     pool_peaks = {}
     counter_reset = False
+    event_loop_lag_peak = 0.0
     for samples in replica_samples.values():
         first, last = samples[0], samples[-1]
         for name in set(first) | set(last):
-            if name.startswith(("http_503:", "db_503:", "pool_acquire:")):
+            if name.startswith(("http_503:", "db_503:", "pool_acquire:", "duration:")):
                 delta = last.get(name, 0) - first.get(name, 0)
                 if delta < 0:
                     counter_reset = True
@@ -68,9 +69,21 @@ def summarize(rows):
             for name, value in metrics.items():
                 if name.startswith("pool_state:") or name in ("pool_acquiring", "pool_in_use"):
                     pool_peaks[name] = max(pool_peaks.get(name, 0), value)
+                if name == "event_loop_lag_current":
+                    event_loop_lag_peak = max(event_loop_lag_peak, value)
+    durations = {}
+    for key, count in counters.items():
+        if not key.startswith("duration:") or not key.endswith(":count") or count <= 0:
+            continue
+        prefix = key.rsplit(":", 1)[0]
+        total = counters.get(prefix + ":sum")
+        if total is not None:
+            durations[prefix.removeprefix("duration:")] = 1000 * total / count
     result["api"] = {
         "observed_replicas": len(replica_samples),
-        "counter_deltas": counters,
+        "counter_deltas": {key: value for key, value in counters.items() if not key.startswith("duration:")},
+        "duration_mean_ms": durations,
+        "event_loop_lag_current_peak_ms": 1000 * event_loop_lag_peak,
         "pool_peaks_per_replica": pool_peaks,
         "counter_reset_detected": counter_reset,
     }

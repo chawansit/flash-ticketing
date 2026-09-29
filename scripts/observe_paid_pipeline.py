@@ -27,6 +27,16 @@ API_METRIC_NAMES = (
     "ticketing_db_pool_acquiring",
     "ticketing_db_pool_in_use",
     "ticketing_db_pool_state",
+    "ticketing_db_query_seconds_sum",
+    "ticketing_db_query_seconds_count",
+    "ticketing_db_commit_seconds_sum",
+    "ticketing_db_commit_seconds_count",
+    "ticketing_db_pool_acquire_seconds_sum",
+    "ticketing_db_connection_hold_seconds_sum",
+    "ticketing_db_connection_hold_seconds_count",
+    "ticketing_event_loop_lag_seconds_sum",
+    "ticketing_event_loop_lag_seconds_count",
+    "ticketing_event_loop_lag_current_seconds",
 )
 
 
@@ -53,13 +63,22 @@ def api_metrics(address):
             elif name == "ticketing_db_unavailable_total":
                 result[f"db_503:{labels.get('cause', '')}"] = value
             elif name == "ticketing_db_pool_acquire_seconds_count":
-                result[f"pool_acquire:{labels.get('outcome', '')}"] = value
+                outcome = labels.get("outcome", "")
+                result[f"pool_acquire:{outcome}"] = value
+                result[f"duration:db_pool_acquire:{outcome}:count"] = value
             elif name == "ticketing_db_pool_state":
                 result[f"pool_state:{labels.get('state', '')}"] = value
             elif name == "ticketing_db_pool_acquiring":
                 result["pool_acquiring"] = value
             elif name == "ticketing_db_pool_in_use":
                 result["pool_in_use"] = value
+            elif name == "ticketing_event_loop_lag_current_seconds":
+                result["event_loop_lag_current"] = value
+            elif name.endswith(("_sum", "_count")):
+                duration = name.removeprefix("ticketing_").removesuffix("_seconds_sum").removesuffix("_seconds_count")
+                suffix = "sum" if name.endswith("_sum") else "count"
+                dimension = labels.get("command", labels.get("outcome", "all"))
+                result[f"duration:{duration}:{dimension}:{suffix}"] = value
     return result
 
 

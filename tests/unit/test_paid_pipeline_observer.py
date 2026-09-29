@@ -12,6 +12,10 @@ ticketing_http_requests_total{route="/health/ready",method="GET",status="503"} 1
 ticketing_http_requests_total{route="/v1/payments/simulate",method="POST",status="503"} 2
 ticketing_db_unavailable_total{cause="PoolTimeout"} 4
 ticketing_db_pool_acquire_seconds_count{outcome="timeout"} 7
+ticketing_db_pool_acquire_seconds_sum{outcome="timeout"} 3.5
+ticketing_db_commit_seconds_count 20
+ticketing_db_commit_seconds_sum 0.2
+ticketing_event_loop_lag_current_seconds 0.015
 ticketing_db_pool_state{state="requests_waiting"} 5
 ticketing_db_pool_in_use 12
 """
@@ -22,6 +26,10 @@ ticketing_db_pool_in_use 12
     assert "http_503:/health/ready:GET" not in result
     assert result["db_503:PoolTimeout"] == 4
     assert result["pool_acquire:timeout"] == 7
+    assert result["duration:db_pool_acquire:timeout:count"] == 7
+    assert result["duration:db_pool_acquire:timeout:sum"] == 3.5
+    assert result["duration:db_commit:all:count"] == 20
+    assert result["event_loop_lag_current"] == 0.015
     assert result["pool_state:requests_waiting"] == 5
     assert result["pool_in_use"] == 12
 
@@ -30,14 +38,20 @@ def test_summary_aggregates_counter_deltas_and_per_replica_peaks():
     rows = [
         {
             "api_replicas": {
-                "a": {"db_503:PoolTimeout": 2, "pool_in_use": 4},
-                "b": {"db_503:PoolTimeout": 5, "pool_in_use": 6},
+                "a": {"db_503:PoolTimeout": 2, "pool_in_use": 4,
+                      "duration:db_commit:all:count": 10, "duration:db_commit:all:sum": 0.1,
+                      "event_loop_lag_current": 0.01},
+                "b": {"db_503:PoolTimeout": 5, "pool_in_use": 6,
+                      "duration:db_commit:all:count": 10, "duration:db_commit:all:sum": 0.1},
             }
         },
         {
             "api_replicas": {
-                "a": {"db_503:PoolTimeout": 4, "pool_in_use": 7},
-                "b": {"db_503:PoolTimeout": 8, "pool_in_use": 3},
+                "a": {"db_503:PoolTimeout": 4, "pool_in_use": 7,
+                      "duration:db_commit:all:count": 20, "duration:db_commit:all:sum": 0.3,
+                      "event_loop_lag_current": 0.02},
+                "b": {"db_503:PoolTimeout": 8, "pool_in_use": 3,
+                      "duration:db_commit:all:count": 30, "duration:db_commit:all:sum": 0.5},
             }
         },
     ]
@@ -45,6 +59,8 @@ def test_summary_aggregates_counter_deltas_and_per_replica_peaks():
     assert api["observed_replicas"] == 2
     assert api["counter_deltas"]["db_503:PoolTimeout"] == 5
     assert api["pool_peaks_per_replica"]["pool_in_use"] == 7
+    assert round(api["duration_mean_ms"]["db_commit:all"], 3) == 20.0
+    assert api["event_loop_lag_current_peak_ms"] == 20.0
     assert api["counter_reset_detected"] is False
 
 

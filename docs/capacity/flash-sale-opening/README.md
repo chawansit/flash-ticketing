@@ -1,8 +1,8 @@
 # Flash-sale opening workload
 
-Status: two Huawei opening profiles measured; end-to-end ticket
-capacity has **not yet been measured**. This profile changes only the load generator and
-stage fixture calculation. It does not add a waiting room or change reservation,
+Status: two Huawei request-opening profiles and bounded one-minute paid-ticket
+stages measured. **One-hour paid-ticket capacity remains unverified.** The original
+opening profile changes only the load generator and stage fixture calculation. It does not add a waiting room or change reservation,
 payment, or persistence architecture.
 
 ## Demand and sale objective
@@ -401,3 +401,23 @@ HTTP request, command-durability wait, payment-initiation HTTP request
 and ticket wait, in addition to end-to-end spans. These fields contain
 only aggregate timings. The next same-rate diagnostic can identify
 which upstream phase grows at 60/s without changing the sale path.
+
+A same-profile 60/s repeat on revision 517e56f with the new timing
+fields also **failed**: 2,719/3,600 dispatched, 881 generator drops,
+and every dispatched buyer eventually got a unique paid ticket.
+Independent p95s were 8.33 s for hold HTTP, 8.28 s for the later
+command-durability wait, 8.25 s for payment-initiation HTTP, and
+11.22 s for ticket wait. These p95 values come from different buyers
+and must not be summed. Kafka lag peaked at 299 then drained; no
+API DB-pool rejection or sampled DB lock waiter was observed. The
+post-TTL audit and rollback passed. Multiple phases slowed together,
+so the next diagnostic should sample API event-loop, DB query/commit
+and pool wait durations along with host/RDS resource use. See the
+[redacted phase timing](paid-ticket-phase-timing-2026-09-29.json).
+
+The paid pipeline observer now also records redacted mean client-side
+DB query, commit, connection-hold and pool-acquisition durations from
+per-replica Prometheus counter deltas, plus the highest sampled API
+event-loop lag gauge. These are diagnostics, not substitutes for
+per-request p95s or Cloud Eye RDS CPU/storage metrics. A further
+same-profile stage is required to populate them.
