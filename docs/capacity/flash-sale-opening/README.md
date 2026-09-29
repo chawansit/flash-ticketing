@@ -91,3 +91,28 @@ Evidence: [strict stage verdict](stages/opening-250/stage-result.json),
 [post-TTL audit](stages/opening-250/durability.json), and
 [rollback](stages/opening-250/rollback.json).
 
+
+## Second opening probe: request path passed, stage failed
+
+The base-300 stage on revision 79ed9ea immediately offered 1,200 RPS for
+30 seconds, then 600 RPS for 90 seconds and 300 RPS for 180 seconds. All
+144,000 scheduled requests were sent once: 135,356 reads returned HTTP 200
+and 8,644 holds returned provisional HTTP 202, with zero generator drops,
+transport errors, retries or admission rejections. Worst-worker read/hold p95
+was 11.67/24.16 ms. Post-TTL audit verified all 8,644 accepted holds,
+zero overlapping seat intervals, zero broken links and empty queues;
+rollback passed. Synthetic fixtures were retired afterward.
+
+**The strict stage verdict is failed.** The first observer-stop command
+returned exit code 1, although the second cleanup attempt completed and
+the other gates passed. The original helper produced no failure reason.
+The raw observer files and compact summaries were present, so the
+available evidence cannot identify which individual check failed.
+A follow-up change records explicit observer failure labels and preserves
+them in compact evidence. Do not promote this result to a passed
+opening-sale capacity point or rerun merely to obtain a pass.
+
+Evidence: [failed stage verdict](stages/opening-300-first/stage-result.json),
+[generator summary](stages/opening-300-first/generator-summary.json),
+[post-TTL audit](stages/opening-300-first/durability.json), and
+[rollback](stages/opening-300-first/rollback.json).

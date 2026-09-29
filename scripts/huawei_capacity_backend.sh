@@ -379,6 +379,7 @@ case "${1:-}" in
   observe)
     [ "$#" -eq 3 ]
     run_paths "$2"
+    : > "$public/observer-stop-errors.txt"
     seconds=$3
     date -u '+%Y-%m-%dT%H:%M:%SZ' > "$private/observe-start"
     urls=""
@@ -420,29 +421,36 @@ case "${1:-}" in
     done
     docker rm -f "ft-rds-wait-$2" >/dev/null 2>&1 || true
     observer_failed=0
-    [ -s "$raw/cpu.json" ] || observer_failed=1
+    observer_errors="$public/observer-stop-errors.txt"
+    [ -f "$observer_errors" ] || : > "$observer_errors"
+    observer_fail() {
+      observer_failed=1
+      printf '%s\n' "$1" >> "$observer_errors"
+    }
+    [ -s "$raw/cpu.json" ] || observer_fail cpu_sample_missing
     if [ -s "$raw/rds-waits.jsonl" ]; then
       python3 scripts/summarize_rds_waits.py "$raw/rds-waits.jsonl" > \
-        "$public/rds-waits-summary.json" || observer_failed=1
+        "$public/rds-waits-summary.json" || observer_fail rds_wait_summary
     else
-      observer_failed=1
+      observer_fail rds_wait_sample_missing
     fi
     api=$(api_id)
     if docker cp "$api":/tmp/capacity-delta-chain.jsonl "$raw/delta-chain.jsonl" 2>/dev/null; then
-      python3 scripts/summarize_seat_delta_chain.py "$raw/delta-chain.jsonl" > "$public/delta-chain-summary.json" || observer_failed=1
+      python3 scripts/summarize_seat_delta_chain.py "$raw/delta-chain.jsonl" > "$public/delta-chain-summary.json" || observer_fail delta_chain_summary
     else
-      observer_failed=1
+      observer_fail delta_chain_sample_missing
     fi
     docker cp "$api":/tmp/capacity-pgbouncer.jsonl "$raw/pgbouncer.jsonl" 2>/dev/null || true
     if docker cp "$api":/tmp/capacity-backend.json "$raw/backend.json" 2>/dev/null; then
-      python3 scripts/summarize_drain_trace.py "$raw/backend.json" > "$public/drain-trace-summary.json" || observer_failed=1
+      python3 scripts/summarize_drain_trace.py "$raw/backend.json" > "$public/drain-trace-summary.json" || observer_fail drain_trace_summary
       if [ -s "$raw/kafka-lag.ndjson" ]; then
-        python3 scripts/summarize_refresh_pipeline.py "$raw/backend.json"           "$raw/kafka-lag.ndjson" > "$public/refresh-pipeline-summary.json" || observer_failed=1
+        python3 scripts/summarize_refresh_pipeline.py "$raw/backend.json" \
+          "$raw/kafka-lag.ndjson" > "$public/refresh-pipeline-summary.json" || observer_fail refresh_pipeline_summary
       else
-        observer_failed=1
+        observer_fail kafka_lag_sample_missing
       fi
     else
-      observer_failed=1
+      observer_fail backend_sample_missing
     fi
     since=$(cat "$private/observe-start")
     index=0
@@ -457,22 +465,29 @@ case "${1:-}" in
     if [ -n "$writer_ids" ]; then
       writer_metrics="$raw/reservation-writer-metrics.prom"
       : > "$writer_metrics"
+      writer_logs="$raw/reservation-writer.log"
+      : > "$writer_logs"
       for id in $writer_ids; do
         ip=$(docker inspect -f '{{(index .NetworkSettings.Networks "flash-ticketing_default").IPAddress}}' "$id")
-        curl -fsS "http://$ip:9101/metrics" >> "$writer_metrics" || observer_failed=1
-        docker logs --since "$since" "$id" 2>&1
-      done | python3 scripts/summarize_reservation_writer_logs.py --limit 20 > \
-        "$public/reservation-writer-summary.json" || observer_failed=1
+        curl -fsS "http://$ip:9101/metrics" >> "$writer_metrics" 2>/dev/null || observer_fail writer_metrics_http
+        docker logs --since "$since" "$id" >> "$writer_logs" 2>&1 || observer_fail writer_log_collection
+      done
+      python3 scripts/summarize_reservation_writer_logs.py --limit 20 < "$writer_logs" > \
+        "$public/reservation-writer-summary.json" || observer_fail writer_log_summary
       if [ -s "$writer_metrics" ]; then
         python3 scripts/summarize_reservation_writer_metrics.py < "$writer_metrics" > \
-          "$public/reservation-writer-metrics.json" || observer_failed=1
+          "$public/reservation-writer-metrics.json" || observer_fail writer_metrics_summary
       else
-        observer_failed=1
+        observer_fail writer_metrics_sample_missing
       fi
     else
-      observer_failed=1
+      observer_fail writer_replicas_missing
     fi
-    [ "$index" -eq 4 ] && [ "$observer_failed" -eq 0 ]
+    [ "$index" -eq 4 ] || observer_fail api_replica_count
+    if [ "$observer_failed" -ne 0 ]; then
+      cat "$observer_errors" >&2
+      exit 1
+    fi
     ;;
   audit)
     [ "$#" -eq 2 ]

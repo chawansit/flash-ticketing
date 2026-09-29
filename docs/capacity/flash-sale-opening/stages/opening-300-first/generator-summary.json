@@ -1,0 +1,105 @@
+{
+  "utc": "2026-09-29T02:43:12.732882+00:00",
+  "hot_read_share": 0,
+  "burst": false,
+  "opening_burst": true,
+  "arrival_phases": [
+    {
+      "rate": 1200,
+      "seconds": 30
+    },
+    {
+      "rate": 600,
+      "seconds": 90
+    },
+    {
+      "rate": 300,
+      "seconds": 180
+    }
+  ],
+  "mixed_hot_holds": false,
+  "reservation_mode": "redis-first",
+  "read_mode": "delta",
+  "write_percent": 6,
+  "reservation_mode_gate_pass": true,
+  "keepalive_expiry_seconds": 5.0,
+  "rate": 300,
+  "seconds": 300,
+  "start_delay_seconds": 15.0,
+  "workers": 8,
+  "worker_rates": [
+    38,
+    38,
+    38,
+    38,
+    37,
+    37,
+    37,
+    37
+  ],
+  "worker_exit_codes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "start_skew_ms": 0.9470000000000001,
+  "generator_drops": 0,
+  "late_deliveries": 0,
+  "physical_http_attempts": 144000,
+  "delta_observations": {
+    "empty": 68603,
+    "reset": 0,
+    "responses": 135356,
+    "seats": 147876
+  },
+  "first_attempt_failures": {},
+  "retry_attempts": {},
+  "retry_successes": {},
+  "retry_exhausted": {},
+  "attempt_transport_errors": {},
+  "max_attempts": 1,
+  "retry_base_delay_ms": 25.0,
+  "late_delivery_window_ms": 0.0,
+  "worst_worker_read_p95_ms": 11.666317994240671,
+  "worst_worker_hold_p95_ms": 24.159198015695438,
+  "transport_phase_counts": {
+    "hold": {
+      "connection.connect_tcp.started": 11,
+      "connection.connect_tcp.complete": 11,
+      "http11.send_request_headers.started": 8644,
+      "http11.send_request_headers.complete": 8644,
+      "http11.send_request_body.started": 8644,
+      "http11.send_request_body.complete": 8644,
+      "http11.receive_response_headers.started": 8644,
+      "http11.receive_response_headers.complete": 8644,
+      "http11.receive_response_body.started": 8644,
+      "http11.receive_response_body.complete": 8644,
+      "http11.response_closed.started": 8644,
+      "http11.response_closed.complete": 8644
+    },
+    "read": {
+      "connection.connect_tcp.started": 306,
+      "connection.connect_tcp.complete": 306,
+      "http11.send_request_headers.started": 135356,
+      "http11.send_request_headers.complete": 135356,
+      "http11.send_request_body.started": 135356,
+      "http11.send_request_body.complete": 135356,
+      "http11.receive_response_headers.started": 135356,
+      "http11.receive_response_headers.complete": 135356,
+      "http11.receive_response_body.started": 135356,
+      "http11.receive_response_body.complete": 135356,
+      "http11.response_closed.started": 135356,
+      "http11.response_closed.complete": 135356
+    }
+  },
+  "transport_errors": {},
+  "coordination_gate_pass": true,
+  "workload_gate_pass": true,
+  "gate_pass": true,
+  "note": "Disjoint show/viewer partitions. Percentiles are worst-worker values, not merged percentiles."
+}
