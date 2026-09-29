@@ -1,0 +1,75 @@
+{
+  "date_utc": "2026-09-29",
+  "source_revision": "1430f5f",
+  "profile": "60 paid journeys/s for 60 s; two synchronized generator processes; 0.2 s polling; four API replicas and four Kafka consumers; 500 total in-flight; eight simulator threads; 12 DB pool waiters per API; one callback/payment; zero retries; four-route HTTP transport trace",
+  "strict_pass": false,
+  "scheduled": 3600,
+  "dispatched": 2603,
+  "generator_drops": 997,
+  "fulfilled_by_deadline": 2468,
+  "outcomes": {
+    "fulfilled": 2468,
+    "order_http_503": 125,
+    "payment_http_503": 10
+  },
+  "physical_http_attempts": {
+    "holds": 2603,
+    "reservation_commands": 4360,
+    "payments": 2603,
+    "orders": 15214
+  },
+  "transport_phase_p95_ms_mode": "worst shard p95, not combined percentile; GET figures extracted from per-shard records because the original aggregate covered hold/payment only",
+  "transport_phase_p95_ms": {
+    "holds": {
+      "pre_send": 3686.46,
+      "response_header_wait": 54.07
+    },
+    "reservation_commands": {
+      "pre_send": 3343.78,
+      "response_header_wait": 43.41
+    },
+    "payments": {
+      "pre_send": 3767.99,
+      "response_header_wait": 170.34
+    },
+    "orders": {
+      "pre_send": 3733.19,
+      "response_header_wait": 162.23
+    }
+  },
+  "end_to_end_p95_ms": {
+    "hold_to_ticket": 24339.04,
+    "payment_to_ticket": 22149.34
+  },
+  "api": {
+    "db_pool_acquire_errors": 151,
+    "order_get_503": 125,
+    "payment_post_503": 10,
+    "pool_waiting_peak_per_replica": 9,
+    "pool_size_per_replica": 3,
+    "pool_acquire_ok_mean_ms": 17.56,
+    "db_connection_hold_mean_ms": 32.5
+  },
+  "pipeline": {
+    "kafka_group_lag_peak": 939,
+    "kafka_group_lag_last_during_observation": 6,
+    "paid_waiting_ticket_peak": 228,
+    "pending_callbacks_peak": 178
+  },
+  "post_ttl": {
+    "orders": 2603,
+    "paid_orders": 2593,
+    "tickets": 2593,
+    "expired_unpaid_orders": 10,
+    "pending_orders": 0,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "callbacks_delivered": 2593,
+    "pass": true
+  },
+  "queue_drain_pass": true,
+  "rollback_pass": true,
+  "interpretation": "Both status GET classes, hold and payment spend seconds before sending headers, while response-header waits are tens to hundreds of milliseconds. This establishes a shared pre-send bottleneck in the synthetic HTTP client path, without proving its exact internal cause. Concurrent API DB-pool rejections are a separate real backend failure. The stage cannot establish 60/s capacity or one-hour paid-ticket throughput."
+}

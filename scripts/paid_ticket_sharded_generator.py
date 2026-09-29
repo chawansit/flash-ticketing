@@ -66,7 +66,8 @@ def aggregate(shard_results, rate, seconds, concurrency, exit_codes):
         result[name] = max(values) if values else None
     for field in ("transport_phase_p95_ms", "transport_phase_samples"):
         result[field] = {}
-        for route in ("holds", "payments"):
+        routes = sorted({route for row in shard_results for route in row.get(field, {})})
+        for route in routes:
             result[field][route] = {}
             for phase in ("pre_send_ms", "response_wait_ms", "connect_ms"):
                 values = [row.get(field, {}).get(route, {}).get(phase) for row in shard_results]

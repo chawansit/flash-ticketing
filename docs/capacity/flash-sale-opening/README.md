@@ -527,3 +527,19 @@ status GETs, in addition to hold and payment requests. The next same-profile
 60/s diagnostic will show whether those frequent polls are occupying the
 shared client connection pools; this instrumentation does not alter the
 request schedule, application code or correctness gates.
+
+The four-route transport diagnostic at 60/s on revision 1430f5f
+**failed**: 2,603/3,600 dispatched, 997 drops, 125 order GET 503s,
+10 payment POST 503s and 151 API DB-pool acquisition errors. The
+worst-shard pre-send p95 was 3.34 s for reservation-command GET and
+3.73 s for order GET, while response-header waits were 43 and 162 ms.
+Hold and payment showed the same multi-second pre-send pattern. This
+locates a shared synthetic-client bottleneck before HTTP send, but does
+not prove whether pool acquisition, socket management or another client
+factor is responsible. The API DB-pool errors are an independent real
+backend problem. After TTL, 2,593 paid orders had 2,593 unique tickets,
+10 unpaid orders expired, queues drained and rollback passed. The
+original sharded aggregate omitted new GET timing fields, so this
+report uses per-shard values; the aggregator was fixed afterward without
+rerunning the load. See the
+[redacted four-route trace](paid-ticket-status-get-transport-2026-09-29.json).

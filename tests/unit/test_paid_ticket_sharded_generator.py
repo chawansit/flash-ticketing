@@ -59,3 +59,14 @@ def test_aggregate_uses_worse_shard_p95_and_requires_both_pass():
     second["generator_drops"] = 1
     second["pass"] = False
     assert not aggregate([first, second], 60, 60, 500, [0, 1])["pass"]
+
+
+def test_aggregate_keeps_new_status_get_transport_routes():
+    first = shard_result()
+    second = shard_result()
+    for row in (first, second):
+        row["transport_phase_p95_ms"]["orders"] = {"pre_send_ms": 4000, "response_wait_ms": 150}
+        row["transport_phase_samples"]["orders"] = {"pre_send_ms": 500, "response_wait_ms": 500}
+    result = aggregate([first, second], rate=60, seconds=60, concurrency=500, exit_codes=[1, 1])
+    assert result["transport_phase_p95_ms"]["orders"]["pre_send_ms"] == 4000
+    assert result["transport_phase_samples"]["orders"]["pre_send_ms"] == 1000
