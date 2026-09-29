@@ -400,7 +400,7 @@ def test_worker_scaling_is_passed_and_observers_cover_audit(monkeypatch, tmp_pat
     assert fake.deployment_command[-10:] == [
         "2", "1", "2", "1", "1", "redis-first", "2", "8", "60", "10.1.137.69"
     ]
-    assert fake.load_command[-3:] == ["redis-first", "20", "availability"]
+    assert fake.load_command[-4:] == ["redis-first", "20", "availability", "0"]
     phases = [phase for kind, phase in fake.calls if kind == "remote"]
     assert phases.index("durability-audit") < phases.index("stop-observers") < phases.index("rollback")
 
@@ -449,3 +449,22 @@ def test_origin_bind_ip_requires_explicit_ipv4():
     assert stage.origin_bind_ip("http://10.1.137.69:8000") == "10.1.137.69"
     with pytest.raises(ValueError, match="explicit IPv4"):
         stage.origin_bind_ip("http://private.test:8000")
+
+
+
+def test_opening_burst_requires_correct_duration_and_fresh_seat_capacity(monkeypatch, tmp_path):
+    requested = argv(tmp_path / "opening")
+    requested.extend(["--opening-burst", "--dry-run"])
+    monkeypatch.setattr(sys, "argv", requested)
+    with pytest.raises(ValueError, match="exactly 300 seconds"):
+        stage.main()
+
+    requested[requested.index("--seconds") + 1] = "300"
+    monkeypatch.setattr(sys, "argv", requested)
+    with pytest.raises(ValueError, match="insufficient unique seats"):
+        stage.main()
+
+    requested[requested.index("--rate") + 1] = "10"
+    monkeypatch.setattr(sys, "argv", requested)
+    stage.main()
+    assert not (tmp_path / "opening").exists()

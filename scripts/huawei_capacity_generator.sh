@@ -14,9 +14,9 @@ cd "$repo"
 
 case "${1:-}" in
   run)
-    [ "$#" -eq 13 ]
+    [ "$#" -eq 14 ]
     run_id=$2; manifest=$3; rate=$4; seconds=$5; workers=$6; seat_offset=$7
-    max_attempts=$8; retry_base_delay_ms=$9; late_delivery_window_ms=${10}; reservation_mode=${11}; write_percent=${12}; read_mode=${13}
+    max_attempts=$8; retry_base_delay_ms=$9; late_delivery_window_ms=${10}; reservation_mode=${11}; write_percent=${12}; read_mode=${13}; opening_burst=${14}
     run="/root/unattended-$run_id"
     public="$run/public"
     private="$run/private"
@@ -25,15 +25,20 @@ case "${1:-}" in
     cp "$manifest" "$private/manifest.json"
     chmod 600 "$private/manifest.json"
     "$python_bin" scripts/warm_capacity_manifest.py --manifest "$private/manifest.json" --output "$public/warmup.json" --attempts 90
+    if [ "$opening_burst" = 1 ]; then
+      set -- --opening-burst
+    else
+      set --
+    fi
     "$python_bin" scripts/parallel_cloud_load.py --manifest "$private/manifest.json" --output "$public/load" --rate "$rate" --seconds "$seconds" --workers "$workers" --seat-offset "$seat_offset" --transport-diagnostics --keepalive-expiry 5 --start-delay 15 \
       --max-attempts "$max_attempts" --retry-base-delay-ms "$retry_base_delay_ms" \
       --late-delivery-window-ms "$late_delivery_window_ms" \
-      --reservation-mode "$reservation_mode" --write-percent "$write_percent" --read-mode "$read_mode" > "$public/coordinator.log" 2>&1
+      --reservation-mode "$reservation_mode" --write-percent "$write_percent" --read-mode "$read_mode" "$@" > "$public/coordinator.log" 2>&1
     ;;
   start)
-    [ "$#" -eq 13 ]
+    [ "$#" -eq 14 ]
     run_id=$2; manifest=$3; rate=$4; seconds=$5; workers=$6; seat_offset=$7
-    max_attempts=$8; retry_base_delay_ms=$9; late_delivery_window_ms=${10}; reservation_mode=${11}; write_percent=${12}; read_mode=${13}
+    max_attempts=$8; retry_base_delay_ms=$9; late_delivery_window_ms=${10}; reservation_mode=${11}; write_percent=${12}; read_mode=${13}; opening_burst=${14}
     run="/root/unattended-$run_id"
     public="$run/public"
     private="$run/private"
@@ -54,7 +59,7 @@ case "${1:-}" in
       exit "$code"
     ' sh "$private/job.pid" "$repo/scripts/huawei_capacity_generator.sh" "$public/job-status.json" "$limit" \
       "$run_id" "$manifest" "$rate" "$seconds" "$workers" "$seat_offset" \
-      "$max_attempts" "$retry_base_delay_ms" "$late_delivery_window_ms" "$reservation_mode" "$write_percent" "$read_mode" \
+      "$max_attempts" "$retry_base_delay_ms" "$late_delivery_window_ms" "$reservation_mode" "$write_percent" "$read_mode" "$opening_burst" \
       </dev/null > "$public/job-control.log" 2>&1 &
     attempt=0
     while [ ! -f "$private/job.pid" ] && [ ! -f "$public/job-status.json" ] && [ "$attempt" -lt 50 ]; do

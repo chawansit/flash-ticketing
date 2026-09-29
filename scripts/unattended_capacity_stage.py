@@ -143,6 +143,8 @@ def evaluate(output: Path, load_exit: int | None, audit_exit: int | None, admiss
             for key in (
                 "rate",
                 "seconds",
+                "opening_burst",
+                "arrival_phases",
                 "reservation_mode",
                 "write_percent",
                 "generator_drops",
@@ -182,7 +184,12 @@ def validate_args(args: argparse.Namespace) -> None:
         args.hold_expiry_wait,
     ) < 1:
         raise ValueError("Stage limits must be positive")
-    expected_writes = (args.rate * args.seconds * args.write_percent + 99) // 100
+    if args.opening_burst and args.seconds != 300:
+        raise ValueError("Opening burst requires exactly 300 seconds")
+    scheduled_requests = args.rate * (480 if args.opening_burst else args.seconds)
+    if scheduled_requests > 2_000_000:
+        raise ValueError("Stage exceeds the two-million-request generator limit")
+    expected_writes = (scheduled_requests * args.write_percent + 99) // 100
     if args.seats < (expected_writes + args.shows - 1) // args.shows:
         raise ValueError("Fresh fixture has insufficient unique seats for the requested stage")
     if not 1 <= args.write_percent <= 100:
@@ -231,6 +238,7 @@ def main() -> None:
     parser.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
     parser.add_argument("--read-mode", choices=("availability", "delta"), default="availability")
     parser.add_argument("--write-percent", type=int, default=5)
+    parser.add_argument("--opening-burst", action="store_true")
     parser.add_argument("--reservation-writer-candidate", type=int, choices=(1, 2, 3, 4), default=1)
     parser.add_argument("--reservation-writer-batch-size", type=int, choices=range(1, 9), default=1)
     parser.add_argument("--reservation-max-command-age-seconds", type=int, default=0)
@@ -404,6 +412,7 @@ def main() -> None:
                     args.reservation_mode,
                     str(args.write_percent),
                     args.read_mode,
+                    str(int(args.opening_burst)),
                 ],
                 timeout=60,
             )

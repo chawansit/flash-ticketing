@@ -46,8 +46,17 @@ def error_diagnostic(response):
     return code, request_id
 
 
-def arrival_plan(rate, seconds, burst=False):
-    phases = [(rate, seconds)] if not burst else [(rate, 60), (rate * 4, 120), (rate, 60)]
+OPENING_BURST_PHASES = ((4, 30), (2, 90), (1, 180))
+
+
+def arrival_plan(rate, seconds, burst=False, opening_burst=False):
+    if burst and opening_burst:
+        raise ValueError("Choose only one burst profile")
+    phases = (
+        [(rate * multiplier, duration) for multiplier, duration in OPENING_BURST_PHASES]
+        if opening_burst else [(rate, 60), (rate * 4, 120), (rate, 60)]
+        if burst else [(rate, seconds)]
+    )
     elapsed = 0
     for phase, (phase_rate, duration) in enumerate(phases):
         for index in range(phase_rate * duration):
@@ -241,7 +250,7 @@ async def run(args):
         validators, versions, incarnations = {}, {}, {}
         randomizer = random.Random(42)
         workload = []
-        for index, (due, phase) in enumerate(arrival_plan(args.rate, args.seconds, args.burst)):
+        for index, (due, phase) in enumerate(arrival_plan(args.rate, args.seconds, args.burst, getattr(args, "opening_burst", False))):
             viewer = randomizer.randrange(len(tokens))
             show = shows[viewer % len(shows)]
             write = is_write_request(index, write_percent)
@@ -535,6 +544,16 @@ async def run(args):
         },
         "read_hot_share": 0.9 if hot_show else 0,
         "burst": args.burst,
+        "opening_burst": getattr(args, "opening_burst", False),
+        "arrival_phases": (
+            [{"rate": args.rate * multiplier, "seconds": duration}
+             for multiplier, duration in OPENING_BURST_PHASES]
+            if getattr(args, "opening_burst", False) else
+            [{"rate": args.rate, "seconds": 60},
+             {"rate": args.rate * 4, "seconds": 120},
+             {"rate": args.rate, "seconds": 60}]
+            if args.burst else [{"rate": args.rate, "seconds": args.seconds}]
+        ),
         "utc": datetime.now(UTC).isoformat(),
         "measured_started_utc": measured_started_utc,
         "bootstrap": bootstrap,
@@ -630,6 +649,8 @@ if __name__ == "__main__":
     parser.add_argument("--seconds", type=int, default=180)
     parser.add_argument("--inflight", type=int, default=64)
     parser.add_argument("--burst", action="store_true", help="Continuous 60s base/120s 4x/60s recovery")
+    parser.add_argument("--opening-burst", action="store_true",
+                        help="Sale opening: 30s 4x/90s 2x/180s base rate")
     parser.add_argument("--transport-diagnostics", action="store_true")
     parser.add_argument("--mixed-hot-holds", action="store_true")
     parser.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
@@ -644,9 +665,13 @@ if __name__ == "__main__":
         "--topology", choices=["same-host", "separate-host", "unverified"], default="unverified"
     )
     args = parser.parse_args()
+    if args.burst and args.opening_burst:
+        parser.error("Choose only one burst profile")
     if args.burst:
         args.seconds = 240
+    if args.opening_burst:
+        args.seconds = 300
     if (min(args.rate, args.seconds, args.inflight) < 1 or not 1 <= args.write_percent <= 100
-            or args.rate * (600 if args.burst else args.seconds) > 2000000):
+            or args.rate * (600 if args.burst else 480 if args.opening_burst else args.seconds) > 2000000):
         parser.error("Use positive limits and at most 2000000 requests")
     asyncio.run(run(args))

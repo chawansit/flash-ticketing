@@ -23,6 +23,7 @@ p.add_argument("--reservation-mode", choices=("postgres", "redis-first"), defaul
 p.add_argument("--read-mode", choices=("availability", "delta"), default="availability")
 p.add_argument("--write-percent", type=int, default=5)
 p.add_argument("--burst", action="store_true")
+p.add_argument("--opening-burst", action="store_true")
 p.add_argument("--transport-diagnostics", action="store_true")
 p.add_argument("--keepalive-expiry", type=expiry_seconds, default=5.0)
 p.add_argument("--max-attempts", type=int, choices=(1, 2, 3), default=1)
@@ -30,8 +31,12 @@ p.add_argument("--retry-base-delay-ms", type=float, default=25.0)
 p.add_argument("--late-delivery-window-ms", type=float, default=0.0)
 p.add_argument("--start-delay", type=float, default=30.0)
 a = p.parse_args()
+if a.burst and a.opening_burst:
+    p.error("Choose only one burst profile")
 if a.burst:
     a.seconds = 240
+if a.opening_burst:
+    a.seconds = 300
 
 generator = Path("http_load_generator.py")
 if not generator.exists():
@@ -109,6 +114,7 @@ try:
                 str(result_path),
             ]
             + (["--burst"] if a.burst else [])
+            + (["--opening-burst"] if a.opening_burst else [])
             + (["--transport-diagnostics"] if a.transport_diagnostics else [])
             + (["--mixed-hot-holds"] if a.mixed_hot_holds else []),
             stdout=log,
@@ -141,6 +147,7 @@ try:
     mode_gate_pass = all(
         result.get("reservation_mode") == a.reservation_mode
         and result.get("read_mode", "availability") == a.read_mode
+        and (not a.opening_burst or result.get("opening_burst") is True)
         for result in results
     )
     coordination_gate_pass = (
@@ -157,6 +164,12 @@ try:
         "utc": datetime.now(UTC).isoformat(),
         "hot_read_share": 0.9 if a.hot_reads else 0,
         "burst": a.burst,
+        "opening_burst": a.opening_burst,
+        "arrival_phases": (
+            [{"rate": a.rate * multiplier, "seconds": duration}
+             for multiplier, duration in ((4, 30), (2, 90), (1, 180))]
+            if a.opening_burst else None
+        ),
         "mixed_hot_holds": a.mixed_hot_holds,
         "reservation_mode": a.reservation_mode,
         "read_mode": a.read_mode,

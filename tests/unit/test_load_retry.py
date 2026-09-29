@@ -103,7 +103,7 @@ def test_late_scheduled_requests_are_delivered_once_and_remain_observable(tmp_pa
 
     install_client(monkeypatch, response)
     monkeypatch.setattr(
-        generator, "arrival_plan", lambda rate, seconds, burst=False: [(-0.060, 0), (-0.059, 0)]
+        generator, "arrival_plan", lambda rate, seconds, burst=False, opening_burst=False: [(-0.060, 0), (-0.059, 0)]
     )
     args = arguments(tmp_path, rate=20, late_window=250)
     asyncio.run(generator.run(args))

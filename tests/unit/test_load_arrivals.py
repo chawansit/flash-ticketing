@@ -38,3 +38,27 @@ def test_configurable_write_mix_is_exact_and_evenly_distributed():
         assert len(selected) == percent
     assert [index for index in range(20) if generator.is_write_request(index, 10)] == [0, 10]
     assert [index for index in range(10) if generator.is_write_request(index, 20)] == [0, 5]
+
+
+
+def test_opening_burst_starts_at_peak_and_accounts_for_all_requests():
+    plan = list(generator.arrival_plan(10, 300, opening_burst=True))
+    assert Counter(phase for _, phase in plan) == {0: 1200, 1: 1800, 2: 1800}
+    assert plan[0] == (0, 0)
+    assert plan[1200] == (30, 1)
+    assert plan[3000] == (120, 2)
+    assert plan[-1][0] < 300
+    assert all(a[0] < b[0] for a, b in pairwise(plan))
+    assert sum(generator.is_write_request(index, 6) for index in range(len(plan))) == 288
+
+
+def test_opening_burst_limit_counts_all_phases(tmp_path):
+    import subprocess
+    import sys
+    result = subprocess.run([sys.executable, str(Path(generator.__file__)),
+                             "--manifest", str(tmp_path / "absent.json"),
+                             "--origin", "http://unused.invalid", "--output", str(tmp_path / "out.json"),
+                             "--rate", "5000", "--opening-burst"],
+                            capture_output=True, text=True, timeout=10, check=False)
+    assert result.returncode == 2
+    assert "at most 2000000 requests" in result.stderr
