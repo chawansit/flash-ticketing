@@ -1,7 +1,7 @@
 # Flash-sale opening workload
 
-Status: first Huawei opening control measured; end-to-end ticket
-capacity are **not yet measured**. This profile changes only the load generator and
+Status: two Huawei opening profiles measured; end-to-end ticket
+capacity has **not yet been measured**. This profile changes only the load generator and
 stage fixture calculation. It does not add a waiting room or change reservation,
 payment, or persistence architecture.
 
@@ -146,3 +146,6 @@ Evidence: [passed stage verdict](stages/opening-300-repeat/stage-result.json),
 [post-TTL audit](stages/opening-300-repeat/durability.json),
 [reservation-writer metrics](stages/opening-300-repeat/reservation-writer-metrics.json),
 and [rollback](stages/opening-300-repeat/rollback.json).
+
+The [end-to-end ticket validation protocol](checkout-validation-plan.md) defines
+the separate one-hour measurement needed for the 300,000-ticket target.
