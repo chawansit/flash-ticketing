@@ -7,3 +7,15 @@
 - **Consequences:** Extra waiting requests occupy API worker capacity without raising database transaction concurrency. Under sustained overload they may time out at 500 ms and raise tail latency. The cap must remain bounded and metrics must distinguish immediate rejection from timeout. The setting is API-only; background workers keep their current default.
 - **Failure and recovery:** If the candidate raises p95 latency, creates PoolTimeout, drops scheduled buyers, leaves PAID orders unfulfilled, or fails any strict integrity or rollback gate, restore the original waiter cap of three and one-consumer deployment. Existing PostgreSQL uniqueness, callback idempotency and Kafka inbox remain the correctness boundaries. A request that already committed payment but lost its response is resolved by the same idempotency key and durable order audit.
 - **Validation evidence:** The failed two-consumer baseline and post-TTL audit are in [the redacted comparison](../capacity/flash-sale-opening/paid-ticket-two-consumers-2026-09-29.json). The opt-in configuration requires unit tests and a cloud A/B stage before any deployment decision; no higher-capacity claim is made here.
+
+The first 12-waiter candidate stage on application revision 6aa5c64
+dispatched and fulfilled all 1,800 scheduled journeys by deadline with
+no buyer-visible 503, no retries and 1,800 durable tickets. It retained
+three DB connections per API. Hold-to-ticket p95 was 1.51 seconds versus
+1.11 seconds in the three-waiter baseline. The initial queue check found
+six pending seat refreshes, so the original immediate-only runner gate
+failed; a subsequent read-only audit found all queues empty. The candidate
+was restored to three waiters, one consumer and four simulator threads.
+This is not an overall passing stage. The runner will be corrected to
+measure a fixed 120-second queue-drain window and the same workload
+repeated. [Redacted first-trial evidence](../capacity/flash-sale-opening/paid-ticket-pool-waiters-2026-09-29.json).

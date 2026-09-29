@@ -286,3 +286,24 @@ The [redacted one-versus-two comparison](paid-ticket-two-consumers-2026-09-29.js
 is a diagnostic, not a passed production capacity test. The next isolated
 work is removing API pool 503s without extending transaction time or
 weakening the strict ticket gate, then repeating the two-consumer stage.
+
+
+## Bounded API pool-waiter candidate
+
+[ADR 0083](../../adr/0083-bounded-api-db-pool-waiters.md) separates the API
+DB-pool waiter cap from its three-connection limit. An opt-in comparison
+raised the waiter cap from three to twelve on each of four API replicas.
+With two consumers, the same one-minute 30/s workload dispatched all
+1,800 buyers, issued 1,800 durable tickets by deadline, and recorded no
+unexpected HTTP response or retry. API metrics recorded no pool acquisition
+error; hold-to-ticket p95 was 1.51 seconds. The prior three-waiter comparison
+had five buyer-visible 503s and failed.
+
+The **overall stage still failed** because the original runner required every
+seat-refresh queue to be zero at the instant it checked. Six refreshes were
+pending then, and a later read-only audit found zero; the runner had not
+measured a drain window. The candidate was rolled back. The
+[redacted comparison](paid-ticket-pool-waiters-2026-09-29.json) preserves that
+failure. A corrected runner will allow at most 120 seconds for queues to
+drain, record initial/final counts and elapsed time, and repeat the same
+stage before any capacity claim.

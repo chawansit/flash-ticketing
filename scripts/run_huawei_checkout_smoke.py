@@ -309,17 +309,43 @@ try:
 
     queue_shell = (
         f"cd {BACKEND}; api=$({COMPOSE} ps -q api | head -n 1); "
+        f"public={BACKEND}/tmp/unattended-{RUN}/public; "
+        'test -n "$api" || exit 1; started=$(date +%s); n=0; '
+        'while [ "$n" -le 60 ]; do '
+        "n=$((n+1)); status=0; "
         'docker exec "$api" sh -lc \'TEST_DATABASE_URL="$DATABASE_URL" '
         'TEST_REDIS_URL="$REDIS_URL" python /app/scripts/capacity_queue_state.py '
-        "--manifest /tmp/private-load-manifest.json --output /tmp/checkout-queue.json' "
-        f'&& docker cp "$api":/tmp/checkout-queue.json {BACKEND}/tmp/unattended-{RUN}/public/checkout-queue.json'
+        "--manifest /tmp/private-load-manifest.json "
+        "--output /tmp/checkout-queue-'\"$n\"'.json' >/dev/null || status=$?; "
+        'docker cp "$api":/tmp/checkout-queue-"$n".json "$public/checkout-queue.json" || exit 1; '
+        'if [ "$n" -eq 1 ]; then cp "$public/checkout-queue.json" '
+        '"$public/checkout-queue-initial.json"; fi; '
+        'if [ "$status" -eq 0 ]; then '
+        "elapsed=$(($(date +%s)-started)); "
+        'printf \'{"samples":%s,"drain_seconds":%s,"pass":true}\\n\' '
+        '"$n" "$elapsed" > "$public/checkout-queue-drain.json"; '
+        "exit 0; fi; "
+        '[ "$n" -le 60 ] || break; sleep 2; '
+        "done; exit 1"
     )
-    backend_exec("queue", queue_shell, 90)
+    queue_response = backend_exec("queue", queue_shell, 160, check=False)
+    for label, filename in (
+        ("queue-initial", "checkout-queue-initial.json"),
+        ("queue-result", "checkout-queue.json"),
+    ):
+        transport.copy_from(
+            label,
+            API_HOST,
+            f"{BACKEND}/tmp/unattended-{RUN}/public/{filename}",
+            OUT / (filename.removeprefix("checkout-")),
+        )
+    if queue_response.returncode:
+        raise RuntimeError("Queue did not drain within 120 seconds")
     transport.copy_from(
-        "queue-result",
+        "queue-drain",
         API_HOST,
-        f"{BACKEND}/tmp/unattended-{RUN}/public/checkout-queue.json",
-        OUT / "queue.json",
+        f"{BACKEND}/tmp/unattended-{RUN}/public/checkout-queue-drain.json",
+        OUT / "queue-drain.json",
     )
     state["pass"] = all(
         json.loads((OUT / name).read_text())["pass"] for name in ("probe.json", "audit.json", "queue.json")
@@ -474,7 +500,7 @@ finally:
                 f"cd {BACKEND}; api=$({COMPOSE} ps -q api | head -n 1); "
                 'docker exec -u 0 "$api" sh -lc '
                 "'rm -f /tmp/checkout-audit.py /tmp/checkout-audit-*.json "
-                "/tmp/checkout-queue.json /tmp/checkout-retire.py'"
+                "/tmp/checkout-queue-*.json /tmp/checkout-retire.py'"
             ),
         ],
         check=False,
