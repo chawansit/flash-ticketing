@@ -123,6 +123,10 @@ The code and local tests do not authorize production activation. The remaining g
 
 1. Deploy Redis with `noeviction`, AOF, a replica, monitored replication lag and a tested
    primary-failover procedure.
-2. Prove acknowledged provisional holds survive primary loss and writer restart.
+2. Prove acknowledged provisional holds survive primary loss and writer restart. The
+   writer-restart portion passed on 27 September 2026; the managed primary-loss drill is
+   defined by [ADR 0060](adr/0060-dcs-primary-failover-validation.md) and
+   [the DCS failover drill procedure](capacity/huawei-rds/dcs-failover-drill.md) and remains
+   unexecuted.
 3. Run a longer confirmation of the passing five-minute 1,000 RPS safety topology while command
    age, errors, overlap, PostgreSQL durability and final stream drain all remain within gates.
