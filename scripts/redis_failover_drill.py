@@ -3,6 +3,10 @@
 Run against the isolated Redis-first cloud topology. The operator triggers the managed
 primary/standby switchover externally (for example the DCS console); this script observes,
 measures and verifies. See ADR 0060.
+
+Schema note: terminal FAILED commands exist only in Redis; PostgreSQL reservation_commands
+contains DURABLE receipts only. The audit therefore compares the polled per-key terminal
+states with PostgreSQL DURABLE receipts by command count and linkage.
 """
 import argparse
 import json
@@ -76,7 +80,8 @@ def main():
     def replication():
         info = client.info('replication')
         return {'role': info.get('role'),
-                'connected_replicas': info.get('connected_slaves', 0)}
+                'connected_replicas': info.get('connected_slaves', 0),
+                'master_replid': info.get('master_replid')}
 
     def wait_probe():
         probe_key = '{' + a.event_id + '}:failover-probe:' + run_id
@@ -102,11 +107,13 @@ def main():
         return sent
 
     def poll_durable(sent, deadline_seconds):
+        """Return {key: (terminal_state, command_id_or_None)} for every sent key."""
         deadline = time.monotonic() + deadline_seconds
         states = {}
         for item in sent:
             if item['response'].get('status') != 202:
-                states[item['key']] = ('not_acknowledged', item['response'])
+                states[item['key']] = ('not_acknowledged', None,
+                                       item['response'].get('status'))
                 continue
             body = item['response']['body']
             command_id = body['command_id']
@@ -119,31 +126,31 @@ def main():
                     status = polled['body']['persistence_status']
                     break
                 time.sleep(1)
-            states[item['key']] = (status or 'unresolved', command_id)
+            states[item['key']] = (status or 'unresolved', command_id, 202)
         return states
 
     def db_audit(prefix):
+        """DURABLE receipts and linkage for this drill phase's keys (read-only)."""
         pattern = prefix + '-' + run_id + '-%'
         with psycopg.connect(database_url, autocommit=False) as conn:
             conn.execute('SET TRANSACTION READ ONLY')
             conn.execute("SET LOCAL statement_timeout = '60s'")
             row = conn.execute(
-                '''SELECT count(*),
-                    count(*) FILTER (WHERE c.status='DURABLE'),
+                '''SELECT count(*), count(DISTINCT c.hold_id),
+                    count(DISTINCT c.order_id),
                     count(*) FILTER (WHERE h.id IS NULL OR o.id IS NULL
-                        OR o.hold_id IS DISTINCT FROM h.id),
-                    count(*) FILTER (WHERE c.status='FAILED')
+                        OR o.hold_id IS DISTINCT FROM h.id)
                    FROM reservation_commands c
-                   LEFT JOIN holds h ON h.id=c.hold_id
-                   LEFT JOIN orders o ON o.hold_id=h.id
+                   LEFT JOIN holds h ON h.id = c.hold_id
+                   LEFT JOIN orders o ON o.id = c.order_id
                    WHERE c.idempotency_key LIKE %s''', (pattern,)).fetchone()
             overlap = conn.execute(
                 '''WITH selected AS (
                      SELECT h.id, h.event_id, h.expires_at, o.created_at, i.seat_id
                      FROM reservation_commands c
-                     JOIN holds h ON h.id=c.hold_id
-                     JOIN orders o ON o.hold_id=h.id
-                     JOIN order_items i ON i.order_id=o.id
+                     JOIN holds h ON h.id = c.hold_id
+                     JOIN orders o ON o.id = c.order_id
+                     JOIN order_items i ON i.order_id = o.id
                      WHERE c.idempotency_key LIKE %s),
                    ordered AS (
                      SELECT *, max(expires_at) OVER (
@@ -152,8 +159,9 @@ def main():
                      FROM selected)
                    SELECT count(*) FILTER (WHERE created_at < prior_expiry) FROM ordered''',
                 (pattern,)).fetchone()[0]
-        return {'commands': row[0], 'durable': row[1], 'broken_links': row[2],
-                'failed': row[3], 'overlapping_intervals': overlap}
+        return {'durable_commands': row[0], 'distinct_holds': row[1],
+                'distinct_orders': row[2], 'broken_links': row[3],
+                'overlapping_intervals': overlap}
 
     def stream_state():
         entries = pending = 0
@@ -183,21 +191,26 @@ def main():
     assert config['maxmemory-policy'] == 'noeviction', config
     assert config['appendonly'] == 'yes', config
     assert acks >= 1, acks
+    initial_replid = repl['master_replid']
 
     # Phase 2: pre-failover acknowledged command set
     pre_sent = send_holds('pre')
     pre_states = poll_durable(pre_sent, a.drain_seconds)
-    acknowledged = {k: v for k, v in pre_states.items()
-                    if v[0] in ('DURABLE', 'FAILED') or v[0] != 'not_acknowledged'}
-    ack_202 = {k: v[1] for k, v in pre_states.items() if v[0] != 'not_acknowledged'}
+    ack_202 = {k: v for k, v in pre_states.items() if v[2] == 202}
+    pre_durable = sum(1 for v in pre_states.values() if v[0] == 'DURABLE')
+    pre_failed = sum(1 for v in pre_states.values() if v[0] == 'FAILED')
+    pre_unresolved = {k: v for k, v in pre_states.items() if v[0] == 'unresolved'}
     report['phases']['pre_failover'] = {
-        'acknowledged_202': len(ack_202), 'states': pre_states}
+        'acknowledged_202': len(ack_202), 'durable': pre_durable,
+        'terminal_failed': pre_failed, 'unresolved': len(pre_unresolved),
+        'states': {k: v[:2] for k, v in pre_states.items()}}
     save()
     assert ack_202, 'No acknowledged commands to protect'
+    assert not pre_unresolved, 'Commands must reach a terminal state before failover'
 
     # Phase 3: failover window; operator triggers the managed switchover
     print('FAILOVER WINDOW: start the managed primary/standby switchover now.')
-    print('Waiting for role change away from the current master...')
+    print('Watching for promotion (master_replid change) and intake recovery...')
     outage = {'first_failure_utc': None, 'last_failure_utc': None,
               'unknown_outcomes': [], 'samples': 0}
     deadline = time.monotonic() + a.max_outage_seconds * 3
@@ -216,13 +229,16 @@ def main():
             if sample.get('body') and sample['body'].get('code') == \
                     'RESERVATION_DURABILITY_UNKNOWN':
                 outage['unknown_outcomes'].append(now)
-        try:
-            if replication()['role'] == 'master' and not failed and \
-                    outage['first_failure_utc']:
+        else:
+            try:
+                current = replication()
+            except redis.exceptions.RedisError:
+                current = None
+            if outage['first_failure_utc'] and current and \
+                    current['role'] == 'master' and \
+                    current['master_replid'] != initial_replid:
                 promoted = True
-        except redis.exceptions.RedisError:
-            outage['first_failure_utc'] = outage['first_failure_utc'] or now
-            outage['last_failure_utc'] = now
+                report['phases']['post_promotion_replication'] = current
         time.sleep(1)
         if outage['samples'] % 10 == 0:
             save()
@@ -230,7 +246,7 @@ def main():
     save()
     assert promoted, 'Failover did not complete within the observation window'
 
-    # Phase 4: post-failover verification
+    # Phase 4: post-failover verification of the pre-failover command set
     repl_after = replication()
     acks_after = wait_probe()
     outage_seconds = (
@@ -249,18 +265,22 @@ def main():
         'pre_failover_audit': pre_audit, 'streams': streams}
     save()
 
-    # Phase 5: fresh post-failover intake must persist
+    # Phase 5: fresh post-failover intake must persist with replica acknowledgement
     post_sent = send_holds('post')
     post_states = poll_durable(post_sent, a.drain_seconds)
     post_audit = db_audit('post')
     report['phases']['post_failover_intake'] = {
-        'states': post_states, 'audit': post_audit}
+        'states': {k: v[:2] for k, v in post_states.items()}, 'audit': post_audit}
     save()
 
     # Gates (ADR 0060)
     gates = {
+        # Every pre-failover terminal-DURABLE command has exactly one PostgreSQL
+        # receipt with intact linkage; terminal FAILED commands stay out of
+        # PostgreSQL and are reported separately above.
         'zero_lost_acknowledged_commands':
-            pre_audit['durable'] + pre_audit['failed'] == len(ack_202)
+            pre_audit['durable_commands'] == pre_durable
+            and pre_audit['distinct_holds'] == pre_durable
             and pre_audit['broken_links'] == 0,
         'unknown_outcomes_resolved': resolved,
         'outage_within_budget': outage_seconds <= a.max_outage_seconds,
@@ -268,7 +288,7 @@ def main():
             repl_after['role'] == 'master'
             and repl_after['connected_replicas'] >= 1 and acks_after >= 1,
         'post_failover_intake_durable':
-            post_audit['durable'] >= 1 and post_audit['broken_links'] == 0,
+            post_audit['durable_commands'] >= 1 and post_audit['broken_links'] == 0,
         'zero_overlapping_ownership':
             pre_audit['overlapping_intervals'] == 0
             and post_audit['overlapping_intervals'] == 0,
