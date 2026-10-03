@@ -1,0 +1,104 @@
+{
+  "kind": "idle_kafka_monitor_cost_diagnostic",
+  "no_buyer_traffic": true,
+  "phases": [
+    {
+      "phase": "idle_before",
+      "seconds": 20.00090533099865,
+      "host_cpu_percent": 21.624699481209667,
+      "kafka_container_cpu_cores": 0.2991155100728277
+    },
+    {
+      "phase": "cli_observer",
+      "seconds": 20.00049672100431,
+      "host_cpu_percent": 35.00506585612968,
+      "kafka_container_cpu_cores": 0.8643254835688875
+    },
+    {
+      "phase": "idle_after",
+      "seconds": 20.00065071899735,
+      "host_cpu_percent": 18.06451612903226,
+      "kafka_container_cpu_cores": 0.16735270502077926
+    }
+  ],
+  "cli_samples": 6,
+  "sample_errors": 0,
+  "last_total_lag": 0,
+  "limitation": "20second idle windows; Kafka background work varies. Demonstrates monitoring cost, not exact attribution during paid load. Other role values in private initial diagnostic are not aggregate replicas and are omitted.",
+  "ssh_diagnostic": {
+    "checks": [
+      {
+        "expected_exitcode": 0,
+        "exitcode": 0,
+        "seconds": 0.7029999999795109,
+        "output_matches": true
+      },
+      {
+        "expected_exitcode": 1,
+        "exitcode": 1,
+        "seconds": 0.40600000001722947,
+        "output_matches": true
+      },
+      {
+        "expected_exitcode": 0,
+        "exitcode": 0,
+        "seconds": 0.35899999999674037,
+        "output_matches": true
+      }
+    ],
+    "pass": true,
+    "no_load_generated": true
+  },
+  "next": "Same8slot/60buyers per second/300second requalification with only paid Kafka observation mechanism changed.",
+  "persistent_comparison": {
+    "canonical_equivalence_pass": true,
+    "comparison_correction": "Original array-order-sensitive comparison failed. Canonical comparison preserves every topic/partition/offset/lag and membership; raw result remains unchanged. No backend correction or repeated diagnostic needed.",
+    "phases": [
+      {
+        "phase": "idle_before",
+        "seconds": 20.000706317994627,
+        "host_cpu_percent": 19.317319848293298,
+        "kafka_container_cpu_cores": 0.2737828311129883,
+        "aggregate_api_container_cpu_cores": 0.26941723528793265
+      },
+      {
+        "phase": "cli",
+        "seconds": 20.000966316001723,
+        "host_cpu_percent": 34.74737241990629,
+        "kafka_container_cpu_cores": 0.8561739332714011,
+        "aggregate_api_container_cpu_cores": 0.2791015649845825
+      },
+      {
+        "phase": "python",
+        "seconds": 20.000693073998264,
+        "host_cpu_percent": 17.979517005942597,
+        "kafka_container_cpu_cores": 0.1707743320375447,
+        "aggregate_api_container_cpu_cores": 0.3072213536434039
+      },
+      {
+        "phase": "idle_after",
+        "seconds": 20.001024098004564,
+        "host_cpu_percent": 19.41354903943377,
+        "kafka_container_cpu_cores": 0.27632085101839265,
+        "aggregate_api_container_cpu_cores": 0.25546406898783564
+      }
+    ],
+    "observations": {
+      "cli": {
+        "samples": 6,
+        "errors": 0,
+        "members": 1,
+        "assigned_partitions": 6,
+        "last_total_lag": 0
+      },
+      "python": {
+        "samples": 10,
+        "errors": 0,
+        "members": 1,
+        "assigned_partitions": 6,
+        "last_total_lag": 0
+      }
+    },
+    "limitations": "Sequential20second idle windows; broker background variation. Exact partition offsets/ownership match after sorting; no buyer throughput claim."
+  }
+}
