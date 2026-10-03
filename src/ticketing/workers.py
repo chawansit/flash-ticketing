@@ -46,6 +46,7 @@ from ticketing.observability import (
     consumer_phase,
     measured_consumer_event,
     measured_work,
+    observe_consumer_batch_error,
 )
 
 log = logging.getLogger("ticketing.worker")
@@ -839,7 +840,8 @@ def consume_kafka_messages(db, cache, messages):
         try:
             consume_events(db, cache, [json.loads(message.value) for message in messages])
             return
-        except Exception:
+        except Exception as exc:
+            observe_consumer_batch_error(exc)
             if attempt < 4:
                 time.sleep(0.2 * 2**attempt)
                 continue

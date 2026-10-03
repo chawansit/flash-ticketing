@@ -33,7 +33,8 @@ parser.add_argument("--paid-generator-shards", type=int, choices=(1, 2), default
 parser.add_argument("--paid-poll-seconds", type=float, default=0.2)
 parser.add_argument("--paid-lifecycle-diagnostics", action="store_true")
 parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8), default=4)
-parser.add_argument("--consumer-candidate", type=int, choices=(1, 2, 4), default=1)
+parser.add_argument("--consumer-candidate", type=int, choices=(1, 2, 4, 6), default=1)
+parser.add_argument("--consumer-pool-per-instance", type=int, choices=(8, 12), default=12)
 parser.add_argument("--api-pool-waiters-candidate", type=int, choices=(3, 12), default=3)
 parser.add_argument("--order-status-cache-ms-candidate", type=int, choices=(0, 3000), default=0)
 parser.add_argument("--callback-duplicates", type=int, choices=(1, 3), default=3)
@@ -42,6 +43,8 @@ parser.add_argument("--viewers", type=int, default=20)
 args = parser.parse_args()
 if args.paid_lifecycle_diagnostics and (not args.paid_rate or args.paid_generator_shards != 1):
     parser.error("Lifecycle diagnostics require a paid single-process control")
+if (args.consumer_candidate == 6) != (args.consumer_pool_per_instance == 8):
+    parser.error("Six consumers require pool8; other approved layouts use pool12")
 EXPECTED = args.paid_rate * args.paid_seconds if args.paid_rate else 10
 if not 0 <= args.paid_rate <= 100 or not 1 <= args.paid_seconds <= 300:
     parser.error("Bounded paid-stage rate/duration required")
@@ -92,6 +95,7 @@ prefix = [
     f"FLASH_TICKETING_BACKEND_DIR={BACKEND}",
     f"API_POOL_MAX_WAITING={args.api_pool_waiters_candidate}",
     f"ORDER_STATUS_CACHE_MS={args.order_status_cache_ms_candidate}",
+    f"CONSUMER_POOL_PER_INSTANCE={args.consumer_pool_per_instance}",
     "sh",
     f"{BACKEND}/scripts/huawei_capacity_backend.sh",
 ]
@@ -100,6 +104,7 @@ rollback_prefix = [
     f"FLASH_TICKETING_BACKEND_DIR={BACKEND}",
     "API_POOL_MAX_WAITING=3",
     "ORDER_STATUS_CACHE_MS=0",
+    "CONSUMER_POOL_PER_INSTANCE=12",
     "sh",
     f"{BACKEND}/scripts/huawei_capacity_backend.sh",
 ]
@@ -113,6 +118,7 @@ cache_setting_check = (
 )
 state = {"run": RUN, "phases": [], "pass": False, "error": None,
          "order_status_cache_ms_candidate": args.order_status_cache_ms_candidate,
+         "consumer_pool_per_instance_candidate": args.consumer_pool_per_instance,
          "paid_configuration": {"rate": args.paid_rate, "seconds": args.paid_seconds,
                                 "concurrency": args.paid_concurrency,
                                 "generator_shards": args.paid_generator_shards,
@@ -165,6 +171,9 @@ try:
     original_cache = step("order-cache-original", API_HOST, ["sh", "-lc", cache_setting_check], 30)
     if original_cache.stdout.splitlines() != ["0"] * 4:
         raise RuntimeError("Expected disabled order cache on all baseline APIs")
+    original_budget = step("consumer-budget-original", API_HOST,
+        ["sh", "-lc", f"cd {BACKEND} && python3 scripts/verify_consumer_pool_budget.py --consumers 1 --pool-max 12"], 30)
+    state["consumer_budget_original"] = json.loads(original_budget.stdout)
     deployed = True
     step(
         "deploy",
@@ -188,6 +197,9 @@ try:
         ],
         300,
     )
+    candidate_budget = step("consumer-budget-candidate", API_HOST,
+        ["sh", "-lc", f"cd {BACKEND} && python3 scripts/verify_consumer_pool_budget.py --consumers {args.consumer_candidate} --pool-max {args.consumer_pool_per_instance}"], 30)
+    state["consumer_budget_candidate"] = json.loads(candidate_budget.stdout)
     waiting_values = step(
         "api-pool-waiters-candidate", API_HOST, ["sh", "-lc", waiter_check], 30
     ).stdout.splitlines()
@@ -504,6 +516,11 @@ finally:
                     lag["samples"] >= 5
                     and lag["sample_errors"] == 0
                     and lag["members_max"] == args.consumer_candidate
+                    and (args.consumer_candidate != 6 or (
+                        lag["ownership_observed"] and lag["members_min"] == 6
+                        and lag["max_partitions_per_member"] == 1
+                        and lag["last_member_partition_groups"] == [[i] for i in range(6)]
+                    ))
                 )
         except Exception:  # noqa: BLE001 - rollback must proceed
             state["kafka_observer_pass"] = False
@@ -557,6 +574,14 @@ finally:
             state["pass"] = state["pass"] and state["order_status_cache_restored"]
         except Exception as exc:  # noqa: BLE001 - always attempt teardown
             state["error"] = (state["error"] or "") + "; rollback: " + str(exc)
+            state["pass"] = False
+    if deployed:
+        try:
+            restored_budget = backend_exec("consumer-budget-restored",
+                f"cd {BACKEND} && python3 scripts/verify_consumer_pool_budget.py --consumers 1 --pool-max 12", 30)
+            state["consumer_budget_restored"] = json.loads(restored_budget.stdout)
+        except Exception as exc:  # noqa: BLE001 - preserve remaining cleanup after verification failure
+            state["error"] = (state["error"] or "") + "; consumer budget rollback: " + str(exc)
             state["pass"] = False
     if args.paid_rate and state["error"] and (OUT / "probe.json").exists():
         accepted = json.loads((OUT / "probe.json").read_text()).get("dispatched", 0)

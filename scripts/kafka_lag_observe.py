@@ -2,6 +2,7 @@
 """Sample one Kafka consumer group's partition lag without changing group state."""
 
 import argparse
+import hashlib
 import json
 import subprocess
 import time
@@ -27,6 +28,7 @@ def parse_describe(output: str) -> dict:
     )}
     partitions = []
     members = set()
+    ownership = {}
     for row in lines[header_index + 1:]:
         try:
             current = int(row[positions["CURRENT-OFFSET"]])
@@ -38,6 +40,8 @@ def parse_describe(output: str) -> dict:
             continue
         if member != "-":
             members.add(member)
+            fingerprint = hashlib.sha256(member.encode()).hexdigest()[:12]
+            ownership.setdefault(fingerprint, []).append(partition)
         partitions.append(
             {
                 "topic": row[positions["TOPIC"]],
@@ -55,6 +59,7 @@ def parse_describe(output: str) -> dict:
         "assigned_partitions": len(partitions),
         "members": len(members),
         "partitions": partitions,
+        "member_partitions": {key: sorted(value) for key, value in ownership.items()},
     }
 
 def main() -> None:

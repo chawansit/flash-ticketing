@@ -144,3 +144,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0100 - Bounded paid-rate validation after lookup indexes](0100-bounded-paid-rate-validation-after-indexes.md)
 
 - [0101 - Consumer phase and paid-generator diagnostics](0101-consumer-phase-paid-generator-diagnostics.md)
+
+- [0102 - Six consumers with a controlled connection budget](0102-six-consumers-fixed-connection-budget.md)

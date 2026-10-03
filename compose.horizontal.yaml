@@ -9,6 +9,10 @@ services:
       # payment simulation, but this value must still fit its per-replica pool.
       SIMULATOR_CONCURRENCY: ${API_SIMULATOR_PER_INSTANCE:-2}
 
+  consumer:
+    environment:
+      DB_POOL_MAX: ${CONSUMER_POOL_PER_INSTANCE:-${DB_POOL_MAX:-12}}
+
   load-balancer:
     image: nginx:1.27.5-alpine
     ulimits:

@@ -112,6 +112,8 @@ def worker_counters(role, operation, url):
     parsed = urlsplit(url)
     addresses = api_replicas(parsed.hostname, parsed.port or 80)
     result = {f"{role}_replicas": len(addresses)}
+    if role == "consumer":
+        result["consumer_batch_failures"] = {}
     for address in addresses:
         with urlopen(f"http://{address}:{parsed.port or 80}{parsed.path}", timeout=2) as response:
             for line in response.read().decode("utf-8").splitlines():
@@ -125,6 +127,11 @@ def worker_counters(role, operation, url):
                 elif name == f'ticketing_worker_active{{operation="{operation}"}}':
                     key = f"{role}_active"
                 else:
+                    if role == "consumer":
+                        match = re.fullmatch(r'ticketing_consumer_batch_failures_total\{sqlstate="(40P01|40001|55P03|57014|08006|53300|other)"\}', name)
+                        if match:
+                            failures = result.setdefault("consumer_batch_failures", {})
+                            failures[match[1]] = failures.get(match[1], 0) + float(value)
                     phase_key = consumer_phase_metric(name) if role == "consumer" else None
                     if phase_key:
                         phases = result.setdefault("consumer_phases", {})

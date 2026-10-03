@@ -85,6 +85,11 @@ def summarize(rows):
             "metrics_errors": sum(f"{role}_metrics_error" in row for row in rows),
         }
     result["consumer_phases"] = summarize_consumer_phases(rows)
+    failures = [row["consumer_batch_failures"] for row in rows if "consumer_batch_failures" in row]
+    result["consumer_batch_failure_counts"] = {
+        code: failures[-1].get(code, 0) - failures[0].get(code, 0)
+        for code in set(failures[-1]) | set(failures[0])
+    } if failures else {}
     result["database_errors"] = sum("database_error" in row for row in rows)
     result["api_metrics_errors"] = sum("api_metrics_error" in row for row in rows)
     replica_samples = {}

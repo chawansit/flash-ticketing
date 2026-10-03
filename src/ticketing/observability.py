@@ -169,6 +169,17 @@ RECONCILE_SECONDS = Histogram(
 RECONCILE_RECOVERED = Counter(
     "ticketing_reconciliation_recovered_leases_total", "Expired reconciliation leases reclaimed"
 )
+CONSUMER_BATCH_FAILURES = Counter(
+    "ticketing_consumer_batch_failures_total", "Consumer batch failed attempts including recovery", ["sqlstate"]
+)
+
+
+def observe_consumer_batch_error(exc):
+    state = getattr(exc, "sqlstate", None)
+    allowed = {"40P01", "40001", "55P03", "57014", "08006", "53300"}
+    CONSUMER_BATCH_FAILURES.labels(state if state in allowed else "other").inc()
+
+
 CONSUMER_PHASE_SECONDS = Histogram(
     "ticketing_consumer_phase_seconds", "Consumer phase wall time including I/O",
     ["phase", "partition", "outcome"],

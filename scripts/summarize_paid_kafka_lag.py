@@ -39,6 +39,12 @@ def summarize(rows):
         "members_min": min(row["members"] for row in valid),
         "members_max": max(row["members"] for row in valid),
         "drain_after_peak_seconds": drain_seconds,
+        "ownership_observed": any("member_partitions" in row for row in valid),
+        "max_partitions_per_member": max(
+            (len(parts) for row in valid for parts in row.get("member_partitions", {}).values()),
+            default=None,
+        ),
+        "last_member_partition_groups": sorted(valid[-1].get("member_partitions", {}).values()),
     }
 
 

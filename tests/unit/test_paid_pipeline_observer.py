@@ -93,6 +93,7 @@ def test_worker_counters_sum_both_consumer_replicas(monkeypatch):
         "consumer_calls": 22,
         "consumer_busy_seconds": 11,
         "consumer_active": 2,
+        "consumer_batch_failures": {},
     }
 
 
