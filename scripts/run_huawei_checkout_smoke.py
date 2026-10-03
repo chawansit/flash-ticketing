@@ -43,8 +43,8 @@ parser.add_argument("--callback-duplicates", type=int, choices=(1, 3), default=3
 parser.add_argument("--shows", type=int, default=2)
 parser.add_argument("--viewers", type=int, default=20)
 args = parser.parse_args()
-if args.paid_lifecycle_diagnostics and (not args.paid_rate or args.paid_generator_shards != 1):
-    parser.error("Lifecycle diagnostics require a paid single-process control")
+if args.paid_lifecycle_diagnostics and not args.paid_rate:
+    parser.error("Lifecycle diagnostics require a paid control")
 if (args.consumer_candidate == 6) != (args.consumer_pool_per_instance == 8):
     parser.error("Six consumers require pool8; other approved layouts use pool12")
 EXPECTED = args.paid_rate * args.paid_seconds if args.paid_rate else 10

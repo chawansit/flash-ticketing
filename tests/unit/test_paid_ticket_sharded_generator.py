@@ -84,3 +84,57 @@ def test_aggregate_preserves_release_phases_and_separate_shard_pressure():
     assert result["transport_phase_samples"]["holds"]["stream_close_ms"] == 3600
     assert [row["active_journeys_peak"] for row in result["shards"]] == [10, 20]
     assert result["shards"][1]["lifecycle"]["loop_lag_p95_ms"] == 20
+
+
+def test_run_preserves_total_budgets_diagnostics_and_private_cleanup(monkeypatch):
+    import asyncio
+    import json
+    from pathlib import Path
+    from types import SimpleNamespace
+
+    from scripts import paid_ticket_sharded_generator as generator
+
+    launches, private_paths = [], []
+
+    class Child:
+        returncode = None
+
+        async def wait(self):
+            self.returncode = 0
+            return 0
+
+        def terminate(self):
+            raise AssertionError("A completed child must not be terminated")
+
+    async def launch(*argv, **kwargs):
+        options = {argv[i]: argv[i + 1] for i in range(len(argv) - 1)
+                   if argv[i].startswith("--") and argv[i] != "--lifecycle-diagnostics"}
+        launches.append((argv, options))
+        manifest_path = Path(options["--manifest"])
+        private_paths.append(manifest_path.parent)
+        private_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert len(private_manifest["show_ids"]) == 6
+        result = shard_result()
+        result.update({name: 2 for name in ["scheduled", "dispatched", "completed", "fulfilled",
+            "fulfilled_by_deadline", "distinct_orders", "distinct_tickets"]})
+        result["lifecycle"] = {"loop_lag_p95_ms": len(launches)}
+        result["http_client_count"] = int(options["--http-client-count"])
+        result["http_connection_budgets"] = [32, 32, 31, 31, 31, 31, 31, 31]
+        Path(options["--output"]).write_text(json.dumps(result), encoding="utf-8")
+        return Child()
+
+    monkeypatch.setattr(generator.asyncio, "create_subprocess_exec", launch)
+    result = asyncio.run(generator.run(SimpleNamespace(rate=4, seconds=1, concurrency=500,
+        completion_deadline_seconds=121, origin="http://192.0.2.1:8000", poll_seconds=1,
+        duplicates=1, http_client_count=8, lifecycle_diagnostics=True), fixture()))
+    assert result["pass"] and len(launches) == 2
+    assert all("--lifecycle-diagnostics" in argv for argv, _ in launches)
+    assert sum(int(options["--rate"]) for _, options in launches) == 4
+    assert sum(int(options["--concurrency"]) for _, options in launches) == 500
+    assert sum(int(options["--http-max-connections"]) for _, options in launches) == 500
+    assert sum(int(options["--http-client-count"]) for _, options in launches) == 16
+    assert launches[0][1]["--start-at-epoch"] == launches[1][1]["--start-at-epoch"]
+    assert [row["lifecycle"]["loop_lag_p95_ms"] for row in result["shards"]] == [1, 2]
+    assert result["http_clients_per_shard"] == [8, 8]
+    assert all(sum(budgets) == 250 for budgets in result["http_connection_budgets_per_shard"])
+    assert all(not path.exists() for path in private_paths)

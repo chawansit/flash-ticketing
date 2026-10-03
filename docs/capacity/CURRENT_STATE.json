@@ -3,7 +3,7 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "source_consistent_control_failed_fidelity_and_three_api_pool_rejections",
+  "status": "two_process_fixed_budget_control_prepared",
   "cloud_load_requires_resume": false,
   "handoff_revision": "19506066736aeddd4629396b517a7aa56550f826",
   "revision_note": "Both ECScheckouts1950606; full deployment branch included simulator build/hash gate before load. All8checked modules match on every restoredAPI/activeworker; originalsettings/readiness verified. No new applicationcode thisturn.",
@@ -23,11 +23,11 @@
   ],
   "unresolved": "Source consistency is fixed but generatorfidelity/scheduling and3briefAPIpooloverflows remain. Need controlled generator comparison without alteringbackendbudget or suppressingerrors. Registrationfailure/outage recovery still reliesonSCANwithoutTTL-boundedlarge-keyspaceguarantee. No productionmaximumverified.",
   "next_on_resume": [
-    "Readcurrentcheckpoint andrelevantgenerator sharding/diagnosticcode only. CreateADRbefore selecting fixed-total-budget two-process diagnostic comparison; retain60totalbuyers/s,500totalactive/connections,16totalclients andsamebackendprofile.",
-    "Preserve lifecycle diagnostic coverage forbothchildren; existingrunnerrejects lifecycle diagnosticswith2shards,so do notclaim this propagationimplemented. Implement/locallyvalidateonlyafterADR,thenoneauthorizedcontrol withallsource/observergates.",
-    "Keep no caller retries andexplicitAPI503/drop/dispatch gates. Auditexactpaidandunpaidcohorts,TTL,zero-doublebooking/fullkeyspacequeues/Kafka andrestoration;noautomaticrateescalation."
+    "Publish and synchronize the locally validated runner repair; verify baseline then execute one fixed-total two-process control.",
+    "Each child30buyers/s250active250connections8clients; same total60/500/500/16 and backend budgets as baseline. Existing diagnostics propagation verified, only runner restriction repaired.",
+    "Audit exactpaid/unpaid cohorts postTTL, zero doublebooking, fullqueues/Kafka, restoredbaseline and no remaining generators; report worst-shard percentiles honestly."
   ],
-  "validation_this_resume": "One source-consistentcloudcontrolFAILED load/customergates.17694paid+1unpaidexpired/postTTL/zero-doublebooking/fullqueues/Kafka/source/restoration PASSED. No newcode; inherited376application/34deploymenttestsnotrerun.",
+  "validation_this_resume": "53 focused tests executed/passed7.71s; Ruff and whitespace passed. Cloud stage pending.",
   "current_run": "checkout-20261003T092412Z-1e53e2",
   "evidence": [
     "docs/capacity/flash-sale-opening/paid-source-consistent-control-2026-10-03.json",
@@ -37,7 +37,7 @@
     "docs/adr/0105-paid-observer-startup-contract.md",
     "docs/capacity/flash-sale-opening/registry-expiry-correctness-2026-10-03.json"
   ],
-  "authorization": "User Continue authorized one source-consistent same60buyers/s300s control. ExecutedonceandFAILED. NecessarypostTTL/source/idle/rollback audits completed; nosecondstage/higherload/permanenttopologypromotion.",
+  "authorization": "User Continue authorizes one fixed-total60buyers/s300s two-process comparison under ADR0109; all correctness/TTL/queue/source/rollback gates retained, no retry or rate escalation.",
   "backend_checkout_revision": "1950606",
   "tested_generator_revision": "1950606"
 }
