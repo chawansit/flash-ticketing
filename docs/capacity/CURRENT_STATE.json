@@ -3,36 +3,36 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "consumer_diagnostics_locally_validated_cloud_pending",
+  "status": "consumer_diagnostic_completed_customer_gate_failed",
   "cloud_load_requires_resume": false,
-  "handoff_revision": "d78216a",
-  "revision_note": "Backend/generator tested d78216a (docs-only change from53429c5); application source hashes unchanged. Following docs-only commit records failed60/scontrol.",
-  "backend_application_revision": "d78216a",
-  "generator_revision": "d78216a",
+  "handoff_revision": "af05541",
+  "revision_note": "Tested backend/generatoraf05541instrumentation; next docs-only commit records diagnostic. Reservations/payment/cache/API source hashes unchanged; workers/observability instrumentation verified.",
+  "backend_application_revision": "af05541",
+  "generator_revision": "af05541",
   "last_checked_topology": "4 healthy APIs; PostgreSQL mode; admission4/API,DBpool3/API,waiters3/API,cache0;publisher/maintenance/consumer/reconciler1each;reservation-writer/refresh/expiry0;simulator4.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "No load or schedule running; baseline configuration/cache0/source/readiness verified after rollback. Both valid indexes retained; temporary SSH key retained for continuation.",
+  "cloud_state_note": "No load/schedule running. Baseline/cache0/readiness and seven source hashes verified across APIs/workers; valid indexes retained. Temporary key remains for continuation.",
   "confirmed": [
-    "60buyers/s60s:3600scheduled,3576dispatched,24active-cap drops;3575customer-observed tickets and1orderGET503;no caller retries.",
-    "Backend3576paid tickets passed fresh post-TTL exact-count/zero-double-booking audits; queues/dead letters0; Kafka final lag0.",
-    "Hold-to-ticket p95=14.044s;backendcallback-to-ticket p95=9.734s;Kafka peak1258;paid-unfulfilled peak303.",
-    "Generator dispatch lag p95=4.710s/max5.883s;hold pre-send p95=579ms. These invalidate a clean60/sarrival-rate claim.",
-    "One API pool TooManyRequests rejection;mean pool acquisition7.81ms. Backend backlog is real too; exact bottleneck unresolved.",
-    "No production code changed;350previously executed tests inherited,not rerun. Restored baseline/cache0/readiness and4API/worker source hashes verified.",
-    "Existing coarse samples show Kafka lag growing while ticket issuance progresses throughout the stage; not only one startup pause. Poll/offset-commit/per-partition cost and generator CPU are unmeasured."
+    "358unit/integration tests passed66.65s;11focusedchecks after cleanup passed;lint passed.",
+    "Same60buyers/s:3598/3600dispatched,2active-capdrops;all3598paid/issued,no customer HTTPerrors/caller retries. Dispatch p955.299s keeps strict gate FAILED.",
+    "Fresh post-TTL exact3598tickets/zero duplicates/queues passed;Kafka final lag0,max1192.",
+    "Callback-to-ticket p958.865s. Offset commit mean2.377ms,p95histupper10ms,total4.50s vs228.39s partition work: not dominant observed cost.",
+    "Partitions0..3large batches/highlag versus4/5. Installed default range reproduction pairs0+1,2+3,4,5; inferred worker handler work72/71/44/41s. Live assignment not retained.",
+    "Generator61.39CPU/75.69wall=0.811coreaverage;looplagp9562ms. Host/dispatch-windowCPU unmeasured. Two refreshhandler errors recovered; cause unrecorded.",
+    "Baseline4APIs/settings/cache0/readiness and newworkers/observabilitysource coherence verified after rollback."
   ],
-  "unresolved": "Instrumentation passed358tests; cloud same60/sdiagnostic pending. No new capacity result yet.",
+  "unresolved": "Uneven consumer service pressure is supported by phase/partition evidence; live owner mapping and refresh retry SQLSTATE missing. Generator delay also remains.60/snot certified;45/shealthy short control only;hourly300000target unverified.",
   "next_on_resume": [
-    "Sync tested instrumentation to both ECS, run same60buyers/s60sprofile with existing generator lifecycle diagnostic enabled.",
-    "Inspect consumer phase/partition timing and generator CPU/loop lag, audit exact durable payments after all deadlines, verify queues and restore baseline."
+    "Create ADR0102 before six-versus-four consumer comparison at the same60/s; keep database connection budget controlled, current generator settings fixed, and capture live member/partition mapping plus bounded retry SQLSTATE.",
+    "Run exact post-TTL/zero duplicates/queue/Kafka and source-restoration gates. No rate escalation before current failed scheduling gate is understood.",
+    "If client delay persists, compare two generator processes separately with same total500connections/16clients, rather than combining topology changes."
   ],
-  "validation_this_resume": "358 unit/integration tests passed66.65s;11focusedchecks after final style cleanup passed;lint passed. No new cloud load yet.",
-  "current_run": "checkout-20261003T045044Z-bb0e0f",
+  "validation_this_resume": "358localtests+11focusedchecks/lint passed;60/sdiagnostic customer/scheduling FAILED, exact3598paid-ticket post-TTL/zero duplicates/drain/source restoration PASSED.",
+  "current_run": "checkout-20261003T052323Z-610943",
   "evidence": [
     "docs/adr/0101-consumer-phase-paid-generator-diagnostics.md",
-    "docs/adr/0100-bounded-paid-rate-validation-after-indexes.md",
-    "docs/capacity/flash-sale-opening/real-paid-60-buyer-control-2026-10-03.json",
-    "docs/capacity/flash-sale-opening/real-paid-booking-index-control-2026-10-03.json"
+    "docs/capacity/flash-sale-opening/paid-consumer-phase-diagnostic-2026-10-03.json",
+    "docs/capacity/flash-sale-opening/real-paid-60-buyer-control-2026-10-03.json"
   ],
-  "authorization": "User Continue authorizes ADR0101 instrumentation and one same60/s60sdiagnostic after tests, exact post-TTL/queue audits, baseline restoration and report publication. No higher stage."
+  "authorization": "User Continue authorized ADR0101instrumentation and one same60/sdiagnostic. Completed; no further rate/topology experiment ran. Six-consumer comparison is proposed for next continuation."
 }
