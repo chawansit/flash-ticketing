@@ -1,6 +1,6 @@
 {
   "updated_date_bangkok": "2026-10-03",
-  "status": "running_generator_lifecycle_diagnostics",
+  "status": "comparing_sixteen_generator_pools",
   "cloud_load_requires_resume": false,
   "branch": "codex/redis-failover-recovery",
   "handoff_revision": "037164f",
@@ -17,13 +17,14 @@
     "Fixed-total-budget eight-client-per-shard synthetic control passed all 3600 journeys; hold pre-send p95 2.98s -> 0.715s; no drops/errors/retries.",
     "Real 45/s with 0.2s polling dispatched all 2700 buyers but failed: 2111 order GET and 304 payment POST 503s, 2814 pool-full rejections. Post-TTL:2396 accepted payments/unique tickets,304 unpaid expired,zero duplicates,queues empty,rollback passed.",
     "1s-poll 45/s control failed:2386/2700 dispatched,314 drops,665 order GET503 and101 payment POST503; post-TTL2285 unique paid tickets,101 unpaid expired,zero duplicates,queues empty,rollback passed.",
-    "Single-snapshot candidate:45/s control failed; pool-full873->72 and observed fulfilled1620->2250. Post-TTL2305 unique paid tickets,4 unpaid expired,zero duplicates,queues/Kafka drained. Reverted per ADR0094."
+    "Single-snapshot candidate:45/s control failed; pool-full873->72 and observed fulfilled1620->2250. Post-TTL2305 unique paid tickets,4 unpaid expired,zero duplicates,queues/Kafka drained. Reverted per ADR0094.",
+    "ADR0095:5s-ticket synthetic control passed3600/3600;20s-ticket control intentionally failed1500/3600with2100active-cap drops. First drops near8.35s at250active/child,no completed tasks counted;responder valid in both."
   ],
-  "unresolved": "Capacity-cap drops are not proof of a scheduling defect:slow backend fulfillment or client overhead can occupy500active journeys. Measuring body/pool release,CPU/loop lag and occupancy before attributing the remaining constraint.",
+  "unresolved": "Valid synthetic short control shows high per-process CPU/loop lag and tiny body-read cost;20s-ticket saturation proves cap drops can be due to long fulfillment rather than scheduler failure. Compare16vs8client pools at fixed budget before attributing real-stage drops.",
   "next_on_resume": [
-    "Review the clean-revision60/s synthetic5s-ticket control with lifecycle diagnostics.",
-    "If responder timing remains valid, execute the existing20s-ticket saturation control at the same offered rate/caps.",
-    "Use explicit active-cap snapshots and timing evidence to select the next change; no real load increase in this experiment."
+    "Run ADR0096 sixteen-pool synthetic5s-ticket control with all other parameters/diagnostics unchanged.",
+    "CompareCPU,loop lag,transport phases and accounting to the eight-pool baseline.",
+    "No real load increase; any backend change requires a separate ADR and exact paid/audit/queue gates."
   ],
   "validation_this_resume": "18 focused lifecycle tests passed;220 unit tests passed;changed-file lint passed. Cloud readiness checked, no real API load generated.",
   "evidence": [
@@ -39,8 +40,12 @@
     "docs/adr/0094-reevaluate-single-snapshot-order-reads-with-bounded-timeouts.md",
     "docs/capacity/flash-sale-opening/real-paid-single-snapshot-control-2026-10-03.json",
     "docs/capacity/flash-sale-opening/baseline-restoration-2026-10-03.json",
-    "docs/adr/0095-measure-generator-lifecycle-and-active-journey-pressure.md"
+    "docs/adr/0095-measure-generator-lifecycle-and-active-journey-pressure.md",
+    "docs/capacity/flash-sale-opening/synthetic-generator-lifecycle-control-2026-10-03.json",
+    "docs/capacity/flash-sale-opening/synthetic-generator-lifecycle-saturation-2026-10-03.json",
+    "docs/adr/0096-compare-sixteen-generator-client-pools-with-fixed-budget.md"
   ],
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "current_run": "checkout-20261003T021455Z-f32e23"
+  "current_run": "checkout-20261003T021455Z-f32e23",
+  "generator_revision": "e1f7828"
 }

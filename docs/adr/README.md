@@ -132,3 +132,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0094: Re-evaluate single-snapshot order reads with bounded timeouts](0094-reevaluate-single-snapshot-order-reads-with-bounded-timeouts.md)
 
 - [0095 - Generator lifecycle and active-journey pressure](0095-measure-generator-lifecycle-and-active-journey-pressure.md)
+
+- [0096 - Sixteen generator pools with a fixed budget](0096-compare-sixteen-generator-client-pools-with-fixed-budget.md)

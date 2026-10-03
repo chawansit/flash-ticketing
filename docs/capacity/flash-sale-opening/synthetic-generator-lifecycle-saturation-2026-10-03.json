@@ -1,0 +1,683 @@
+{
+  "kind": "synthetic_generator_control",
+  "production_capacity_evidence": false,
+  "created_at_utc": "2026-10-03T02:33:45.091991+00:00",
+  "source_revision": "e1f78281d0d0399c4189c4f8aeb468a895ea5f6f",
+  "source_dirty": false,
+  "python_version": "3.12.3",
+  "platform": "Linux",
+  "logical_cpus": 8,
+  "httpx_version": "0.28.1",
+  "httpcore_version": "1.0.9",
+  "configuration": {
+    "rate": 60,
+    "seconds": 60,
+    "concurrency": 500,
+    "response_ms": 30.0,
+    "command_seconds": 0.5,
+    "ticket_seconds": 20.0,
+    "poll_seconds": 0.2,
+    "shards": 2,
+    "http_clients_per_shard": 8,
+    "lifecycle_diagnostics": true
+  },
+  "responder": {
+    "requests": {
+      "other": 2,
+      "holds": 1500,
+      "reservation_commands": 3262,
+      "payments": 1500,
+      "orders": 55048
+    },
+    "accepted_connections": 305,
+    "closed_connections": 305,
+    "protocol_errors": 0,
+    "peak_handlers": 57,
+    "handler_p95_ms": 31.044928000483196,
+    "handler_max_ms": 32.269576000544475,
+    "loop_lag_p95_ms": 0.9968949998437893,
+    "loop_lag_max_ms": 2.0764969995070715,
+    "synthetic_orders": 1500
+  },
+  "responder_valid": true,
+  "generator": {
+    "kind": "scheduled_paid_ticket_journeys_sharded",
+    "measured_at_utc": "2026-10-03T02:33:45.070387+00:00",
+    "rate_target_per_second": 60,
+    "dispatch_seconds": 60,
+    "generator_shards": 2,
+    "generator_max_in_flight": 500,
+    "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+    "shard_exit_codes": [
+      1,
+      1
+    ],
+    "scheduled": 3600,
+    "dispatched": 1500,
+    "generator_drops": 2100,
+    "completed": 1500,
+    "fulfilled": 1500,
+    "fulfilled_by_deadline": 1500,
+    "distinct_orders": 1500,
+    "distinct_tickets": 1500,
+    "retry_attempts": 0,
+    "hold_app_timing_samples": 1500,
+    "payment_app_timing_samples": 1500,
+    "outcomes": {
+      "fulfilled": 1500
+    },
+    "physical_http_attempts": {
+      "holds": 1500,
+      "reservation_commands": 3262,
+      "payments": 1500,
+      "orders": 55048
+    },
+    "dispatch_lag_p95_ms": 43.46071933377971,
+    "dispatch_lag_max_ms": 150.39876500031824,
+    "hold_http_p95_ms": 1036.00840099989,
+    "hold_app_p95_ms": 31.1,
+    "hold_client_excess_p95_ms": 1005.69040099989,
+    "command_durable_wait_p95_ms": 1610.8900350000113,
+    "durable_p95_ms": 2206.0273099996266,
+    "payment_http_p95_ms": 954.5999100000699,
+    "payment_app_p95_ms": 31.053,
+    "payment_client_excess_p95_ms": 924.28691000007,
+    "ticket_wait_p95_ms": 21122.515177999958,
+    "payment_to_ticket_p95_ms": 21576.15632499983,
+    "hold_to_ticket_p95_ms": 23165.519686000152,
+    "transport_phase_p95_ms": {
+      "holds": {
+        "connect_ms": 112.5149040008182,
+        "headers_to_pool_release_ms": 23.227366000355687,
+        "pre_send_ms": 925.041278000208,
+        "request_to_pool_release_ms": 1035.7834989999901,
+        "response_body_ms": 0.27549400056159357,
+        "response_wait_ms": 69.95436299985158,
+        "stream_close_ms": 23.057367000546947
+      },
+      "orders": {
+        "connect_ms": 113.16171400085295,
+        "headers_to_pool_release_ms": 23.63903500008746,
+        "pre_send_ms": 871.5899149992765,
+        "request_to_pool_release_ms": 960.3690660005668,
+        "response_body_ms": 0.2487600004315027,
+        "response_wait_ms": 68.2161590002579,
+        "stream_close_ms": 23.435809999682533
+      },
+      "payments": {
+        "connect_ms": 111.69563000021299,
+        "headers_to_pool_release_ms": 24.667593999765813,
+        "pre_send_ms": 829.3041039996751,
+        "request_to_pool_release_ms": 954.3973620002362,
+        "response_body_ms": 0.2731120002863463,
+        "response_wait_ms": 69.62537900017196,
+        "stream_close_ms": 24.43133199994918
+      },
+      "reservation_commands": {
+        "connect_ms": 105.95802100033325,
+        "headers_to_pool_release_ms": 24.86268899974675,
+        "pre_send_ms": 842.9084669996882,
+        "request_to_pool_release_ms": 935.5259189997014,
+        "response_body_ms": 0.2621349995024502,
+        "response_wait_ms": 69.09325800006627,
+        "stream_close_ms": 24.690193000424188
+      }
+    },
+    "transport_phase_samples": {
+      "holds": {
+        "connect_ms": 24,
+        "headers_to_pool_release_ms": 1500,
+        "pre_send_ms": 1500,
+        "request_to_pool_release_ms": 1500,
+        "response_body_ms": 1500,
+        "response_wait_ms": 1500,
+        "stream_close_ms": 1500
+      },
+      "orders": {
+        "connect_ms": 227,
+        "headers_to_pool_release_ms": 55048,
+        "pre_send_ms": 55048,
+        "request_to_pool_release_ms": 55048,
+        "response_body_ms": 55048,
+        "response_wait_ms": 55048,
+        "stream_close_ms": 55048
+      },
+      "payments": {
+        "connect_ms": 4,
+        "headers_to_pool_release_ms": 1500,
+        "pre_send_ms": 1500,
+        "request_to_pool_release_ms": 1500,
+        "response_body_ms": 1500,
+        "response_wait_ms": 1500,
+        "stream_close_ms": 1500
+      },
+      "reservation_commands": {
+        "connect_ms": 48,
+        "headers_to_pool_release_ms": 3262,
+        "pre_send_ms": 3262,
+        "request_to_pool_release_ms": 3262,
+        "response_body_ms": 3262,
+        "response_wait_ms": 3262,
+        "stream_close_ms": 3262
+      }
+    },
+    "shards": [
+      {
+        "scheduled": 1800,
+        "dispatched": 750,
+        "generator_drops": 1050,
+        "fulfilled_by_deadline": 750,
+        "started_at_utc": "2026-10-03T02:32:28.533458+00:00",
+        "dispatch_lag_p95_ms": 43.29998933371826,
+        "transport_phase_p95_ms": {
+          "holds": {
+            "pre_send_ms": 904.375367999819,
+            "response_wait_ms": 69.45611399987683,
+            "connect_ms": 96.72134499942331,
+            "response_body_ms": 0.2536869997129543,
+            "stream_close_ms": 23.057367000546947,
+            "headers_to_pool_release_ms": 23.227366000355687,
+            "request_to_pool_release_ms": 1020.1995420002277
+          },
+          "reservation_commands": {
+            "pre_send_ms": 822.3488410003483,
+            "response_wait_ms": 69.09325800006627,
+            "connect_ms": 105.95802100033325,
+            "response_body_ms": 0.24551900060032494,
+            "stream_close_ms": 23.965220999343728,
+            "headers_to_pool_release_ms": 24.151590999281325,
+            "request_to_pool_release_ms": 913.2355410001765
+          },
+          "payments": {
+            "pre_send_ms": 709.9969549999514,
+            "response_wait_ms": 69.62537900017196,
+            "connect_ms": 111.69563000021299,
+            "response_body_ms": 0.24783900062175235,
+            "stream_close_ms": 24.177844000405457,
+            "headers_to_pool_release_ms": 24.399789999733912,
+            "request_to_pool_release_ms": 812.8421110004638
+          },
+          "orders": {
+            "pre_send_ms": 869.4410660000358,
+            "response_wait_ms": 68.2161590002579,
+            "connect_ms": 113.16171400085295,
+            "response_body_ms": 0.2487600004315027,
+            "stream_close_ms": 23.435809999682533,
+            "headers_to_pool_release_ms": 23.63903500008746,
+            "request_to_pool_release_ms": 960.3690660005668
+          }
+        },
+        "outcomes": {
+          "fulfilled": 750
+        },
+        "active_journeys_peak": 250,
+        "active_journeys_time_weighted_mean": 214.0000675747014,
+        "drop_reasons": {
+          "active_journey_capacity": 1050
+        },
+        "lifecycle": {
+          "process_cpu_seconds": 69.697427401,
+          "process_cpu_wall_ratio": 0.9123711115397167,
+          "loop_lag_p95_ms": 41.078211999774794,
+          "loop_lag_max_ms": 150.79071699983615,
+          "loop_samples": 602,
+          "body_bytes": {
+            "holds": 77250,
+            "reservation_commands": 52512,
+            "payments": 15750,
+            "orders": 862830
+          },
+          "stream_close_errors": {},
+          "drop_snapshots": [
+            {
+              "elapsed_seconds": 8.346606496999811,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8346.516493999843
+            },
+            {
+              "elapsed_seconds": 8.402039597999647,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8401.949594999678
+            },
+            {
+              "elapsed_seconds": 8.411953036999876,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8411.863033999907
+            },
+            {
+              "elapsed_seconds": 8.466850478000197,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8466.760475000228
+            },
+            {
+              "elapsed_seconds": 8.477477080999961,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8477.387077999992
+            },
+            {
+              "elapsed_seconds": 8.535818000999825,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8535.727997999857
+            },
+            {
+              "elapsed_seconds": 8.544522371000312,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8544.432368000344
+            },
+            {
+              "elapsed_seconds": 8.600153295999917,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8600.063292999948
+            }
+          ],
+          "journey_duration_by_outcome_ms": {
+            "fulfilled": {
+              "count": 750,
+              "mean": 21777.740360038664,
+              "p95": 23165.526863000196,
+              "max": 25608.065110999632
+            }
+          }
+        },
+        "pass": false
+      },
+      {
+        "scheduled": 1800,
+        "dispatched": 750,
+        "generator_drops": 1050,
+        "fulfilled_by_deadline": 750,
+        "started_at_utc": "2026-10-03T02:32:28.532381+00:00",
+        "dispatch_lag_p95_ms": 43.46071933377971,
+        "transport_phase_p95_ms": {
+          "holds": {
+            "pre_send_ms": 925.041278000208,
+            "response_wait_ms": 69.95436299985158,
+            "connect_ms": 112.5149040008182,
+            "response_body_ms": 0.27549400056159357,
+            "stream_close_ms": 22.683687000608188,
+            "headers_to_pool_release_ms": 22.882651000145415,
+            "request_to_pool_release_ms": 1035.7834989999901
+          },
+          "reservation_commands": {
+            "pre_send_ms": 842.9084669996882,
+            "response_wait_ms": 68.87883099989267,
+            "connect_ms": 100.46202500052459,
+            "response_body_ms": 0.2621349995024502,
+            "stream_close_ms": 24.690193000424188,
+            "headers_to_pool_release_ms": 24.86268899974675,
+            "request_to_pool_release_ms": 935.5259189997014
+          },
+          "payments": {
+            "pre_send_ms": 829.3041039996751,
+            "response_wait_ms": 68.44164999984059,
+            "connect_ms": 107.46057699998346,
+            "response_body_ms": 0.2731120002863463,
+            "stream_close_ms": 24.43133199994918,
+            "headers_to_pool_release_ms": 24.667593999765813,
+            "request_to_pool_release_ms": 954.3973620002362
+          },
+          "orders": {
+            "pre_send_ms": 871.5899149992765,
+            "response_wait_ms": 67.72043900036806,
+            "connect_ms": 107.97192300015013,
+            "response_body_ms": 0.24864700026228093,
+            "stream_close_ms": 23.178024999651825,
+            "headers_to_pool_release_ms": 23.365631999695324,
+            "request_to_pool_release_ms": 959.893080999791
+          }
+        },
+        "outcomes": {
+          "fulfilled": 750
+        },
+        "active_journeys_peak": 250,
+        "active_journeys_time_weighted_mean": 215.37205435825598,
+        "drop_reasons": {
+          "active_journey_capacity": 1050
+        },
+        "lifecycle": {
+          "process_cpu_seconds": 69.808726686,
+          "process_cpu_wall_ratio": 0.9187415162057946,
+          "loop_lag_p95_ms": 41.59059799985698,
+          "loop_lag_max_ms": 139.49729700016178,
+          "loop_samples": 598,
+          "body_bytes": {
+            "holds": 77250,
+            "reservation_commands": 51872,
+            "payments": 15750,
+            "orders": 863610
+          },
+          "stream_close_errors": {},
+          "drop_snapshots": [
+            {
+              "elapsed_seconds": 8.348749406000024,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8348.641468000096
+            },
+            {
+              "elapsed_seconds": 8.39091325299978,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8390.805314999852
+            },
+            {
+              "elapsed_seconds": 8.426710726000238,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8426.60278800031
+            },
+            {
+              "elapsed_seconds": 8.461186208000072,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8461.078270000144
+            },
+            {
+              "elapsed_seconds": 8.499589285999718,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8499.48134799979
+            },
+            {
+              "elapsed_seconds": 8.535604845999842,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8535.496907999914
+            },
+            {
+              "elapsed_seconds": 8.547275471999455,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8547.167533999527
+            },
+            {
+              "elapsed_seconds": 8.600183542000195,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8600.075604000267
+            }
+          ],
+          "journey_duration_by_outcome_ms": {
+            "fulfilled": {
+              "count": 750,
+              "mean": 21799.999731189342,
+              "p95": 23079.225038000004,
+              "max": 25098.506626000017
+            }
+          }
+        },
+        "pass": false
+      }
+    ],
+    "pass": false,
+    "http_clients_per_shard": [
+      8,
+      8
+    ],
+    "http_connection_budgets_per_shard": [
+      [
+        32,
+        32,
+        31,
+        31,
+        31,
+        31,
+        31,
+        31
+      ],
+      [
+        32,
+        32,
+        31,
+        31,
+        31,
+        31,
+        31,
+        31
+      ]
+    ]
+  },
+  "pass": false,
+  "profiled": false,
+  "compact": {
+    "kind": "synthetic_generator_control",
+    "revision": "e1f78281d0d0399c4189c4f8aeb468a895ea5f6f",
+    "profiled": false,
+    "configuration": {
+      "rate": 60,
+      "seconds": 60,
+      "concurrency": 500,
+      "response_ms": 30.0,
+      "command_seconds": 0.5,
+      "ticket_seconds": 20.0,
+      "poll_seconds": 0.2,
+      "shards": 2,
+      "http_clients_per_shard": 8,
+      "lifecycle_diagnostics": true
+    },
+    "pass": false,
+    "failed_gates": [
+      "generator_strict"
+    ],
+    "scheduled": 3600,
+    "completed": 1500,
+    "fulfilled": 1500,
+    "drops": 2100,
+    "outcomes": {
+      "fulfilled": 1500
+    },
+    "retries": 0,
+    "hold_to_ticket_p95_ms": 23165.519686000152,
+    "transport_p95_ms": {
+      "holds": {
+        "connect_ms": 112.5149040008182,
+        "headers_to_pool_release_ms": 23.227366000355687,
+        "pre_send_ms": 925.041278000208,
+        "request_to_pool_release_ms": 1035.7834989999901,
+        "response_body_ms": 0.27549400056159357,
+        "response_wait_ms": 69.95436299985158,
+        "stream_close_ms": 23.057367000546947
+      },
+      "orders": {
+        "connect_ms": 113.16171400085295,
+        "headers_to_pool_release_ms": 23.63903500008746,
+        "pre_send_ms": 871.5899149992765,
+        "request_to_pool_release_ms": 960.3690660005668,
+        "response_body_ms": 0.2487600004315027,
+        "response_wait_ms": 68.2161590002579,
+        "stream_close_ms": 23.435809999682533
+      },
+      "payments": {
+        "connect_ms": 111.69563000021299,
+        "headers_to_pool_release_ms": 24.667593999765813,
+        "pre_send_ms": 829.3041039996751,
+        "request_to_pool_release_ms": 954.3973620002362,
+        "response_body_ms": 0.2731120002863463,
+        "response_wait_ms": 69.62537900017196,
+        "stream_close_ms": 24.43133199994918
+      },
+      "reservation_commands": {
+        "connect_ms": 105.95802100033325,
+        "headers_to_pool_release_ms": 24.86268899974675,
+        "pre_send_ms": 842.9084669996882,
+        "request_to_pool_release_ms": 935.5259189997014,
+        "response_body_ms": 0.2621349995024502,
+        "response_wait_ms": 69.09325800006627,
+        "stream_close_ms": 24.690193000424188
+      }
+    },
+    "active_journeys_per_shard": [
+      {
+        "active_journeys_peak": 250,
+        "active_journeys_time_weighted_mean": 214.0000675747014,
+        "drop_reasons": {
+          "active_journey_capacity": 1050
+        },
+        "lifecycle": {
+          "process_cpu_seconds": 69.697427401,
+          "process_cpu_wall_ratio": 0.9123711115397167,
+          "loop_lag_p95_ms": 41.078211999774794,
+          "loop_lag_max_ms": 150.79071699983615,
+          "loop_samples": 602,
+          "body_bytes": {
+            "holds": 77250,
+            "reservation_commands": 52512,
+            "payments": 15750,
+            "orders": 862830
+          },
+          "stream_close_errors": {},
+          "drop_snapshots": [
+            {
+              "elapsed_seconds": 8.346606496999811,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8346.516493999843
+            },
+            {
+              "elapsed_seconds": 8.402039597999647,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8401.949594999678
+            },
+            {
+              "elapsed_seconds": 8.411953036999876,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8411.863033999907
+            },
+            {
+              "elapsed_seconds": 8.466850478000197,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8466.760475000228
+            },
+            {
+              "elapsed_seconds": 8.477477080999961,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8477.387077999992
+            },
+            {
+              "elapsed_seconds": 8.535818000999825,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8535.727997999857
+            },
+            {
+              "elapsed_seconds": 8.544522371000312,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8544.432368000344
+            },
+            {
+              "elapsed_seconds": 8.600153295999917,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8600.063292999948
+            }
+          ],
+          "journey_duration_by_outcome_ms": {
+            "fulfilled": {
+              "count": 750,
+              "mean": 21777.740360038664,
+              "p95": 23165.526863000196,
+              "max": 25608.065110999632
+            }
+          }
+        }
+      },
+      {
+        "active_journeys_peak": 250,
+        "active_journeys_time_weighted_mean": 215.37205435825598,
+        "drop_reasons": {
+          "active_journey_capacity": 1050
+        },
+        "lifecycle": {
+          "process_cpu_seconds": 69.808726686,
+          "process_cpu_wall_ratio": 0.9187415162057946,
+          "loop_lag_p95_ms": 41.59059799985698,
+          "loop_lag_max_ms": 139.49729700016178,
+          "loop_samples": 598,
+          "body_bytes": {
+            "holds": 77250,
+            "reservation_commands": 51872,
+            "payments": 15750,
+            "orders": 863610
+          },
+          "stream_close_errors": {},
+          "drop_snapshots": [
+            {
+              "elapsed_seconds": 8.348749406000024,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8348.641468000096
+            },
+            {
+              "elapsed_seconds": 8.39091325299978,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8390.805314999852
+            },
+            {
+              "elapsed_seconds": 8.426710726000238,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8426.60278800031
+            },
+            {
+              "elapsed_seconds": 8.461186208000072,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8461.078270000144
+            },
+            {
+              "elapsed_seconds": 8.499589285999718,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8499.48134799979
+            },
+            {
+              "elapsed_seconds": 8.535604845999842,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8535.496907999914
+            },
+            {
+              "elapsed_seconds": 8.547275471999455,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8547.167533999527
+            },
+            {
+              "elapsed_seconds": 8.600183542000195,
+              "active": 250,
+              "completed_tasks_still_counted": 0,
+              "oldest_active_ms": 8600.075604000267
+            }
+          ],
+          "journey_duration_by_outcome_ms": {
+            "fulfilled": {
+              "count": 750,
+              "mean": 21799.999731189342,
+              "p95": 23079.225038000004,
+              "max": 25098.506626000017
+            }
+          }
+        }
+      }
+    ],
+    "responder_handler_p95_ms": 31.044928000483196,
+    "responder_loop_lag_p95_ms": 0.9968949998437893,
+    "durability_audit": "not_applicable_synthetic",
+    "queue_drain": "not_applicable_synthetic",
+    "production_capacity_evidence": false
+  }
+}
