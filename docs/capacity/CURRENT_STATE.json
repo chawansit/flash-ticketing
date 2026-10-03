@@ -3,37 +3,38 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "overnight_adr0124_cache_age_trial_ready",
-  "cloud_load_requires_resume": false,
-  "handoff_revision": "e28e7d808ceb2403f902ffb9136fe531473156dd",
-  "revision_note": "Cloud checkout/images and generator tested e28e7d8;reporting commit may differ. All10 runtime hashes identical to c66265e/ADR0122 and93e2d20/ADR0123. Application and budgets unchanged;baseline settings restored.",
-  "backend_application_revision": "e28e7d808ceb2403f902ffb9136fe531473156dd",
-  "generator_revision": "e28e7d808ceb2403f902ffb9136fe531473156dd",
-  "backend_checkout_revision": "e28e7d808ceb2403f902ffb9136fe531473156dd",
-  "tested_generator_revision": "e28e7d808ceb2403f902ffb9136fe531473156dd",
+  "status": "overnight_adr0124_failed_gate_cloud_stopped",
+  "cloud_load_requires_resume": true,
+  "handoff_revision": "2d9dbf868c463c76dc0a1bc5ca947f585537e920",
+  "revision_note": "Cloud tested2d9dbf8;reportingcommitmaydiffer. Runnerallowlist adds1000only;all10 applicationruntimehashes unchanged fromADR0122/0123. Baseline settings restored.",
+  "backend_application_revision": "2d9dbf868c463c76dc0a1bc5ca947f585537e920",
+  "generator_revision": "2d9dbf868c463c76dc0a1bc5ca947f585537e920",
+  "backend_checkout_revision": "2d9dbf868c463c76dc0a1bc5ca947f585537e920",
+  "tested_generator_revision": "2d9dbf868c463c76dc0a1bc5ca947f585537e920",
   "local_implementation_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
   "diagnostic_implementation_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
   "last_checked_topology": "Restored4healthyAPIs;postgres/pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4/batch;PgBouncer24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "No active paid generator or owned diagnostic/test containers/profilers. Fresh18000 exact orders/payments/bookings/tickets/callbacks;zero unpaid/pending/duplicate/linkage errors. All financial/postTTL/fullqueues/Kafka0/CPU/profile/observers/source/settings/readiness/restoration/idle/privatecleanup gates passed.",
-  "current_run": "checkout-20261003T175147Z-e91677",
+  "cloud_state_note": "Customer18000unique tickets,exactfreshfinancial/postTTL/fullqueues/Kafka0/CPU/source/settings/readiness/restoration/idle/privatecleanup passed. Pipelineobserverfailed with2QueryCanceled at3s;overallqualificationfailed. No activegenerator/owneddiagnosticcontainers;baselinebudgets/cache0restored.",
+  "current_run": "checkout-20261003T181918Z-144090",
   "confirmed": [
-    "ADR0122 writer visited-stream fairness correction remains implemented;c66265e tests492unit/integration passed. ADR0123 bounded CPU readiness fix93e2d20 remains implemented;41focused tests passed. No application changes this investigation.",
-    "Diagnostic e28e7d8 vs passing93e2d20:all10runtime hashes and60buyers/s300s/budgets/shards identical.18000scheduled=dispatched=customerConfirmed unique tickets;zero drops/errors/retries.",
-    "WorstShard holdToTicketp955.199s versus5.192s;durability2.049s versus2.048s. Profiling overhead means this is diagnostic reproduction,not capacity improvement.",
-    "Four120s25HzGIL-only/nonblocking profiles4066observations;ownedprocesses exited/scratchremoved. Profiler3.439CPU seconds/124.019elapsed(~.0277core).70.81percentrouteunattributed;presence notchargedCPU.",
-    "Offered-only47CPU samples/230s(+2.30to+232.30s):host91.95percent;API1.663cores;consumer.512;PgBouncer.318;writer.243. Includes observers/profiler overlap;no pure-function attribution.",
-    "Status109629/145629customerHTTP attempts=75.28percent;4.001orderpolls/ticket and~2cachehits+2misses. Postpaymentwaitp953.178s;backendpaymentDueToTicketp95967ms(baseline448ms). Unpaired timings supportcacheagehypothesis,notper-orderproof.",
-    "Freshexact18000financialcohort;zero unpaid/pending/doubleBooking/duplicateLinkage. Fullqueues/Kafka0/observers/CPU/profile/source/settings/readiness/restoration/idle/privatecleanup passed;allprocess exits0."
+    "ADR0122writerfairnessc66265e andADR0123CPUreadiness93e2d20 retained. OvernightADR0124applicationruntime unchanged;runnerCLI1000option only.",
+    "61existingfocusedcache/CPU/CLI unit+realPgRedis integrationpassed6.68s;afterCLIchange69focusedunittests passed1.02s;lint/diffcheckpassed. InitialCLIrejectionbeforetransportretained,no buyerload.",
+    "18000 scheduled/18000 dispatched/18000 customer-confirmed distinct tickets;drops0/retries0;allrequiredgatespass=False.",
+    "Cacheage1000ms;orderHTTP72060to36277;totalHTTP145657to108750. Poll1s/load60buyers/s300s/budgets unchanged.",
+    "Customer ticketwaitp953158.8to1058.7ms;holdtoticketp955192.4to2168.5ms.",
+    "Offered-only sampledAPI1.677to1.273cores;hostCPU91.97to79.15percent;cachemisses35690.0to36233.0. SampledCPU/observer/backgroundlimits remain.",
+    "Fresh financial/zeroDoubleBooking/postTTL/fullQueues/Kafka0/CPU/source/settings/readiness/restoration/idle/privatecleanup passed. Pipelineobserver2QueryCanceled is the failed gate;runner/operator exit1."
   ],
-  "unresolved": "Sustained300000/hour,oneHotConcert and realProvider production capacity unqualified. API remainslargestCPUrole;generic stack attribution andnativework unresolved. Three-second statuscache may prolongpolling;shorterTTLmayincreaseDBpressure and needsone-factorcontrol.",
+  "unresolved": "Sustained300000/hour,oneHotConcert andrealProvider productioncapacity unqualified. Shortercacheage evidence coversbounded60buyer developmentprofile only. Native/functionCPU attribution andoutage/failovercapacity unresolved.",
   "next_on_resume": [
-    "Execute focusedexistingcache/CPU/CLI checks before configurationtrial.",
-    "Synchronize documentedrevision;initial same60buyers/s300s1000mscachetrial with all mandatory financial/drain/restoration gates.",
-    "If allinitialgatespass,one identical confirmation;otherwise offline diagnosisonly. Stopnewworkat08:00."
+    "Offline inspect compositeobserverSQL andversionedindexcoverage;no newcloudqueries orpaidruns afterfailedgate.",
+    "Create ADRbefore anyobserverpatterncorrection;validate locally andpublishsanitized evidence.",
+    "At08:00handoff;cloudtestingrequiresfreshresume."
   ],
-  "validation_this_resume": "Initial61focused cache/CPU/CLI unit+realPostgreSQL/Redis cacheintegration passed6.68s. After adding1000only toCLI choices,69focusedCLI/cache/CPU unit tests passed1.02s;lint/diffcheckpassed. LocalCLIrejectionbeforetransportretained;no cloudtrialyet.",
+  "validation_this_resume": "61focusedunit+cachePgRedis integrationpassed6.68s;69postCLIunitpassed1.02s;lint/diffcheck. Cloud mandatorygates=False;applicationruntimehashesunchanged.",
   "evidence": [
+    "docs/capacity/flash-sale-opening/order-cache-age-control-2026-10-04.json",
     "docs/adr/0124-shorter-advisory-order-status-snapshot-age.md",
     "docs/capacity/flash-sale-opening/api-stack-diagnostic-requalification-2026-10-04.json",
     "docs/adr/0118-bounded-external-api-stack-sampling.md",
@@ -42,7 +43,7 @@
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
   "authorization": "User authorizes autonomous continuation without routine questions until08:00Asia/Bangkok2026-10-04. Covers bounded implementation/configuration,checks and sanitized feature-branch evidence/checkpoint pushes to existing remote. No higherload/mainmerge;honor review rejection.",
-  "scope": "ADR0124 existingcacheparameter1000ms versus3000ms;same60buyers/s300s,poll1s,allbudgets unchanged. Initial trial plus one sameconfiguration confirmation only ifallgatespass;failurestopsfurthercloudexperiments.",
+  "scope": "ADR0124initial1000mscloudtrialfailed pipelineobserver gate. All further overnightcloudexperiments stopped;only offline diagnosis/validation/documentation permitted until08:00. No timeoutrelaxation/loadincrease/mainmerge.",
   "roadmap": [
     {
       "step": 1,
@@ -57,7 +58,7 @@
     {
       "step": 3,
       "work": "Reduce order-status read amplification",
-      "status": "cache_age_poll_amplification_hypothesis_selected_trial_future"
+      "status": "shorter_cache_age_failed_gate_diagnosis"
     },
     {
       "step": 4,
@@ -96,18 +97,18 @@
     }
   ],
   "publication": {
-    "status": "prior_evidence_published_new_overnight_scope_pending_commit",
+    "status": "overnight_sanitized_evidence_commits_on_existing_feature_branch",
     "destination": "github.com/chawansit/flash-ticketing.git",
     "branch": "codex/redis-failover-recovery",
     "evidence_revision": "b3becce88eae676d68302b0c1d08585fcd7e4419",
     "authorization": "User overnightauthorization includes sanitized routine featurebranchpushes until08:00;no mainmerge.",
-    "next_action": "Cache-age trial remains future work requiring resume;no higher load or main merge authorized."
+    "next_action": "Publishsanitizedcheckpointunderovernightauthorization;no mainmerge."
   },
   "overnight": {
     "expires_bangkok": "2026-10-04T08:00:00+07:00",
     "last_cloud_start_bangkok": "2026-10-04T07:30:00+07:00",
     "cloud_run_limit": 2,
-    "cloud_runs_started": 0,
+    "cloud_runs_started": 1,
     "failed_gate_stops_cloud": true,
     "heartbeat_id": "bounded-capacity-work-until-8am",
     "active_run": null,
@@ -116,6 +117,11 @@
         "reason": "RunnerCLI accepted only0/3000;1000 rejected before checkpoint/transport;no cloudrun dispatched",
         "evidence": "tmp/adr0124-local-preflight-rejected/runner.log"
       }
-    ]
+    ],
+    "last_run_gates_pass": false,
+    "completed_reports": [
+      "docs/capacity/flash-sale-opening/order-cache-age-control-2026-10-04.json"
+    ],
+    "failed_gate": "pipeline_observer:two QueryCanceled cohortstatements"
   }
 }
