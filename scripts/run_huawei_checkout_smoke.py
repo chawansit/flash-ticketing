@@ -41,7 +41,7 @@ parser.add_argument("--consumer-candidate", type=int, choices=(1, 2, 4, 6), defa
 parser.add_argument("--consumer-pool-per-instance", type=int, choices=(8, 12), default=12)
 parser.add_argument("--api-pool-per-instance-candidate", type=int, choices=(3, 4), default=3)
 parser.add_argument("--api-pool-waiters-candidate", type=int, choices=(3, 12), default=3)
-parser.add_argument("--order-status-cache-ms-candidate", type=int, choices=(0, 3000), default=0)
+parser.add_argument("--order-status-cache-ms-candidate", type=int, choices=(0, 1000, 3000), default=0)
 parser.add_argument("--callback-duplicates", type=int, choices=(1, 3), default=3)
 parser.add_argument("--shows", type=int, default=2)
 parser.add_argument("--viewers", type=int, default=20)

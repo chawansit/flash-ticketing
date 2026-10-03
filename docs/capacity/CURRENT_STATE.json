@@ -3,7 +3,7 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "overnight_adr0124_cache_age_trial_preparation",
+  "status": "overnight_adr0124_cache_age_trial_ready",
   "cloud_load_requires_resume": false,
   "handoff_revision": "e28e7d808ceb2403f902ffb9136fe531473156dd",
   "revision_note": "Cloud checkout/images and generator tested e28e7d8;reporting commit may differ. All10 runtime hashes identical to c66265e/ADR0122 and93e2d20/ADR0123. Application and budgets unchanged;baseline settings restored.",
@@ -32,7 +32,7 @@
     "Synchronize documentedrevision;initial same60buyers/s300s1000mscachetrial with all mandatory financial/drain/restoration gates.",
     "If allinitialgatespass,one identical confirmation;otherwise offline diagnosisonly. Stopnewworkat08:00."
   ],
-  "validation_this_resume": "61focused existingcache/CPU/CLI unit and realPostgreSQL17.6/Redis7.4.5 cacheintegration tests passed6.68s;ownedtestcontainersremoved;helper syntaxcompiled. Cloudtrial pending.",
+  "validation_this_resume": "Initial61focused cache/CPU/CLI unit+realPostgreSQL/Redis cacheintegration passed6.68s. After adding1000only toCLI choices,69focusedCLI/cache/CPU unit tests passed1.02s;lint/diffcheckpassed. LocalCLIrejectionbeforetransportretained;no cloudtrialyet.",
   "evidence": [
     "docs/adr/0124-shorter-advisory-order-status-snapshot-age.md",
     "docs/capacity/flash-sale-opening/api-stack-diagnostic-requalification-2026-10-04.json",
@@ -110,6 +110,12 @@
     "cloud_runs_started": 0,
     "failed_gate_stops_cloud": true,
     "heartbeat_id": "bounded-capacity-work-until-8am",
-    "active_run": null
+    "active_run": null,
+    "local_preflight_rejections": [
+      {
+        "reason": "RunnerCLI accepted only0/3000;1000 rejected before checkpoint/transport;no cloudrun dispatched",
+        "evidence": "tmp/adr0124-local-preflight-rejected/runner.log"
+      }
+    ]
   }
 }
