@@ -23,6 +23,7 @@ from ticketing.config import Settings
 from ticketing.domain import Failure
 from ticketing.http import RequestInstrumentation
 from ticketing.infrastructure.cache import RedisSeats
+from ticketing.infrastructure.order_status_cache import RedisOrderStatusCache
 from ticketing.infrastructure.postgres import Postgres
 from ticketing.infrastructure.redis_reservations import RedisReservationIntake
 from ticketing.infrastructure.reservations import PostgresReservations, RedisFirstReservations
@@ -69,7 +70,9 @@ async def lifespan(app):
     )
     store = RedisFirstReservations(durable, intake) if settings.reservation_mode == "redis-first" else durable
     app.state.reservation_intake = intake
-    app.state.reservations = Reservations(store)
+    order_cache = (RedisOrderStatusCache(cache.redis, settings.order_status_cache_ms)
+                   if settings.order_status_cache_ms else None)
+    app.state.reservations = Reservations(store, order_cache)
     loop_observer = asyncio.create_task(observe_event_loop_lag())
     try:
         yield
@@ -366,7 +369,14 @@ def checkout(body: OrderInput, who: Actor, svc: Service, key: Key):
 
 
 @app.get("/v1/orders/{order_id}", tags=["Checkout"], responses=ERRORS)
-def get_order(order_id: UUID, who: Actor, svc: Service):
+def get_order(order_id: UUID, who: Actor, svc: Service, response: Response):
+    """Actor-owned order and tickets. Opt-in snapshots may be up to 3 seconds old.
+
+    Advisory display only; payment/booking authorization always uses PostgreSQL.
+    Cache misses and errors retain the bounded database fallback behavior.
+    """
+    response.headers["Cache-Control"] = "private, no-store"
+    response.headers["Vary"] = "Authorization"
     return svc.get_order(who, order_id)
 
 

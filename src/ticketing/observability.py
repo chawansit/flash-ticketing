@@ -8,6 +8,10 @@ from time import perf_counter as monotonic
 
 from prometheus_client import Counter, Gauge, Histogram
 
+ORDER_STATUS_CACHE = Counter(
+    "ticketing_order_status_cache_total", "Advisory order snapshot outcomes", ["outcome"]
+)
+
 REQUESTS = Counter("ticketing_http_requests_total", "HTTP requests", ["route", "method", "status"])
 LATENCY = Histogram("ticketing_http_seconds", "HTTP latency", ["route"])
 OUTCOMES = Counter("ticketing_outcomes_total", "Business outcomes", ["operation", "outcome"])

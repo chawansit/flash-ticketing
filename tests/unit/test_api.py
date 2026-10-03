@@ -73,3 +73,23 @@ def test_delta_handler_encodes_response_in_sync_worker():
     assert isinstance(response, JSONResponse)
     assert json.loads(response.body) == payload
     cache.deltas.assert_called_once_with(str(event_id), 7, "map-1")
+
+
+def test_order_status_response_is_private_and_documents_freshness():
+    from ticketing.api import actor
+
+    order_id = uuid4()
+    svc = Mock()
+    svc.get_order.return_value = {"id": str(order_id), "status": "PENDING", "tickets": []}
+    app.dependency_overrides[actor] = lambda: "owner"
+    app.dependency_overrides[service] = lambda: svc
+    try:
+        client = TestClient(app)
+        response = client.get(f"/v1/orders/{order_id}")
+        assert response.status_code == 200
+        assert response.headers['cache-control'] == 'private, no-store'
+        assert response.headers['vary'] == 'Authorization'
+        svc.get_order.assert_called_once_with('owner', order_id)
+        assert '3 seconds' in client.get('/openapi.json').json()['paths']['/v1/orders/{order_id}']['get']['description']
+    finally:
+        app.dependency_overrides.clear()

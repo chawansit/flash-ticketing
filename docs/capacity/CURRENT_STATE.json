@@ -1,10 +1,10 @@
 {
   "updated_date_bangkok": "2026-10-03",
-  "status": "ready_for_order_status_read_pressure_candidate",
+  "status": "order_status_cache_locally_validated_cloud_pending",
   "cloud_load_requires_resume": false,
   "branch": "codex/redis-failover-recovery",
   "handoff_revision": "3744ad4",
-  "revision_note": "Documentation commits may be newer; cloud application/source coherence verified at3744ad4; reservations source hash equals restored baseline037164f.",
+  "revision_note": "Candidate working tree locally validated; code commit and cloud sync pending. Previous cloud application3744ad4 remains baseline.",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "backend_application_revision": "3744ad4",
   "last_checked_topology": "4 healthy APIs; PostgreSQL mode; admission4/API,DBpool3/API,waiters3/API;publisher,maintenance,consumer,reconciler each1;reservation-writer/refresh/expiry0.",
@@ -22,13 +22,13 @@
     "ADR0096 sixteen-pool synthetic control passed3600/3600;hold pre-send755.22->93.65ms,ticket p957742.53->6168.62ms;CPU ratio remained0.92-0.93 and physical polls rose.",
     "Real16client45/s:2700/2700dispatched,0drops,presend6.15ms;customer503s remain. Final audit2507unique paid tickets+193unpaid expired;baseline source hashes/readiness and original budgets restored."
   ],
-  "unresolved": "Generator now delivered2700/2700with zero drops and hold pre-send6.15ms; backend45/s customer gate failed1305order503+193payment503. DB pool-full1728,mean acquisition73.19ms/occupancy35.71ms. Order-status cache proposal0097 is not implemented.",
+  "unresolved": "Cache candidate implemented default-off; cloud smoke and unchanged45/s comparison not yet run.",
   "next_on_resume": [
-    "Read this checkpoint and ADR0097; review/accept or amend the proposed bounded order-status cache before implementing any architectural choice.",
-    "Implement authorization/freshness/error handling and metrics behind an opt-in default-disabled setting; run appropriate unit/integration validation.",
-    "Use ten-journey cloud smoke then the same45/s control with16generator clients; preserve exact post-TTL uniqueness/durability/queue gates and no escalation on failure."
+    "Sync exact tested revision to both ECS; verify API source hashes/configuration.",
+    "Run ten-journey cache smoke then same45/s60s16client1spoll control only if smoke passes.",
+    "Audit exact paid tickets/zero duplicates/queue drain and restore cache0; no escalation on failed gate."
   ],
-  "validation_this_resume": "220unit tests passed;18focused lifecycle tests passed;lint passed. Synthetic5s controls8/16pools passed3600journeys each;20s saturation intentionally failed2100capacity-cap drops. Real16client control failed customer gate but dispatched2700/2700;final post-TTL2507unique paid tickets,193unpaid expired,zero duplicates,queues drained;rollback/source/readiness passed.",
+  "validation_this_resume": "341 unit/integration tests passed in60.91s with isolated PostgreSQL17.6/Redis7.4.5; cloud cache experiment pending.",
   "evidence": [
     "docs/capacity/flash-sale-opening/synthetic-generator-control-2026-10-03.json",
     "docs/capacity/flash-sale-opening/resume-backlog-audit-2026-10-03.json",

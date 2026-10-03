@@ -34,6 +34,7 @@ parser.add_argument("--paid-poll-seconds", type=float, default=0.2)
 parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8), default=4)
 parser.add_argument("--consumer-candidate", type=int, choices=(1, 2, 4), default=1)
 parser.add_argument("--api-pool-waiters-candidate", type=int, choices=(3, 12), default=3)
+parser.add_argument("--order-status-cache-ms-candidate", type=int, choices=(0, 3000), default=0)
 parser.add_argument("--callback-duplicates", type=int, choices=(1, 3), default=3)
 parser.add_argument("--shows", type=int, default=2)
 parser.add_argument("--viewers", type=int, default=20)
@@ -87,6 +88,7 @@ prefix = [
     "env",
     f"FLASH_TICKETING_BACKEND_DIR={BACKEND}",
     f"API_POOL_MAX_WAITING={args.api_pool_waiters_candidate}",
+    f"ORDER_STATUS_CACHE_MS={args.order_status_cache_ms_candidate}",
     "sh",
     f"{BACKEND}/scripts/huawei_capacity_backend.sh",
 ]
@@ -94,13 +96,20 @@ rollback_prefix = [
     "env",
     f"FLASH_TICKETING_BACKEND_DIR={BACKEND}",
     "API_POOL_MAX_WAITING=3",
+    "ORDER_STATUS_CACHE_MS=0",
     "sh",
     f"{BACKEND}/scripts/huawei_capacity_backend.sh",
 ]
 waiter_check = (
     f'cd {BACKEND}; for id in $({COMPOSE} ps -q api); do docker exec "$id" printenv DB_POOL_MAX_WAITING; done'
 )
+cache_setting_check = (
+    f'cd {BACKEND}; for id in $({COMPOSE} ps -q api); do '
+    'value=$(docker exec "$id" printenv ORDER_STATUS_CACHE_MS || true); '
+    'printf "%s\n" "${value:-0}"; done'
+)
 state = {"run": RUN, "phases": [], "pass": False, "error": None,
+         "order_status_cache_ms_candidate": args.order_status_cache_ms_candidate,
          "paid_configuration": {"rate": args.paid_rate, "seconds": args.paid_seconds,
                                 "concurrency": args.paid_concurrency,
                                 "generator_shards": args.paid_generator_shards,
@@ -149,6 +158,9 @@ try:
     ).stdout.strip()
     if original != "postgres":
         raise RuntimeError("Unexpected initial reservation mode")
+    original_cache = step("order-cache-original", API_HOST, ["sh", "-lc", cache_setting_check], 30)
+    if original_cache.stdout.splitlines() != ["0"] * 4:
+        raise RuntimeError("Expected disabled order cache on all baseline APIs")
     deployed = True
     step(
         "deploy",
@@ -177,6 +189,9 @@ try:
     ).stdout.splitlines()
     if waiting_values != [str(args.api_pool_waiters_candidate)] * 4:
         raise RuntimeError("Candidate API waiter cap not active on all four replicas")
+    candidate_cache = step("order-cache-candidate", API_HOST, ["sh", "-lc", cache_setting_check], 30)
+    if candidate_cache.stdout.splitlines() != [str(args.order_status_cache_ms_candidate)] * 4:
+        raise RuntimeError("Candidate order cache setting not active on all APIs")
     if args.simulator_concurrency_candidate != 4:
         simulator_config = (
             f'cd {BACKEND}; id=$({COMPOSE} ps -q simulator); test -n "$id"; '
@@ -531,6 +546,9 @@ finally:
             restored_waiters = backend_exec("api-pool-waiters-restored", waiter_check, 30).stdout.splitlines()
             state["api_pool_waiters_restored"] = restored_waiters == ["3"] * 4
             state["pass"] = state["pass"] and state["api_pool_waiters_restored"]
+            restored_cache = backend_exec("order-cache-restored", cache_setting_check, 30).stdout.splitlines()
+            state["order_status_cache_restored"] = restored_cache == ["0"] * 4
+            state["pass"] = state["pass"] and state["order_status_cache_restored"]
         except Exception as exc:  # noqa: BLE001 - always attempt teardown
             state["error"] = (state["error"] or "") + "; rollback: " + str(exc)
             state["pass"] = False

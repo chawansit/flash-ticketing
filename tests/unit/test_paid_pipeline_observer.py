@@ -18,6 +18,8 @@ ticketing_db_commit_seconds_sum 0.2
 ticketing_event_loop_lag_current_seconds 0.015
 ticketing_db_pool_state{state="requests_waiting"} 5
 ticketing_db_pool_in_use 12
+ticketing_order_status_cache_total{outcome="hit"} 5
+ticketing_order_status_cache_total{outcome="redis_error"} 2
 """
     monkeypatch.setattr(observe_paid_pipeline, "urlopen", lambda *_args, **_kwargs: BytesIO(payload))
     result = observe_paid_pipeline.api_metrics("127.0.0.1")
@@ -32,6 +34,8 @@ ticketing_db_pool_in_use 12
     assert result["event_loop_lag_current"] == 0.015
     assert result["pool_state:requests_waiting"] == 5
     assert result["pool_in_use"] == 12
+    assert result["order_cache:hit"] == 5
+    assert result["order_cache:redis_error"] == 2
 
 
 def test_summary_aggregates_counter_deltas_and_per_replica_peaks():

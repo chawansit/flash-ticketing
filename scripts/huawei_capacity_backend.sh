@@ -323,6 +323,11 @@ case "${1:-}" in
     source_hash=$(sha256sum src/ticketing/infrastructure/postgres.py | cut -d " " -f 1)
     cache_source_hash=$(sha256sum src/ticketing/infrastructure/cache.py | cut -d " " -f 1)
     for id in $($compose ps -q api); do
+      for file in src/ticketing/api.py src/ticketing/application/reservations.py src/ticketing/infrastructure/order_status_cache.py src/ticketing/infrastructure/reservations.py src/ticketing/config.py; do
+        expected_hash=$(sha256sum "$file" | cut -d " " -f 1)
+        deployed_hash=$(docker exec "$id" sha256sum "/app/$file" | cut -d " " -f 1)
+        [ "$expected_hash" = "$deployed_hash" ]
+      done
       cache_image_hash=$(docker exec "$id" sha256sum /app/src/ticketing/infrastructure/cache.py | cut -d " " -f 1)
       [ "$cache_image_hash" = "$cache_source_hash" ]
       image_hash=$(docker exec "$id" sha256sum /app/src/ticketing/infrastructure/postgres.py | cut -d " " -f 1)

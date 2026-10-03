@@ -21,6 +21,7 @@ METRICS = {
 
 
 API_METRIC_NAMES = (
+    "ticketing_order_status_cache_total",
     "ticketing_http_requests_total",
     "ticketing_db_unavailable_total",
     "ticketing_db_pool_acquire_seconds_count",
@@ -60,6 +61,8 @@ def api_metrics(address):
                 route = labels.get("route", "")
                 if route.startswith(("/v1/orders", "/v1/payments")):
                     result[f"http_503:{route}:{labels.get('method', '')}"] = value
+            elif name == "ticketing_order_status_cache_total":
+                result[f"order_cache:{labels.get('outcome', '')}"] = value
             elif name == "ticketing_db_unavailable_total":
                 result[f"db_503:{labels.get('cause', '')}"] = value
             elif name == "ticketing_db_pool_acquire_seconds_count":
