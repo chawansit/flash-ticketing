@@ -42,7 +42,7 @@ def test_summary_aggregates_counter_deltas_and_per_replica_peaks():
     rows = [
         {
             "api_replicas": {
-                "a": {"db_503:PoolTimeout": 2, "pool_in_use": 4,
+                "a": {"db_503:PoolTimeout": 2, "pool_in_use": 4, "order_cache:hit": 3,
                       "duration:db_commit:all:count": 10, "duration:db_commit:all:sum": 0.1,
                       "event_loop_lag_current": 0.01},
                 "b": {"db_503:PoolTimeout": 5, "pool_in_use": 6,
@@ -51,7 +51,7 @@ def test_summary_aggregates_counter_deltas_and_per_replica_peaks():
         },
         {
             "api_replicas": {
-                "a": {"db_503:PoolTimeout": 4, "pool_in_use": 7,
+                "a": {"db_503:PoolTimeout": 4, "pool_in_use": 7, "order_cache:hit": 8,
                       "duration:db_commit:all:count": 20, "duration:db_commit:all:sum": 0.3,
                       "event_loop_lag_current": 0.02},
                 "b": {"db_503:PoolTimeout": 8, "pool_in_use": 3,
@@ -62,6 +62,7 @@ def test_summary_aggregates_counter_deltas_and_per_replica_peaks():
     api = summarize_paid_pipeline.summarize(rows)["api"]
     assert api["observed_replicas"] == 2
     assert api["counter_deltas"]["db_503:PoolTimeout"] == 5
+    assert api["counter_deltas"]["order_cache:hit"] == 5
     assert api["pool_peaks_per_replica"]["pool_in_use"] == 7
     assert round(api["duration_mean_ms"]["db_commit:all"], 3) == 20.0
     assert api["event_loop_lag_current_peak_ms"] == 20.0

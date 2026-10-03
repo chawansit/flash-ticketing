@@ -59,7 +59,7 @@ def summarize(rows):
     for samples in replica_samples.values():
         first, last = samples[0], samples[-1]
         for name in set(first) | set(last):
-            if name.startswith(("http_503:", "db_503:", "pool_acquire:", "duration:")):
+            if name.startswith(("http_503:", "db_503:", "pool_acquire:", "order_cache:", "duration:")):
                 delta = last.get(name, 0) - first.get(name, 0)
                 if delta < 0:
                     counter_reset = True

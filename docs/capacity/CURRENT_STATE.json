@@ -1,57 +1,35 @@
 {
   "updated_date_bangkok": "2026-10-03",
-  "status": "order_status_cache_locally_validated_cloud_pending",
-  "cloud_load_requires_resume": false,
   "branch": "codex/redis-failover-recovery",
-  "handoff_revision": "3744ad4",
-  "revision_note": "Candidate working tree locally validated; code commit and cloud sync pending. Previous cloud application3744ad4 remains baseline.",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "backend_application_revision": "3744ad4",
-  "last_checked_topology": "4 healthy APIs; PostgreSQL mode; admission4/API,DBpool3/API,waiters3/API;publisher,maintenance,consumer,reconciler each1;reservation-writer/refresh/expiry0.",
-  "cloud_state_note": "Services running and baseline readiness/budgets/source hashes verified. No load or unattended schedule running. Authorized temporary SSH key retained for continuation.",
-  "confirmed": [
-    "Point-in-time restart audit: readiness, database SELECT 1 and Redis PING passed; checked database/Redis backlogs and Kafka lag were zero.",
-    "Isolated generator control: 60 journeys/s for 60s, 500 in flight, two shards; 3206/3600 dispatched and fulfilled, 394 drops, no retries or HTTP error outcomes.",
-    "Responder was valid: handler p95 31.06ms, loop lag p95 1.03ms. Hold pre-send p95 2.98s reproduced a generator-side limitation without backend services.",
-    "Last short real paid pass was 45 journeys/s for one minute; hourly sales target is not validated.",
-    "Fixed-total-budget eight-client-per-shard synthetic control passed all 3600 journeys; hold pre-send p95 2.98s -> 0.715s; no drops/errors/retries.",
-    "Real 45/s with 0.2s polling dispatched all 2700 buyers but failed: 2111 order GET and 304 payment POST 503s, 2814 pool-full rejections. Post-TTL:2396 accepted payments/unique tickets,304 unpaid expired,zero duplicates,queues empty,rollback passed.",
-    "1s-poll 45/s control failed:2386/2700 dispatched,314 drops,665 order GET503 and101 payment POST503; post-TTL2285 unique paid tickets,101 unpaid expired,zero duplicates,queues empty,rollback passed.",
-    "Single-snapshot candidate:45/s control failed; pool-full873->72 and observed fulfilled1620->2250. Post-TTL2305 unique paid tickets,4 unpaid expired,zero duplicates,queues/Kafka drained. Reverted per ADR0094.",
-    "ADR0095:5s-ticket synthetic control passed3600/3600;20s-ticket control intentionally failed1500/3600with2100active-cap drops. First drops near8.35s at250active/child,no completed tasks counted;responder valid in both.",
-    "ADR0096 sixteen-pool synthetic control passed3600/3600;hold pre-send755.22->93.65ms,ticket p957742.53->6168.62ms;CPU ratio remained0.92-0.93 and physical polls rose.",
-    "Real16client45/s:2700/2700dispatched,0drops,presend6.15ms;customer503s remain. Final audit2507unique paid tickets+193unpaid expired;baseline source hashes/readiness and original budgets restored."
-  ],
-  "unresolved": "Cache candidate implemented default-off; cloud smoke and unchanged45/s comparison not yet run.",
-  "next_on_resume": [
-    "Sync exact tested revision to both ECS; verify API source hashes/configuration.",
-    "Run ten-journey cache smoke then same45/s60s16client1spoll control only if smoke passes.",
-    "Audit exact paid tickets/zero duplicates/queue drain and restore cache0; no escalation on failed gate."
-  ],
-  "validation_this_resume": "341 unit/integration tests passed in60.91s with isolated PostgreSQL17.6/Redis7.4.5; cloud cache experiment pending.",
-  "evidence": [
-    "docs/capacity/flash-sale-opening/synthetic-generator-control-2026-10-03.json",
-    "docs/capacity/flash-sale-opening/resume-backlog-audit-2026-10-03.json",
-    "docs/adr/0090-isolate-paid-generator-with-loopback-responder.md",
-    "docs/capacity/flash-sale-opening/synthetic-generator-profile-2026-10-03.json",
-    "docs/capacity/flash-sale-opening/synthetic-generator-partitioned-2026-10-03.json",
-    "docs/adr/0092-partition-generator-http-pools-with-fixed-total-budget.md",
-    "docs/capacity/flash-sale-opening/real-paid-partitioned-control-2026-10-03.json",
-    "docs/adr/0093-reevaluate-bounded-polling-with-validated-generator.md",
-    "docs/capacity/flash-sale-opening/real-paid-slower-poll-control-2026-10-03.json",
-    "docs/adr/0094-reevaluate-single-snapshot-order-reads-with-bounded-timeouts.md",
-    "docs/capacity/flash-sale-opening/real-paid-single-snapshot-control-2026-10-03.json",
-    "docs/capacity/flash-sale-opening/baseline-restoration-2026-10-03.json",
-    "docs/adr/0095-measure-generator-lifecycle-and-active-journey-pressure.md",
-    "docs/capacity/flash-sale-opening/synthetic-generator-lifecycle-control-2026-10-03.json",
-    "docs/capacity/flash-sale-opening/synthetic-generator-lifecycle-saturation-2026-10-03.json",
-    "docs/adr/0096-compare-sixteen-generator-client-pools-with-fixed-budget.md",
-    "docs/capacity/flash-sale-opening/synthetic-generator-sixteen-pool-control-2026-10-03.json",
-    "docs/capacity/flash-sale-opening/synthetic-generator-sixteen-pool-comparison-2026-10-03.json",
-    "docs/capacity/flash-sale-opening/real-paid-sixteen-client-control-2026-10-03.json",
-    "docs/adr/0097-proposed-bounded-order-status-read-cache.md"
-  ],
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "current_run": "checkout-20261003T023809Z-26db48",
-  "generator_revision": "3744ad4"
+  "status": "order_cache_control_failed_customer_gate_baseline_restored",
+  "cloud_load_requires_resume": false,
+  "handoff_revision": "b196bac",
+  "revision_note": "Documentation/report-only commits may be newer. Both ECS checkout/application revisions tested atb196bac; cache0 baseline verified. Post-test summarizer fix changed reporting only.",
+  "backend_application_revision": "b196bac",
+  "generator_revision": "b196bac",
+  "last_checked_topology": "4 healthyAPIs;postgres mode;admission4/API,DBpool3/API,waiters3/API,cache0;publisher/maintenance/consumer/reconciler1each;reservation-writer/refresh/expiry0;simulator4.",
+  "cloud_state_note": "No load or unattended schedule running. Baseline source hashes/configuration/readiness verified after experiment.",
+  "confirmed": [
+    "341 unit/integration tests passed on isolated PostgreSQL17.6/Redis7.4.5;3 report-aggregation tests passed after reporting fix.",
+    "Ten-buyer cache smoke passed10unique tickets,zero duplicate bookings,queue drain and rollback.",
+    "Matched45/s60s cache control:2461/2700dispatched,239active-cap drops,2439observed tickets;17orderGET503+5paymentPOST503.",
+    "Cache hit fraction59.5%;observedAPIpool-full1728->23,meanacquire73.19->14.36ms; fewerdispatchedbuyers prevents equal healthy-throughput claim.",
+    "Post-TTL2456unique paid tickets,5unpaid expired,zero duplicates,allqueues/Kafkalag0;cache0andoriginalbudgets restored."
+  ],
+  "unresolved": "Customer gate stillfailed at45/s:long buyer lifetimes saturate500inflight budget;payment/callback backlog204,paid-unfulfilled257,Kafkalag1036peak. Worker rootcause not isolated;300000tickets/hour remains unvalidated.",
+  "next_on_resume": [
+    "Read ADR0097 and linked compact result only; retain cache default-off and no higher rate after failed gate.",
+    "Analyze retained pipeline/Kafka trace for callback and fulfillment service/scheduling time; distinguish backend backlog from generator observation and3scache visibility delay.",
+    "If measurements are insufficient, create ADR for bounded worker-phase instrumentation before implementing. Run only focused checks and same45/s candidate with exact ticket/queue/rollback gates."
+  ],
+  "validation_this_resume": "341unit/integration passed;3observer tests/lint passed after reporting-only fix. Cloud10-buyer smokepassed;45/s customercontrolfailed,accepted-payment durability/uniqueness/queues/rollbackpassed.",
+  "current_run": "checkout-20261003T033256Z-2980d2",
+  "evidence": [
+    "docs/adr/0097-proposed-bounded-order-status-read-cache.md",
+    "docs/capacity/flash-sale-opening/order-cache-smoke-2026-10-03.json",
+    "docs/capacity/flash-sale-opening/real-paid-order-cache-control-2026-10-03.json",
+    "docs/capacity/flash-sale-opening/real-paid-sixteen-client-control-2026-10-03.json"
+  ]
 }

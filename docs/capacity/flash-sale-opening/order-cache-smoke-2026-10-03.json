@@ -1,0 +1,73 @@
+{
+  "kind": "order_cache_cloud_smoke",
+  "run_id": "checkout-20261003T033050Z-1e3fe3",
+  "source_revision": "b196bac010c7dfc2a22a7b5f092e9186af0a0417",
+  "cache_ms": 3000,
+  "probe": {
+    "measured_at_utc": "2026-10-03T03:31:55.881168+00:00",
+    "kind": "redis_first_checkout_smoke",
+    "journeys": 10,
+    "concurrency": 5,
+    "duplicates_per_payment": 1,
+    "outcomes": {
+      "fulfilled": 10
+    },
+    "distinct_fulfilled_orders": 10,
+    "distinct_tickets": 10,
+    "durable_p95_ms": 854.0223790005257,
+    "payment_to_ticket_p95_ms": 3191.887005001263,
+    "hold_to_ticket_p95_ms": 4040.4924100002972,
+    "pass": true,
+    "note": "HTTP smoke only; no DB/Kafka audit or arrival-rate claim."
+  },
+  "audit": {
+    "orders": 10,
+    "fulfilled_orders": 10,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 10,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 10,
+    "bookings": 10,
+    "tickets": 10,
+    "payment_callbacks": 10,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 10,
+    "callback_delivery_target": 10,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 10,
+    "expected_paid": 10,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true
+  },
+  "queue": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "active_fixture_holds": 0,
+    "overdue_fixture_holds": 0,
+    "pending_fixture_orders": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "pass": true
+  },
+  "rollback": {
+    "restored_admission": 4,
+    "restored_reservation_mode": "postgres",
+    "restored_reservation_writer_batch_size": 1,
+    "restored_reservation_max_command_age_seconds": 0,
+    "reservation_writer_replicas": 0,
+    "api_replicas": 4,
+    "maintenance_replicas": 1,
+    "refresh_replicas": 0,
+    "expiry_replicas": 0,
+    "consumer_replicas": 1,
+    "pass": true
+  },
+  "pass": true,
+  "cache_restored_disabled": true,
+  "limitation": "Ten-buyer protocol correctness smoke, not throughput proof."
+}

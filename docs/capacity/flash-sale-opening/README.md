@@ -21,9 +21,9 @@ The old burst profile has one minute at base rate before its peak, unlike a
 
 | Time after 10:00 | Offered rate | At base 250 RPS | At base 300 RPS |
 | --- | ---: | ---: | ---: |
-| 0–30 s | 4 x base | 1,000 RPS | 1,200 RPS |
-| 30–120 s | 2 x base | 500 RPS | 600 RPS |
-| 120–300 s | base | 250 RPS | 300 RPS |
+| 0â€“30 s | 4 x base | 1,000 RPS | 1,200 RPS |
+| 30â€“120 s | 2 x base | 500 RPS | 600 RPS |
+| 120â€“300 s | base | 250 RPS | 300 RPS |
 
 Total offered requests equal 480 times the base rate. With eight generator
 workers selecting 6% holds independently, this is 7,202 scheduled holds at base
@@ -150,7 +150,7 @@ and [rollback](stages/opening-300-repeat/rollback.json).
 The [end-to-end ticket validation protocol](checkout-validation-plan.md) defines
 the separate one-hour measurement needed for the 300,000-ticket target.
 
-## Paid-ticket checkout smoke — 2026-09-29
+## Paid-ticket checkout smoke â€” 2026-09-29
 
 A bounded functional probe exercised the actual Huawei API, PostgreSQL RDS,
 Redis/DCS, simulator and Kafka/consumer path on two fresh, isolated development
@@ -171,7 +171,7 @@ probe/audit/runner scripts on this branch were transferred as test tooling;
 they were not part of the deployed application image. A measured
 300,000-paid-tickets/hour result still requires a distributed, controlled
 arrival-rate generator and a one-hour run.
-## Controlled paid-ticket stages — 2026-09-29
+## Controlled paid-ticket stages â€” 2026-09-29
 
 A scheduled development-only journey generator now measures paid and issued
 tickets rather than treating hold HTTP responses as completed sales. It records
@@ -359,7 +359,7 @@ A repeat 45/s, one-callback, 60-second stage on revision a7a394d **failed**:
 in-flight cap, and hold-to-ticket p95 was 23.55 seconds. The Kafka group
 had two members throughout 22 valid samples; total lag peaked at 912 and
 then drained to zero. All six partitions accumulated lag (per-partition
-peaks 134–217). The outbox peak was 27 and PAID orders awaiting tickets
+peaks 134â€“217). The outbox peak was 27 and PAID orders awaiting tickets
 peaked at 223. Durable hold p95 was also 10.71 seconds, so ticket issuance
 is not the only source of journey latency.
 
@@ -635,7 +635,14 @@ queues. Kafka lag drained to zero. Baseline configuration/source coherence and
 readiness were verified after rollback; no higher rate was tested.
 
 The next proposed change is [ADR 0097](../../adr/0097-proposed-bounded-order-status-read-cache.md),
-an opt-in bounded order-status read cache. It is not implemented or validated.
+an opt-in bounded order-status read cache. That checkpoint is superseded by the results below.
 Services remain running, no load test or schedule is active, and the hourly
 300,000-ticket goal remains unverified. Use [CURRENT_STATE.json](../CURRENT_STATE.json)
 for continuation without reloading the full history.
+
+
+## 2026-10-03 bounded order-status cache candidate
+
+[ADR0097](../../adr/0097-proposed-bounded-order-status-read-cache.md) is implemented default-off. All341 unit/integration tests passed; the [ten-buyer cloud smoke](order-cache-smoke-2026-10-03.json) passed correctness and rollback. The [matched45/s control](real-paid-order-cache-control-2026-10-03.json) served about59.5% of order reads from cache. Pool-full rejections fell1728 ->23; customer503 outcomes1498 ->22 and observed ticket completions1202 ->2439. However, only2461/2700 buyers were dispatched:239 active-cap drops and22HTTP503s keep the strict gate failed. Fewer dispatched buyers prevent treating the error reduction as equal healthy throughput proof.
+
+The post-TTL audit passed2456 accepted-payment tickets,5 unpaid expired orders,zero duplicates and drained queues/Kafka. Payment/callback backlog peaked204 and paid-unfulfilled257. Isolate worker service time and scheduling before changing that pipeline; a3s cache can delay visibility but cannot alone explain21.5s payment-to-ticket p95. Source coherence, readiness and original budgets/cache0 were verified after rollback. No higher rate ran. No test or schedule is active;300000paid tickets/hour remains unverified. See [CURRENT_STATE.json](../CURRENT_STATE.json) for the compact next action.
