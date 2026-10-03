@@ -95,10 +95,11 @@
     }
   ],
   "publication": {
-    "status": "local_commit_only_push_blocked_by_auto_review",
+    "status": "evidence_published_remote_revision_verified",
     "destination": "github.com/chawansit/flash-ticketing.git",
     "branch": "codex/redis-failover-recovery",
-    "reason": "Review rejected external evidence transfer without explicit push authorization;no retry or workaround attempted.",
-    "next_action": "User approval required only to push this completed evidence checkpoint."
+    "evidence_revision": "b3becce88eae676d68302b0c1d08585fcd7e4419",
+    "authorization": "User explicitly approved the evidence push;original review block resolved.",
+    "next_action": "Cache-age trial remains future work requiring resume;no higher load or main merge authorized."
   }
 }
