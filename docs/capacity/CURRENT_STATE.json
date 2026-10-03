@@ -3,40 +3,42 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "bounded_callback_transport_locally_validated_cloud_control_next",
+  "status": "callback_pool_improved_cloud_capacity_failed_writer_fairness_fix_next",
   "cloud_load_requires_resume": false,
-  "handoff_revision": "cda15f29e8f39b72aea6d0aa1908489977bab891",
-  "revision_note": "Last verified cloud application remains cda15f2; new transport/source guards and earlier collection parser are not deployed yet.",
-  "backend_application_revision": "cda15f29e8f39b72aea6d0aa1908489977bab891",
-  "generator_revision": "cda15f29e8f39b72aea6d0aa1908489977bab891",
+  "handoff_revision": "74364c06bf6bbf39cd123150fe9b0f11e05a2305",
+  "revision_note": "Cloud checkout/images tested74364c0; later reporting commit may differ. Bounded callback pool and writer collection parser now deployed; experimental source retained while baseline budgets restored. Fairness defect reproduced but not yet fixed.",
+  "backend_application_revision": "74364c06bf6bbf39cd123150fe9b0f11e05a2305",
+  "generator_revision": "74364c06bf6bbf39cd123150fe9b0f11e05a2305",
   "last_checked_topology": "Restored4healthyAPIs;postgres mode;pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4;PgBouncer applicationpool24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "No active paid load, generator, profiler or owned test containers. Exact11912orders=11834paid+78expiredunpaid. Full queues/Kafka0/source/settings/readiness/idle/privatecleanup passed. Baseline4APIs/1consumer/batch4simulator restored; temporary SSH key remains for authorized continuation.",
+  "cloud_state_note": "No active paid load/generator/profiler or owned test/diagnostic containers.13543orders=13462paid+81expiredunpaid. All final financial/fullqueue/Kafka0/source/settings/readiness/idle/privatecleanup gates passed. Restored4APIs postgres/pool3/admission4/waiters3/cache0;consumer1/pool12;batch4simulator;writers0;PgBouncer24/reserve0/client160.",
   "confirmed": [
-    "Worst-shard durabilityp95 improved46.46percent,4.565to2.444s; matched command-age mean1.390to0.949s(-31.71percent).",
-    "Customer confirmations11444to11473(+0.25percent); drops6084to6088; customer503journeys472to439,3.961to3.685percentofdispatched. Overallloadqualification failed.",
-    "HostCPU96.95percent; aggregateAPI1.936cores. WriterCPU0.2327to0.2062cores, but payment callbackdeliverymean174.12ms/ack15.36ms and due-to-claimmean8.90s remain. No further throughput conclusion from writer improvement alone.",
-    "Exact11912orders=11834paid andissued+78expiredunpaid;361failedcustomerreads recovered backend tickets,not customer confirmations. Zero doublebooking/duplicates;fullqueues/Kafka0/allrestoration/source/readiness/idle/privatecleanup passed.",
-    "Eight delivery slots at measured delivery/ack cost plausibly constrain the simulator near low40s completions/s, while hostCPU is already saturated. This is a synthetic-lane inference,not verified production capacity or an instruction to raise slots."
+    "Same60buyers/s300s/eight slots:18000scheduled/13543dispatched/4457drops/13101customer-confirmed. Confirmations+14.19percent versus11473;drops-26.79percent versus6088.",
+    "442customer503s=81paymentPOST+361orderGET;3.26368percentofdispatched versus3.68536percent. CustomerHTTPerror0.25411percentof173938physical attempts; internalcallbacks/observers excluded.",
+    "Worst-shardhold-to-ticketp9515.929to14.750s(-7.40percent);durability2.444to2.331s(-4.64percent);holdHTTPp95293.07ms/payment414.51ms. Overallloadgate failed.",
+    "Matchedcallbackdeliverymean174.12to148.11ms(-14.94percent);due-to-claim8.899to7.054s(-20.72percent). Existinglease recovery remains;28internaldeliveryerrors in offered window recovered before final audit.",
+    "HostCPU96.10percent;aggregateAPI1.910cores. Writercollectionmean22.09ms,p95bucketupper50ms;commandagemean0.952s andDBbatch137.93ms/poolacquire0.0348ms. No baselinecollectiontimer interval exists for a direct phase delta.",
+    "Exact13543orders=13462paid andissued+81expiredunpaid.361failedcustomerreads recovered backend tickets,notcustomerconfirmations. Zero duplicates/doublebooking/fullqueues/Kafka0/source/settings/readiness/idle/privatecleanup passed.",
+    "Separate isolatedrealRedis scheduling reproduction:48hot commands served across12iterations while1coldcommand got no read. A busy first stream can starve later streams because cursor advances by the whole window before early COUNT return. This is a reproduced algorithm defect,not observed data loss in the audited cloud cohort."
   ],
-  "unresolved": "Overall load gate failed:6088drops/439customer503s;hold-to-ticketp9515.93s. HostCPU96.95percent andcallbackdue-to-claimmean8.90s;writerdurabilityimproved46.46percent withoutmaterialpaid-throughputgain. Collection timer missing from cloud observer;future parser fix tested locally.",
+  "unresolved": "Loadfailed4457drops/442customer503s;hostCPU96.10percent andcallbackqueue7.054smean. Additional isolatedRedis proof:whole-window cursor advance on early-full COUNT can starve a cold event behind a perpetually busy event; fix before further capacity trials.",
   "next_on_resume": [
-    "Run same60buyers/s300s/eight-slot pooled callback candidate against ADR0120, all budgets unchanged; corrected observer includes writer collection timer.",
-    "Finish exact postTTL paid/unpaid/fullqueues/Kafka/source/settings/readiness/idle/privatecleanup gates. No rate escalation/main merge on failed load."
+    "Create ADR for actual visited-stream cursor continuation. Reproduce/prove progress for hot+cold streams with strict total COUNT and recovery-before-new priority; fix starvation before further capacity tests.",
+    "Run appropriate Redis/PostgreSQL concurrency, replay, failover/reset, registry race and financial tests; compare one same-load candidate against ADR0121 after validation.",
+    "Then reduce measured order-status/callback CPU pressure. Preserve exact postTTL/full-keyspace queues/Kafka/source/settings/readiness/restoration/idle/privatecleanup; no escalation/mainmerge/promotion on failed load."
   ],
-  "validation_this_resume": "467unit/integration tests passed79.47s;20focused transport/dispatch tests passed7.84s. Real HTTP reuse/limits/no-inline-retry and PostgreSQL lease/duplicate-callback safety passed; owned test containers removed. Cloud comparison pending.",
-  "current_run": "checkout-20261003T143403Z-8e2951",
+  "validation_this_resume": "467unit/integration tests passed79.47s;20focused transport/dispatch tests passed7.84s. RealHTTP connection reuse/limits/no-inline-retry and realPostgreSQL lease/duplicate-callback safety passed, as did all existing financial/recovery/100wayseat-race cases. Lint/compile/bash syntax/whitespace passed; owned test and diagnostic containers removed.",
+  "current_run": "checkout-20261003T150334Z-e9ff80",
   "evidence": [
+    "docs/capacity/flash-sale-opening/paid-callback-connection-control-2026-10-03.json",
     "docs/adr/0121-bounded-payment-callback-connection-reuse.md",
-    "docs/capacity/flash-sale-opening/paid-pending-discovery-control-2026-10-03.json",
-    "docs/adr/0120-pipelined-pending-reservation-discovery.md",
-    "docs/capacity/flash-sale-opening/writer-pending-discovery-diagnostic-2026-10-03.json",
-    "docs/capacity/flash-sale-opening/paid-service-access-control-2026-10-03.json"
+    "docs/capacity/flash-sale-opening/writer-fairness-reproduction-2026-10-03.json",
+    "docs/capacity/flash-sale-opening/paid-pending-discovery-control-2026-10-03.json"
   ],
   "authorization": "User Go ahead as plan authorizes conditional implementation/experiments. Failed gates prohibit higher-rate escalation; recovery/audit/evidence-driven corrections remain in scope.",
-  "backend_checkout_revision": "cda15f29e8f39b72aea6d0aa1908489977bab891",
-  "tested_generator_revision": "cda15f29e8f39b72aea6d0aa1908489977bab891",
-  "scope": "ADR0121 bounded reusable callback HTTP transport implemented and locally verified. No real provider transport changes or immediate retries. Cloud one-factor candidate pending.",
+  "backend_checkout_revision": "74364c06bf6bbf39cd123150fe9b0f11e05a2305",
+  "tested_generator_revision": "74364c06bf6bbf39cd123150fe9b0f11e05a2305",
+  "scope": "ADR0121 same-load transport correction complete, loadqualification failed but financial/recovery passed. Separate isolated writerfairness defect reproduced; no fairness code changed. Next ADR+fix before another capacity experiment. No higher load/main merge/promotion.",
   "roadmap": [
     {
       "step": 1,
@@ -61,12 +63,12 @@
     {
       "step": 5,
       "work": "Shorten measured expensive transactions",
-      "status": "pending_discovery_improved_durability_no_material_paid_capacity_gain"
+      "status": "adversarial_writer_starvation_reproduced_fix_next"
     },
     {
       "step": 6,
       "work": "Callback connection reuse if needed",
-      "status": "callback_connection_reuse_and_polling_cost_investigation_next"
+      "status": "bounded_callback_pool_improved_control_capacity_still_unqualified"
     },
     {
       "step": 7,
@@ -89,5 +91,5 @@
       "status": "conditional_future_work"
     }
   ],
-  "local_implementation_revision": "cda15f29e8f39b72aea6d0aa1908489977bab891"
+  "local_implementation_revision": "74364c06bf6bbf39cd123150fe9b0f11e05a2305"
 }
