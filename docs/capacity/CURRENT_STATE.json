@@ -3,8 +3,8 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "writer_fairness_same_load_reproduced_cpu_sampler_fixed_all_gates_passed",
-  "cloud_load_requires_resume": true,
+  "status": "api_cpu_status_polling_investigation_profile_replay_next",
+  "cloud_load_requires_resume": false,
   "handoff_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
   "revision_note": "Cloud checkout/images and generator tested93e2d20;reporting commit may differ. Diagnostic readiness changed only;all10 application runtime hashes remain identical to ADR0122/c66265e. Baseline budgets restored.",
   "backend_application_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
@@ -24,23 +24,23 @@
     "WorstShard holdToTicketp955.226to5.192s(-0.64percent);durability2.061to2.048s(-0.63percent). Reproducible profile,not additional application improvement.",
     "CPU collector49samples/240s passed. Full window begins8.09s before dispatch;mean89.52percent. Offered-only47samples/230s(+1.91to+231.91s):host91.97percent;API1.677cores;consumer0.514;PgBouncer0.320;writer0.249. API includes observers;no pure-function attribution.",
     "Matched observer hostCPU p9599.14percent versus99.61percent. Primary passing baseline has no cgroup sample for direct CPU delta;high CPU limits unmeasured scaling claims.",
-    "Exact freshpostTTL18000paid/issued/callbacks;zero unpaid/pending/doubleBooking/duplicateLinkage. Fullqueues/Kafka0/requiredObservers/CPU/source/settings/readiness/restoration/idle/privatecleanup passed;runner/sampler/operator wrapper all exit0."
+    "Exact freshpostTTL18000paid/issued/callbacks;zero unpaid/pending/doubleBooking/duplicateLinkage. Fullqueues/Kafka0/requiredObservers/CPU/source/settings/readiness/restoration/idle/privatecleanup passed;runner/sampler/operator wrapper all exit0.",
+    "Saved repeat customer145657HTTP attempts include72060order status+37597reservation status reads=75.28percentstatus polls. High request volume does not attribute API CPU to those endpoints."
   ],
   "unresolved": "Sustained300000/hour,oneHotConcert and realProvider production capacity remain unqualified. Offered-window hostCPU~92percent with busy tails;API is largest observed role. CPU cost mechanism and higher-rate headroom need separate evidence.",
   "next_on_resume": [
-    "Use the existing repeat CPU/phase/read-attempt evidence to choose one API CPU/read-amplification hypothesis before another load change.",
-    "Any further diagnostic load or rate stage requires separate authorization and an ADR before an architecture/orchestration pattern change. Preserve all financial/durability/zeroDoubleBooking/fullQueues/Kafka/source/restoration gates.",
-    "No higher load/main merge/promotion was performed;one-hour300000ticket and single-concert proof remain future scope."
+    "Checkpoint/synchronize diagnostic scope;one same60buyers/s300s replay with four120s25HzGIL-only/nonblockingAPI profiles and CPU sampler.",
+    "Interpret bounded stack presence with explicit profiler overhead and unattributed/native-work limitations;choose one measured hypothesis,not a speculative architecture change."
   ],
-  "validation_this_resume": "41 focused diagnostic/observer/runner tests passed0.59s;lint/whitespace passed. One unchanged60buyers/s300s cloud repeat:18000confirmed;all financial/durability/fullqueue/Kafka/CPU/source/restoration/idle/privatecleanup gates passed. Prior492application tests not rerun.",
+  "validation_this_resume": "46 existing profiler/readiness tests passed0.23s;operator helper syntax compiled. No application changes or financial test rerun this investigation yet.",
   "evidence": [
     "docs/capacity/flash-sale-opening/paid-writer-fairness-repeat-2026-10-04.json",
     "docs/adr/0123-bounded-paid-cpu-sampler-readiness.md",
     "docs/capacity/flash-sale-opening/paid-writer-fairness-control-2026-10-04.json",
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
-  "authorization": "User Continue authorized sampler repair/validation and one unchanged60buyers/s300s repeat;completed. No new rate/load stage or main merge authorized.",
-  "scope": "Task complete:diagnostic readiness repair and one reproducible unchanged-load control with complete CPU/financial/drain evidence. Baseline budgets restored;candidate source retained in experimental images. No higher load/main merge/promotion.",
+  "authorization": "User Continue after Next investigateAPI CPU/read amplification authorizes investigation,including one bounded unchanged60buyers/s300s external-profile replay with existingADR0118/0123 diagnostics. No application correction,higher load or main merge selected.",
+  "scope": "Investigate API CPU/status polling using saved summaries and one bounded unchanged-code profile. Application/runtime budgets unchanged;all financial/drain gates retained.",
   "roadmap": [
     {
       "step": 1,
