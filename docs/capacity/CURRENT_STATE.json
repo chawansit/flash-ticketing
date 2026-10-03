@@ -3,10 +3,10 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "six_consumer_control_completed_customer_gate_failed",
+  "status": "api_pool_four_candidate_locally_validated_cloud_pending",
   "cloud_load_requires_resume": false,
-  "handoff_revision": "e803575",
-  "revision_note": "Tested backend/generator e803575. Next docs-only commit records this completed control; application source unchanged.",
+  "handoff_revision": "c0c5618",
+  "revision_note": "Next implementation commit adds bounded API pool candidate and actual budget checks. Backend application sources unchanged from e803575.",
   "backend_application_revision": "e803575",
   "generator_revision": "e803575",
   "last_checked_topology": "4 healthy APIs; PostgreSQL mode; admission4/API,DBpool3/API,waiters3/API,cache0;publisher/maintenance/consumer/reconciler1each;reservation-writer/refresh/expiry0;simulator4.",
@@ -23,15 +23,16 @@
   ],
   "unresolved": "60/snotcertified: bounded API pool admission rejects customer requests; callback schedulingdelayincreased. Six-consumer eventdelay improvement confirmed once, not permanent production promotion. Highest recent healthy shortcontrol45/s;300000/hour unverified.",
   "next_on_resume": [
-    "Create ADR0103 before one same60/s APIpool3-to4 comparison, sixconsumers/pool8 and PgBouncer applicationbudget24 fixed; unchangedgenerator/admission/waiter/cache/simulator settings.",
-    "Measure customer503and callbackdispatch delay together. Preserve exact paid/unpaidexpiry/zero-doublebooking/queue/Kafka/budget/source-restoration gates; no rate escalation or callerretry masking."
+    "Synchronize candidate revision onto both ECS and run one same60/s APIpool4 control against ADR0102 pool3 baseline.",
+    "Preserve exactpaid/unpaidexpiry/zero-doublebooking/queue/Kafka/budget/source-restoration checks."
   ],
-  "validation_this_resume": "362localtests/19focused/lintpassed. Live customergateFAILED; generator scheduling/ownership/budgets and exact3595paid+5expired postTTL/zero duplicates/drain/restorationPASSED.",
+  "validation_this_resume": "24focusedbudget/orchestration tests passed3.79s;lint/POSIXshellsyntax/Composemapping checks passed. Existing362testapplication suite passed before this orchestration-only change, not rerun.",
   "current_run": "checkout-20261003T055518Z-b463e5",
   "evidence": [
+    "docs/adr/0103-api-pool-four-fixed-server-budget.md",
     "docs/adr/0102-six-consumers-fixed-connection-budget.md",
     "docs/capacity/flash-sale-opening/paid-six-consumer-control-2026-10-03.json",
     "docs/capacity/flash-sale-opening/paid-consumer-phase-diagnostic-2026-10-03.json"
   ],
-  "authorization": "User Continue authorized one same60/s six-consumer comparison. Completed and original settings restored. No further experiment or rate escalation executed; APIpoolcomparison is proposed only."
+  "authorization": "User Continue authorizes one same60buyers/s APIpool3-to4 comparison with sixconsumers/pool8 and PgBouncer applicationpool24 unchanged; no rate escalation."
 }

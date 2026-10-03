@@ -7,7 +7,7 @@ from scripts import (
     summarize_paid_kafka_lag,
     summarize_paid_pipeline,
 )
-from scripts.verify_consumer_pool_budget import budget_view
+from scripts.verify_consumer_pool_budget import api_budget_view, budget_view
 from ticketing import observability, workers
 
 
@@ -64,3 +64,15 @@ def test_first_failed_attempt_is_not_lost_by_observer_summary(monkeypatch):
     assert row["consumer_batch_failures"] == {"40P01": 1}
     result = summarize_paid_pipeline.summarize([{"consumer_batch_failures": {}}, row])
     assert result["consumer_batch_failure_counts"] == {"40P01": 1}
+
+
+def test_api_pool_budget_requires_all_replicas_and_redacts_credentials():
+    apis = [{"DB_POOL_MAX": "4", "DATABASE_URL": "private-dsn"}] * 4
+    result = api_budget_view(apis, 4)
+    assert result["pass"] and result["aggregate_api_pool_ceiling"] == 16
+    assert "private-dsn" not in json.dumps(result)
+    assert not api_budget_view(apis, 3)["pass"]
+    assert not api_budget_view(apis[:3], 4)["pass"]
+    assert not api_budget_view([{"DB_POOL_MAX": "3"}] + apis[:3], 4)["pass"]
+    assert not api_budget_view([{}] * 4, 4)["pass"]
+    assert api_budget_view([{"DB_POOL_MAX": "3"}] * 4, 3)["pass"]

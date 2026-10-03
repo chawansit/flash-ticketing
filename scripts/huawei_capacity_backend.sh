@@ -339,6 +339,11 @@ case "${1:-}" in
       docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$id" |
         grep -qx "REDIS_RESERVATION_MAX_COMMAND_AGE_SECONDS=$reservation_max_command_age_candidate"
     done
+    effective_api_pool=$(docker exec "$(api_id)" printenv DB_POOL_MAX)
+    case "$effective_api_pool" in ''|*[!0-9]*) exit 2 ;; esac
+    for id in $($compose ps -q api); do
+      [ "$(docker exec "$id" printenv DB_POOL_MAX)" = "$effective_api_pool" ]
+    done
     worker_source_hash=$(sha256sum src/ticketing/workers.py | cut -d " " -f 1)
     for service in $worker_services; do
       ids=$($compose ps -q "$service")
@@ -355,7 +360,7 @@ case "${1:-}" in
         [ "$image_hash" = "$worker_source_hash" ]
       done
     done
-    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":3,"reservation_mode":"%s","reservation_writer_replicas":%s,"reservation_writer_batch_size":%s,"reservation_max_command_age_seconds":%s,"split_maintenance":%s,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"reconciler_replicas":1,"worker_source_verified":true,"load_balancer_bind_ip":"%s","load_balancer_nofile":%s,"pass":true}\n' "$candidate" "$reservation_candidate" "$deployed_reservation_writers" "$reservation_writer_batch_candidate" "$reservation_max_command_age_candidate" "$split_json" "$deployed_maintenance" "$deployed_refresh" "$deployed_expiry" "$consumer_candidate" "$load_balancer_published_ip" "$load_balancer_nofile" > "$public/deployment.json"
+    printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":%s,"reservation_mode":"%s","reservation_writer_replicas":%s,"reservation_writer_batch_size":%s,"reservation_max_command_age_seconds":%s,"split_maintenance":%s,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"reconciler_replicas":1,"worker_source_verified":true,"load_balancer_bind_ip":"%s","load_balancer_nofile":%s,"pass":true}\n' "$candidate" "$effective_api_pool" "$reservation_candidate" "$deployed_reservation_writers" "$reservation_writer_batch_candidate" "$reservation_max_command_age_candidate" "$split_json" "$deployed_maintenance" "$deployed_refresh" "$deployed_expiry" "$consumer_candidate" "$load_balancer_published_ip" "$load_balancer_nofile" > "$public/deployment.json"
     ;;
   warm)
     [ "$#" -eq 2 ]

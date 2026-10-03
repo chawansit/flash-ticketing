@@ -35,6 +35,7 @@ parser.add_argument("--paid-lifecycle-diagnostics", action="store_true")
 parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8), default=4)
 parser.add_argument("--consumer-candidate", type=int, choices=(1, 2, 4, 6), default=1)
 parser.add_argument("--consumer-pool-per-instance", type=int, choices=(8, 12), default=12)
+parser.add_argument("--api-pool-per-instance-candidate", type=int, choices=(3, 4), default=3)
 parser.add_argument("--api-pool-waiters-candidate", type=int, choices=(3, 12), default=3)
 parser.add_argument("--order-status-cache-ms-candidate", type=int, choices=(0, 3000), default=0)
 parser.add_argument("--callback-duplicates", type=int, choices=(1, 3), default=3)
@@ -93,6 +94,7 @@ transport = Transport("ssh", "scp", logs, KEY)
 prefix = [
     "env",
     f"FLASH_TICKETING_BACKEND_DIR={BACKEND}",
+    f"API_POOL_PER_INSTANCE={args.api_pool_per_instance_candidate}",
     f"API_POOL_MAX_WAITING={args.api_pool_waiters_candidate}",
     f"ORDER_STATUS_CACHE_MS={args.order_status_cache_ms_candidate}",
     f"CONSUMER_POOL_PER_INSTANCE={args.consumer_pool_per_instance}",
@@ -102,6 +104,7 @@ prefix = [
 rollback_prefix = [
     "env",
     f"FLASH_TICKETING_BACKEND_DIR={BACKEND}",
+    "API_POOL_PER_INSTANCE=3",
     "API_POOL_MAX_WAITING=3",
     "ORDER_STATUS_CACHE_MS=0",
     "CONSUMER_POOL_PER_INSTANCE=12",
@@ -119,6 +122,7 @@ cache_setting_check = (
 state = {"run": RUN, "phases": [], "pass": False, "error": None,
          "order_status_cache_ms_candidate": args.order_status_cache_ms_candidate,
          "consumer_pool_per_instance_candidate": args.consumer_pool_per_instance,
+         "api_pool_per_instance_candidate": args.api_pool_per_instance_candidate,
          "paid_configuration": {"rate": args.paid_rate, "seconds": args.paid_seconds,
                                 "concurrency": args.paid_concurrency,
                                 "generator_shards": args.paid_generator_shards,
@@ -172,7 +176,7 @@ try:
     if original_cache.stdout.splitlines() != ["0"] * 4:
         raise RuntimeError("Expected disabled order cache on all baseline APIs")
     original_budget = step("consumer-budget-original", API_HOST,
-        ["sh", "-lc", f"cd {BACKEND} && python3 scripts/verify_consumer_pool_budget.py --consumers 1 --pool-max 12"], 30)
+        ["sh", "-lc", f"cd {BACKEND} && python3 scripts/verify_consumer_pool_budget.py --consumers 1 --pool-max 12 --api-pool-max 3"], 30)
     state["consumer_budget_original"] = json.loads(original_budget.stdout)
     deployed = True
     step(
@@ -198,7 +202,7 @@ try:
         300,
     )
     candidate_budget = step("consumer-budget-candidate", API_HOST,
-        ["sh", "-lc", f"cd {BACKEND} && python3 scripts/verify_consumer_pool_budget.py --consumers {args.consumer_candidate} --pool-max {args.consumer_pool_per_instance}"], 30)
+        ["sh", "-lc", f"cd {BACKEND} && python3 scripts/verify_consumer_pool_budget.py --consumers {args.consumer_candidate} --pool-max {args.consumer_pool_per_instance} --api-pool-max {args.api_pool_per_instance_candidate}"], 30)
     state["consumer_budget_candidate"] = json.loads(candidate_budget.stdout)
     waiting_values = step(
         "api-pool-waiters-candidate", API_HOST, ["sh", "-lc", waiter_check], 30
@@ -578,7 +582,7 @@ finally:
     if deployed:
         try:
             restored_budget = backend_exec("consumer-budget-restored",
-                f"cd {BACKEND} && python3 scripts/verify_consumer_pool_budget.py --consumers 1 --pool-max 12", 30)
+                f"cd {BACKEND} && python3 scripts/verify_consumer_pool_budget.py --consumers 1 --pool-max 12 --api-pool-max 3", 30)
             state["consumer_budget_restored"] = json.loads(restored_budget.stdout)
         except Exception as exc:  # noqa: BLE001 - preserve remaining cleanup after verification failure
             state["error"] = (state["error"] or "") + "; consumer budget rollback: " + str(exc)
