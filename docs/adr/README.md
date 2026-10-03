@@ -182,3 +182,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0119 - Event-loop service dependency access](0119-event-loop-service-dependency-access.md)
 
 - [0120 - Pipelined pending reservation discovery](0120-pipelined-pending-reservation-discovery.md)
+
+- [0121 - Bounded payment callback connection reuse](0121-bounded-payment-callback-connection-reuse.md)

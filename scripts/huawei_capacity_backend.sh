@@ -326,7 +326,7 @@ case "${1:-}" in
     source_hash=$(sha256sum src/ticketing/infrastructure/postgres.py | cut -d " " -f 1)
     cache_source_hash=$(sha256sum src/ticketing/infrastructure/cache.py | cut -d " " -f 1)
     for id in $($compose ps -q api); do
-      for file in src/ticketing/api.py src/ticketing/application/reservations.py src/ticketing/infrastructure/order_status_cache.py src/ticketing/infrastructure/reservations.py src/ticketing/infrastructure/redis_reservations.py src/ticketing/config.py; do
+      for file in src/ticketing/api.py src/ticketing/infrastructure/payment_transport.py src/ticketing/application/reservations.py src/ticketing/infrastructure/order_status_cache.py src/ticketing/infrastructure/reservations.py src/ticketing/infrastructure/redis_reservations.py src/ticketing/config.py; do
         expected_hash=$(sha256sum "$file" | cut -d " " -f 1)
         deployed_hash=$(docker exec "$id" sha256sum "/app/$file" | cut -d " " -f 1)
         [ "$expected_hash" = "$deployed_hash" ]
@@ -361,7 +361,7 @@ case "${1:-}" in
             grep -qx "RESERVATION_WRITER_BATCH_SIZE=$reservation_writer_batch_candidate"
         fi
         [ "$image_hash" = "$worker_source_hash" ]
-        for file in src/ticketing/infrastructure/postgres.py src/ticketing/infrastructure/reservations.py src/ticketing/infrastructure/redis_reservations.py; do
+        for file in src/ticketing/infrastructure/payment_transport.py src/ticketing/infrastructure/postgres.py src/ticketing/infrastructure/reservations.py src/ticketing/infrastructure/redis_reservations.py; do
           expected_hash=$(sha256sum "$file" | cut -d " " -f 1)
           deployed_hash=$(docker exec "$id" sha256sum "/app/$file" | cut -d " " -f 1)
           [ "$expected_hash" = "$deployed_hash" ]

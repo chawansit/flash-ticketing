@@ -429,3 +429,72 @@ def test_full_snapshot_batch_reads_and_pipelines_multiple_events(system):
         ["A", "B", "C"],
         ["A"],
     ]
+
+
+def test_pooled_callback_failure_preserves_lease_then_duplicate_delivery_is_idempotent(system):
+    import hashlib
+    import hmac
+    import json
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.error import HTTPError
+
+    from ticketing.infrastructure.payment_transport import CallbackTransport
+
+    svc, db, event_id = system
+    payment(svc, event_id, "A")
+    settings = Settings()
+
+    class Handler(BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
+        def do_POST(self):
+            raw = self.rfile.read(int(self.headers["Content-Length"]))
+            timestamp = self.headers["X-Payment-Timestamp"]
+            expected = hmac.new(settings.webhook_secret.encode(), timestamp.encode() + b"." + raw,
+                                hashlib.sha256).hexdigest()
+            assert hmac.compare_digest(self.headers["X-Payment-Signature"], expected)
+            payload = json.loads(raw)
+            self.server.callback_ids.append(payload["callback_id"])
+            if self.server.accept:
+                svc.callback(payload)
+            self.send_response(200 if self.server.accept else 503)
+            self.send_header("Content-Length", "2")
+            self.end_headers()
+            self.wfile.write(b"{}")
+
+        def log_message(self, *_args):
+            pass
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    server.daemon_threads = True
+    server.accept = False
+    server.callback_ids = []
+    thread = threading.Thread(target=server.serve_forever)
+    thread.start()
+    transport = CallbackTransport(f"http://127.0.0.1:{server.server_port}/callback", 2)
+    try:
+        with pytest.raises(HTTPError):
+            workers.simulate_one(db, settings, transport)
+        assert len(server.callback_ids) == 1  # No immediate resend.
+        assert not workers.simulate_one(db, settings, transport)
+        with db.transaction() as conn:
+            row = conn.execute("SELECT deliveries,lease_until FROM payment_attempts").fetchone()
+            assert row["deliveries"] == 0 and row["lease_until"] is not None
+            conn.execute("UPDATE payment_attempts SET lease_until=clock_timestamp()-interval '1 second'")
+        server.accept = True
+        for _ in range(3):
+            assert workers.simulate_one(db, settings, transport)
+        assert not workers.simulate_one(db, settings, transport)
+        assert len(set(server.callback_ids)) == 1
+        with db.transaction() as conn:
+            assert conn.execute("SELECT deliveries FROM payment_attempts").fetchone()["deliveries"] == 3
+            assert conn.execute("SELECT count(*) AS n FROM payment_callbacks").fetchone()["n"] == 1
+            assert conn.execute("SELECT count(*) AS n FROM payment_attempts WHERE status='SUCCEEDED'").fetchone()["n"] == 1
+            assert conn.execute("SELECT count(*) AS n FROM bookings").fetchone()["n"] == 1
+            assert conn.execute("SELECT count(*) AS n FROM outbox_events WHERE event_type='OrderPaid'").fetchone()["n"] == 1
+    finally:
+        transport.close()
+        server.shutdown()
+        server.server_close()
+        thread.join(3)

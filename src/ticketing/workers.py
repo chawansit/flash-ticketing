@@ -19,6 +19,7 @@ from redis.exceptions import RedisError
 from ticketing.application.reservations import Reservations
 from ticketing.config import Settings
 from ticketing.infrastructure.cache import RedisSeats
+from ticketing.infrastructure.payment_transport import CallbackTransport
 from ticketing.infrastructure.postgres import Postgres
 from ticketing.infrastructure.redis_reservations import RedisReservationIntake
 from ticketing.infrastructure.reservations import PostgresReservations, event
@@ -895,7 +896,7 @@ def consume_iteration(consumer, db, cache, batch_size):
 
 
 @measured_work("simulate_one")
-def simulate_one(db, settings):
+def simulate_one(db, settings, transport=None):
     token = uuid4()
     with simulator_phase("claim"), db.transaction() as conn:
         row = conn.execute("""SELECT p.*,o.total,o.currency,clock_timestamp() AS claim_observed_at FROM payment_attempts p JOIN orders o ON o.id=p.order_id
@@ -934,8 +935,12 @@ def simulate_one(db, settings):
             "X-Payment-Signature": signature,
         },
     )
-    with simulator_phase("delivery"), urllib.request.urlopen(request, timeout=5) as response:
-        response.read()
+    with simulator_phase("delivery"):
+        if transport is None:
+            with urllib.request.urlopen(request, timeout=5) as response:
+                response.read()
+        else:
+            transport.post(raw, dict(request.header_items()))
     with simulator_phase("ack"), db.transaction() as conn:
         conn.execute(
             """UPDATE payment_attempts SET deliveries=deliveries+1,lease_until=NULL
@@ -945,8 +950,8 @@ def simulate_one(db, settings):
     return True
 
 
-def simulate_batch(db, settings, executor):
-    futures = [executor.submit(simulate_one, db, settings) for _ in range(settings.simulator_concurrency)]
+def simulate_batch(db, settings, executor, transport=None):
+    futures = [executor.submit(simulate_one, db, settings, transport) for _ in range(settings.simulator_concurrency)]
     work = False
     completed_at = []
     for future in as_completed(futures):
@@ -962,7 +967,7 @@ def simulate_batch(db, settings, executor):
 
 
 
-def simulate_refill(db, settings, executor, should_run=None):
+def simulate_refill(db, settings, executor, should_run=None, transport=None):
     """Keep bounded slots occupied independently; drain outstanding work on stop."""
     should_run = should_run or (lambda: running)
     ready_at = [0.0] * settings.simulator_concurrency
@@ -984,7 +989,7 @@ def simulate_refill(db, settings, executor, should_run=None):
                 if not should_run():
                     break
                 if slot not in occupied and eligible_at <= now:
-                    pending[executor.submit(simulate_one, db, settings)] = slot
+                    pending[executor.submit(simulate_one, db, settings, transport)] = slot
             if not pending:
                 delay = max(0, min(.1, min(ready_at) - time.monotonic()))
                 time.sleep(delay)
@@ -1026,9 +1031,13 @@ def main():
         max_command_age_seconds=settings.redis_reservation_max_command_age_seconds,
     )
     reservation_consumer = f"{socket.gethostname()}-{os.getpid()}"
-    producer = consumer = executor = None
+    producer = consumer = executor = callback_transport = None
     try:
         if role == "simulator":
+            callback_transport = CallbackTransport(
+                os.getenv("API_URL", "http://localhost:8000") + "/v1/webhooks/payments",
+                settings.simulator_concurrency,
+            )
             executor = ThreadPoolExecutor(max_workers=settings.simulator_concurrency)
         if role == "publisher":
             producer = KafkaProducer(
@@ -1050,7 +1059,7 @@ def main():
                 fetch_max_wait_ms=settings.consumer_batch_wait_ms,
             )
         if role == "simulator" and settings.simulator_dispatch_mode == "refill":
-            simulate_refill(db, settings, executor)
+            simulate_refill(db, settings, executor, transport=callback_transport)
             return
         next_warm = 0
         while running:
@@ -1063,7 +1072,7 @@ def main():
                         store, intake, reservation_consumer, settings.reservation_writer_batch_size
                     )
                 elif role == "simulator":
-                    work = simulate_batch(db, settings, executor)
+                    work = simulate_batch(db, settings, executor, callback_transport)
                 elif role == "maintenance":
                     work = (
                         refresh_batch(db, cache, settings.refresh_batch_size, settings.refresh_cooldown_ms) > 0
@@ -1105,6 +1114,8 @@ def main():
     finally:
         if executor:
             executor.shutdown(wait=True)
+        if callback_transport:
+            callback_transport.close()
         if producer:
             producer.close(timeout=5)
         if consumer:
