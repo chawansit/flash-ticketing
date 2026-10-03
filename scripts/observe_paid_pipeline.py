@@ -174,6 +174,38 @@ def sample(conn, show_ids):
     return dict(zip(names, row, strict=True))
 
 
+
+MAX_PAID_STAGE_SECONDS = 300
+COMPLETION_GRACE_SECONDS = 120
+OBSERVER_LAUNCH_ALLOWANCE_SECONDS = 60
+MAX_PAID_OBSERVER_SECONDS = MAX_PAID_STAGE_SECONDS + COMPLETION_GRACE_SECONDS + OBSERVER_LAUNCH_ALLOWANCE_SECONDS
+
+
+def paid_observer_seconds(stage_seconds):
+    if not 1 <= stage_seconds <= MAX_PAID_STAGE_SECONDS:
+        raise ValueError("Paid stage duration must be between 1 and 300 seconds")
+    return stage_seconds + COMPLETION_GRACE_SECONDS + OBSERVER_LAUNCH_ALLOWANCE_SECONDS
+
+
+def pipeline_startup_view(row, expected_consumers):
+    apis = row.get("api_replicas", {})
+    errors = sorted(key for key in row if key.endswith("_error"))
+    view = {"utc": row.get("utc"), "api_count": len(apis) if isinstance(apis, dict) else 0,
+            "consumer_count": row.get("consumer_replicas"), "sample_errors": errors}
+    view["pass"] = (isinstance(view["utc"], str) and "issued_tickets" in row and not errors
+                    and view["api_count"] == 4 and view["consumer_count"] == expected_consumers
+                    and row.get("simulator_replicas") == 1 and row.get("publisher_replicas") == 1)
+    return view
+
+
+def kafka_startup_view(row, expected_consumers):
+    view = {"utc": row.get("utc"), "members": row.get("members"),
+            "sample_error": "error_type" in row}
+    view["pass"] = (isinstance(view["utc"], str) and not view["sample_error"]
+                    and view["members"] == expected_consumers and "total_lag" in row)
+    return view
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--manifest", required=True, type=Path)
@@ -181,7 +213,7 @@ def main():
     p.add_argument("--seconds", required=True, type=int)
     p.add_argument("--interval", type=float, default=1)
     a = p.parse_args()
-    if not 1 <= a.seconds <= 400 or not 0.25 <= a.interval <= 10 or a.output.exists():
+    if not 1 <= a.seconds <= MAX_PAID_OBSERVER_SECONDS or not 0.25 <= a.interval <= 10 or a.output.exists():
         p.error("Bounded duration, interval and fresh output required")
     manifest = json.loads(a.manifest.read_text(encoding="utf-8"))
     if manifest.get("environment") != "development" or not manifest.get("show_ids"):

@@ -12,6 +12,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 from uuid import uuid4
 
+from observe_paid_pipeline import kafka_startup_view, paid_observer_seconds, pipeline_startup_view
 from unattended_capacity_stage import Transport
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -49,6 +50,7 @@ if (args.consumer_candidate == 6) != (args.consumer_pool_per_instance == 8):
 EXPECTED = args.paid_rate * args.paid_seconds if args.paid_rate else 10
 if not 0 <= args.paid_rate <= 100 or not 1 <= args.paid_seconds <= 300:
     parser.error("Bounded paid-stage rate/duration required")
+OBSERVER_SECONDS = paid_observer_seconds(args.paid_seconds)
 if not 1 <= args.shows <= 1000 or not 1 <= args.viewers <= 50000:
     parser.error("Invalid fixture size")
 if not 1 <= args.paid_concurrency <= 1000 or not 0.05 <= args.paid_poll_seconds <= 2:
@@ -262,22 +264,45 @@ try:
             'docker exec "$api" sh -lc \''
             'TEST_DATABASE_URL="$DATABASE_URL" nohup python /tmp/paid-observer.py '
             "--manifest /tmp/private-load-manifest.json "
-            f"--output /tmp/paid-observer.jsonl --seconds {args.paid_seconds + 120} "
+            f"--output /tmp/paid-observer.jsonl --seconds {OBSERVER_SECONDS} "
             "> /tmp/paid-observer.log 2>&1 < /dev/null & echo $! > /tmp/paid-observer.pid'"
         )
         backend_exec("observer-start", observer_shell, 30)
         observer_started = True
+        observer_ready_shell = (
+            f"cd {BACKEND}; api=$({COMPOSE} ps -q api | head -n 1); "
+            'docker exec "$api" sh -lc \''
+            'n=0; while [ "$n" -lt 20 ]; do '
+            'kill -0 "$(cat /tmp/paid-observer.pid)" 2>/dev/null || exit 1; '
+            'if test -s /tmp/paid-observer.jsonl; then head -n 1 /tmp/paid-observer.jsonl; exit 0; fi; '
+            'n=$((n+1)); sleep 1; done; exit 1\''
+        )
+        first_sample = step("observer-ready", API_HOST, ["sh", "-lc", observer_ready_shell], 30)
+        state["pipeline_observer_startup"] = pipeline_startup_view(json.loads(first_sample.stdout), args.consumer_candidate)
+        if not state["pipeline_observer_startup"]["pass"]:
+            raise RuntimeError("Pipeline observer first sample failed pre-dispatch gate")
         kafka_shell = (
             f"cd {BACKEND}; kafka=$({COMPOSE} ps -q kafka); "
             'test -n "$kafka" || exit 1; '
             f'nohup python3 scripts/kafka_lag_observe.py --container "$kafka" '
-            f"--seconds {args.paid_seconds + 120} --interval 2 "
+            f"--seconds {OBSERVER_SECONDS} --interval 2 "
             f"--output tmp/unattended-{RUN}/raw/paid-kafka-lag.ndjson "
             f"> tmp/unattended-{RUN}/raw/paid-kafka-lag.log 2>&1 < /dev/null & "
             f"echo $! > tmp/unattended-{RUN}/private/paid-kafka-lag.pid"
         )
         backend_exec("kafka-observer-start", kafka_shell, 30)
         kafka_observer_started = True
+        kafka_ready_shell = (
+            f"cd {BACKEND}; n=0; while [ \"$n\" -lt 20 ]; do "
+            f'kill -0 "$(cat tmp/unattended-{RUN}/private/paid-kafka-lag.pid)" 2>/dev/null || exit 1; '
+            f'if test -s tmp/unattended-{RUN}/raw/paid-kafka-lag.ndjson; then '
+            f'head -n 1 tmp/unattended-{RUN}/raw/paid-kafka-lag.ndjson; exit 0; fi; '
+            'n=$((n+1)); sleep 1; done; exit 1'
+        )
+        first_kafka = step("kafka-observer-ready", API_HOST, ["sh", "-lc", kafka_ready_shell], 30)
+        state["kafka_observer_startup"] = kafka_startup_view(json.loads(first_kafka.stdout), args.consumer_candidate)
+        if not state["kafka_observer_startup"]["pass"]:
+            raise RuntimeError("Kafka observer first sample failed pre-dispatch gate")
 
     with tempfile.TemporaryDirectory(prefix="checkout-private-") as temp:
         manifest = Path(temp) / "manifest.json"

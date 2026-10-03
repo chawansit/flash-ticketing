@@ -1,0 +1,561 @@
+{
+  "kind": "five_minute_same_60_buyer_attempt_failed_observer_and_durability_gates",
+  "run_id": "checkout-20261003T063237Z-7ab809",
+  "source_revision": "936224b0eb8313916d3e349bd9b5dd26605025e6",
+  "configuration": {
+    "rate": 60,
+    "seconds": 300,
+    "concurrency": 500,
+    "generator_shards": 1,
+    "http_clients_per_shard": 16,
+    "http_connections_per_shard": 500,
+    "poll_seconds": 1.0,
+    "callback_duplicates": 1,
+    "api_replicas": 4,
+    "db_pool_per_api": 4,
+    "api_pool_waiters": 12,
+    "admission_per_api": 4,
+    "simulator_threads": 8,
+    "consumer_replicas": 6,
+    "order_status_cache_ms": 3000,
+    "reservation_mode": "redis-first",
+    "reservation_writer_replicas": 3,
+    "reservation_writer_batch_size": 4,
+    "reservation_max_command_age_seconds": 60,
+    "shows": 60,
+    "seats_per_show": 300,
+    "one_ticket_per_buyer": true,
+    "lifecycle_diagnostics": true,
+    "consumer_pool_per_replica": 8,
+    "aggregate_consumer_client_ceiling": 48,
+    "pgbouncer_application_server_pool": 24,
+    "pgbouncer_reserve_pool": 0,
+    "pgbouncer_client_limit": 160,
+    "aggregate_api_client_ceiling": 16
+  },
+  "strict_control_pass": false,
+  "fully_observed_capacity_validation_pass": false,
+  "runner_error_summary": "Generator SSH step timed out after480seconds; collected result exists and fails customer/scheduling gates. Pipeline observer exited at startup: requested420seconds exceeds its400-second limit. Kafka observer completed and lastlag0.",
+  "failed_gates": [
+    "17999of18000buyers fulfilled; one accepted provisional reservation timed out awaiting durability.",
+    "Dispatchp95102.576ms exceeds100ms; max791.114ms exceeds500ms.",
+    "Pipeline observer absent due400/420duration-contract mismatch; no API pool/worker phase/lock/minute-stability metrics for this attempt.",
+    "Initial paid audit expected18000but only17999durable paidorders; initial reservationqueue retainedone undelivered entry. Later paid-cohort audit/recovery does not change the failed stage.",
+    "SSH collection timeout despite a subsequently collected391.19-second generator result; cause unresolved."
+  ],
+  "customer_journey_failure_rate_percent": 0.005555555555555556,
+  "customer_http_error_outcomes": 0,
+  "customer_probe": {
+    "measured_at_utc": "2026-10-03T06:40:06.412098+00:00",
+    "started_at_utc": "2026-10-03T06:33:35.219216+00:00",
+    "kind": "scheduled_paid_ticket_journeys",
+    "http_client_count": 16,
+    "rate_target_per_second": 60,
+    "dispatch_seconds": 300,
+    "completion_deadline_seconds": 420,
+    "scheduled": 18000,
+    "dispatched": 18000,
+    "generator_drops": 0,
+    "drop_reasons": {},
+    "active_journeys_peak": 483,
+    "active_journeys_time_weighted_mean": 224.51463756362895,
+    "steady_state_mean_residence_budget_ms": 8333.333333333334,
+    "lifecycle_diagnostics": true,
+    "completed": 18000,
+    "fulfilled": 17999,
+    "fulfilled_by_deadline": 17999,
+    "distinct_orders": 17999,
+    "distinct_tickets": 17999,
+    "outcomes": {
+      "fulfilled": 17999,
+      "durability_timeout": 1
+    },
+    "physical_http_attempts": {
+      "holds": 18000,
+      "reservation_commands": 42810,
+      "payments": 17999,
+      "orders": 73109
+    },
+    "retry_attempts": 0,
+    "generator_max_in_flight": 500,
+    "http_max_connections": 500,
+    "dispatch_lag_p95_ms": 102.57637233371497,
+    "dispatch_lag_max_ms": 791.1139399984677,
+    "hold_http_p95_ms": 149.04888200180721,
+    "hold_app_p95_ms": 37.3,
+    "hold_client_excess_p95_ms": 128.14608799915644,
+    "hold_app_timing_samples": 17999,
+    "command_durable_wait_p95_ms": 3064.8939379971125,
+    "durable_p95_ms": 3088.9126370020676,
+    "payment_http_p95_ms": 178.7838410018594,
+    "payment_app_p95_ms": 98.09,
+    "payment_client_excess_p95_ms": 116.481780000109,
+    "payment_app_timing_samples": 17999,
+    "ticket_wait_p95_ms": 3910.369145000004,
+    "payment_to_ticket_p95_ms": 4170.491340002627,
+    "hold_to_ticket_p95_ms": 7217.816352000227,
+    "elapsed_seconds": 391.1869414770008,
+    "pass": false
+  },
+  "generator_diagnostics": {
+    "process_cpu_seconds": 236.275071739,
+    "process_cpu_wall_ratio": 0.6039952940323071,
+    "loop_lag_p95_ms": 31.41882300042198,
+    "loop_lag_max_ms": 177.25173099825042,
+    "stream_close_errors": {}
+  },
+  "pipeline": null,
+  "minute_stability": null,
+  "kafka": {
+    "samples": 81,
+    "sample_errors": 0,
+    "max_total_lag": 74,
+    "max_partition_lag": 29,
+    "partition_lag_peaks": {
+      "4": 21,
+      "5": 27,
+      "2": 29,
+      "1": 26,
+      "0": 23,
+      "3": 29
+    },
+    "last_total_lag": 0,
+    "members_min": 6,
+    "members_max": 6,
+    "drain_after_peak_seconds": 50.595618,
+    "ownership_observed": true,
+    "max_partitions_per_member": 1,
+    "last_member_partition_groups": [
+      [
+        0
+      ],
+      [
+        1
+      ],
+      [
+        2
+      ],
+      [
+        3
+      ],
+      [
+        4
+      ],
+      [
+        5
+      ]
+    ]
+  },
+  "connection_budgets": {
+    "consumer_budget_original": {
+      "pgbouncer": {
+        "DEFAULT_POOL_SIZE": "24",
+        "RESERVE_POOL_SIZE": "0",
+        "MAX_CLIENT_CONN": "160",
+        "POOL_MODE": "transaction"
+      },
+      "consumer_count": 1,
+      "consumer_pool_max_per_replica": [
+        "12"
+      ],
+      "aggregate_consumer_pool_ceiling": 12,
+      "pass": true,
+      "api": {
+        "api_count": 4,
+        "api_pool_max_per_replica": [
+          "3",
+          "3",
+          "3",
+          "3"
+        ],
+        "aggregate_api_pool_ceiling": 12,
+        "pass": true
+      }
+    },
+    "consumer_budget_candidate": {
+      "pgbouncer": {
+        "DEFAULT_POOL_SIZE": "24",
+        "RESERVE_POOL_SIZE": "0",
+        "MAX_CLIENT_CONN": "160",
+        "POOL_MODE": "transaction"
+      },
+      "consumer_count": 6,
+      "consumer_pool_max_per_replica": [
+        "8",
+        "8",
+        "8",
+        "8",
+        "8",
+        "8"
+      ],
+      "aggregate_consumer_pool_ceiling": 48,
+      "pass": true,
+      "api": {
+        "api_count": 4,
+        "api_pool_max_per_replica": [
+          "4",
+          "4",
+          "4",
+          "4"
+        ],
+        "aggregate_api_pool_ceiling": 16,
+        "pass": true
+      }
+    },
+    "consumer_budget_restored": {
+      "pgbouncer": {
+        "DEFAULT_POOL_SIZE": "24",
+        "RESERVE_POOL_SIZE": "0",
+        "MAX_CLIENT_CONN": "160",
+        "POOL_MODE": "transaction"
+      },
+      "consumer_count": 1,
+      "consumer_pool_max_per_replica": [
+        "12"
+      ],
+      "aggregate_consumer_pool_ceiling": 12,
+      "pass": true,
+      "api": {
+        "api_count": 4,
+        "api_pool_max_per_replica": [
+          "3",
+          "3",
+          "3",
+          "3"
+        ],
+        "aggregate_api_pool_ceiling": 12,
+        "pass": true
+      }
+    }
+  },
+  "initial_failed_audit": {
+    "orders": 17999,
+    "fulfilled_orders": 17999,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 17999,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 17999,
+    "bookings": 17999,
+    "tickets": 17999,
+    "payment_callbacks": 17999,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 17999,
+    "callback_delivery_target": 17999,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 18000,
+    "expected_paid": 18000,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": false
+  },
+  "initial_failed_queue": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "active_fixture_holds": 0,
+    "overdue_fixture_holds": 0,
+    "pending_fixture_orders": 0,
+    "reservation_stream_entries": 1,
+    "reservation_stream_pending": 0,
+    "pass": false
+  },
+  "outstanding_command_inspection": {
+    "outstanding": [
+      {
+        "fixture_scoped": true,
+        "stream_entries": 1,
+        "in_advisory_registry": false,
+        "groups": [
+          {
+            "pending": 0,
+            "lag": 1
+          }
+        ],
+        "redis_command_status": "PENDING",
+        "postgres_command_status": null,
+        "age_seconds": 482.97617840766907
+      }
+    ]
+  },
+  "outstanding_command_recovery": {
+    "fixture_scoped": true,
+    "registry_pointer_restored": true,
+    "existing_writer_processed": true,
+    "command_status": "FAILED",
+    "error_code": "SALE_CLOSED",
+    "remaining_stream_entries": 0,
+    "remaining_pending": 0,
+    "pass": true
+  },
+  "post_ttl_paid_cohort_audit": {
+    "orders": 17999,
+    "fulfilled_orders": 17999,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 17999,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 17999,
+    "bookings": 17999,
+    "tickets": 17999,
+    "payment_callbacks": 17999,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 17999,
+    "callback_delivery_target": 17999,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 17999,
+    "expected_paid": 17999,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true
+  },
+  "post_recovery_queue": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "active_fixture_holds": 0,
+    "overdue_fixture_holds": 0,
+    "pending_fixture_orders": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "pass": true
+  },
+  "durable_timestamps": {
+    "orders": 17999,
+    "observed_at_utc": "2026-10-03T06:49:20.113329+00:00",
+    "fulfilled_orders": 17999,
+    "payment_attempts": 17999,
+    "extra_paid_events": 0,
+    "succeeded_payments": 17999,
+    "orders_with_tickets": 17999,
+    "latest_hold_deadline": "2026-10-03T13:40:36.072046+07:00",
+    "orders_with_callback": 17999,
+    "hold_deadlines_elapsed": true,
+    "orders_with_paid_event": 17999,
+    "orders_with_publication": 17999,
+    "expected_orders": 17999,
+    "expected_paid": 17999,
+    "cohort_pass": true,
+    "notes": [
+      "Database statement timestamps are proxies, not measured commit or exact queue service time.",
+      "Publication is recorded after Kafka acknowledgments; a fast consumer can issue before that record.",
+      "No per-order IDs, actors, credentials, individual payloads or client-clock subtraction are emitted.",
+      "This cohort/timing report does not replace durability, uniqueness or queue audits."
+    ]
+  },
+  "durable_timing_summary": {
+    "callback_to_ticket": {
+      "max_ms": 1052.741,
+      "p50_ms": 133.949,
+      "p95_ms": 283.3450999999997,
+      "p99_ms": 426.1837000000001,
+      "mean_ms": 151.29876498694372,
+      "samples": 17999,
+      "negative_samples": 0
+    },
+    "payment_due_to_callback": {
+      "max_ms": 3801.574,
+      "p50_ms": 493.547,
+      "p95_ms": 2993.8196999999996,
+      "p99_ms": 3450.9978400000005,
+      "mean_ms": 867.5354030779488,
+      "samples": 17999,
+      "negative_samples": 0
+    },
+    "payment_due_to_ticket": {
+      "max_ms": 4109.0,
+      "p50_ms": 646.169,
+      "p95_ms": 3177.1241999999993,
+      "p99_ms": 3616.41556,
+      "mean_ms": 1018.8341680648925,
+      "samples": 17999,
+      "negative_samples": 0
+    }
+  },
+  "baseline_service_verification": {
+    "source_revision": "936224b0eb8313916d3e349bd9b5dd26605025e6",
+    "source_sha256": {
+      "src/ticketing/infrastructure/reservations.py": "8467353ff65dfb169a4a7dd0fe4f93a433ae03d84b83f7d940e5e31aad68fab9",
+      "src/ticketing/infrastructure/order_status_cache.py": "85cb2678d68885e6c8930dcebb95122d3139d5c19c825f702b8b4ad4ae1e402a",
+      "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+      "src/ticketing/api.py": "ec0ab381f17c9ebfffb46d51d67262123b75261285b4bb368f30ed78f03d3f72",
+      "src/ticketing/config.py": "65e77f5a6405cbcb913ea6cecbbaf09e6abd877afe6f8cfaddeab5f6ce8ebf17",
+      "src/ticketing/workers.py": "0c38ec4edb7621f7449e2641749a10d8253fa3af2f441070bd66548bc4f1ce09",
+      "src/ticketing/observability.py": "52f77fe9fecfb6befd4d5f16e14396e1b0e82dbb9fbcc0d68094eba21c4355f5"
+    },
+    "services": {
+      "api": {
+        "count": 4,
+        "expected_count": 4,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "publisher": {
+        "count": 1,
+        "expected_count": 1,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "maintenance": {
+        "count": 1,
+        "expected_count": 1,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "consumer": {
+        "count": 1,
+        "expected_count": 1,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "reconciler": {
+        "count": 1,
+        "expected_count": 1,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "reservation-writer": {
+        "count": 0
+      },
+      "refresh": {
+        "count": 0
+      },
+      "expiry": {
+        "count": 0
+      }
+    },
+    "settings": {
+      "RESERVATION_MODE": "postgres",
+      "RESERVE_CONCURRENCY": "4",
+      "DB_POOL_MAX": "3",
+      "DB_POOL_MAX_WAITING": "3",
+      "ORDER_STATUS_CACHE_MS": "0"
+    },
+    "health": {
+      "status": "ready"
+    },
+    "pass": true
+  },
+  "rollback": {
+    "restored_admission": 4,
+    "restored_reservation_mode": "postgres",
+    "restored_reservation_writer_batch_size": 1,
+    "restored_reservation_max_command_age_seconds": 0,
+    "reservation_writer_replicas": 0,
+    "api_replicas": 4,
+    "maintenance_replicas": 1,
+    "refresh_replicas": 0,
+    "expiry_replicas": 0,
+    "consumer_replicas": 1,
+    "pass": true
+  },
+  "configuration_restored": {
+    "api_pool_waiters_restored": true,
+    "order_status_cache_restored": true,
+    "simulator_restored": true,
+    "retirement": {
+      "expected_shows": 60,
+      "retired_shows": 60,
+      "pass": true
+    }
+  },
+  "generator_process_cleanup_verified": true,
+  "comparison": {
+    "baseline_report": "docs/capacity/flash-sale-opening/paid-api-pool-four-control-2026-10-03.json",
+    "baseline_run_id": "checkout-20261003T062430Z-9a3bc1",
+    "same_rate": true,
+    "same_service_and_generator_settings": true,
+    "changed_workload": "Offered duration60to300seconds; shows12to60 to keep300seats/show and enough distinct inventory. Concurrent per-show traffic distribution is wider; not a duration-only latency comparison.",
+    "scheduled": {
+      "baseline": 3600,
+      "candidate": 18000
+    },
+    "fulfilled": {
+      "baseline": 3600,
+      "candidate": 17999
+    },
+    "generator_drops": {
+      "baseline": 0,
+      "candidate": 0
+    },
+    "dispatch_lag_p95_ms": {
+      "baseline": 12.75381533196196,
+      "candidate": 102.57637233371497
+    },
+    "dispatch_lag_max_ms": {
+      "baseline": 103.37594333395828,
+      "candidate": 791.1139399984677
+    },
+    "hold_to_ticket_p95_ms": {
+      "baseline": 4476.720126000146,
+      "candidate": 7217.816352000227
+    },
+    "durable_p95_ms": {
+      "baseline": 1165.2177479991224,
+      "candidate": 3088.9126370020676
+    },
+    "callback_to_ticket_p95_ms": {
+      "baseline": 305.6369499999999,
+      "candidate": 283.3450999999997
+    },
+    "application_source_hashes_unchanged": true
+  },
+  "findings": [
+    "One stream entry wasPENDING inRedis, absent fromPostgreSQL and from the advisoryregistry, with group pending0/lag1: it had never been delivered to a writer. This explains the missing durable order; why the registry pointer disappeared is not yet proven.",
+    "After verifying the entry belongs to the isolated fixture, restored only its advisory pointer and called the existing writer/compensation/acknowledgement path. It reachedFAILED/SALE_CLOSED after fixture retirement and the expired hold. No manual deletion or ticket minting was used. Preserve this as a failed unpaid intake, not a recovered purchase.",
+    "Fresh audit after all original durable hold deadlines proved17999successful payments/unique tickets, zero doublebooking/extra paid events, allqueues0 after recovery and no deadletters. One failed intake produced no order/payment; it is not an expired database order.",
+    "Kafka peak74,last0 and six singleton owners observed. Backend callback-to-ticket p95283ms for the paidcohort; payment-due-to-callback p952994ms. Missing pipeline metrics prevent attributing pool/worker/DB contention or claiming full observed stability.",
+    "Observer-launch success was mistaken for child readiness. ADR0105repairs the duration contract and requires valid first pipeline/Kafka samples and livePIDs before future load starts; locally verified only in this turn."
+  ],
+  "repair": {
+    "adr": "docs/adr/0105-paid-observer-startup-contract.md",
+    "maximum_observer_seconds": 480,
+    "stage_completion_launch_budget_seconds": [
+      300,
+      120,
+      60
+    ],
+    "startup_wait_seconds": 20,
+    "requires_first_samples_before_customer_dispatch": true,
+    "local_checks_passed": 34,
+    "local_check_seconds": 0.95,
+    "lint_and_python_compile_pass": true,
+    "cloud_retested": false
+  },
+  "validation_this_turn": {
+    "new_application_tests_run": false,
+    "initial_attempt_failed": true,
+    "post_ttl_paid_cohort_pass": true,
+    "queue_pass_after_terminal_recovery": true,
+    "zero_double_booking_pass": true,
+    "budget_source_readiness_restoration_pass": true,
+    "observer_repair_focused_checks_passed": 34,
+    "previous362_application_tests_rerun": false
+  },
+  "limitations": [
+    "Five-minute stage notcertified. Highest recent healthy paid control remains60buyers/s forone minute.300000tickets/hour unverified.",
+    "0HTTPerror outcomes does not imply zero journey errors: one durability timeout occurred. Customer failures are1/18000journeys, not an HTTP request error-rate denominator.",
+    "No pipeline/per-minute resource measurements for this attempt; do not inferRDSCPU, WAL, lock or APIpool saturation. Generator CPU fraction is one-process wall average includingcompletiontail, not wholehostCPU or offered-window peak.",
+    "Successful-cohort latency excludes the failed intake; statements mark timestamps rather than exact commits. Larger show distribution changes per-show pressure.",
+    "Paid-cohort integrity and terminal queue recovery are separately passed checks; the original18,000-buyer gate remains failed. No rerun/rate escalation/permanent deployment occurred."
+  ],
+  "next_action": "Reproduce missing-registry discovery failure, including non-atomic empty-stream prune/enqueue interleaving and registry-write failures. Create ADR before any pruning/discovery pattern change. Validate a fix and observer-startup guards before a separately authorized same-rate five-minute rerun. Investigate SSH collection timeout if it repeats; no rate escalation.",
+  "evidence_paths": [
+    "tmp/checkout-20261003T063237Z-7ab809/state.json",
+    "tmp/checkout-20261003T063237Z-7ab809/probe.json",
+    "tmp/checkout-20261003T063237Z-7ab809/paid-kafka-lag.ndjson",
+    "tmp/checkout-20261003T063237Z-7ab809/paid-kafka-lag-summary.json",
+    "tmp/checkout-20261003T063237Z-7ab809/post-failure-audit/audit.json",
+    "tmp/checkout-20261003T063237Z-7ab809/post-failure-audit/queue.json",
+    "tmp/checkout-20261003T063237Z-7ab809/outstanding-command-before.json",
+    "tmp/checkout-20261003T063237Z-7ab809/outstanding-command-recovery.json",
+    "tmp/checkout-20261003T063237Z-7ab809/timings-post-ttl.json",
+    "tmp/checkout-20261003T063237Z-7ab809/post-ttl-audit/audit.json",
+    "tmp/checkout-20261003T063237Z-7ab809/post-ttl-audit/queue.json",
+    "tmp/checkout-20261003T063237Z-7ab809/baseline-verification.json"
+  ]
+}
