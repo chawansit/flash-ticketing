@@ -470,7 +470,8 @@ class RedisReservationIntake:
                 consumer,
                 {stream: ">"},
                 count=remaining,
-                block=1,
+                # Empty/owned streams must not delay later ready streams. The worker
+                # backs off after an entirely idle bounded sweep (ADR0113).
             )
             for batch_stream, entries in batches:
                 for message_id, fields in entries:

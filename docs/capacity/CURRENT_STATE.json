@@ -3,40 +3,38 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "refill_passed_60_buyers_per_second_twelve_slot_control_prepared",
+  "status": "nonblocking_stream_fix_validated_cloud_control_pending",
   "cloud_load_requires_resume": false,
-  "handoff_revision": "eed0ae7c73bfce1cd66c1482c2cc7150a176a41e",
-  "revision_note": "BothECScheckoutseed0ae7;matchedsameinstrumentedsource,batchvsrefillonly.8checkedmodulesmatchacrossrestoredservices. Newrunner12optionlocallyvalidated;cloudpending.",
-  "backend_application_revision": "eed0ae7c73bfce1cd66c1482c2cc7150a176a41e",
-  "generator_revision": "eed0ae7c73bfce1cd66c1482c2cc7150a176a41e",
+  "handoff_revision": "d73ba3db1aff15514684032dc765640c61617814",
+  "revision_note": "Both ECS checkouts and checked running modules match d73ba3d; candidate12 failed and restored. Nonblocking stream-polling correction is an uncommitted local candidate.",
+  "backend_application_revision": "d73ba3db1aff15514684032dc765640c61617814",
+  "generator_revision": "d73ba3db1aff15514684032dc765640c61617814",
   "last_checked_topology": "Restored4healthyAPIs;postgres mode;pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4;PgBouncer applicationpool24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "No load/schedule/generator running;60fixtureevents retired,private scratch removed. Original4API postgres/pool3/admission4/waiters3/cache0,1consumer/pool12,publisher/maintenance/reconciler1,writer/refresh/expiry0,simulator4/pool12 restored;indicesretained.",
+  "cloud_state_note": "No load running. Four API postgres/pool3/admission4/waiters3/cache0; consumer1/pool12; simulator batch4/pool12; baseline worker roles restored. Fresh TTL/full queues/Kafka/source/readiness/private cleanup/generator idle all passed.",
   "confirmed": [
-    "MatchedbatchFAILED2327drops/46customer503s;refillPASSED18000scheduled/dispatched/customerconfirmations at60buyers/s300s,0drops/customererrors/callerretries.",
-    "Batchbarrier385slotsecondsremoved;due-to-callback proxy p957695to490ms;backlogpeak409to65;APImeanpool8.37to2.84ms.",
-    "FreshpostTTL18000paidtickets(refill),15664paid+9unpaidexpired(batch),zero duplicatebookings/extraevents;allfullkeyspacequeues/Kafka0;source/restore/readiness/idle/privatecleanup passedbotharms.",
-    "One internalrefill HTTPdeliveryerror recovered byexistinglease/redelivery semantics. Do not confuse customer0errors with everyattempt0errors.",
-    "387fullunit/integrationtestspassed69.13s;63subsequentfocusedscaling-optionchecks passed8.29s;lint/whitespacepassed. Testsourceschanged;applicationcodeunchangedsinceeed0ae7."
+    "8-slot refill passed18000/18000 at60 buyers/s300s;12-slot control failed296drops and32 customer503s; no90 stage ran.",
+    "12-slot fresh postTTL:17682paid tickets +3expired unpaid orders, zero duplicate booking/extra paid events, all queues/Kafka0.",
+    "12-slot callback due-to-delivery proxy p95416ms; customer durable confirmation p9520.7s, API mean pool wait10.02ms. Attribution to simulator scaling is not proven.",
+    "Isolated Redis7.4.5 reproduced31 inactive streams delaying one ready stream:BLOCK1 took3094ms versus20.5ms nonblocking; owned diagnostic container removed."
   ],
-  "unresolved": "Five-minute60ticket/s pass isbelow83.33ticket/s hourly target. Fixed8deliveryslots have limitedmodelledheadroom;12slotswithinexistingpool12 isnextcontrolledexperiment. Nohourly/hotconcert/realprovidermaximumverified.",
+  "unresolved": "Per-stream blocking sweep is a demonstrated delay mechanism, with cloud contribution unquantified. Nonblocking candidate under ADR0113 needs full tests and same12-slot60/s control before any escalation.",
   "next_on_resume": [
-    "Publish/sync12slotrunneroption;same60buyers/s300scontrol withrefill12/pool12 andallotherbudgetsunchanged.",
-    "Onlyifallload/financial/TTL/queue/source/observergatespass,increaseofferedrateonlyto90buyers/s300s with90shows27000actors forinventory;retain500totalactive/connections16clients/two generators.",
-    "Stopprogressiononfailedgates;diagnose nextbottleneck beforeselecting otherroadmappatterns. Preserveallfinancial/source/cleanup checks."
+    "Complete local validation of ADR0113 polling change.",
+    "Deploy identical12-slot60/s300s profile changing only per-stream BLOCK omission. Audit exact paid/unpaid,TTL,full queues,Kafka,source and restoration; stop progression on failed gates.",
+    "Only consider rate escalation after passing corrected control; hourly and hot-concert proof remain future work."
   ],
-  "validation_this_resume": "387fulltestsand63subsequentfocusedchecks passed;batchloadFAILED,refillloadPASSED;bothpaid/unpaidTTL/uniqueness/fullqueues/Kafka/source/restore/idle/cleanupPASSED.",
-  "current_run": "checkout-20261003T110751Z-6e5cb2",
+  "validation_this_resume": "393fullunit/integrationtests passed69.57s;lint/whitespace passed.12-slotloadFAILED;allfinalfinancial/TTL/queues/Kafka/source/restoration/idle/cleanupPASSED.",
+  "current_run": "checkout-20261003T112527Z-f6d1cc",
   "evidence": [
-    "docs/capacity/flash-sale-opening/paid-callback-refill-comparison-2026-10-03.json",
-    "docs/adr/0110-payment-dispatch-phase-diagnostics.md",
-    "docs/adr/0111-continuously-refill-simulator-slots.md",
-    "docs/adr/0112-twelve-delivery-slots-fixed-db-budget.md"
+    "docs/capacity/flash-sale-opening/paid-twelve-slot-control-2026-10-03.json",
+    "docs/adr/0112-twelve-delivery-slots-fixed-db-budget.md",
+    "docs/adr/0113-nonblocking-reservation-stream-polling.md"
   ],
-  "authorization": "UserGoaheadasplan authorizesten-stepconditionalroadmap. Matchedbatch/refillcontrolscompleted. ADR0112authorizes12slot60controlthen90stageconditionalonallgates;no escalationafterfailure or permanenttopologypromotion.",
-  "backend_checkout_revision": "eed0ae7c73bfce1cd66c1482c2cc7150a176a41e",
-  "tested_generator_revision": "eed0ae7c73bfce1cd66c1482c2cc7150a176a41e",
-  "scope": "Steps1-2 completed/executed. Advance measuredslotbottleneck understep9:12slots60/s300scontrol,then90/s300sonlyifallgatespass;otherpatterns conditional,nothourlyorchestrationimplemented.",
+  "authorization": "User Go ahead as plan authorizes conditional roadmap. ADR0113 records the polling change before implementation;60/s correction only, all correctness/evidence gates retained.",
+  "backend_checkout_revision": "d73ba3db1aff15514684032dc765640c61617814",
+  "tested_generator_revision": "d73ba3db1aff15514684032dc765640c61617814",
+  "scope": "Conditional roadmap.12-slot60 control failed;90stage skipped. Authorized evidence-driven nonblocking polling correction and same-rate control; no permanent candidate promotion.",
   "roadmap": [
     {
       "step": 1,
@@ -81,7 +79,7 @@
     {
       "step": 9,
       "work": "Scalemeasuredbottleneck",
-      "status": "twelve_slot_candidate_prepared_local_validation_passed"
+      "status": "twelve_slot_control_failed_correction_in_progress"
     },
     {
       "step": 10,

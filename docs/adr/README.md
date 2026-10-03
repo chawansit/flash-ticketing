@@ -166,3 +166,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0111 - Continuously refill bounded development callback slots](0111-continuously-refill-simulator-slots.md)
 
 - [0112 - Twelve development delivery slots within the same DB budget](0112-twelve-delivery-slots-fixed-db-budget.md)
+
+- [0113 - Nonblocking reservation-stream sweeps](0113-nonblocking-reservation-stream-polling.md)

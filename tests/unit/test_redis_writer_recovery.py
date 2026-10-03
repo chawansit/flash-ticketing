@@ -319,3 +319,50 @@ def test_enqueue_after_zero_recheck_remains_registered_for_next_refresh(monkeypa
     assert stream in redis.registry
     intake._last_stream_refresh = 0
     assert intake.streams(limit=1) == [stream]
+
+
+class ReadyAfterInactiveRedis(FakeRedis):
+    def __init__(self, streams, *, reclaim=False):
+        super().__init__(streams)
+        self.reclaim = reclaim
+        self.reclaim_calls = []
+        self.read_counts = []
+
+    def xautoclaim(self, stream, _group, _consumer, idle, _start, **kwargs):
+        self.reclaim_calls.append((stream, idle, kwargs["count"]))
+        if self.reclaim and stream == min(self.registry):
+            return "0-0", [("old-0", {"payload": "reclaimed"})], []
+        return "0-0", [], []
+
+    def xreadgroup(self, _group, _consumer, streams, **kwargs):
+        # BLOCK0 also blocks indefinitely, so omitting BLOCK is required.
+        assert "block" not in kwargs
+        stream = next(iter(streams))
+        self.read_batches.append((stream,))
+        self.read_counts.append(kwargs["count"])
+        if stream != max(self.registry):
+            return []
+        return [(stream, [(f"new-{i}", {"payload": "new"})
+                          for i in range(kwargs["count"])])]
+
+
+def test_ready_work_after_inactive_streams_uses_no_blocking_read():
+    streams = [f"reservation-stream:{{event-{i:02}}}" for i in range(32)]
+    redis = ReadyAfterInactiveRedis(streams)
+    intake = RedisReservationIntake(FakeCache(redis), stream_batch_size=32)
+    messages = list(intake.messages("writer", count=4))
+    assert len(redis.read_batches) == 32
+    assert len(messages) == 4
+    assert all(stream == streams[-1] for stream, *_ in messages)
+    assert redis.read_counts == [4] * 32
+
+
+def test_reclaimed_work_reduces_remaining_new_read_bound():
+    streams = ["reservation-stream:{a}", "reservation-stream:{z}"]
+    redis = ReadyAfterInactiveRedis(streams, reclaim=True)
+    intake = RedisReservationIntake(FakeCache(redis))
+    messages = list(intake.messages("writer", count=4, reclaim_idle_ms=30000))
+    assert len(messages) == 4
+    assert messages[0][1] == "old-0"
+    assert redis.reclaim_calls == [(streams[0], 30000, 4), (streams[1], 30000, 3)]
+    assert redis.read_counts == [3, 3]

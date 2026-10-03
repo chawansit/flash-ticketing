@@ -433,3 +433,37 @@ def test_failed_advisory_registration_recovers_via_scan_without_duplicate_order(
     with db.transaction() as conn:
         assert conn.execute("SELECT count(*) AS n FROM reservation_commands").fetchone()["n"] == 1
         assert conn.execute("SELECT count(*) AS n FROM orders").fetchone()["n"] == 1
+
+
+
+def test_nonblocking_sweep_reaches_ready_work_after_owned_streams(redis_first, monkeypatch):
+    _store, intake, cache, _db, event_id = redis_first
+    streams = [intake.stream_key(event_id) + f":diagnostic-{i:02}" for i in range(32)]
+    reads = []
+    original_read = cache.redis.xreadgroup
+
+    def read(group, consumer, keys, **kwargs):
+        assert "block" not in kwargs
+        reads.append(tuple(keys))
+        return original_read(group, consumer, keys, **kwargs)
+
+    try:
+        for stream in streams:
+            cache.redis.xgroup_create(stream, intake.group, id="0", mkstream=True)
+            cache.redis.xadd(stream, {"diagnostic": "test-only"})
+        for stream in streams[:-1]:
+            rows = original_read(intake.group, "previous-writer", {stream: ">"}, count=1)
+            cache.redis.xack(stream, intake.group, rows[0][1][0][0])
+        cache.redis.sadd("reservation-stream-registry", *streams)
+        monkeypatch.setattr(cache.redis, "xreadgroup", read)
+        messages = list(intake.messages("ready-writer", count=4))
+        assert reads == [(stream,) for stream in streams]
+        assert len(messages) == 1
+        stream, message_id, _fields = messages[0]
+        assert stream == streams[-1]
+        assert cache.redis.xpending(stream, intake.group)["pending"] == 1
+        cache.redis.xack(stream, intake.group, message_id)
+        assert cache.redis.xpending(stream, intake.group)["pending"] == 0
+    finally:
+        cache.redis.delete(*streams)
+        cache.redis.srem("reservation-stream-registry", *streams)
