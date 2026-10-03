@@ -1,0 +1,55 @@
+{
+  "source_revision": "037164f10e830a6ff44fccbad17dabf89280b5be",
+  "reservations_sha256": "8467353ff65dfb169a4a7dd0fe4f93a433ae03d84b83f7d940e5e31aad68fab9",
+  "services": {
+    "api": {
+      "count": 4,
+      "expected_count": 4,
+      "source_hash_matches": true,
+      "pass": true
+    },
+    "publisher": {
+      "count": 1,
+      "expected_count": 1,
+      "source_hash_matches": true,
+      "pass": true
+    },
+    "maintenance": {
+      "count": 1,
+      "expected_count": 1,
+      "source_hash_matches": true,
+      "pass": true
+    },
+    "consumer": {
+      "count": 1,
+      "expected_count": 1,
+      "source_hash_matches": true,
+      "pass": true
+    },
+    "reconciler": {
+      "count": 1,
+      "expected_count": 1,
+      "source_hash_matches": true,
+      "pass": true
+    },
+    "reservation-writer": {
+      "count": 0
+    },
+    "refresh": {
+      "count": 0
+    },
+    "expiry": {
+      "count": 0
+    }
+  },
+  "settings": {
+    "RESERVATION_MODE": "postgres",
+    "RESERVE_CONCURRENCY": "4",
+    "DB_POOL_MAX": "3",
+    "DB_POOL_MAX_WAITING": "3"
+  },
+  "health": {
+    "status": "ready"
+  },
+  "pass": true
+}

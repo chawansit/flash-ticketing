@@ -589,3 +589,27 @@ rate, polling and total connection/concurrency budget. Require zero drops and
 valid responder timing before repeating real 45/s control and 60/s paid stages
 with post-TTL exact audits and queue drain. The short 45/s real pass remains the
 latest paid throughput evidence; 300,000 paid tickets/hour is not yet validated.
+
+
+## 2026-10-03 resumed controls and restored baseline
+
+This checkpoint supersedes the paused status above. The generator pool partition
+passed its synthetic 60/s control with all 3,600 journeys, but real paid controls
+still failed. At 45/s with 1s polling, the baseline had 873 pool-full rejections,
+314 scheduled drops and 1,620 customer-observed fulfillments. The single-snapshot
+order-read candidate lowered pool-full rejections to 72 and observed fulfillments
+rose to 2,250, but 391 scheduled drops and 59 HTTP503 outcomes kept the gate failed.
+This is diagnostic improvement, not validated production capacity.
+
+The [candidate result](real-paid-single-snapshot-control-2026-10-03.json) records
+2,305 accepted payments/unique tickets after TTL, four unpaid expired orders,
+zero duplicate bookings, empty queues and drained Kafka lag. The implementation
+was reverted per [ADR 0094](../../adr/0094-reevaluate-single-snapshot-order-reads-with-bounded-timeouts.md).
+[Baseline restoration](baseline-restoration-2026-10-03.json) verifies revision
+`037164f`, matching source/image hashes across four APIs and active workers,
+readiness and original connection budgets. No higher-rate test ran.
+
+Services remain running; no load test or unattended schedule is active. Next:
+isolate generator scheduling/body-consumption/connection-release cost before
+another real control. Use [CURRENT_STATE.json](../CURRENT_STATE.json) for the
+compact handoff. The 300,000 paid tickets/hour goal remains unvalidated.

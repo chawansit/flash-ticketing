@@ -1,14 +1,14 @@
 {
   "updated_date_bangkok": "2026-10-03",
-  "status": "restoring_baseline_after_failed_read_candidate",
+  "status": "ready_for_next_generator_diagnostic",
   "cloud_load_requires_resume": false,
   "branch": "codex/redis-failover-recovery",
-  "handoff_revision": "723c52a",
-  "revision_note": "Documentation-policy commits may be newer; verify Git HEAD and deployed application revision separately.",
+  "handoff_revision": "037164f",
+  "revision_note": "Documentation commits may be newer; application baseline restoration verified at037164f by source/image hashes.",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "backend_application_revision": "723c52a",
-  "last_checked_topology": "4 healthy API replicas; existing PostgreSQL/PgBouncer, managed Redis, Kafka and background services; no application change during restart recovery",
-  "cloud_state_note": "Services running; both failed real controls completed and configuration rollback passed. No cloud load is currently running.",
+  "backend_application_revision": "037164f",
+  "last_checked_topology": "4 healthy APIs; PostgreSQL mode; admission4/API,DBpool3/API,waiters3/API;publisher,maintenance,consumer,reconciler each1;reservation-writer/refresh/expiry0.",
+  "cloud_state_note": "Baseline source/image hashes and readiness verified. Services running; no load test or unattended schedule running. Authorized temporary SSH key retained for continuation.",
   "confirmed": [
     "Point-in-time restart audit: readiness, database SELECT 1 and Redis PING passed; checked database/Redis backlogs and Kafka lag were zero.",
     "Isolated generator control: 60 journeys/s for 60s, 500 in flight, two shards; 3206/3600 dispatched and fulfilled, 394 drops, no retries or HTTP error outcomes.",
@@ -19,13 +19,13 @@
     "1s-poll 45/s control failed:2386/2700 dispatched,314 drops,665 order GET503 and101 payment POST503; post-TTL2285 unique paid tickets,101 unpaid expired,zero duplicates,queues empty,rollback passed.",
     "Single-snapshot candidate:45/s control failed; pool-full873->72 and observed fulfilled1620->2250. Post-TTL2305 unique paid tickets,4 unpaid expired,zero duplicates,queues/Kafka drained. Reverted per ADR0094."
   ],
-  "unresolved": "Reduced order-read round trips improved pool pressure but 45/s still failed:391 generator drops and59 customer503s. Candidate reverted; no higher load authorized by passed gates.",
+  "unresolved": "Single-snapshot candidate reduced pool pressure but failed at45/s due391 generator drops and59 customer503s. Reverted. Remaining generator scheduling delay prevents a valid throughput comparison.",
   "next_on_resume": [
-    "Verify the baseline source/image restoration and readiness.",
-    "Separate generator dispatch/body-consumption scheduling costs from backend pressure using bounded diagnostics before another real load.",
-    "Design any order-status projection or polling change in a new ADR; do not infer paid capacity from failed/offered-rate stages."
+    "Read this checkpoint and verify Git/deployed revision before modifying infrastructure.",
+    "Instrument generator response-body completion and connection release in a bounded synthetic control; create ADR before changing client/pool/sharding patterns.",
+    "If generator accounting passes, propose one backend read-pressure change in an ADR and compare against the identified45/s baseline; keep post-TTL correctness/queue gates."
   ],
-  "validation_this_resume": "91 selected unit/integration passes; full-unit plus lock-timeout recovery:217 passed/1 scheduler-sensitive failure; targeted rerun4 passed; lint passed.",
+  "validation_this_resume": "91 selected candidate unit/integration passed; full-unit plus lock-timeout recovery217passed/1scheduler-sensitive failure,targeted rerun4passed;changed-file lint passed. After reversion,2retained integration tests passed. Cloud10/10smoke passed;45/s candidate failed;post-TTL audit and source/image restoration passed.",
   "evidence": [
     "docs/capacity/flash-sale-opening/synthetic-generator-control-2026-10-03.json",
     "docs/capacity/flash-sale-opening/resume-backlog-audit-2026-10-03.json",
@@ -37,7 +37,8 @@
     "docs/adr/0093-reevaluate-bounded-polling-with-validated-generator.md",
     "docs/capacity/flash-sale-opening/real-paid-slower-poll-control-2026-10-03.json",
     "docs/adr/0094-reevaluate-single-snapshot-order-reads-with-bounded-timeouts.md",
-    "docs/capacity/flash-sale-opening/real-paid-single-snapshot-control-2026-10-03.json"
+    "docs/capacity/flash-sale-opening/real-paid-single-snapshot-control-2026-10-03.json",
+    "docs/capacity/flash-sale-opening/baseline-restoration-2026-10-03.json"
   ],
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
   "current_run": "checkout-20261003T021455Z-f32e23"
