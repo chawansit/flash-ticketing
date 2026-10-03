@@ -1,0 +1,75 @@
+{
+  "kind": "read_only_paid_observer_cloud_plan_preflight",
+  "pass": true,
+  "server_version_num": "170011",
+  "analyze": false,
+  "read_only": true,
+  "orders_relation_plan_nodes": {
+    "old": 6,
+    "new": 1
+  },
+  "estimated_total_cost": {
+    "old": 689248.42,
+    "new": 147167.51
+  },
+  "index_names": [
+    {
+      "table": "bookings",
+      "name": "bookings_event_id_seat_id_key"
+    },
+    {
+      "table": "bookings",
+      "name": "bookings_order_id"
+    },
+    {
+      "table": "bookings",
+      "name": "bookings_pkey"
+    },
+    {
+      "table": "orders",
+      "name": "orders_hold_id_key"
+    },
+    {
+      "table": "orders",
+      "name": "orders_pkey"
+    },
+    {
+      "table": "outbox_events",
+      "name": "outbox_events_pkey"
+    },
+    {
+      "table": "outbox_events",
+      "name": "outbox_pending"
+    },
+    {
+      "table": "payment_attempts",
+      "name": "payment_attempts_dispatch_due"
+    },
+    {
+      "table": "payment_attempts",
+      "name": "payment_attempts_order_id_key"
+    },
+    {
+      "table": "payment_attempts",
+      "name": "payment_attempts_pkey"
+    },
+    {
+      "table": "tickets",
+      "name": "tickets_booking_id_key"
+    },
+    {
+      "table": "tickets",
+      "name": "tickets_pkey"
+    }
+  ],
+  "query_sha256": {
+    "old": "9c7a106454dcb572b12a0b44a284153c5f6795240c40ec1c05d3de6a21fcd3c7",
+    "new": "36e71bac98ec63cfcd6aa4bdb2ce73355b1dbb6788bd77cb965a2b19056c6f87"
+  },
+  "observer_source_sha256": {
+    "baseline": "8a48def0d2860671927058e9f6e62d83f9e5158762a0dd2fe8e94e24e42888fc",
+    "candidate": "1890ac0302507fc81a3c451351521684aa92b00b47316ab320af44b592dacaf2"
+  },
+  "private_evidence_root": "tmp\\adr0125-cloud-preflight",
+  "limitations": "Planner estimates on retained cohort only; no ANALYZE/query execution, load, timing, actual IO, prepared-plan behavior or cancellation attribution."
+}

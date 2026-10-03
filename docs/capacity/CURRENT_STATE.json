@@ -3,8 +3,8 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "overnight_work_saved_observer_requalification_blocked_morning_handoff_scheduled",
-  "cloud_load_requires_resume": true,
+  "status": "explicitly_approved_observer_requalification_preflight",
+  "cloud_load_requires_resume": false,
   "handoff_revision": "2d9dbf868c463c76dc0a1bc5ca947f585537e920",
   "revision_note": "Cloud checkout/images/generator tested2d9dbf8 withpriorobserverquery. LocalofflineADR0125observerSQLcandidate notdeployed. Applicationruntimeunchanged;baselineAPIcache0 andworkerbudgetsrestored.",
   "backend_application_revision": "2d9dbf868c463c76dc0a1bc5ca947f585537e920",
@@ -29,9 +29,8 @@
   ],
   "unresolved": "ADR0124failedobservergate:2QueryCanceled compositecohortstatements under3stimeout;actualcloudqueryplan/catalog/IO/cancellationreasonnotcaptured. Offlinequerycandidate locallyvalidated only. Sustained300000/hour,oneHotConcert,realProvider/outage/failovercapacity unqualified.",
   "next_on_resume": [
-    "08:00Bangkokmorninghandoffscheduled;no furtherovernightcloudwork.",
-    "Ask specificapproval forreview-blockedobserver-onlysame60buyers/s300s1000mscacherequalification.",
-    "Afterapproval only:boundedreadonlycloudversion/catalog/EXPLAIN(noANALYZE)preflight,allmandatorygates retained;no loadincrease/mainmerge."
+    "Execute read-only cloud PostgreSQL version/catalog/EXPLAIN without ANALYZE preflight.",
+    "If preflight passes, deploy observer-only candidate and run exactly one same60buyers/s300s1000ms-cache requalification; retain all gates and prior failure."
   ],
   "validation_this_resume": "ADR0124:61focusedunit+realcachePGRedis integrationpassed6.68s;69postCLIunitpassed1.02s;cloudcustomer/financial/drain/recoverypassedbutpipelineobserverfailed2QueryCanceled. ADR0125offline:66focusedunit+PGintegrationpassed1.54s;localpairedplans/counterparitypassed;lint/diffcheck. No application changes/fullsuite rerun.",
   "evidence": [
@@ -45,8 +44,8 @@
     "docs/adr/0123-bounded-paid-cpu-sampler-readiness.md",
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
-  "authorization": "User authorizes autonomous continuation without routine questions until08:00Asia/Bangkok2026-10-04. Covers bounded implementation/configuration,checks and sanitized feature-branch evidence/checkpoint pushes to existing remote. No higherload/mainmerge;honor review rejection.",
-  "scope": "Authorizedovernightofflineworkcomplete. ADR0124failedobservergate retained;ADR0125candidate locallyvalidated,notclouddeployed. Onlymandatoryaudit/recoveryafterfailure;newcloudscopeblockedbyreview.8amapprovalquestion scheduled.",
+  "authorization": "User authorizes autonomous continuation without routine questions until08:00Asia/Bangkok2026-10-04. Covers bounded implementation/configuration,checks and sanitized feature-branch evidence/checkpoint pushes to existing remote. No higherload/mainmerge;honor review rejection. User specifically approved observer-only cloud preflight/deployment/requalification after the failed observer gate by replying Continue to the concrete next-step proposal.",
+  "scope": "One specifically approved ADR0125 observer-only cloud requalification: read-only preflight,60buyers/s300s1000ms cache,all mandatory gates; no third run/higher load/main merge.",
   "roadmap": [
     {
       "step": 1,
@@ -126,11 +125,11 @@
       "docs/capacity/flash-sale-opening/order-cache-age-control-2026-10-04.json"
     ],
     "failed_gate": "pipeline_observer:two QueryCanceled cohortstatements",
-    "confirmation_skipped": "Initialobservergatefailed;no secondcloudrun",
-    "proposed_requalification": "Blockedbyauto-review:not explicitlyapprovedtooverridefailed-gate stop. Proposedobserver-onlysame60buyers/s300s/cache1000ms,allbudgetsgates unchanged.",
+    "confirmation_skipped": "Original confirmation skipped after failure; separately approved observer repair requalification follows.",
+    "proposed_requalification": "Explicitly approved by current user Continue; observer-only repair, unchanged load and all gates.",
     "approval_question_after_bangkok": "2026-10-04T08:00:00+07:00",
-    "heartbeat_schedule": "Single08:00Bangkokmorninghandoff;hourlycontinuationreplaced afterreviewblock",
-    "approval_deferred_until_8am": true
+    "heartbeat_schedule": "PAUSED after specific approval",
+    "approval_deferred_until_8am": false
   },
   "local_diagnostic_candidate": {
     "decision": "0125-single-pass-paid-observer-cohort-sampling",
