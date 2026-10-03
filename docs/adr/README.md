@@ -176,3 +176,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0116 - Explicit bounded SSH liveness](0116-bounded-ssh-liveness.md)
 
 - [0117 - Consolidated transaction-local timeout setup](0117-consolidated-transaction-local-timeouts.md)
+
+- [0118 - Bounded external API stack sampling](0118-bounded-external-api-stack-sampling.md)
