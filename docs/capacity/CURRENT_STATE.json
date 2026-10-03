@@ -3,7 +3,7 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "two_process_control_failed_backend_callback_backlog_and_api_pool_pressure",
+  "status": "callback_phase_and_refill_comparison_locally_validated",
   "cloud_load_requires_resume": false,
   "handoff_revision": "44a1c95d08c2adaac1e2c9f6c677e84f04047725",
   "revision_note": "BothECScheckouts44a1c95; only runner diagnostics validation changed. Existing sharded diagnostics reused.8checked applicationmodules match across allrestoredservices.",
@@ -23,19 +23,71 @@
   ],
   "unresolved": "Faithful dispatch nowpasses,but callbackdispatchbacklog/poolpressure extend journeys beyond500-total residence budget andcustomer errors persist. Need simulatorclaim/send/commit/pool diagnosis;no solecauseorproductionmaximumverified. Redisregistration outage stillhas noTTL-boundedlargekeyspace recovery guarantee.",
   "next_on_resume": [
-    "Read only thischeckpoint/relevantcomparison andsimulator code. Separate claim/send/commit service time andsharedDB/poolbudget effects before choosing the next one-factor change.",
-    "CreateADRbefore changing callbackworker concurrency ordispatchpattern;retain faithful2process diagnostics/fixed DBbudget andallpaid/unpaid/TTL/zero-doublebooking/fullqueue/source gates.",
-    "No automatic rate escalation or additionalload. Previous376applicationtests inherited; application source unchanged."
+    "Publishanddeploy sameinstrumentedrevision;run batchbaselineandcollectphase/barrierdiagnostics, auditpaid/unpaidafterTTL andrestore.",
+    "If financial/source/queue/observer gatespass,oneidenticalrefillcandidatewithsame8slots/pool12/generatorbudgets;comparisonfactor=dispatchmode only.",
+    "Followmeasuredbottleneck for steps3-10;ADRbeforeeachpatternchange;no claim ofhourly orproductionmaximum."
   ],
-  "validation_this_resume": "53focusedtests/lint/whitespacePASSED;onecloudstageFAILEDcustomer/drop gates,dispatchPASSED;freshpaid/unpaidTTL/uniqueness/fullqueues/Kafka/source/restore/idle/cleanupPASSED.",
+  "validation_this_resume": "387fullunit/integrationtestspassed69.13s;Ruff/whitespacepassed;dedicatedtestcontainersremoved. Existingpaymentleases/idempotency/zero-doublebookingchecks included.",
   "current_run": "checkout-20261003T100201Z-670586",
   "evidence": [
     "docs/capacity/flash-sale-opening/paid-two-process-fixed-budget-control-2026-10-03.json",
     "docs/adr/0109-fixed-budget-two-process-paid-control.md",
     "docs/capacity/flash-sale-opening/paid-source-consistent-control-2026-10-03.json"
   ],
-  "authorization": "UserContinue authorizedone fixed-total two-process60buyers/s300scomparison underADR0109. ExecutedonceandFAILED;allnecessary audits/recovery/rollback complete,noadditionalstage/higherload/permanentpromotion.",
+  "authorization": "UserGoaheadasplan approves theten-step conditional improvement roadmap. Currentexperiment: instrumentedbatchbaseline then same60buyers/s300srefillcandidate onlyif baselinepaid/unpaidTTL/uniqueness/fullqueues/source/observer gatespass; no rateescalationonfailedcustomer gate.",
   "backend_checkout_revision": "44a1c95d08c2adaac1e2c9f6c677e84f04047725",
   "tested_generator_revision": "44a1c95d08c2adaac1e2c9f6c677e84f04047725",
-  "scope": "One fixed-totalprocess-layoutcomparison finished. Next diagnosis or test requires continuation;no unattendedschedule."
+  "scope": "Steps1-2 implementedandlocallyvalidated;matchedtwo-armcloudcomparisonpending. Steps3-10 conditionalfuturework,notimplemented orvalidated. No unattendedschedule.",
+  "roadmap": [
+    {
+      "step": 1,
+      "work": "Callbackphaseandbarrierdiagnostics",
+      "status": "implemented_local_checks_passed_cloud_pending"
+    },
+    {
+      "step": 2,
+      "work": "Boundedcontinuouslyrefilledsimulator",
+      "status": "implemented_local_checks_passed_cloud_pending"
+    },
+    {
+      "step": 3,
+      "work": "Reduceorderstatusreadamplification",
+      "status": "conditional_future_work"
+    },
+    {
+      "step": 4,
+      "work": "Protectpayment/webhookDBcapacity",
+      "status": "conditional_future_work"
+    },
+    {
+      "step": 5,
+      "work": "Shortenmeasuredexpensivetransactions",
+      "status": "conditional_future_work"
+    },
+    {
+      "step": 6,
+      "work": "Callbackconnectionreuseifneeded",
+      "status": "conditional_future_work"
+    },
+    {
+      "step": 7,
+      "work": "Boundedidempotentfailure recovery",
+      "status": "conditional_future_work"
+    },
+    {
+      "step": 8,
+      "work": "Concertopeningadmissionandreadcapacity",
+      "status": "conditional_future_work"
+    },
+    {
+      "step": 9,
+      "work": "Scalemeasuredbottleneck",
+      "status": "conditional_future_work"
+    },
+    {
+      "step": 10,
+      "work": "Sustained300000paidticket/hourproof",
+      "status": "conditional_future_work"
+    }
+  ]
 }

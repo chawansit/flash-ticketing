@@ -11,8 +11,8 @@ def percentile(values, fraction):
     return sorted(values)[math.ceil(len(values) * fraction) - 1] if values else None
 
 
-def summarize_consumer_phases(rows):
-    samples = [row["consumer_phases"] for row in rows if "consumer_phases" in row]
+def summarize_consumer_phases(rows, field="consumer_phases"):
+    samples = [row[field] for row in rows if field in row]
     if not samples:
         return {"observed": False, "phases": {}, "counter_reset_detected": False}
     first, last = samples[0], samples[-1]
@@ -85,6 +85,13 @@ def summarize(rows):
             "metrics_errors": sum(f"{role}_metrics_error" in row for row in rows),
         }
     result["consumer_phases"] = summarize_consumer_phases(rows)
+    result["simulator_phases"] = summarize_consumer_phases(rows, "simulator_phases")
+    barrier = [row["simulator_batch_barrier_seconds"] for row in rows if "simulator_batch_barrier_seconds" in row]
+    reset = any(b < a for a, b in pairwise(barrier))
+    result["simulator_batch_barrier"] = {
+        "observed": bool(barrier), "counter_reset_detected": reset,
+        "slot_seconds": barrier[-1] - barrier[0] if barrier and not reset else None,
+    }
     failures = [row["consumer_batch_failures"] for row in rows if "consumer_batch_failures" in row]
     result["consumer_batch_failure_counts"] = {
         code: failures[-1].get(code, 0) - failures[0].get(code, 0)

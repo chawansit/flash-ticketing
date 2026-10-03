@@ -42,6 +42,32 @@ RESERVATION_PERSISTENCE_BATCH_SIZE = Histogram(
     "Commands handled by one reservation-writer poll",
     buckets=(0, 1, 2, 4, 8, 16, 32, 64, 100),
 )
+SIMULATOR_PHASE_SECONDS = Histogram(
+    "ticketing_simulator_phase_seconds", "Development callback dispatch phase wall time",
+    ["phase", "outcome"], buckets=(.001, .005, .01, .025, .05, .1, .25, .5, 1, 2, 5, 10),
+)
+SIMULATOR_DUE_TO_CLAIM_SECONDS = Histogram(
+    "ticketing_simulator_due_to_claim_seconds", "DB-clock due-to-claim statement age",
+    buckets=(.001, .01, .1, .25, .5, 1, 2, 5, 10, 15, 30, 60, 120),
+)
+SIMULATOR_BATCH_BARRIER_SECONDS = Counter(
+    "ticketing_simulator_batch_barrier_seconds", "Sum of completed slot seconds parked behind a batch",
+)
+
+
+@contextmanager
+def simulator_phase(phase):
+    phase = phase if phase in {"claim", "delivery", "ack"} else "other"
+    started, outcome = monotonic(), "ok"
+    try:
+        yield
+    except Exception:
+        outcome = "error"
+        raise
+    finally:
+        SIMULATOR_PHASE_SECONDS.labels(phase, outcome).observe(monotonic() - started)
+
+
 EVENT_CONSUMER_BATCH_SIZE = Histogram(
     "ticketing_event_consumer_batch_size",
     "Kafka records handled by one bounded consumer batch",

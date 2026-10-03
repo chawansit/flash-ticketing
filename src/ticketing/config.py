@@ -31,6 +31,7 @@ class Settings:
     publisher_batch_size: int = int(os.getenv("PUBLISHER_BATCH_SIZE", "32"))
     consumer_batch_size: int = int(os.getenv("CONSUMER_BATCH_SIZE", "100"))
     consumer_batch_wait_ms: int = int(os.getenv("CONSUMER_BATCH_WAIT_MS", "10"))
+    simulator_dispatch_mode: str = os.getenv("SIMULATOR_DISPATCH_MODE", "batch")
     simulator_concurrency: int = int(os.getenv("SIMULATOR_CONCURRENCY", "4"))
     refresh_cooldown_ms: int = int(os.getenv("REFRESH_COOLDOWN_MS", "250"))
     refresh_batch_size: int = int(os.getenv("REFRESH_BATCH_SIZE", "16"))
@@ -107,6 +108,8 @@ class Settings:
             raise RuntimeError("CONSUMER_BATCH_SIZE must be between 1 and 100")
         if not 1 <= self.consumer_batch_wait_ms <= 100:
             raise RuntimeError("CONSUMER_BATCH_WAIT_MS must be between 1 and 100")
+        if self.simulator_dispatch_mode not in {"batch", "refill"}:
+            raise RuntimeError("SIMULATOR_DISPATCH_MODE must be batch or refill")
         if not 1 <= self.simulator_concurrency <= self.pool_max:
             raise RuntimeError("SIMULATOR_CONCURRENCY must fit DB_POOL_MAX")
         if not 1 <= self.refresh_cooldown_ms <= 5000:

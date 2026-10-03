@@ -8,7 +8,7 @@ import signal
 import socket
 import time
 import urllib.request
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, as_completed, wait
 from uuid import UUID, uuid4
 
 from kafka import KafkaConsumer, KafkaProducer, TopicPartition
@@ -41,12 +41,15 @@ from ticketing.observability import (
     RESERVATION_PERSISTENCE_BATCH_SIZE,
     RESERVATION_PERSISTENCE_FAILURES,
     RESERVATION_PERSISTENCE_PHASE_SECONDS,
+    SIMULATOR_BATCH_BARRIER_SECONDS,
+    SIMULATOR_DUE_TO_CLAIM_SECONDS,
     WORKER_ERRORS,
     configure_logging,
     consumer_phase,
     measured_consumer_event,
     measured_work,
     observe_consumer_batch_error,
+    simulator_phase,
 )
 
 log = logging.getLogger("ticketing.worker")
@@ -884,8 +887,8 @@ def consume_iteration(consumer, db, cache, batch_size):
 @measured_work("simulate_one")
 def simulate_one(db, settings):
     token = uuid4()
-    with db.transaction() as conn:
-        row = conn.execute("""SELECT p.*,o.total,o.currency FROM payment_attempts p JOIN orders o ON o.id=p.order_id
+    with simulator_phase("claim"), db.transaction() as conn:
+        row = conn.execute("""SELECT p.*,o.total,o.currency,clock_timestamp() AS claim_observed_at FROM payment_attempts p JOIN orders o ON o.id=p.order_id
             WHERE p.deliveries<p.target_deliveries AND p.due_at<=clock_timestamp()
             AND (p.lease_until IS NULL OR p.lease_until<clock_timestamp())
             ORDER BY p.due_at LIMIT 1 FOR UPDATE OF p SKIP LOCKED""").fetchone()
@@ -895,6 +898,9 @@ def simulate_one(db, settings):
             "UPDATE payment_attempts SET lease_until=clock_timestamp()+interval '15 seconds',lease_token=%s WHERE id=%s",
             (token, row["id"]),
         )
+    SIMULATOR_DUE_TO_CLAIM_SECONDS.observe(
+        max(0, (row["claim_observed_at"] - row["due_at"]).total_seconds())
+    )
     # Same delivery ID repeated intentionally; tests also exercise different IDs for one payment.
     payload = {
         "callback_id": str(row["id"]),
@@ -918,9 +924,9 @@ def simulate_one(db, settings):
             "X-Payment-Signature": signature,
         },
     )
-    with urllib.request.urlopen(request, timeout=5) as response:
+    with simulator_phase("delivery"), urllib.request.urlopen(request, timeout=5) as response:
         response.read()
-    with db.transaction() as conn:
+    with simulator_phase("ack"), db.transaction() as conn:
         conn.execute(
             """UPDATE payment_attempts SET deliveries=deliveries+1,lease_until=NULL
             WHERE id=%s AND lease_token=%s""",
@@ -932,13 +938,55 @@ def simulate_one(db, settings):
 def simulate_batch(db, settings, executor):
     futures = [executor.submit(simulate_one, db, settings) for _ in range(settings.simulator_concurrency)]
     work = False
+    completed_at = []
     for future in as_completed(futures):
+        completed_at.append(time.monotonic())
         try:
             work = future.result() or work
         except Exception:
             WORKER_ERRORS.labels("simulator").inc()
             log.exception("callback_dispatch_failed")
+    batch_end = time.monotonic()
+    SIMULATOR_BATCH_BARRIER_SECONDS.inc(sum(batch_end - stamp for stamp in completed_at))
     return work
+
+
+
+def simulate_refill(db, settings, executor, should_run=None):
+    """Keep bounded slots occupied independently; drain outstanding work on stop."""
+    should_run = should_run or (lambda: running)
+    ready_at = [0.0] * settings.simulator_concurrency
+    pending = {}
+
+    def complete(future):
+        try:
+            return bool(future.result())
+        except Exception:
+            WORKER_ERRORS.labels("simulator").inc()
+            log.exception("callback_dispatch_failed")
+            return False
+
+    try:
+        while should_run():
+            now = time.monotonic()
+            occupied = set(pending.values())
+            for slot, eligible_at in enumerate(ready_at):
+                if not should_run():
+                    break
+                if slot not in occupied and eligible_at <= now:
+                    pending[executor.submit(simulate_one, db, settings)] = slot
+            if not pending:
+                delay = max(0, min(.1, min(ready_at) - time.monotonic()))
+                time.sleep(delay)
+                continue
+            done, _ = wait(pending, timeout=.1, return_when=FIRST_COMPLETED)
+            for future in done:
+                slot = pending.pop(future)
+                worked = complete(future)
+                ready_at[slot] = time.monotonic() + (0 if worked else .1)
+    finally:
+        for future in pending:
+            complete(future)
 
 
 def main():
@@ -991,6 +1039,9 @@ def main():
                 max_poll_records=settings.consumer_batch_size,
                 fetch_max_wait_ms=settings.consumer_batch_wait_ms,
             )
+        if role == "simulator" and settings.simulator_dispatch_mode == "refill":
+            simulate_refill(db, settings, executor)
+            return
         next_warm = 0
         while running:
             try:

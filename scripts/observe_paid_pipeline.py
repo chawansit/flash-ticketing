@@ -59,7 +59,7 @@ def api_metrics(address):
             value = float(raw_value)
             if name == "ticketing_http_requests_total" and labels.get("status") == "503":
                 route = labels.get("route", "")
-                if route.startswith(("/v1/orders", "/v1/payments")):
+                if route.startswith(("/v1/orders", "/v1/payments", "/v1/webhooks/payments")):
                     result[f"http_503:{route}:{labels.get('method', '')}"] = value
             elif name == "ticketing_order_status_cache_total":
                 result[f"order_cache:{labels.get('outcome', '')}"] = value
@@ -108,6 +108,32 @@ def consumer_phase_metric(name):
     return f"{phase}:{partition}:{outcome}:{suffix}"
 
 
+def simulator_phase_metric(name):
+    match = re.fullmatch(r"ticketing_simulator_phase_seconds_(sum|count|bucket)\{(.*)\}", name)
+    if match:
+        labels = dict(re.findall(r'(\w+)="([^"\\]*)"', match[2]))
+        phase, outcome = labels.get("phase"), labels.get("outcome")
+        if phase not in {"claim", "delivery", "ack", "other"} or outcome not in {"ok", "error"}:
+            return None
+        suffix = match[1]
+        bound = labels.get("le")
+    else:
+        match = re.fullmatch(r"ticketing_simulator_due_to_claim_seconds_(sum|count|bucket)(?:\{(.*)\})?", name)
+        if not match:
+            return None
+        phase, outcome, suffix = "due_to_claim", "ok", match[1]
+        labels = dict(re.findall(r'(\w+)="([^"\\]*)"', match[2] or ""))
+        bound = labels.get("le")
+    if suffix == "bucket":
+        try:
+            if not float(bound) > 0:
+                return None
+        except (ValueError, TypeError):
+            return None
+        suffix += ":" + bound
+    return f"{phase}:{outcome}:{suffix}"
+
+
 def worker_counters(role, operation, url):
     parsed = urlsplit(url)
     addresses = api_replicas(parsed.hostname, parsed.port or 80)
@@ -126,7 +152,14 @@ def worker_counters(role, operation, url):
                     key = f"{role}_busy_seconds"
                 elif name == f'ticketing_worker_active{{operation="{operation}"}}':
                     key = f"{role}_active"
+                elif role == "simulator" and name == "ticketing_simulator_batch_barrier_seconds_total":
+                    key = "simulator_batch_barrier_seconds"
                 else:
+                    if role == "simulator":
+                        phase_key = simulator_phase_metric(name)
+                        if phase_key:
+                            phases = result.setdefault("simulator_phases", {})
+                            phases[phase_key] = phases.get(phase_key, 0) + float(value)
                     if role == "consumer":
                         match = re.fullmatch(r'ticketing_consumer_batch_failures_total\{sqlstate="(40P01|40001|55P03|57014|08006|53300|other)"\}', name)
                         if match:

@@ -160,3 +160,7 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0108 - Include payment simulator in deployment source consistency](0108-simulator-source-consistency-gate.md)
 
 - [0109 - Compare two paid generator processes at fixed total budgets](0109-fixed-budget-two-process-paid-control.md)
+
+- [0110 - Measure development payment dispatch phases](0110-payment-dispatch-phase-diagnostics.md)
+
+- [0111 - Continuously refill bounded development callback slots](0111-continuously-refill-simulator-slots.md)

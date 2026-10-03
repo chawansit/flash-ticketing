@@ -33,6 +33,7 @@ parser.add_argument("--paid-http-client-count", type=int, default=1)
 parser.add_argument("--paid-generator-shards", type=int, choices=(1, 2), default=1)
 parser.add_argument("--paid-poll-seconds", type=float, default=0.2)
 parser.add_argument("--paid-lifecycle-diagnostics", action="store_true")
+parser.add_argument("--simulator-dispatch-mode-candidate", choices=("batch", "refill"), default="batch")
 parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8), default=4)
 parser.add_argument("--consumer-candidate", type=int, choices=(1, 2, 4, 6), default=1)
 parser.add_argument("--consumer-pool-per-instance", type=int, choices=(8, 12), default=12)
@@ -132,6 +133,7 @@ state = {"run": RUN, "phases": [], "pass": False, "error": None,
                                 "http_connections_per_shard": pool_budget,
                                 "poll_seconds": args.paid_poll_seconds,
                                 "callback_duplicates": args.callback_duplicates,
+                                "simulator_dispatch_mode": args.simulator_dispatch_mode_candidate,
                                 "lifecycle_diagnostics": args.paid_lifecycle_diagnostics}}
 deployed = prepared = probe_attempted = observer_started = kafka_observer_started = simulator_changed = False
 
@@ -214,23 +216,25 @@ try:
     candidate_cache = step("order-cache-candidate", API_HOST, ["sh", "-lc", cache_setting_check], 30)
     if candidate_cache.stdout.splitlines() != [str(args.order_status_cache_ms_candidate)] * 4:
         raise RuntimeError("Candidate order cache setting not active on all APIs")
-    if args.simulator_concurrency_candidate != 4:
+    if args.simulator_concurrency_candidate != 4 or args.simulator_dispatch_mode_candidate != "batch":
         simulator_config = (
             f'cd {BACKEND}; id=$({COMPOSE} ps -q simulator); test -n "$id"; '
             "docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' \"$id\" "
-            "| grep -E '^(SIMULATOR_CONCURRENCY|DB_POOL_MAX)='"
+            "| grep -E '^(SIMULATOR_CONCURRENCY|SIMULATOR_DISPATCH_MODE|DB_POOL_MAX)='"
         )
         original_simulator = step("simulator-original", API_HOST, ["sh", "-lc", simulator_config], 30).stdout
-        if "SIMULATOR_CONCURRENCY=4" not in original_simulator or "DB_POOL_MAX=12" not in original_simulator:
+        if not {"SIMULATOR_CONCURRENCY=4", "SIMULATOR_DISPATCH_MODE=batch", "DB_POOL_MAX=12"}.issubset(original_simulator.splitlines()):
             raise RuntimeError("Unexpected simulator baseline configuration")
         simulator_changed = True
         simulator_apply = (
             f"cd {BACKEND}; SIMULATOR_CONCURRENCY={args.simulator_concurrency_candidate} "
+            f"SIMULATOR_DISPATCH_MODE={args.simulator_dispatch_mode_candidate} "
             f"{COMPOSE} up -d --no-deps --force-recreate simulator; "
             f"id=$({COMPOSE} ps -q simulator); "
             'test -n "$id"; '
             "docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' \"$id\" "
-            f"| grep -qx 'SIMULATOR_CONCURRENCY={args.simulator_concurrency_candidate}'"
+            f"| grep -qx 'SIMULATOR_CONCURRENCY={args.simulator_concurrency_candidate}' && "
+            f'docker exec "$id" printenv SIMULATOR_DISPATCH_MODE | grep -qx "{args.simulator_dispatch_mode_candidate}"'
         )
         step("simulator-candidate", API_HOST, ["sh", "-lc", simulator_apply], 120)
     step(
@@ -646,12 +650,13 @@ finally:
     if simulator_changed:
         try:
             simulator_restore = (
-                f"cd {BACKEND}; SIMULATOR_CONCURRENCY=4 {COMPOSE} "
+                f"cd {BACKEND}; SIMULATOR_CONCURRENCY=4 SIMULATOR_DISPATCH_MODE=batch {COMPOSE} "
                 "up -d --no-deps --force-recreate simulator; "
                 f"id=$({COMPOSE} ps -q simulator); "
                 'test -n "$id"; '
                 "docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' \"$id\" "
-                "| grep -qx 'SIMULATOR_CONCURRENCY=4'"
+                "| grep -qx 'SIMULATOR_CONCURRENCY=4' && "
+                'docker exec "$id" printenv SIMULATOR_DISPATCH_MODE | grep -qx batch'
             )
             step("simulator-restore", API_HOST, ["sh", "-lc", simulator_restore], 120)
             state["simulator_restored"] = True

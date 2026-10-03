@@ -132,3 +132,32 @@ def test_mid_window_reset_is_reported_even_when_final_counter_recovers():
         for count in (10, 2, 20)
     ])
     assert result["counter_reset_detected"] and not result["phases"]
+
+
+def test_simulator_phase_histograms_barrier_and_webhook503_are_collected(monkeypatch):
+    payload = b'''ticketing_simulator_phase_seconds_count{phase="delivery",outcome="ok"} 10
+ ticketing_simulator_phase_seconds_sum{phase="delivery",outcome="ok"} 0.5
+ ticketing_simulator_phase_seconds_bucket{le="0.1",phase="delivery",outcome="ok"} 10
+ ticketing_simulator_due_to_claim_seconds_count 10
+ ticketing_simulator_due_to_claim_seconds_sum 2
+ ticketing_simulator_due_to_claim_seconds_bucket{le="0.5"} 10
+ ticketing_simulator_batch_barrier_seconds_total 3
+ ticketing_simulator_phase_seconds_count{phase="private-order-id",outcome="ok"} 999
+ ticketing_http_requests_total{route="/v1/webhooks/payments",method="POST",status="503"} 4
+'''
+    monkeypatch.setattr(observe_paid_pipeline, "api_replicas", lambda *_: ["simulator"])
+    monkeypatch.setattr(observe_paid_pipeline, "urlopen", lambda *_args, **_kwargs: BytesIO(payload.replace(b"\n ", b"\n")))
+    row = observe_paid_pipeline.worker_counters("simulator", "simulate_one", "http://simulator:9101/metrics")
+    assert row["simulator_phases"]["delivery:ok:count"] == 10
+    assert row["simulator_phases"]["due_to_claim:ok:sum"] == 2
+    assert row["simulator_batch_barrier_seconds"] == 3
+    assert "private-order-id" not in str(row)
+    assert observe_paid_pipeline.api_metrics("simulator")["http_503:/v1/webhooks/payments:POST"] == 4
+    zero = {"simulator_phases": {key: 0 for key in row["simulator_phases"]}, "simulator_batch_barrier_seconds": 0}
+    result = summarize_paid_pipeline.summarize([zero, row])
+    assert result["simulator_phases"]["phases"]["delivery:ok"]["mean_ms"] == 50
+    assert result["simulator_phases"]["phases"]["due_to_claim:ok"]["p95_upper_bound_ms"] == 500
+    assert result["simulator_batch_barrier"]["slot_seconds"] == 3
+    reset = summarize_paid_pipeline.summarize([row, zero])
+    assert reset["simulator_phases"]["counter_reset_detected"]
+    assert reset["simulator_batch_barrier"]["slot_seconds"] is None
