@@ -207,6 +207,11 @@ def compact_summary(result):
             "outcomes": generator["outcomes"], "retries": generator["retry_attempts"],
             "hold_to_ticket_p95_ms": generator["hold_to_ticket_p95_ms"],
             "transport_p95_ms": generator["transport_phase_p95_ms"],
+            "active_journeys_per_shard": [
+                {key: row.get(key) for key in ("active_journeys_peak",
+                 "active_journeys_time_weighted_mean", "drop_reasons", "lifecycle")}
+                for row in generator["shards"]
+            ],
             "responder_handler_p95_ms": responder["handler_p95_ms"],
             "responder_loop_lag_p95_ms": responder["loop_lag_p95_ms"],
             "durability_audit": "not_applicable_synthetic", "queue_drain": "not_applicable_synthetic",
@@ -221,6 +226,7 @@ async def diagnose(args):
             completion_deadline_seconds=args.seconds + math.ceil(args.ticket_seconds + args.command_seconds) + 30,
             poll_seconds=0.2, duplicates=1, profile_directory=profile_directory,
             http_client_count=getattr(args, "http_client_count", 1),
+            lifecycle_diagnostics=getattr(args, "lifecycle_diagnostics", False),
         )
         result = await run_shards(generator_args, manifest(server.origin, args.rate * args.seconds))
     revision = await asyncio.to_thread(
@@ -242,7 +248,8 @@ async def diagnose(args):
             "configuration": {"rate": args.rate, "seconds": args.seconds, "concurrency": args.concurrency,
                               "response_ms": args.response_ms, "command_seconds": args.command_seconds,
                               "ticket_seconds": args.ticket_seconds, "poll_seconds": 0.2, "shards": 2,
-                              "http_clients_per_shard": getattr(args, "http_client_count", 1)},
+                              "http_clients_per_shard": getattr(args, "http_client_count", 1),
+                              "lifecycle_diagnostics": getattr(args, "lifecycle_diagnostics", False)},
             "responder": stats, "responder_valid": responder_valid,
             "generator": result, "pass": responder_valid and result["pass"] and not dirty.stdout.strip()}
     report["profiled"] = profile_directory is not None
@@ -256,6 +263,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--rate", type=int, default=60)
     parser.add_argument("--http-client-count", type=int, default=1)
+    parser.add_argument("--lifecycle-diagnostics", action="store_true")
     parser.add_argument("--seconds", type=int, default=60)
     parser.add_argument("--concurrency", type=int, default=500)
     parser.add_argument("--response-ms", type=float, default=30)

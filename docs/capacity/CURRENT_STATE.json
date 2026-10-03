@@ -1,6 +1,6 @@
 {
   "updated_date_bangkok": "2026-10-03",
-  "status": "ready_for_next_generator_diagnostic",
+  "status": "running_generator_lifecycle_diagnostics",
   "cloud_load_requires_resume": false,
   "branch": "codex/redis-failover-recovery",
   "handoff_revision": "037164f",
@@ -19,13 +19,13 @@
     "1s-poll 45/s control failed:2386/2700 dispatched,314 drops,665 order GET503 and101 payment POST503; post-TTL2285 unique paid tickets,101 unpaid expired,zero duplicates,queues empty,rollback passed.",
     "Single-snapshot candidate:45/s control failed; pool-full873->72 and observed fulfilled1620->2250. Post-TTL2305 unique paid tickets,4 unpaid expired,zero duplicates,queues/Kafka drained. Reverted per ADR0094."
   ],
-  "unresolved": "Single-snapshot candidate reduced pool pressure but failed at45/s due391 generator drops and59 customer503s. Reverted. Remaining generator scheduling delay prevents a valid throughput comparison.",
+  "unresolved": "Capacity-cap drops are not proof of a scheduling defect:slow backend fulfillment or client overhead can occupy500active journeys. Measuring body/pool release,CPU/loop lag and occupancy before attributing the remaining constraint.",
   "next_on_resume": [
-    "Read this checkpoint and verify Git/deployed revision before modifying infrastructure.",
-    "Instrument generator response-body completion and connection release in a bounded synthetic control; create ADR before changing client/pool/sharding patterns.",
-    "If generator accounting passes, propose one backend read-pressure change in an ADR and compare against the identified45/s baseline; keep post-TTL correctness/queue gates."
+    "Review the clean-revision60/s synthetic5s-ticket control with lifecycle diagnostics.",
+    "If responder timing remains valid, execute the existing20s-ticket saturation control at the same offered rate/caps.",
+    "Use explicit active-cap snapshots and timing evidence to select the next change; no real load increase in this experiment."
   ],
-  "validation_this_resume": "91 selected candidate unit/integration passed; full-unit plus lock-timeout recovery217passed/1scheduler-sensitive failure,targeted rerun4passed;changed-file lint passed. After reversion,2retained integration tests passed. Cloud10/10smoke passed;45/s candidate failed;post-TTL audit and source/image restoration passed.",
+  "validation_this_resume": "18 focused lifecycle tests passed;220 unit tests passed;changed-file lint passed. Cloud readiness checked, no real API load generated.",
   "evidence": [
     "docs/capacity/flash-sale-opening/synthetic-generator-control-2026-10-03.json",
     "docs/capacity/flash-sale-opening/resume-backlog-audit-2026-10-03.json",
@@ -38,7 +38,8 @@
     "docs/capacity/flash-sale-opening/real-paid-slower-poll-control-2026-10-03.json",
     "docs/adr/0094-reevaluate-single-snapshot-order-reads-with-bounded-timeouts.md",
     "docs/capacity/flash-sale-opening/real-paid-single-snapshot-control-2026-10-03.json",
-    "docs/capacity/flash-sale-opening/baseline-restoration-2026-10-03.json"
+    "docs/capacity/flash-sale-opening/baseline-restoration-2026-10-03.json",
+    "docs/adr/0095-measure-generator-lifecycle-and-active-journey-pressure.md"
   ],
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
   "current_run": "checkout-20261003T021455Z-f32e23"

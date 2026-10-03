@@ -4,14 +4,42 @@ import argparse
 import asyncio
 import json
 from collections import Counter
-from contextlib import AsyncExitStack
+from contextlib import AsyncExitStack, suppress
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from time import perf_counter, time
+from time import perf_counter, process_time, time
 from uuid import uuid4
 
 import httpx
 from checkout_journey_probe import journey, percentile
+
+
+class ObservedResponseStream(httpx.AsyncByteStream):
+    """Observe completion of the original stream, including its pool release."""
+
+    def __init__(self, stream, observe):
+        self.stream, self.observe = stream, observe
+        self.closed = False
+        self.body_complete = None
+        self.body_bytes = 0
+
+    async def __aiter__(self):
+        async for chunk in self.stream:
+            self.body_bytes += len(chunk)
+            yield chunk
+        self.body_complete = perf_counter()
+
+    async def aclose(self):
+        if self.closed:
+            return
+        self.closed = True
+        started = perf_counter()
+        closed_ok = False
+        try:
+            await self.stream.aclose()
+            closed_ok = True
+        finally:
+            self.observe(self.body_complete, started, perf_counter(), self.body_bytes, closed_ok)
 
 
 def endpoint(path):
@@ -78,10 +106,21 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
     unique_tickets = set()
     active = set()
     dispatch_lags = []
-    transport = {key: {phase: [] for phase in ("pre_send_ms", "response_wait_ms", "connect_ms")}
+    diagnostics = getattr(args, "lifecycle_diagnostics", False)
+    phases = ["pre_send_ms", "response_wait_ms", "connect_ms"]
+    if diagnostics:
+        phases += ["response_body_ms", "stream_close_ms", "headers_to_pool_release_ms",
+                   "request_to_pool_release_ms"]
+    transport = {key: {phase: [] for phase in phases}
                  for key in ("holds", "reservation_commands", "payments", "orders")}
     dropped = dispatched = fulfilled_by_deadline = 0
     run_id = uuid4().hex
+    close_errors, body_bytes = Counter(), Counter()
+    loop_lags, drop_snapshots = [], []
+    journey_durations = {}
+    active_started = {}
+    active_peak = 0
+    occupancy_area = 0.0
 
     async def on_request(request):
         route = endpoint(request.url.path)
@@ -120,6 +159,23 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
             if start in stamps and end in stamps:
                 transport[route][phase].append(max(0.0, (stamps[end] - stamps[start]) * 1000))
 
+        if diagnostics:
+            def observe(body_end, close_start, close_end, size, closed_ok):
+                body_bytes[route] += size
+                if not closed_ok:
+                    close_errors[route] += 1
+                    return
+                if body_end is not None and "http11.receive_response_headers.complete" in stamps:
+                    transport[route]["response_body_ms"].append(max(
+                        0.0, (body_end - stamps["http11.receive_response_headers.complete"]) * 1000))
+                transport[route]["stream_close_ms"].append((close_end - close_start) * 1000)
+                for phase, start_key in [("headers_to_pool_release_ms",
+                                           "http11.receive_response_headers.complete"),
+                                          ("request_to_pool_release_ms", "start")]:
+                    if start_key in stamps:
+                        transport[route][phase].append(max(0.0, (close_end - stamps[start_key]) * 1000))
+            response.stream = ObservedResponseStream(response.stream, observe)
+
     client_count = getattr(args, "http_client_count", 1)
     base, extra = divmod(args.http_max_connections, client_count)
     connection_budgets = [base + (index < extra) for index in range(client_count)]
@@ -138,10 +194,40 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
             await asyncio.sleep(max(0.0, delay))
         started_utc = datetime.now(UTC).isoformat()
         started = perf_counter()
+        cpu_started = process_time()
+        occupancy_last = started
+
+        def update_occupancy():
+            nonlocal occupancy_area, occupancy_last
+            now = perf_counter()
+            occupancy_area += len(active) * (now - occupancy_last)
+            occupancy_last = now
+
+        def completed_task(task):
+            update_occupancy()
+            active.discard(task)
+            active_started.pop(task, None)
+
+        async def monitor_loop():
+            while True:
+                due = perf_counter() + 0.1
+                await asyncio.sleep(0.1)
+                loop_lags.append(max(0.0, (perf_counter() - due) * 1000))
+
+        if diagnostics:
+            monitor = asyncio.create_task(monitor_loop())
+
+            async def stop_monitor():
+                monitor.cancel()
+                with suppress(asyncio.CancelledError):
+                    await monitor
+
+            stack.push_async_callback(stop_monitor)
         completion_deadline = started + args.completion_deadline_seconds
 
         async def one(index):
             nonlocal fulfilled_by_deadline
+            journey_started = perf_counter()
             try:
                 row = await journey_fn(
                     clients[index % client_count],
@@ -155,6 +241,9 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
             except Exception:  # noqa: BLE001 - account for every dispatched journey
                 row = {"outcome": "generator_exception"}
             outcomes[row["outcome"]] += 1
+            if diagnostics:
+                journey_durations.setdefault(row["outcome"], []).append(
+                    (perf_counter() - journey_started) * 1000)
             if row["outcome"] == "fulfilled":
                 unique_orders.add(row["order_id"])
                 unique_tickets.add(row["ticket_id"])
@@ -171,14 +260,27 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
             dispatch_lags.append(max(0.0, (perf_counter() - due) * 1000))
             if len(active) >= args.concurrency:
                 dropped += 1
+                if diagnostics and len(drop_snapshots) < 8:
+                    now = perf_counter()
+                    drop_snapshots.append({
+                        "elapsed_seconds": now - started, "active": len(active),
+                        "completed_tasks_still_counted": sum(task.done() for task in active),
+                        "oldest_active_ms": (now - min(active_started.values())) * 1000,
+                    })
                 continue
+            update_occupancy()
             task = asyncio.create_task(one(index))
             active.add(task)
-            task.add_done_callback(active.discard)
+            active_peak = max(active_peak, len(active))
+            if diagnostics:
+                active_started[task] = perf_counter()
+            task.add_done_callback(completed_task)
             dispatched += 1
         if active:
             await asyncio.gather(*active)
+        update_occupancy()
         finished = perf_counter()
+        cpu_seconds = process_time() - cpu_started
 
     fulfilled = outcomes["fulfilled"]
     result = {
@@ -192,6 +294,11 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
         "scheduled": scheduled,
         "dispatched": dispatched,
         "generator_drops": dropped,
+        "drop_reasons": {"active_journey_capacity": dropped} if dropped else {},
+        "active_journeys_peak": active_peak,
+        "active_journeys_time_weighted_mean": occupancy_area / (finished - started),
+        "steady_state_mean_residence_budget_ms": args.concurrency / args.rate * 1000,
+        "lifecycle_diagnostics": diagnostics,
         "completed": sum(outcomes.values()),
         "fulfilled": fulfilled,
         "fulfilled_by_deadline": fulfilled_by_deadline,
@@ -227,6 +334,20 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
         "hold_to_ticket_p95_ms": percentile(latencies["hold_to_ticket_ms"], 0.95),
         "elapsed_seconds": finished - started,
     }
+    if diagnostics:
+        result["lifecycle"] = {
+            "process_cpu_seconds": cpu_seconds,
+            "process_cpu_wall_ratio": cpu_seconds / (finished - started),
+            "loop_lag_p95_ms": percentile(loop_lags, 0.95),
+            "loop_lag_max_ms": max(loop_lags, default=0.0), "loop_samples": len(loop_lags),
+            "body_bytes": dict(body_bytes), "stream_close_errors": dict(close_errors),
+            "drop_snapshots": drop_snapshots,
+            "journey_duration_by_outcome_ms": {
+                outcome: {"count": len(values), "mean": sum(values) / len(values),
+                          "p95": percentile(values, 0.95), "max": max(values)}
+                for outcome, values in journey_durations.items()
+            },
+        }
     result["pass"] = (
         scheduled
         == dispatched
@@ -253,6 +374,7 @@ def main():
     parser.add_argument("--concurrency", type=int, default=100)
     parser.add_argument("--http-max-connections", type=int)
     parser.add_argument("--http-client-count", type=int, default=1)
+    parser.add_argument("--lifecycle-diagnostics", action="store_true")
     parser.add_argument("--start-at-epoch", type=float)
     parser.add_argument("--duplicates", type=int, default=3)
     parser.add_argument("--timeout-seconds", type=int, default=90)

@@ -130,3 +130,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0092: Partition generator HTTP pools with a fixed total budget](0092-partition-generator-http-pools-with-fixed-total-budget.md)
 - [0093: Re-evaluate bounded polling with the validated generator](0093-reevaluate-bounded-polling-with-validated-generator.md)
 - [0094: Re-evaluate single-snapshot order reads with bounded timeouts](0094-reevaluate-single-snapshot-order-reads-with-bounded-timeouts.md)
+
+- [0095 - Generator lifecycle and active-journey pressure](0095-measure-generator-lifecycle-and-active-journey-pressure.md)

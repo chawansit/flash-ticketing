@@ -69,7 +69,9 @@ def aggregate(shard_results, rate, seconds, concurrency, exit_codes):
         routes = sorted({route for row in shard_results for route in row.get(field, {})})
         for route in routes:
             result[field][route] = {}
-            for phase in ("pre_send_ms", "response_wait_ms", "connect_ms"):
+            phases = sorted({phase for row in shard_results
+                             for phase in row.get(field, {}).get(route, {})})
+            for phase in phases:
                 values = [row.get(field, {}).get(route, {}).get(phase) for row in shard_results]
                 values = [value for value in values if value is not None]
                 result[field][route][phase] = (
@@ -85,6 +87,9 @@ def aggregate(shard_results, rate, seconds, concurrency, exit_codes):
             "dispatch_lag_p95_ms": row.get("dispatch_lag_p95_ms"),
             "transport_phase_p95_ms": row.get("transport_phase_p95_ms"),
             "outcomes": row.get("outcomes"),
+            "active_journeys_peak": row.get("active_journeys_peak"),
+            "active_journeys_time_weighted_mean": row.get("active_journeys_time_weighted_mean"),
+            "drop_reasons": row.get("drop_reasons", {}), "lifecycle": row.get("lifecycle"),
             "pass": row.get("pass", False),
         }
         for row in shard_results
@@ -127,6 +132,7 @@ async def run(args, manifest):
             command.append(str(Path(__file__).with_name("paid_ticket_load_generator.py")))
             proc = await asyncio.create_subprocess_exec(
                 *command,
+                *(["--lifecycle-diagnostics"] if getattr(args, "lifecycle_diagnostics", False) else []),
                 "--manifest", str(manifest_path), "--origin", args.origin,
                 "--output", str(output_path), "--rate", str(args.rate // 2),
                 "--seconds", str(args.seconds),
@@ -167,6 +173,7 @@ def main():
     p.add_argument("--poll-seconds", required=True, type=float)
     p.add_argument("--duplicates", required=True, type=int)
     p.add_argument("--http-client-count", type=int, default=1)
+    p.add_argument("--lifecycle-diagnostics", action="store_true")
     args = p.parse_args()
     if args.output.exists() or args.seconds < 1 or args.seconds > 300:
         p.error("Fresh output and bounded duration required")

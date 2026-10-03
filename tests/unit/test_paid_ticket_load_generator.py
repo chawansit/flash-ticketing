@@ -102,9 +102,17 @@ def test_saturated_generator_reports_drops_without_queuing(monkeypatch, tmp_path
         await asyncio.sleep(0.4)
         return fulfilled(index)
 
-    result = asyncio.run(generator.scheduled_journeys(args(tmp_path, 10, 1), manifest(), slow_journey))
+    candidate = args(tmp_path, 10, 1)
+    candidate.lifecycle_diagnostics = True
+    result = asyncio.run(generator.scheduled_journeys(candidate, manifest(), slow_journey))
     assert result["scheduled"] == 10
     assert result["generator_drops"] > 0
+    assert result["drop_reasons"] == {"active_journey_capacity": result["generator_drops"]}
+    assert result["active_journeys_peak"] == 1
+    assert 0 < result["active_journeys_time_weighted_mean"] <= 1
+    assert 1 <= len(result["lifecycle"]["drop_snapshots"]) <= 8
+    assert all(row["active"] == 1 for row in result["lifecycle"]["drop_snapshots"])
+    assert result["lifecycle"]["journey_duration_by_outcome_ms"]["fulfilled"]["count"] == result["dispatched"]
     assert result["dispatched"] + result["generator_drops"] == 10
     assert result["completed"] == result["dispatched"]
     assert not result["pass"]
@@ -190,3 +198,84 @@ def test_invalid_client_partition_rejected_before_any_requests(tmp_path):
         assert "client count" in str(exc)
     else:
         raise AssertionError("Expected client budget rejection")
+
+
+def test_observed_stream_measures_close_without_reading_ahead():
+    import httpx
+
+    async def check():
+        observations, reads = [], []
+
+        class Stream(httpx.AsyncByteStream):
+            async def __aiter__(self):
+                reads.append("first")
+                yield b"first"
+                await asyncio.sleep(0.01)
+                reads.append("second")
+                yield b"second"
+
+            async def aclose(self):
+                await asyncio.sleep(0.025)
+
+        stream = generator.ObservedResponseStream(Stream(), lambda *values: observations.append(values))
+        assert reads == []
+        assert b"".join([chunk async for chunk in stream]) == b"firstsecond"
+        assert observations == []
+        await stream.aclose()
+        await stream.aclose()
+        assert len(observations) == 1
+        body_end, close_start, close_end, size, closed_ok = observations[0]
+        assert body_end <= close_start <= close_end
+        assert (close_end - close_start) * 1000 >= 20
+        assert size == 11 and closed_ok
+
+    asyncio.run(check())
+
+
+def test_observed_stream_preserves_close_failure_and_marks_it():
+    import httpx
+    import pytest
+
+    async def check():
+        observations = []
+
+        class BrokenStream(httpx.AsyncByteStream):
+            async def aclose(self):
+                raise RuntimeError("underlying close failure")
+
+        stream = generator.ObservedResponseStream(BrokenStream(), lambda *row: observations.append(row))
+        with pytest.raises(RuntimeError, match="underlying close failure"):
+            await stream.aclose()
+        assert len(observations) == 1 and observations[0][-1] is False
+        assert observations[0][0] is None
+
+    asyncio.run(check())
+
+
+def test_body_failure_closes_observed_stream_with_httpx():
+    import httpx
+    import pytest
+
+    async def check():
+        closed, observed = [], []
+
+        class BrokenBody(httpx.AsyncByteStream):
+            async def __aiter__(self):
+                yield b"partial"
+                raise RuntimeError("body failed")
+
+            async def aclose(self):
+                closed.append(True)
+
+        async def on_response(response):
+            response.stream = generator.ObservedResponseStream(response.stream, lambda *row: observed.append(row))
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(
+            lambda _: httpx.Response(200, stream=BrokenBody())),
+            event_hooks={"response": [on_response]}) as client:
+            with pytest.raises(RuntimeError, match="body failed"):
+                await client.get("http://test/body")
+        assert closed == [True]
+        assert len(observed) == 1 and observed[0][0] is None and observed[0][-1] is True
+
+    asyncio.run(check())

@@ -70,3 +70,17 @@ def test_aggregate_keeps_new_status_get_transport_routes():
     result = aggregate([first, second], rate=60, seconds=60, concurrency=500, exit_codes=[1, 1])
     assert result["transport_phase_p95_ms"]["orders"]["pre_send_ms"] == 4000
     assert result["transport_phase_samples"]["orders"]["pre_send_ms"] == 1000
+
+
+def test_aggregate_preserves_release_phases_and_separate_shard_pressure():
+    first, second = shard_result(), shard_result()
+    for row, value in [(first, 10), (second, 20)]:
+        row["transport_phase_p95_ms"]["holds"]["stream_close_ms"] = value
+        row["transport_phase_samples"]["holds"]["stream_close_ms"] = 1800
+        row["active_journeys_peak"] = value
+        row["lifecycle"] = {"loop_lag_p95_ms": value}
+    result = aggregate([first, second], 60, 60, 500, [0, 0])
+    assert result["transport_phase_p95_ms"]["holds"]["stream_close_ms"] == 20
+    assert result["transport_phase_samples"]["holds"]["stream_close_ms"] == 3600
+    assert [row["active_journeys_peak"] for row in result["shards"]] == [10, 20]
+    assert result["shards"][1]["lifecycle"]["loop_lag_p95_ms"] == 20
