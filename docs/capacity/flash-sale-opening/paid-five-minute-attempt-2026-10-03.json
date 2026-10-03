@@ -524,7 +524,9 @@
     "local_checks_passed": 34,
     "local_check_seconds": 0.95,
     "lint_and_python_compile_pass": true,
-    "cloud_retested": false
+    "cloud_retested": false,
+    "source_revision": "e50bab67f588fe576413272a90833ecb90dc9bd8",
+    "both_ecs_checkouts_synchronized": true
   },
   "validation_this_turn": {
     "new_application_tests_run": false,

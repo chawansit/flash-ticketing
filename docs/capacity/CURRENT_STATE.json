@@ -5,10 +5,10 @@
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
   "status": "five_minute_failed_terminal_recovery_and_observer_repair_completed",
   "cloud_load_requires_resume": false,
-  "handoff_revision": "936224b",
-  "revision_note": "Five-minute attempt used936224b. Next commit includes locally verified observer/runner repair and failure report; application source unchanged. No repair live retest ran.",
+  "handoff_revision": "e50bab6",
+  "revision_note": "Five-minute attempt used936224b. Both ECS checkouts synchronized to e50bab6 observer/runner repair; runtime application source unchanged and original settings restored. Repair locally tested only; no live retest. New docs-only checkpoint does not change application code.",
   "backend_application_revision": "936224b",
-  "generator_revision": "936224b",
+  "generator_revision": "e50bab6",
   "last_checked_topology": "Restored4healthyAPIs;postgres mode;pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4;PgBouncer applicationpool24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "cloud_state_note": "No load/schedule/generator running. Original settings/budgets/readiness and seven source hashes verified. One fixture orphan terminalizedFAILED/SALE_CLOSED through existing writer; allqueues0 after recovery. Valid indexes retained.",
@@ -33,5 +33,7 @@
     "docs/capacity/flash-sale-opening/paid-five-minute-attempt-2026-10-03.json",
     "docs/capacity/flash-sale-opening/paid-api-pool-four-control-2026-10-03.json"
   ],
-  "authorization": "User Continue authorized one same60/s five-minute stage. Executedonce andFAILED; bounded existing-path recovery and necessary observerrepair completed. No further load/higher stage/schedule/permanentpromotion executed."
+  "authorization": "User Continue authorized one same60/s five-minute stage. Executedonce andFAILED; bounded existing-path recovery and necessary observerrepair completed. No further load/higher stage/schedule/permanentpromotion executed.",
+  "backend_checkout_revision": "e50bab6",
+  "tested_generator_revision": "936224b"
 }
