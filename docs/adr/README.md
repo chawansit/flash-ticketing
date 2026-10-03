@@ -184,3 +184,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0120 - Pipelined pending reservation discovery](0120-pipelined-pending-reservation-discovery.md)
 
 - [0121 - Bounded payment callback connection reuse](0121-bounded-payment-callback-connection-reuse.md)
+
+- [0122 - Reservation-writer visited-stream continuation](0122-reservation-writer-visited-stream-continuation.md)

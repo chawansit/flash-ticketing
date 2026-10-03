@@ -60,3 +60,5 @@ Implementation validation completed on 2026-09-28:
 - Ruff passed for the changed implementation and tests.
 - The isolated Docker Compose suite passed: 232 tests, with 2 dependency deprecation warnings and no failures.
 - Huawei DCS backlog recovery and a clean batch-size-4 capacity stage remain activation gates; this local evidence does not claim cloud activation.
+
+Whole-selected-batch cursor advancement is superseded by [ADR 0122](0122-reservation-writer-visited-stream-continuation.md); its other bounded discovery and recovery decisions remain accepted.

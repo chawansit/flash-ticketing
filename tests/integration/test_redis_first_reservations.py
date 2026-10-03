@@ -538,3 +538,134 @@ def test_pending_created_after_summary_is_recovered_on_next_rotation(redis_first
     assert len(recovered) == 1
     assert recovered[0][:2] == (stream, message_id)
     assert cache.redis.xpending(stream, intake.group)["pending"] == 1
+
+
+@pytest.mark.parametrize("reclaim", [False, True])
+@pytest.mark.parametrize("refresh", [0, 60])
+def test_real_redis_hot_stream_gives_cold_stream_next_turn(redis_first, reclaim, refresh):
+    _store, intake, cache, _db, event_id = redis_first
+    streams = [intake.stream_key(event_id) + f":fair-{i}" for i in range(2)]
+    intake.stream_refresh_seconds = refresh
+    try:
+        for stream in streams:
+            intake.ensure_group(stream)
+            cache.redis.sadd("reservation-stream-registry", stream)
+        cold = (streams[1], cache.redis.xadd(streams[1], {"test": "cold"}))
+        if reclaim:
+            cache.redis.xreadgroup(intake.group, "crashed", {streams[1]: ">"}, count=1)
+        seen = []
+        for _ in range(12):
+            for _ in range(4):
+                cache.redis.xadd(streams[0], {"test": "hot"})
+            if reclaim:
+                cache.redis.xreadgroup(intake.group, "crashed", {streams[0]: ">"}, count=4)
+            batch = list(intake.messages("replacement", count=4, reclaim_idle_ms=0))
+            assert len(batch) <= 4
+            seen.append([(stream, message_id) for stream, message_id, _ in batch])
+            # Discovery neither ACKs nor deletes; persistence owns those operations.
+            for stream, message_id, _ in batch:
+                assert cache.redis.xpending_range(stream, intake.group, message_id, message_id, 1)
+                intake.acknowledge(stream, message_id)
+        assert cold not in seen[0]
+        assert cold in seen[1]  # The baseline never reaches it in twelve iterations.
+        assert sum(cold in ids for ids in seen) == 1
+    finally:
+        cache.redis.delete(*streams)
+        cache.redis.srem("reservation-stream-registry", *streams)
+
+
+def test_concurrent_writer_cursors_assign_unique_bounded_batches(redis_first):
+    _store, intake, cache, _db, event_id = redis_first
+    streams = [intake.stream_key(event_id) + f":concurrent-fair-{i}" for i in range(2)]
+    try:
+        expected = set()
+        for stream in streams:
+            intake.ensure_group(stream)
+            for _ in range(32):
+                expected.add((stream, cache.redis.xadd(stream, {"test": "concurrent"})))
+        gate = Barrier(4)
+
+        def collect(index):
+            writer = RedisReservationIntake(cache, stream_refresh_seconds=60)
+            writer._streams = streams[:]
+            writer._stream_cycle_complete = False
+            gate.wait()
+            batches = [list(writer.messages(f"writer-{index}", count=4)) for _ in range(2)]
+            assert all(len(batch) == 4 for batch in batches)
+            assert {stream for batch in batches for stream, *_ in batch} == set(streams)
+            return [(stream, message_id) for batch in batches for stream, message_id, _ in batch]
+
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            results = list(executor.map(collect, range(4)))
+        assigned = [item for result in results for item in result]
+        assert len(assigned) == len(set(assigned)) == 32
+        assert set(assigned) <= expected
+        assert sum(cache.redis.xpending(stream, intake.group)["pending"] for stream in streams) == 32
+        assert sum(cache.redis.xlen(stream) for stream in streams) == 64
+    finally:
+        cache.redis.delete(*streams)
+        cache.redis.srem("reservation-stream-registry", *streams)
+
+
+def test_fair_continuation_after_commit_failure_reset_and_replay(redis_first, monkeypatch):
+    store, intake, cache, db, _event_id = redis_first
+    events = sorted([uuid4(), uuid4()], key=str)
+    streams = [intake.stream_key(event) for event in events]
+    try:
+        with db.transaction() as conn:
+            for event in events:
+                conn.execute(
+                    """INSERT INTO events VALUES (%s,'Fair replay','THB',
+                    clock_timestamp()-interval '1 day',clock_timestamp()+interval '1 day')""",
+                    (event,),
+                )
+                for seat in ["A", "B", "C", "D"]:
+                    conn.execute(
+                        "INSERT INTO event_seats(event_id,seat_id,price) VALUES (%s,%s,100)",
+                        (event, seat),
+                    )
+        for event in events:
+            snapshot(db, cache, event)
+        commands = [intake.enqueue(f"hot-{seat}", events[0], [seat], f"hot-{seat}")
+                    for seat in ["A", "B", "C", "D"]]
+        cold = intake.enqueue("cold", events[1], ["A"], "cold")
+        commands.append(cold)
+        original_mark = intake.mark_durable
+
+        def fail(*_args):
+            raise RuntimeError("commit before marker")
+
+        monkeypatch.setattr(intake, "mark_durable", fail)
+        with pytest.raises(RuntimeError, match="commit before marker"):
+            persist_reservation_batch(store, intake, "crashed", 4)
+        assert intake._stream_cursor == 1
+        assert cache.redis.xpending(streams[0], intake.group)["pending"] == 4
+        with db.transaction() as conn:
+            assert conn.execute("SELECT count(*) AS n FROM reservation_commands").fetchone()["n"] == 4
+
+        intake.reset_connection_state()
+        monkeypatch.setattr(intake, "mark_durable", original_mark)
+        messages = intake.messages
+
+        def recover(consumer, count=8):
+            yield from messages(consumer, count=count, reclaim_idle_ms=0)
+
+        monkeypatch.setattr(intake, "messages", recover)
+        assert persist_reservation_batch(store, intake, "replacement", 4)
+        # Full hot-stream replay advances continuation instead of skipping cold.
+        assert persist_reservation_batch(store, intake, "replacement", 4)
+        assert not persist_reservation_batch(store, intake, "replacement", 4)
+        for event, command in [(events[0], command) for command in commands[:-1]] + [(events[1], cold)]:
+            assert intake.status(event, command["command_id"])["persistence_status"] == "DURABLE"
+        assert all(cache.redis.xlen(stream) == 0 for stream in streams)
+        assert all(cache.redis.xpending(stream, intake.group)["pending"] == 0 for stream in streams)
+        with db.transaction() as conn:
+            for table in ["holds", "orders", "reservation_commands", "outbox_events"]:
+                assert conn.execute(f"SELECT count(*) AS n FROM {table}").fetchone()["n"] == 5
+            assert conn.execute("SELECT count(*) AS n FROM bookings").fetchone()["n"] == 0
+    finally:
+        for event, stream in zip(events, streams, strict=True):
+            keys = list(cache.redis.scan_iter(match=f"*{{{event}}}*"))
+            if keys:
+                cache.redis.delete(*keys)
+            cache.redis.srem("reservation-stream-registry", stream)

@@ -172,7 +172,7 @@ def test_discovery_rotates_beyond_a_full_window_without_starvation():
     intake._refresh_streams(limit=5)
     assert intake.streams(limit=5) == list(ordered[:5])
     for _ in range(3):
-        intake._next_stream_batch()
+        intake._advance_stream_cursor(len(intake._next_stream_batch()))
 
     intake._refresh_streams(limit=5)
 
@@ -408,3 +408,78 @@ def test_summary_failure_does_not_assign_or_read_messages(monkeypatch):
         list(intake.messages("writer", count=4))
     assert redis.reclaim_calls == []
     assert redis.read_batches == []
+
+
+class SaturatedRedis(FakeRedis):
+    def __init__(self, streams, reclaim):
+        super().__init__(streams)
+        self.reclaim = reclaim
+        self.pending_counts = {stream: int(reclaim) for stream in streams}
+
+    def entries(self, stream, count):
+        size = count if stream == min(self.registry) else min(1, count)
+        return [(f"{stream}-{i}", {"payload": "{}"}) for i in range(size)]
+
+    def xautoclaim(self, stream, *_args, **kwargs):
+        return "0-0", self.entries(stream, kwargs["count"]), []
+
+    def xreadgroup(self, _group, _consumer, streams, **kwargs):
+        if self.reclaim:
+            return []  # A nonfull recovery pass may proceed to fresh reads.
+        stream = next(iter(streams))
+        return [(stream, self.entries(stream, kwargs["count"]))]
+
+
+@pytest.mark.parametrize("reclaim", [False, True])
+@pytest.mark.parametrize("window", [1, 2, 3, 32])
+@pytest.mark.parametrize("refresh", [0, 60])
+def test_saturated_first_stream_cannot_starve_later_streams(reclaim, window, refresh):
+    streams = [f"reservation-stream:{{event-{i}}}" for i in range(3)]
+    intake = RedisReservationIntake(
+        FakeCache(SaturatedRedis(streams, reclaim)),
+        stream_batch_size=window, stream_refresh_seconds=refresh,
+    )
+    seen = set()
+    for _ in range(6):
+        batch = list(intake.messages("writer", count=4, reclaim_idle_ms=0))
+        assert 0 < len(batch) <= 4
+        seen.update(stream for stream, *_ in batch)
+    assert seen == set(streams)
+
+
+@pytest.mark.parametrize("reclaim", [False, True])
+def test_full_operation_records_continuation_before_iterator_suspension(reclaim):
+    streams = ["reservation-stream:{a}", "reservation-stream:{b}"]
+    intake = RedisReservationIntake(FakeCache(SaturatedRedis(streams, reclaim)))
+    iterator = intake.messages("writer", count=4, reclaim_idle_ms=0)
+    assert next(iterator)[0] == streams[0]
+    assert intake._stream_cursor == 1
+    assert intake._stream_cycle_complete is False
+    iterator.close()
+    assert next(intake.messages("writer", count=4, reclaim_idle_ms=0))[0] == streams[1]
+
+
+def test_failed_summary_preserves_unvisited_suffix_and_reset_rebuilds(monkeypatch):
+    streams = ["reservation-stream:{a}", "reservation-stream:{b}"]
+    redis = SaturatedRedis(streams, False)
+    intake = RedisReservationIntake(FakeCache(redis), stream_refresh_seconds=60)
+    assert len(list(intake.messages("writer", count=4))) == 4
+    pipeline = redis.pipeline
+
+    def fail(**kwargs):
+        result = pipeline(**kwargs)
+        def execute():
+            raise RedisError("summary unavailable")
+        result.execute = execute
+        return result
+
+    monkeypatch.setattr(redis, "pipeline", fail)
+    with pytest.raises(RedisError):
+        list(intake.messages("writer", count=4))
+    assert intake._stream_cursor == 1
+    assert intake._stream_cycle_complete is False
+    monkeypatch.setattr(redis, "pipeline", pipeline)
+    assert next(intake.messages("writer", count=4))[0] == streams[1]
+    intake.reset_connection_state()
+    assert len(list(intake.messages("writer", count=4))) == 4
+    assert next(intake.messages("writer", count=4))[0] == streams[1]

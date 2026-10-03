@@ -415,12 +415,14 @@ class RedisReservationIntake:
             return []
         size = min(self.stream_batch_size, len(self._streams))
         start = self._stream_cursor % len(self._streams)
-        batch = [self._streams[(start + offset) % len(self._streams)] for offset in range(size)]
-        next_cursor = start + size
+        return [self._streams[(start + offset) % len(self._streams)] for offset in range(size)]
+
+    def _advance_stream_cursor(self, visited):
+        """Continue after actual service, not the advisory pending-check window."""
+        next_cursor = self._stream_cursor + visited
         self._stream_cursor = next_cursor % len(self._streams)
         if next_cursor >= len(self._streams):
             self._stream_cycle_complete = True
-        return batch
 
     def ensure_group(self, stream):
         if stream in self._known_groups:
@@ -461,7 +463,7 @@ class RedisReservationIntake:
         pending = pending_checks.execute()
 
         remaining = count
-        for stream, summary in zip(streams, pending, strict=True):
+        for visited, (stream, summary) in enumerate(zip(streams, pending, strict=True), 1):
             # Read-only summaries avoid empty reclaim round trips without assigning
             # extra work. Reclaims still precede new reads and share one total COUNT.
             if summary["pending"] == 0:
@@ -469,13 +471,15 @@ class RedisReservationIntake:
             _next, claimed, _deleted = self.redis.xautoclaim(
                 stream, self.group, consumer, reclaim_idle_ms, "0-0", count=remaining
             )
+            remaining -= len(claimed)
+            if remaining == 0:
+                self._advance_stream_cursor(visited)
             for message_id, fields in claimed:
                 yield stream, message_id, fields
-                remaining -= 1
             if remaining == 0:
                 return
 
-        for stream in streams:
+        for visited, stream in enumerate(streams, 1):
             batches = self.redis.xreadgroup(
                 self.group,
                 consumer,
@@ -484,12 +488,15 @@ class RedisReservationIntake:
                 # Empty/owned streams must not delay later ready streams. The worker
                 # backs off after an entirely idle bounded sweep (ADR0113).
             )
+            remaining -= sum(len(entries) for _stream, entries in batches)
+            if remaining == 0:
+                self._advance_stream_cursor(visited)
             for batch_stream, entries in batches:
                 for message_id, fields in entries:
                     yield batch_stream, message_id, fields
-                    remaining -= 1
-                    if remaining == 0:
-                        return
+            if remaining == 0:
+                return
+        self._advance_stream_cursor(len(streams))
 
     def mark_durable(self, event_id, command_id):
         return self.redis.eval(
