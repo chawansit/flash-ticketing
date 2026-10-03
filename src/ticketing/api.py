@@ -106,7 +106,7 @@ class Error(BaseModel):
 ERRORS = {code: {"model": Error} for code in (401, 403, 404, 409, 422, 429, 503)}
 
 
-def service(request: Request):
+async def service(request: Request):
     return request.app.state.reservations
 
 

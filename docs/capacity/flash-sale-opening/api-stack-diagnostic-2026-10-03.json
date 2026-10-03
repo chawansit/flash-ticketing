@@ -1,0 +1,237 @@
+{
+  "kind": "bounded_external_api_stack_diagnostic",
+  "run_id": "checkout-20261003T134818Z-fa4fff",
+  "tested_revision": "f237a17604a6abbe956cf25485e8a57c24a27607",
+  "application_source_hashes_unchanged_from": "61e6c27235cbb6cad9c96e5fd8f09a705677843a",
+  "baseline_run": "checkout-20261003T131542Z-14f606",
+  "decision": "0118-bounded-external-api-stack-sampling",
+  "load_gate_pass": false,
+  "customer": {
+    "scheduled": 18000,
+    "dispatched": 10947,
+    "generator_drops": 7053,
+    "fulfilled_by_deadline": 10613,
+    "outcomes": {
+      "fulfilled": 10613,
+      "order_http_503": 269,
+      "payment_http_503": 65
+    },
+    "retry_attempts": 0,
+    "hold_to_ticket_p95_ms": 17058.645085002354,
+    "latency_summary_mode": "worst_shard_p95_not_combined_percentile"
+  },
+  "profiling": {
+    "pass": true,
+    "profile_count": 4,
+    "exit_codes": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "profiler_child_cpu_seconds": 7.097405999999999,
+    "elapsed_seconds": 120.29387735199998,
+    "profiler_version": "py-spy 0.4.2",
+    "samples_per_second_per_api": 25,
+    "duration_seconds": 120,
+    "owned_profilers_exited": true
+  },
+  "sample_observations": 6954,
+  "stack_groups": {
+    "scope": "Overlapping sampled Python stack presence,not CPU percentages or route latency. Native/GIL-released work excluded.",
+    "total_sample_weight": 278.1599999999947,
+    "groups_percent": {
+      "thread_handoff_or_notification": 14.092608570606878,
+      "dependency_resolution": 18.133448375035975,
+      "response_json_conversion": 2.5021570319241224,
+      "jwt_validation": 2.5596778832327227,
+      "redis_client": 5.349439171699792,
+      "postgres_client": 11.921196433707257
+    }
+  },
+  "route_stack_presence": [
+    {
+      "symbol": "unattributed",
+      "weight": 215.71999999999136,
+      "sample_weight_percent": 77.55248777681747
+    },
+    {
+      "symbol": "order_status",
+      "weight": 32.83999999999948,
+      "sample_weight_percent": 11.806154731090057
+    },
+    {
+      "symbol": "payment_callback",
+      "weight": 13.959999999999878,
+      "sample_weight_percent": 5.018694276675347
+    },
+    {
+      "symbol": "payment_initiation",
+      "weight": 7.480000000000006,
+      "sample_weight_percent": 2.689099798677074
+    },
+    {
+      "symbol": "metrics",
+      "weight": 3.240000000000002,
+      "sample_weight_percent": 1.1647972389991603
+    },
+    {
+      "symbol": "seat_hold",
+      "weight": 3.040000000000002,
+      "sample_weight_percent": 1.0928961748634094
+    },
+    {
+      "symbol": "reservation_status",
+      "weight": 1.880000000000001,
+      "sample_weight_percent": 0.6758700028760559
+    }
+  ],
+  "top_leaf_frames": [
+    {
+      "symbol": "threading.py:notify",
+      "weight": 14.35999999999987,
+      "sample_weight_percent": 5.162496404946845
+    },
+    {
+      "symbol": "fastapi/routing.py:app",
+      "weight": 11.359999999999934,
+      "sample_weight_percent": 4.083980442910609
+    },
+    {
+      "symbol": "fastapi/dependencies/utils.py:solve_dependencies",
+      "weight": 8.160000000000002,
+      "sample_weight_percent": 2.9335634167386244
+    },
+    {
+      "symbol": "asyncio/events.py:_run",
+      "weight": 6.960000000000005,
+      "sample_weight_percent": 2.5021570319241224
+    },
+    {
+      "symbol": "ticketing/http.py:__call__",
+      "weight": 5.880000000000004,
+      "sample_weight_percent": 2.1138912855910688
+    },
+    {
+      "symbol": "fastapi/encoders.py:jsonable_encoder",
+      "weight": 5.080000000000004,
+      "sample_weight_percent": 1.826287029048066
+    },
+    {
+      "symbol": "anyio/_backends/_asyncio.py:run_sync_in_worker_thread",
+      "weight": 4.840000000000003,
+      "sample_weight_percent": 1.7400057520851653
+    },
+    {
+      "symbol": "psycopg/connection.py:wait",
+      "weight": 4.800000000000003,
+      "sample_weight_percent": 1.7256255392580153
+    },
+    {
+      "symbol": "uvicorn/protocols/http/httptools_impl.py:send",
+      "weight": 4.680000000000003,
+      "sample_weight_percent": 1.682484900776565
+    },
+    {
+      "symbol": "ticketing/http.py:observed_send",
+      "weight": 4.200000000000003,
+      "sample_weight_percent": 1.5099223468507632
+    },
+    {
+      "symbol": "redis/_parsers/socket.py:_read_from_socket",
+      "weight": 4.080000000000003,
+      "sample_weight_percent": 1.4667817083693129
+    },
+    {
+      "symbol": "prometheus_client/metrics.py:labels",
+      "weight": 3.8800000000000026,
+      "sample_weight_percent": 1.3948806442335622
+    },
+    {
+      "symbol": "json/encoder.py:iterencode",
+      "weight": 3.8000000000000025,
+      "sample_weight_percent": 1.3661202185792618
+    },
+    {
+      "symbol": "asyncio/selector_events.py:write",
+      "weight": 3.7200000000000024,
+      "sample_weight_percent": 1.3373597929249617
+    },
+    {
+      "symbol": "starlette/routing.py:matches",
+      "weight": 3.440000000000002,
+      "sample_weight_percent": 1.2366983031349108
+    },
+    {
+      "symbol": "psycopg/_cursor_base.py:_execute_send",
+      "weight": 3.280000000000002,
+      "sample_weight_percent": 1.1791774518263103
+    }
+  ],
+  "api_mean_timings_ms_matched_offered_window": {
+    "db_connection_hold:all": 46.56471258110023,
+    "db_query:INSERT": 5.198878338134662,
+    "db_query:SELECT": 5.144433465171243,
+    "db_pool_acquire:ok": 19.860844728830045,
+    "db_pool_acquire:error": 0.08539762430343885,
+    "db_query:UPDATE": 4.966919718201151,
+    "db_query:BEGIN": 10.313806886540409,
+    "db_commit:all": 5.624079528202156,
+    "event_loop_lag:all": 19.262225837647375
+  },
+  "post_ttl": {
+    "orders": 10947,
+    "fulfilled_orders": 10882,
+    "expired_orders": 65,
+    "pending_orders": 0,
+    "payment_attempts": 10882,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 10882,
+    "bookings": 10882,
+    "tickets": 10882,
+    "payment_callbacks": 10882,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 10882,
+    "callback_delivery_target": 10882,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 10947,
+    "expected_paid": 10882,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true
+  },
+  "full_keyspace_queues": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "active_fixture_holds": 0,
+    "overdue_fixture_holds": 0,
+    "pending_fixture_orders": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "pass": true
+  },
+  "final_gates": {
+    "pipeline_observer": true,
+    "kafka_observer": true,
+    "source_and_settings_restoration": true,
+    "generator_idle": true,
+    "private_load_cleanup": true,
+    "profiler_scratch_cleanup": true
+  },
+  "findings": [
+    "Dependency resolution18.13percent and thread handoff/notification14.09percent of sampled stacks;overlapping presence,not CPU fractions. JSON conversion2.50percent;JWT validation2.56percent.",
+    "Profiler childrenCPU7.0974s across120.2939s capture,about0.059CPUcore/1.48percent of4core budget;collector/kernel effects not fully separated.",
+    "Same application confirmed10613versus8748customer journeys withfresh fixture/background variation andsampling overhead. Single-run differences cannot establish causality or qualified production capacity.",
+    "Service dependency only returns in-memory application state yet incurs synchronous FastAPI worker dispatch. ADR0119 chooses only this accessor execution placement as next candidate."
+  ],
+  "local_validation": {
+    "first_final_unit_attempt": "328passed/1existingidle-boundaryfailure by2.3microseconds;retained;targeted21tests passed1.93s.",
+    "subsequent_application_candidate_suite": "448unit/integrationtests passed68.36s againstisolatedPG17.6/Redis7.4.5;twoexistingdependencywarnings.",
+    "smoke": "Real2s syntheticread-onlyattachment49observations;filelessframesfixed/redacted;worker/profiler exited and scratch removed."
+  },
+  "capacity_claim": "Diagnostic only;no production capacity or per-route CPU percent claim;no higher rate.",
+  "private_evidence_root": "tmp/checkout-20261003T134818Z-fa4fff"
+}

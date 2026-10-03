@@ -3,15 +3,15 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "transaction_setup_locally_safe_cloud_capacity_failed_profile_api_next",
+  "status": "api_stack_diagnostic_completed_service_dependency_candidate_ready",
   "cloud_load_requires_resume": false,
   "handoff_revision": "61e6c27235cbb6cad9c96e5fd8f09a705677843a",
   "revision_note": "Tested/sourceverifiedcloud61e6c27;documentation commit may differ. Experimental transactionsetup remains in cloud images;onlyservicebudgets restored,not application source reverted.",
-  "backend_application_revision": "61e6c27235cbb6cad9c96e5fd8f09a705677843a",
-  "generator_revision": "61e6c27235cbb6cad9c96e5fd8f09a705677843a",
+  "backend_application_revision": "f237a17604a6abbe956cf25485e8a57c24a27607",
+  "generator_revision": "f237a17604a6abbe956cf25485e8a57c24a27607",
   "last_checked_topology": "Restored4healthyAPIs;postgres mode;pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4;PgBouncer applicationpool24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "No active paid load/generator. Exact9028orders=8991paid+37expired unpaid;fullqueues/Kafka0/source/settings/readiness/idle/privatecleanup passed.4APIs/1consumer/batch4simulator budgets restored;failedcandidate notpromoted.",
+  "cloud_state_note": "Diagnosticcomplete;allfinancial/queue/Kafka/source/settings/readiness/idle/privatecleanup gatespassed. Cloudapplication sourceunchanged61e6c27;checkoutf237a17. No activepaidload/profiler. Localasyncserviceaccess candidate validated448tests;cloudcandidate pending.",
   "confirmed": [
     "Setup reduced from3requests to1; matched offered-window PgBouncer queries/transaction10.1565to7.9602 across mixed roles,not an exact common-helper statement count.",
     "Matched offered-window API meanpoolwait32.04to22.31ms(-30.37percent);connectionhold53.04to49.97ms(-5.79percent).",
@@ -22,22 +22,25 @@
   ],
   "unresolved": "Same-load transaction setup reduction did not improveoverallcapacity:CPU97.15percent,callbackdelivery+25.45percent,eventlooplag+63.88percent,customerconfirmations-10.41percent. Hot-function/routeCPU andscheduling attribution unresolved;no higherloadorhourproof.",
   "next_on_resume": [
-    "Profile actual API/webhook CPU and per-route scheduling during an unchanged bounded control; establish hot functions before another code or topology correction.",
-    "Compare callback delivery and polling cost; preserve timeout/locking/idempotency/TTL and all financial/queue gates.",
-    "Do not escalate rate or promote this failed candidate. No900/1000HTTPRPS or300000paidtickets/hour proof."
+    "Run unprofiledADR0119 same8refill/60buyers/s300s candidate aftersync/build;no changedbudgets/nohigherload.",
+    "Finish exactpaid/unpaidpostTTL/fullqueue/Kafka/source/settings/readiness/idle/privatecleanup evenifloadfails.",
+    "Compare withunprofiled61e6c27 baseline andacknowledge same-code diagnosticvariation."
   ],
-  "validation_this_resume": "423unit/integration tests passed80.70s against isolatedPG17.6/Redis7.4.5;new real timeout/rollback/reuse tests and100wayconcurrency passed;lint/format/compile/whitespace passed;ownedlocaltestcontainers removed.",
-  "current_run": "checkout-20261003T131542Z-14f606",
+  "validation_this_resume": "448unit/integrationtests passed68.36s;20focusedprofiler tests passed. Earlier328unitpass/1timingfailure retained;21focusedrerun passed. Real49sampleattachment and6954sample4APIprofiler passed;nointegrationclaims omitted.",
+  "current_run": "checkout-20261003T134818Z-fa4fff",
   "evidence": [
+    "docs/capacity/flash-sale-opening/api-stack-diagnostic-2026-10-03.json",
+    "docs/adr/0118-bounded-external-api-stack-sampling.md",
+    "docs/adr/0119-event-loop-service-dependency-access.md",
     "docs/capacity/flash-sale-opening/paid-transaction-setup-control-2026-10-03.json",
     "docs/adr/0117-consolidated-transaction-local-timeouts.md",
     "docs/capacity/flash-sale-opening/paid-persistent-kafka-control-2026-10-03.json",
     "docs/capacity/flash-sale-opening/ssh-idle-liveness-2026-10-03.json"
   ],
   "authorization": "User Go ahead as plan authorizes conditional implementation/experiments. Failed gates prohibit higher-rate escalation; recovery/audit/evidence-driven corrections remain in scope.",
-  "backend_checkout_revision": "61e6c27235cbb6cad9c96e5fd8f09a705677843a",
-  "tested_generator_revision": "61e6c27235cbb6cad9c96e5fd8f09a705677843a",
-  "scope": "ADR0117 implementation andsame60buyers/s300s experiment complete;candidatefailedloadqualification,allrecoverygatespassed. Retainedexperimentalbranch/imageswithrecordedbaselinebudgets;future correction requiresADR andone-factorcontrol.",
+  "backend_checkout_revision": "f237a17604a6abbe956cf25485e8a57c24a27607",
+  "tested_generator_revision": "f237a17604a6abbe956cf25485e8a57c24a27607",
+  "scope": "ADR0118diagnosticcomplete;ADR0119one-factorservice-getter asyncplacement locallyvalidated andauthorized forcontrolledcloudcandidate.",
   "roadmap": [
     {
       "step": 1,
@@ -90,5 +93,5 @@
       "status": "conditional_future_work"
     }
   ],
-  "local_implementation_revision": "61e6c27235cbb6cad9c96e5fd8f09a705677843a"
+  "local_implementation_revision": "f237a17604a6abbe956cf25485e8a57c24a27607"
 }

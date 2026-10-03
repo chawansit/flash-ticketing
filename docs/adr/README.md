@@ -178,3 +178,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0117 - Consolidated transaction-local timeout setup](0117-consolidated-transaction-local-timeouts.md)
 
 - [0118 - Bounded external API stack sampling](0118-bounded-external-api-stack-sampling.md)
+
+- [0119 - Event-loop service dependency access](0119-event-loop-service-dependency-access.md)
