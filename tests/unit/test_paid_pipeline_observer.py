@@ -94,3 +94,40 @@ def test_worker_counters_sum_both_consumer_replicas(monkeypatch):
         "consumer_busy_seconds": 11,
         "consumer_active": 2,
     }
+
+
+def test_consumer_phases_aggregate_replicas_and_preserve_histogram_bounds(monkeypatch):
+    monkeypatch.setattr(observe_paid_pipeline, "api_replicas", lambda *_: ["a", "b"])
+    labels = 'phase="commit",partition="all",outcome="ok"'
+    metric = "\n".join([
+        f'ticketing_consumer_phase_seconds_count{{{labels}}} 10',
+        f'ticketing_consumer_phase_seconds_sum{{{labels}}} 0.5',
+        f'ticketing_consumer_phase_seconds_bucket{{{labels},le="0.05"}} 9',
+        f'ticketing_consumer_phase_seconds_bucket{{{labels},le="0.1"}} 10',
+        f'ticketing_consumer_phase_seconds_bucket{{{labels},le="+Inf"}} 10',
+    ]).encode()
+    monkeypatch.setattr(observe_paid_pipeline, "urlopen", lambda *_args, **_kwargs: BytesIO(metric))
+    counters = observe_paid_pipeline.worker_counters("consumer", "consume_event", "http://consumer:9101/metrics")
+    assert counters["consumer_phases"]["commit:all:ok:count"] == 20
+    result = summarize_paid_pipeline.summarize_consumer_phases([
+        {"consumer_phases": {}}, counters])
+    assert result["phases"]["commit:all:ok"] == {
+        "calls": 20, "total_seconds": 1, "mean_ms": 50, "p95_upper_bound_ms": 100}
+    assert not result["counter_reset_detected"]
+
+
+def test_phase_summary_does_not_hide_counter_reset():
+    result = summarize_paid_pipeline.summarize_consumer_phases([
+        {"consumer_phases": {"poll:all:ok:count": 10, "poll:all:ok:sum": 2}},
+        {"consumer_phases": {"poll:all:ok:count": 2, "poll:all:ok:sum": .5}},
+    ])
+    assert result["counter_reset_detected"] and result["phases"] == {}
+    assert not summarize_paid_pipeline.summarize_consumer_phases([])["observed"]
+
+
+def test_mid_window_reset_is_reported_even_when_final_counter_recovers():
+    result = summarize_paid_pipeline.summarize_consumer_phases([
+        {"consumer_phases": {"commit:all:ok:count": count, "commit:all:ok:sum": count / 10}}
+        for count in (10, 2, 20)
+    ])
+    assert result["counter_reset_detected"] and not result["phases"]

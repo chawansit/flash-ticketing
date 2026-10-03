@@ -85,6 +85,29 @@ def api_metrics(address):
     return result
 
 
+def consumer_phase_metric(name):
+    match = re.fullmatch(r"ticketing_consumer_phase_seconds_(sum|count|bucket)\{(.*)\}", name)
+    if not match:
+        return None
+    labels = dict(re.findall(r'(\w+)="([^"\\]*)"', match[2]))
+    phase, partition, outcome = (labels.get(key) for key in ("phase", "partition", "outcome"))
+    if phase not in {"poll", "partition", "commit", "rewind", "event_OrderPaid",
+                     "event_SeatsChanged", "event_TicketsIssued", "event_RefundRequested", "event_other"}:
+        return None
+    if partition not in {"all", "other", *(str(i) for i in range(32))} or outcome not in {"ok", "error"}:
+        return None
+    suffix = match[1]
+    if suffix == "bucket":
+        bound = labels.get("le", "")
+        try:
+            if float(bound) <= 0:
+                return None
+        except ValueError:
+            return None
+        suffix += ":" + bound
+    return f"{phase}:{partition}:{outcome}:{suffix}"
+
+
 def worker_counters(role, operation, url):
     parsed = urlsplit(url)
     addresses = api_replicas(parsed.hostname, parsed.port or 80)
@@ -102,6 +125,10 @@ def worker_counters(role, operation, url):
                 elif name == f'ticketing_worker_active{{operation="{operation}"}}':
                     key = f"{role}_active"
                 else:
+                    phase_key = consumer_phase_metric(name) if role == "consumer" else None
+                    if phase_key:
+                        phases = result.setdefault("consumer_phases", {})
+                        phases[phase_key] = phases.get(phase_key, 0) + float(value)
                     continue
                 result[key] = result.get(key, 0) + float(value)
     return result

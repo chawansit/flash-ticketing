@@ -3,11 +3,49 @@
 import argparse
 import json
 import math
+from itertools import pairwise
 from pathlib import Path
 
 
 def percentile(values, fraction):
     return sorted(values)[math.ceil(len(values) * fraction) - 1] if values else None
+
+
+def summarize_consumer_phases(rows):
+    samples = [row["consumer_phases"] for row in rows if "consumer_phases" in row]
+    if not samples:
+        return {"observed": False, "phases": {}, "counter_reset_detected": False}
+    first, last = samples[0], samples[-1]
+    reset = any(current.get(key, 0) < value
+                for previous, current in pairwise(samples)
+                for key, value in previous.items())
+    if reset:
+        return {"observed": True, "phases": {}, "counter_reset_detected": True,
+                "note": "Aggregate phase counters decreased; duration/quantile attribution is invalid."}
+    deltas = {}
+    for key in set(first) | set(last):
+        delta = last.get(key, 0) - first.get(key, 0)
+        if delta < 0:
+            reset = True
+        else:
+            deltas[key] = delta
+    phases = {}
+    for key, count in deltas.items():
+        if not key.endswith(":count") or count <= 0:
+            continue
+        prefix = key.removesuffix(":count")
+        total = deltas.get(prefix + ":sum")
+        if total is None:
+            continue
+        buckets = sorted((float(k.removeprefix(prefix + ":bucket:")), value)
+                         for k, value in deltas.items() if k.startswith(prefix + ":bucket:"))
+        bound = next((bound for bound, value in buckets if value >= .95 * count), None)
+        phases[prefix] = {
+            "calls": count, "total_seconds": total, "mean_ms": 1000 * total / count,
+            "p95_upper_bound_ms": 1000 * bound if bound is not None and math.isfinite(bound) else None,
+        }
+    return {"observed": True, "phases": phases, "counter_reset_detected": reset,
+            "note": "Nested phases cannot be added. Histogram p95 is an upper bucket bound, not an exact quantile. Poll wall time includes idle waits."}
 
 
 def summarize(rows):
@@ -46,6 +84,7 @@ def summarize(rows):
             "max_replicas": max((row.get(f"{role}_replicas", 0) for row in rows), default=None),
             "metrics_errors": sum(f"{role}_metrics_error" in row for row in rows),
         }
+    result["consumer_phases"] = summarize_consumer_phases(rows)
     result["database_errors"] = sum("database_error" in row for row in rows)
     result["api_metrics_errors"] = sum("api_metrics_error" in row for row in rows)
     replica_samples = {}

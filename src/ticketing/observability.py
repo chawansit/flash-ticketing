@@ -169,6 +169,38 @@ RECONCILE_SECONDS = Histogram(
 RECONCILE_RECOVERED = Counter(
     "ticketing_reconciliation_recovered_leases_total", "Expired reconciliation leases reclaimed"
 )
+CONSUMER_PHASE_SECONDS = Histogram(
+    "ticketing_consumer_phase_seconds", "Consumer phase wall time including I/O",
+    ["phase", "partition", "outcome"],
+    buckets=(.001, .005, .01, .025, .05, .1, .25, .5, 1, 2, 5, 10),
+)
+
+
+@contextmanager
+def consumer_phase(phase, partition="all"):
+    allowed = {"poll", "partition", "commit", "rewind", "event_SeatsChanged",
+               "event_OrderPaid", "event_TicketsIssued", "event_RefundRequested"}
+    phase = phase if phase in allowed else "event_other"
+    label = str(partition)
+    label = label if label == "all" or label.isdigit() and 0 <= int(label) <= 31 else "other"
+    started, outcome = monotonic(), "ok"
+    try:
+        yield
+    except Exception:
+        outcome = "error"
+        raise
+    finally:
+        CONSUMER_PHASE_SECONDS.labels(phase, label, outcome).observe(monotonic() - started)
+
+
+def measured_consumer_event(fn):
+    @wraps(fn)
+    def wrapped(db, cache, envelope):
+        with consumer_phase("event_" + str(envelope.get("event_type", "other"))):
+            return fn(db, cache, envelope)
+    return wrapped
+
+
 def measured_work(operation):
     def decorate(fn):
         @wraps(fn)

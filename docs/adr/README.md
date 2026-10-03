@@ -142,3 +142,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0099 - Booking order lookup index](0099-proposed-booking-order-lookup-index.md)
 
 - [0100 - Bounded paid-rate validation after lookup indexes](0100-bounded-paid-rate-validation-after-indexes.md)
+
+- [0101 - Consumer phase and paid-generator diagnostics](0101-consumer-phase-paid-generator-diagnostics.md)

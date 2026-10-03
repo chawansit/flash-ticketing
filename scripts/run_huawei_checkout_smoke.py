@@ -31,6 +31,7 @@ parser.add_argument("--paid-http-max-connections", type=int, default=0)
 parser.add_argument("--paid-http-client-count", type=int, default=1)
 parser.add_argument("--paid-generator-shards", type=int, choices=(1, 2), default=1)
 parser.add_argument("--paid-poll-seconds", type=float, default=0.2)
+parser.add_argument("--paid-lifecycle-diagnostics", action="store_true")
 parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8), default=4)
 parser.add_argument("--consumer-candidate", type=int, choices=(1, 2, 4), default=1)
 parser.add_argument("--api-pool-waiters-candidate", type=int, choices=(3, 12), default=3)
@@ -39,6 +40,8 @@ parser.add_argument("--callback-duplicates", type=int, choices=(1, 3), default=3
 parser.add_argument("--shows", type=int, default=2)
 parser.add_argument("--viewers", type=int, default=20)
 args = parser.parse_args()
+if args.paid_lifecycle_diagnostics and (not args.paid_rate or args.paid_generator_shards != 1):
+    parser.error("Lifecycle diagnostics require a paid single-process control")
 EXPECTED = args.paid_rate * args.paid_seconds if args.paid_rate else 10
 if not 0 <= args.paid_rate <= 100 or not 1 <= args.paid_seconds <= 300:
     parser.error("Bounded paid-stage rate/duration required")
@@ -116,7 +119,8 @@ state = {"run": RUN, "phases": [], "pass": False, "error": None,
                                 "http_clients_per_shard": args.paid_http_client_count,
                                 "http_connections_per_shard": pool_budget,
                                 "poll_seconds": args.paid_poll_seconds,
-                                "callback_duplicates": args.callback_duplicates}}
+                                "callback_duplicates": args.callback_duplicates,
+                                "lifecycle_diagnostics": args.paid_lifecycle_diagnostics}}
 deployed = prepared = probe_attempted = observer_started = kafka_observer_started = simulator_changed = False
 
 
@@ -318,6 +322,8 @@ try:
             "--duplicates",
             str(args.callback_duplicates),
         ]
+        if args.paid_lifecycle_diagnostics:
+            generator_args.append("--lifecycle-diagnostics")
         if args.paid_generator_shards == 1:
             generator_args.extend([
                 "--http-max-connections", str(args.paid_http_max_connections or args.paid_concurrency)

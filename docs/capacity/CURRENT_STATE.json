@@ -3,7 +3,7 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "paid_60_per_second_control_failed_durability_passed",
+  "status": "consumer_diagnostics_locally_validated_cloud_pending",
   "cloud_load_requires_resume": false,
   "handoff_revision": "d78216a",
   "revision_note": "Backend/generator tested d78216a (docs-only change from53429c5); application source hashes unchanged. Following docs-only commit records failed60/scontrol.",
@@ -21,18 +21,18 @@
     "No production code changed;350previously executed tests inherited,not rerun. Restored baseline/cache0/readiness and4API/worker source hashes verified.",
     "Existing coarse samples show Kafka lag growing while ticket issuance progresses throughout the stage; not only one startup pause. Poll/offset-commit/per-partition cost and generator CPU are unmeasured."
   ],
-  "unresolved": "60/sfailedcustomer/scheduling gates. Need isolate Kafka/fulfillment backlog versus generator delay;45/sis latest healthy short control,not sustained maximum.300000tickets/hour remains unverified.",
+  "unresolved": "Instrumentation passed358tests; cloud same60/sdiagnostic pending. No new capacity result yet.",
   "next_on_resume": [
-    "Use compact60/sreport/coarse correlation. Diagnose consumer poll/offset-commit/per-partition waits versus PostgreSQL handler cost, plus generator CPU/dispatch delay, before a fix.",
-    "If evidence is insufficient, add narrowly scoped consumer service/partition and generator CPU instrumentation, then one same60/s diagnostic. ADR before pattern changes; no speculative scaling or retries to hide the failure.",
-    "Do not increase rate before fixing/validating current failed gates. Preserve exact post-TTL/uniqueness/queue gates and service rollback."
+    "Sync tested instrumentation to both ECS, run same60buyers/s60sprofile with existing generator lifecycle diagnostic enabled.",
+    "Inspect consumer phase/partition timing and generator CPU/loop lag, audit exact durable payments after all deadlines, verify queues and restore baseline."
   ],
-  "validation_this_resume": "60/scloudcustomer gate FAILED;exact3576paid ticket post-TTL/zero duplicates/queue and Kafka drain/source restoration PASSED. No code change or local test rerun.",
+  "validation_this_resume": "358 unit/integration tests passed66.65s;11focusedchecks after final style cleanup passed;lint passed. No new cloud load yet.",
   "current_run": "checkout-20261003T045044Z-bb0e0f",
   "evidence": [
+    "docs/adr/0101-consumer-phase-paid-generator-diagnostics.md",
     "docs/adr/0100-bounded-paid-rate-validation-after-indexes.md",
     "docs/capacity/flash-sale-opening/real-paid-60-buyer-control-2026-10-03.json",
     "docs/capacity/flash-sale-opening/real-paid-booking-index-control-2026-10-03.json"
   ],
-  "authorization": "User Continue authorized one60/s60scontrol underADR0100. Completed with failedcustomer gate; no higher stage executed. Next action is targeted diagnosis before further load."
+  "authorization": "User Continue authorizes ADR0101 instrumentation and one same60/s60sdiagnostic after tests, exact post-TTL/queue audits, baseline restoration and report publication. No higher stage."
 }

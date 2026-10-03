@@ -43,6 +43,8 @@ from ticketing.observability import (
     RESERVATION_PERSISTENCE_PHASE_SECONDS,
     WORKER_ERRORS,
     configure_logging,
+    consumer_phase,
+    measured_consumer_event,
     measured_work,
 )
 
@@ -711,6 +713,7 @@ def reconcile_pass(db, cache, settings, deadline):
 
 
 @measured_work("consume_event")
+@measured_consumer_event
 def consume_event(db, cache, envelope):
     if envelope["schema_version"] != 1:
         raise ValueError("Unsupported event schema")
@@ -804,7 +807,8 @@ def consume_events(db, cache, envelopes):
 
     def flush_refresh():
         if pending_refresh:
-            consume_refresh_batch(db, pending_refresh)
+            with consumer_phase("event_SeatsChanged"):
+                consume_refresh_batch(db, pending_refresh)
             pending_refresh.clear()
 
     for envelope in envelopes:
@@ -849,6 +853,31 @@ def consume_kafka_messages(db, cache, messages):
         except Exception:
             dead_letter_message(db, message)
             log.exception("dead_letter")
+
+def consume_iteration(consumer, db, cache, batch_size):
+    """Time the existing poll/process/rewind/commit sequence without altering its boundaries."""
+    with consumer_phase("poll"):
+        batches = consumer.poll(timeout_ms=500, max_records=batch_size)
+    starts = {
+        TopicPartition(tp.topic, tp.partition): messages[0].offset
+        for tp, messages in batches.items() if messages
+    }
+    try:
+        for tp, messages in batches.items():
+            if messages:
+                with consumer_phase("partition", tp.partition):
+                    consume_kafka_messages(db, cache, messages)
+    except Exception:
+        for tp, offset in starts.items():
+            with consumer_phase("rewind", tp.partition):
+                consumer.seek(tp, offset)
+        raise
+    if starts:
+        with consumer_phase("commit"):
+            consumer.commit()
+        return True
+    return False
+
 
 @measured_work("simulate_one")
 def simulate_one(db, settings):
@@ -1001,25 +1030,7 @@ def main():
                         or work
                     )
                 else:
-                    batches = consumer.poll(
-                        timeout_ms=500, max_records=settings.consumer_batch_size
-                    )
-                    starts = {
-                        TopicPartition(topic_partition.topic, topic_partition.partition): messages[0].offset
-                        for topic_partition, messages in batches.items()
-                        if messages
-                    }
-                    try:
-                        for messages in batches.values():
-                            if messages:
-                                consume_kafka_messages(db, cache, messages)
-                    except Exception:
-                        for topic_partition, offset in starts.items():
-                            consumer.seek(topic_partition, offset)
-                        raise
-                    if starts:
-                        consumer.commit()
-                        work = True
+                    work = consume_iteration(consumer, db, cache, settings.consumer_batch_size)
                 if not work:
                     time.sleep(0.1)
             except Exception as exc:
