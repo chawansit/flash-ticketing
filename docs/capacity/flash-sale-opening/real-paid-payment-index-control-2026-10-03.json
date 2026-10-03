@@ -1,0 +1,1069 @@
+{
+  "kind": "controlled_unfinished_payment_index_candidate",
+  "run_id": "checkout-20261003T035517Z-223f3c",
+  "source_revision": "3ae6bf70a54cf46ab785bbd535847c147defc098",
+  "configuration": {
+    "rate": 45,
+    "seconds": 60,
+    "concurrency": 500,
+    "generator_shards": 1,
+    "http_clients_per_shard": 16,
+    "http_connections_per_shard": 500,
+    "poll_seconds": 1.0,
+    "callback_duplicates": 1,
+    "api_replicas": 4,
+    "db_pool_per_api": 3,
+    "api_pool_waiters": 12,
+    "admission_per_api": 4,
+    "simulator_threads": 8,
+    "consumer_replicas": 4,
+    "order_status_cache_ms": 3000,
+    "reservation_mode": "redis-first",
+    "reservation_writer_replicas": 3,
+    "reservation_writer_batch_size": 4,
+    "reservation_max_command_age_seconds": 60
+  },
+  "strict_short_control_pass": true,
+  "customer_probe": {
+    "measured_at_utc": "2026-10-03T03:57:23.416194+00:00",
+    "started_at_utc": "2026-10-03T03:56:09.918524+00:00",
+    "kind": "scheduled_paid_ticket_journeys",
+    "http_client_count": 16,
+    "http_connection_budgets": [
+      32,
+      32,
+      32,
+      32,
+      31,
+      31,
+      31,
+      31,
+      31,
+      31,
+      31,
+      31,
+      31,
+      31,
+      31,
+      31
+    ],
+    "rate_target_per_second": 45,
+    "dispatch_seconds": 60,
+    "completion_deadline_seconds": 180,
+    "scheduled": 2700,
+    "dispatched": 2700,
+    "generator_drops": 0,
+    "drop_reasons": {},
+    "active_journeys_peak": 353,
+    "active_journeys_time_weighted_mean": 210.20066098758255,
+    "steady_state_mean_residence_budget_ms": 11111.111111111111,
+    "lifecycle_diagnostics": false,
+    "completed": 2700,
+    "fulfilled": 2700,
+    "fulfilled_by_deadline": 2700,
+    "distinct_orders": 2700,
+    "distinct_tickets": 2700,
+    "outcomes": {
+      "fulfilled": 2700
+    },
+    "physical_http_attempts": {
+      "holds": 2700,
+      "reservation_commands": 5419,
+      "payments": 2700,
+      "orders": 14878
+    },
+    "retry_attempts": 0,
+    "generator_max_in_flight": 500,
+    "http_max_connections": 500,
+    "transport_phase_p95_ms": {
+      "holds": {
+        "pre_send_ms": 2.4344949997612275,
+        "response_wait_ms": 19.22779600135982,
+        "connect_ms": 9.28977900002792
+      },
+      "reservation_commands": {
+        "pre_send_ms": 1.7471779992774827,
+        "response_wait_ms": 12.18903299923113,
+        "connect_ms": 8.601203000580426
+      },
+      "payments": {
+        "pre_send_ms": 1.870572999905562,
+        "response_wait_ms": 70.64828500006115,
+        "connect_ms": null
+      },
+      "orders": {
+        "pre_send_ms": 2.3008590014796937,
+        "response_wait_ms": 54.76281899973401,
+        "connect_ms": 24.98937400014256
+      }
+    },
+    "transport_phase_samples": {
+      "holds": {
+        "pre_send_ms": 2700,
+        "response_wait_ms": 2700,
+        "connect_ms": 58
+      },
+      "reservation_commands": {
+        "pre_send_ms": 5419,
+        "response_wait_ms": 5419,
+        "connect_ms": 11
+      },
+      "payments": {
+        "pre_send_ms": 2700,
+        "response_wait_ms": 2700,
+        "connect_ms": 0
+      },
+      "orders": {
+        "pre_send_ms": 14878,
+        "response_wait_ms": 14878,
+        "connect_ms": 48
+      }
+    },
+    "dispatch_lag_p95_ms": 2.5676841105450876,
+    "dispatch_lag_max_ms": 82.39675366712618,
+    "hold_http_p95_ms": 24.669328000527457,
+    "hold_app_p95_ms": 15.06,
+    "hold_client_excess_p95_ms": 9.30453599960485,
+    "hold_app_timing_samples": 2700,
+    "command_durable_wait_p95_ms": 1036.3370479990408,
+    "durable_p95_ms": 1061.8509150008322,
+    "payment_http_p95_ms": 73.75949199922616,
+    "payment_app_p95_ms": 64.98,
+    "payment_client_excess_p95_ms": 9.568673000101683,
+    "payment_app_timing_samples": 2700,
+    "ticket_wait_p95_ms": 9323.69243500034,
+    "payment_to_ticket_p95_ms": 9375.934542000323,
+    "hold_to_ticket_p95_ms": 10421.266233001006,
+    "elapsed_seconds": 73.49450038400028,
+    "pass": true
+  },
+  "pipeline": {
+    "samples": 61,
+    "pending_orders": {
+      "max": 63,
+      "last": 0,
+      "delta": 0,
+      "p95": 51
+    },
+    "paid_unfulfilled": {
+      "max": 228,
+      "last": 0,
+      "delta": 0,
+      "p95": 189
+    },
+    "fulfilled_orders": {
+      "max": 2700,
+      "last": 2700,
+      "delta": 2700,
+      "p95": 2700
+    },
+    "pending_callback_deliveries": {
+      "max": 23,
+      "last": 0,
+      "delta": 0,
+      "p95": 9
+    },
+    "pending_payment_attempts": {
+      "max": 23,
+      "last": 0,
+      "delta": 0,
+      "p95": 8
+    },
+    "delivered_callbacks": {
+      "max": 2700,
+      "last": 2700,
+      "delta": 2700,
+      "p95": 2700
+    },
+    "issued_tickets": {
+      "max": 2700,
+      "last": 2700,
+      "delta": 2700,
+      "p95": 2700
+    },
+    "unpublished_outbox": {
+      "max": 22,
+      "last": 0,
+      "delta": 0,
+      "p95": 16
+    },
+    "db_lock_waiters": {
+      "max": 1,
+      "last": 0,
+      "delta": 0,
+      "p95": 0
+    },
+    "simulator": {
+      "completed_operations": 7599.0,
+      "busy_seconds": 311.0460357100219,
+      "max_active": 8.0,
+      "max_replicas": 1,
+      "metrics_errors": 0
+    },
+    "consumer": {
+      "completed_operations": 5397.0,
+      "busy_seconds": 131.96167828391117,
+      "max_active": 3.0,
+      "max_replicas": 4,
+      "metrics_errors": 0
+    },
+    "publisher": {
+      "completed_operations": 1912.0,
+      "busy_seconds": 64.53474970101524,
+      "max_active": 1.0,
+      "max_replicas": 1,
+      "metrics_errors": 0
+    },
+    "database_errors": 0,
+    "api_metrics_errors": 0,
+    "api": {
+      "observed_replicas": 4,
+      "counter_deltas": {
+        "order_cache:fill": 6759.0,
+        "order_cache:hit": 8118.0,
+        "order_cache:miss": 6760.0,
+        "pool_acquire:ok": 12234.0,
+        "order_cache:fill_skipped": 1.0
+      },
+      "duration_mean_ms": {
+        "db_query:UPDATE": 2.1324468159246965,
+        "db_query:SET": 1.933077442043401,
+        "db_pool_acquire:ok": 3.0255916542330312,
+        "db_connection_hold:all": 30.775874301138224,
+        "db_query:BEGIN": 4.2342800026186795,
+        "event_loop_lag:all": 0.7795253678064638,
+        "db_query:SELECT": 3.302521817512752,
+        "db_query:INSERT": 2.163687725119922,
+        "db_commit:all": 3.332629614243612
+      },
+      "event_loop_lag_current_peak_ms": 7.32889100072498,
+      "pool_peaks_per_replica": {
+        "pool_acquiring": 2.0,
+        "pool_in_use": 3.0,
+        "pool_state:pool_size": 3.0,
+        "pool_state:pool_available": 3.0,
+        "pool_state:requests_waiting": 2.0,
+        "pool_state:pool_max": 3.0
+      },
+      "counter_reset_detected": false
+    }
+  },
+  "kafka": {
+    "samples": 25,
+    "sample_errors": 0,
+    "max_total_lag": 887,
+    "max_partition_lag": 274,
+    "partition_lag_peaks": {
+      "1": 176,
+      "0": 258,
+      "3": 264,
+      "2": 274,
+      "4": 5,
+      "5": 13
+    },
+    "last_total_lag": 0,
+    "members_min": 4,
+    "members_max": 4,
+    "drain_after_peak_seconds": 11.498315
+  },
+  "initial_audit": {
+    "orders": 2700,
+    "fulfilled_orders": 2700,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 2700,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 2700,
+    "bookings": 2700,
+    "tickets": 2700,
+    "payment_callbacks": 2700,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 2700,
+    "callback_delivery_target": 2700,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 2700,
+    "expected_paid": 2700,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true
+  },
+  "initial_queue": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "active_fixture_holds": 0,
+    "overdue_fixture_holds": 0,
+    "pending_fixture_orders": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "pass": true
+  },
+  "queue_drain": {
+    "samples": 4,
+    "drain_seconds": 16,
+    "pass": true
+  },
+  "post_ttl_audit": {
+    "orders": 2700,
+    "fulfilled_orders": 2700,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 2700,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 2700,
+    "bookings": 2700,
+    "tickets": 2700,
+    "payment_callbacks": 2700,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 2700,
+    "callback_delivery_target": 2700,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 2700,
+    "expected_paid": 2700,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true
+  },
+  "post_ttl_queue": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "active_fixture_holds": 0,
+    "overdue_fixture_holds": 0,
+    "pending_fixture_orders": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "pass": true
+  },
+  "durable_timestamps": {
+    "orders": 2700,
+    "timings": {
+      "callback_to_ticket": {
+        "max_ms": 11090.827,
+        "p50_ms": 1639.8265000000001,
+        "p95_ms": 8389.473250000001,
+        "p99_ms": 10240.142709999987,
+        "mean_ms": 2511.88234,
+        "samples": 2700,
+        "negative_samples": 0
+      },
+      "order_to_payment_due": {
+        "max_ms": 1286.37,
+        "p50_ms": 958.979,
+        "p95_ms": 1024.7693999999997,
+        "p99_ms": 1074.1838,
+        "mean_ms": 926.9506488888888,
+        "samples": 2700,
+        "negative_samples": 0
+      },
+      "payment_due_to_ticket": {
+        "max_ms": 17832.234,
+        "p50_ms": 1729.9335,
+        "p95_ms": 8620.344099999998,
+        "p99_ms": 10435.316269999998,
+        "mean_ms": 2623.678643333333,
+        "samples": 2700,
+        "negative_samples": 0
+      },
+      "callback_to_paid_event": {
+        "max_ms": 64.526,
+        "p50_ms": 18.349,
+        "p95_ms": 31.72864999999997,
+        "p99_ms": 41.50857999999996,
+        "mean_ms": 19.544976666666667,
+        "samples": 2700,
+        "negative_samples": 0
+      },
+      "payment_due_to_callback": {
+        "max_ms": 15158.491,
+        "p50_ms": 87.7515,
+        "p95_ms": 236.2902999999992,
+        "p99_ms": 449.2903799999993,
+        "mean_ms": 111.79630333333333,
+        "samples": 2700,
+        "negative_samples": 0
+      },
+      "publication_record_to_ticket": {
+        "max_ms": 10971.734,
+        "p50_ms": 1564.397,
+        "p95_ms": 8278.531199999998,
+        "p99_ms": 10181.734499999999,
+        "mean_ms": 2435.682877037037,
+        "samples": 2700,
+        "negative_samples": 4
+      },
+      "paid_event_to_publication_record": {
+        "max_ms": 388.516,
+        "p50_ms": 50.3545,
+        "p95_ms": 110.53484999999998,
+        "p99_ms": 141.87559999999996,
+        "mean_ms": 56.6544862962963,
+        "samples": 2700,
+        "negative_samples": 0
+      }
+    },
+    "observed_at_utc": "2026-10-03T04:00:18.673701+00:00",
+    "fulfilled_orders": 2700,
+    "payment_attempts": 2700,
+    "extra_paid_events": 0,
+    "succeeded_payments": 2700,
+    "orders_with_tickets": 2700,
+    "latest_hold_deadline": "2026-10-03T10:59:10.010214+07:00",
+    "orders_with_callback": 2700,
+    "hold_deadlines_elapsed": true,
+    "orders_with_paid_event": 2700,
+    "orders_with_publication": 2700,
+    "expected_orders": 2700,
+    "expected_paid": 2700,
+    "cohort_pass": true,
+    "notes": [
+      "Database statement timestamps are proxies, not measured commit or exact queue service time.",
+      "Publication is recorded after Kafka acknowledgments; a fast consumer can issue before that record.",
+      "No per-order IDs, actors, credentials, individual payloads or client-clock subtraction are emitted.",
+      "This cohort/timing report does not replace durability, uniqueness or queue audits."
+    ]
+  },
+  "index_application": {
+    "created": true,
+    "verification_only": false,
+    "index": {
+      "valid": true,
+      "ready": true,
+      "method": "btree",
+      "unique": false,
+      "key": "due_at",
+      "predicate": "(deliveries < target_deliveries)",
+      "columns": 1,
+      "expected_table": true,
+      "pass": true
+    },
+    "pass": true,
+    "migration": "007_payment_dispatch_index.sql",
+    "note": "No rows modified; normal migration may subsequently record its IF NOT EXISTS checksum."
+  },
+  "idle_scheduler_plan_after_index": {
+    "kind": "idle_readonly_scheduler_plan",
+    "payment_attempts_total": 63832,
+    "unfinished_deliveries": 0,
+    "indexes": [
+      [
+        "payment_attempts_pkey",
+        "CREATE UNIQUE INDEX payment_attempts_pkey ON public.payment_attempts USING btree (id)"
+      ],
+      [
+        "payment_attempts_order_id_key",
+        "CREATE UNIQUE INDEX payment_attempts_order_id_key ON public.payment_attempts USING btree (order_id)"
+      ],
+      [
+        "payment_attempts_dispatch_due",
+        "CREATE INDEX payment_attempts_dispatch_due ON public.payment_attempts USING btree (due_at) WHERE (deliveries < target_deliveries)"
+      ]
+    ],
+    "unlocked_equivalent_analyze": [
+      {
+        "Plan": {
+          "Node Type": "Limit",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 0.55,
+          "Total Cost": 3.07,
+          "Plan Rows": 1,
+          "Plan Width": 104,
+          "Actual Startup Time": 0.003,
+          "Actual Total Time": 0.004,
+          "Actual Rows": 0,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 1,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Shared I/O Read Time": 0.0,
+          "Shared I/O Write Time": 0.0,
+          "Local I/O Read Time": 0.0,
+          "Local I/O Write Time": 0.0,
+          "Temp I/O Read Time": 0.0,
+          "Temp I/O Write Time": 0.0,
+          "Plans": [
+            {
+              "Node Type": "Nested Loop",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Join Type": "Inner",
+              "Startup Cost": 0.55,
+              "Total Cost": 17856.93,
+              "Plan Rows": 7092,
+              "Plan Width": 104,
+              "Actual Startup Time": 0.002,
+              "Actual Total Time": 0.003,
+              "Actual Rows": 0,
+              "Actual Loops": 1,
+              "Inner Unique": true,
+              "Shared Hit Blocks": 1,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Shared I/O Read Time": 0.0,
+              "Shared I/O Write Time": 0.0,
+              "Local I/O Read Time": 0.0,
+              "Local I/O Write Time": 0.0,
+              "Temp I/O Read Time": 0.0,
+              "Temp I/O Write Time": 0.0,
+              "Plans": [
+                {
+                  "Node Type": "Index Scan",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Scan Direction": "Forward",
+                  "Index Name": "payment_attempts_dispatch_due",
+                  "Relation Name": "payment_attempts",
+                  "Alias": "p",
+                  "Startup Cost": 0.12,
+                  "Total Cost": 863.96,
+                  "Plan Rows": 7092,
+                  "Plan Width": 92,
+                  "Actual Startup Time": 0.002,
+                  "Actual Total Time": 0.002,
+                  "Actual Rows": 0,
+                  "Actual Loops": 1,
+                  "Filter": "((due_at <= clock_timestamp()) AND ((lease_until IS NULL) OR (lease_until < clock_timestamp())))",
+                  "Rows Removed by Filter": 0,
+                  "Shared Hit Blocks": 1,
+                  "Shared Read Blocks": 0,
+                  "Shared Dirtied Blocks": 0,
+                  "Shared Written Blocks": 0,
+                  "Local Hit Blocks": 0,
+                  "Local Read Blocks": 0,
+                  "Local Dirtied Blocks": 0,
+                  "Local Written Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0,
+                  "Shared I/O Read Time": 0.0,
+                  "Shared I/O Write Time": 0.0,
+                  "Local I/O Read Time": 0.0,
+                  "Local I/O Write Time": 0.0,
+                  "Temp I/O Read Time": 0.0,
+                  "Temp I/O Write Time": 0.0
+                },
+                {
+                  "Node Type": "Index Scan",
+                  "Parent Relationship": "Inner",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Scan Direction": "Forward",
+                  "Index Name": "orders_pkey",
+                  "Relation Name": "orders",
+                  "Alias": "o",
+                  "Startup Cost": 0.43,
+                  "Total Cost": 2.4,
+                  "Plan Rows": 1,
+                  "Plan Width": 28,
+                  "Actual Startup Time": 0.0,
+                  "Actual Total Time": 0.0,
+                  "Actual Rows": 0,
+                  "Actual Loops": 0,
+                  "Index Cond": "(id = p.order_id)",
+                  "Rows Removed by Index Recheck": 0,
+                  "Shared Hit Blocks": 0,
+                  "Shared Read Blocks": 0,
+                  "Shared Dirtied Blocks": 0,
+                  "Shared Written Blocks": 0,
+                  "Local Hit Blocks": 0,
+                  "Local Read Blocks": 0,
+                  "Local Dirtied Blocks": 0,
+                  "Local Written Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0,
+                  "Shared I/O Read Time": 0.0,
+                  "Shared I/O Write Time": 0.0,
+                  "Local I/O Read Time": 0.0,
+                  "Local I/O Write Time": 0.0,
+                  "Temp I/O Read Time": 0.0,
+                  "Temp I/O Write Time": 0.0
+                }
+              ]
+            }
+          ]
+        },
+        "Planning": {
+          "Shared Hit Blocks": 21,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Shared I/O Read Time": 0.0,
+          "Shared I/O Write Time": 0.0,
+          "Local I/O Read Time": 0.0,
+          "Local I/O Write Time": 0.0,
+          "Temp I/O Read Time": 0.0,
+          "Temp I/O Write Time": 0.0
+        },
+        "Planning Time": 0.215,
+        "Triggers": [],
+        "Execution Time": 0.026
+      }
+    ],
+    "exact_locking_statement_plan_only": [
+      {
+        "Plan": {
+          "Node Type": "Limit",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 0.55,
+          "Total Cost": 3.09,
+          "Plan Rows": 1,
+          "Plan Width": 116,
+          "Plans": [
+            {
+              "Node Type": "LockRows",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Startup Cost": 0.55,
+              "Total Cost": 17981.04,
+              "Plan Rows": 7092,
+              "Plan Width": 116,
+              "Plans": [
+                {
+                  "Node Type": "Nested Loop",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Join Type": "Inner",
+                  "Startup Cost": 0.55,
+                  "Total Cost": 17910.12,
+                  "Plan Rows": 7092,
+                  "Plan Width": 116,
+                  "Inner Unique": true,
+                  "Plans": [
+                    {
+                      "Node Type": "Index Scan",
+                      "Parent Relationship": "Outer",
+                      "Parallel Aware": false,
+                      "Async Capable": false,
+                      "Scan Direction": "Forward",
+                      "Index Name": "payment_attempts_dispatch_due",
+                      "Relation Name": "payment_attempts",
+                      "Alias": "p",
+                      "Startup Cost": 0.12,
+                      "Total Cost": 917.15,
+                      "Plan Rows": 7092,
+                      "Plan Width": 98,
+                      "Filter": "((deliveries < target_deliveries) AND (due_at <= clock_timestamp()) AND ((lease_until IS NULL) OR (lease_until < clock_timestamp())))"
+                    },
+                    {
+                      "Node Type": "Index Scan",
+                      "Parent Relationship": "Inner",
+                      "Parallel Aware": false,
+                      "Async Capable": false,
+                      "Scan Direction": "Forward",
+                      "Index Name": "orders_pkey",
+                      "Relation Name": "orders",
+                      "Alias": "o",
+                      "Startup Cost": 0.43,
+                      "Total Cost": 2.4,
+                      "Plan Rows": 1,
+                      "Plan Width": 34,
+                      "Index Cond": "(id = p.order_id)"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "note": "READONLY unlocked equivalent executed; exact locking query was explained without ANALYZE. Idle sample, not loaded-query latency."
+  },
+  "baseline_service_verification": {
+    "source_revision": "3ae6bf70a54cf46ab785bbd535847c147defc098",
+    "source_sha256": {
+      "src/ticketing/infrastructure/reservations.py": "8467353ff65dfb169a4a7dd0fe4f93a433ae03d84b83f7d940e5e31aad68fab9",
+      "src/ticketing/infrastructure/order_status_cache.py": "85cb2678d68885e6c8930dcebb95122d3139d5c19c825f702b8b4ad4ae1e402a",
+      "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+      "src/ticketing/api.py": "ec0ab381f17c9ebfffb46d51d67262123b75261285b4bb368f30ed78f03d3f72",
+      "src/ticketing/config.py": "65e77f5a6405cbcb913ea6cecbbaf09e6abd877afe6f8cfaddeab5f6ce8ebf17"
+    },
+    "services": {
+      "api": {
+        "count": 4,
+        "expected_count": 4,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "publisher": {
+        "count": 1,
+        "expected_count": 1,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "maintenance": {
+        "count": 1,
+        "expected_count": 1,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "consumer": {
+        "count": 1,
+        "expected_count": 1,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "reconciler": {
+        "count": 1,
+        "expected_count": 1,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "reservation-writer": {
+        "count": 0
+      },
+      "refresh": {
+        "count": 0
+      },
+      "expiry": {
+        "count": 0
+      }
+    },
+    "settings": {
+      "RESERVATION_MODE": "postgres",
+      "RESERVE_CONCURRENCY": "4",
+      "DB_POOL_MAX": "3",
+      "DB_POOL_MAX_WAITING": "3",
+      "ORDER_STATUS_CACHE_MS": "0"
+    },
+    "health": {
+      "status": "ready"
+    },
+    "pass": true
+  },
+  "rollback": {
+    "restored_admission": 4,
+    "restored_reservation_mode": "postgres",
+    "restored_reservation_writer_batch_size": 1,
+    "restored_reservation_max_command_age_seconds": 0,
+    "reservation_writer_replicas": 0,
+    "api_replicas": 4,
+    "maintenance_replicas": 1,
+    "refresh_replicas": 0,
+    "expiry_replicas": 0,
+    "consumer_replicas": 1,
+    "pass": true
+  },
+  "configuration_restored": {
+    "api_pool_waiters_restored": true,
+    "order_status_cache_restored": true,
+    "simulator_restored": true,
+    "retirement": {
+      "expected_shows": 9,
+      "retired_shows": 9,
+      "pass": true
+    }
+  },
+  "schema_after_test": "Valid payment_attempts_dispatch_due index retained perADR0098; service settings/cache restored. This differs from the original no-index database baseline. Online build does not mark007 checksum; normal migration can record it later.",
+  "comparison": {
+    "baseline_run_id": "checkout-20261003T033256Z-2980d2",
+    "same_offered_rate_per_second": 45,
+    "same_offered_seconds": 60,
+    "baseline_dispatched": 2461,
+    "candidate_dispatched": 2700,
+    "baseline_drops": 239,
+    "candidate_drops": 0,
+    "baseline_http503_outcomes": 22,
+    "candidate_http_error_outcomes": 0,
+    "baseline_customer_observed_tickets": 2439,
+    "candidate_customer_observed_tickets": 2700,
+    "baseline_hold_to_ticket_p95_ms": 22571.661493999272,
+    "candidate_hold_to_ticket_p95_ms": 10421.266233001006,
+    "baseline_due_to_callback_p95_ms": 15817.173,
+    "candidate_due_to_callback_p95_ms": 236.2902999999992,
+    "baseline_callback_to_ticket_p95_ms": 11352.673,
+    "candidate_callback_to_ticket_p95_ms": 8389.473250000001
+  },
+  "limitations": [
+    "60seconds of offered traffic is a short control, not sustained hourly production capacity.",
+    "Generator pass checks completion/uniqueness/drops/dispatch lag; it does not certify all seat-map or reservation latency SLOs.",
+    "Backend timestamp quantiles are statement-time proxies and must not be added; publication time is recorded after broker acknowledgments.",
+    "Caller retry attempts0; existing asynchronous worker recovery behavior remains unchanged.",
+    "More actual buyers completed than baseline, so backend demand/poll counts are not identical despite the same offered profile.",
+    "No production failover/cache-outage capacity claim."
+  ],
+  "next_diagnostic": {
+    "idle_fulfillment_plans": {
+      "kind": "idle_readonly_fulfillment_query_plans",
+      "bookings_total": 66532,
+      "indexes": [
+        [
+          "bookings_pkey",
+          "CREATE UNIQUE INDEX bookings_pkey ON public.bookings USING btree (id)"
+        ],
+        [
+          "bookings_event_id_seat_id_key",
+          "CREATE UNIQUE INDEX bookings_event_id_seat_id_key ON public.bookings USING btree (event_id, seat_id)"
+        ]
+      ],
+      "plans": {
+        "consumer_booking_lookup": [
+          {
+            "Plan": {
+              "Node Type": "Seq Scan",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Relation Name": "bookings",
+              "Alias": "bookings",
+              "Startup Cost": 0.0,
+              "Total Cost": 1523.65,
+              "Plan Rows": 1,
+              "Plan Width": 16,
+              "Actual Startup Time": 3.603,
+              "Actual Total Time": 4.902,
+              "Actual Rows": 1,
+              "Actual Loops": 1,
+              "Filter": "(order_id = '<fixture-order>'::uuid)",
+              "Rows Removed by Filter": 66531,
+              "Shared Hit Blocks": 692,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Shared I/O Read Time": 0.0,
+              "Shared I/O Write Time": 0.0,
+              "Local I/O Read Time": 0.0,
+              "Local I/O Write Time": 0.0,
+              "Temp I/O Read Time": 0.0,
+              "Temp I/O Write Time": 0.0
+            },
+            "Planning": {
+              "Shared Hit Blocks": 0,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Shared I/O Read Time": 0.0,
+              "Shared I/O Write Time": 0.0,
+              "Local I/O Read Time": 0.0,
+              "Local I/O Write Time": 0.0,
+              "Temp I/O Read Time": 0.0,
+              "Temp I/O Write Time": 0.0
+            },
+            "Planning Time": 0.029,
+            "Triggers": [],
+            "Execution Time": 4.914
+          }
+        ],
+        "order_ticket_read": [
+          {
+            "Plan": {
+              "Node Type": "Sort",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Startup Cost": 1526.3,
+              "Total Cost": 1526.3,
+              "Plan Rows": 1,
+              "Plan Width": 20,
+              "Actual Startup Time": 4.793,
+              "Actual Total Time": 4.794,
+              "Actual Rows": 1,
+              "Actual Loops": 1,
+              "Sort Key": [
+                "b.seat_id"
+              ],
+              "Sort Method": "quicksort",
+              "Sort Space Used": 25,
+              "Sort Space Type": "Memory",
+              "Shared Hit Blocks": 696,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Shared I/O Read Time": 0.0,
+              "Shared I/O Write Time": 0.0,
+              "Local I/O Read Time": 0.0,
+              "Local I/O Write Time": 0.0,
+              "Temp I/O Read Time": 0.0,
+              "Temp I/O Write Time": 0.0,
+              "Plans": [
+                {
+                  "Node Type": "Nested Loop",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Join Type": "Inner",
+                  "Startup Cost": 0.42,
+                  "Total Cost": 1526.29,
+                  "Plan Rows": 1,
+                  "Plan Width": 20,
+                  "Actual Startup Time": 3.513,
+                  "Actual Total Time": 4.787,
+                  "Actual Rows": 1,
+                  "Actual Loops": 1,
+                  "Inner Unique": true,
+                  "Shared Hit Blocks": 696,
+                  "Shared Read Blocks": 0,
+                  "Shared Dirtied Blocks": 0,
+                  "Shared Written Blocks": 0,
+                  "Local Hit Blocks": 0,
+                  "Local Read Blocks": 0,
+                  "Local Dirtied Blocks": 0,
+                  "Local Written Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0,
+                  "Shared I/O Read Time": 0.0,
+                  "Shared I/O Write Time": 0.0,
+                  "Local I/O Read Time": 0.0,
+                  "Local I/O Write Time": 0.0,
+                  "Temp I/O Read Time": 0.0,
+                  "Temp I/O Write Time": 0.0,
+                  "Plans": [
+                    {
+                      "Node Type": "Seq Scan",
+                      "Parent Relationship": "Outer",
+                      "Parallel Aware": false,
+                      "Async Capable": false,
+                      "Relation Name": "bookings",
+                      "Alias": "b",
+                      "Startup Cost": 0.0,
+                      "Total Cost": 1523.65,
+                      "Plan Rows": 1,
+                      "Plan Width": 20,
+                      "Actual Startup Time": 3.497,
+                      "Actual Total Time": 4.771,
+                      "Actual Rows": 1,
+                      "Actual Loops": 1,
+                      "Filter": "(order_id = '<fixture-order>'::uuid)",
+                      "Rows Removed by Filter": 66531,
+                      "Shared Hit Blocks": 692,
+                      "Shared Read Blocks": 0,
+                      "Shared Dirtied Blocks": 0,
+                      "Shared Written Blocks": 0,
+                      "Local Hit Blocks": 0,
+                      "Local Read Blocks": 0,
+                      "Local Dirtied Blocks": 0,
+                      "Local Written Blocks": 0,
+                      "Temp Read Blocks": 0,
+                      "Temp Written Blocks": 0,
+                      "Shared I/O Read Time": 0.0,
+                      "Shared I/O Write Time": 0.0,
+                      "Local I/O Read Time": 0.0,
+                      "Local I/O Write Time": 0.0,
+                      "Temp I/O Read Time": 0.0,
+                      "Temp I/O Write Time": 0.0
+                    },
+                    {
+                      "Node Type": "Index Scan",
+                      "Parent Relationship": "Inner",
+                      "Parallel Aware": false,
+                      "Async Capable": false,
+                      "Scan Direction": "Forward",
+                      "Index Name": "tickets_booking_id_key",
+                      "Relation Name": "tickets",
+                      "Alias": "t",
+                      "Startup Cost": 0.42,
+                      "Total Cost": 2.64,
+                      "Plan Rows": 1,
+                      "Plan Width": 32,
+                      "Actual Startup Time": 0.011,
+                      "Actual Total Time": 0.012,
+                      "Actual Rows": 1,
+                      "Actual Loops": 1,
+                      "Index Cond": "(booking_id = b.id)",
+                      "Rows Removed by Index Recheck": 0,
+                      "Shared Hit Blocks": 4,
+                      "Shared Read Blocks": 0,
+                      "Shared Dirtied Blocks": 0,
+                      "Shared Written Blocks": 0,
+                      "Local Hit Blocks": 0,
+                      "Local Read Blocks": 0,
+                      "Local Dirtied Blocks": 0,
+                      "Local Written Blocks": 0,
+                      "Temp Read Blocks": 0,
+                      "Temp Written Blocks": 0,
+                      "Shared I/O Read Time": 0.0,
+                      "Shared I/O Write Time": 0.0,
+                      "Local I/O Read Time": 0.0,
+                      "Local I/O Write Time": 0.0,
+                      "Temp I/O Read Time": 0.0,
+                      "Temp I/O Write Time": 0.0
+                    }
+                  ]
+                }
+              ]
+            },
+            "Planning": {
+              "Shared Hit Blocks": 22,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Shared I/O Read Time": 0.0,
+              "Shared I/O Write Time": 0.0,
+              "Local I/O Read Time": 0.0,
+              "Local I/O Write Time": 0.0,
+              "Temp I/O Read Time": 0.0,
+              "Temp I/O Write Time": 0.0
+            },
+            "Planning Time": 0.169,
+            "Triggers": [],
+            "Execution Time": 4.831
+          }
+        ]
+      },
+      "note": "One completed fixture order at idle. UUID constants redacted. Not loaded latency or proof of unique root cause."
+    },
+    "finding": "Both consumer booking lookup and order ticket read scan66532bookings to find1row; no bookings(order_id) index. Idle samples4.914/4.831ms, not loaded root-cause proof.",
+    "decision": "Propose ADR0099 order_id lookup index before implementation. Preserve transaction/idempotency and existing profile; no consumer topology change yet."
+  },
+  "evidence_paths": [
+    "tmp/checkout-20261003T035517Z-223f3c/probe.json",
+    "tmp/checkout-20261003T035517Z-223f3c/paid-pipeline.jsonl",
+    "tmp/checkout-20261003T035517Z-223f3c/paid-kafka-lag.ndjson",
+    "tmp/checkout-20261003T035517Z-223f3c/post-ttl-audit/audit.json",
+    "tmp/checkout-20261003T035517Z-223f3c/post-ttl-audit/queue.json",
+    "tmp/paid-stage-timestamps-20261003/indexed.json",
+    "tmp/paid-stage-timestamps-20261003/scheduler-plan-after-index.json",
+    "tmp/paid-stage-timestamps-20261003/fulfillment-query-plan.json"
+  ]
+}

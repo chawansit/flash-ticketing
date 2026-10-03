@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID
 
@@ -11,7 +12,7 @@ import psycopg
 # Timestamps share the database clock. They mark statement execution, not commit.
 QUERY = """
 WITH fixture AS MATERIALIZED (
-  SELECT id,status,created_at FROM orders WHERE event_id=ANY(%s::uuid[])
+  SELECT id,status,created_at,hold_id FROM orders WHERE event_id=ANY(%s::uuid[])
 ), payments AS MATERIALIZED (
   SELECT p.* FROM payment_attempts p JOIN fixture f ON f.id=p.order_id
 ), callbacks AS (
@@ -54,6 +55,9 @@ WITH fixture AS MATERIALIZED (
   FROM durations GROUP BY label
 )
 SELECT jsonb_build_object(
+  'observed_at_utc',clock_timestamp(),
+  'latest_hold_deadline',(SELECT max(h.expires_at) FROM holds h JOIN fixture f ON f.hold_id=h.id),
+  'hold_deadlines_elapsed',clock_timestamp()>=(SELECT max(h.expires_at) FROM holds h JOIN fixture f ON f.hold_id=h.id),
   'orders',(SELECT count(*) FROM stamps),
   'payment_attempts',(SELECT count(*) FROM stamps WHERE due_at IS NOT NULL),
   'succeeded_payments',(SELECT count(*) FROM stamps WHERE payment_status='SUCCEEDED'),
@@ -78,6 +82,7 @@ def analyze(conn, show_ids, expected_orders, expected_paid):
         conn.execute("SET LOCAL lock_timeout = '1s'")
         row = conn.execute(QUERY, (shows,)).fetchone()
     result = row['report'] if isinstance(row, dict) else row[0]
+    result['observed_at_utc'] = datetime.fromisoformat(result['observed_at_utc']).astimezone(UTC).isoformat()
     result['expected_orders'], result['expected_paid'] = expected_orders, expected_paid
     result['cohort_pass'] = (result['orders'] == expected_orders and result['extra_paid_events'] == 0
                             and all(result[name] == expected_paid for name in (

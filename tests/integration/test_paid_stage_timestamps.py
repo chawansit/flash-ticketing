@@ -30,6 +30,9 @@ def test_stage_timestamps_isolate_delays_and_do_not_change_payment_state(system)
     with db.pool.connection() as conn:
         result = analyze(conn, [show], 1, 1)
     assert result['cohort_pass']
+    assert result['hold_deadlines_elapsed'] is False
+    assert result['latest_hold_deadline'] is not None
+    assert result['observed_at_utc'].endswith('+00:00')
     assert result['timings']['payment_due_to_callback']['p95_ms'] == 3000
     assert result['timings']['paid_event_to_publication_record']['p95_ms'] == 2000
     assert result['timings']['publication_record_to_ticket']['p95_ms'] == 5000
