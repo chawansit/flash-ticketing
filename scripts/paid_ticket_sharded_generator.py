@@ -105,6 +105,9 @@ async def run(args, manifest):
     if args.rate <= 0 or args.rate % 2 or args.concurrency <= 0 or args.concurrency % 2:
         raise ValueError("Two shards require even positive rate and concurrency")
     parts = split_manifest(manifest, 2, args.rate // 2 * args.seconds)
+    profile_directory = getattr(args, "profile_directory", None)
+    if profile_directory is not None:
+        profile_directory.mkdir(mode=0o700, parents=True, exist_ok=False)
     start_at = time() + 8
     results = []
     exit_codes = []
@@ -118,8 +121,12 @@ async def run(args, manifest):
             manifest_path.write_text(json.dumps(part), encoding="utf-8")
             os.chmod(manifest_path, 0o600)
             paths.append(output_path)
+            command = [sys.executable]
+            if profile_directory is not None:
+                command += ["-m", "cProfile", "-o", str(profile_directory / f"shard-{index}.prof")]
+            command.append(str(Path(__file__).with_name("paid_ticket_load_generator.py")))
             proc = await asyncio.create_subprocess_exec(
-                sys.executable, str(Path(__file__).with_name("paid_ticket_load_generator.py")),
+                *command,
                 "--manifest", str(manifest_path), "--origin", args.origin,
                 "--output", str(output_path), "--rate", str(args.rate // 2),
                 "--seconds", str(args.seconds),

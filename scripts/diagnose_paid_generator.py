@@ -11,6 +11,7 @@ import json
 import math
 import os
 import platform
+import pstats
 import subprocess
 from collections import Counter
 from datetime import UTC, datetime, timedelta
@@ -181,12 +182,44 @@ def manifest(origin, scheduled):
             "seats_per_show": 300, "viewer_tokens": ["synthetic-viewer-a", "synthetic-viewer-b"]}
 
 
+def profile_summary(path):
+    stats = pstats.Stats(str(path))
+    def rows(position):
+        values = sorted(stats.stats.items(), key=lambda item: item[1][position], reverse=True)[:12]
+        return [{"function": f"{Path(key[0]).name}:{key[1]}:{key[2]}",
+                 "calls": value[1], "self_seconds": round(value[2], 4),
+                 "cumulative_seconds": round(value[3], 4)} for key, value in values]
+    return {"total_profile_self_seconds": stats.total_tt, "total_calls": stats.total_calls,
+            "top_self_time": rows(2), "top_cumulative_time": rows(3),
+            "note": "Cumulative times overlap; profiling perturbs timing."}
+
+
+def compact_summary(result):
+    generator, responder = result["generator"], result["responder"]
+    gates = {"responder_valid": result["responder_valid"],
+             "generator_strict": generator["pass"],
+             "source_clean": not result["source_dirty"]}
+    return {"kind": result["kind"], "revision": result["source_revision"],
+            "profiled": result.get("profiled", False), "configuration": result["configuration"],
+            "pass": result["pass"], "failed_gates": [name for name, passed in gates.items() if not passed],
+            "scheduled": generator["scheduled"], "completed": generator["completed"],
+            "fulfilled": generator["fulfilled_by_deadline"], "drops": generator["generator_drops"],
+            "outcomes": generator["outcomes"], "retries": generator["retry_attempts"],
+            "hold_to_ticket_p95_ms": generator["hold_to_ticket_p95_ms"],
+            "transport_p95_ms": generator["transport_phase_p95_ms"],
+            "responder_handler_p95_ms": responder["handler_p95_ms"],
+            "responder_loop_lag_p95_ms": responder["loop_lag_p95_ms"],
+            "durability_audit": "not_applicable_synthetic", "queue_drain": "not_applicable_synthetic",
+            "production_capacity_evidence": False}
+
+
 async def diagnose(args):
+    profile_directory = args.output.with_suffix(".profiles") if getattr(args, "profile", False) else None
     async with Responder(args.response_ms, args.command_seconds, args.ticket_seconds) as server:
         generator_args = SimpleNamespace(
             origin=server.origin, rate=args.rate, seconds=args.seconds, concurrency=args.concurrency,
             completion_deadline_seconds=args.seconds + math.ceil(args.ticket_seconds + args.command_seconds) + 30,
-            poll_seconds=0.2, duplicates=1,
+            poll_seconds=0.2, duplicates=1, profile_directory=profile_directory,
         )
         result = await run_shards(generator_args, manifest(server.origin, args.rate * args.seconds))
     revision = await asyncio.to_thread(
@@ -199,7 +232,7 @@ async def diagnose(args):
     stats = server.stats()
     responder_valid = (stats["protocol_errors"] == 0 and stats["loop_lag_p95_ms"] <= 10
                        and stats["handler_p95_ms"] <= args.response_ms + 20)
-    return {"kind": "synthetic_generator_control", "production_capacity_evidence": False,
+    report = {"kind": "synthetic_generator_control", "production_capacity_evidence": False,
             "created_at_utc": datetime.now(UTC).isoformat(), "source_revision": revision.stdout.strip(),
             "source_dirty": bool(dirty.stdout.strip()),
             "python_version": platform.python_version(), "platform": platform.system(),
@@ -209,7 +242,12 @@ async def diagnose(args):
                               "response_ms": args.response_ms, "command_seconds": args.command_seconds,
                               "ticket_seconds": args.ticket_seconds, "poll_seconds": 0.2, "shards": 2},
             "responder": stats, "responder_valid": responder_valid,
-            "generator": result, "pass": responder_valid and result["pass"]}
+            "generator": result, "pass": responder_valid and result["pass"] and not dirty.stdout.strip()}
+    report["profiled"] = profile_directory is not None
+    if profile_directory is not None:
+        report["cpu_profiles"] = [profile_summary(profile_directory / f"shard-{i}.prof") for i in range(2)]
+    report["compact"] = compact_summary(report)
+    return report
 
 
 def main():
@@ -221,6 +259,7 @@ def main():
     parser.add_argument("--command-seconds", type=float, default=0.5)
     parser.add_argument("--ticket-seconds", type=float, default=5)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--profile", action="store_true", help="Diagnostic only: CPU profiling perturbs timing")
     args = parser.parse_args()
     if (args.output.exists() or not 2 <= args.rate <= 100 or args.rate % 2
             or not 1 <= args.seconds <= 120 or not 2 <= args.concurrency <= 1000 or args.concurrency % 2
@@ -230,8 +269,7 @@ def main():
     result = asyncio.run(diagnose(args))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"pass": result["pass"], "responder_valid": result["responder_valid"],
-                      "generator_drops": result["generator"]["generator_drops"]}))
+    print(json.dumps(result["compact"]))
     if not result["pass"]:
         raise SystemExit(1)
 
