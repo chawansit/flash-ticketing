@@ -613,3 +613,29 @@ Services remain running; no load test or unattended schedule is active. Next:
 isolate generator scheduling/body-consumption/connection-release cost before
 another real control. Use [CURRENT_STATE.json](../CURRENT_STATE.json) for the
 compact handoff. The 300,000 paid tickets/hour goal remains unvalidated.
+
+
+## 2026-10-03 lifecycle diagnosis and corrected offered load
+
+The [lifecycle control](synthetic-generator-lifecycle-control-2026-10-03.json)
+passed every synthetic journey, while the [20 s fulfillment control](synthetic-generator-lifecycle-saturation-2026-10-03.json)
+intentionally failed at the active-journey cap. Drops at that cap are not by
+themselves proof of a scheduling defect. Sixteen smaller generator pools kept
+the same total connection budget and reduced synthetic hold pre-send p95 from
+755 ms to 94 ms, with all 3,600 journeys completed. CPU stayed busy as more polls
+completed; see the [one-factor comparison](synthetic-generator-sixteen-pool-comparison-2026-10-03.json).
+
+The [same-rate real control](real-paid-sixteen-client-control-2026-10-03.json)
+delivered all 2,700 buyers with zero drops and hold pre-send p95 6.15 ms. It still
+failed the customer gate: 1,305 order GET503 and 193 payment POST503 outcomes.
+Pool acquisition averaged 73.19 ms and connection occupancy 35.71 ms; the API
+reported 1,728 pool-full rejections. The final post-TTL audit passed with 2,507
+unique paid tickets, 193 unpaid expired orders, zero duplicates and empty
+queues. Kafka lag drained to zero. Baseline configuration/source coherence and
+readiness were verified after rollback; no higher rate was tested.
+
+The next proposed change is [ADR 0097](../../adr/0097-proposed-bounded-order-status-read-cache.md),
+an opt-in bounded order-status read cache. It is not implemented or validated.
+Services remain running, no load test or schedule is active, and the hourly
+300,000-ticket goal remains unverified. Use [CURRENT_STATE.json](../CURRENT_STATE.json)
+for continuation without reloading the full history.
