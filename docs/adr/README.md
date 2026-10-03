@@ -172,3 +172,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0114 - Role database pressure and eight-slot requalification](0114-role-database-pressure-requalification.md)
 
 - [0115 - Persistent read-only Kafka observer](0115-persistent-read-only-kafka-observer.md)
+
+- [0116 - Explicit bounded SSH liveness](0116-bounded-ssh-liveness.md)

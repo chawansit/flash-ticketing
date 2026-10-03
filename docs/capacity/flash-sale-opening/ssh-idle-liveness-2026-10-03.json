@@ -1,0 +1,39 @@
+{
+  "results": [
+    {
+      "phase": "baseline",
+      "seconds": 350.01600000000326,
+      "exitcode": null,
+      "timeout": true,
+      "output_delivered": false,
+      "pass": false
+    },
+    {
+      "phase": "keepalive",
+      "seconds": 320.68799999996554,
+      "exitcode": 1,
+      "timeout": false,
+      "output_delivered": true,
+      "pass": true
+    }
+  ],
+  "candidate_pass": true,
+  "no_buyer_traffic": true,
+  "scope": "Two320second silent read-only sleep commands, expected failure exit1; no fixture/API/DB/Kafka operations.",
+  "hypothesis": "Idle connection loss; exact network/server/client cause unproven.",
+  "decision_record": "0116-bounded-ssh-liveness",
+  "cleanup": {
+    "owned_liveness_commands": 0,
+    "pass": true
+  },
+  "unit_validation": {
+    "unit_tests": 309,
+    "seconds": 29.64,
+    "focused_checks": 37,
+    "focused_seconds": 0.73,
+    "ruff_compilation_whitespace_pass": true
+  },
+  "conclusion": "Silent-command completion failure reproduced with keepalive disabled; candidate delivers expected nonzero status promptly. Precise network/server/client idle mechanism unproven. No generator/customer retries or SLA relaxation.",
+  "paid_capacity": "No new paid test for this client-side liveness correction. Last paid capacity control remains failed.",
+  "private_evidence_root": "tmp/ssh-idle-liveness-20261003"
+}

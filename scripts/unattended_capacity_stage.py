@@ -38,7 +38,9 @@ class Transport:
         self.identity_file = identity_file
 
     def _auth_options(self) -> list[str]:
-        options = ["-o", "BatchMode=yes"]
+        options = ["-o", "BatchMode=yes", "-o", "ServerAliveInterval=15",
+                   "-o", "ServerAliveCountMax=3", "-o", "ConnectTimeout=10",
+                   "-o", "ConnectionAttempts=1"]
         if self.identity_file is not None:
             options.extend(["-i", str(self.identity_file), "-o", "IdentitiesOnly=yes"])
         return options
