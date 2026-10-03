@@ -3,87 +3,90 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "nonblocking_stream_fix_validated_cloud_control_pending",
+  "status": "twelve_slot_and_nonblocking_controls_failed_no_rate_escalation",
   "cloud_load_requires_resume": false,
-  "handoff_revision": "d73ba3db1aff15514684032dc765640c61617814",
-  "revision_note": "Both ECS checkouts and checked running modules match d73ba3d; candidate12 failed and restored. Nonblocking stream-polling correction is an uncommitted local candidate.",
-  "backend_application_revision": "d73ba3db1aff15514684032dc765640c61617814",
-  "generator_revision": "d73ba3db1aff15514684032dc765640c61617814",
+  "handoff_revision": "6514dd39d0d658ac330494eff6dd85f05734e38b",
+  "revision_note": "Both ECS checkouts and eight checked running modules match6514dd3. Later documentation-only revision records results; no later application code tested.",
+  "backend_application_revision": "6514dd39d0d658ac330494eff6dd85f05734e38b",
+  "generator_revision": "6514dd39d0d658ac330494eff6dd85f05734e38b",
   "last_checked_topology": "Restored4healthyAPIs;postgres mode;pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4;PgBouncer applicationpool24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "No load running. Four API postgres/pool3/admission4/waiters3/cache0; consumer1/pool12; simulator batch4/pool12; baseline worker roles restored. Fresh TTL/full queues/Kafka/source/readiness/private cleanup/generator idle all passed.",
+  "cloud_state_note": "No load or generator running; fixtures retired/private scratch removed. Four healthy APIs postgres/pool3/admission4/waiters3/cache0;consumer1/pool12;simulator batch4/pool12;baseline roles restored;existing indexes retained. Candidate topology not promoted.",
   "confirmed": [
-    "8-slot refill passed18000/18000 at60 buyers/s300s;12-slot control failed296drops and32 customer503s; no90 stage ran.",
-    "12-slot fresh postTTL:17682paid tickets +3expired unpaid orders, zero duplicate booking/extra paid events, all queues/Kafka0.",
-    "12-slot callback due-to-delivery proxy p95416ms; customer durable confirmation p9520.7s, API mean pool wait10.02ms. Attribution to simulator scaling is not proven.",
-    "Isolated Redis7.4.5 reproduced31 inactive streams delaying one ready stream:BLOCK1 took3094ms versus20.5ms nonblocking; owned diagnostic container removed."
+    "8-slot refill previously passed18000tickets at60buyers/s300s.12-slot control failed296drops/32customer503s.",
+    "Nonblocking fix passed393full tests69.57s. Same12-slot60/s control failed758drops/220customer503s despite durable-confirmation p95 improving20.73to8.86s.",
+    "Latest postTTL17187paid tickets+55expired unpaid,zero duplicates/extra paid events;fullqueues/Kafka0;source/restoration/readiness/idle/privatecleanup passed.",
+    "Measured API pool pressure:232rejections,final-minute meanwait39.96ms. Underlying cause unproven.",
+    "Isolated Redis31inactive streams delayed ready work3094ms BLOCK1 versus20.5ms nonblocking; mechanism evidence, not cloud capacity."
   ],
-  "unresolved": "Per-stream blocking sweep is a demonstrated delay mechanism, with cloud contribution unquantified. Nonblocking candidate under ADR0113 needs full tests and same12-slot60/s control before any escalation.",
+  "unresolved": "12-slot scaling unqualified in both polling modes. Role DB/PgBouncer/writer/CPU/storage evidence missing. No90stage or sustained300000tickets/hour proof.",
   "next_on_resume": [
-    "Complete local validation of ADR0113 polling change.",
-    "Deploy identical12-slot60/s300s profile changing only per-stream BLOCK omission. Audit exact paid/unpaid,TTL,full queues,Kafka,source and restoration; stop progression on failed gates.",
-    "Only consider rate escalation after passing corrected control; hourly and hot-concert proof remain future work."
+    "Keep rate progression stopped; services restored and no load runs. Read latest compact report.",
+    "Record next ADR before orchestration/pattern changes. Same-source8-slot60/s300s requalification, all other budgets fixed, with targeted writer/roleDB/host resource evidence.",
+    "Choose read-path reduction, fewer DB round trips or protected critical-path DB capacity only from measured cause. One factor per comparison; retain all financial/TTL/uniqueness/fullqueues/Kafka/source/cleanup gates.",
+    "Only after passing corrected control consider90buyers/s; hourly orchestration and hot-concert validation remain future work."
   ],
-  "validation_this_resume": "393fullunit/integrationtests passed69.57s;lint/whitespace passed.12-slotloadFAILED;allfinalfinancial/TTL/queues/Kafka/source/restoration/idle/cleanupPASSED.",
-  "current_run": "checkout-20261003T112527Z-f6d1cc",
+  "validation_this_resume": "393fullunit/integrationtests passed69.57s;lint/whitespace passed. Both12-slot load controls FAILED; final paid/unpaid/TTL/uniqueness/fullqueues/Kafka/source/restoration/idle/privatecleanup PASSED.",
+  "current_run": "checkout-20261003T114023Z-9c4f6d",
   "evidence": [
+    "docs/capacity/flash-sale-opening/paid-nonblocking-stream-control-2026-10-03.json",
     "docs/capacity/flash-sale-opening/paid-twelve-slot-control-2026-10-03.json",
-    "docs/adr/0112-twelve-delivery-slots-fixed-db-budget.md",
+    "docs/capacity/flash-sale-opening/paid-callback-refill-comparison-2026-10-03.json",
     "docs/adr/0113-nonblocking-reservation-stream-polling.md"
   ],
-  "authorization": "User Go ahead as plan authorizes conditional roadmap. ADR0113 records the polling change before implementation;60/s correction only, all correctness/evidence gates retained.",
-  "backend_checkout_revision": "d73ba3db1aff15514684032dc765640c61617814",
-  "tested_generator_revision": "d73ba3db1aff15514684032dc765640c61617814",
-  "scope": "Conditional roadmap.12-slot60 control failed;90stage skipped. Authorized evidence-driven nonblocking polling correction and same-rate control; no permanent candidate promotion.",
+  "authorization": "User Go ahead as plan authorizes conditional implementation/experiments. Failed gates prohibit higher-rate escalation; recovery/audit/evidence-driven corrections remain in scope.",
+  "backend_checkout_revision": "6514dd39d0d658ac330494eff6dd85f05734e38b",
+  "tested_generator_revision": "6514dd39d0d658ac330494eff6dd85f05734e38b",
+  "scope": "Conditional ten-step roadmap. Two12-slot load attempts failed; rate escalation stopped. No permanent topology promotion/hourly orchestration.",
   "roadmap": [
     {
       "step": 1,
-      "work": "Callbackphaseandbarrierdiagnostics",
+      "work": "Callback phase and barrier diagnostics",
       "status": "implemented_and_cloud_validated"
     },
     {
       "step": 2,
-      "work": "Boundedcontinuouslyrefilledsimulator",
+      "work": "Bounded continuously refilled simulator",
       "status": "implemented_and_cloud_validated"
     },
     {
       "step": 3,
-      "work": "Reduceorderstatusreadamplification",
+      "work": "Reduce order-status read amplification",
       "status": "conditional_future_work"
     },
     {
       "step": 4,
-      "work": "Protectpayment/webhookDBcapacity",
+      "work": "Protect payment/webhook database capacity",
       "status": "conditional_future_work"
     },
     {
       "step": 5,
-      "work": "Shortenmeasuredexpensivetransactions",
+      "work": "Shorten measured expensive transactions",
       "status": "conditional_future_work"
     },
     {
       "step": 6,
-      "work": "Callbackconnectionreuseifneeded",
+      "work": "Callback connection reuse if needed",
       "status": "conditional_future_work"
     },
     {
       "step": 7,
-      "work": "Boundedidempotentfailure recovery",
+      "work": "Bounded idempotent failure recovery",
       "status": "conditional_future_work"
     },
     {
       "step": 8,
-      "work": "Concertopeningadmissionandreadcapacity",
+      "work": "Concert-opening admission and read capacity",
       "status": "conditional_future_work"
     },
     {
       "step": 9,
-      "work": "Scalemeasuredbottleneck",
-      "status": "twelve_slot_control_failed_correction_in_progress"
+      "work": "Scale the measured bottleneck",
+      "status": "twelve_slot_failed_nonblocking_fix_functionally_validated_but_capacity_failed"
     },
     {
       "step": 10,
-      "work": "Sustained300000paidticket/hourproof",
+      "work": "Sustained300000paid tickets/hour proof",
       "status": "conditional_future_work"
     }
   ]
