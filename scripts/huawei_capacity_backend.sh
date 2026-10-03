@@ -266,7 +266,7 @@ case "${1:-}" in
     set_reservation_mode "$reservation_candidate"
     set_reservation_writer_batch_size "$reservation_writer_batch_candidate"
     set_reservation_max_command_age "$reservation_max_command_age_candidate"
-    $compose build api migrate publisher consumer maintenance refresh expiry reconciler reservation-writer
+    $compose build api migrate publisher consumer maintenance refresh expiry reconciler reservation-writer simulator
     if [ "$reservation_candidate" = redis-first ]; then
       $compose up -d --no-deps --force-recreate --scale "reservation-writer=$reservation_writer_candidate" reservation-writer
       wait_reservation_writer "$reservation_writer_candidate"
@@ -317,6 +317,9 @@ case "${1:-}" in
     fi
     $compose up -d --no-deps --force-recreate --scale "consumer=$consumer_candidate" consumer
     wait_consumers "$consumer_candidate"
+    # Compose retains a separate simulator image; recreation alone cannot update it.
+    $compose up -d --no-deps --force-recreate simulator
+    worker_services="$worker_services simulator"
     if [ "$reservation_candidate" = redis-first ]; then
       worker_services="$worker_services reservation-writer"
     fi

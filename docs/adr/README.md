@@ -156,3 +156,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0106 - Recheck event streams after advisory registry pruning](0106-recheck-streams-after-registry-pruning.md)
 
 - [0107 - Recheck pending order state when claiming expiry](0107-recheck-pending-order-on-expiry-claim.md)
+
+- [0108 - Include payment simulator in deployment source consistency](0108-simulator-source-consistency-gate.md)
