@@ -1,0 +1,32 @@
+{
+  "kind": "isolated_real_redis_pending_discovery_diagnostic",
+  "samples_per_case": 20,
+  "streams": 32,
+  "transport_delay_ms_cases": {
+    "0": {
+      "sequential_reclaim": {
+        "mean_ms": 21.048174996394664,
+        "median_ms": 19.438999996054918,
+        "round_trips": 32
+      },
+      "pipelined_pending_filter": {
+        "mean_ms": 1.1133199965115637,
+        "median_ms": 1.066149998223409,
+        "round_trips": 1
+      }
+    },
+    "1.5": {
+      "sequential_reclaim": {
+        "mean_ms": 86.21250000433065,
+        "median_ms": 85.75264998944476,
+        "round_trips": 32
+      },
+      "pipelined_pending_filter": {
+        "mean_ms": 3.1616850028513,
+        "median_ms": 3.1349000346381217,
+        "round_trips": 1
+      }
+    }
+  },
+  "limitations": "Injected 1.5ms is a synthetic transport model, not Huawei latency measurement or backend capacity. Local Redis measurement has no injected delay. No application commands, production data or claims are changed."
+}

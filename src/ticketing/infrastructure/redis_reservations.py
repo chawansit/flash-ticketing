@@ -453,8 +453,19 @@ class RedisReservationIntake:
         # Redis applies COUNT independently to each stream in a multi-stream read. Read
         # streams one at a time so ``count`` remains a hard total transaction bound and
         # every message assigned to this consumer is returned to the caller.
-        remaining = count
+        if not streams:
+            return
+        pending_checks = self.redis.pipeline(transaction=False)
         for stream in streams:
+            pending_checks.xpending(stream, self.group)
+        pending = pending_checks.execute()
+
+        remaining = count
+        for stream, summary in zip(streams, pending, strict=True):
+            # Read-only summaries avoid empty reclaim round trips without assigning
+            # extra work. Reclaims still precede new reads and share one total COUNT.
+            if summary["pending"] == 0:
+                continue
             _next, claimed, _deleted = self.redis.xautoclaim(
                 stream, self.group, consumer, reclaim_idle_ms, "0-0", count=remaining
             )

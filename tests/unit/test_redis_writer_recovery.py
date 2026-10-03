@@ -16,18 +16,27 @@ class FakePipeline:
     def __init__(self, redis):
         self.redis = redis
         self.streams = []
+        self.pending = False
+
+    def xpending(self, stream, _group):
+        self.pending = True
+        self.streams.append(stream)
+        return self
 
     def xlen(self, stream):
         self.streams.append(stream)
         return self
 
     def execute(self):
+        if self.pending:
+            return [{"pending": self.redis.pending_counts.get(stream, 1)} for stream in self.streams]
         return [self.redis.lengths.get(stream, 1) for stream in self.streams]
 
 
 class FakeRedis:
     def __init__(self, registry=(), lengths=None):
         self.registry = set(registry)
+        self.pending_counts = {}
         self.lengths = lengths or {}
         self.connection_pool = FakePool()
         self.smembers_calls = 0
@@ -366,3 +375,36 @@ def test_reclaimed_work_reduces_remaining_new_read_bound():
     assert messages[0][1] == "old-0"
     assert redis.reclaim_calls == [(streams[0], 30000, 4), (streams[1], 30000, 3)]
     assert redis.read_counts == [3, 3]
+
+
+def test_zero_pending_summary_skips_claim_without_skipping_new_reads():
+    streams = ["reservation-stream:{a}", "reservation-stream:{z}"]
+    redis = ReadyAfterInactiveRedis(streams)
+    redis.pending_counts = {stream: 0 for stream in streams}
+    intake = RedisReservationIntake(FakeCache(redis))
+    assert len(list(intake.messages("writer", count=4))) == 4
+    assert redis.reclaim_calls == []
+    assert redis.read_batches == [(streams[0],), (streams[1],)]
+
+
+def test_summary_failure_does_not_assign_or_read_messages(monkeypatch):
+    streams = ["reservation-stream:{a}"]
+    redis = ReadyAfterInactiveRedis(streams, reclaim=True)
+    intake = RedisReservationIntake(FakeCache(redis), stream_refresh_seconds=60)
+    intake.streams()
+    original = redis.pipeline
+
+    def failing_pipeline(**kwargs):
+        result = original(**kwargs)
+
+        def execute():
+            raise RedisError("pending summary unavailable")
+
+        result.execute = execute
+        return result
+
+    monkeypatch.setattr(redis, "pipeline", failing_pipeline)
+    with pytest.raises(RedisError, match="pending summary unavailable"):
+        list(intake.messages("writer", count=4))
+    assert redis.reclaim_calls == []
+    assert redis.read_batches == []

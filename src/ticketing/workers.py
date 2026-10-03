@@ -63,7 +63,17 @@ def stop(*_):
 
 @measured_work("reservation_write")
 def persist_reservation_batch(store, intake, consumer, limit=1):
-    messages = list(intake.messages(consumer, count=limit))
+    claim_started = time.perf_counter()
+    try:
+        messages = list(intake.messages(consumer, count=limit))
+    except Exception:
+        RESERVATION_PERSISTENCE_PHASE_SECONDS.labels("redis_claim", "error").observe(
+            time.perf_counter() - claim_started
+        )
+        raise
+    RESERVATION_PERSISTENCE_PHASE_SECONDS.labels("redis_claim", "ok").observe(
+        time.perf_counter() - claim_started
+    )
     RESERVATION_PERSISTENCE_BATCH_SIZE.observe(len(messages))
     if not messages:
         return False
