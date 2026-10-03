@@ -543,3 +543,49 @@ original sharded aggregate omitted new GET timing fields, so this
 report uses per-shard values; the aggregator was fixed afterward without
 rerunning the load. See the
 [redacted four-route trace](paid-ticket-status-get-transport-2026-09-29.json).
+
+
+### Paused handoff - 2026-10-03
+
+After the ECS/RDS/DCS restart, existing PgBouncer, Kafka and load-balancer
+containers were stopped; they were started and existing API/background services
+restarted. Four API replicas and readiness are healthy. RDS SELECT 1 and DCS
+PING passed. The point-in-time [backlog audit](resume-backlog-audit-2026-10-03.json)
+found zero outbox, refresh, dead-letter, overdue-hold, pending-order,
+callback-delivery and reservation-stream backlog, no paid orders without tickets,
+and zero Kafka lag across six partitions. No new real-backend load was run.
+Production application images remain the reverted `db91fff` baseline; the
+`ab51fcc` checkout update adds only diagnostic tooling/tests/ADR, without an
+application deployment or topology change. Temporary recovery probes were removed.
+
+The [loopback-only generator control](synthetic-generator-control-2026-10-03.json)
+on clean generator revision `ab51fcc` failed at 60 journeys/s for 60 seconds:
+3,206/3,600 dispatched and fulfilled, 394 generator drops (10.94%), no HTTP error
+outcomes, and no retries. The responder was healthy (31.06 ms handler p95 and
+1.03 ms event-loop-lag p95); hold pre-send p95 still reached 2.98 s and order
+pre-send p95 2.61 s. These are worst-shard percentiles, not combined percentiles.
+This reproduces a generator-side limitation without PostgreSQL/Redis/Kafka and
+prevents attributing the previous 60/s drops solely to the backend. The earlier
+real API pool errors remain a separate backend issue. Synthetic fulfillment
+and uniqueness do not validate production durability or zero double booking.
+See [ADR 0090](../../adr/0090-isolate-paid-generator-with-loopback-responder.md).
+
+Executed validation: 209 unit tests passed; diagnostic lint passed. Local Windows
+smoke completed eight journeys but failed the responder scheduling-lag gate, so
+it was not used for capacity attribution. No integration suite was run in this
+resumed session. The 20 s saturation control and higher rates were not run.
+
+Work is paused at the user's request to stop soon. The diagnostic and its child
+processes finished, responder connections closed and temporary shard manifests
+were removed. No unattended test is scheduled. Cloud services remain running;
+the temporary authorized SSH identity remains available for the next session
+and must be removed from both ECS accounts when the overall cloud work ends.
+
+Next after explicit resume: profile the generator's per-process CPU/event loop,
+HTTPX/httpcore connection acquisition, response-body completion and connection
+release against the same controlled responder. Make an ADR before changing the
+client/pool/sharding pattern. Compare one change at a time with the same offered
+rate, polling and total connection/concurrency budget. Require zero drops and
+valid responder timing before repeating real 45/s control and 60/s paid stages
+with post-TTL exact audits and queue drain. The short 45/s real pass remains the
+latest paid throughput evidence; 300,000 paid tickets/hour is not yet validated.
