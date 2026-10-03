@@ -251,25 +251,31 @@ def worker_counters(role, operation, url):
     return result
 
 
+PAID_COHORT_QUERY = """WITH cohort AS MATERIALIZED (
+  SELECT id,status FROM orders WHERE event_id=ANY(%s::uuid[])
+), order_counts AS (
+  SELECT count(*) FILTER (WHERE status='PENDING') AS pending_orders,
+         count(*) FILTER (WHERE status='PAID') AS paid_unfulfilled,
+         count(*) FILTER (WHERE status='FULFILLED') AS fulfilled_orders
+  FROM cohort
+), payment_counts AS (
+  SELECT count(*) FILTER (WHERE p.deliveries<p.target_deliveries) AS pending_callbacks,
+         count(*) FILTER (WHERE p.status='PENDING') AS pending_payments,
+         coalesce(sum(p.deliveries),0) AS delivered_callbacks
+  FROM payment_attempts p JOIN cohort o ON o.id=p.order_id
+)
+SELECT o.pending_orders,o.paid_unfulfilled,o.fulfilled_orders,
+       p.pending_callbacks,p.pending_payments,p.delivered_callbacks,
+       (SELECT count(*) FROM tickets t JOIN bookings b ON b.id=t.booking_id
+         WHERE b.event_id=ANY(%s::uuid[])),
+       (SELECT count(*) FROM outbox_events WHERE published_at IS NULL),
+       (SELECT count(*) FROM pg_stat_activity
+         WHERE datname=current_database() AND wait_event_type='Lock')
+FROM order_counts o CROSS JOIN payment_counts p"""
+
+
 def sample(conn, show_ids):
-    row = conn.execute(
-        """SELECT
-          (SELECT count(*) FROM orders WHERE event_id=ANY(%s::uuid[]) AND status='PENDING'),
-          (SELECT count(*) FROM orders WHERE event_id=ANY(%s::uuid[]) AND status='PAID'),
-          (SELECT count(*) FROM orders WHERE event_id=ANY(%s::uuid[]) AND status='FULFILLED'),
-          (SELECT count(*) FROM payment_attempts p JOIN orders o ON o.id=p.order_id
-            WHERE o.event_id=ANY(%s::uuid[]) AND p.deliveries<p.target_deliveries),
-          (SELECT count(*) FROM payment_attempts p JOIN orders o ON o.id=p.order_id
-            WHERE o.event_id=ANY(%s::uuid[]) AND p.status='PENDING'),
-          (SELECT coalesce(sum(p.deliveries),0) FROM payment_attempts p
-            JOIN orders o ON o.id=p.order_id WHERE o.event_id=ANY(%s::uuid[])),
-          (SELECT count(*) FROM tickets t JOIN bookings b ON b.id=t.booking_id
-            WHERE b.event_id=ANY(%s::uuid[])),
-          (SELECT count(*) FROM outbox_events WHERE published_at IS NULL),
-          (SELECT count(*) FROM pg_stat_activity
-            WHERE datname=current_database() AND wait_event_type='Lock')""",
-        (show_ids,) * 7,
-    ).fetchone()
+    row = conn.execute(PAID_COHORT_QUERY, (show_ids, show_ids)).fetchone()
     names = (
         "pending_orders",
         "paid_unfulfilled",

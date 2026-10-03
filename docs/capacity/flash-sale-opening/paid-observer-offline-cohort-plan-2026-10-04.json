@@ -1,0 +1,72 @@
+{
+  "kind": "offline_local_observer_query_plan_comparison",
+  "decision_record": "0125-single-pass-paid-observer-cohort-sampling",
+  "postgres_version": "17.6 (Debian 17.6-2.pgdg13+1)",
+  "fixture": {
+    "historical_orders": 100000,
+    "cohort_orders": 18000,
+    "show_ids": 60,
+    "orders_total": 118000,
+    "payment_attempts_total": 118000,
+    "bookings_total": 118000,
+    "tickets_total": 118000
+  },
+  "same_nine_counts": true,
+  "first_eight_counts": [
+    0,
+    0,
+    18000,
+    0,
+    0,
+    18000,
+    18000,
+    0
+  ],
+  "query_statement_timeout_seconds": 3,
+  "paired_plan_runs": 3,
+  "plans": {
+    "baseline": {
+      "orders_relation_plan_nodes": [
+        6,
+        6,
+        6
+      ],
+      "execution_ms": [
+        98.318,
+        92.791,
+        93.92
+      ],
+      "median_execution_ms": 93.92
+    },
+    "candidate": {
+      "orders_relation_plan_nodes": [
+        1,
+        1,
+        1
+      ],
+      "execution_ms": [
+        61.25,
+        62.063,
+        63.966
+      ],
+      "median_execution_ms": 62.063
+    }
+  },
+  "sql_sha256": {
+    "baseline": "9c7a106454dcb572b12a0b44a284153c5f6795240c40ec1c05d3de6a21fcd3c7",
+    "candidate": "36e71bac98ec63cfcd6aa4bdb2ce73355b1dbb6788bd77cb965a2b19056c6f87"
+  },
+  "limitations": "Synthetic local schema reproduces observer relation keys/indexes relevant to this query,not production workload or cloud catalog/stats/IO/hardware/prepared-plan behavior. Alternating warm-cache plans;no exact cause of prior cloud QueryCanceled established. Local timings are not cloud capacity qualification.",
+  "cloud_scope": "No additionalcloud diagnostic query,candidate deployment orpaidload beyondmandatory audit/recoveryafterADR0124failedgate;thatfailure remainsfailed.3stimeout andallgates unchanged. Proposedcloudpreflight/requalification wasblockedbyautomaticreview;requires specificapproval.",
+  "private_raw_plan_root": "tmp\\adr0125-offline-plans",
+  "validation": {
+    "focused_observer_runner_cpu_unit_and_real_pg_integration": {
+      "passed": 66,
+      "seconds": 1.54
+    },
+    "lint_and_whitespace_pass": true,
+    "local_helpers": "Benchmark helper initially failed import before any query,and then temporary PostgreSQL init readiness before benchmarkfixture creation. Failures retained privately;TCPreadiness corrected. Passing66tests were not repeated to hide helper failures. Owned local schemas/services cleaned in finally.",
+    "cloud_gate_status": "ADR0124remainsfailed;onlymandatoryaudit/recoverycompleted afterrunnerfailure,no newcloudexperiment."
+  },
+  "median_execution_change_percent": -33.919293015332194
+}

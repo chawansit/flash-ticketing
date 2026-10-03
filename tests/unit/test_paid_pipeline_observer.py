@@ -176,3 +176,15 @@ def test_writer_collection_timer_is_retained_and_unknown_labels_rejected():
         'ticketing_reservation_persistence_phase_seconds_count{phase="redis_claim",outcome="ok",actor="private"}'
     ) is None
     assert metric('ticketing_reservation_persistence_phase_seconds_count{phase="unknown",outcome="ok"}') is None
+
+def test_cohort_query_cancellation_propagates_without_retry():
+    from unittest.mock import Mock
+
+    import pytest
+    from psycopg.errors import QueryCanceled
+
+    conn = Mock()
+    conn.execute.side_effect = QueryCanceled("bounded diagnostic timeout")
+    with pytest.raises(QueryCanceled):
+        observe_paid_pipeline.sample(conn, [])
+    assert conn.execute.call_count == 1

@@ -190,3 +190,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0123 - Bounded paid-control CPU sampler readiness](0123-bounded-paid-cpu-sampler-readiness.md)
 
 - [0124 - Shorter advisory order-status snapshot age](0124-shorter-advisory-order-status-snapshot-age.md)
+
+- [0125 - Single-pass paid observer cohort sampling](0125-single-pass-paid-observer-cohort-sampling.md)
