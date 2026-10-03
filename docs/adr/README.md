@@ -148,3 +148,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0102 - Six consumers with a controlled connection budget](0102-six-consumers-fixed-connection-budget.md)
 
 - [0103 - Four API pool connections with a fixed server budget](0103-api-pool-four-fixed-server-budget.md)
+
+- [0104 - Five-minute validation of the paid profile](0104-five-minute-paid-profile-validation.md)
