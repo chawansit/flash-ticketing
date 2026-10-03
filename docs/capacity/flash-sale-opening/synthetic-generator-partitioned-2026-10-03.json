@@ -1,0 +1,285 @@
+{
+  "kind": "synthetic_generator_control",
+  "production_capacity_evidence": false,
+  "created_at_utc": "2026-10-03T01:49:07.046483+00:00",
+  "source_revision": "65d15747f0ddca7b99eea2f9cc3ee228981b5858",
+  "source_dirty": false,
+  "python_version": "3.12.3",
+  "platform": "Linux",
+  "logical_cpus": 8,
+  "httpx_version": "0.28.1",
+  "httpcore_version": "1.0.9",
+  "configuration": {
+    "rate": 60,
+    "seconds": 60,
+    "concurrency": 500,
+    "response_ms": 30.0,
+    "command_seconds": 0.5,
+    "ticket_seconds": 5.0,
+    "poll_seconds": 0.2,
+    "shards": 2,
+    "http_clients_per_shard": 8
+  },
+  "responder": {
+    "requests": {
+      "other": 2,
+      "holds": 3600,
+      "reservation_commands": 8134,
+      "payments": 3600,
+      "orders": 40893
+    },
+    "accepted_connections": 240,
+    "closed_connections": 240,
+    "protocol_errors": 0,
+    "peak_handlers": 61,
+    "handler_p95_ms": 31.04188699990118,
+    "handler_max_ms": 32.04607299994677,
+    "loop_lag_p95_ms": 1.0151309998036595,
+    "loop_lag_max_ms": 1.8071770000460674,
+    "synthetic_orders": 3600
+  },
+  "responder_valid": true,
+  "generator": {
+    "kind": "scheduled_paid_ticket_journeys_sharded",
+    "measured_at_utc": "2026-10-03T01:49:07.024126+00:00",
+    "rate_target_per_second": 60,
+    "dispatch_seconds": 60,
+    "generator_shards": 2,
+    "generator_max_in_flight": 500,
+    "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+    "shard_exit_codes": [
+      0,
+      0
+    ],
+    "scheduled": 3600,
+    "dispatched": 3600,
+    "generator_drops": 0,
+    "completed": 3600,
+    "fulfilled": 3600,
+    "fulfilled_by_deadline": 3600,
+    "distinct_orders": 3600,
+    "distinct_tickets": 3600,
+    "retry_attempts": 0,
+    "hold_app_timing_samples": 3600,
+    "payment_app_timing_samples": 3600,
+    "outcomes": {
+      "fulfilled": 3600
+    },
+    "physical_http_attempts": {
+      "holds": 3600,
+      "reservation_commands": 8134,
+      "payments": 3600,
+      "orders": 40893
+    },
+    "dispatch_lag_p95_ms": 36.48525566677563,
+    "dispatch_lag_max_ms": 129.25324699972407,
+    "hold_http_p95_ms": 821.1086460000843,
+    "hold_app_p95_ms": 31.078,
+    "hold_client_excess_p95_ms": 790.8406460000842,
+    "command_durable_wait_p95_ms": 1376.0470110000824,
+    "durable_p95_ms": 1879.6340879998752,
+    "payment_http_p95_ms": 726.4355319998685,
+    "payment_app_p95_ms": 31.049,
+    "payment_client_excess_p95_ms": 696.1815319998685,
+    "ticket_wait_p95_ms": 5929.685272999905,
+    "payment_to_ticket_p95_ms": 6335.533601999941,
+    "hold_to_ticket_p95_ms": 7749.240598000142,
+    "transport_phase_p95_ms": {
+      "holds": {
+        "pre_send_ms": 714.9335469998732,
+        "response_wait_ms": 63.43898499972056,
+        "connect_ms": 90.1467789999515
+      },
+      "orders": {
+        "pre_send_ms": 708.3027080002466,
+        "response_wait_ms": 63.12838500025464,
+        "connect_ms": 104.11658199973317
+      },
+      "payments": {
+        "pre_send_ms": 634.5565389997319,
+        "response_wait_ms": 62.980086999687046,
+        "connect_ms": 90.78783499990095
+      },
+      "reservation_commands": {
+        "pre_send_ms": 635.7437329997992,
+        "response_wait_ms": 63.36808599962751,
+        "connect_ms": 85.66173799999888
+      }
+    },
+    "transport_phase_samples": {
+      "holds": {
+        "pre_send_ms": 3600,
+        "response_wait_ms": 3600,
+        "connect_ms": 26
+      },
+      "orders": {
+        "pre_send_ms": 40893,
+        "response_wait_ms": 40893,
+        "connect_ms": 162
+      },
+      "payments": {
+        "pre_send_ms": 3600,
+        "response_wait_ms": 3600,
+        "connect_ms": 5
+      },
+      "reservation_commands": {
+        "pre_send_ms": 8134,
+        "response_wait_ms": 8134,
+        "connect_ms": 45
+      }
+    },
+    "shards": [
+      {
+        "scheduled": 1800,
+        "dispatched": 1800,
+        "generator_drops": 0,
+        "fulfilled_by_deadline": 1800,
+        "started_at_utc": "2026-10-03T01:48:00.374239+00:00",
+        "dispatch_lag_p95_ms": 36.06193599944163,
+        "transport_phase_p95_ms": {
+          "holds": {
+            "pre_send_ms": 698.1508409999151,
+            "response_wait_ms": 63.43898499972056,
+            "connect_ms": 3.7237700003061036
+          },
+          "reservation_commands": {
+            "pre_send_ms": 625.9518749998279,
+            "response_wait_ms": 63.36808599962751,
+            "connect_ms": 74.73627099989244
+          },
+          "payments": {
+            "pre_send_ms": 568.2671389999996,
+            "response_wait_ms": 62.68533500042395,
+            "connect_ms": 90.78783499990095
+          },
+          "orders": {
+            "pre_send_ms": 708.3027080002466,
+            "response_wait_ms": 63.12838500025464,
+            "connect_ms": 104.11658199973317
+          }
+        },
+        "outcomes": {
+          "fulfilled": 1800
+        },
+        "pass": true
+      },
+      {
+        "scheduled": 1800,
+        "dispatched": 1800,
+        "generator_drops": 0,
+        "fulfilled_by_deadline": 1800,
+        "started_at_utc": "2026-10-03T01:48:00.372800+00:00",
+        "dispatch_lag_p95_ms": 36.48525566677563,
+        "transport_phase_p95_ms": {
+          "holds": {
+            "pre_send_ms": 714.9335469998732,
+            "response_wait_ms": 62.32923399966239,
+            "connect_ms": 90.1467789999515
+          },
+          "reservation_commands": {
+            "pre_send_ms": 635.7437329997992,
+            "response_wait_ms": 63.280857000336255,
+            "connect_ms": 85.66173799999888
+          },
+          "payments": {
+            "pre_send_ms": 634.5565389997319,
+            "response_wait_ms": 62.980086999687046,
+            "connect_ms": 86.3486869998269
+          },
+          "orders": {
+            "pre_send_ms": 699.4842459998836,
+            "response_wait_ms": 63.046958000086306,
+            "connect_ms": 88.24600699972507
+          }
+        },
+        "outcomes": {
+          "fulfilled": 1800
+        },
+        "pass": true
+      }
+    ],
+    "pass": true,
+    "http_clients_per_shard": [
+      8,
+      8
+    ],
+    "http_connection_budgets_per_shard": [
+      [
+        32,
+        32,
+        31,
+        31,
+        31,
+        31,
+        31,
+        31
+      ],
+      [
+        32,
+        32,
+        31,
+        31,
+        31,
+        31,
+        31,
+        31
+      ]
+    ]
+  },
+  "pass": true,
+  "profiled": false,
+  "compact": {
+    "kind": "synthetic_generator_control",
+    "revision": "65d15747f0ddca7b99eea2f9cc3ee228981b5858",
+    "profiled": false,
+    "configuration": {
+      "rate": 60,
+      "seconds": 60,
+      "concurrency": 500,
+      "response_ms": 30.0,
+      "command_seconds": 0.5,
+      "ticket_seconds": 5.0,
+      "poll_seconds": 0.2,
+      "shards": 2,
+      "http_clients_per_shard": 8
+    },
+    "pass": true,
+    "failed_gates": [],
+    "scheduled": 3600,
+    "completed": 3600,
+    "fulfilled": 3600,
+    "drops": 0,
+    "outcomes": {
+      "fulfilled": 3600
+    },
+    "retries": 0,
+    "hold_to_ticket_p95_ms": 7749.240598000142,
+    "transport_p95_ms": {
+      "holds": {
+        "pre_send_ms": 714.9335469998732,
+        "response_wait_ms": 63.43898499972056,
+        "connect_ms": 90.1467789999515
+      },
+      "orders": {
+        "pre_send_ms": 708.3027080002466,
+        "response_wait_ms": 63.12838500025464,
+        "connect_ms": 104.11658199973317
+      },
+      "payments": {
+        "pre_send_ms": 634.5565389997319,
+        "response_wait_ms": 62.980086999687046,
+        "connect_ms": 90.78783499990095
+      },
+      "reservation_commands": {
+        "pre_send_ms": 635.7437329997992,
+        "response_wait_ms": 63.36808599962751,
+        "connect_ms": 85.66173799999888
+      }
+    },
+    "responder_handler_p95_ms": 31.04188699990118,
+    "responder_loop_lag_p95_ms": 1.0151309998036595,
+    "durability_audit": "not_applicable_synthetic",
+    "queue_drain": "not_applicable_synthetic",
+    "production_capacity_evidence": false
+  }
+}

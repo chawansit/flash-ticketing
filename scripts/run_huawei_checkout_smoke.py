@@ -28,6 +28,7 @@ parser.add_argument("--paid-rate", type=int, default=0)
 parser.add_argument("--paid-seconds", type=int, default=30)
 parser.add_argument("--paid-concurrency", type=int, default=100)
 parser.add_argument("--paid-http-max-connections", type=int, default=0)
+parser.add_argument("--paid-http-client-count", type=int, default=1)
 parser.add_argument("--paid-generator-shards", type=int, choices=(1, 2), default=1)
 parser.add_argument("--paid-poll-seconds", type=float, default=0.2)
 parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8), default=4)
@@ -53,6 +54,10 @@ if args.paid_generator_shards == 2 and (
     or args.paid_http_max_connections
 ):
     parser.error("Two shards require even rate/concurrency and default per-shard HTTP pools")
+pool_budget = (args.paid_concurrency // 2 if args.paid_generator_shards == 2
+               else args.paid_http_max_connections or args.paid_concurrency)
+if not 1 <= args.paid_http_client_count <= min(16, pool_budget):
+    parser.error("Client partition must fit per-process HTTP connection budget")
 if EXPECTED > args.shows * 300 or EXPECTED > 300000:
     parser.error("This smoke runner supports at most 300000 distinct tickets")
 BACKEND = args.backend_dir
@@ -95,7 +100,14 @@ rollback_prefix = [
 waiter_check = (
     f'cd {BACKEND}; for id in $({COMPOSE} ps -q api); do docker exec "$id" printenv DB_POOL_MAX_WAITING; done'
 )
-state = {"run": RUN, "phases": [], "pass": False, "error": None}
+state = {"run": RUN, "phases": [], "pass": False, "error": None,
+         "paid_configuration": {"rate": args.paid_rate, "seconds": args.paid_seconds,
+                                "concurrency": args.paid_concurrency,
+                                "generator_shards": args.paid_generator_shards,
+                                "http_clients_per_shard": args.paid_http_client_count,
+                                "http_connections_per_shard": pool_budget,
+                                "poll_seconds": args.paid_poll_seconds,
+                                "callback_duplicates": args.callback_duplicates}}
 deployed = prepared = probe_attempted = observer_started = kafka_observer_started = simulator_changed = False
 
 
@@ -285,6 +297,7 @@ try:
             str(args.paid_seconds + 120),
             "--concurrency",
             str(args.paid_concurrency),
+            "--http-client-count", str(args.paid_http_client_count),
             "--poll-seconds",
             str(args.paid_poll_seconds),
             "--duplicates",
