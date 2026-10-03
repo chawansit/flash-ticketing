@@ -3,37 +3,41 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "five_minute_failed_terminal_recovery_and_observer_repair_completed",
+  "status": "registry_and_expiry_races_reproduced_fixed_and_locally_validated",
   "cloud_load_requires_resume": false,
-  "handoff_revision": "e50bab6",
-  "revision_note": "Five-minute attempt used936224b. Both ECS checkouts synchronized to e50bab6 observer/runner repair; runtime application source unchanged and original settings restored. Repair locally tested only; no live retest. New docs-only checkpoint does not change application code.",
+  "handoff_revision": "5f5c4e536d5db06b3e8a7b931ec1586066673fff",
+  "revision_note": "Local application repair5f5c4e5 is not deployed. Last verified cloud checkouts remaine50bab6 and runtimeapplication936224b; no cloud access/load this turn. New checkpoint is documentation only.",
   "backend_application_revision": "936224b",
   "generator_revision": "e50bab6",
   "last_checked_topology": "Restored4healthyAPIs;postgres mode;pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4;PgBouncer applicationpool24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "cloud_state_note": "No load/schedule/generator running. Original settings/budgets/readiness and seven source hashes verified. One fixture orphan terminalizedFAILED/SALE_CLOSED through existing writer; allqueues0 after recovery. Valid indexes retained.",
   "confirmed": [
-    "Five-minute60/s:18000dispatched,0drops,17999fulfilled and1durabilitytimeout. StrictgateFAILED;dispatchp95102.58ms/max791.11ms.",
-    "Pipeline observer420s rejected by400s cap; no APIpool/worker/lock/minute metrics. Kafka peak74,last0,six singleton owners.",
-    "One stream entryPENDING,not in advisoryregistry,noPostgreSQLcommand,group pending0/lag1:never delivered. Why pointer disappeared not yet proven.",
-    "Scoped pointer restoration plus existing writer producedFAILED/SALE_CLOSED and acknowledged theexpired intake. Originalfailedpurchase remainsrecorded.",
-    "Fresh post-TTL exact17999paidtickets/zero duplicates/extra paid events and allqueues0 after recovery;baseline/source/budgets restored;no matching generator process.",
-    "ADR0105 repair: shared480s observer ceiling, bounded20s first-sample/PID gates before dispatch.34focused tests passed0.95s;lint/Pythoncompile passed;notcloudretested."
+    "Deterministic real Redis/PostgreSQL regression reproduced missing registry pointer: stale zero XLEN -> successful enqueue/XADD/SADD -> SREM. Historical orphan mechanism remains unproven.",
+    "ADR0106 rechecks after pruning, restores newly active pointers and retains uncertain/local candidates on errors. Existing atomic intake/TTL/transaction/slot layout preserved.",
+    "First full suite373passed/1failed revealed independent stale-snapshot expiry claim race. Deterministic PostgreSQL regression reproduced three duplicate claims after competing expiry commit.",
+    "ADR0107 adds locked order PENDING predicate to expiry claim; deterministic stale worker now claimszero and exactlythree expiry events are emitted.",
+    "Final full unit/integration suite376passed66.84s;18focused discovery/settings passed0.45s;changed-filelint/compile/diff checks passed. Dedicated local test containers cleaned.",
+    "Previous five-minute60/s stage remainsFAILED:17999/18000fulfilled,dispatch p95102.58ms/max791.11ms,missing pipeline telemetry. Exact17999 paid-cohort audit/terminal recovery/drain/restoration passed separately.",
+    "Highest healthy paid control remains60buyers/s for60seconds,3600/3600; sustained five-minute and300000tickets/hour capacity remain unverified."
   ],
-  "unresolved": "Five-minute capacity unverified. Reproduce missing-registry discovery; possible prune/enqueue race or advisory-write failure, mechanism unproven. Schedulinggate failed and SSHcollection480s timeout despite391s result. Pipeline telemetry absent. Highest healthycontrol remains60/sone minute;300000/hourunverified.",
+  "unresolved": "Live performance of the new discovery/expiry guards is unmeasured. Failed advisory writes plus outage/restart still rely on SCAN, without TTL-bounded large-keyspace discovery. Prior dispatch latency gate/SSH collection timeout remain unresolved; observer repair is not live-retested.",
   "next_on_resume": [
-    "Reproduce advisory registry loss with empty-stream prune/enqueue interleaving and registry-write error paths. Create ADR before selecting atomic pruning/discovery repair; test correctness and recovery.",
-    "Verify repaired observer startup before a separately authorized same60/s five-minute rerun. Preserve exactpaid/unpaid-intake/TTL/zero-duplicates/queue/Kafka/restoration gates; no rate escalation."
+    "Verify cloud readiness/current source/config without exposing credentials. Deploy one identified candidate revision and confirm image/source hashes across API and all workers; preserve original restoration settings.",
+    "For an authorized same60buyers/s300s rerun, verify ADR0105 observer startup before dispatch. Preserve exact paid/unpaid-intake/post-TTL/zero-double-booking/full-keyspace queues/Kafka/restoration gates; do not escalate rate.",
+    "Compare one candidate to prior failed five-minute and healthy one-minute controls; inspect bounded telemetry only for failed gates. No permanent promotion or hourly capacity claim without measured evidence."
   ],
-  "validation_this_resume": "One five-minute attemptFAILED. Exact17999paid-cohort durability/zero doublebooking and terminalrecovery/drain/restoration PASSED. Observerrepair34focusedtests/lint/compile PASSED locally; no live retest/fullapplication suite rerun.",
+  "validation_this_resume": "Both races reproduced before repair. Final376unit/integration tests passed66.84s;focused18passed0.45s;lint/compile/diffpassed. No cloud load/deployment/E2E Kafka drill this turn.",
   "current_run": "checkout-20261003T063237Z-7ab809",
   "evidence": [
-    "docs/adr/0104-five-minute-paid-profile-validation.md",
+    "docs/adr/0106-recheck-streams-after-registry-pruning.md",
+    "docs/adr/0107-recheck-pending-order-on-expiry-claim.md",
+    "docs/capacity/flash-sale-opening/registry-expiry-correctness-2026-10-03.json",
     "docs/adr/0105-paid-observer-startup-contract.md",
     "docs/capacity/flash-sale-opening/paid-five-minute-attempt-2026-10-03.json",
     "docs/capacity/flash-sale-opening/paid-api-pool-four-control-2026-10-03.json"
   ],
-  "authorization": "User Continue authorized one same60/s five-minute stage. Executedonce andFAILED; bounded existing-path recovery and necessary observerrepair completed. No further load/higher stage/schedule/permanentpromotion executed.",
+  "authorization": "User Continue authorized continuation of missing-stream correctness diagnosis/repair. Necessary regression repairs completed and published; no additional load, rate escalation, unattended schedule or permanent promotion executed.",
   "backend_checkout_revision": "e50bab6",
   "tested_generator_revision": "936224b"
 }
