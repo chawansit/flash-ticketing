@@ -48,6 +48,101 @@ def summarize_consumer_phases(rows, field="consumer_phases"):
             "note": "Nested phases cannot be added. Histogram p95 is an upper bucket bound, not an exact quantile. Poll wall time includes idle waits."}
 
 
+def summarize_db_replicas(rows, field):
+    replica_samples = {}
+    for row in rows:
+        for address, metrics in row.get(field, {}).items():
+            replica_samples.setdefault(address, []).append(metrics)
+    counters = {}
+    pool_peaks = {}
+    counter_reset = False
+    event_loop_lag_peak = 0.0
+    for samples in replica_samples.values():
+        first, last = samples[0], samples[-1]
+        for name in set(first) | set(last):
+            if name.startswith(("http_503:", "db_503:", "pool_acquire:", "order_cache:", "duration:")) or name == "process_cpu_seconds_total":
+                if any(b.get(name, 0) < a.get(name, 0) for a, b in pairwise(samples)):
+                    counter_reset = True
+                delta = last.get(name, 0) - first.get(name, 0)
+                if delta < 0:
+                    counter_reset = True
+                else:
+                    counters[name] = counters.get(name, 0) + delta
+        for metrics in samples:
+            for name, value in metrics.items():
+                if name.startswith("pool_state:") or name in ("pool_acquiring", "pool_in_use"):
+                    pool_peaks[name] = max(pool_peaks.get(name, 0), value)
+                if name == "event_loop_lag_current":
+                    event_loop_lag_peak = max(event_loop_lag_peak, value)
+    if counter_reset:
+        counters = {}
+    durations = {}
+    for key, count in counters.items():
+        if not key.startswith("duration:") or not key.endswith(":count") or count <= 0:
+            continue
+        prefix = key.rsplit(":", 1)[0]
+        total = counters.get(prefix + ":sum")
+        if total is not None:
+            durations[prefix.removeprefix("duration:")] = 1000 * total / count
+    result = {
+        "observed_replicas": len(replica_samples),
+        "counter_deltas": {key: value for key, value in counters.items() if not key.startswith("duration:")},
+        "duration_mean_ms": durations,
+        "event_loop_lag_current_peak_ms": 1000 * event_loop_lag_peak,
+        "pool_peaks_per_replica": pool_peaks,
+        "counter_reset_detected": counter_reset,
+    }
+    return result
+
+
+def summarize_resources(rows):
+    extended = [row for row in rows if row.get("extended_diagnostics")]
+    views = [row["pgbouncer"] for row in extended if "pgbouncer" in row]
+    ticks = [row["host_cpu_ticks"] for row in extended if len(row.get("host_cpu_ticks", [])) == 8]
+    cpu, iowait = [], []
+    reset = False
+    for before, after in pairwise(ticks):
+        delta = [b-a for a, b in zip(before, after, strict=True)]
+        if any(value < 0 for value in delta):
+            reset = True
+            continue
+        total = sum(delta)
+        if total:
+            cpu.append(100*(total-delta[3]-delta[4])/total)
+            iowait.append(100*delta[4]/total)
+    if views:
+        first, last = views[0]["stats"], views[-1]["stats"]
+        reset = reset or any(current["stats"].get(key, 0) < value
+                            for previous, current in pairwise(views)
+                            for key, value in previous["stats"].items())
+        deltas = {key: last.get(key, 0)-value for key, value in first.items()}
+    else:
+        deltas = {}
+    errors = sum(any(key.endswith("_error") for key in row) for row in extended)
+    expected = {"writer": 3, "maintenance": 1, "reconciler": 1, "simulator": 1,
+                "publisher": 1, "consumer": extended[0].get("consumer_replicas", 0) if extended else 0}
+    role_coverage = bool(extended) and expected["consumer"] > 0 and all(
+        row.get(f"{role}_replicas") == count
+        and len(row.get(f"{role}_db_replicas", {})) == count
+        and all("process_cpu_seconds_total" in metric
+                for metric in row[f"{role}_db_replicas"].values())
+        for row in extended for role, count in expected.items()
+    )
+    return {
+        "observed": bool(extended), "samples": len(extended), "errors": errors,
+        "counter_reset_detected": reset, "role_coverage_pass": role_coverage,
+        "host_cpu_p95_percent": percentile(cpu, .95),
+        "host_cpu_peak_percent": max(cpu, default=None),
+        "host_iowait_peak_percent": max(iowait, default=None),
+        "pgbouncer_pool_peaks": {key: max(view["pools"].get(key, 0) for view in views)
+                                for key in views[0]["pools"]} if views else {},
+        "pgbouncer_maxwait_peak_ms": 1000*max((view["maxwait_seconds"] for view in views), default=0),
+        "pgbouncer_counter_deltas": deltas if not reset else {},
+        "pass": bool(cpu) and len(views) == len(ticks) == len(extended)
+                and role_coverage and not errors and not reset,
+    }
+
+
 def summarize(rows):
     result = {"samples": len(rows)}
     for field in (
@@ -99,45 +194,13 @@ def summarize(rows):
     } if failures else {}
     result["database_errors"] = sum("database_error" in row for row in rows)
     result["api_metrics_errors"] = sum("api_metrics_error" in row for row in rows)
-    replica_samples = {}
-    for row in rows:
-        for address, metrics in row.get("api_replicas", {}).items():
-            replica_samples.setdefault(address, []).append(metrics)
-    counters = {}
-    pool_peaks = {}
-    counter_reset = False
-    event_loop_lag_peak = 0.0
-    for samples in replica_samples.values():
-        first, last = samples[0], samples[-1]
-        for name in set(first) | set(last):
-            if name.startswith(("http_503:", "db_503:", "pool_acquire:", "order_cache:", "duration:")):
-                delta = last.get(name, 0) - first.get(name, 0)
-                if delta < 0:
-                    counter_reset = True
-                else:
-                    counters[name] = counters.get(name, 0) + delta
-        for metrics in samples:
-            for name, value in metrics.items():
-                if name.startswith("pool_state:") or name in ("pool_acquiring", "pool_in_use"):
-                    pool_peaks[name] = max(pool_peaks.get(name, 0), value)
-                if name == "event_loop_lag_current":
-                    event_loop_lag_peak = max(event_loop_lag_peak, value)
-    durations = {}
-    for key, count in counters.items():
-        if not key.startswith("duration:") or not key.endswith(":count") or count <= 0:
-            continue
-        prefix = key.rsplit(":", 1)[0]
-        total = counters.get(prefix + ":sum")
-        if total is not None:
-            durations[prefix.removeprefix("duration:")] = 1000 * total / count
-    result["api"] = {
-        "observed_replicas": len(replica_samples),
-        "counter_deltas": {key: value for key, value in counters.items() if not key.startswith("duration:")},
-        "duration_mean_ms": durations,
-        "event_loop_lag_current_peak_ms": 1000 * event_loop_lag_peak,
-        "pool_peaks_per_replica": pool_peaks,
-        "counter_reset_detected": counter_reset,
+    result["api"] = summarize_db_replicas(rows, "api_replicas")
+    result["role_database"] = {
+        role: summarize_db_replicas(rows, f"{role}_db_replicas")
+        for role in ("simulator", "consumer", "publisher", "writer", "maintenance", "reconciler")
     }
+    result["writer_phases"] = summarize_consumer_phases(rows, "writer_phases")
+    result["resources"] = summarize_resources(rows)
     return result
 
 

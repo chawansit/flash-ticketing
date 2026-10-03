@@ -12,15 +12,22 @@ from urllib.parse import urlsplit
 from urllib.request import urlopen
 
 import psycopg
+from psycopg.conninfo import conninfo_to_dict, make_conninfo
+from psycopg.rows import dict_row
 
 METRICS = {
     "simulator": ("simulate_one", "http://simulator:9101/metrics"),
     "consumer": ("consume_event", "http://consumer:9101/metrics"),
     "publisher": ("publish_batch", "http://publisher:9101/metrics"),
+    "writer": ("reservation_write", "http://reservation-writer:9101/metrics"),
+    "maintenance": ("refresh_batch", "http://maintenance:9101/metrics"),
+    "reconciler": ("reconcile_batch", "http://reconciler:9101/metrics"),
 }
 
 
 API_METRIC_NAMES = (
+    "process_cpu_seconds_total",
+    "process_resident_memory_bytes",
     "ticketing_order_status_cache_total",
     "ticketing_http_requests_total",
     "ticketing_db_unavailable_total",
@@ -46,42 +53,48 @@ def api_replicas(host="api", port=8000):
 
 
 def api_metrics(address):
-    result = {}
     with urlopen(f"http://{address}:8000/metrics", timeout=2) as response:
-        for line in response.read().decode("utf-8").splitlines():
-            if not line or line.startswith("#") or " " not in line:
-                continue
-            metric, raw_value = line.rsplit(" ", 1)
-            name = metric.split("{", 1)[0]
-            if name not in API_METRIC_NAMES:
-                continue
-            labels = dict(re.findall(r'(\w+)="([^"]*)"', metric))
-            value = float(raw_value)
-            if name == "ticketing_http_requests_total" and labels.get("status") == "503":
-                route = labels.get("route", "")
-                if route.startswith(("/v1/orders", "/v1/payments", "/v1/webhooks/payments")):
-                    result[f"http_503:{route}:{labels.get('method', '')}"] = value
-            elif name == "ticketing_order_status_cache_total":
-                result[f"order_cache:{labels.get('outcome', '')}"] = value
-            elif name == "ticketing_db_unavailable_total":
-                result[f"db_503:{labels.get('cause', '')}"] = value
-            elif name == "ticketing_db_pool_acquire_seconds_count":
-                outcome = labels.get("outcome", "")
-                result[f"pool_acquire:{outcome}"] = value
-                result[f"duration:db_pool_acquire:{outcome}:count"] = value
-            elif name == "ticketing_db_pool_state":
-                result[f"pool_state:{labels.get('state', '')}"] = value
-            elif name == "ticketing_db_pool_acquiring":
-                result["pool_acquiring"] = value
-            elif name == "ticketing_db_pool_in_use":
-                result["pool_in_use"] = value
-            elif name == "ticketing_event_loop_lag_current_seconds":
-                result["event_loop_lag_current"] = value
-            elif name.endswith(("_sum", "_count")):
-                duration = name.removeprefix("ticketing_").removesuffix("_seconds_sum").removesuffix("_seconds_count")
-                suffix = "sum" if name.endswith("_sum") else "count"
-                dimension = labels.get("command", labels.get("outcome", "all"))
-                result[f"duration:{duration}:{dimension}:{suffix}"] = value
+        return parse_api_metrics(response.read().decode("utf-8"))
+
+
+def parse_api_metrics(payload):
+    result = {}
+    for line in payload.splitlines():
+        if not line or line.startswith("#") or " " not in line:
+            continue
+        metric, raw_value = line.rsplit(" ", 1)
+        name = metric.split("{", 1)[0]
+        if name not in API_METRIC_NAMES:
+            continue
+        labels = dict(re.findall(r'(\w+)="([^"]*)"', metric))
+        value = float(raw_value)
+        if name == "ticketing_http_requests_total" and labels.get("status") == "503":
+            route = labels.get("route", "")
+            if route.startswith(("/v1/orders", "/v1/payments", "/v1/webhooks/payments")):
+                result[f"http_503:{route}:{labels.get('method', '')}"] = value
+        elif name == "ticketing_order_status_cache_total":
+            result[f"order_cache:{labels.get('outcome', '')}"] = value
+        elif name == "ticketing_db_unavailable_total":
+            result[f"db_503:{labels.get('cause', '')}"] = value
+        elif name == "ticketing_db_pool_acquire_seconds_count":
+            outcome = labels.get("outcome", "")
+            result[f"pool_acquire:{outcome}"] = value
+            result[f"duration:db_pool_acquire:{outcome}:count"] = value
+        elif name == "ticketing_db_pool_state":
+            result[f"pool_state:{labels.get('state', '')}"] = value
+        elif name == "ticketing_db_pool_acquiring":
+            result["pool_acquiring"] = value
+        elif name == "ticketing_db_pool_in_use":
+            result["pool_in_use"] = value
+        elif name == "ticketing_event_loop_lag_current_seconds":
+            result["event_loop_lag_current"] = value
+        elif name in {"process_cpu_seconds_total", "process_resident_memory_bytes"}:
+            result[name] = value
+        elif name.endswith(("_sum", "_count")):
+            duration = name.removeprefix("ticketing_").removesuffix("_seconds_sum").removesuffix("_seconds_count")
+            suffix = "sum" if name.endswith("_sum") else "count"
+            dimension = labels.get("command", labels.get("outcome", "all"))
+            result[f"duration:{duration}:{dimension}:{suffix}"] = value
     return result
 
 
@@ -134,15 +147,74 @@ def simulator_phase_metric(name):
     return f"{phase}:{outcome}:{suffix}"
 
 
+def writer_phase_metric(name):
+    match = re.fullmatch(r"ticketing_reservation_persistence_phase_seconds_(sum|count|bucket)\{(.*)\}", name)
+    if match:
+        labels = dict(re.findall(r'(\w+)="([^"\\]*)"', match[2]))
+        phase, outcome, suffix = labels.get("phase"), labels.get("outcome"), match[1]
+        if phase not in {"postgres_batch", "redis_mark_durable", "redis_compensate", "redis_acknowledge"}:
+            return None
+        if outcome not in {"ok", "error"} or set(labels) - {"phase", "outcome", "le"}:
+            return None
+    else:
+        match = re.fullmatch(r"ticketing_reservation_command_age_seconds_(sum|count|bucket)(?:\{(.*)\})?", name)
+        if not match:
+            return None
+        phase, outcome, suffix = "command_age", "ok", match[1]
+        labels = dict(re.findall(r'(\w+)="([^"\\]*)"', match[2] or ""))
+        if set(labels) - {"le"}:
+            return None
+    if suffix == "bucket":
+        bound = labels.get("le")
+        try:
+            if not float(bound) > 0:
+                return None
+        except (ValueError, TypeError):
+            return None
+        suffix += ":" + bound
+    return f"{phase}:{outcome}:{suffix}"
+
+
+def host_cpu_ticks():
+    values = Path("/proc/stat").read_text().splitlines()[0].split()
+    if values[0] != "cpu" or len(values) < 9:
+        raise ValueError("Missing aggregate host CPU ticks")
+    return [int(value) for value in values[1:9]]
+
+
+PG_POOL_FIELDS = ("cl_active", "cl_waiting", "sv_active", "sv_idle", "sv_used", "sv_login")
+PG_STATS_FIELDS = ("total_xact_count", "total_query_count", "total_xact_time",
+                   "total_query_time", "total_wait_time", "total_server_assignment_count")
+
+
+def pgbouncer_view(conn, target_database):
+    pools = [row for row in conn.execute("SHOW POOLS").fetchall()
+             if row["database"] == target_database]
+    stats = [row for row in conn.execute("SHOW STATS").fetchall()
+             if row["database"] == target_database]
+    if not pools or not stats:
+        raise ValueError("Application PgBouncer pool/statistics missing")
+    return {
+        "pools": {key: sum(float(row.get(key) or 0) for row in pools)
+                  for key in PG_POOL_FIELDS},
+        "maxwait_seconds": max(float(row.get("maxwait") or 0)
+                              + float(row.get("maxwait_us") or 0) / 1000000 for row in pools),
+        "stats": {key: sum(float(row.get(key) or 0) for row in stats)
+                  for key in PG_STATS_FIELDS},
+    }
+
+
 def worker_counters(role, operation, url):
     parsed = urlsplit(url)
     addresses = api_replicas(parsed.hostname, parsed.port or 80)
-    result = {f"{role}_replicas": len(addresses)}
+    result = {f"{role}_replicas": len(addresses), f"{role}_db_replicas": {}}
     if role == "consumer":
         result["consumer_batch_failures"] = {}
     for address in addresses:
         with urlopen(f"http://{address}:{parsed.port or 80}{parsed.path}", timeout=2) as response:
-            for line in response.read().decode("utf-8").splitlines():
+            payload = response.read().decode("utf-8")
+            result[f"{role}_db_replicas"][address] = parse_api_metrics(payload)
+            for line in payload.splitlines():
                 if not line or line.startswith("#") or " " not in line:
                     continue
                 name, value = line.rsplit(" ", 1)
@@ -155,6 +227,11 @@ def worker_counters(role, operation, url):
                 elif role == "simulator" and name == "ticketing_simulator_batch_barrier_seconds_total":
                     key = "simulator_batch_barrier_seconds"
                 else:
+                    if role == "writer":
+                        phase_key = writer_phase_metric(name)
+                        if phase_key:
+                            phases = result.setdefault("writer_phases", {})
+                            phases[phase_key] = phases.get(phase_key, 0) + float(value)
                     if role == "simulator":
                         phase_key = simulator_phase_metric(name)
                         if phase_key:
@@ -228,6 +305,21 @@ def pipeline_startup_view(row, expected_consumers):
     view["pass"] = (isinstance(view["utc"], str) and "issued_tickets" in row and not errors
                     and view["api_count"] == 4 and view["consumer_count"] == expected_consumers
                     and row.get("simulator_replicas") == 1 and row.get("publisher_replicas") == 1)
+    if row.get("extended_diagnostics"):
+        view["diagnostics_ready"] = (
+            row.get("writer_replicas") == 3 and row.get("maintenance_replicas") == 1
+            and row.get("reconciler_replicas") == 1
+            and len(row.get("host_cpu_ticks", [])) == 8 and bool(row.get("pgbouncer"))
+            and all(
+                len(row.get(f"{role}_db_replicas", {})) == count
+                and all("process_cpu_seconds_total" in metric
+                        for metric in row[f"{role}_db_replicas"].values())
+                for role, count in {"writer": 3, "maintenance": 1, "reconciler": 1,
+                                    "simulator": 1, "publisher": 1,
+                                    "consumer": expected_consumers}.items()
+            )
+        )
+        view["pass"] = view["pass"] and view["diagnostics_ready"]
     return view
 
 
@@ -255,12 +347,24 @@ def main():
     if not url:
         raise RuntimeError("TEST_DATABASE_URL required")
     end = time.monotonic() + a.seconds
-    with psycopg.connect(url, autocommit=True) as conn:
+    options = conninfo_to_dict(os.environ["DATABASE_URL"])
+    target_database = options.get("dbname", "ticketing")
+    options.update(dbname="pgbouncer", connect_timeout="2")
+    with (
+        psycopg.connect(url, autocommit=True) as conn,
+        psycopg.connect(make_conninfo(**options), autocommit=True,
+                       prepare_threshold=None, row_factory=dict_row) as admin,
+    ):
         conn.execute("SET statement_timeout = '3s'")
         with a.output.open("w", encoding="utf-8") as out:
             while time.monotonic() < end:
                 started = time.monotonic()
-                result = {"utc": datetime.now(UTC).isoformat()}
+                result = {"utc": datetime.now(UTC).isoformat(), "extended_diagnostics": True}
+                try:
+                    result["host_cpu_ticks"] = host_cpu_ticks()
+                    result["pgbouncer"] = pgbouncer_view(admin, target_database)
+                except (OSError, ValueError, psycopg.Error) as exc:
+                    result["resource_metrics_error"] = type(exc).__name__
                 try:
                     result.update(sample(conn, manifest["show_ids"]))
                 except psycopg.Error as exc:

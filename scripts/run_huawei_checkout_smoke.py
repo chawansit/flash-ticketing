@@ -509,6 +509,11 @@ finally:
                     and observer_summary["consumer"]["max_replicas"] == args.consumer_candidate
                     and observer_summary["api_metrics_errors"] == 0
                     and observer_summary["database_errors"] == 0
+                    and observer_summary["resources"]["pass"]
+                    and observer_summary["role_database"]["writer"]["observed_replicas"] == 3
+                    and all(not view["counter_reset_detected"]
+                            for view in observer_summary["role_database"].values())
+                    and not observer_summary["writer_phases"]["counter_reset_detected"]
                 )
         except Exception:  # noqa: BLE001 - rollback must proceed
             state["observer_pass"] = False
