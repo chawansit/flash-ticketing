@@ -1,0 +1,779 @@
+{
+  "kind": "bounded_real_paid_60_buyers_per_second_control",
+  "run_id": "checkout-20261003T045044Z-bb0e0f",
+  "source_revision": "d78216a640947419e64309eebde9c5cdcab4af0e",
+  "configuration": {
+    "rate": 60,
+    "seconds": 60,
+    "concurrency": 500,
+    "generator_shards": 1,
+    "http_clients_per_shard": 16,
+    "http_connections_per_shard": 500,
+    "poll_seconds": 1.0,
+    "callback_duplicates": 1,
+    "api_replicas": 4,
+    "db_pool_per_api": 3,
+    "api_pool_waiters": 12,
+    "admission_per_api": 4,
+    "simulator_threads": 8,
+    "consumer_replicas": 4,
+    "order_status_cache_ms": 3000,
+    "reservation_mode": "redis-first",
+    "reservation_writer_replicas": 3,
+    "reservation_writer_batch_size": 4,
+    "reservation_max_command_age_seconds": 60,
+    "shows": 12,
+    "seats_per_show": 300,
+    "one_ticket_per_buyer": true
+  },
+  "strict_short_control_pass": false,
+  "runner_error": "probe failed with exit code 1",
+  "failed_gates": [
+    "24 of3600scheduled buyers dropped at the500active-journey cap.",
+    "One order-status GET503; customer observed3575tickets although backend issued3576.",
+    "Dispatch lag p95=4710ms and max=5883ms exceed short-control scheduling gates."
+  ],
+  "customer_probe": {
+    "measured_at_utc": "2026-10-03T04:52:53.708740+00:00",
+    "started_at_utc": "2026-10-03T04:51:37.279169+00:00",
+    "kind": "scheduled_paid_ticket_journeys",
+    "http_client_count": 16,
+    "http_connection_budgets": [
+      32,
+      32,
+      32,
+      32,
+      31,
+      31,
+      31,
+      31,
+      31,
+      31,
+      31,
+      31,
+      31,
+      31,
+      31,
+      31
+    ],
+    "rate_target_per_second": 60,
+    "dispatch_seconds": 60,
+    "completion_deadline_seconds": 180,
+    "scheduled": 3600,
+    "dispatched": 3576,
+    "generator_drops": 24,
+    "drop_reasons": {
+      "active_journey_capacity": 24
+    },
+    "active_journeys_peak": 500,
+    "active_journeys_time_weighted_mean": 352.88605471081144,
+    "steady_state_mean_residence_budget_ms": 8333.333333333334,
+    "lifecycle_diagnostics": false,
+    "completed": 3576,
+    "fulfilled": 3575,
+    "fulfilled_by_deadline": 3575,
+    "distinct_orders": 3575,
+    "distinct_tickets": 3575,
+    "outcomes": {
+      "fulfilled": 3575,
+      "order_http_503": 1
+    },
+    "physical_http_attempts": {
+      "holds": 3576,
+      "reservation_commands": 6536,
+      "payments": 3576,
+      "orders": 20955
+    },
+    "retry_attempts": 0,
+    "generator_max_in_flight": 500,
+    "http_max_connections": 500,
+    "transport_phase_p95_ms": {
+      "holds": {
+        "pre_send_ms": 579.1990340003395,
+        "response_wait_ms": 72.77058700128691,
+        "connect_ms": 169.83504699965124
+      },
+      "reservation_commands": {
+        "pre_send_ms": 508.5912289996486,
+        "response_wait_ms": 63.01120100033586,
+        "connect_ms": 172.1242590010661
+      },
+      "payments": {
+        "pre_send_ms": 535.1241259995732,
+        "response_wait_ms": 155.6592670003738,
+        "connect_ms": 167.7552930013917
+      },
+      "orders": {
+        "pre_send_ms": 613.7062270008755,
+        "response_wait_ms": 104.18945899982646,
+        "connect_ms": 174.17929099974572
+      }
+    },
+    "transport_phase_samples": {
+      "holds": {
+        "pre_send_ms": 3576,
+        "response_wait_ms": 3576,
+        "connect_ms": 76
+      },
+      "reservation_commands": {
+        "pre_send_ms": 6536,
+        "response_wait_ms": 6536,
+        "connect_ms": 25
+      },
+      "payments": {
+        "pre_send_ms": 3576,
+        "response_wait_ms": 3576,
+        "connect_ms": 11
+      },
+      "orders": {
+        "pre_send_ms": 20955,
+        "response_wait_ms": 20955,
+        "connect_ms": 201
+      }
+    },
+    "dispatch_lag_p95_ms": 4710.238621664757,
+    "dispatch_lag_max_ms": 5882.571072665087,
+    "hold_http_p95_ms": 704.429863999394,
+    "hold_app_p95_ms": 30.35,
+    "hold_client_excess_p95_ms": 694.4683480002172,
+    "hold_app_timing_samples": 3575,
+    "command_durable_wait_p95_ms": 1874.9828609998076,
+    "durable_p95_ms": 2339.1702890003216,
+    "payment_http_p95_ms": 697.3396309986128,
+    "payment_app_p95_ms": 114.04,
+    "payment_client_excess_p95_ms": 658.0978019998037,
+    "payment_app_timing_samples": 3575,
+    "ticket_wait_p95_ms": 12045.907943000202,
+    "payment_to_ticket_p95_ms": 12377.078473000438,
+    "hold_to_ticket_p95_ms": 14044.168701000672,
+    "elapsed_seconds": 76.42618074799975,
+    "pass": false
+  },
+  "pipeline": {
+    "samples": 47,
+    "pending_orders": {
+      "max": 135,
+      "last": 0,
+      "delta": 0,
+      "p95": 114
+    },
+    "paid_unfulfilled": {
+      "max": 303,
+      "last": 0,
+      "delta": 0,
+      "p95": 289
+    },
+    "fulfilled_orders": {
+      "max": 3576,
+      "last": 3576,
+      "delta": 3576,
+      "p95": 3509
+    },
+    "pending_callback_deliveries": {
+      "max": 70,
+      "last": 0,
+      "delta": 0,
+      "p95": 56
+    },
+    "pending_payment_attempts": {
+      "max": 69,
+      "last": 0,
+      "delta": 0,
+      "p95": 56
+    },
+    "delivered_callbacks": {
+      "max": 3576,
+      "last": 3576,
+      "delta": 3576,
+      "p95": 3576
+    },
+    "issued_tickets": {
+      "max": 3576,
+      "last": 3576,
+      "delta": 3576,
+      "p95": 3509
+    },
+    "unpublished_outbox": {
+      "max": 32,
+      "last": 0,
+      "delta": 0,
+      "p95": 25
+    },
+    "db_lock_waiters": {
+      "max": 1,
+      "last": 0,
+      "delta": 0,
+      "p95": 0
+    },
+    "simulator": {
+      "completed_operations": 5207.0,
+      "busy_seconds": 403.3632962890406,
+      "max_active": 8.0,
+      "max_replicas": 1,
+      "metrics_errors": 0
+    },
+    "consumer": {
+      "completed_operations": 7144.0,
+      "busy_seconds": 139.4787224780248,
+      "max_active": 4.0,
+      "max_replicas": 4,
+      "metrics_errors": 0
+    },
+    "publisher": {
+      "completed_operations": 1806.0,
+      "busy_seconds": 69.55930635199547,
+      "max_active": 1.0,
+      "max_replicas": 1,
+      "metrics_errors": 0
+    },
+    "database_errors": 0,
+    "api_metrics_errors": 0,
+    "api": {
+      "observed_replicas": 4,
+      "counter_deltas": {
+        "order_cache:miss": 9679.0,
+        "order_cache:hit": 11272.0,
+        "pool_acquire:ok": 16892.0,
+        "order_cache:stale": 4.0,
+        "order_cache:fill": 9680.0,
+        "order_cache:fill_skipped": 2.0,
+        "http_503:/v1/orders/{order_id}:GET": 1.0,
+        "pool_acquire:error": 1.0,
+        "db_503:TooManyRequests": 1.0
+      },
+      "duration_mean_ms": {
+        "db_commit:all": 3.8895832056046933,
+        "db_query:UPDATE": 2.2614496650984877,
+        "event_loop_lag:all": 1.386007392772776,
+        "db_connection_hold:all": 28.709436321039085,
+        "db_pool_acquire:ok": 7.810372723472673,
+        "db_query:SET": 2.079278735554336,
+        "db_query:SELECT": 2.3158308383169195,
+        "db_query:INSERT": 2.405557602301009,
+        "db_query:BEGIN": 4.523555083354286,
+        "db_pool_acquire:error": 0.10914800077443942
+      },
+      "event_loop_lag_current_peak_ms": 30.93268500015256,
+      "pool_peaks_per_replica": {
+        "pool_acquiring": 6.0,
+        "pool_in_use": 3.0,
+        "pool_state:pool_size": 3.0,
+        "pool_state:pool_available": 3.0,
+        "pool_state:requests_waiting": 4.0,
+        "pool_state:pool_max": 3.0
+      },
+      "counter_reset_detected": false
+    }
+  },
+  "kafka": {
+    "samples": 17,
+    "sample_errors": 0,
+    "max_total_lag": 1258,
+    "max_partition_lag": 378,
+    "partition_lag_peaks": {
+      "1": 342,
+      "0": 305,
+      "3": 378,
+      "2": 336,
+      "4": 26,
+      "5": 17
+    },
+    "last_total_lag": 0,
+    "members_min": 4,
+    "members_max": 4,
+    "drain_after_peak_seconds": 12.482647
+  },
+  "post_failure_audit": {
+    "orders": 3576,
+    "fulfilled_orders": 3576,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 3576,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 3576,
+    "bookings": 3576,
+    "tickets": 3576,
+    "payment_callbacks": 3576,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 3576,
+    "callback_delivery_target": 3576,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 3576,
+    "expected_paid": 3576,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true
+  },
+  "post_failure_queue": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "active_fixture_holds": 0,
+    "overdue_fixture_holds": 0,
+    "pending_fixture_orders": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "pass": true
+  },
+  "post_ttl_audit": {
+    "orders": 3576,
+    "fulfilled_orders": 3576,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 3576,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 3576,
+    "bookings": 3576,
+    "tickets": 3576,
+    "payment_callbacks": 3576,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 3576,
+    "callback_delivery_target": 3576,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 3576,
+    "expected_paid": 3576,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true
+  },
+  "post_ttl_queue": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "active_fixture_holds": 0,
+    "overdue_fixture_holds": 0,
+    "pending_fixture_orders": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "pass": true
+  },
+  "durable_timestamps": {
+    "orders": 3576,
+    "timings": {
+      "callback_to_ticket": {
+        "max_ms": 13242.042,
+        "p50_ms": 2891.4875,
+        "p95_ms": 9734.13375,
+        "p99_ms": 11845.94225,
+        "mean_ms": 3605.9734829418344,
+        "samples": 3576,
+        "negative_samples": 0
+      },
+      "order_to_payment_due": {
+        "max_ms": 4872.87,
+        "p50_ms": 984.1765,
+        "p95_ms": 2048.5835,
+        "p99_ms": 2760.45475,
+        "mean_ms": 1086.7536263982104,
+        "samples": 3576,
+        "negative_samples": 0
+      },
+      "payment_due_to_ticket": {
+        "max_ms": 15299.863,
+        "p50_ms": 3216.0055,
+        "p95_ms": 9992.40175,
+        "p99_ms": 11980.9215,
+        "mean_ms": 4062.082337807606,
+        "samples": 3576,
+        "negative_samples": 0
+      },
+      "callback_to_paid_event": {
+        "max_ms": 99.136,
+        "p50_ms": 19.3925,
+        "p95_ms": 32.19175,
+        "p99_ms": 45.799749999999996,
+        "mean_ms": 20.677942953020136,
+        "samples": 3576,
+        "negative_samples": 0
+      },
+      "payment_due_to_callback": {
+        "max_ms": 15255.983,
+        "p50_ms": 381.9175,
+        "p95_ms": 1086.37,
+        "p99_ms": 1485.5819999999999,
+        "mean_ms": 456.10885486577183,
+        "samples": 3576,
+        "negative_samples": 0
+      },
+      "publication_record_to_ticket": {
+        "max_ms": 13054.12,
+        "p50_ms": 2805.7405,
+        "p95_ms": 9663.805,
+        "p99_ms": 11766.6855,
+        "mean_ms": 3525.9885405480986,
+        "samples": 3576,
+        "negative_samples": 8
+      },
+      "paid_event_to_publication_record": {
+        "max_ms": 382.619,
+        "p50_ms": 51.3565,
+        "p95_ms": 106.35325,
+        "p99_ms": 274.53975,
+        "mean_ms": 59.306999440715884,
+        "samples": 3576,
+        "negative_samples": 0
+      }
+    },
+    "observed_at_utc": "2026-10-03T04:54:50.416505+00:00",
+    "fulfilled_orders": 3576,
+    "payment_attempts": 3576,
+    "extra_paid_events": 0,
+    "succeeded_payments": 3576,
+    "orders_with_tickets": 3576,
+    "latest_hold_deadline": "2026-10-03T11:54:43.745683+07:00",
+    "orders_with_callback": 3576,
+    "hold_deadlines_elapsed": true,
+    "orders_with_paid_event": 3576,
+    "orders_with_publication": 3576,
+    "expected_orders": 3576,
+    "expected_paid": 3576,
+    "cohort_pass": true,
+    "notes": [
+      "Database statement timestamps are proxies, not measured commit or exact queue service time.",
+      "Publication is recorded after Kafka acknowledgments; a fast consumer can issue before that record.",
+      "No per-order IDs, actors, credentials, individual payloads or client-clock subtraction are emitted.",
+      "This cohort/timing report does not replace durability, uniqueness or queue audits."
+    ]
+  },
+  "queue_drain": {
+    "final_reservation_outbox_dead_letters_clear": true,
+    "kafka_last_total_lag": 0,
+    "drain_seconds": null,
+    "note": "Probe failure skipped the normal success-stage drain loop. Failure and fresh post-TTL audits confirmed empty queues; no exact drain duration is claimed."
+  },
+  "baseline_service_verification": {
+    "source_revision": "d78216a640947419e64309eebde9c5cdcab4af0e",
+    "source_sha256": {
+      "src/ticketing/infrastructure/reservations.py": "8467353ff65dfb169a4a7dd0fe4f93a433ae03d84b83f7d940e5e31aad68fab9",
+      "src/ticketing/infrastructure/order_status_cache.py": "85cb2678d68885e6c8930dcebb95122d3139d5c19c825f702b8b4ad4ae1e402a",
+      "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+      "src/ticketing/api.py": "ec0ab381f17c9ebfffb46d51d67262123b75261285b4bb368f30ed78f03d3f72",
+      "src/ticketing/config.py": "65e77f5a6405cbcb913ea6cecbbaf09e6abd877afe6f8cfaddeab5f6ce8ebf17"
+    },
+    "services": {
+      "api": {
+        "count": 4,
+        "expected_count": 4,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "publisher": {
+        "count": 1,
+        "expected_count": 1,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "maintenance": {
+        "count": 1,
+        "expected_count": 1,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "consumer": {
+        "count": 1,
+        "expected_count": 1,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "reconciler": {
+        "count": 1,
+        "expected_count": 1,
+        "source_hash_matches": true,
+        "pass": true
+      },
+      "reservation-writer": {
+        "count": 0
+      },
+      "refresh": {
+        "count": 0
+      },
+      "expiry": {
+        "count": 0
+      }
+    },
+    "settings": {
+      "RESERVATION_MODE": "postgres",
+      "RESERVE_CONCURRENCY": "4",
+      "DB_POOL_MAX": "3",
+      "DB_POOL_MAX_WAITING": "3",
+      "ORDER_STATUS_CACHE_MS": "0"
+    },
+    "health": {
+      "status": "ready"
+    },
+    "pass": true
+  },
+  "rollback": {
+    "restored_admission": 4,
+    "restored_reservation_mode": "postgres",
+    "restored_reservation_writer_batch_size": 1,
+    "restored_reservation_max_command_age_seconds": 0,
+    "reservation_writer_replicas": 0,
+    "api_replicas": 4,
+    "maintenance_replicas": 1,
+    "refresh_replicas": 0,
+    "expiry_replicas": 0,
+    "consumer_replicas": 1,
+    "pass": true
+  },
+  "configuration_restored": {
+    "api_pool_waiters_restored": true,
+    "order_status_cache_restored": true,
+    "simulator_restored": true,
+    "retirement": {
+      "expected_shows": 12,
+      "retired_shows": 12,
+      "pass": true
+    }
+  },
+  "schema_after_test": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
+  "comparison": {
+    "baseline_run_id": "checkout-20261003T041714Z-465f11",
+    "baseline_report": "docs/capacity/flash-sale-opening/real-paid-booking-index-control-2026-10-03.json",
+    "application_source_hashes_unchanged": true,
+    "baseline_rate": 45,
+    "candidate_rate": 60,
+    "same_seconds": 60,
+    "fixture_show_count": {
+      "baseline": 9,
+      "candidate": 12
+    },
+    "caveat": "Expanded inventory changes show distribution as well as offered rate; repeated statistical/causal proof is not claimed.",
+    "hold_to_ticket_p95_ms": {
+      "baseline": 4197.23745400006,
+      "candidate": 14044.168701000672
+    },
+    "payment_to_ticket_p95_ms": {
+      "baseline": 3160.0811179996526,
+      "candidate": 12377.078473000438
+    },
+    "hold_http_p95_ms": {
+      "baseline": 19.928391000576084,
+      "candidate": 704.429863999394
+    },
+    "payment_http_p95_ms": {
+      "baseline": 59.11928299974534,
+      "candidate": 697.3396309986128
+    },
+    "active_journeys_peak": {
+      "baseline": 194,
+      "candidate": 500
+    },
+    "dispatch_lag_p95_ms": {
+      "baseline": 1.784763999239658,
+      "candidate": 4710.238621664757
+    },
+    "callback_to_ticket_p95_ms": {
+      "baseline": 698.3186499999998,
+      "candidate": 9734.13375
+    },
+    "payment_due_to_callback_p95_ms": {
+      "baseline": 165.9037499999999,
+      "candidate": 1086.37
+    },
+    "publication_record_to_ticket_p95_ms": {
+      "baseline": 614.4749499999999,
+      "candidate": 9663.805
+    },
+    "kafka_max_total_lag": {
+      "baseline": 151,
+      "candidate": 1258
+    }
+  },
+  "percentages": {
+    "generator_drops_of_scheduled": 0.6666666666666666,
+    "customer_http_error_journeys_of_dispatched": 0.02796420581655481,
+    "customer_unfulfilled_or_dropped_of_scheduled": 0.6944444444444444,
+    "note": "Journey-level denominators; not a generic HTTP error percentage."
+  },
+  "confirmed_findings": [
+    "All3576dispatched one-ticket purchases durably succeeded; the lost customer completion is an order-read503, not a lost paid ticket.",
+    "Generator scheduling/pre-send delay and active-cap drops invalidate claiming clean60buyers/soffered capacity.",
+    "Backend callback-to-ticket p95=9.734s, publication-record-to-ticket p95=9.664s, Kafka peak1258 and paid-unfulfilled peak303 demonstrate backend backlog too. Client delay alone does not explain it.",
+    "API mean pool acquisition7.81ms versus1.14ms at45/s; one TooManyRequests pool rejection. Readonly statement timing and sparse queue observations cannot isolate root cause.",
+    "Fresh audit after all original deadlines confirms exact3576paid tickets, no duplicates and empty queues; all4API/source settings and baseline readiness restored."
+  ],
+  "validation_note": "No production code changed this stage. Previous350executed unit/integration tests are inherited evidence, not rerun. Live preflight, failing customer gate, exact post-TTL/queue/Kafka and service/source-restoration checks executed.",
+  "limitations": [
+    "Failed60/scontrol is not certified production capacity or a maximum backend throughput measurement. Highest healthy recent short control remains45buyers/s.",
+    "One minute of offered purchases is not an hourly production result;300000tickets/hour remains unverified.",
+    "60scheduled one-ticket buyers/s is not HTTPRPS. Final completions include the drain period.",
+    "Backend timestamps are statement-time proxies, not exact commit or consumer-service measurements; quantiles cannot be added.",
+    "Expanded12-show fixture differs from9-show baseline and completed history grows; this is not pure isolated rate-only causal proof.",
+    "One callback delivery/payment and no caller retries; no new failover test or higher rate.",
+    "Do not infer permanent data loss from one failed status read, or remove durability/uniqueness gates to relabel this run as passing."
+  ],
+  "next_action": "Diagnose consumer poll/offset-commit wait, per-partition processing, PostgreSQL handler time and generator CPU/dispatch delay under the same bounded60/sprofile before increasing rate. Existing samples show continuously growing lag with ongoing issuance, not just one initial pause. ADR before pattern changes; no further load ran.",
+  "evidence_paths": [
+    "tmp/checkout-20261003T045044Z-bb0e0f/probe.json",
+    "tmp/checkout-20261003T045044Z-bb0e0f/paid-pipeline.jsonl",
+    "tmp/checkout-20261003T045044Z-bb0e0f/paid-kafka-lag.ndjson",
+    "tmp/checkout-20261003T045044Z-bb0e0f/post-failure-audit/audit.json",
+    "tmp/checkout-20261003T045044Z-bb0e0f/post-ttl-audit/audit.json",
+    "tmp/checkout-20261003T045044Z-bb0e0f/post-ttl-audit/queue.json",
+    "tmp/checkout-20261003T045044Z-bb0e0f/timings-post-ttl.json",
+    "tmp/checkout-20261003T045044Z-bb0e0f/baseline-verification.json"
+  ],
+  "coarse_pipeline_correlation": {
+    "samples": [
+      {
+        "seconds_from_probe_start": -4.4,
+        "kafka_lag": 0,
+        "paid_unfulfilled": 0,
+        "issued_tickets": 0,
+        "sample_alignment_seconds": 0.18,
+        "consumer_calls": null,
+        "consumer_busy_seconds": null
+      },
+      {
+        "seconds_from_probe_start": -0.9,
+        "kafka_lag": 0,
+        "paid_unfulfilled": 0,
+        "issued_tickets": 0,
+        "sample_alignment_seconds": 0.5,
+        "consumer_calls": null,
+        "consumer_busy_seconds": null
+      },
+      {
+        "seconds_from_probe_start": 3.0,
+        "kafka_lag": 131,
+        "paid_unfulfilled": 16,
+        "issued_tickets": 123,
+        "sample_alignment_seconds": 0.39,
+        "consumer_calls": 378.0,
+        "consumer_busy_seconds": 6.920332043990129
+      },
+      {
+        "seconds_from_probe_start": 9.3,
+        "kafka_lag": 366,
+        "paid_unfulfilled": 49,
+        "issued_tickets": 391,
+        "sample_alignment_seconds": 0.38,
+        "consumer_calls": 911.0,
+        "consumer_busy_seconds": 17.52561625301314
+      },
+      {
+        "seconds_from_probe_start": 14.3,
+        "kafka_lag": 473,
+        "paid_unfulfilled": 105,
+        "issued_tickets": 678,
+        "sample_alignment_seconds": 0.14,
+        "consumer_calls": 1434.0,
+        "consumer_busy_seconds": 27.397863331003464
+      },
+      {
+        "seconds_from_probe_start": 19.2,
+        "kafka_lag": 618,
+        "paid_unfulfilled": 115,
+        "issued_tickets": 948,
+        "sample_alignment_seconds": 0.18,
+        "consumer_calls": 1951.0,
+        "consumer_busy_seconds": 37.79821056403671
+      },
+      {
+        "seconds_from_probe_start": 25.8,
+        "kafka_lag": 813,
+        "paid_unfulfilled": 147,
+        "issued_tickets": 1228,
+        "sample_alignment_seconds": 0.87,
+        "consumer_calls": 2501.0,
+        "consumer_busy_seconds": 48.77539894702386
+      },
+      {
+        "seconds_from_probe_start": 30.8,
+        "kafka_lag": 992,
+        "paid_unfulfilled": 177,
+        "issued_tickets": 1526,
+        "sample_alignment_seconds": 0.49,
+        "consumer_calls": 3049.0,
+        "consumer_busy_seconds": 59.27106892201664
+      },
+      {
+        "seconds_from_probe_start": 36.6,
+        "kafka_lag": 977,
+        "paid_unfulfilled": 230,
+        "issued_tickets": 1865,
+        "sample_alignment_seconds": 0.88,
+        "consumer_calls": 3716.0,
+        "consumer_busy_seconds": 72.98003040501135
+      },
+      {
+        "seconds_from_probe_start": 41.4,
+        "kafka_lag": 1045,
+        "paid_unfulfilled": 239,
+        "issued_tickets": 2058,
+        "sample_alignment_seconds": 0.52,
+        "consumer_calls": 4059.0,
+        "consumer_busy_seconds": 78.99379657801728
+      },
+      {
+        "seconds_from_probe_start": 46.3,
+        "kafka_lag": 928,
+        "paid_unfulfilled": 218,
+        "issued_tickets": 2333,
+        "sample_alignment_seconds": 0.47,
+        "consumer_calls": 4609.0,
+        "consumer_busy_seconds": 88.35049609798261
+      },
+      {
+        "seconds_from_probe_start": 53.1,
+        "kafka_lag": 1142,
+        "paid_unfulfilled": 229,
+        "issued_tickets": 2670,
+        "sample_alignment_seconds": 0.15,
+        "consumer_calls": 5280.0,
+        "consumer_busy_seconds": 103.84778966799786
+      },
+      {
+        "seconds_from_probe_start": 58.2,
+        "kafka_lag": 1074,
+        "paid_unfulfilled": 254,
+        "issued_tickets": 2924,
+        "sample_alignment_seconds": 0.58,
+        "consumer_calls": 5723.0,
+        "consumer_busy_seconds": 114.26905302896739
+      },
+      {
+        "seconds_from_probe_start": 62.9,
+        "kafka_lag": 1258,
+        "paid_unfulfilled": 277,
+        "issued_tickets": 3048,
+        "sample_alignment_seconds": 0.6,
+        "consumer_calls": 5981.0,
+        "consumer_busy_seconds": 121.66807069398783
+      },
+      {
+        "seconds_from_probe_start": 67.6,
+        "kafka_lag": 999,
+        "paid_unfulfilled": 303,
+        "issued_tickets": 3269,
+        "sample_alignment_seconds": 0.26,
+        "consumer_calls": 6454.0,
+        "consumer_busy_seconds": 131.39332346699484
+      },
+      {
+        "seconds_from_probe_start": 71.6,
+        "kafka_lag": 505,
+        "paid_unfulfilled": 67,
+        "issued_tickets": 3509,
+        "sample_alignment_seconds": 0.77,
+        "consumer_calls": 6973.0,
+        "consumer_busy_seconds": 138.01798399700965
+      },
+      {
+        "seconds_from_probe_start": 75.4,
+        "kafka_lag": 0,
+        "paid_unfulfilled": 0,
+        "issued_tickets": 3576,
+        "sample_alignment_seconds": 0.18,
+        "consumer_calls": 7180.0,
+        "consumer_busy_seconds": 140.13958248801282
+      }
+    ],
+    "finding": "Lag grows while issuance progresses throughout the stage, rather than only one initial stall. Samples are nearest-time aggregates; consumer handler busy time excludes unmeasured poll/offset-commit/idle phases and cannot alone determine CPU utilization or exact bottleneck."
+  }
+}
