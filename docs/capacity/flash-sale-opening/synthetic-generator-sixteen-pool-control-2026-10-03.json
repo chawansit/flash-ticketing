@@ -1,0 +1,493 @@
+{
+  "kind": "synthetic_generator_control",
+  "production_capacity_evidence": false,
+  "created_at_utc": "2026-10-03T02:35:54.211217+00:00",
+  "source_revision": "70df2bda32741ec8cf78897cb3d74417807087be",
+  "source_dirty": false,
+  "python_version": "3.12.3",
+  "platform": "Linux",
+  "logical_cpus": 8,
+  "httpx_version": "0.28.1",
+  "httpcore_version": "1.0.9",
+  "configuration": {
+    "rate": 60,
+    "seconds": 60,
+    "concurrency": 500,
+    "response_ms": 30.0,
+    "command_seconds": 0.5,
+    "ticket_seconds": 5.0,
+    "poll_seconds": 0.2,
+    "shards": 2,
+    "http_clients_per_shard": 16,
+    "lifecycle_diagnostics": true
+  },
+  "responder": {
+    "requests": {
+      "other": 2,
+      "holds": 3600,
+      "reservation_commands": 10697,
+      "payments": 3600,
+      "orders": 67553
+    },
+    "accepted_connections": 318,
+    "closed_connections": 318,
+    "protocol_errors": 0,
+    "peak_handlers": 74,
+    "handler_p95_ms": 31.050972000230104,
+    "handler_max_ms": 32.15652200015029,
+    "loop_lag_p95_ms": 1.0243449996778509,
+    "loop_lag_max_ms": 1.2350329998298548,
+    "synthetic_orders": 3600
+  },
+  "responder_valid": true,
+  "generator": {
+    "kind": "scheduled_paid_ticket_journeys_sharded",
+    "measured_at_utc": "2026-10-03T02:35:54.181689+00:00",
+    "rate_target_per_second": 60,
+    "dispatch_seconds": 60,
+    "generator_shards": 2,
+    "generator_max_in_flight": 500,
+    "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+    "shard_exit_codes": [
+      0,
+      0
+    ],
+    "scheduled": 3600,
+    "dispatched": 3600,
+    "generator_drops": 0,
+    "completed": 3600,
+    "fulfilled": 3600,
+    "fulfilled_by_deadline": 3600,
+    "distinct_orders": 3600,
+    "distinct_tickets": 3600,
+    "retry_attempts": 0,
+    "hold_app_timing_samples": 3600,
+    "payment_app_timing_samples": 3600,
+    "outcomes": {
+      "fulfilled": 3600
+    },
+    "physical_http_attempts": {
+      "holds": 3600,
+      "reservation_commands": 10697,
+      "payments": 3600,
+      "orders": 67553
+    },
+    "dispatch_lag_p95_ms": 38.47544800009928,
+    "dispatch_lag_max_ms": 107.963471333278,
+    "hold_http_p95_ms": 183.55877799967857,
+    "hold_app_p95_ms": 31.096,
+    "hold_client_excess_p95_ms": 153.31577799967857,
+    "command_durable_wait_p95_ms": 775.9694079995825,
+    "durable_p95_ms": 871.0907649992805,
+    "payment_http_p95_ms": 137.64687799994135,
+    "payment_app_p95_ms": 31.053,
+    "payment_client_excess_p95_ms": 107.55397800060182,
+    "ticket_wait_p95_ms": 5337.447300999884,
+    "payment_to_ticket_p95_ms": 5400.647510999988,
+    "hold_to_ticket_p95_ms": 6168.617560000712,
+    "transport_phase_p95_ms": {
+      "holds": {
+        "connect_ms": 49.127719000352954,
+        "headers_to_pool_release_ms": 11.552404000212846,
+        "pre_send_ms": 93.64662900043186,
+        "request_to_pool_release_ms": 183.34803499965346,
+        "response_body_ms": 0.22842299949843436,
+        "response_wait_ms": 58.576970999638434,
+        "stream_close_ms": 11.349933000019519
+      },
+      "orders": {
+        "connect_ms": 87.97154900003079,
+        "headers_to_pool_release_ms": 11.836377999316028,
+        "pre_send_ms": 94.39072300028784,
+        "request_to_pool_release_ms": 173.13386400019226,
+        "response_body_ms": 0.2176000007239054,
+        "response_wait_ms": 58.218418000251404,
+        "stream_close_ms": 11.647096000160673
+      },
+      "payments": {
+        "connect_ms": 61.62975200004439,
+        "headers_to_pool_release_ms": 11.68184400012251,
+        "pre_send_ms": 43.56063900013396,
+        "request_to_pool_release_ms": 137.41166800082283,
+        "response_body_ms": 0.23698699988017324,
+        "response_wait_ms": 55.97991600006935,
+        "stream_close_ms": 11.454953000793466
+      },
+      "reservation_commands": {
+        "connect_ms": 108.14024999945104,
+        "headers_to_pool_release_ms": 11.689053999361931,
+        "pre_send_ms": 74.65651300026366,
+        "request_to_pool_release_ms": 157.38834500007215,
+        "response_body_ms": 0.22783900021750014,
+        "response_wait_ms": 57.175077000465535,
+        "stream_close_ms": 11.488893999739958
+      }
+    },
+    "transport_phase_samples": {
+      "holds": {
+        "connect_ms": 128,
+        "headers_to_pool_release_ms": 3600,
+        "pre_send_ms": 3600,
+        "request_to_pool_release_ms": 3600,
+        "response_body_ms": 3600,
+        "response_wait_ms": 3600,
+        "stream_close_ms": 3600
+      },
+      "orders": {
+        "connect_ms": 164,
+        "headers_to_pool_release_ms": 67553,
+        "pre_send_ms": 67553,
+        "request_to_pool_release_ms": 67553,
+        "response_body_ms": 67553,
+        "response_wait_ms": 67553,
+        "stream_close_ms": 67553
+      },
+      "payments": {
+        "connect_ms": 3,
+        "headers_to_pool_release_ms": 3600,
+        "pre_send_ms": 3600,
+        "request_to_pool_release_ms": 3600,
+        "response_body_ms": 3600,
+        "response_wait_ms": 3600,
+        "stream_close_ms": 3600
+      },
+      "reservation_commands": {
+        "connect_ms": 21,
+        "headers_to_pool_release_ms": 10697,
+        "pre_send_ms": 10697,
+        "request_to_pool_release_ms": 10697,
+        "response_body_ms": 10697,
+        "response_wait_ms": 10697,
+        "stream_close_ms": 10697
+      }
+    },
+    "shards": [
+      {
+        "scheduled": 1800,
+        "dispatched": 1800,
+        "generator_drops": 0,
+        "fulfilled_by_deadline": 1800,
+        "started_at_utc": "2026-10-03T02:34:47.989362+00:00",
+        "dispatch_lag_p95_ms": 35.39536199969007,
+        "transport_phase_p95_ms": {
+          "holds": {
+            "pre_send_ms": 91.231682000398,
+            "response_wait_ms": 55.86594699980196,
+            "connect_ms": 49.127719000352954,
+            "response_body_ms": 0.22678699951939052,
+            "stream_close_ms": 10.898718000134977,
+            "headers_to_pool_release_ms": 11.074048999944353,
+            "request_to_pool_release_ms": 175.083142999938
+          },
+          "reservation_commands": {
+            "pre_send_ms": 63.066034999792464,
+            "response_wait_ms": 55.61629800013179,
+            "connect_ms": 88.86505400005262,
+            "response_body_ms": 0.22379900019586785,
+            "stream_close_ms": 9.802886000215949,
+            "headers_to_pool_release_ms": 9.98513600006845,
+            "request_to_pool_release_ms": 150.5569689998083
+          },
+          "payments": {
+            "pre_send_ms": 36.325412999758555,
+            "response_wait_ms": 54.167123999832256,
+            "connect_ms": 61.62975200004439,
+            "response_body_ms": 0.2351849998376565,
+            "stream_close_ms": 9.690441000202554,
+            "headers_to_pool_release_ms": 9.89415399999416,
+            "request_to_pool_release_ms": 132.5170350000917
+          },
+          "orders": {
+            "pre_send_ms": 85.85323700026493,
+            "response_wait_ms": 56.708735000029264,
+            "connect_ms": 87.6034670000081,
+            "response_body_ms": 0.21703199945477536,
+            "stream_close_ms": 10.603515999719093,
+            "headers_to_pool_release_ms": 10.79492200005916,
+            "request_to_pool_release_ms": 164.81199900044885
+          }
+        },
+        "outcomes": {
+          "fulfilled": 1800
+        },
+        "active_journeys_peak": 186,
+        "active_journeys_time_weighted_mean": 162.13014746188887,
+        "drop_reasons": {},
+        "lifecycle": {
+          "process_cpu_seconds": 61.10680074,
+          "process_cpu_wall_ratio": 0.9292683607212318,
+          "loop_lag_p95_ms": 36.92696500002057,
+          "loop_lag_max_ms": 106.9758269995873,
+          "loop_samples": 579,
+          "body_bytes": {
+            "holds": 185400,
+            "reservation_commands": 171296,
+            "payments": 37800,
+            "orders": 1110390
+          },
+          "stream_close_errors": {},
+          "drop_snapshots": [],
+          "journey_duration_by_outcome_ms": {
+            "fulfilled": {
+              "count": 1800,
+              "mean": 5915.063393504448,
+              "p95": 6152.335822000168,
+              "max": 6329.472503000034
+            }
+          }
+        },
+        "pass": true
+      },
+      {
+        "scheduled": 1800,
+        "dispatched": 1800,
+        "generator_drops": 0,
+        "fulfilled_by_deadline": 1800,
+        "started_at_utc": "2026-10-03T02:34:47.989570+00:00",
+        "dispatch_lag_p95_ms": 38.47544800009928,
+        "transport_phase_p95_ms": {
+          "holds": {
+            "pre_send_ms": 93.64662900043186,
+            "response_wait_ms": 58.576970999638434,
+            "connect_ms": 19.573234000745288,
+            "response_body_ms": 0.22842299949843436,
+            "stream_close_ms": 11.349933000019519,
+            "headers_to_pool_release_ms": 11.552404000212846,
+            "request_to_pool_release_ms": 183.34803499965346
+          },
+          "reservation_commands": {
+            "pre_send_ms": 74.65651300026366,
+            "response_wait_ms": 57.175077000465535,
+            "connect_ms": 108.14024999945104,
+            "response_body_ms": 0.22783900021750014,
+            "stream_close_ms": 11.488893999739958,
+            "headers_to_pool_release_ms": 11.689053999361931,
+            "request_to_pool_release_ms": 157.38834500007215
+          },
+          "payments": {
+            "pre_send_ms": 43.56063900013396,
+            "response_wait_ms": 55.97991600006935,
+            "connect_ms": 45.45157099983044,
+            "response_body_ms": 0.23698699988017324,
+            "stream_close_ms": 11.454953000793466,
+            "headers_to_pool_release_ms": 11.68184400012251,
+            "request_to_pool_release_ms": 137.41166800082283
+          },
+          "orders": {
+            "pre_send_ms": 94.39072300028784,
+            "response_wait_ms": 58.218418000251404,
+            "connect_ms": 87.97154900003079,
+            "response_body_ms": 0.2176000007239054,
+            "stream_close_ms": 11.647096000160673,
+            "headers_to_pool_release_ms": 11.836377999316028,
+            "request_to_pool_release_ms": 173.13386400019226
+          }
+        },
+        "outcomes": {
+          "fulfilled": 1800
+        },
+        "active_journeys_peak": 187,
+        "active_journeys_time_weighted_mean": 162.1084429980351,
+        "drop_reasons": {},
+        "lifecycle": {
+          "process_cpu_seconds": 60.955586417,
+          "process_cpu_wall_ratio": 0.9235644439709402,
+          "loop_lag_p95_ms": 38.29303000020445,
+          "loop_lag_max_ms": 110.89340999933484,
+          "loop_samples": 577,
+          "body_bytes": {
+            "holds": 185400,
+            "reservation_commands": 171008,
+            "payments": 37800,
+            "orders": 1096200
+          },
+          "stream_close_errors": {},
+          "drop_snapshots": [],
+          "journey_duration_by_outcome_ms": {
+            "fulfilled": {
+              "count": 1800,
+              "mean": 5935.603129960003,
+              "p95": 6168.624895999528,
+              "max": 6640.974840000126
+            }
+          }
+        },
+        "pass": true
+      }
+    ],
+    "pass": true,
+    "http_clients_per_shard": [
+      16,
+      16
+    ],
+    "http_connection_budgets_per_shard": [
+      [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15
+      ],
+      [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15
+      ]
+    ]
+  },
+  "pass": true,
+  "profiled": false,
+  "compact": {
+    "kind": "synthetic_generator_control",
+    "revision": "70df2bda32741ec8cf78897cb3d74417807087be",
+    "profiled": false,
+    "configuration": {
+      "rate": 60,
+      "seconds": 60,
+      "concurrency": 500,
+      "response_ms": 30.0,
+      "command_seconds": 0.5,
+      "ticket_seconds": 5.0,
+      "poll_seconds": 0.2,
+      "shards": 2,
+      "http_clients_per_shard": 16,
+      "lifecycle_diagnostics": true
+    },
+    "pass": true,
+    "failed_gates": [],
+    "scheduled": 3600,
+    "completed": 3600,
+    "fulfilled": 3600,
+    "drops": 0,
+    "outcomes": {
+      "fulfilled": 3600
+    },
+    "retries": 0,
+    "hold_to_ticket_p95_ms": 6168.617560000712,
+    "transport_p95_ms": {
+      "holds": {
+        "connect_ms": 49.127719000352954,
+        "headers_to_pool_release_ms": 11.552404000212846,
+        "pre_send_ms": 93.64662900043186,
+        "request_to_pool_release_ms": 183.34803499965346,
+        "response_body_ms": 0.22842299949843436,
+        "response_wait_ms": 58.576970999638434,
+        "stream_close_ms": 11.349933000019519
+      },
+      "orders": {
+        "connect_ms": 87.97154900003079,
+        "headers_to_pool_release_ms": 11.836377999316028,
+        "pre_send_ms": 94.39072300028784,
+        "request_to_pool_release_ms": 173.13386400019226,
+        "response_body_ms": 0.2176000007239054,
+        "response_wait_ms": 58.218418000251404,
+        "stream_close_ms": 11.647096000160673
+      },
+      "payments": {
+        "connect_ms": 61.62975200004439,
+        "headers_to_pool_release_ms": 11.68184400012251,
+        "pre_send_ms": 43.56063900013396,
+        "request_to_pool_release_ms": 137.41166800082283,
+        "response_body_ms": 0.23698699988017324,
+        "response_wait_ms": 55.97991600006935,
+        "stream_close_ms": 11.454953000793466
+      },
+      "reservation_commands": {
+        "connect_ms": 108.14024999945104,
+        "headers_to_pool_release_ms": 11.689053999361931,
+        "pre_send_ms": 74.65651300026366,
+        "request_to_pool_release_ms": 157.38834500007215,
+        "response_body_ms": 0.22783900021750014,
+        "response_wait_ms": 57.175077000465535,
+        "stream_close_ms": 11.488893999739958
+      }
+    },
+    "active_journeys_per_shard": [
+      {
+        "active_journeys_peak": 186,
+        "active_journeys_time_weighted_mean": 162.13014746188887,
+        "drop_reasons": {},
+        "lifecycle": {
+          "process_cpu_seconds": 61.10680074,
+          "process_cpu_wall_ratio": 0.9292683607212318,
+          "loop_lag_p95_ms": 36.92696500002057,
+          "loop_lag_max_ms": 106.9758269995873,
+          "loop_samples": 579,
+          "body_bytes": {
+            "holds": 185400,
+            "reservation_commands": 171296,
+            "payments": 37800,
+            "orders": 1110390
+          },
+          "stream_close_errors": {},
+          "drop_snapshots": [],
+          "journey_duration_by_outcome_ms": {
+            "fulfilled": {
+              "count": 1800,
+              "mean": 5915.063393504448,
+              "p95": 6152.335822000168,
+              "max": 6329.472503000034
+            }
+          }
+        }
+      },
+      {
+        "active_journeys_peak": 187,
+        "active_journeys_time_weighted_mean": 162.1084429980351,
+        "drop_reasons": {},
+        "lifecycle": {
+          "process_cpu_seconds": 60.955586417,
+          "process_cpu_wall_ratio": 0.9235644439709402,
+          "loop_lag_p95_ms": 38.29303000020445,
+          "loop_lag_max_ms": 110.89340999933484,
+          "loop_samples": 577,
+          "body_bytes": {
+            "holds": 185400,
+            "reservation_commands": 171008,
+            "payments": 37800,
+            "orders": 1096200
+          },
+          "stream_close_errors": {},
+          "drop_snapshots": [],
+          "journey_duration_by_outcome_ms": {
+            "fulfilled": {
+              "count": 1800,
+              "mean": 5935.603129960003,
+              "p95": 6168.624895999528,
+              "max": 6640.974840000126
+            }
+          }
+        }
+      }
+    ],
+    "responder_handler_p95_ms": 31.050972000230104,
+    "responder_loop_lag_p95_ms": 1.0243449996778509,
+    "durability_audit": "not_applicable_synthetic",
+    "queue_drain": "not_applicable_synthetic",
+    "production_capacity_evidence": false
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "kind": "synthetic_generator_one_factor_comparison",
+  "production_capacity_evidence": false,
+  "baseline_revision": "e1f78281d0d0399c4189c4f8aeb468a895ea5f6f",
+  "candidate_revision": "70df2bda32741ec8cf78897cb3d74417807087be",
+  "changed_factor": "HTTP clients per shard:8->16; total budgets/process counts/workload/diagnostics unchanged",
+  "baseline_configuration": {
+    "rate": 60,
+    "seconds": 60,
+    "concurrency": 500,
+    "response_ms": 30.0,
+    "command_seconds": 0.5,
+    "ticket_seconds": 5.0,
+    "poll_seconds": 0.2,
+    "shards": 2,
+    "http_clients_per_shard": 8,
+    "lifecycle_diagnostics": true
+  },
+  "candidate_configuration": {
+    "rate": 60,
+    "seconds": 60,
+    "concurrency": 500,
+    "response_ms": 30.0,
+    "command_seconds": 0.5,
+    "ticket_seconds": 5.0,
+    "poll_seconds": 0.2,
+    "shards": 2,
+    "http_clients_per_shard": 16,
+    "lifecycle_diagnostics": true
+  },
+  "baseline_pass": true,
+  "candidate_pass": true,
+  "baseline_attempts": {
+    "holds": 3600,
+    "reservation_commands": 8088,
+    "payments": 3600,
+    "orders": 40561
+  },
+  "candidate_attempts": {
+    "holds": 3600,
+    "reservation_commands": 10697,
+    "payments": 3600,
+    "orders": 67553
+  },
+  "hold_pre_send_p95_ms": {
+    "baseline": 755.2183449997756,
+    "candidate": 93.64662900043186
+  },
+  "hold_to_ticket_p95_ms": {
+    "baseline": 7742.5265209994905,
+    "candidate": 6168.617560000712
+  },
+  "process_cpu_wall_ratio_per_shard": {
+    "baseline": [
+      0.9229790627708498,
+      0.9307683678065126
+    ],
+    "candidate": [
+      0.9292683607212318,
+      0.9235644439709402
+    ]
+  },
+  "limitations": [
+    "CPU occupancy did not decrease; shorter polls increased physical HTTP attempts.",
+    "Sharded synthetic controls do not predict PostgreSQL-backed read/write capacity.",
+    "Five-second fulfillment passes while twenty-second fulfillment necessarily exceeds the unchanged active cap."
+  ]
+}
