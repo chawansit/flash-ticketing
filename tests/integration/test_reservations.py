@@ -284,3 +284,35 @@ def test_simultaneous_duplicate_callbacks(system):
     assert sum(result is not None and result["status"] == "book" for result in results) == 1
     with db.transaction() as conn:
         assert conn.execute("SELECT count(*) AS n FROM bookings").fetchone()["n"] == 1
+
+
+def test_order_read_actor_isolation_and_consistent_ticket_shape(system):
+    svc, db, event_id = system
+    hold = svc.reserve("one", event_id, ["B", "A"], "status-read")
+    assert svc.get_order("one", hold["order_id"])["tickets"] == []
+    with pytest.raises(Failure, match="ORDER_NOT_FOUND"):
+        svc.get_order("other", hold["order_id"])
+    assert svc.callback(payment(svc, hold))["status"] == "book"
+    paid = svc.get_order("one", hold["order_id"])
+    assert paid["status"] == "PAID" and paid["tickets"] == []
+    consume_event(db, None, {"event_id": str(uuid4()), "schema_version": 1,
+                            "event_type": "OrderPaid", "payload": {"order_id": hold["order_id"]}})
+    fulfilled = svc.get_order("one", hold["order_id"])
+    assert fulfilled["status"] == "FULFILLED"
+    assert [ticket["seat_id"] for ticket in fulfilled["tickets"]] == ["A", "B"]
+    assert all(isinstance(ticket["id"], str) for ticket in fulfilled["tickets"])
+    with db.transaction() as conn:
+        # Read-only/LOCAL settings must not leak into the next writer using the pool.
+        conn.execute("UPDATE orders SET status=status WHERE id=%s", (hold["order_id"],))
+
+
+def test_order_read_lock_timeout_releases_connection_and_recovers(system):
+    svc, db, event_id = system
+    hold = svc.reserve("one", event_id, ["A"], "blocked-status-read")
+    with db.connection() as blocker:
+        blocker.execute("LOCK TABLE orders IN ACCESS EXCLUSIVE MODE")
+        with pytest.raises(LockNotAvailable):
+            svc.get_order("one", hold["order_id"])
+    assert svc.get_order("one", hold["order_id"])["status"] == "PENDING"
+    with db.transaction() as conn:
+        conn.execute("UPDATE orders SET status=status WHERE id=%s", (hold["order_id"],))
