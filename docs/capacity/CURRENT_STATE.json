@@ -3,10 +3,10 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "writer_fairness_fixed_bounded_same_load_qualified_cpu_diagnostic_unavailable",
-  "cloud_load_requires_resume": true,
+  "status": "cpu_sampler_readiness_repaired_local_validation_passed_repeat_next",
+  "cloud_load_requires_resume": false,
   "handoff_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
-  "revision_note": "Candidate application/generator and cloud checkouts tested c66265e; reporting commit may differ. Baseline budgets restored with candidate source retained in experimental images.",
+  "revision_note": "Diagnostic readiness repair working tree based on d3b7acb;application runtime unchanged fromc66265e. Candidate diagnostic commit/sync and one same60buyers/s300s repeat next.",
   "backend_application_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
   "generator_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
   "backend_checkout_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
@@ -27,19 +27,19 @@
   ],
   "unresolved": "Optional CPU sidecar startup raced initial state.json and collected no evidence; operator collector wrapper exited1 after required gates completed. Original load runner exited0. No hostCPU comparison or causal CPU conclusion. Sustained300000/hour and oneHotConcert/realProvider capacity remain unqualified.",
   "next_on_resume": [
-    "Review ADR0122 passing bounded60buyers/s control; do not interpret it as sustained300000/hour or oneHotConcert proof.",
-    "Before a separately authorized future experiment, fix temporary CPU collector's initial checkpoint wait and validate that collector. Paid-stage orchestration extension remains future work.",
-    "Any next load/stage/promotion/main merge requires new scope authorization;preserve all financial/durability/fullqueue/Kafka/source/restoration gates."
+    "Checkpoint/synchronize diagnostic repair;execute one unchanged60buyers/s300s repeat against ADR0122 passing control.",
+    "Retain all durability/financial/zeroDoubleBooking/fullQueues/Kafka/CPU/source/restoration/idle/privateCleanup gates. Stop after this authorized repeat;no higher load or main merge."
   ],
-  "validation_this_resume": "492unit/integration tests passed75.71s;4baseline realRedis regressions failed as expected1.79s. Final lint/whitespace passed. One unchanged-load cloud customer stage and all mandatory postTTL financial/queue/observer/restoration gates passed;optional CPU observer failed before sampling.",
+  "validation_this_resume": "41 focused diagnostic/observer/runner tests passed0.59s;lint/whitespace passed. Application unchanged;prior492tests retained,not rerun.",
   "evidence": [
     "docs/capacity/flash-sale-opening/paid-writer-fairness-control-2026-10-04.json",
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md",
     "docs/capacity/flash-sale-opening/paid-callback-connection-control-2026-10-03.json",
-    "docs/capacity/flash-sale-opening/writer-fairness-reproduction-2026-10-03.json"
+    "docs/capacity/flash-sale-opening/writer-fairness-reproduction-2026-10-03.json",
+    "docs/adr/0123-bounded-paid-cpu-sampler-readiness.md"
   ],
-  "authorization": "User approved fairness fix, ADR0122, fairness/concurrency/replay tests and one unchanged-load comparison;all completed. No new load or main merge authorized.",
-  "scope": "Task complete:writer fairness fix and bounded same-load validation. No increased load/main merge/promotion. Source retained in experimental images;baseline budgets restored. Future capacity work is not started.",
+  "authorization": "User Continue authorizes proposed sampler repair/validation and one unchanged60buyers/s300s repeat with all financial/drain gates. No higher-load stage/main merge authorized.",
+  "scope": "Diagnostic readiness repair and one unchanged-load repeat active. Application runtime and service budgets unchanged.",
   "roadmap": [
     {
       "step": 1,
