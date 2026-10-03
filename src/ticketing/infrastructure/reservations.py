@@ -382,7 +382,7 @@ class PostgresReservations:
         with self.db.transaction() as conn:
             orders = conn.execute(
                 """SELECT o.* FROM orders o JOIN holds h ON h.id=o.hold_id
-                WHERE h.status='ACTIVE' AND h.expires_at <= clock_timestamp()
+                WHERE o.status='PENDING' AND h.status='ACTIVE' AND h.expires_at <= clock_timestamp()
                 ORDER BY h.expires_at LIMIT %s FOR UPDATE OF o SKIP LOCKED""",
                 (limit,),
             ).fetchall()

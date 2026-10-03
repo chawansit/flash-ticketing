@@ -1,0 +1,71 @@
+{
+  "date_bangkok": "2026-10-03",
+  "kind": "local_correctness_repair",
+  "base_revision": "886c31a337de401825f2161c9d5ce158b18d5e6e",
+  "decisions": [
+    "docs/adr/0106-recheck-streams-after-registry-pruning.md",
+    "docs/adr/0107-recheck-pending-order-on-expiry-claim.md"
+  ],
+  "source_sha256_lf": {
+    "src/ticketing/infrastructure/redis_reservations.py": "3dfb81dbf516f91bbb2243c2ffceccbe886c4a4d58aa6c10a0d0736746504ad1",
+    "src/ticketing/infrastructure/reservations.py": "ac97c776eac56b30d2bad6569f31a834d3a69123670d05ab34b21a6604daa0ab"
+  },
+  "reproductions": [
+    {
+      "issue": "stale XLEN followed by SREM erases successful concurrent enqueue registration",
+      "before_fix": "1 failed in 2.51s",
+      "evidence": "tmp/registry-race-reproduction.txt"
+    },
+    {
+      "issue": "stale hold snapshot permits duplicate expiry claim after competing order commit",
+      "before_fix": "1 failed in 0.72s",
+      "evidence": "tmp/expiry-stale-reproduction.txt"
+    }
+  ],
+  "validation": {
+    "first_full_suite": {
+      "passed": 373,
+      "failed": 1,
+      "seconds": 78.63,
+      "failure": "test_concurrent_expiry_batches_claim_each_order_once",
+      "evidence": "tmp/registry-repair-validation.txt"
+    },
+    "focused_discovery_and_settings": {
+      "passed": 18,
+      "seconds": 0.45
+    },
+    "final_full_unit_integration": {
+      "passed": 376,
+      "failed": 0,
+      "warnings": 2,
+      "seconds": 66.84,
+      "evidence": "tmp/registry-and-expiry-validation.txt"
+    },
+    "lint": "passed",
+    "python_compilation": "passed",
+    "diff_whitespace": "passed",
+    "services": "Dedicated local PostgreSQL17.6 and Redis7.4.5; removed after each harness run",
+    "coverage": [
+      "100 concurrent same-seat intakes: one winner",
+      "discovery before/after prune and after second empty read",
+      "registry removal/recheck/restoration errors",
+      "advisory enqueue registration failure and scan recovery",
+      "durable replay: exactly one command/order, empty stream/pending queue",
+      "stale expiry snapshot after competing commit: zero repeated claims, exactly three expiry events",
+      "existing payment/seat ownership/transaction rollback tests"
+    ]
+  },
+  "cloud": {
+    "load_executed": false,
+    "deployed": false,
+    "last_checkout_revision": "e50bab6",
+    "last_runtime_application_revision": "936224b",
+    "capacity_claim": null
+  },
+  "limits": [
+    "This reproduces a sufficient cause of registry loss; the historical orphan cause is not proven.",
+    "Failed registration under outage/restart still relies on bounded SCAN; no large-keyspace TTL discovery guarantee.",
+    "Local tests do not prove paid hourly capacity, live SLOs or full Redis Cluster support."
+  ],
+  "next": "Verify one source revision across built API/workers, observer startup and fixed topology before an authorized same60buyers/s300s rerun; retain exact paid/post-TTL/zero-double-booking/full-queue/Kafka/restoration gates."
+}

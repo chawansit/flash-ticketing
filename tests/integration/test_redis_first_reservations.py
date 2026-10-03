@@ -360,3 +360,76 @@ def test_oldest_command_age_rejects_new_intake_but_allows_replay(redis_first):
         intake.enqueue("second", event_id, ["B"], "second-key")
     seats = {seat["seat_id"]: seat for seat in cache.read(str(event_id))["seats"]}
     assert seats["B"]["status"] == "AVAILABLE"
+
+
+
+@pytest.mark.parametrize("enqueue_after_remove", [False, True])
+def test_empty_stream_prune_cannot_hide_a_concurrent_accepted_command(
+    redis_first, monkeypatch, enqueue_after_remove
+):
+    import time
+
+    store, intake, cache, db, event_id = redis_first
+    stream = intake.stream_key(event_id)
+    intake.ensure_group(stream)
+    cache.redis.sadd("reservation-stream-registry", stream)
+    # Disable the fallback scan: ordinary registry discovery must retain this work.
+    intake._last_scan_refresh = time.monotonic()
+    original_remove = cache.redis.srem
+    accepted = []
+
+    def enqueue_before_remove(key, *streams):
+        if enqueue_after_remove:
+            result = original_remove(key, *streams)
+        if stream in streams and not accepted:
+            assert cache.redis.xlen(stream) == 0
+            accepted.append(intake.enqueue("race-owner", event_id, ["A"], "race-key"))
+        return result if enqueue_after_remove else original_remove(key, *streams)
+
+    monkeypatch.setattr(cache.redis, "srem", enqueue_before_remove)
+    intake._refresh_streams()
+
+    assert len(accepted) == 1
+    assert cache.redis.xlen(stream) == 1
+    assert cache.redis.sismember("reservation-stream-registry", stream)
+    assert stream in intake.streams()
+    assert persist_reservation_batch(store, intake, "race-recovery-writer", 8)
+    assert intake.status(event_id, accepted[0]["command_id"])["persistence_status"] == "DURABLE"
+    assert cache.redis.xlen(stream) == 0
+    assert cache.redis.xpending(stream, intake.group)["pending"] == 0
+    with db.transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM reservation_commands").fetchone()["n"] == 1
+        assert conn.execute("SELECT count(*) AS n FROM orders").fetchone()["n"] == 1
+
+
+
+def test_failed_advisory_registration_recovers_via_scan_without_duplicate_order(redis_first, monkeypatch):
+    from redis.exceptions import RedisError
+
+    store, intake, cache, db, event_id = redis_first
+    original_add = cache.redis.sadd
+    failures = []
+
+    def fail_once(key, *streams):
+        if not failures:
+            failures.append(True)
+            raise RedisError("advisory registration unavailable")
+        return original_add(key, *streams)
+
+    monkeypatch.setattr(cache.redis, "sadd", fail_once)
+    accepted = intake.enqueue("scan-owner", event_id, ["A"], "scan-key")
+    stream = intake.stream_key(event_id)
+    assert accepted["persistence_status"] == "PENDING"
+    assert cache.redis.xlen(stream) == 1
+    assert not cache.redis.sismember("reservation-stream-registry", stream)
+    # A small isolated namespace completes this bounded fallback scan immediately;
+    # this test does not establish a discovery deadline for a large live keyspace.
+    assert persist_reservation_batch(store, intake, "scan-recovery-writer", 8)
+    durable = intake.status(event_id, accepted["command_id"])
+    assert durable["persistence_status"] == "DURABLE"
+    assert intake.enqueue("scan-owner", event_id, ["A"], "scan-key") == durable
+    assert cache.redis.xlen(stream) == 0
+    assert cache.redis.xpending(stream, intake.group)["pending"] == 0
+    with db.transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM reservation_commands").fetchone()["n"] == 1
+        assert conn.execute("SELECT count(*) AS n FROM orders").fetchone()["n"] == 1

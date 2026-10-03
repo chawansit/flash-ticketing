@@ -1,3 +1,4 @@
+import pytest
 from redis.exceptions import RedisError
 
 from ticketing.infrastructure.redis_reservations import RedisReservationIntake
@@ -49,6 +50,9 @@ class FakeRedis:
     def srem(self, key, *streams):
         self.srem_calls.append((key, streams))
         self.registry.difference_update(streams)
+
+    def sadd(self, _key, *streams):
+        self.registry.update(streams)
 
     def xgroup_create(self, stream, _group, **_kwargs):
         self.group_calls.append(stream)
@@ -238,3 +242,80 @@ def test_empty_discovery_throttles_registry_refresh_and_scan_repair():
     intake.reset_connection_state()
     assert list(intake.messages("writer")) == []
     assert redis.scan_calls == 3
+
+
+@pytest.mark.parametrize("failure", [None, "remove", "recheck", "restore"])
+def test_prune_keeps_concurrent_or_uncertain_work_eligible(monkeypatch, failure):
+    stream = "reservation-stream:{concurrent}"
+    redis = FakeRedis([stream], lengths={stream: 0})
+    intake = RedisReservationIntake(FakeCache(redis), stream_refresh_seconds=60)
+    original_remove, original_pipeline = redis.srem, redis.pipeline
+    calls = []
+
+    def concurrent_remove(key, *streams):
+        # New successful enqueue arrives after the first XLEN snapshot.
+        redis.lengths[stream] = 1
+        redis.sadd(key, stream)
+        original_remove(key, *streams)
+        if failure == "remove":
+            raise RedisError("ambiguous removal")
+
+    def pipeline(**kwargs):
+        result = original_pipeline(**kwargs)
+        calls.append(result)
+        if len(calls) == 2 and failure == "recheck":
+            def unavailable():
+                raise RedisError("length recheck unavailable")
+            result.execute = unavailable
+        return result
+
+    monkeypatch.setattr(redis, "srem", concurrent_remove)
+    monkeypatch.setattr(redis, "pipeline", pipeline)
+    if failure == "restore":
+        def unavailable_sadd(_key, *streams):
+            # Simulate successful enqueue's SADD, followed by failed writer repair.
+            if not calls or len(calls) == 1:
+                redis.registry.update(streams)
+            else:
+                raise RedisError("registry restore unavailable")
+        monkeypatch.setattr(redis, "sadd", unavailable_sadd)
+
+    intake._refresh_streams(limit=1)
+    assert intake.streams(limit=1) == [stream]
+    assert len(calls) == 2
+    assert calls[1].streams == [stream]
+    if failure != "restore":
+        assert stream in redis.registry
+    assert list(intake.messages("writer")) == []
+    assert redis.read_batches == [(stream,)]
+
+
+
+def test_enqueue_after_zero_recheck_remains_registered_for_next_refresh(monkeypatch):
+    stream = "reservation-stream:{late}"
+    redis = FakeRedis([stream], lengths={stream: 0})
+    intake = RedisReservationIntake(FakeCache(redis), stream_refresh_seconds=60)
+    original_pipeline = redis.pipeline
+    calls = []
+
+    def pipeline(**kwargs):
+        result = original_pipeline(**kwargs)
+        calls.append(result)
+        if len(calls) == 2:
+            original_execute = result.execute
+
+            def enqueue_after_read():
+                lengths = original_execute()
+                redis.lengths[stream] = 1
+                redis.sadd("reservation-stream-registry", stream)
+                return lengths
+
+            result.execute = enqueue_after_read
+        return result
+
+    monkeypatch.setattr(redis, "pipeline", pipeline)
+    intake._refresh_streams(limit=1)
+    assert intake._streams == []
+    assert stream in redis.registry
+    intake._last_stream_refresh = 0
+    assert intake.streams(limit=1) == [stream]

@@ -316,3 +316,69 @@ def test_order_read_lock_timeout_releases_connection_and_recovers(system):
     assert svc.get_order("one", hold["order_id"])["status"] == "PENDING"
     with db.transaction() as conn:
         conn.execute("UPDATE orders SET status=status WHERE id=%s", (hold["order_id"],))
+
+
+
+def test_expiry_rechecks_order_state_after_another_worker_commits(system, monkeypatch):
+    import time
+    from contextlib import contextmanager
+    from threading import current_thread
+
+    svc, db, event_id = system
+    holds = [svc.reserve(f"actor-{seat}", event_id, [seat], f"stale-{seat}") for seat in "ABC"]
+    for hold in holds:
+        expire(db, hold)
+    original_transaction = db.transaction
+    lock_key = uuid4().int % (2**63 - 1)
+    slow_pids = []
+
+    class PausedExpiryConnection:
+        def __init__(self, conn):
+            self.conn = conn
+
+        def execute(self, query, params=None):
+            if isinstance(query, str) and "FOR UPDATE OF o SKIP LOCKED" in query:
+                # Hold this statement after its READ COMMITTED snapshot is taken,
+                # but before it locks orders. The other worker can commit expiry.
+                query = (
+                    "WITH expiry_gate AS MATERIALIZED (SELECT pg_advisory_xact_lock(%s)) "
+                    + query.replace("FROM orders o JOIN holds h", "FROM expiry_gate, orders o JOIN holds h")
+                )
+                params = (lock_key, *params)
+            return self.conn.execute(query, params)
+
+    @contextmanager
+    def transaction(*args, **kwargs):
+        with original_transaction(*args, **kwargs) as conn:
+            if current_thread().name.startswith("stale-expiry"):
+                slow_pids.append(conn.execute("SELECT pg_backend_pid() AS pid").fetchone()["pid"])
+                yield PausedExpiryConnection(conn)
+            else:
+                yield conn
+
+    monkeypatch.setattr(db, "transaction", transaction)
+    with ThreadPoolExecutor(max_workers=1, thread_name_prefix="stale-expiry") as executor:
+        with original_transaction() as blocker:
+            blocker.execute("SELECT pg_advisory_xact_lock(%s)", (lock_key,))
+            future = executor.submit(svc.expire_batch, 3)
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline:
+                blocker.execute("SELECT pg_stat_clear_snapshot()")
+                if slow_pids:
+                    row = blocker.execute(
+                        "SELECT wait_event FROM pg_stat_activity WHERE pid=%s", (slow_pids[0],)
+                    ).fetchone()
+                    if row and row["wait_event"] == "advisory":
+                        break
+                time.sleep(0.02)
+            else:
+                raise AssertionError("Expiry query did not reach the bounded snapshot gate")
+            assert svc.expire_batch(3) == 3
+        assert future.result(timeout=5) == 0
+
+    with db.transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM orders WHERE status='EXPIRED'").fetchone()["n"] == 3
+        assert conn.execute("SELECT count(*) AS n FROM event_seats WHERE hold_id IS NOT NULL").fetchone()["n"] == 0
+        assert conn.execute(
+            "SELECT count(*) AS n FROM outbox_events WHERE event_type='SeatsChanged'"
+        ).fetchone()["n"] == 6  # Three holds plus exactly three expiry events.

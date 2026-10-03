@@ -152,3 +152,7 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0104 - Five-minute validation of the paid profile](0104-five-minute-paid-profile-validation.md)
 
 - [0105 - Require live paid observers before dispatch](0105-paid-observer-startup-contract.md)
+
+- [0106 - Recheck event streams after advisory registry pruning](0106-recheck-streams-after-registry-pruning.md)
+
+- [0107 - Recheck pending order state when claiming expiry](0107-recheck-pending-order-on-expiry-claim.md)

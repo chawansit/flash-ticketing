@@ -361,14 +361,12 @@ class RedisReservationIntake:
                 pipe.xlen(stream)
             lengths = pipe.execute()
             empty = [stream for stream, length in zip(candidates, lengths, strict=True) if length == 0]
-            if empty:
-                try:
-                    self.redis.srem("reservation-stream-registry", *empty)
-                except RedisError:
-                    RESERVATION_INTAKE.labels("registry_error").inc()
-            self._streams = [
+            revived = self._prune_empty_streams(empty) if empty else []
+            eligible = set(revived)
+            eligible.update(
                 stream for stream, length in zip(candidates, lengths, strict=True) if length > 0
-            ]
+            )
+            self._streams = [stream for stream in candidates if stream in eligible]
             self._stream_window_cursor = (start + size) % len(ordered)
             self._stream_cursor = 0
             self._stream_cycle_complete = not self._streams
@@ -378,6 +376,35 @@ class RedisReservationIntake:
             self._stream_window_cursor = 0
             self._stream_cycle_complete = True
         self._last_stream_refresh = now
+
+    def _prune_empty_streams(self, empty):
+        """Recheck after removal so stale XLEN results cannot erase new registration."""
+        try:
+            self.redis.srem("reservation-stream-registry", *empty)
+        except RedisError:
+            RESERVATION_INTAKE.labels("registry_error").inc()
+
+        # Enqueue writes XADD before SADD. Work arriving before this read is restored;
+        # work arriving after a zero read registers itself after the earlier SREM.
+        # Keep operations separate: event streams and the registry use different slots.
+        try:
+            pipe = self.redis.pipeline(transaction=False)
+            for stream in empty:
+                pipe.xlen(stream)
+            lengths = pipe.execute()
+            revived = [
+                stream for stream, length in zip(empty, lengths, strict=True) if length > 0
+            ]
+        except RedisError:
+            RESERVATION_INTAKE.labels("registry_error").inc()
+            revived = list(empty)  # A failed read cannot prove a stream is empty.
+
+        if revived:
+            try:
+                self.redis.sadd("reservation-stream-registry", *revived)
+            except RedisError:
+                RESERVATION_INTAKE.labels("registry_error").inc()
+        return revived
 
     def streams(self, limit=5000):
         self._refresh_streams(limit)
