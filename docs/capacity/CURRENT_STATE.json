@@ -3,43 +3,44 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "cpu_sampler_readiness_repaired_local_validation_passed_repeat_next",
-  "cloud_load_requires_resume": false,
-  "handoff_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
-  "revision_note": "Diagnostic readiness repair working tree based on d3b7acb;application runtime unchanged fromc66265e. Candidate diagnostic commit/sync and one same60buyers/s300s repeat next.",
-  "backend_application_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
-  "generator_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
-  "backend_checkout_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
-  "tested_generator_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
+  "status": "writer_fairness_same_load_reproduced_cpu_sampler_fixed_all_gates_passed",
+  "cloud_load_requires_resume": true,
+  "handoff_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
+  "revision_note": "Cloud checkout/images and generator tested93e2d20;reporting commit may differ. Diagnostic readiness changed only;all10 application runtime hashes remain identical to ADR0122/c66265e. Baseline budgets restored.",
+  "backend_application_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
+  "generator_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
+  "backend_checkout_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
+  "tested_generator_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
   "local_implementation_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
+  "diagnostic_implementation_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
   "last_checked_topology": "Restored4healthyAPIs;postgres/pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4/batch;PgBouncer24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "No paid generator or owned test/diagnostic containers active. Exact18000orders/payments/bookings/tickets/callbacks;zero pending/duplicate/linkage errors. PostTTL/fullqueues/Kafka0/source/settings/readiness/restoration/idle/privatecleanup passed.",
-  "current_run": "checkout-20261003T170831Z-3fe2a3",
+  "cloud_state_note": "No active paid generator or owned diagnostic/test containers. Fresh18000orders/payments/bookings/tickets/callbacks;zero pending/duplicate/linkage errors. PostTTL/fullqueues/Kafka0/CPU/observers/source/settings/readiness/restoration/idle/privatecleanup passed.",
+  "current_run": "checkout-20261003T173311Z-c06d35",
   "confirmed": [
-    "Actual visited-stream continuation fixes reproduced fresh/reclaim starvation. All4 realRedis regressions fail on cbdc834;candidate serves cold stream on iteration2.",
-    "492unit/integration tests passed75.71s, including concurrent consumer assignment, postCommit reset/replay,100way seat race and existing financial/failover/registry cases. Lint/whitespace passed;owned test containers removed.",
-    "Only redis_reservations.py changed among10verified runtime modules versusADR0121. Same60buyers/s300s/two shards/eight callback slots/all budgets.",
-    "18000scheduled/dispatched/customerConfirmed distinct orders/tickets;zero drops/customerErrors/retries. Confirmations+37.39percent versus13101;prior4457drops/442customer503s eliminated.",
-    "WorstShard holdToTicketp9514.750to5.226s(-64.57percent);durability2.331to2.061s(-11.57percent). Customer load gate passed.",
-    "Matched writerCollectionmean22.088to24.656ms;commandAge952.216to865.399ms;DBbatch137.928to125.429ms. Callback dueToClaim7054.313to71.370ms;delivery148.108to66.962ms. Single comparison does not establish mechanism.",
-    "Exact freshpostTTL18000paid/issued/callbacks;zero unpaid/pending/doubleBooking/duplicateLinkage. Fullqueues/Kafka0/requiredObservers/source/settings/readiness/restoration/idle/privatecleanup passed."
+    "Bounded readiness wait fixes missing/partial initial state.json race;failed/finished stages and invalid/reset/incomplete CPU evidence fail closed.41focused tests passed0.59s;lint/whitespace passed. Prior492application unit/integration tests retained,not rerun because runtime unchanged.",
+    "Repeat93e2d20 versus ADR0122/c66265e:all10 runtime module hashes identical;same60buyers/s300s/two shards/500journeys/eight callback slots/all budgets.",
+    "18000scheduled=dispatched=customerConfirmed distinct orders/tickets;zero drops/customerErrors/retries. Two consecutive5minute controls pass this60buyers/s profile.",
+    "WorstShard holdToTicketp955.226to5.192s(-0.64percent);durability2.061to2.048s(-0.63percent). Reproducible profile,not additional application improvement.",
+    "CPU collector49samples/240s passed. Full window begins8.09s before dispatch;mean89.52percent. Offered-only47samples/230s(+1.91to+231.91s):host91.97percent;API1.677cores;consumer0.514;PgBouncer0.320;writer0.249. API includes observers;no pure-function attribution.",
+    "Matched observer hostCPU p9599.14percent versus99.61percent. Primary passing baseline has no cgroup sample for direct CPU delta;high CPU limits unmeasured scaling claims.",
+    "Exact freshpostTTL18000paid/issued/callbacks;zero unpaid/pending/doubleBooking/duplicateLinkage. Fullqueues/Kafka0/requiredObservers/CPU/source/settings/readiness/restoration/idle/privatecleanup passed;runner/sampler/operator wrapper all exit0."
   ],
-  "unresolved": "Optional CPU sidecar startup raced initial state.json and collected no evidence; operator collector wrapper exited1 after required gates completed. Original load runner exited0. No hostCPU comparison or causal CPU conclusion. Sustained300000/hour and oneHotConcert/realProvider capacity remain unqualified.",
+  "unresolved": "Sustained300000/hour,oneHotConcert and realProvider production capacity remain unqualified. Offered-window hostCPU~92percent with busy tails;API is largest observed role. CPU cost mechanism and higher-rate headroom need separate evidence.",
   "next_on_resume": [
-    "Checkpoint/synchronize diagnostic repair;execute one unchanged60buyers/s300s repeat against ADR0122 passing control.",
-    "Retain all durability/financial/zeroDoubleBooking/fullQueues/Kafka/CPU/source/restoration/idle/privateCleanup gates. Stop after this authorized repeat;no higher load or main merge."
+    "Use the existing repeat CPU/phase/read-attempt evidence to choose one API CPU/read-amplification hypothesis before another load change.",
+    "Any further diagnostic load or rate stage requires separate authorization and an ADR before an architecture/orchestration pattern change. Preserve all financial/durability/zeroDoubleBooking/fullQueues/Kafka/source/restoration gates.",
+    "No higher load/main merge/promotion was performed;one-hour300000ticket and single-concert proof remain future scope."
   ],
-  "validation_this_resume": "41 focused diagnostic/observer/runner tests passed0.59s;lint/whitespace passed. Application unchanged;prior492tests retained,not rerun.",
+  "validation_this_resume": "41 focused diagnostic/observer/runner tests passed0.59s;lint/whitespace passed. One unchanged60buyers/s300s cloud repeat:18000confirmed;all financial/durability/fullqueue/Kafka/CPU/source/restoration/idle/privatecleanup gates passed. Prior492application tests not rerun.",
   "evidence": [
+    "docs/capacity/flash-sale-opening/paid-writer-fairness-repeat-2026-10-04.json",
+    "docs/adr/0123-bounded-paid-cpu-sampler-readiness.md",
     "docs/capacity/flash-sale-opening/paid-writer-fairness-control-2026-10-04.json",
-    "docs/adr/0122-reservation-writer-visited-stream-continuation.md",
-    "docs/capacity/flash-sale-opening/paid-callback-connection-control-2026-10-03.json",
-    "docs/capacity/flash-sale-opening/writer-fairness-reproduction-2026-10-03.json",
-    "docs/adr/0123-bounded-paid-cpu-sampler-readiness.md"
+    "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
-  "authorization": "User Continue authorizes proposed sampler repair/validation and one unchanged60buyers/s300s repeat with all financial/drain gates. No higher-load stage/main merge authorized.",
-  "scope": "Diagnostic readiness repair and one unchanged-load repeat active. Application runtime and service budgets unchanged.",
+  "authorization": "User Continue authorized sampler repair/validation and one unchanged60buyers/s300s repeat;completed. No new rate/load stage or main merge authorized.",
+  "scope": "Task complete:diagnostic readiness repair and one reproducible unchanged-load control with complete CPU/financial/drain evidence. Baseline budgets restored;candidate source retained in experimental images. No higher load/main merge/promotion.",
   "roadmap": [
     {
       "step": 1,
@@ -64,7 +65,7 @@
     {
       "step": 5,
       "work": "Shorten measured expensive transactions",
-      "status": "writer_fairness_fixed_same60buyer_control_qualified"
+      "status": "writer_fairness_fixed_same60buyer_control_reproduced_with_cpu"
     },
     {
       "step": 6,

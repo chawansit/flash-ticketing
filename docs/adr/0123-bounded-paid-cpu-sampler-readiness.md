@@ -1,7 +1,7 @@
 # ADR 0123: Bounded readiness for paid-control CPU sampling
 
 Date: 2026-10-04
-Status: Accepted for the authorized diagnostic repair and one unchanged-load repeat; local validation passed; unchanged-load repeat pending
+Status: Accepted; diagnostic repair and unchanged-load repeat validated; no production architecture change
 
 ## Context
 
@@ -33,8 +33,21 @@ Missing or partial checkpoint writes may delay sampling, but cannot exceed the o
 
 ## Validation evidence
 
-Previous executed evidence: [ADR 0122 control](../capacity/flash-sale-opening/paid-writer-fairness-control-2026-10-04.json), including the retained FileNotFoundError and wrapper failure. New code/tests and repeat have not yet executed.
+Previous executed evidence: [ADR 0122 control](../capacity/flash-sale-opening/paid-writer-fairness-control-2026-10-04.json), including the retained FileNotFoundError and wrapper failure. The validation plan below was recorded before implementation; executed results follow.
 
 Authorized validation: delayed file creation, partial writes, ready checkpoint, missing/corrupt checkpoint timeout, failed/finished stage rejection, state identity/shape checks, incomplete/counter-reset/topology/timing evidence rejection and transport failure retention. Then one unchanged application control against the ADR 0122 passing baseline, with all ten runtime hashes unchanged and exact paid/unpaid post-TTL, durability, zero-double-booking, full-keyspace queues, Kafka, observers, source/settings/readiness/restoration/idle/private-cleanup checks. No higher load or main merge is authorized by this repair/repeat. Sustained 300000/hour and single-concert production proof remain future scope.
 
-Executed local validation:41 focused diagnostic/observer/runner tests passed in0.59s;changed-file lint and Git whitespace checks passed. New tests prove delayed checkpoint creation/partial writes wait until dispatch, missing/corrupt checkpoints time out at the single deadline, failed/finished or wrong-identity stages never start SSH, and incomplete/topology/reset/nonfinite/timing/transport failures reject evidence and retain diagnostics. Application runtime is unchanged;ADR0122's492unit/integration result is retained, not rerun for this diagnostic-only change. Cloud repeat pending.
+Executed local validation:41 focused diagnostic/observer/runner tests passed in0.59s;changed-file lint and Git whitespace checks passed. New tests prove delayed checkpoint creation/partial writes wait until dispatch, missing/corrupt checkpoints time out at the single deadline, failed/finished or wrong-identity stages never start SSH, and incomplete/topology/reset/nonfinite/timing/transport failures reject evidence and retain diagnostics. Application runtime is unchanged;ADR0122's492unit/integration result is retained, not rerun for this diagnostic-only change. Cloud repeat results follow.
+
+
+Executed unchanged-load repeat: checkout-20261003T173311Z-c06d35 tested diagnostic revision 93e2d20 against ADR 0122's c66265e application control. All ten runtime module hashes were identical. Both hosts matched the new diagnostic revision; application code, generator controls and all service/connection/database budgets remained unchanged.
+
+At 60 buyers/s for 300 seconds, all 18,000 scheduled buyers dispatched, completed payment and received distinct issued tickets. Zero drops, customer errors or retries. Worst-shard hold-to-ticket p95 was 5.192s versus 5.226s (-0.64%); durability p95 was 2.048s versus 2.061s (-0.63%). The repeat reproduces the passing profile rather than establishing a further application improvement.
+
+The repaired CPU collector produced all 49 valid samples over 240.0006s without topology changes, counter resets or transport failures. Its full window ran from 8.09s before generator start to 231.91s after start: host CPU mean 89.52%, API 1.624 cores and writers 0.240 cores. Excluding pre-dispatch samples leaves 47 samples over 230s inside offered load, from +1.91s to +231.91s: host CPU mean 91.97%, APIs 1.677 cores, consumers 0.514, PgBouncer 0.320 and writers 0.249. These are sampled intervals, not exact full-300s measurements; API counters include observer work. The primary baseline has no cgroup CPU samples, so no direct cgroup CPU improvement is claimed. Main matched observer host CPU p95 was 99.14% in the repeat versus 99.61% previously, indicating busy intervals rather than proving scaling headroom.
+
+Fresh post-TTL audit: exactly 18,000 orders, successful payments, bookings, issued tickets and callbacks; zero unpaid/expired/pending orders, incomplete callback deliveries, duplicate booked seats or multiple bookings per order. Full-keyspace Redis/database queues were empty and final Kafka lag was zero. Pipeline, Kafka and repaired CPU observers passed. Source/settings/readiness, baseline-budget restoration, generator idle and private cleanup passed. The existing stage runner, sampler and operator collection wrapper all exited 0. No load was repeated after a failure and no higher rate, main merge or promotion occurred.
+
+Two consecutive five-minute controls now each complete all 18,000 scheduled paid-ticket journeys at the same 60-buyers/s profile. This remains a development-payment control across 60 shows; sustained 300,000 tickets/hour, a concentrated single-concert workload and real-provider production capacity remain unqualified. High measured CPU makes API work an evidence-based subject for the next separately authorized investigation; no new experiment is started here.
+
+[Repeat evidence](../capacity/flash-sale-opening/paid-writer-fairness-repeat-2026-10-04.json). The approved diagnostic repair and one unchanged-load repeat are complete. Raw samples, traces and verification artifacts remain under the private run evidence directory.
