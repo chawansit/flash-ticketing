@@ -34,7 +34,7 @@ parser.add_argument("--paid-generator-shards", type=int, choices=(1, 2), default
 parser.add_argument("--paid-poll-seconds", type=float, default=0.2)
 parser.add_argument("--paid-lifecycle-diagnostics", action="store_true")
 parser.add_argument("--simulator-dispatch-mode-candidate", choices=("batch", "refill"), default="batch")
-parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8), default=4)
+parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8, 12), default=4)
 parser.add_argument("--consumer-candidate", type=int, choices=(1, 2, 4, 6), default=1)
 parser.add_argument("--consumer-pool-per-instance", type=int, choices=(8, 12), default=12)
 parser.add_argument("--api-pool-per-instance-candidate", type=int, choices=(3, 4), default=3)

@@ -96,3 +96,9 @@ def test_stopped_scheduler_submits_no_work(monkeypatch):
 def test_invalid_dispatch_mode_rejected():
     with pytest.raises(RuntimeError, match="SIMULATOR_DISPATCH_MODE"):
         replace(Settings(), simulator_dispatch_mode="unbounded").validate()
+
+
+def test_twelve_slots_fit_existing_pool_and_thirteen_are_rejected():
+    replace(Settings(), simulator_concurrency=12, simulator_dispatch_mode="refill", pool_max=12).validate()
+    with pytest.raises(RuntimeError, match="SIMULATOR_CONCURRENCY"):
+        replace(Settings(), simulator_concurrency=13, simulator_dispatch_mode="refill", pool_max=12).validate()

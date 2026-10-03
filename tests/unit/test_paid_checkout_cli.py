@@ -12,7 +12,8 @@ class ReachedTransport(RuntimeError):
 
 
 @pytest.mark.parametrize("shards", [1, 2])
-def test_paid_diagnostics_accept_supported_layout_before_transport(monkeypatch, tmp_path, shards):
+@pytest.mark.parametrize("delivery_slots", [8, 12])
+def test_paid_diagnostics_accept_supported_layout_before_transport(monkeypatch, tmp_path, shards, delivery_slots):
     scripts = Path(__file__).resolve().parents[2] / "scripts"
     monkeypatch.syspath_prepend(str(scripts))
     import unattended_capacity_stage
@@ -32,7 +33,8 @@ def test_paid_diagnostics_accept_supported_layout_before_transport(monkeypatch, 
         "--admission-rollback", "4", "--paid-rate", "60", "--paid-seconds", "300",
         "--paid-concurrency", "500", "--paid-generator-shards", str(shards),
         "--paid-http-client-count", str(16 // shards), "--shows", "60", "--viewers", "18000",
-        "--paid-lifecycle-diagnostics"])
+        "--paid-lifecycle-diagnostics", "--simulator-concurrency-candidate", str(delivery_slots),
+        "--simulator-dispatch-mode-candidate", "refill"])
     with pytest.raises(ReachedTransport):
         runpy.run_path(str(copied), run_name="__main__")
 

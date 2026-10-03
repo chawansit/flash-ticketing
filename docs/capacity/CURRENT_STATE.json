@@ -3,51 +3,50 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "callback_phase_and_refill_comparison_locally_validated",
+  "status": "refill_passed_60_buyers_per_second_twelve_slot_control_prepared",
   "cloud_load_requires_resume": false,
-  "handoff_revision": "44a1c95d08c2adaac1e2c9f6c677e84f04047725",
-  "revision_note": "BothECScheckouts44a1c95; only runner diagnostics validation changed. Existing sharded diagnostics reused.8checked applicationmodules match across allrestoredservices.",
-  "backend_application_revision": "44a1c95d08c2adaac1e2c9f6c677e84f04047725",
-  "generator_revision": "44a1c95d08c2adaac1e2c9f6c677e84f04047725",
+  "handoff_revision": "eed0ae7c73bfce1cd66c1482c2cc7150a176a41e",
+  "revision_note": "BothECScheckoutseed0ae7;matchedsameinstrumentedsource,batchvsrefillonly.8checkedmodulesmatchacrossrestoredservices. Newrunner12optionlocallyvalidated;cloudpending.",
+  "backend_application_revision": "eed0ae7c73bfce1cd66c1482c2cc7150a176a41e",
+  "generator_revision": "eed0ae7c73bfce1cd66c1482c2cc7150a176a41e",
   "last_checked_topology": "Restored4healthyAPIs;postgres mode;pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4;PgBouncer applicationpool24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "cloud_state_note": "No load/schedule/generator running;60fixtureevents retired,private scratch removed. Original4API postgres/pool3/admission4/waiters3/cache0,1consumer/pool12,publisher/maintenance/reconciler1,writer/refresh/expiry0,simulator4/pool12 restored;indicesretained.",
   "confirmed": [
-    "53 focusedtests passed7.71s;Ruff/whitespace passed. Existingboth-child diagnostics/budgets/start/privatecleanup exercised.",
-    "Fixed60buyers/s300s two-process controlFAILED:18000scheduled,15428dispatched,2572activecapdrops,15374customerconfirmations,54HTTP503s(40GETorder/14POSTpayment),0callerretries.",
-    "FreshpostTTL15414unique paidtickets plus14unpaidexpiredorders;0duplicates/extrapaidevents/DL;allfull-keyspacequeues/Kafka0.40paidtickets hadfailedcustomerGETconfirmation.",
-    "Worst-child dispatchp952.92ms/max141.70ms PASSED vsbaseline3081ms;eachchildCPU0.50core/looplagp95<3ms. ActualHTTPattempts increased151901to186929 due to moreorderpolling despite fewerbuyers.",
-    "Callbackbacklogpeak429,due-to-callback proxy p958590ms v3388ms baseline;callback-to-ticket284ms. APImeanacquire8.50ms v4.36ms;commitunchanged3.95ms. API58poolrejections vs54customer503s;4otherincrementsunattributed.",
-    "Bothobserversstartup/5offeredminute windows/148samples/0samplingerrors passed;sixKafka singletonmembers/final0. Allbaseline roles/settings/8modulehashes/readiness passed;generator0/private scratch removed.",
-    "PostTTLtransport failures involvedSSHcontrolplane only;stale collected artifacts were excluded andfresh exactpaid/unpaid audit executed throughSSHstdout passed. No secondstage/higherload/permanentpromotion."
+    "MatchedbatchFAILED2327drops/46customer503s;refillPASSED18000scheduled/dispatched/customerconfirmations at60buyers/s300s,0drops/customererrors/callerretries.",
+    "Batchbarrier385slotsecondsremoved;due-to-callback proxy p957695to490ms;backlogpeak409to65;APImeanpool8.37to2.84ms.",
+    "FreshpostTTL18000paidtickets(refill),15664paid+9unpaidexpired(batch),zero duplicatebookings/extraevents;allfullkeyspacequeues/Kafka0;source/restore/readiness/idle/privatecleanup passedbotharms.",
+    "One internalrefill HTTPdeliveryerror recovered byexistinglease/redelivery semantics. Do not confuse customer0errors with everyattempt0errors.",
+    "387fullunit/integrationtestspassed69.13s;63subsequentfocusedscaling-optionchecks passed8.29s;lint/whitespacepassed. Testsourceschanged;applicationcodeunchangedsinceeed0ae7."
   ],
-  "unresolved": "Faithful dispatch nowpasses,but callbackdispatchbacklog/poolpressure extend journeys beyond500-total residence budget andcustomer errors persist. Need simulatorclaim/send/commit/pool diagnosis;no solecauseorproductionmaximumverified. Redisregistration outage stillhas noTTL-boundedlargekeyspace recovery guarantee.",
+  "unresolved": "Five-minute60ticket/s pass isbelow83.33ticket/s hourly target. Fixed8deliveryslots have limitedmodelledheadroom;12slotswithinexistingpool12 isnextcontrolledexperiment. Nohourly/hotconcert/realprovidermaximumverified.",
   "next_on_resume": [
-    "Publishanddeploy sameinstrumentedrevision;run batchbaselineandcollectphase/barrierdiagnostics, auditpaid/unpaidafterTTL andrestore.",
-    "If financial/source/queue/observer gatespass,oneidenticalrefillcandidatewithsame8slots/pool12/generatorbudgets;comparisonfactor=dispatchmode only.",
-    "Followmeasuredbottleneck for steps3-10;ADRbeforeeachpatternchange;no claim ofhourly orproductionmaximum."
+    "Publish/sync12slotrunneroption;same60buyers/s300scontrol withrefill12/pool12 andallotherbudgetsunchanged.",
+    "Onlyifallload/financial/TTL/queue/source/observergatespass,increaseofferedrateonlyto90buyers/s300s with90shows27000actors forinventory;retain500totalactive/connections16clients/two generators.",
+    "Stopprogressiononfailedgates;diagnose nextbottleneck beforeselecting otherroadmappatterns. Preserveallfinancial/source/cleanup checks."
   ],
-  "validation_this_resume": "387fullunit/integrationtestspassed69.13s;Ruff/whitespacepassed;dedicatedtestcontainersremoved. Existingpaymentleases/idempotency/zero-doublebookingchecks included.",
-  "current_run": "checkout-20261003T100201Z-670586",
+  "validation_this_resume": "387fulltestsand63subsequentfocusedchecks passed;batchloadFAILED,refillloadPASSED;bothpaid/unpaidTTL/uniqueness/fullqueues/Kafka/source/restore/idle/cleanupPASSED.",
+  "current_run": "checkout-20261003T110751Z-6e5cb2",
   "evidence": [
-    "docs/capacity/flash-sale-opening/paid-two-process-fixed-budget-control-2026-10-03.json",
-    "docs/adr/0109-fixed-budget-two-process-paid-control.md",
-    "docs/capacity/flash-sale-opening/paid-source-consistent-control-2026-10-03.json"
+    "docs/capacity/flash-sale-opening/paid-callback-refill-comparison-2026-10-03.json",
+    "docs/adr/0110-payment-dispatch-phase-diagnostics.md",
+    "docs/adr/0111-continuously-refill-simulator-slots.md",
+    "docs/adr/0112-twelve-delivery-slots-fixed-db-budget.md"
   ],
-  "authorization": "UserGoaheadasplan approves theten-step conditional improvement roadmap. Currentexperiment: instrumentedbatchbaseline then same60buyers/s300srefillcandidate onlyif baselinepaid/unpaidTTL/uniqueness/fullqueues/source/observer gatespass; no rateescalationonfailedcustomer gate.",
-  "backend_checkout_revision": "44a1c95d08c2adaac1e2c9f6c677e84f04047725",
-  "tested_generator_revision": "44a1c95d08c2adaac1e2c9f6c677e84f04047725",
-  "scope": "Steps1-2 implementedandlocallyvalidated;matchedtwo-armcloudcomparisonpending. Steps3-10 conditionalfuturework,notimplemented orvalidated. No unattendedschedule.",
+  "authorization": "UserGoaheadasplan authorizesten-stepconditionalroadmap. Matchedbatch/refillcontrolscompleted. ADR0112authorizes12slot60controlthen90stageconditionalonallgates;no escalationafterfailure or permanenttopologypromotion.",
+  "backend_checkout_revision": "eed0ae7c73bfce1cd66c1482c2cc7150a176a41e",
+  "tested_generator_revision": "eed0ae7c73bfce1cd66c1482c2cc7150a176a41e",
+  "scope": "Steps1-2 completed/executed. Advance measuredslotbottleneck understep9:12slots60/s300scontrol,then90/s300sonlyifallgatespass;otherpatterns conditional,nothourlyorchestrationimplemented.",
   "roadmap": [
     {
       "step": 1,
       "work": "Callbackphaseandbarrierdiagnostics",
-      "status": "implemented_local_checks_passed_cloud_pending"
+      "status": "implemented_and_cloud_validated"
     },
     {
       "step": 2,
       "work": "Boundedcontinuouslyrefilledsimulator",
-      "status": "implemented_local_checks_passed_cloud_pending"
+      "status": "implemented_and_cloud_validated"
     },
     {
       "step": 3,
@@ -82,7 +81,7 @@
     {
       "step": 9,
       "work": "Scalemeasuredbottleneck",
-      "status": "conditional_future_work"
+      "status": "twelve_slot_candidate_prepared_local_validation_passed"
     },
     {
       "step": 10,
