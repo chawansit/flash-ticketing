@@ -3,36 +3,35 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "six_consumer_candidate_locally_validated_cloud_pending",
+  "status": "six_consumer_control_completed_customer_gate_failed",
   "cloud_load_requires_resume": false,
-  "handoff_revision": "34176cc",
-  "revision_note": "Next implementation commit contains ADR0102 candidate and diagnostics; cloud still af05541 until synchronized.",
-  "backend_application_revision": "af05541",
-  "generator_revision": "af05541",
+  "handoff_revision": "e803575",
+  "revision_note": "Tested backend/generator e803575. Next docs-only commit records this completed control; application source unchanged.",
+  "backend_application_revision": "e803575",
+  "generator_revision": "e803575",
   "last_checked_topology": "4 healthy APIs; PostgreSQL mode; admission4/API,DBpool3/API,waiters3/API,cache0;publisher/maintenance/consumer/reconciler1each;reservation-writer/refresh/expiry0;simulator4.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "No load/schedule running. Baseline/cache0/readiness and seven source hashes verified across APIs/workers; valid indexes retained. Temporary key remains for continuation.",
+  "cloud_state_note": "No load/schedule running. Baseline oneconsumer/pool12, cache0, readiness and seven source hashes verified; fixed pooler budgets restored; valid indexes retained.",
   "confirmed": [
-    "358unit/integration tests passed66.65s;11focusedchecks after cleanup passed;lint passed.",
-    "Same60buyers/s:3598/3600dispatched,2active-capdrops;all3598paid/issued,no customer HTTPerrors/caller retries. Dispatch p955.299s keeps strict gate FAILED.",
-    "Fresh post-TTL exact3598tickets/zero duplicates/queues passed;Kafka final lag0,max1192.",
-    "Callback-to-ticket p958.865s. Offset commit mean2.377ms,p95histupper10ms,total4.50s vs228.39s partition work: not dominant observed cost.",
-    "Partitions0..3large batches/highlag versus4/5. Installed default range reproduction pairs0+1,2+3,4,5; inferred worker handler work72/71/44/41s. Live assignment not retained.",
-    "Generator61.39CPU/75.69wall=0.811coreaverage;looplagp9562ms. Host/dispatch-windowCPU unmeasured. Two refreshhandler errors recovered; cause unrecorded.",
-    "Baseline4APIs/settings/cache0/readiness and newworkers/observabilitysource coherence verified after rollback."
+    "362unit/integration tests passed61.89s;19focusedchecks and changed-filelint passed.",
+    "Same60buyers/s:3600dispatched,0drops,3588customerfulfilled;7GET503and5paymentPOST503=0.333%journeyfailures;strictgateFAILED.",
+    "Actual6singletonpartitionowners;consumer6x8ceiling48;PgBouncer applicationpool24/reserve0/client160 unchanged.",
+    "Kafka peak1192to54,last0;callback-to-ticketp958.865sto260ms;hold-to-ticket13.679sto7.972s;dispatchp9524ms.",
+    "API metrics13TooManyRequests poolfailures;successfulpoolacquiremean11.32msvs7.18;consumer3recovered55P03attempts.",
+    "Payment-due-to-callbackp951.031sto5.150s;pendingcallbackpeak314.",
+    "Freshpost-TTL exact3595paidtickets plus5unpaidexpired,zero duplicatebookings/allqueues0;baseline/budgets/sourcecoherenceverified."
   ],
-  "unresolved": "Uneven consumer service pressure is supported by phase/partition evidence; live owner mapping and refresh retry SQLSTATE missing. Generator delay also remains.60/snot certified;45/shealthy short control only;hourly300000target unverified.",
+  "unresolved": "60/snotcertified: bounded API pool admission rejects customer requests; callback schedulingdelayincreased. Six-consumer eventdelay improvement confirmed once, not permanent production promotion. Highest recent healthy shortcontrol45/s;300000/hour unverified.",
   "next_on_resume": [
-    "Commit and synchronize ADR0102 candidate; run one same60/s control with6consumers x pool8 versus previous4 x pool12.",
-    "Require actual singleton partition ownership, exact post-TTL tickets/zero duplicates/queue/Kafka audits and restored baseline/budgets/source coherence."
+    "Create ADR0103 before one same60/s APIpool3-to4 comparison, sixconsumers/pool8 and PgBouncer applicationbudget24 fixed; unchangedgenerator/admission/waiter/cache/simulator settings.",
+    "Measure customer503and callbackdispatch delay together. Preserve exact paid/unpaidexpiry/zero-doublebooking/queue/Kafka/budget/source-restoration gates; no rate escalation or callerretry masking."
   ],
-  "validation_this_resume": "362 local unit/integration tests passed61.89s;19 focused checks and changed-file lint passed. No new live test executed yet.",
-  "current_run": "checkout-20261003T052323Z-610943",
+  "validation_this_resume": "362localtests/19focused/lintpassed. Live customergateFAILED; generator scheduling/ownership/budgets and exact3595paid+5expired postTTL/zero duplicates/drain/restorationPASSED.",
+  "current_run": "checkout-20261003T055518Z-b463e5",
   "evidence": [
     "docs/adr/0102-six-consumers-fixed-connection-budget.md",
-    "docs/adr/0101-consumer-phase-paid-generator-diagnostics.md",
-    "docs/capacity/flash-sale-opening/paid-consumer-phase-diagnostic-2026-10-03.json",
-    "docs/capacity/flash-sale-opening/real-paid-60-buyer-control-2026-10-03.json"
+    "docs/capacity/flash-sale-opening/paid-six-consumer-control-2026-10-03.json",
+    "docs/capacity/flash-sale-opening/paid-consumer-phase-diagnostic-2026-10-03.json"
   ],
-  "authorization": "User Continue authorizes one same60buyers/s six-consumer comparison with fixed aggregate consumer client ceiling48 and existing PgBouncer server pool24; no rate escalation."
+  "authorization": "User Continue authorized one same60/s six-consumer comparison. Completed and original settings restored. No further experiment or rate escalation executed; APIpoolcomparison is proposed only."
 }
