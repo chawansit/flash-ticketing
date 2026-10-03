@@ -3,34 +3,34 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "booking_lookup_index_locally_validated_cloud_pending",
+  "status": "booking_lookup_index_cloud_control_passed",
   "cloud_load_requires_resume": false,
-  "handoff_revision": "3ae6bf7",
-  "revision_note": "Previous tested application/cloud3ae6bf7. Booking index008 and bounded online verifier locally validated; commit/cloud sync/application pending.",
-  "backend_application_revision": "3ae6bf7",
-  "generator_revision": "3ae6bf7",
+  "handoff_revision": "53429c5",
+  "revision_note": "Tested application/backend/generator53429c5; the following docs-only commit records this checkpoint.",
+  "backend_application_revision": "53429c5",
+  "generator_revision": "53429c5",
   "last_checked_topology": "4 healthy APIs; PostgreSQL mode; admission4/API,DBpool3/API,waiters3/API,cache0;publisher/maintenance/consumer/reconciler1each;reservation-writer/refresh/expiry0;simulator4.",
-  "schema_state": "Valid payment_attempts_dispatch_due partial due_at index retained. No payment rows changed by DDL. Online build does not record schema_migrations007; normal IF NOT EXISTS migration can do so later.",
-  "cloud_state_note": "No load or unattended schedule running. Source coherence/readiness/service budgets/cache0 verified after rollback.",
+  "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
+  "cloud_state_note": "Paid control completed; no load or unattended schedule active. Temporary SSH key retained for continuation; service baseline/source coherence verified.",
   "confirmed": [
-    "348 unit/integration tests passed before cloud application;5 focused timing/deadline-report tests passed afterwards;lint passed.",
-    "Readonly timestamps isolated15.82s callback wait; idle claim scanned63832completed attempts. Partial index changed idle equivalent7.834ms/1097blocks ->0.026ms/1block.",
-    "Same45/s60s cache-enabled control passed2700/2700 buyers,zero drops/customer HTTP errors/caller retries. Hold-to-ticket p95=10.42s;payment-due to callback p95=236ms.",
-    "Fresh audit beyond original hold deadlines passed2700unique paid tickets,zero duplicate bookings,empty queues and Kafka lastlag0.",
-    "Two remaining order/consumer queries scan66532bookings for1row atidle~4.9ms; bookings(order_id) index proposal0099 not implemented."
+    "350 unit/integration tests passed in68.39s; lint passed. Multi-seat, callback/event replay, index eligibility/build/definition rejection covered.",
+    "Added valid nonunique bookings(order_id) index; idle consumer/order lookups4.914/4.831ms ->0.051/0.060ms, same66532-row table before paid control.",
+    "Same45 buyers/s60s:2700/2700 unique paid tickets;zero drops/customer errors/caller retries. Hold-to-ticket p95:10.42s ->4.20s.",
+    "Backend callback-to-ticket p95:8.389s ->0.698s. Kafka maxlag887 ->151,last0.",
+    "Fresh post-TTL audit:2700unique paid tickets,zero duplicate bookings/dead letters,queues0; baseline settings/cache0/source hashes verified."
   ],
-  "unresolved": "Lookup-index candidate is implemented after acceptingADR0099. Query-plan and end-to-end benefit on cloud not yet measured; same45/s controlled comparison pending.",
+  "unresolved": "One short45 buyers/s run is not sustained capacity. 300000 tickets/hour requires83.33 successful tickets/s; higher paid-rate and long-duration capacity remain unverified. Customer visibility includes advisory cache/polling.",
   "next_on_resume": [
-    "Sync tested revision to both ECS; apply/verify bounded concurrent bookings_order_id index.",
-    "Measure same idle order/consumer lookup plans, then same45/s60s cache-enabled paid control with all other settings unchanged.",
-    "Run exact post-TTL ticket/zero-double-booking and queue/Kafka audits, restore service settings/cache0, record any retained index as schema change. No automatic rate escalation."
+    "Propose a bounded60 buyers/s paid stage with same candidate configuration, explicit stage scope and stop conditions before execution.",
+    "Maintain exact post-TTL/zero-double-booking/queue gates; change only offered rate and compare with this45/s baseline.",
+    "Do not extrapolate HTTPRPS into paid tickets/hour; require staged success and sustained-duration evidence."
   ],
-  "validation_this_resume": "All350 unit/integration tests passed in68.39s;lint passed. No cloud booking-index application or new paid load yet.",
-  "current_run": "checkout-20261003T035517Z-223f3c",
+  "validation_this_resume": "Full350localchecks and45/scloudpaidcontrol/postTTL/rollback passed. No higher rate or new failover ran.",
+  "current_run": "checkout-20261003T041714Z-465f11",
   "evidence": [
-    "docs/adr/0098-index-unfinished-payment-deliveries.md",
     "docs/adr/0099-proposed-booking-order-lookup-index.md",
-    "docs/capacity/flash-sale-opening/paid-worker-timestamp-diagnosis-2026-10-03.json",
+    "docs/capacity/flash-sale-opening/real-paid-booking-index-control-2026-10-03.json",
     "docs/capacity/flash-sale-opening/real-paid-payment-index-control-2026-10-03.json"
-  ]
+  ],
+  "authorization": "User Continue authorized ADR0099 index implementation and same45/s comparison. No higher rate tested; next rate is proposed separately."
 }
