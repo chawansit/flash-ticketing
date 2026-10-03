@@ -1,6 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from psycopg.errors import LockNotAvailable, UniqueViolation
@@ -300,7 +300,7 @@ def test_order_read_actor_isolation_and_consistent_ticket_shape(system):
     fulfilled = svc.get_order("one", hold["order_id"])
     assert fulfilled["status"] == "FULFILLED"
     assert [ticket["seat_id"] for ticket in fulfilled["tickets"]] == ["A", "B"]
-    assert all(isinstance(ticket["id"], str) for ticket in fulfilled["tickets"])
+    assert all(UUID(str(ticket["id"])) for ticket in fulfilled["tickets"])
     with db.transaction() as conn:
         # Read-only/LOCAL settings must not leak into the next writer using the pool.
         conn.execute("UPDATE orders SET status=status WHERE id=%s", (hold["order_id"],))
