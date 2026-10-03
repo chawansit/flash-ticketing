@@ -3,7 +3,7 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "booking_lookup_index_cloud_control_passed",
+  "status": "paid_60_per_second_control_authorized_pending",
   "cloud_load_requires_resume": false,
   "handoff_revision": "53429c5",
   "revision_note": "Tested application/backend/generator53429c5; the following docs-only commit records this checkpoint.",
@@ -21,16 +21,16 @@
   ],
   "unresolved": "One short45 buyers/s run is not sustained capacity. 300000 tickets/hour requires83.33 successful tickets/s; higher paid-rate and long-duration capacity remain unverified. Customer visibility includes advisory cache/polling.",
   "next_on_resume": [
-    "Propose a bounded60 buyers/s paid stage with same candidate configuration, explicit stage scope and stop conditions before execution.",
-    "Maintain exact post-TTL/zero-double-booking/queue gates; change only offered rate and compare with this45/s baseline.",
-    "Do not extrapolate HTTPRPS into paid tickets/hour; require staged success and sustained-duration evidence."
+    "Execute ADR0100 one 60 buyers/s control using unchanged candidate settings and expanded isolated fixture capacity.",
+    "Audit all hold deadlines/exact tickets/zero duplicates/queue and Kafka drain; restore baseline settings and save compact evidence."
   ],
   "validation_this_resume": "Full350localchecks and45/scloudpaidcontrol/postTTL/rollback passed. No higher rate or new failover ran.",
   "current_run": "checkout-20261003T041714Z-465f11",
   "evidence": [
+    "docs/adr/0100-bounded-paid-rate-validation-after-indexes.md",
     "docs/adr/0099-proposed-booking-order-lookup-index.md",
     "docs/capacity/flash-sale-opening/real-paid-booking-index-control-2026-10-03.json",
     "docs/capacity/flash-sale-opening/real-paid-payment-index-control-2026-10-03.json"
   ],
-  "authorization": "User Continue authorized ADR0099 index implementation and same45/s comparison. No higher rate tested; next rate is proposed separately."
+  "authorization": "User Continue authorizes one bounded 60 buyers/s, 60-second control under ADR0100, exact post-TTL/queue audits, service restoration and report publication. No automatic higher stage."
 }
