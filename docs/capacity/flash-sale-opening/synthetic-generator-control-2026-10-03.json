@@ -1,0 +1,203 @@
+{
+  "kind": "synthetic_generator_control",
+  "production_capacity_evidence": false,
+  "created_at_utc": "2026-10-03T01:33:12.782880+00:00",
+  "source_revision": "ab51fcc9ebf22c23c60dd6e4f8b30c3692bd98db",
+  "source_dirty": false,
+  "python_version": "3.12.3",
+  "platform": "Linux",
+  "logical_cpus": 8,
+  "httpx_version": "0.28.1",
+  "httpcore_version": "1.0.9",
+  "configuration": {
+    "rate": 60,
+    "seconds": 60,
+    "concurrency": 500,
+    "response_ms": 30.0,
+    "command_seconds": 0.5,
+    "ticket_seconds": 5.0,
+    "poll_seconds": 0.2,
+    "shards": 2
+  },
+  "responder": {
+    "requests": {
+      "other": 2,
+      "holds": 3206,
+      "reservation_commands": 5017,
+      "payments": 3206,
+      "orders": 19154
+    },
+    "accepted_connections": 148,
+    "closed_connections": 148,
+    "protocol_errors": 0,
+    "peak_handlers": 40,
+    "handler_p95_ms": 31.0633169999619,
+    "handler_max_ms": 32.14310899988959,
+    "loop_lag_p95_ms": 1.0269300000800285,
+    "loop_lag_max_ms": 2.0238660001723474,
+    "synthetic_orders": 3206
+  },
+  "responder_valid": true,
+  "generator": {
+    "kind": "scheduled_paid_ticket_journeys_sharded",
+    "measured_at_utc": "2026-10-03T01:33:12.763806+00:00",
+    "rate_target_per_second": 60,
+    "dispatch_seconds": 60,
+    "generator_shards": 2,
+    "generator_max_in_flight": 500,
+    "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+    "shard_exit_codes": [
+      1,
+      1
+    ],
+    "scheduled": 3600,
+    "dispatched": 3206,
+    "generator_drops": 394,
+    "completed": 3206,
+    "fulfilled": 3206,
+    "fulfilled_by_deadline": 3206,
+    "distinct_orders": 3206,
+    "distinct_tickets": 3206,
+    "retry_attempts": 0,
+    "hold_app_timing_samples": 3206,
+    "payment_app_timing_samples": 3206,
+    "outcomes": {
+      "fulfilled": 3206
+    },
+    "physical_http_attempts": {
+      "holds": 3206,
+      "reservation_commands": 5017,
+      "payments": 3206,
+      "orders": 19154
+    },
+    "dispatch_lag_p95_ms": 23.51844266650005,
+    "dispatch_lag_max_ms": 115.71692633333441,
+    "hold_http_p95_ms": 3074.2586779999783,
+    "hold_app_p95_ms": 31.103,
+    "hold_client_excess_p95_ms": 3043.505677999978,
+    "command_durable_wait_p95_ms": 3549.3326700000125,
+    "durable_p95_ms": 5198.138787000062,
+    "payment_http_p95_ms": 2873.88516399983,
+    "payment_app_p95_ms": 31.059,
+    "payment_client_excess_p95_ms": 2843.8211639998303,
+    "ticket_wait_p95_ms": 7899.07829699996,
+    "payment_to_ticket_p95_ms": 9543.129211000178,
+    "hold_to_ticket_p95_ms": 13173.828255999979,
+    "transport_phase_p95_ms": {
+      "holds": {
+        "pre_send_ms": 2983.7668279999434,
+        "response_wait_ms": 52.98400700007733,
+        "connect_ms": 55.531020999978864
+      },
+      "orders": {
+        "pre_send_ms": 2605.5333280000923,
+        "response_wait_ms": 51.78332800005592,
+        "connect_ms": 53.33753599984448
+      },
+      "payments": {
+        "pre_send_ms": 2781.7709509999986,
+        "response_wait_ms": 53.490421000105925,
+        "connect_ms": 54.976538000119035
+      },
+      "reservation_commands": {
+        "pre_send_ms": 2754.7377449998294,
+        "response_wait_ms": 52.232627999956094,
+        "connect_ms": 55.35340799997357
+      }
+    },
+    "transport_phase_samples": {
+      "holds": {
+        "pre_send_ms": 3206,
+        "response_wait_ms": 3206,
+        "connect_ms": 23
+      },
+      "orders": {
+        "pre_send_ms": 19154,
+        "response_wait_ms": 19154,
+        "connect_ms": 84
+      },
+      "payments": {
+        "pre_send_ms": 3206,
+        "response_wait_ms": 3206,
+        "connect_ms": 8
+      },
+      "reservation_commands": {
+        "pre_send_ms": 5017,
+        "response_wait_ms": 5017,
+        "connect_ms": 31
+      }
+    },
+    "shards": [
+      {
+        "scheduled": 1800,
+        "dispatched": 1622,
+        "generator_drops": 178,
+        "fulfilled_by_deadline": 1622,
+        "started_at_utc": "2026-10-03T01:32:02.474010+00:00",
+        "dispatch_lag_p95_ms": 23.51844266650005,
+        "transport_phase_p95_ms": {
+          "holds": {
+            "pre_send_ms": 2550.2626820000387,
+            "response_wait_ms": 52.670235000050525,
+            "connect_ms": 51.60541299983379
+          },
+          "reservation_commands": {
+            "pre_send_ms": 2534.9983159999283,
+            "response_wait_ms": 51.87686399995073,
+            "connect_ms": 53.49212400005854
+          },
+          "payments": {
+            "pre_send_ms": 2639.3437199999426,
+            "response_wait_ms": 51.86198899991723,
+            "connect_ms": 50.36353200011945
+          },
+          "orders": {
+            "pre_send_ms": 2470.2095210000152,
+            "response_wait_ms": 51.30490600004123,
+            "connect_ms": 51.18618799997421
+          }
+        },
+        "outcomes": {
+          "fulfilled": 1622
+        },
+        "pass": false
+      },
+      {
+        "scheduled": 1800,
+        "dispatched": 1584,
+        "generator_drops": 216,
+        "fulfilled_by_deadline": 1584,
+        "started_at_utc": "2026-10-03T01:32:02.475490+00:00",
+        "dispatch_lag_p95_ms": 22.938647666705947,
+        "transport_phase_p95_ms": {
+          "holds": {
+            "pre_send_ms": 2983.7668279999434,
+            "response_wait_ms": 52.98400700007733,
+            "connect_ms": 55.531020999978864
+          },
+          "reservation_commands": {
+            "pre_send_ms": 2754.7377449998294,
+            "response_wait_ms": 52.232627999956094,
+            "connect_ms": 55.35340799997357
+          },
+          "payments": {
+            "pre_send_ms": 2781.7709509999986,
+            "response_wait_ms": 53.490421000105925,
+            "connect_ms": 54.976538000119035
+          },
+          "orders": {
+            "pre_send_ms": 2605.5333280000923,
+            "response_wait_ms": 51.78332800005592,
+            "connect_ms": 53.33753599984448
+          }
+        },
+        "outcomes": {
+          "fulfilled": 1584
+        },
+        "pass": false
+      }
+    ],
+    "pass": false
+  },
+  "pass": false
+}

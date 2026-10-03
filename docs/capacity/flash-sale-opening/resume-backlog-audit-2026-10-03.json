@@ -1,0 +1,27 @@
+{
+  "kind": "read_only_restart_audit",
+  "date": "2026-10-03",
+  "backend_application_revision": "db91fff6abce1c46f52f28fc16364200c89345a6",
+  "readiness": "ready",
+  "api_healthy_replicas": 4,
+  "database_select_one": 1,
+  "redis_ping": true,
+  "database_and_redis": {
+    "outbox": 0,
+    "refresh": 0,
+    "dead_letters": 0,
+    "overdue_holds": 0,
+    "pending_orders": 0,
+    "callback_deliveries": 0,
+    "paid_without_ticket": 0,
+    "stream_entries": 0,
+    "stream_pending": 0
+  },
+  "kafka": {
+    "group": "ticketing-fulfillment-v1",
+    "partitions_checked": 6,
+    "total_lag": 0
+  },
+  "scope": "Point-in-time global backlog inspection after restarting existing services; not a load test or full historical booking audit.",
+  "recovery": "Started existing PgBouncer, Kafka and load-balancer containers; restarted existing API/background services. No production image or topology change."
+}
