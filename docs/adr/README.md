@@ -174,3 +174,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0115 - Persistent read-only Kafka observer](0115-persistent-read-only-kafka-observer.md)
 
 - [0116 - Explicit bounded SSH liveness](0116-bounded-ssh-liveness.md)
+
+- [0117 - Consolidated transaction-local timeout setup](0117-consolidated-transaction-local-timeouts.md)

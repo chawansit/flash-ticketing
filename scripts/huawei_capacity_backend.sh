@@ -361,7 +361,7 @@ case "${1:-}" in
             grep -qx "RESERVATION_WRITER_BATCH_SIZE=$reservation_writer_batch_candidate"
         fi
         [ "$image_hash" = "$worker_source_hash" ]
-        for file in src/ticketing/infrastructure/reservations.py src/ticketing/infrastructure/redis_reservations.py; do
+        for file in src/ticketing/infrastructure/postgres.py src/ticketing/infrastructure/reservations.py src/ticketing/infrastructure/redis_reservations.py; do
           expected_hash=$(sha256sum "$file" | cut -d " " -f 1)
           deployed_hash=$(docker exec "$id" sha256sum "/app/$file" | cut -d " " -f 1)
           [ "$expected_hash" = "$deployed_hash" ]

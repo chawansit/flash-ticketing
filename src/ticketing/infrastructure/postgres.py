@@ -82,10 +82,12 @@ class Postgres:
                 transaction_started = False
                 try:
                     conn.execute("BEGIN")
-                    conn.execute("SET LOCAL lock_timeout = '75ms'")
-                    conn.execute("SET LOCAL statement_timeout = '1500ms'")
-                    conn.execute("SET LOCAL idle_in_transaction_session_timeout = '3s'")
                     transaction_started = True
+                    conn.execute(
+                        "SELECT set_config('lock_timeout', '75ms', true), "
+                        "set_config('statement_timeout', '1500ms', true), "
+                        "set_config('idle_in_transaction_session_timeout', '3s', true)"
+                    )
 
                     yield conn
 
