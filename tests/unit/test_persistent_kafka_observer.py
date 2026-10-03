@@ -196,3 +196,9 @@ def test_sigterm_closes_persistent_clients_without_starting_another_sample(monke
     output = io.StringIO()
     module.observe(args, output)
     assert len(output.getvalue().splitlines()) == 1 and closed == [True]
+
+
+def test_source_fingerprint_normalizes_only_platform_newlines():
+    assert module.source_sha256(b"x = 1\r\n") == module.source_sha256(b"x = 1\n")
+    assert module.source_sha256(b"x = 1\r\n") != module.source_sha256(b"x = 2\n")
+    assert module.source_sha256(b"x = 1\n") != module.source_sha256(b"x=1\n")

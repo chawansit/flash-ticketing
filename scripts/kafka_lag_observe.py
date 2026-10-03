@@ -64,6 +64,11 @@ def parse_describe(output: str) -> dict:
     }
 
 
+def source_sha256(payload):
+    """Match Windows/Linux checkouts without ignoring any code-content difference."""
+    return hashlib.sha256(payload.replace(b"\r\n", b"\n")).hexdigest()
+
+
 def group_ownership(description, topic):
     """Reject transitional or incomplete ownership instead of inventing zero lag."""
     if description.error_code or description.state != "Stable" or description.protocol_type != "consumer":

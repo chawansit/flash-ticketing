@@ -1,10 +1,10 @@
 """One bounded Huawei paid-ticket smoke with rollback and private-manifest cleanup."""
 
 import argparse
-import hashlib
 import ipaddress
 import json
 import re
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -13,6 +13,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 from uuid import uuid4
 
+from kafka_lag_observe import source_sha256
 from observe_paid_pipeline import kafka_startup_view, paid_observer_seconds, pipeline_startup_view
 from unattended_capacity_stage import Transport
 
@@ -287,11 +288,14 @@ try:
         state["pipeline_observer_startup"] = pipeline_startup_view(json.loads(first_sample.stdout), args.consumer_candidate)
         if not state["pipeline_observer_startup"]["pass"]:
             raise RuntimeError("Pipeline observer first sample failed pre-dispatch gate")
-        expected_observer_sha = hashlib.sha256((ROOT / "scripts/kafka_lag_observe.py").read_bytes()).hexdigest()
+        expected_observer_sha = source_sha256((ROOT / "scripts/kafka_lag_observe.py").read_bytes())
         actual_observer_sha = backend_exec(
             "kafka-observer-source",
             f"cd {BACKEND}; api=$({COMPOSE} ps -q api | head -n 1); "
-            'docker exec "$api" sha256sum /app/scripts/kafka_lag_observe.py',
+            'docker exec "$api" python -c '
+            + shlex.quote("import hashlib;from pathlib import Path;print(hashlib.sha256("
+                          "Path('/app/scripts/kafka_lag_observe.py').read_bytes()"
+                          ".replace(bytes([13,10]),bytes([10]))).hexdigest())"),
             30,
         ).stdout.split()[0]
         if actual_observer_sha != expected_observer_sha:
