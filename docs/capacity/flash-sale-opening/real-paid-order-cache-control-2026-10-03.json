@@ -17,7 +17,11 @@
     "admission_per_api": 4,
     "simulator_threads": 8,
     "consumer_replicas": 4,
-    "order_status_cache_ms": 3000
+    "order_status_cache_ms": 3000,
+    "reservation_mode": "redis-first",
+    "reservation_writer_replicas": 3,
+    "reservation_writer_batch_size": 4,
+    "reservation_max_command_age_seconds": 60
   },
   "strict_pass": false,
   "customer_probe": {
