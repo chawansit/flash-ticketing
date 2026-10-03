@@ -3,44 +3,43 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "api_stack_diagnostic_completed_service_dependency_candidate_ready",
+  "status": "service_dependency_locally_safe_cloud_capacity_failed_writer_queue_next",
   "cloud_load_requires_resume": false,
-  "handoff_revision": "61e6c27235cbb6cad9c96e5fd8f09a705677843a",
-  "revision_note": "Tested/sourceverifiedcloud61e6c27;documentation commit may differ. Experimental transactionsetup remains in cloud images;onlyservicebudgets restored,not application source reverted.",
-  "backend_application_revision": "f237a17604a6abbe956cf25485e8a57c24a27607",
-  "generator_revision": "f237a17604a6abbe956cf25485e8a57c24a27607",
+  "handoff_revision": "457dd67f955c1a6ede931149372c6e30ed9fc4f4",
+  "revision_note": "Cloudtested/sourceverified457dd67;documentationcommitmaydiffer. Experimental asyncserviceaccess andtransactionsetup remaininimages;onlyservicebudgets restored. Failedcandidate notpromoted.",
+  "backend_application_revision": "457dd67f955c1a6ede931149372c6e30ed9fc4f4",
+  "generator_revision": "457dd67f955c1a6ede931149372c6e30ed9fc4f4",
   "last_checked_topology": "Restored4healthyAPIs;postgres mode;pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4;PgBouncer applicationpool24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "Diagnosticcomplete;allfinancial/queue/Kafka/source/settings/readiness/idle/privatecleanup gatespassed. Cloudapplication sourceunchanged61e6c27;checkoutf237a17. No activepaidload/profiler. Localasyncserviceaccess candidate validated448tests;cloudcandidate pending.",
+  "cloud_state_note": "No activepaidload/generator/profiler. Exact11916orders=11818paid+98expiredunpaid;fullqueues/Kafka0/source/settings/readiness/idle/privatecleanup passed. Baseline4APIs/1consumer/batch4simulatorbudgets restored;bothownedlocalintegrationcontainersremoved. Isolatedhostprofilertoolretainedforfuturediagnostics.",
   "confirmed": [
-    "Setup reduced from3requests to1; matched offered-window PgBouncer queries/transaction10.1565to7.9602 across mixed roles,not an exact common-helper statement count.",
-    "Matched offered-window API meanpoolwait32.04to22.31ms(-30.37percent);connectionhold53.04to49.97ms(-5.79percent).",
-    "Callback HTTPdeliverymean194.04to243.42ms(+25.45percent);APIeventlooplagmean16.93to27.74ms(+63.88percent). HostCPUremained97.15percent;CPU/function attribution unresolved.",
-    "Customer confirmations8748(-10.41percent),8972drops and280503journeys(3.10146percent of9028dispatched);latencyworsened. Do not claimcapacityimprovement.",
-    "Exact postTTL9028orders=8991unique paid tickets+37expired unpaid;no double booking,allfullqueues/Kafkalag0/source/settings/readiness/generatoridle/privatecleanup passed.",
-    "ADR0116 SSHcompletion returned generator exit1 normally instead of previous480s transporttimeout; no paid callerretry. Different final-drain observation durations were aligned for metric comparison."
+    "OnlyAPIruntime sourcehash changed relative61e6c27;all9requiredmodulehashes matched everyrestored API/worker image. In-memoryservicegetter nowasync;authentication anddatabase/cachehandleroffload unchanged.",
+    "18000scheduled/11916dispatched/6084drops/11444customer-confirmed;472customer503s=98paymentPOST+374orderGET. Journeyerror3.96106percentofdispatched;HTTPattempt error0.278927percentof169220customerrequests;no callerretry.",
+    "Compared withunprofiled61e6c27:customerconfirmations+30.82percent,hold-to-ticketworst-shardp95 22.54to16.46s(-27.00percent),butdurabilityp95 2.90to4.57s(+57.48percent)andcustomererrorsincreased. Capacity remainsunqualified.",
+    "Matched offered300s:callbackdeliverymean243.42to173.24ms(-28.83percent);eventlooplag27.74to19.89ms(-28.32percent);connectionhold49.97to46.76ms(-6.42percent);APIpoolwait22.31to22.60ms. HostCPU96.95percent;aggregateAPI1.919cores.",
+    "Writercommandagemean1.39s,p95bucketupperbound5s;Postgresbatchmean143.32ms;writerpoolacquiremean0.0346ms. Queue/scheduling delay andCPU/polling pressure remain;do not inferwriter pool exhaustion.",
+    "ExactpostTTL11916orders=11818unique paid tickets+98expired unpaid.374failedcustomerreadjourneys recoveredbackendtickets,notcustomerconfirmations. Zero duplicate/multibookedseats;fullqueues/Kafkalag0;source/settings/readiness/generatoridle/privatecleanup passed.",
+    "Earlier same-code profiledreplayconfirmed10613(+21.32percent versusbaseline)withsampling/backgroundvariation;single-run causal attribution remainsuncertain. No higher-ratestage/mainmerge/promotion."
   ],
-  "unresolved": "Same-load transaction setup reduction did not improveoverallcapacity:CPU97.15percent,callbackdelivery+25.45percent,eventlooplag+63.88percent,customerconfirmations-10.41percent. Hot-function/routeCPU andscheduling attribution unresolved;no higherloadorhourproof.",
+  "unresolved": "HostCPU96.95percent;durabilityp954.57s and472customer503journeys/6084drops. Writerqueueage1.39smeanwhilepoolwait0.0346msmean. Safe asyncgettervalidated;morecustomercompletionsbutloadqualificationfailedandcausalityuncertain.",
   "next_on_resume": [
-    "Run unprofiledADR0119 same8refill/60buyers/s300s candidate aftersync/build;no changedbudgets/nohigherload.",
-    "Finish exactpaid/unpaidpostTTL/fullqueue/Kafka/source/settings/readiness/idle/privatecleanup evenifloadfails.",
-    "Compare withunprofiled61e6c27 baseline andacknowledge same-code diagnosticvariation."
+    "Inspect reservation-writer stream discovery/fairness andcommand-age timing;poolwait is negligible whilequeue age is1.39smean/5sp95bucket.",
+    "Reduce measured polling/dispatchCPUcost andprotectcallbackprocessing onlyafterevidence/ADR;compareonefactorwithsamebudgets.",
+    "Keepstrictfinancial/fullqueue/source/readiness/restorationchecks;no rateescalation untilloadgatespass. No300000paidtickets/hourproductionproof."
   ],
-  "validation_this_resume": "448unit/integrationtests passed68.36s;20focusedprofiler tests passed. Earlier328unitpass/1timingfailure retained;21focusedrerun passed. Real49sampleattachment and6954sample4APIprofiler passed;nointegrationclaims omitted.",
-  "current_run": "checkout-20261003T134818Z-fa4fff",
+  "validation_this_resume": "448unit/integrationtests passed68.36s;lint/compile/whitespacepassed;20focusedprofilertests passed. Earlierdiagnosticonly328unitpass/1idleboundarytimingfailureby2.3microseconds retained;21focusedrerunpassed. Real49samplesmoke and6954observations/4APIread-onlyprofilepassed;allprofilerprocessesexited/ownedprofile scratchremoved.",
+  "current_run": "checkout-20261003T135919Z-97b477",
   "evidence": [
+    "docs/capacity/flash-sale-opening/paid-service-access-control-2026-10-03.json",
+    "docs/adr/0119-event-loop-service-dependency-access.md",
     "docs/capacity/flash-sale-opening/api-stack-diagnostic-2026-10-03.json",
     "docs/adr/0118-bounded-external-api-stack-sampling.md",
-    "docs/adr/0119-event-loop-service-dependency-access.md",
-    "docs/capacity/flash-sale-opening/paid-transaction-setup-control-2026-10-03.json",
-    "docs/adr/0117-consolidated-transaction-local-timeouts.md",
-    "docs/capacity/flash-sale-opening/paid-persistent-kafka-control-2026-10-03.json",
-    "docs/capacity/flash-sale-opening/ssh-idle-liveness-2026-10-03.json"
+    "docs/capacity/flash-sale-opening/paid-transaction-setup-control-2026-10-03.json"
   ],
   "authorization": "User Go ahead as plan authorizes conditional implementation/experiments. Failed gates prohibit higher-rate escalation; recovery/audit/evidence-driven corrections remain in scope.",
-  "backend_checkout_revision": "f237a17604a6abbe956cf25485e8a57c24a27607",
-  "tested_generator_revision": "f237a17604a6abbe956cf25485e8a57c24a27607",
-  "scope": "ADR0118diagnosticcomplete;ADR0119one-factorservice-getter asyncplacement locallyvalidated andauthorized forcontrolledcloudcandidate.",
+  "backend_checkout_revision": "457dd67f955c1a6ede931149372c6e30ed9fc4f4",
+  "tested_generator_revision": "457dd67f955c1a6ede931149372c6e30ed9fc4f4",
+  "scope": "ADR0118externaldiagnosticandADR0119same-loadcandidatecompleted. No higherload/mainmerge/promotion. Futureone-factorcorrectionafterwriter/CPUevidence andADR;allfinancial/queue/sourcegatesretained.",
   "roadmap": [
     {
       "step": 1,
@@ -55,7 +54,7 @@
     {
       "step": 3,
       "work": "Reduce order-status read amplification",
-      "status": "conditional_future_work"
+      "status": "framework_handoff_reduced_safe_paid_capacity_unqualified_polling_future"
     },
     {
       "step": 4,
@@ -65,7 +64,7 @@
     {
       "step": 5,
       "work": "Shorten measured expensive transactions",
-      "status": "transaction_setup_reduction_validated_safe_but_paid_capacity_failed"
+      "status": "writer_stream_queue_age_and_fairness_investigation_next"
     },
     {
       "step": 6,
@@ -85,7 +84,7 @@
     {
       "step": 9,
       "work": "Scale the measured bottleneck",
-      "status": "api_cpu_hot_function_profiling_next_no_rate_escalation"
+      "status": "api_stack_sampling_completed_service_accessor_trial_failed_qualification"
     },
     {
       "step": 10,
@@ -93,5 +92,5 @@
       "status": "conditional_future_work"
     }
   ],
-  "local_implementation_revision": "f237a17604a6abbe956cf25485e8a57c24a27607"
+  "local_implementation_revision": "457dd67f955c1a6ede931149372c6e30ed9fc4f4"
 }
