@@ -323,7 +323,7 @@ case "${1:-}" in
     source_hash=$(sha256sum src/ticketing/infrastructure/postgres.py | cut -d " " -f 1)
     cache_source_hash=$(sha256sum src/ticketing/infrastructure/cache.py | cut -d " " -f 1)
     for id in $($compose ps -q api); do
-      for file in src/ticketing/api.py src/ticketing/application/reservations.py src/ticketing/infrastructure/order_status_cache.py src/ticketing/infrastructure/reservations.py src/ticketing/config.py; do
+      for file in src/ticketing/api.py src/ticketing/application/reservations.py src/ticketing/infrastructure/order_status_cache.py src/ticketing/infrastructure/reservations.py src/ticketing/infrastructure/redis_reservations.py src/ticketing/config.py; do
         expected_hash=$(sha256sum "$file" | cut -d " " -f 1)
         deployed_hash=$(docker exec "$id" sha256sum "/app/$file" | cut -d " " -f 1)
         [ "$expected_hash" = "$deployed_hash" ]
@@ -358,6 +358,11 @@ case "${1:-}" in
             grep -qx "RESERVATION_WRITER_BATCH_SIZE=$reservation_writer_batch_candidate"
         fi
         [ "$image_hash" = "$worker_source_hash" ]
+        for file in src/ticketing/infrastructure/reservations.py src/ticketing/infrastructure/redis_reservations.py; do
+          expected_hash=$(sha256sum "$file" | cut -d " " -f 1)
+          deployed_hash=$(docker exec "$id" sha256sum "/app/$file" | cut -d " " -f 1)
+          [ "$expected_hash" = "$deployed_hash" ]
+        done
       done
     done
     printf '{"candidate_admission":%s,"api_replicas":4,"db_pool_per_api":%s,"reservation_mode":"%s","reservation_writer_replicas":%s,"reservation_writer_batch_size":%s,"reservation_max_command_age_seconds":%s,"split_maintenance":%s,"maintenance_replicas":%s,"refresh_replicas":%s,"expiry_replicas":%s,"consumer_replicas":%s,"reconciler_replicas":1,"worker_source_verified":true,"load_balancer_bind_ip":"%s","load_balancer_nofile":%s,"pass":true}\n' "$candidate" "$effective_api_pool" "$reservation_candidate" "$deployed_reservation_writers" "$reservation_writer_batch_candidate" "$reservation_max_command_age_candidate" "$split_json" "$deployed_maintenance" "$deployed_refresh" "$deployed_expiry" "$consumer_candidate" "$load_balancer_published_ip" "$load_balancer_nofile" > "$public/deployment.json"
