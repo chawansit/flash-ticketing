@@ -60,7 +60,7 @@ class Transport:
         result = subprocess.run(
             command,
             capture_output=True,
-            text=True,
+            text=True, encoding="utf-8", errors="replace",
             stdin=subprocess.DEVNULL,
             timeout=timeout,
             check=False,
@@ -76,7 +76,7 @@ class Transport:
             command.append("-r")
         command.extend([f"{host}:{remote}", str(local)])
         result = subprocess.run(
-            command, capture_output=True, text=True, stdin=subprocess.DEVNULL, check=False
+            command, capture_output=True, text=True, encoding="utf-8", errors="replace", stdin=subprocess.DEVNULL, check=False
         )
         self._record(phase, result)
         if result.returncode:
@@ -88,7 +88,7 @@ class Transport:
             command.append("-r")
         command.extend([str(local), f"{host}:{remote}"])
         result = subprocess.run(
-            command, capture_output=True, text=True, stdin=subprocess.DEVNULL, check=False
+            command, capture_output=True, text=True, encoding="utf-8", errors="replace", stdin=subprocess.DEVNULL, check=False
         )
         self._record(phase, result)
         if result.returncode:

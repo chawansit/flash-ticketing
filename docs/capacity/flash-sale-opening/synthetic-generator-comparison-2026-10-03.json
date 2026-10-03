@@ -1,0 +1,47 @@
+{
+  "kind": "synthetic_fixed_budget_comparison",
+  "production_capacity_evidence": false,
+  "same_parameters": [
+    "60 journeys/s",
+    "60 seconds",
+    "2 shards",
+    "500 total connections and active journeys",
+    "0.2s polling",
+    "30ms responder delay",
+    "0.5s persistence delay",
+    "5s fulfillment delay"
+  ],
+  "baseline": {
+    "revision": "ab51fcc9ebf22c23c60dd6e4f8b30c3692bd98db",
+    "strict_generator_pass": false,
+    "responder_valid": true,
+    "profiled": false,
+    "http_clients_per_shard": 1,
+    "scheduled": 3600,
+    "fulfilled": 3206,
+    "drops": 394,
+    "hold_pre_send_p95_ms": 2983.7668279999434,
+    "hold_to_ticket_p95_ms": 13173.828255999979,
+    "physical_http_attempts": 30583
+  },
+  "candidate": {
+    "revision": "65d15747f0ddca7b99eea2f9cc3ee228981b5858",
+    "strict_generator_pass": true,
+    "responder_valid": true,
+    "profiled": false,
+    "http_clients_per_shard": 8,
+    "scheduled": 3600,
+    "fulfilled": 3600,
+    "drops": 0,
+    "hold_pre_send_p95_ms": 714.9335469998732,
+    "hold_to_ticket_p95_ms": 7749.240598000142,
+    "physical_http_attempts": 56227
+  },
+  "hold_pre_send_reduction_percent": 76.04,
+  "hold_to_ticket_reduction_percent": 41.18,
+  "limitations": [
+    "Worst-shard percentiles are not combined percentiles.",
+    "Accounting pass does not establish reservation latency SLO or production capacity.",
+    "Faster polling changes physical HTTP attempt count despite the same offered journey rate."
+  ]
+}

@@ -480,3 +480,24 @@ def test_opening_burst_checks_each_worker_shard_not_just_global_average(monkeypa
     monkeypatch.setattr(sys, "argv", requested)
     with pytest.raises(ValueError, match="insufficient unique seats"):
         stage.main()
+
+
+@pytest.mark.parametrize("operation", ["remote", "copy_from", "copy_to"])
+def test_transport_decodes_utf8_and_malformed_log_bytes(monkeypatch, tmp_path, operation):
+    real_run = subprocess.run
+
+    def local_child(_command, **kwargs):
+        return real_run([sys.executable, "-c",
+                         "import sys; sys.stdout.buffer.write(bytes.fromhex('636166c3a920f09f918dff'))"],
+                        **kwargs)
+
+    monkeypatch.setattr(stage.subprocess, "run", local_child)
+    transport = stage.Transport("ssh", "scp", tmp_path)
+    if operation == "remote":
+        result = transport.remote("unicode", "unused", ["true"])
+        assert result.stdout == "caf\u00e9 \U0001f44d\ufffd"
+    elif operation == "copy_from":
+        transport.copy_from("unicode", "unused", "/unused", tmp_path / "unused")
+    else:
+        transport.copy_to("unicode", tmp_path / "unused", "unused", "/unused")
+    assert (tmp_path / "unicode.log").read_text(encoding="utf-8") == "caf\u00e9 \U0001f44d\ufffd"
