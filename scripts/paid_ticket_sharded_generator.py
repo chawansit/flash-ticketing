@@ -133,6 +133,7 @@ async def run(args, manifest):
                 "--completion-deadline-seconds", str(args.completion_deadline_seconds),
                 "--concurrency", str(args.concurrency // 2),
                 "--http-max-connections", str(args.concurrency // 2),
+                "--http-client-count", str(getattr(args, "http_client_count", 1)),
                 "--poll-seconds", str(args.poll_seconds),
                 "--duplicates", str(args.duplicates),
                 "--start-at-epoch", str(start_at),
@@ -148,7 +149,10 @@ async def run(args, manifest):
             await asyncio.gather(*(proc.wait() for proc in processes))
         for output_path in paths:
             results.append(json.loads(output_path.read_text(encoding="utf-8")) if output_path.exists() else {})
-    return aggregate(results, args.rate, args.seconds, args.concurrency, exit_codes)
+    combined = aggregate(results, args.rate, args.seconds, args.concurrency, exit_codes)
+    combined["http_clients_per_shard"] = [row.get("http_client_count", 1) for row in results]
+    combined["http_connection_budgets_per_shard"] = [row.get("http_connection_budgets") for row in results]
+    return combined
 
 
 def main():
@@ -162,6 +166,7 @@ def main():
     p.add_argument("--concurrency", required=True, type=int)
     p.add_argument("--poll-seconds", required=True, type=float)
     p.add_argument("--duplicates", required=True, type=int)
+    p.add_argument("--http-client-count", type=int, default=1)
     args = p.parse_args()
     if args.output.exists() or args.seconds < 1 or args.seconds > 300:
         p.error("Fresh output and bounded duration required")

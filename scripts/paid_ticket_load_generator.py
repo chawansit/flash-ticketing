@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import json
 from collections import Counter
+from contextlib import AsyncExitStack
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from time import perf_counter, time
@@ -37,6 +38,9 @@ def validate(args, manifest):
         raise ValueError("Maximum 300000 scheduled journeys")
     if not 1 <= args.concurrency <= 1000 or not 1 <= args.duplicates <= 10:
         raise ValueError("Concurrency or callback count outside bounded limits")
+    client_count = getattr(args, "http_client_count", 1)
+    if not 1 <= client_count <= min(16, args.http_max_connections):
+        raise ValueError("HTTP client count must fit bounded connection budget")
     if not args.concurrency <= args.http_max_connections <= 4000:
         raise ValueError("HTTP connection limit must fit bounded journey concurrency")
     if not 1 <= args.timeout_seconds <= 110 or not 0.05 <= args.poll_seconds <= 2:
@@ -116,13 +120,16 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
             if start in stamps and end in stamps:
                 transport[route][phase].append(max(0.0, (stamps[end] - stamps[start]) * 1000))
 
-    async with httpx.AsyncClient(
-        base_url=args.origin,
-        timeout=10,
-        limits=httpx.Limits(max_connections=args.http_max_connections),
-        event_hooks={"request": [on_request], "response": [on_response]},
-    ) as client:
-        (await client.get("/health/ready")).raise_for_status()
+    client_count = getattr(args, "http_client_count", 1)
+    base, extra = divmod(args.http_max_connections, client_count)
+    connection_budgets = [base + (index < extra) for index in range(client_count)]
+    async with AsyncExitStack() as stack:
+        clients = [await stack.enter_async_context(httpx.AsyncClient(
+            base_url=args.origin, timeout=10,
+            limits=httpx.Limits(max_connections=budget),
+            event_hooks={"request": [on_request], "response": [on_response]},
+        )) for budget in connection_budgets]
+        (await clients[0].get("/health/ready")).raise_for_status()
         attempts.clear()
         if args.start_at_epoch is not None:
             delay = args.start_at_epoch - time()
@@ -137,7 +144,7 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
             nonlocal fulfilled_by_deadline
             try:
                 row = await journey_fn(
-                    client,
+                    clients[index % client_count],
                     manifest,
                     index,
                     run_id,
@@ -178,6 +185,7 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
         "measured_at_utc": datetime.now(UTC).isoformat(),
         "started_at_utc": started_utc,
         "kind": "scheduled_paid_ticket_journeys",
+        "http_client_count": client_count, "http_connection_budgets": connection_budgets,
         "rate_target_per_second": args.rate,
         "dispatch_seconds": args.seconds,
         "completion_deadline_seconds": args.completion_deadline_seconds,
@@ -244,6 +252,7 @@ def main():
     parser.add_argument("--completion-deadline-seconds", required=True, type=int)
     parser.add_argument("--concurrency", type=int, default=100)
     parser.add_argument("--http-max-connections", type=int)
+    parser.add_argument("--http-client-count", type=int, default=1)
     parser.add_argument("--start-at-epoch", type=float)
     parser.add_argument("--duplicates", type=int, default=3)
     parser.add_argument("--timeout-seconds", type=int, default=90)

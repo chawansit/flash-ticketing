@@ -132,3 +132,61 @@ def test_generator_allows_pool_headroom_without_raising_journey_cap(tmp_path):
         assert "HTTP connection limit" in str(exc)
     else:
         raise AssertionError("Expected bounded pool rejection")
+
+
+def test_partitioned_clients_keep_total_budget_and_close(monkeypatch, tmp_path):
+    created, closed, used = [], [], set()
+
+    class TrackingClient(FakeClient):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            created.append(self)
+
+        async def __aexit__(self, *_):
+            closed.append(self)
+
+    async def fake_journey(client, _manifest, index, *_):
+        used.add(client)
+        return fulfilled(index)
+
+    monkeypatch.setattr(generator.httpx, "AsyncClient", TrackingClient)
+    candidate = args(tmp_path)
+    candidate.http_client_count = 3
+    result = asyncio.run(generator.scheduled_journeys(candidate, manifest(), fake_journey))
+    assert result["pass"]
+    assert result["http_connection_budgets"] == [4, 3, 3]
+    assert sum(c.kwargs["limits"].max_connections for c in created) == candidate.http_max_connections
+    assert used == set(created) == set(closed)
+
+
+def test_partitioned_clients_close_on_readiness_failure(monkeypatch, tmp_path):
+    closed = []
+
+    class UnreadyClient(FakeClient):
+        async def get(self, _):
+            raise RuntimeError("unready")
+
+        async def __aexit__(self, *_):
+            closed.append(self)
+
+    monkeypatch.setattr(generator.httpx, "AsyncClient", UnreadyClient)
+    candidate = args(tmp_path)
+    candidate.http_client_count = 3
+    try:
+        asyncio.run(generator.scheduled_journeys(candidate, manifest()))
+    except RuntimeError as exc:
+        assert str(exc) == "unready"
+    else:
+        raise AssertionError("Expected readiness failure")
+    assert len(closed) == 3
+
+
+def test_invalid_client_partition_rejected_before_any_requests(tmp_path):
+    candidate = args(tmp_path)
+    candidate.http_client_count = candidate.http_max_connections + 1
+    try:
+        generator.validate(candidate, manifest())
+    except ValueError as exc:
+        assert "client count" in str(exc)
+    else:
+        raise AssertionError("Expected client budget rejection")

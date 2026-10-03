@@ -127,3 +127,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0089: Use a single-statement PostgreSQL order-status read](0089-single-statement-order-status-read.md)
 - [0090: Isolate the paid generator with a controlled loopback responder](0090-isolate-paid-generator-with-loopback-responder.md)
 - [0091: Profile the paid generator without changing pool behavior](0091-profile-paid-generator-without-changing-pool-behavior.md)
+- [0092: Partition generator HTTP pools with a fixed total budget](0092-partition-generator-http-pools-with-fixed-total-budget.md)

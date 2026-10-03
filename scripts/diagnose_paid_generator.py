@@ -220,6 +220,7 @@ async def diagnose(args):
             origin=server.origin, rate=args.rate, seconds=args.seconds, concurrency=args.concurrency,
             completion_deadline_seconds=args.seconds + math.ceil(args.ticket_seconds + args.command_seconds) + 30,
             poll_seconds=0.2, duplicates=1, profile_directory=profile_directory,
+            http_client_count=getattr(args, "http_client_count", 1),
         )
         result = await run_shards(generator_args, manifest(server.origin, args.rate * args.seconds))
     revision = await asyncio.to_thread(
@@ -240,7 +241,8 @@ async def diagnose(args):
             "httpcore_version": version("httpcore"),
             "configuration": {"rate": args.rate, "seconds": args.seconds, "concurrency": args.concurrency,
                               "response_ms": args.response_ms, "command_seconds": args.command_seconds,
-                              "ticket_seconds": args.ticket_seconds, "poll_seconds": 0.2, "shards": 2},
+                              "ticket_seconds": args.ticket_seconds, "poll_seconds": 0.2, "shards": 2,
+                              "http_clients_per_shard": getattr(args, "http_client_count", 1)},
             "responder": stats, "responder_valid": responder_valid,
             "generator": result, "pass": responder_valid and result["pass"] and not dirty.stdout.strip()}
     report["profiled"] = profile_directory is not None
@@ -253,6 +255,7 @@ async def diagnose(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--rate", type=int, default=60)
+    parser.add_argument("--http-client-count", type=int, default=1)
     parser.add_argument("--seconds", type=int, default=60)
     parser.add_argument("--concurrency", type=int, default=500)
     parser.add_argument("--response-ms", type=float, default=30)
@@ -264,7 +267,8 @@ def main():
     if (args.output.exists() or not 2 <= args.rate <= 100 or args.rate % 2
             or not 1 <= args.seconds <= 120 or not 2 <= args.concurrency <= 1000 or args.concurrency % 2
             or not 0 <= args.response_ms <= 500 or not 0 <= args.command_seconds <= 5
-            or not 0 <= args.ticket_seconds <= 30):
+            or not 0 <= args.ticket_seconds <= 30
+            or not 1 <= args.http_client_count <= min(16, args.concurrency // 2)):
         parser.error("Fresh output, even rate/concurrency and bounded synthetic delays required")
     result = asyncio.run(diagnose(args))
     args.output.parent.mkdir(parents=True, exist_ok=True)

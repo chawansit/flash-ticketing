@@ -1,0 +1,567 @@
+{
+  "kind": "synthetic_generator_control",
+  "production_capacity_evidence": false,
+  "created_at_utc": "2026-10-03T01:45:37.591363+00:00",
+  "source_revision": "fb99cd6da76a963158606e73218148c26962754a",
+  "source_dirty": false,
+  "python_version": "3.12.3",
+  "platform": "Linux",
+  "logical_cpus": 8,
+  "httpx_version": "0.28.1",
+  "httpcore_version": "1.0.9",
+  "configuration": {
+    "rate": 60,
+    "seconds": 30,
+    "concurrency": 500,
+    "response_ms": 30.0,
+    "command_seconds": 0.5,
+    "ticket_seconds": 5.0,
+    "poll_seconds": 0.2,
+    "shards": 2
+  },
+  "responder": {
+    "requests": {
+      "other": 2,
+      "holds": 1211,
+      "reservation_commands": 1651,
+      "payments": 1211,
+      "orders": 4839
+    },
+    "accepted_connections": 48,
+    "closed_connections": 48,
+    "protocol_errors": 0,
+    "peak_handlers": 20,
+    "handler_p95_ms": 31.084122000038406,
+    "handler_max_ms": 32.24586800001816,
+    "loop_lag_p95_ms": 1.0661310000159574,
+    "loop_lag_max_ms": 1.8245829999159469,
+    "synthetic_orders": 1211
+  },
+  "responder_valid": true,
+  "generator": {
+    "kind": "scheduled_paid_ticket_journeys_sharded",
+    "measured_at_utc": "2026-10-03T01:45:37.579504+00:00",
+    "rate_target_per_second": 60,
+    "dispatch_seconds": 30,
+    "generator_shards": 2,
+    "generator_max_in_flight": 500,
+    "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+    "shard_exit_codes": [
+      0,
+      0
+    ],
+    "scheduled": 1800,
+    "dispatched": 1211,
+    "generator_drops": 589,
+    "completed": 1211,
+    "fulfilled": 1211,
+    "fulfilled_by_deadline": 1211,
+    "distinct_orders": 1211,
+    "distinct_tickets": 1211,
+    "retry_attempts": 0,
+    "hold_app_timing_samples": 1211,
+    "payment_app_timing_samples": 1211,
+    "outcomes": {
+      "fulfilled": 1211
+    },
+    "physical_http_attempts": {
+      "holds": 1211,
+      "reservation_commands": 1651,
+      "payments": 1211,
+      "orders": 4839
+    },
+    "dispatch_lag_p95_ms": 49.659157666610554,
+    "dispatch_lag_max_ms": 94.83600700013994,
+    "hold_http_p95_ms": 6005.399027000067,
+    "hold_app_p95_ms": 31.133,
+    "hold_client_excess_p95_ms": 5974.682027000067,
+    "command_durable_wait_p95_ms": 7177.022469000121,
+    "durable_p95_ms": 10562.761179000063,
+    "payment_http_p95_ms": 6687.508488000049,
+    "payment_app_p95_ms": 31.071,
+    "payment_client_excess_p95_ms": 6657.185488000048,
+    "ticket_wait_p95_ms": 11352.413922000096,
+    "payment_to_ticket_p95_ms": 14816.043418999925,
+    "hold_to_ticket_p95_ms": 21157.496079999873,
+    "transport_phase_p95_ms": {
+      "holds": {
+        "pre_send_ms": 5824.47766700011,
+        "response_wait_ms": 82.34371200001078,
+        "connect_ms": 105.42704199997388
+      },
+      "orders": {
+        "pre_send_ms": 5476.052005999918,
+        "response_wait_ms": 76.79642900006911,
+        "connect_ms": 105.99571700004162
+      },
+      "payments": {
+        "pre_send_ms": 6543.23429100009,
+        "response_wait_ms": 77.51998399999138,
+        "connect_ms": 94.9138859998584
+      },
+      "reservation_commands": {
+        "pre_send_ms": 6150.335047999988,
+        "response_wait_ms": 78.9450790000501,
+        "connect_ms": 93.852065999954
+      }
+    },
+    "transport_phase_samples": {
+      "holds": {
+        "pre_send_ms": 1211,
+        "response_wait_ms": 1211,
+        "connect_ms": 17
+      },
+      "orders": {
+        "pre_send_ms": 4839,
+        "response_wait_ms": 4839,
+        "connect_ms": 16
+      },
+      "payments": {
+        "pre_send_ms": 1211,
+        "response_wait_ms": 1211,
+        "connect_ms": 1
+      },
+      "reservation_commands": {
+        "pre_send_ms": 1651,
+        "response_wait_ms": 1651,
+        "connect_ms": 12
+      }
+    },
+    "shards": [
+      {
+        "scheduled": 900,
+        "dispatched": 611,
+        "generator_drops": 289,
+        "fulfilled_by_deadline": 611,
+        "started_at_utc": "2026-10-03T01:44:53.464942+00:00",
+        "dispatch_lag_p95_ms": 44.02644033325487,
+        "transport_phase_p95_ms": {
+          "holds": {
+            "pre_send_ms": 5626.274831000046,
+            "response_wait_ms": 74.20045100002426,
+            "connect_ms": 105.42704199997388
+          },
+          "reservation_commands": {
+            "pre_send_ms": 5104.514550999966,
+            "response_wait_ms": 74.13101199995253,
+            "connect_ms": 76.91116099999817
+          },
+          "payments": {
+            "pre_send_ms": 5267.088570000169,
+            "response_wait_ms": 74.32402400013416,
+            "connect_ms": null
+          },
+          "orders": {
+            "pre_send_ms": 5476.052005999918,
+            "response_wait_ms": 73.72859799988873,
+            "connect_ms": 105.99571700004162
+          }
+        },
+        "outcomes": {
+          "fulfilled": 611
+        },
+        "pass": false
+      },
+      {
+        "scheduled": 900,
+        "dispatched": 600,
+        "generator_drops": 300,
+        "fulfilled_by_deadline": 600,
+        "started_at_utc": "2026-10-03T01:44:53.464719+00:00",
+        "dispatch_lag_p95_ms": 49.659157666610554,
+        "transport_phase_p95_ms": {
+          "holds": {
+            "pre_send_ms": 5824.47766700011,
+            "response_wait_ms": 82.34371200001078,
+            "connect_ms": 97.81959999986611
+          },
+          "reservation_commands": {
+            "pre_send_ms": 6150.335047999988,
+            "response_wait_ms": 78.9450790000501,
+            "connect_ms": 93.852065999954
+          },
+          "payments": {
+            "pre_send_ms": 6543.23429100009,
+            "response_wait_ms": 77.51998399999138,
+            "connect_ms": 94.9138859998584
+          },
+          "orders": {
+            "pre_send_ms": 5417.378862000078,
+            "response_wait_ms": 76.79642900006911,
+            "connect_ms": 94.39877299996624
+          }
+        },
+        "outcomes": {
+          "fulfilled": 600
+        },
+        "pass": false
+      }
+    ],
+    "pass": false
+  },
+  "pass": false,
+  "profiled": true,
+  "cpu_profiles": [
+    {
+      "total_profile_self_seconds": 50.69251317200001,
+      "total_calls": 64534978,
+      "top_self_time": [
+        {
+          "function": "~:0:<method 'poll' of 'select.epoll' objects>",
+          "calls": 5662,
+          "self_seconds": 10.6907,
+          "cumulative_seconds": 10.6907
+        },
+        {
+          "function": "connection_pool.py:270:_assign_requests_to_connections",
+          "calls": 38631,
+          "self_seconds": 3.6499,
+          "cumulative_seconds": 19.9774
+        },
+        {
+          "function": "<frozen importlib._bootstrap_external>:1593:find_spec",
+          "calls": 386997,
+          "self_seconds": 2.4058,
+          "cumulative_seconds": 6.7874
+        },
+        {
+          "function": "<frozen importlib._bootstrap_external>:126:_path_join",
+          "calls": 1935182,
+          "self_seconds": 1.6278,
+          "cumulative_seconds": 2.7007
+        },
+        {
+          "function": "connection.py:192:is_idle",
+          "calls": 5214620,
+          "self_seconds": 1.4405,
+          "cumulative_seconds": 2.1386
+        },
+        {
+          "function": "_sockets.py:143:extra_attributes",
+          "calls": 210519,
+          "self_seconds": 1.1427,
+          "cumulative_seconds": 3.4002
+        },
+        {
+          "function": "~:0:<built-in method posix.stat>",
+          "calls": 387568,
+          "self_seconds": 1.0681,
+          "cumulative_seconds": 1.0681
+        },
+        {
+          "function": "http11.py:288:is_idle",
+          "calls": 5210625,
+          "self_seconds": 0.6981,
+          "cumulative_seconds": 0.6981
+        },
+        {
+          "function": "~:0:<method 'rstrip' of 'str' objects>",
+          "calls": 3879765,
+          "self_seconds": 0.6465,
+          "cumulative_seconds": 0.6465
+        },
+        {
+          "function": "connection_pool.py:39:is_queued",
+          "calls": 7371417,
+          "self_seconds": 0.6287,
+          "cumulative_seconds": 0.6287
+        },
+        {
+          "function": "<frozen importlib._bootstrap_external>:1491:_get_spec",
+          "calls": 77543,
+          "self_seconds": 0.6023,
+          "cumulative_seconds": 7.6251
+        },
+        {
+          "function": "<frozen importlib._bootstrap>:1240:_find_spec",
+          "calls": 77562,
+          "self_seconds": 0.4952,
+          "cumulative_seconds": 8.6888
+        }
+      ],
+      "top_cumulative_time": [
+        {
+          "function": "~:0:<built-in method builtins.exec>",
+          "calls": 301,
+          "self_seconds": 0.0099,
+          "cumulative_seconds": 50.7155
+        },
+        {
+          "function": "paid_ticket_load_generator.py:1:<module>",
+          "calls": 1,
+          "self_seconds": 0.0,
+          "cumulative_seconds": 50.7155
+        },
+        {
+          "function": "paid_ticket_load_generator.py:237:main",
+          "calls": 1,
+          "self_seconds": 0.0001,
+          "cumulative_seconds": 50.6064
+        },
+        {
+          "function": "runners.py:160:run",
+          "calls": 1,
+          "self_seconds": 0.0,
+          "cumulative_seconds": 50.6031
+        },
+        {
+          "function": "base_events.py:651:run_until_complete",
+          "calls": 3,
+          "self_seconds": 0.0,
+          "cumulative_seconds": 50.6025
+        },
+        {
+          "function": "runners.py:86:run",
+          "calls": 1,
+          "self_seconds": 0.0,
+          "cumulative_seconds": 50.6025
+        },
+        {
+          "function": "base_events.py:627:run_forever",
+          "calls": 3,
+          "self_seconds": 0.0062,
+          "cumulative_seconds": 50.6024
+        },
+        {
+          "function": "base_events.py:1910:_run_once",
+          "calls": 5662,
+          "self_seconds": 0.1953,
+          "cumulative_seconds": 50.5962
+        },
+        {
+          "function": "events.py:86:_run",
+          "calls": 94863,
+          "self_seconds": 0.1329,
+          "cumulative_seconds": 39.6018
+        },
+        {
+          "function": "~:0:<method 'run' of '_contextvars.Context' objects>",
+          "calls": 94863,
+          "self_seconds": 0.1777,
+          "cumulative_seconds": 39.4689
+        },
+        {
+          "function": "paid_ticket_load_generator.py:136:one",
+          "calls": 85646,
+          "self_seconds": 0.0678,
+          "cumulative_seconds": 38.8421
+        },
+        {
+          "function": "checkout_journey_probe.py:31:journey",
+          "calls": 85646,
+          "self_seconds": 0.1006,
+          "cumulative_seconds": 38.7693
+        }
+      ],
+      "note": "Cumulative times overlap; profiling perturbs timing."
+    },
+    {
+      "total_profile_self_seconds": 51.92621751900006,
+      "total_calls": 66179607,
+      "top_self_time": [
+        {
+          "function": "~:0:<method 'poll' of 'select.epoll' objects>",
+          "calls": 5705,
+          "self_seconds": 11.8181,
+          "cumulative_seconds": 11.8181
+        },
+        {
+          "function": "connection_pool.py:270:_assign_requests_to_connections",
+          "calls": 37385,
+          "self_seconds": 3.8249,
+          "cumulative_seconds": 20.7306
+        },
+        {
+          "function": "<frozen importlib._bootstrap_external>:1593:find_spec",
+          "calls": 374577,
+          "self_seconds": 2.3117,
+          "cumulative_seconds": 6.5263
+        },
+        {
+          "function": "connection.py:192:is_idle",
+          "calls": 6067702,
+          "self_seconds": 1.6716,
+          "cumulative_seconds": 2.5027
+        },
+        {
+          "function": "<frozen importlib._bootstrap_external>:126:_path_join",
+          "calls": 1873082,
+          "self_seconds": 1.5537,
+          "cumulative_seconds": 2.577
+        },
+        {
+          "function": "_sockets.py:143:extra_attributes",
+          "calls": 234587,
+          "self_seconds": 1.2596,
+          "cumulative_seconds": 3.6212
+        },
+        {
+          "function": "~:0:<built-in method posix.stat>",
+          "calls": 375148,
+          "self_seconds": 1.0354,
+          "cumulative_seconds": 1.0354
+        },
+        {
+          "function": "http11.py:288:is_idle",
+          "calls": 6061307,
+          "self_seconds": 0.8311,
+          "cumulative_seconds": 0.8311
+        },
+        {
+          "function": "~:0:<method 'rstrip' of 'str' objects>",
+          "calls": 3755409,
+          "self_seconds": 0.6147,
+          "cumulative_seconds": 0.6147
+        },
+        {
+          "function": "connection_pool.py:39:is_queued",
+          "calls": 7180701,
+          "self_seconds": 0.6108,
+          "cumulative_seconds": 0.6108
+        },
+        {
+          "function": "<frozen importlib._bootstrap_external>:1491:_get_spec",
+          "calls": 75059,
+          "self_seconds": 0.5762,
+          "cumulative_seconds": 7.3188
+        },
+        {
+          "function": "_utils.py:8:is_socket_readable",
+          "calls": 234561,
+          "self_seconds": 0.4937,
+          "cumulative_seconds": 1.1307
+        }
+      ],
+      "top_cumulative_time": [
+        {
+          "function": "~:0:<built-in method builtins.exec>",
+          "calls": 301,
+          "self_seconds": 0.0101,
+          "cumulative_seconds": 51.9485
+        },
+        {
+          "function": "paid_ticket_load_generator.py:1:<module>",
+          "calls": 1,
+          "self_seconds": 0.0001,
+          "cumulative_seconds": 51.9485
+        },
+        {
+          "function": "paid_ticket_load_generator.py:237:main",
+          "calls": 1,
+          "self_seconds": 0.0001,
+          "cumulative_seconds": 51.8143
+        },
+        {
+          "function": "runners.py:160:run",
+          "calls": 1,
+          "self_seconds": 0.0,
+          "cumulative_seconds": 51.811
+        },
+        {
+          "function": "base_events.py:651:run_until_complete",
+          "calls": 3,
+          "self_seconds": 0.0,
+          "cumulative_seconds": 51.8103
+        },
+        {
+          "function": "runners.py:86:run",
+          "calls": 1,
+          "self_seconds": 0.0,
+          "cumulative_seconds": 51.8103
+        },
+        {
+          "function": "base_events.py:627:run_forever",
+          "calls": 3,
+          "self_seconds": 0.0058,
+          "cumulative_seconds": 51.8102
+        },
+        {
+          "function": "base_events.py:1910:_run_once",
+          "calls": 5705,
+          "self_seconds": 0.1876,
+          "cumulative_seconds": 51.8044
+        },
+        {
+          "function": "events.py:86:_run",
+          "calls": 92113,
+          "self_seconds": 0.1276,
+          "cumulative_seconds": 39.6939
+        },
+        {
+          "function": "~:0:<method 'run' of '_contextvars.Context' objects>",
+          "calls": 92113,
+          "self_seconds": 0.1712,
+          "cumulative_seconds": 39.5662
+        },
+        {
+          "function": "paid_ticket_load_generator.py:136:one",
+          "calls": 83015,
+          "self_seconds": 0.0671,
+          "cumulative_seconds": 38.9585
+        },
+        {
+          "function": "checkout_journey_probe.py:31:journey",
+          "calls": 83015,
+          "self_seconds": 0.0971,
+          "cumulative_seconds": 38.8866
+        }
+      ],
+      "note": "Cumulative times overlap; profiling perturbs timing."
+    }
+  ],
+  "compact": {
+    "kind": "synthetic_generator_control",
+    "revision": "fb99cd6da76a963158606e73218148c26962754a",
+    "profiled": true,
+    "configuration": {
+      "rate": 60,
+      "seconds": 30,
+      "concurrency": 500,
+      "response_ms": 30.0,
+      "command_seconds": 0.5,
+      "ticket_seconds": 5.0,
+      "poll_seconds": 0.2,
+      "shards": 2
+    },
+    "pass": false,
+    "failed_gates": [
+      "generator_strict"
+    ],
+    "scheduled": 1800,
+    "completed": 1211,
+    "fulfilled": 1211,
+    "drops": 589,
+    "outcomes": {
+      "fulfilled": 1211
+    },
+    "retries": 0,
+    "hold_to_ticket_p95_ms": 21157.496079999873,
+    "transport_p95_ms": {
+      "holds": {
+        "pre_send_ms": 5824.47766700011,
+        "response_wait_ms": 82.34371200001078,
+        "connect_ms": 105.42704199997388
+      },
+      "orders": {
+        "pre_send_ms": 5476.052005999918,
+        "response_wait_ms": 76.79642900006911,
+        "connect_ms": 105.99571700004162
+      },
+      "payments": {
+        "pre_send_ms": 6543.23429100009,
+        "response_wait_ms": 77.51998399999138,
+        "connect_ms": 94.9138859998584
+      },
+      "reservation_commands": {
+        "pre_send_ms": 6150.335047999988,
+        "response_wait_ms": 78.9450790000501,
+        "connect_ms": 93.852065999954
+      }
+    },
+    "responder_handler_p95_ms": 31.084122000038406,
+    "responder_loop_lag_p95_ms": 1.0661310000159574,
+    "durability_audit": "not_applicable_synthetic",
+    "queue_drain": "not_applicable_synthetic",
+    "production_capacity_evidence": false
+  }
+}
