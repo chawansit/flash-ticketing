@@ -136,3 +136,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0096 - Sixteen generator pools with a fixed budget](0096-compare-sixteen-generator-client-pools-with-fixed-budget.md)
 
 - [0097 - Bounded order-status read cache](0097-proposed-bounded-order-status-read-cache.md)
+
+- [0098 - Index unfinished payment deliveries](0098-index-unfinished-payment-deliveries.md)

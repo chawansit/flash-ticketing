@@ -1,0 +1,481 @@
+{
+  "kind": "retained_stage_readonly_diagnosis",
+  "date_bangkok": "2026-10-03",
+  "new_load_ran": false,
+  "baseline_run_id": "checkout-20261003T023809Z-26db48",
+  "cache_run_id": "checkout-20261003T033256Z-2980d2",
+  "baseline": {
+    "orders": 2700,
+    "timings": {
+      "callback_to_ticket": {
+        "max_ms": 6356.728,
+        "p50_ms": 589.645,
+        "p95_ms": 4740.482099999998,
+        "p99_ms": 5706.7865,
+        "mean_ms": 1350.0509980055845,
+        "samples": 2507,
+        "negative_samples": 0
+      },
+      "order_to_payment_due": {
+        "max_ms": 1414.051,
+        "p50_ms": 1022.909,
+        "p95_ms": 1170.6945999999998,
+        "p99_ms": 1242.7147000000002,
+        "mean_ms": 1012.8070522536897,
+        "samples": 2507,
+        "negative_samples": 0
+      },
+      "payment_due_to_ticket": {
+        "max_ms": 70069.231,
+        "p50_ms": 17685.356,
+        "p95_ms": 36467.6576,
+        "p99_ms": 43114.04004000003,
+        "mean_ms": 16433.537071798964,
+        "samples": 2507,
+        "negative_samples": 0
+      },
+      "callback_to_paid_event": {
+        "max_ms": 74.209,
+        "p50_ms": 20.091,
+        "p95_ms": 36.1996,
+        "p99_ms": 47.04158000000001,
+        "mean_ms": 21.469501396090944,
+        "samples": 2507,
+        "negative_samples": 0
+      },
+      "payment_due_to_callback": {
+        "max_ms": 70002.869,
+        "p50_ms": 15730.198,
+        "p95_ms": 36183.467099999994,
+        "p99_ms": 41998.76612000001,
+        "mean_ms": 15083.48607379338,
+        "samples": 2507,
+        "negative_samples": 0
+      },
+      "publication_record_to_ticket": {
+        "max_ms": 6247.532,
+        "p50_ms": 501.516,
+        "p95_ms": 4634.707699999999,
+        "p99_ms": 5621.614400000001,
+        "mean_ms": 1258.860721579577,
+        "samples": 2507,
+        "negative_samples": 37
+      },
+      "paid_event_to_publication_record": {
+        "max_ms": 193.474,
+        "p50_ms": 61.57,
+        "p95_ms": 134.94499999999988,
+        "p99_ms": 162.94748,
+        "mean_ms": 69.72077502991624,
+        "samples": 2507,
+        "negative_samples": 0
+      }
+    },
+    "fulfilled_orders": 2507,
+    "payment_attempts": 2507,
+    "extra_paid_events": 0,
+    "succeeded_payments": 2507,
+    "orders_with_tickets": 2507,
+    "orders_with_callback": 2507,
+    "orders_with_paid_event": 2507,
+    "orders_with_publication": 2507,
+    "expected_orders": 2700,
+    "expected_paid": 2507,
+    "cohort_pass": true,
+    "notes": [
+      "Database statement timestamps are proxies, not measured commit or exact queue service time.",
+      "Publication is recorded after Kafka acknowledgments; a fast consumer can issue before that record.",
+      "No per-order IDs, actors, credentials, individual payloads or client-clock subtraction are emitted.",
+      "This cohort/timing report does not replace durability, uniqueness or queue audits."
+    ]
+  },
+  "cache": {
+    "orders": 2461,
+    "timings": {
+      "callback_to_ticket": {
+        "max_ms": 14198.135,
+        "p50_ms": 3376.911,
+        "p95_ms": 11352.673,
+        "p99_ms": 13262.16784999999,
+        "mean_ms": 4298.912271986971,
+        "samples": 2456,
+        "negative_samples": 0
+      },
+      "order_to_payment_due": {
+        "max_ms": 2511.336,
+        "p50_ms": 973.485,
+        "p95_ms": 1358.062,
+        "p99_ms": 1705.7057999999988,
+        "mean_ms": 966.0248118892508,
+        "samples": 2456,
+        "negative_samples": 0
+      },
+      "payment_due_to_ticket": {
+        "max_ms": 64429.389,
+        "p50_ms": 4677.217000000001,
+        "p95_ms": 19503.038500000002,
+        "p99_ms": 32098.255299999906,
+        "mean_ms": 7409.599491042345,
+        "samples": 2456,
+        "negative_samples": 0
+      },
+      "callback_to_paid_event": {
+        "max_ms": 72.069,
+        "p50_ms": 20.261000000000003,
+        "p95_ms": 36.18375,
+        "p99_ms": 49.054399999999994,
+        "mean_ms": 21.786384364820847,
+        "samples": 2456,
+        "negative_samples": 0
+      },
+      "payment_due_to_callback": {
+        "max_ms": 64346.292,
+        "p50_ms": 1610.9895000000001,
+        "p95_ms": 15817.173,
+        "p99_ms": 30277.9416,
+        "mean_ms": 3110.6872190553745,
+        "samples": 2456,
+        "negative_samples": 0
+      },
+      "publication_record_to_ticket": {
+        "max_ms": 14062.226,
+        "p50_ms": 3286.7165,
+        "p95_ms": 11256.0825,
+        "p99_ms": 13171.610399999992,
+        "mean_ms": 4211.119712540717,
+        "samples": 2456,
+        "negative_samples": 19
+      },
+      "paid_event_to_publication_record": {
+        "max_ms": 363.968,
+        "p50_ms": 59.866,
+        "p95_ms": 120.86,
+        "p99_ms": 146.9109999999999,
+        "mean_ms": 66.00617508143323,
+        "samples": 2456,
+        "negative_samples": 0
+      }
+    },
+    "fulfilled_orders": 2456,
+    "payment_attempts": 2456,
+    "extra_paid_events": 0,
+    "succeeded_payments": 2456,
+    "orders_with_tickets": 2456,
+    "orders_with_callback": 2456,
+    "orders_with_paid_event": 2456,
+    "orders_with_publication": 2456,
+    "expected_orders": 2461,
+    "expected_paid": 2456,
+    "cohort_pass": true,
+    "notes": [
+      "Database statement timestamps are proxies, not measured commit or exact queue service time.",
+      "Publication is recorded after Kafka acknowledgments; a fast consumer can issue before that record.",
+      "No per-order IDs, actors, credentials, individual payloads or client-clock subtraction are emitted.",
+      "This cohort/timing report does not replace durability, uniqueness or queue audits."
+    ]
+  },
+  "scheduler_before_index": {
+    "kind": "idle_readonly_scheduler_plan",
+    "payment_attempts_total": 63832,
+    "unfinished_deliveries": 0,
+    "indexes": [
+      [
+        "payment_attempts_pkey",
+        "CREATE UNIQUE INDEX payment_attempts_pkey ON public.payment_attempts USING btree (id)"
+      ],
+      [
+        "payment_attempts_order_id_key",
+        "CREATE UNIQUE INDEX payment_attempts_order_id_key ON public.payment_attempts USING btree (order_id)"
+      ]
+    ],
+    "unlocked_equivalent_analyze": [
+      {
+        "Plan": {
+          "Node Type": "Limit",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 19561.65,
+          "Total Cost": 19561.65,
+          "Plan Rows": 1,
+          "Plan Width": 104,
+          "Actual Startup Time": 7.803,
+          "Actual Total Time": 7.805,
+          "Actual Rows": 0,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 1097,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Shared I/O Read Time": 0.0,
+          "Shared I/O Write Time": 0.0,
+          "Local I/O Read Time": 0.0,
+          "Local I/O Write Time": 0.0,
+          "Temp I/O Read Time": 0.0,
+          "Temp I/O Write Time": 0.0,
+          "Plans": [
+            {
+              "Node Type": "Sort",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Startup Cost": 19561.65,
+              "Total Cost": 19579.38,
+              "Plan Rows": 7092,
+              "Plan Width": 104,
+              "Actual Startup Time": 7.802,
+              "Actual Total Time": 7.803,
+              "Actual Rows": 0,
+              "Actual Loops": 1,
+              "Sort Key": [
+                "p.due_at"
+              ],
+              "Sort Method": "quicksort",
+              "Sort Space Used": 25,
+              "Sort Space Type": "Memory",
+              "Shared Hit Blocks": 1097,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Shared I/O Read Time": 0.0,
+              "Shared I/O Write Time": 0.0,
+              "Local I/O Read Time": 0.0,
+              "Local I/O Write Time": 0.0,
+              "Temp I/O Read Time": 0.0,
+              "Temp I/O Write Time": 0.0,
+              "Plans": [
+                {
+                  "Node Type": "Nested Loop",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Join Type": "Inner",
+                  "Startup Cost": 0.43,
+                  "Total Cost": 19526.19,
+                  "Plan Rows": 7092,
+                  "Plan Width": 104,
+                  "Actual Startup Time": 7.798,
+                  "Actual Total Time": 7.799,
+                  "Actual Rows": 0,
+                  "Actual Loops": 1,
+                  "Inner Unique": true,
+                  "Shared Hit Blocks": 1097,
+                  "Shared Read Blocks": 0,
+                  "Shared Dirtied Blocks": 0,
+                  "Shared Written Blocks": 0,
+                  "Local Hit Blocks": 0,
+                  "Local Read Blocks": 0,
+                  "Local Dirtied Blocks": 0,
+                  "Local Written Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0,
+                  "Shared I/O Read Time": 0.0,
+                  "Shared I/O Write Time": 0.0,
+                  "Local I/O Read Time": 0.0,
+                  "Local I/O Write Time": 0.0,
+                  "Temp I/O Read Time": 0.0,
+                  "Temp I/O Write Time": 0.0,
+                  "Plans": [
+                    {
+                      "Node Type": "Seq Scan",
+                      "Parent Relationship": "Outer",
+                      "Parallel Aware": false,
+                      "Async Capable": false,
+                      "Relation Name": "payment_attempts",
+                      "Alias": "p",
+                      "Startup Cost": 0.0,
+                      "Total Cost": 2533.22,
+                      "Plan Rows": 7092,
+                      "Plan Width": 92,
+                      "Actual Startup Time": 7.798,
+                      "Actual Total Time": 7.798,
+                      "Actual Rows": 0,
+                      "Actual Loops": 1,
+                      "Filter": "((deliveries < target_deliveries) AND (due_at <= clock_timestamp()) AND ((lease_until IS NULL) OR (lease_until < clock_timestamp())))",
+                      "Rows Removed by Filter": 63832,
+                      "Shared Hit Blocks": 1097,
+                      "Shared Read Blocks": 0,
+                      "Shared Dirtied Blocks": 0,
+                      "Shared Written Blocks": 0,
+                      "Local Hit Blocks": 0,
+                      "Local Read Blocks": 0,
+                      "Local Dirtied Blocks": 0,
+                      "Local Written Blocks": 0,
+                      "Temp Read Blocks": 0,
+                      "Temp Written Blocks": 0,
+                      "Shared I/O Read Time": 0.0,
+                      "Shared I/O Write Time": 0.0,
+                      "Local I/O Read Time": 0.0,
+                      "Local I/O Write Time": 0.0,
+                      "Temp I/O Read Time": 0.0,
+                      "Temp I/O Write Time": 0.0
+                    },
+                    {
+                      "Node Type": "Index Scan",
+                      "Parent Relationship": "Inner",
+                      "Parallel Aware": false,
+                      "Async Capable": false,
+                      "Scan Direction": "Forward",
+                      "Index Name": "orders_pkey",
+                      "Relation Name": "orders",
+                      "Alias": "o",
+                      "Startup Cost": 0.43,
+                      "Total Cost": 2.4,
+                      "Plan Rows": 1,
+                      "Plan Width": 28,
+                      "Actual Startup Time": 0.0,
+                      "Actual Total Time": 0.0,
+                      "Actual Rows": 0,
+                      "Actual Loops": 0,
+                      "Index Cond": "(id = p.order_id)",
+                      "Rows Removed by Index Recheck": 0,
+                      "Shared Hit Blocks": 0,
+                      "Shared Read Blocks": 0,
+                      "Shared Dirtied Blocks": 0,
+                      "Shared Written Blocks": 0,
+                      "Local Hit Blocks": 0,
+                      "Local Read Blocks": 0,
+                      "Local Dirtied Blocks": 0,
+                      "Local Written Blocks": 0,
+                      "Temp Read Blocks": 0,
+                      "Temp Written Blocks": 0,
+                      "Shared I/O Read Time": 0.0,
+                      "Shared I/O Write Time": 0.0,
+                      "Local I/O Read Time": 0.0,
+                      "Local I/O Write Time": 0.0,
+                      "Temp I/O Read Time": 0.0,
+                      "Temp I/O Write Time": 0.0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "Planning": {
+          "Shared Hit Blocks": 20,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Shared I/O Read Time": 0.0,
+          "Shared I/O Write Time": 0.0,
+          "Local I/O Read Time": 0.0,
+          "Local I/O Write Time": 0.0,
+          "Temp I/O Read Time": 0.0,
+          "Temp I/O Write Time": 0.0
+        },
+        "Planning Time": 0.202,
+        "Triggers": [],
+        "Execution Time": 7.834
+      }
+    ],
+    "exact_locking_statement_plan_only": [
+      {
+        "Plan": {
+          "Node Type": "Limit",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 19561.65,
+          "Total Cost": 19561.66,
+          "Plan Rows": 1,
+          "Plan Width": 116,
+          "Plans": [
+            {
+              "Node Type": "LockRows",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Startup Cost": 19561.65,
+              "Total Cost": 19650.3,
+              "Plan Rows": 7092,
+              "Plan Width": 116,
+              "Plans": [
+                {
+                  "Node Type": "Sort",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Startup Cost": 19561.65,
+                  "Total Cost": 19579.38,
+                  "Plan Rows": 7092,
+                  "Plan Width": 116,
+                  "Sort Key": [
+                    "p.due_at"
+                  ],
+                  "Plans": [
+                    {
+                      "Node Type": "Nested Loop",
+                      "Parent Relationship": "Outer",
+                      "Parallel Aware": false,
+                      "Async Capable": false,
+                      "Join Type": "Inner",
+                      "Startup Cost": 0.43,
+                      "Total Cost": 19526.19,
+                      "Plan Rows": 7092,
+                      "Plan Width": 116,
+                      "Inner Unique": true,
+                      "Plans": [
+                        {
+                          "Node Type": "Seq Scan",
+                          "Parent Relationship": "Outer",
+                          "Parallel Aware": false,
+                          "Async Capable": false,
+                          "Relation Name": "payment_attempts",
+                          "Alias": "p",
+                          "Startup Cost": 0.0,
+                          "Total Cost": 2533.22,
+                          "Plan Rows": 7092,
+                          "Plan Width": 98,
+                          "Filter": "((deliveries < target_deliveries) AND (due_at <= clock_timestamp()) AND ((lease_until IS NULL) OR (lease_until < clock_timestamp())))"
+                        },
+                        {
+                          "Node Type": "Index Scan",
+                          "Parent Relationship": "Inner",
+                          "Parallel Aware": false,
+                          "Async Capable": false,
+                          "Scan Direction": "Forward",
+                          "Index Name": "orders_pkey",
+                          "Relation Name": "orders",
+                          "Alias": "o",
+                          "Startup Cost": 0.43,
+                          "Total Cost": 2.4,
+                          "Plan Rows": 1,
+                          "Plan Width": 34,
+                          "Index Cond": "(id = p.order_id)"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "note": "READONLY unlocked equivalent executed; exact locking query was explained without ANALYZE. Idle sample, not loaded-query latency."
+  },
+  "findings": [
+    "Cache stage payment-due to callback p95=15817ms; callback to ticket p95=11353ms. Callback-to-paid-event p95=36ms and publication-record p95=121ms. Quantiles are per-stage and must not be added.",
+    "Idle unlocked scheduler equivalent scanned63832 completed attempts,1097cached blocks,7.834ms; this is not loaded claim latency. Exact locking query was explained only, not executed.",
+    "Six partitions received similar arrival counts, but four accumulated much higher lag; consistent with uneven assigned-partition processing demand. Replica attribution/offset-commit time was not captured, so assignment or commit costs are hypotheses."
+  ],
+  "next_decision": "ADR0098 partial due_at index for unfinished deliveries; retain lease, duplicate callback, transaction and consumer semantics. Same45/s cache-enabled control only, no escalation on failed gates."
+}
