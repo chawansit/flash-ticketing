@@ -1,0 +1,977 @@
+{
+  "kind": "bounded_external_api_profile_on_requalified_writer",
+  "run_id": "checkout-20261003T175147Z-e91677",
+  "tested_revision": "e28e7d808ceb2403f902ffb9136fe531473156dd",
+  "decision_record": "0118-bounded-external-api-stack-sampling",
+  "comparison": {
+    "baseline_run": "checkout-20261003T173311Z-c06d35",
+    "baseline_report": "docs/capacity/flash-sale-opening/paid-writer-fairness-repeat-2026-10-04.json",
+    "factor": "Four API processes sampled externally120s at25Hz GIL-only/nonblocking. All10 application runtime hashes, budgets and load unchanged; sampling overhead is a confound.",
+    "limitations": "Diagnostic replay has profiler overhead and fresh-fixture/background variation;not an uninstrumented capacity improvement control. GIL-only stack presence is not CPU attribution;overlapping groups are not additive."
+  },
+  "configuration": {
+    "rate": 60,
+    "seconds": 300,
+    "concurrency": 500,
+    "generator_shards": 2,
+    "http_clients_per_shard": 8,
+    "http_connections_per_shard": 250,
+    "poll_seconds": 1.0,
+    "callback_duplicates": 1,
+    "simulator_dispatch_mode": "refill",
+    "lifecycle_diagnostics": true,
+    "kafka_observer_backend": "python",
+    "api_replicas": 4,
+    "api_pool_per_replica": 4,
+    "api_pool_waiters_per_replica": 12,
+    "order_status_cache_ms": 3000,
+    "consumer_replicas": 6,
+    "consumer_pool_per_replica": 8,
+    "writer_replicas": 3,
+    "writer_batch_size": 4,
+    "simulator_refill_slots": 8,
+    "pgbouncer_server_pool": 24
+  },
+  "load_gate_pass": true,
+  "required_gates": {
+    "customer_load": true,
+    "post_ttl_financial": true,
+    "zero_double_booking": true,
+    "full_keyspace_queue_drain": true,
+    "kafka_drain": true,
+    "pipeline_observer": true,
+    "kafka_observer": true,
+    "cpu_sampler": true,
+    "source_and_restored_configuration_pass": true,
+    "generator_idle_pass": true,
+    "private_cleanup_pass": true,
+    "hold_deadlines_elapsed": true,
+    "external_profile": true
+  },
+  "customer": {
+    "scheduled": 18000,
+    "dispatched": 18000,
+    "generator_drops": 0,
+    "fulfilled_by_deadline": 18000,
+    "distinct_orders": 18000,
+    "distinct_tickets": 18000,
+    "retry_attempts": 0,
+    "outcomes": {
+      "fulfilled": 18000
+    },
+    "physical_http_attempts": {
+      "holds": 18000,
+      "reservation_commands": 37617,
+      "payments": 18000,
+      "orders": 72012
+    },
+    "durable_p95_ms": 2048.8079239949,
+    "hold_to_ticket_p95_ms": 5198.982221001643,
+    "hold_http_p95_ms": 38.74607500620186,
+    "payment_http_p95_ms": 100.20627699850593,
+    "latency_summary_mode": "worst_shard_p95_not_combined_percentile"
+  },
+  "errors": {
+    "failed_customer_journeys": 0,
+    "journey_error_percent_of_dispatched": 0.0,
+    "dropped_percent_of_scheduled": 0.0,
+    "physical_customer_http_attempts": 145629,
+    "customer_http_error_percent_of_physical_attempts": 0.0,
+    "note": "Customer attempts exclude internal callbacks and observers. Backend recovery is separate from customer confirmation."
+  },
+  "comparison_deltas": {
+    "dispatched": {
+      "baseline": 18000,
+      "repeat": 18000,
+      "delta": 0,
+      "percent_change": 0.0
+    },
+    "generator_drops": {
+      "baseline": 0,
+      "repeat": 0,
+      "delta": 0,
+      "percent_change": null
+    },
+    "fulfilled_by_deadline": {
+      "baseline": 18000,
+      "repeat": 18000,
+      "delta": 0,
+      "percent_change": 0.0
+    },
+    "durable_p95_ms": {
+      "baseline": 2048.141407998628,
+      "repeat": 2048.8079239949,
+      "delta": 0.66651599627221,
+      "percent_change": 0.03254247942399183
+    },
+    "hold_to_ticket_p95_ms": {
+      "baseline": 5192.38295499963,
+      "repeat": 5198.982221001643,
+      "delta": 6.599266002012882,
+      "percent_change": 0.12709513260493616
+    }
+  },
+  "matched_offered_window": {
+    "baseline_samples": {
+      "offered_seconds": 300,
+      "sample_start_utc": "2026-10-03T17:34:33.783103+00:00",
+      "sample_end_utc": "2026-10-03T17:39:31.445811+00:00",
+      "samples": 101,
+      "method": "Generator-start anchored offered window plus last preceding sample; sampled boundaries, not exact customer latency windows."
+    },
+    "repeat_samples": {
+      "offered_seconds": 300,
+      "sample_start_utc": "2026-10-03T17:53:07.450525+00:00",
+      "sample_end_utc": "2026-10-03T17:58:07.991624+00:00",
+      "samples": 100,
+      "method": "Generator-start anchored offered window plus last preceding sample; sampled boundaries, not exact customer latency windows."
+    },
+    "baseline_writer_phases": {
+      "observed": true,
+      "phases": {
+        "redis_acknowledge:ok": {
+          "calls": 17897.0,
+          "total_seconds": 22.486347139143618,
+          "mean_ms": 1.2564310856089633,
+          "p95_upper_bound_ms": 2.5
+        },
+        "command_age:ok": {
+          "calls": 17890.0,
+          "total_seconds": 14825.805279493332,
+          "mean_ms": 828.7202503909073,
+          "p95_upper_bound_ms": 2000.0
+        },
+        "postgres_batch:ok": {
+          "calls": 5304.0,
+          "total_seconds": 630.3372157110643,
+          "mean_ms": 118.84185816573613,
+          "p95_upper_bound_ms": 250.0
+        },
+        "redis_claim:ok": {
+          "calls": 5985.0,
+          "total_seconds": 147.69786584145186,
+          "mean_ms": 24.678005988546676,
+          "p95_upper_bound_ms": 50.0
+        },
+        "redis_mark_durable:ok": {
+          "calls": 17897.0,
+          "total_seconds": 23.20191274840181,
+          "mean_ms": 1.2964135189362356,
+          "p95_upper_bound_ms": 2.5
+        }
+      },
+      "counter_reset_detected": false,
+      "note": "Nested phases cannot be added. Histogram p95 is an upper bucket bound, not an exact quantile. Poll wall time includes idle waits."
+    },
+    "repeat_writer_phases": {
+      "observed": true,
+      "phases": {
+        "redis_acknowledge:ok": {
+          "calls": 18000.0,
+          "total_seconds": 23.29040089474438,
+          "mean_ms": 1.2939111608191323,
+          "p95_upper_bound_ms": 2.5
+        },
+        "postgres_batch:ok": {
+          "calls": 5294.0,
+          "total_seconds": 635.8278272369789,
+          "mean_ms": 120.10348077766885,
+          "p95_upper_bound_ms": 250.0
+        },
+        "redis_claim:ok": {
+          "calls": 6017.0,
+          "total_seconds": 145.35619296209916,
+          "mean_ms": 24.15758566762492,
+          "p95_upper_bound_ms": 50.0
+        },
+        "redis_mark_durable:ok": {
+          "calls": 18000.0,
+          "total_seconds": 24.026487471732253,
+          "mean_ms": 1.3348048595406807,
+          "p95_upper_bound_ms": 2.5
+        },
+        "command_age:ok": {
+          "calls": 18000.0,
+          "total_seconds": 15029.055899620056,
+          "mean_ms": 834.947549978892,
+          "p95_upper_bound_ms": 2000.0
+        }
+      },
+      "counter_reset_detected": false,
+      "note": "Nested phases cannot be added. Histogram p95 is an upper bucket bound, not an exact quantile. Poll wall time includes idle waits."
+    },
+    "baseline_simulator_phases": {
+      "observed": true,
+      "phases": {
+        "claim:ok": {
+          "calls": 23345.0,
+          "total_seconds": 348.4061914167396,
+          "mean_ms": 14.924231801959289,
+          "p95_upper_bound_ms": 25.0
+        },
+        "delivery:error": {
+          "calls": 5.0,
+          "total_seconds": 0.09661926899570972,
+          "mean_ms": 19.323853799141943,
+          "p95_upper_bound_ms": 25.0
+        },
+        "due_to_claim:ok": {
+          "calls": 17909.0,
+          "total_seconds": 1084.900579999998,
+          "mean_ms": 60.578512479758665,
+          "p95_upper_bound_ms": 250.0
+        },
+        "delivery:ok": {
+          "calls": 17907.0,
+          "total_seconds": 1121.932718997312,
+          "mean_ms": 62.6533042384158,
+          "p95_upper_bound_ms": 250.0
+        },
+        "ack:ok": {
+          "calls": 17902.0,
+          "total_seconds": 239.36901938040683,
+          "mean_ms": 13.371076940029429,
+          "p95_upper_bound_ms": 25.0
+        }
+      },
+      "counter_reset_detected": false,
+      "note": "Nested phases cannot be added. Histogram p95 is an upper bucket bound, not an exact quantile. Poll wall time includes idle waits."
+    },
+    "repeat_simulator_phases": {
+      "observed": true,
+      "phases": {
+        "delivery:error": {
+          "calls": 3.0,
+          "total_seconds": 0.06004087499604793,
+          "mean_ms": 20.013624998682644,
+          "p95_upper_bound_ms": 25.0
+        },
+        "ack:ok": {
+          "calls": 17974.0,
+          "total_seconds": 246.98421175295516,
+          "mean_ms": 13.741193487980148,
+          "p95_upper_bound_ms": 25.0
+        },
+        "due_to_claim:ok": {
+          "calls": 17980.0,
+          "total_seconds": 2161.9484890000163,
+          "mean_ms": 120.24185144605208,
+          "p95_upper_bound_ms": 1000.0
+        },
+        "claim:ok": {
+          "calls": 22820.0,
+          "total_seconds": 349.602928906992,
+          "mean_ms": 15.320023177344085,
+          "p95_upper_bound_ms": 25.0
+        },
+        "delivery:ok": {
+          "calls": 17974.0,
+          "total_seconds": 1218.7565299911948,
+          "mean_ms": 67.80663903367056,
+          "p95_upper_bound_ms": 250.0
+        }
+      },
+      "counter_reset_detected": false,
+      "note": "Nested phases cannot be added. Histogram p95 is an upper bucket bound, not an exact quantile. Poll wall time includes idle waits."
+    },
+    "baseline_api_mean_ms": {
+      "db_query:BEGIN": 5.250816275836807,
+      "db_query:INSERT": 2.740110904112386,
+      "db_commit:all": 3.8311888326299264,
+      "db_pool_acquire:ok": 0.9902863655634583,
+      "db_connection_hold:all": 29.734347944829143,
+      "event_loop_lag:all": 1.8721377908082564,
+      "db_query:UPDATE": 2.687123963180706,
+      "db_query:SELECT": 2.649694231624691
+    },
+    "repeat_api_mean_ms": {
+      "db_query:SELECT": 2.6876975119296698,
+      "db_query:BEGIN": 5.565968190626016,
+      "db_pool_acquire:ok": 3.1320046702860007,
+      "db_query:UPDATE": 2.711350629080188,
+      "db_commit:all": 4.261603546558139,
+      "db_connection_hold:all": 30.732463594149,
+      "event_loop_lag:all": 1.8977104731539658,
+      "db_query:INSERT": 2.7547368190714567
+    },
+    "baseline_resources": {
+      "observed": true,
+      "samples": 101,
+      "errors": 0,
+      "counter_reset_detected": false,
+      "role_coverage_pass": true,
+      "host_cpu_p95_percent": 99.14456800684346,
+      "host_cpu_peak_percent": 99.69301611665388,
+      "host_iowait_peak_percent": 0.09363295880149813,
+      "pgbouncer_pool_peaks": {
+        "cl_active": 40.0,
+        "cl_waiting": 2.0,
+        "sv_active": 24.0,
+        "sv_idle": 17.0,
+        "sv_used": 2.0,
+        "sv_login": 0.0
+      },
+      "pgbouncer_maxwait_peak_ms": 33.817,
+      "pgbouncer_counter_deltas": {
+        "total_xact_count": 220630.0,
+        "total_query_count": 1909791.0,
+        "total_xact_time": 5068403924.0,
+        "total_query_time": 3622090947.0,
+        "total_wait_time": 27737815.0,
+        "total_server_assignment_count": 220630.0
+      },
+      "pass": true
+    },
+    "repeat_resources": {
+      "observed": true,
+      "samples": 100,
+      "errors": 0,
+      "counter_reset_detected": false,
+      "role_coverage_pass": true,
+      "host_cpu_p95_percent": 99.51377633711508,
+      "host_cpu_peak_percent": 99.6669442131557,
+      "host_iowait_peak_percent": 0.10277492291880781,
+      "pgbouncer_pool_peaks": {
+        "cl_active": 40.0,
+        "cl_waiting": 6.0,
+        "sv_active": 24.0,
+        "sv_idle": 14.0,
+        "sv_used": 1.0,
+        "sv_login": 0.0
+      },
+      "pgbouncer_maxwait_peak_ms": 20.593,
+      "pgbouncer_counter_deltas": {
+        "total_xact_count": 221445.0,
+        "total_query_count": 1916610.0,
+        "total_xact_time": 5175950260.0,
+        "total_query_time": 3695319654.0,
+        "total_wait_time": 47498928.0,
+        "total_server_assignment_count": 221445.0
+      },
+      "pass": true
+    },
+    "note": "Generator-start anchored300s with sampled boundaries. Nested phase means cannot be added; histogram p95 is a bucket upper bound."
+  },
+  "container_cpu": {
+    "observed": true,
+    "pass": true,
+    "samples": 49,
+    "sample_start_utc": "2026-10-03T17:53:02.170557+00:00",
+    "sample_end_utc": "2026-10-03T17:57:02.170759+00:00",
+    "window_seconds": 240.0002116109972,
+    "host_cpu_mean_percent": 89.65371888633634,
+    "aggregate_cpu_cores_by_role": {
+      "api": 1.6126702280885203,
+      "consumer": 0.5041328929997324,
+      "kafka": 0.2664047359409507,
+      "load-balancer": 0.05819393618967971,
+      "maintenance": 0.07571391240876454,
+      "pgbouncer": 0.30889332347823245,
+      "publisher": 0.12982463969866054,
+      "reconciler": 0.023949274716958728,
+      "reservation-writer": 0.2344890224147672,
+      "simulator": 0.14422611866736337
+    },
+    "scope": "Cumulative host/cgroup CPU counters over240s; API includes observers; no function attribution.",
+    "start_offset_from_generator_seconds": -7.697368,
+    "end_offset_from_generator_seconds": 232.302834
+  },
+  "kafka": {
+    "samples": 167,
+    "sample_errors": 0,
+    "max_total_lag": 122,
+    "max_partition_lag": 70,
+    "partition_lag_peaks": {
+      "0": 70,
+      "1": 22,
+      "2": 42,
+      "3": 33,
+      "4": 18,
+      "5": 27
+    },
+    "last_total_lag": 0,
+    "members_min": 6,
+    "members_max": 6,
+    "drain_after_peak_seconds": 70.500411,
+    "ownership_observed": true,
+    "max_partitions_per_member": 1,
+    "last_member_partition_groups": [
+      [
+        0
+      ],
+      [
+        1
+      ],
+      [
+        2
+      ],
+      [
+        3
+      ],
+      [
+        4
+      ],
+      [
+        5
+      ]
+    ]
+  },
+  "post_ttl_correctness": {
+    "orders": 18000,
+    "fulfilled_orders": 18000,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 18000,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 18000,
+    "bookings": 18000,
+    "tickets": 18000,
+    "payment_callbacks": 18000,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 18000,
+    "callback_delivery_target": 18000,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 18000,
+    "expected_paid": 18000,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true
+  },
+  "full_keyspace_queues": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "active_fixture_holds": 0,
+    "overdue_fixture_holds": 0,
+    "pending_fixture_orders": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "pass": true
+  },
+  "recovery": {
+    "source_and_restored_configuration_pass": true,
+    "generator_idle_pass": true,
+    "private_cleanup_pass": true,
+    "hold_deadlines_elapsed": true
+  },
+  "source_verification_scope": {
+    "runtime_modules": 10,
+    "changed_modules": []
+  },
+  "validation": {
+    "focused_profiler_readiness_tests_passed": 46,
+    "seconds": 0.23,
+    "operator_helper_syntax_compiled": true,
+    "application_test_scope": "Application unchanged; prior492unit/integration tests retained fromADR0122,not rerun this diagnostic-only investigation. Reporting checks validate exact same configuration/hashes,rawCPU,profile bounds and every final gate."
+  },
+  "operator_collection": {
+    "runner_exit_code": 0,
+    "cpu_sampler_exit_code": 0,
+    "all_final_gates_pass": true,
+    "external_profile_exit_code": 0
+  },
+  "capacity_claim": "Bounded60buyers/s development-payment repeat across60shows; not sustained300000/hour, one-hot-concert or real-provider production capacity.",
+  "private_evidence_root": "tmp\\checkout-20261003T175147Z-e91677",
+  "scope_status": "One authorized unchanged-load repeat completed; no load increase/main merge/promotion.",
+  "profiling": {
+    "pass": true,
+    "profile_count": 4,
+    "exit_codes": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "profiler_child_cpu_seconds": 3.438554,
+    "elapsed_seconds": 124.01891834699927,
+    "profiler_version": "py-spy 0.4.2",
+    "samples_per_second_per_api": 25,
+    "duration_seconds": 120,
+    "owned_profilers_exited": true,
+    "profiler_mean_cpu_cores": 0.027726044105457225
+  },
+  "profile_verification": {
+    "profiles": 4,
+    "profiler_cpu_seconds": 3.438554,
+    "elapsed_seconds": 124.01891834699927,
+    "owned_profilers_exited": true,
+    "sampling_pass": true,
+    "scratch_removed": true
+  },
+  "profile_summary": {
+    "pass": true,
+    "sample_observations": 4066,
+    "total_sample_weight": 162.64000000000192,
+    "unit": "seconds",
+    "route_stack_presence": [
+      {
+        "symbol": "unattributed",
+        "weight": 115.1600000000068,
+        "sample_weight_percent": 70.80668962125273
+      },
+      {
+        "symbol": "payment_callback",
+        "weight": 15.879999999999837,
+        "sample_weight_percent": 9.763895720609721
+      },
+      {
+        "symbol": "order_status",
+        "weight": 15.559999999999844,
+        "sample_weight_percent": 9.56714215445134
+      },
+      {
+        "symbol": "payment_initiation",
+        "weight": 8.399999999999997,
+        "sample_weight_percent": 5.164781111657586
+      },
+      {
+        "symbol": "seat_hold",
+        "weight": 2.9600000000000017,
+        "sample_weight_percent": 1.819970486965056
+      },
+      {
+        "symbol": "reservation_status",
+        "weight": 2.8000000000000016,
+        "sample_weight_percent": 1.7215937038858637
+      },
+      {
+        "symbol": "metrics",
+        "weight": 1.800000000000001,
+        "sample_weight_percent": 1.1067388096409123
+      },
+      {
+        "symbol": "readiness",
+        "weight": 0.08,
+        "sample_weight_percent": 0.049188391539596074
+      }
+    ],
+    "top_leaf_frames": [
+      {
+        "symbol": "threading.py:notify",
+        "weight": 6.0800000000000045,
+        "sample_weight_percent": 3.7383177570093045
+      },
+      {
+        "symbol": "fastapi/routing.py:app",
+        "weight": 5.240000000000004,
+        "sample_weight_percent": 3.221839645843545
+      },
+      {
+        "symbol": "fastapi/dependencies/utils.py:solve_dependencies",
+        "weight": 4.800000000000003,
+        "sample_weight_percent": 2.9513034923757666
+      },
+      {
+        "symbol": "prometheus_client/metrics.py:labels",
+        "weight": 3.5600000000000023,
+        "sample_weight_percent": 2.188883423512027
+      },
+      {
+        "symbol": "ticketing/http.py:__call__",
+        "weight": 3.5200000000000022,
+        "sample_weight_percent": 2.1642892277422288
+      },
+      {
+        "symbol": "psycopg/connection.py:wait",
+        "weight": 3.360000000000002,
+        "sample_weight_percent": 2.0659124446630366
+      },
+      {
+        "symbol": "asyncio/events.py:_run",
+        "weight": 3.240000000000002,
+        "sample_weight_percent": 1.9921298573536423
+      },
+      {
+        "symbol": "psycopg/_cursor_base.py:_execute_send",
+        "weight": 3.200000000000002,
+        "sample_weight_percent": 1.967535661583844
+      },
+      {
+        "symbol": "uvicorn/protocols/http/httptools_impl.py:send",
+        "weight": 2.9200000000000017,
+        "sample_weight_percent": 1.7953762911952578
+      },
+      {
+        "symbol": "ticketing/infrastructure/postgres.py:execute",
+        "weight": 2.7600000000000016,
+        "sample_weight_percent": 1.6969995081160656
+      },
+      {
+        "symbol": "fastapi/encoders.py:jsonable_encoder",
+        "weight": 2.4000000000000012,
+        "sample_weight_percent": 1.4756517461878829
+      },
+      {
+        "symbol": "ticketing/http.py:observed_send",
+        "weight": 2.320000000000001,
+        "sample_weight_percent": 1.4264633546482868
+      },
+      {
+        "symbol": "json/encoder.py:iterencode",
+        "weight": 2.280000000000001,
+        "sample_weight_percent": 1.4018691588784888
+      },
+      {
+        "symbol": "asyncio/base_events.py:_run_once",
+        "weight": 2.240000000000001,
+        "sample_weight_percent": 1.3772749631086907
+      },
+      {
+        "symbol": "anyio/_backends/_asyncio.py:run_sync_in_worker_thread",
+        "weight": 2.240000000000001,
+        "sample_weight_percent": 1.3772749631086907
+      },
+      {
+        "symbol": "psycopg/_cursor_base.py:_maybe_prepare_gen",
+        "weight": 2.240000000000001,
+        "sample_weight_percent": 1.3772749631086907
+      },
+      {
+        "symbol": "asyncio/selector_events.py:write",
+        "weight": 2.080000000000001,
+        "sample_weight_percent": 1.2788981800294985
+      },
+      {
+        "symbol": "psycopg/_cursor_base.py:_select_current_result",
+        "weight": 1.960000000000001,
+        "sample_weight_percent": 1.2051155927201045
+      },
+      {
+        "symbol": "starlette/routing.py:matches",
+        "weight": 1.6800000000000008,
+        "sample_weight_percent": 1.032956222331518
+      },
+      {
+        "symbol": "fastapi/dependencies/utils.py:request_params_to_args",
+        "weight": 1.6400000000000008,
+        "sample_weight_percent": 1.0083620265617201
+      },
+      {
+        "symbol": "redis/_parsers/socket.py:_read_from_socket",
+        "weight": 1.6000000000000008,
+        "sample_weight_percent": 0.983767830791922
+      },
+      {
+        "symbol": "psycopg/cursor.py:fetchone",
+        "weight": 1.5600000000000007,
+        "sample_weight_percent": 0.9591736350221239
+      },
+      {
+        "symbol": "prometheus_client/metrics.py:observe",
+        "weight": 1.4400000000000006,
+        "sample_weight_percent": 0.8853910477127297
+      },
+      {
+        "symbol": "prometheus_client/values.py:inc",
+        "weight": 1.4400000000000006,
+        "sample_weight_percent": 0.8853910477127297
+      },
+      {
+        "symbol": "psycopg/_connection_base.py:_exec_command",
+        "weight": 1.4400000000000006,
+        "sample_weight_percent": 0.8853910477127297
+      },
+      {
+        "symbol": "anyio/_backends/_asyncio.py:run",
+        "weight": 1.4400000000000006,
+        "sample_weight_percent": 0.8853910477127297
+      },
+      {
+        "symbol": "uuid.py:__init__",
+        "weight": 1.4000000000000006,
+        "sample_weight_percent": 0.8607968519429317
+      },
+      {
+        "symbol": "asyncio/selector_events.py:_write_to_self",
+        "weight": 1.3600000000000005,
+        "sample_weight_percent": 0.8362026561731336
+      },
+      {
+        "symbol": "redis/connection.py:send_packed_command",
+        "weight": 1.3600000000000005,
+        "sample_weight_percent": 0.8362026561731336
+      },
+      {
+        "symbol": "__init__.py:emit",
+        "weight": 1.2800000000000005,
+        "sample_weight_percent": 0.7870142646335375
+      }
+    ],
+    "top_inclusive_frames": [
+      {
+        "symbol": "<unknown>:thread: MainThread",
+        "weight": 96.76000000000393,
+        "sample_weight_percent": 59.49335956714387
+      },
+      {
+        "symbol": "uvicorn/main.py:run",
+        "weight": 70.15999999999977,
+        "sample_weight_percent": 43.13821938022562
+      },
+      {
+        "symbol": "asyncio/base_events.py:run_until_complete",
+        "weight": 70.15999999999977,
+        "sample_weight_percent": 43.13821938022562
+      },
+      {
+        "symbol": "core.py:invoke",
+        "weight": 70.15999999999977,
+        "sample_weight_percent": 43.13821938022562
+      },
+      {
+        "symbol": "core.py:__call__",
+        "weight": 70.15999999999977,
+        "sample_weight_percent": 43.13821938022562
+      },
+      {
+        "symbol": "asyncio/runners.py:run",
+        "weight": 70.15999999999977,
+        "sample_weight_percent": 43.13821938022562
+      },
+      {
+        "symbol": "core.py:main",
+        "weight": 70.15999999999977,
+        "sample_weight_percent": 43.13821938022562
+      },
+      {
+        "symbol": "asyncio/base_events.py:run_forever",
+        "weight": 70.15999999999977,
+        "sample_weight_percent": 43.13821938022562
+      },
+      {
+        "symbol": "uvicorn:<module>",
+        "weight": 70.15999999999977,
+        "sample_weight_percent": 43.13821938022562
+      },
+      {
+        "symbol": "uvicorn/server.py:run",
+        "weight": 70.15999999999977,
+        "sample_weight_percent": 43.13821938022562
+      },
+      {
+        "symbol": "uvicorn/main.py:main",
+        "weight": 70.15999999999977,
+        "sample_weight_percent": 43.13821938022562
+      },
+      {
+        "symbol": "asyncio/base_events.py:_run_once",
+        "weight": 69.91999999999973,
+        "sample_weight_percent": 42.9906542056068
+      },
+      {
+        "symbol": "asyncio/events.py:_run",
+        "weight": 66.07999999999913,
+        "sample_weight_percent": 40.629611411705824
+      },
+      {
+        "symbol": "<unknown>:thread: AnyIO worker thread",
+        "weight": 65.8799999999991,
+        "sample_weight_percent": 40.50664043285681
+      },
+      {
+        "symbol": "fastapi/routing.py:app",
+        "weight": 63.63999999999882,
+        "sample_weight_percent": 39.12936546974795
+      },
+      {
+        "symbol": "starlette/_exception_handler.py:wrapped_app",
+        "weight": 61.23999999999887,
+        "sample_weight_percent": 37.6537137235601
+      },
+      {
+        "symbol": "ticketing/http.py:__call__",
+        "weight": 60.39999999999889,
+        "sample_weight_percent": 37.137235612394356
+      },
+      {
+        "symbol": "starlette/middleware/errors.py:__call__",
+        "weight": 60.23999999999889,
+        "sample_weight_percent": 37.03885882931516
+      },
+      {
+        "symbol": "starlette/applications.py:__call__",
+        "weight": 59.239999999998915,
+        "sample_weight_percent": 36.424003935070225
+      },
+      {
+        "symbol": "fastapi/applications.py:__call__",
+        "weight": 58.67999999999893,
+        "sample_weight_percent": 36.07968519429306
+      },
+      {
+        "symbol": "uvicorn/middleware/proxy_headers.py:__call__",
+        "weight": 58.63999999999893,
+        "sample_weight_percent": 36.05509099852326
+      },
+      {
+        "symbol": "uvicorn/protocols/http/httptools_impl.py:run_asgi",
+        "weight": 58.239999999998936,
+        "sample_weight_percent": 35.80914904082529
+      },
+      {
+        "symbol": "threading.py:_bootstrap",
+        "weight": 57.879999999998944,
+        "sample_weight_percent": 35.58780127889711
+      },
+      {
+        "symbol": "anyio/_backends/_asyncio.py:run",
+        "weight": 57.879999999998944,
+        "sample_weight_percent": 35.58780127889711
+      },
+      {
+        "symbol": "threading.py:_bootstrap_inner",
+        "weight": 57.879999999998944,
+        "sample_weight_percent": 35.58780127889711
+      },
+      {
+        "symbol": "starlette/routing.py:__call__",
+        "weight": 55.999999999998984,
+        "sample_weight_percent": 34.43187407771663
+      },
+      {
+        "symbol": "fastapi/middleware/asyncexitstack.py:__call__",
+        "weight": 55.55999999999899,
+        "sample_weight_percent": 34.161337924248855
+      },
+      {
+        "symbol": "starlette/middleware/exceptions.py:__call__",
+        "weight": 54.91999999999901,
+        "sample_weight_percent": 33.7678307919321
+      },
+      {
+        "symbol": "starlette/routing.py:handle",
+        "weight": 54.599999999999014,
+        "sample_weight_percent": 33.57107722577372
+      },
+      {
+        "symbol": "fastapi/routing.py:handle",
+        "weight": 53.639999999999034,
+        "sample_weight_percent": 32.98081652729858
+      }
+    ],
+    "limitations": "GIL-only nonblocking Python stack observations, not exact CPU or per-route latency. Native work and GIL-released waits are excluded. Inclusive shares overlap; generic framework/dependency stacks remain unattributed. No locals/request data."
+  },
+  "profile_groups": {
+    "sample_observations": 4066,
+    "total_weight": 162.64000000000192,
+    "groups": [
+      {
+        "group": "dependency_resolution",
+        "sample_weight_percent": 13.625184456467931
+      },
+      {
+        "group": "thread_handoff",
+        "sample_weight_percent": 8.87850467289701
+      },
+      {
+        "group": "jwt_validation",
+        "sample_weight_percent": 3.54156419085092
+      },
+      {
+        "group": "redis_client",
+        "sample_weight_percent": 5.828824397442119
+      },
+      {
+        "group": "postgres_client",
+        "sample_weight_percent": 18.10132808657108
+      },
+      {
+        "group": "response_json_encoding",
+        "sample_weight_percent": 3.8366945400884966
+      },
+      {
+        "group": "prometheus_instrumentation",
+        "sample_weight_percent": 6.000983767830702
+      },
+      {
+        "group": "http_middleware",
+        "sample_weight_percent": 39.35071323167613
+      }
+    ],
+    "limitations": "Overlapping inclusive GIL-only stack presence, not additive CPU shares or per-route attribution. Thread handoff includes sampled threading machinery; native/GIL-released work excluded.",
+    "definitions": {
+      "dependency_resolution": "fastapi/dependencies frames",
+      "thread_handoff": "threading notify/notify_all/wait/set/acquire/release or run_sync_in_worker_thread/run_in_threadpool/to_thread.run_sync",
+      "jwt_validation": "jwt package",
+      "redis_client": "redis package",
+      "postgres_client": "psycopg/psycopg_pool",
+      "response_json_encoding": "fastapi encoders/json encoder/starlette response render",
+      "prometheus_instrumentation": "prometheus_client",
+      "http_middleware": "ticketing/http.py"
+    }
+  },
+  "offered_window_container_cpu": {
+    "samples": 47,
+    "window_seconds": 230.00011803499365,
+    "start_offset_seconds": 2.302718,
+    "end_offset_seconds": 232.302834,
+    "host_cpu_mean_percent": 91.94551930349134,
+    "aggregate_cpu_cores_by_role": {
+      "simulator": 0.14692269416513362,
+      "consumer": 0.5124569283136944,
+      "maintenance": 0.07795376434229531,
+      "reconciler": 0.024094396330513402,
+      "publisher": 0.134437991876576,
+      "load-balancer": 0.06018169085415001,
+      "api": 1.66286612488525,
+      "reservation-writer": 0.2426188841847024,
+      "pgbouncer": 0.31784064123339967,
+      "kafka": 0.2644973120872237
+    },
+    "scope": "Only complete sample endpoints within offered300s;includes API observers and overlaps external profiling. Not a full300s integral or pure-function CPU attribution."
+  },
+  "status_polling_investigation": {
+    "baseline": {
+      "customer_http_attempts": 145657,
+      "status_poll_attempts": 109657,
+      "status_poll_percent": 75.28440102432427,
+      "order_poll_attempts": 72060,
+      "order_polls_per_confirmed_ticket": 4.003333333333333,
+      "reservation_polls_per_confirmed_ticket": 2.088722222222222,
+      "offered_window_order_cache_counters": {
+        "order_cache:hit": 35752.0,
+        "order_cache:miss": 35690.0,
+        "order_cache:fill": 35691.0
+      },
+      "customer_ticket_wait_p95_ms": 3158.8143609988037,
+      "customer_payment_to_ticket_p95_ms": 3223.618069998338,
+      "backend_statement_timing_p95_ms": {
+        "callback_to_ticket": 283.3776,
+        "payment_due_to_ticket": 448.1309
+      }
+    },
+    "diagnostic": {
+      "customer_http_attempts": 145629,
+      "status_poll_attempts": 109629,
+      "status_poll_percent": 75.27964897101539,
+      "order_poll_attempts": 72012,
+      "order_polls_per_confirmed_ticket": 4.000666666666667,
+      "reservation_polls_per_confirmed_ticket": 2.0898333333333334,
+      "offered_window_order_cache_counters": {
+        "order_cache:hit": 35790.0,
+        "order_cache:miss": 35786.0,
+        "order_cache:fill": 35786.0
+      },
+      "customer_ticket_wait_p95_ms": 3178.208432997053,
+      "customer_payment_to_ticket_p95_ms": 3254.646066001442,
+      "backend_statement_timing_p95_ms": {
+        "callback_to_ticket": 325.1754999999996,
+        "payment_due_to_ticket": 967.2646499999993
+      }
+    },
+    "confirmed": "Across both controls about4order polls/customer with about2cache hits+2misses. Customer postpayment waitp95~3.2s; backend paymentDueToTicketp95 was448ms in the uninstrumented baseline and967ms in the diagnostic. Distributed framework/storage Python work,no dominant leaf. These timing distributions are unpaired and differently anchored.",
+    "hypothesis": "A PENDING snapshot first read immediately after payment remains advisory-cache-visible for3000ms,causing repeated1s polls after backend fulfillment. A1000ms max snapshot age may reduce confirmation delay and request amplification.",
+    "evidence_limits": "Aggregate cache/status counts and differently anchored unpaired timing distributions support a hypothesis,not per-order proof or exact latency subtraction. Cache misses may increase under shorter freshness and cause more DB contention.71percentgeneric profile stacks lack route attribution;presence shares overlap and exclude native/GIL-released work.",
+    "selected_next_factor": {
+      "order_status_cache_ms_candidate": 1000,
+      "baseline": 3000,
+      "application_code_change_required": false,
+      "other_factors": "Same60buyers/s300s,poll1s,budgets/shards/callbacks/fixtures unchanged;no externalprofiler on capacity comparison. Existing bounded CPU observer retained.",
+      "decision_required_before_trial": "ADR0124 covering shorter advisory TTL and current ADR0097 opt-in contract before implementation/configuration trial.",
+      "validation": "Exact18000unique paid/issued customers,zero drops/errors/retries,financial/linkage/zeroDoubleBooking/postTTL/fullQueues/Kafka/source/settings/restoration/idle/privateCleanup/CPU gates;compare totalHTTP/polls/cachemisses/API CPU/DBpressure and customer wait. No escalation on failed gates.",
+      "authorization_status": "Future trial not executed or newly authorized by this diagnostic;next Continue can approve the one-factor bounded trial. No higherload/mainmerge."
+    }
+  }
+}
