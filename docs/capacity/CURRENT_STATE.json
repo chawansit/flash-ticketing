@@ -3,45 +3,41 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "transaction_setup_candidate_same_load_control_running",
+  "status": "transaction_setup_locally_safe_cloud_capacity_failed_profile_api_next",
   "cloud_load_requires_resume": false,
-  "handoff_revision": "e89769391493828d48cc529f78869bd84e47c05c",
-  "revision_note": "Localimplementation e897693 includes validated monitor and SSH fixes; cloud-paid tested/image/checkout28d0d9e. No application code change since6514dd3. Nextcloudrun mustsync/buildits committed source; documentation commit may differ.",
-  "backend_application_revision": "28d0d9e09e5e6b2118616dc38ee1160c5ab8e2a6",
-  "generator_revision": "28d0d9e09e5e6b2118616dc38ee1160c5ab8e2a6",
+  "handoff_revision": "61e6c27235cbb6cad9c96e5fd8f09a705677843a",
+  "revision_note": "Tested/sourceverifiedcloud61e6c27;documentation commit may differ. Experimental transactionsetup remains in cloud images;onlyservicebudgets restored,not application source reverted.",
+  "backend_application_revision": "61e6c27235cbb6cad9c96e5fd8f09a705677843a",
+  "generator_revision": "61e6c27235cbb6cad9c96e5fd8f09a705677843a",
   "last_checked_topology": "Restored4healthyAPIs;postgres mode;pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4;PgBouncer applicationpool24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "Cloud checkouts synced61e6c27;script deploying/verifying samefixed-budget candidate. Finalimages/load/postTTL/queue/restoration gates pending.",
+  "cloud_state_note": "No active paid load/generator. Exact9028orders=8991paid+37expired unpaid;fullqueues/Kafka0/source/settings/readiness/idle/privatecleanup passed.4APIs/1consumer/batch4simulator budgets restored;failedcandidate notpromoted.",
   "confirmed": [
-    "ADR0115 persistent read-only Kafka monitor:239paid-stage samples,zero errors,six stable single-partition members,final lag0.",
-    "Same8refill/60buyers per second/300seconds:18000scheduled,10485dispatched,7515drops,9764customer-confirmed,721customer503s(6.8765percent of dispatched).No caller retry;load failed.",
-    "Fresh postTTL10351paid tickets+134expired unpaid,zero double booking;all recovery/queue/source/restoration/readiness/idle/private cleanup gates passed.",
-    "Customer confirmations+9.73percent,paid tickets+10.04percent versus prior same8slot control;errors increased,overall capacity unqualified.",
-    "Read-only240s cgroup window:hostCPU96.61percent;APIcontainers1.9524cores,consumer0.4869,PgBouncer0.2931,Kafka0.2866.PgBouncer sampled wait peaked2.383ms;API meanpoolwait31.68ms.",
-    "Source preflight falsely differed on WindowsCRLF/LinuxLF;canonicalLF exactlymatchedGit/image. Normalization preserves all other bytes. Aborted run dispatched0/orders0/tickets0/fullqueues0/restoredsource.",
-    "Code inspection:eachtransaction executesBEGIN plus3separateSET LOCAL timeout statements. API measuredSETmean4.55ms;consolidation/profiling remains future work.",
-    "ADR0116 paired320s no-load command:baseline timed out350.016s;keepalive returnedexpectedexit1/output320.688s. No retry. Ownedcommands0 afterward;precise idle network/session mechanism unproven."
+    "Setup reduced from3requests to1; matched offered-window PgBouncer queries/transaction10.1565to7.9602 across mixed roles,not an exact common-helper statement count.",
+    "Matched offered-window API meanpoolwait32.04to22.31ms(-30.37percent);connectionhold53.04to49.97ms(-5.79percent).",
+    "Callback HTTPdeliverymean194.04to243.42ms(+25.45percent);APIeventlooplagmean16.93to27.74ms(+63.88percent). HostCPUremained97.15percent;CPU/function attribution unresolved.",
+    "Customer confirmations8748(-10.41percent),8972drops and280503journeys(3.10146percent of9028dispatched);latencyworsened. Do not claimcapacityimprovement.",
+    "Exact postTTL9028orders=8991unique paid tickets+37expired unpaid;no double booking,allfullqueues/Kafkalag0/source/settings/readiness/generatoridle/privatecleanup passed.",
+    "ADR0116 SSHcompletion returned generator exit1 normally instead of previous480s transporttimeout; no paid callerretry. Different final-drain observation durations were aligned for metric comparison."
   ],
-  "unresolved": "API CPU/localpool pressure andcallbackqueue remain. Monitoring and SSH completion mechanisms improved/validated;paidloadstillfailed. No90stage or sustained300000paid tickets/hour proof.",
+  "unresolved": "Same-load transaction setup reduction did not improveoverallcapacity:CPU97.15percent,callbackdelivery+25.45percent,eventlooplag+63.88percent,customerconfirmations-10.41percent. Hot-function/routeCPU andscheduling attribution unresolved;no higherloadorhourproof.",
   "next_on_resume": [
-    "Complete active ADR0117 control;retain failed gates and no rate increase.",
-    "Finish exact paid/unpaid postTTL,full-keyspacequeue/Kafka/source/restoration/readiness/idle/privatecleanup checks.",
-    "Compare candidate with28d0d9e persistent-monitor baseline;report measured benefit/remaining bottleneck."
+    "Profile actual API/webhook CPU and per-route scheduling during an unchanged bounded control; establish hot functions before another code or topology correction.",
+    "Compare callback delivery and polling cost; preserve timeout/locking/idempotency/TTL and all financial/queue gates.",
+    "Do not escalate rate or promote this failed candidate. No900/1000HTTPRPS or300000paidtickets/hour proof."
   ],
   "validation_this_resume": "423unit/integration tests passed80.70s against isolatedPG17.6/Redis7.4.5;new real timeout/rollback/reuse tests and100wayconcurrency passed;lint/format/compile/whitespace passed;ownedlocaltestcontainers removed.",
   "current_run": "checkout-20261003T131542Z-14f606",
   "evidence": [
+    "docs/capacity/flash-sale-opening/paid-transaction-setup-control-2026-10-03.json",
     "docs/adr/0117-consolidated-transaction-local-timeouts.md",
-    "docs/capacity/flash-sale-opening/ssh-idle-liveness-2026-10-03.json",
     "docs/capacity/flash-sale-opening/paid-persistent-kafka-control-2026-10-03.json",
-    "docs/adr/0115-persistent-read-only-kafka-observer.md",
-    "docs/adr/0116-bounded-ssh-liveness.md",
-    "docs/capacity/flash-sale-opening/kafka-observer-cost-2026-10-03.json"
+    "docs/capacity/flash-sale-opening/ssh-idle-liveness-2026-10-03.json"
   ],
   "authorization": "User Go ahead as plan authorizes conditional implementation/experiments. Failed gates prohibit higher-rate escalation; recovery/audit/evidence-driven corrections remain in scope.",
-  "backend_checkout_revision": "28d0d9e09e5e6b2118616dc38ee1160c5ab8e2a6",
-  "tested_generator_revision": "28d0d9e09e5e6b2118616dc38ee1160c5ab8e2a6",
-  "scope": "ADR0117 common transaction setup only:BEGIN plusoneSELECTset_config replaces3SETrequests,unchangedtimeout values/budgets. Same60buyers/s300s control in progress;no higher-rate escalation.",
+  "backend_checkout_revision": "61e6c27235cbb6cad9c96e5fd8f09a705677843a",
+  "tested_generator_revision": "61e6c27235cbb6cad9c96e5fd8f09a705677843a",
+  "scope": "ADR0117 implementation andsame60buyers/s300s experiment complete;candidatefailedloadqualification,allrecoverygatespassed. Retainedexperimentalbranch/imageswithrecordedbaselinebudgets;future correction requiresADR andone-factorcontrol.",
   "roadmap": [
     {
       "step": 1,
@@ -66,7 +62,7 @@
     {
       "step": 5,
       "work": "Shorten measured expensive transactions",
-      "status": "conditional_future_work"
+      "status": "transaction_setup_reduction_validated_safe_but_paid_capacity_failed"
     },
     {
       "step": 6,
@@ -86,7 +82,7 @@
     {
       "step": 9,
       "work": "Scale the measured bottleneck",
-      "status": "monitor_cpu_cost_removed_and_validated_api_cpu_bottleneck_measured_paid_load_failed"
+      "status": "api_cpu_hot_function_profiling_next_no_rate_escalation"
     },
     {
       "step": 10,

@@ -714,5 +714,18 @@
   },
   "validation": "423unit/integration tests passed80.70s; isolatedPG17.6/Redis7.4.5; all six new timeout/reuse cases and100wayseat race passed; lint/format/compile/whitespace passed.",
   "capacity_claim": "Bounded development-payment synthetic control, not qualified sustained-hour, one-hot-concert or real-provider production capacity.",
-  "private_evidence_root": "tmp\\checkout-20261003T131542Z-14f606"
-}\n
+  "private_evidence_root": "tmp\\checkout-20261003T131542Z-14f606",
+  "confirmed_findings": [
+    "Setup reduced from3requests to1; matched offered-window PgBouncer queries/transaction10.1565to7.9602 across mixed roles,not an exact common-helper statement count.",
+    "Matched offered-window API meanpoolwait32.04to22.31ms(-30.37percent);connectionhold53.04to49.97ms(-5.79percent).",
+    "Callback HTTPdeliverymean194.04to243.42ms(+25.45percent);APIeventlooplagmean16.93to27.74ms(+63.88percent). HostCPUremained97.15percent;CPU/function attribution unresolved.",
+    "Customer confirmations8748(-10.41percent),8972drops and280503journeys(3.10146percent of9028dispatched);latencyworsened. Do not claimcapacityimprovement.",
+    "Exact postTTL9028orders=8991unique paid tickets+37expired unpaid;no double booking,allfullqueues/Kafkalag0/source/settings/readiness/generatoridle/privatecleanup passed.",
+    "ADR0116 SSHcompletion returned generator exit1 normally instead of previous480s transporttimeout; no paid callerretry. Different final-drain observation durations were aligned for metric comparison."
+  ],
+  "next": [
+    "Profile actual API/webhook CPU and per-route scheduling during an unchanged bounded control; establish hot functions before another code or topology correction.",
+    "Compare callback delivery and polling cost; preserve timeout/locking/idempotency/TTL and all financial/queue gates.",
+    "Do not escalate rate or promote this failed candidate. No900/1000HTTPRPS or300000paidtickets/hour proof."
+  ]
+}
