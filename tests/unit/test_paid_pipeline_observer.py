@@ -162,3 +162,17 @@ def test_simulator_phase_histograms_barrier_and_webhook503_are_collected(monkeyp
     reset = summarize_paid_pipeline.summarize([row, zero])
     assert reset["simulator_phases"]["counter_reset_detected"]
     assert reset["simulator_batch_barrier"]["slot_seconds"] is None
+
+
+def test_writer_collection_timer_is_retained_and_unknown_labels_rejected():
+    metric = observe_paid_pipeline.writer_phase_metric
+    assert metric('ticketing_reservation_persistence_phase_seconds_sum{phase="redis_claim",outcome="ok"}') == (
+        "redis_claim:ok:sum"
+    )
+    assert metric(
+        'ticketing_reservation_persistence_phase_seconds_bucket{phase="redis_claim",outcome="error",le="0.5"}'
+    ) == "redis_claim:error:bucket:0.5"
+    assert metric(
+        'ticketing_reservation_persistence_phase_seconds_count{phase="redis_claim",outcome="ok",actor="private"}'
+    ) is None
+    assert metric('ticketing_reservation_persistence_phase_seconds_count{phase="unknown",outcome="ok"}') is None

@@ -152,7 +152,7 @@ def writer_phase_metric(name):
     if match:
         labels = dict(re.findall(r'(\w+)="([^"\\]*)"', match[2]))
         phase, outcome, suffix = labels.get("phase"), labels.get("outcome"), match[1]
-        if phase not in {"postgres_batch", "redis_mark_durable", "redis_compensate", "redis_acknowledge"}:
+        if phase not in {"redis_claim", "postgres_batch", "redis_mark_durable", "redis_compensate", "redis_acknowledge"}:
             return None
         if outcome not in {"ok", "error"} or set(labels) - {"phase", "outcome", "le"}:
             return None
