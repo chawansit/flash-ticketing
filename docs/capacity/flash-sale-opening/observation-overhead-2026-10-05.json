@@ -1,0 +1,391 @@
+{
+  "decision": "0146-observation-overhead",
+  "kind": "no_buyer_instrumentation_overhead",
+  "run_id": "adr0146-overhead-20261005",
+  "runtime_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "required_diagnostic_gates": {
+    "measurement_complete": true,
+    "financial_before": true,
+    "financial_after": true,
+    "normal_source_settings_restored": true,
+    "owned_remote_scratch_removed": true,
+    "temporary_keys_removed": true,
+    "original_paid_gates_retained": true
+  },
+  "all_diagnostic_gates_pass": true,
+  "failure": null,
+  "measurement": {
+    "pass": true,
+    "failure_type": null,
+    "phases": [
+      {
+        "seconds": 60.00195316399913,
+        "host_cpu_percent": 25.06467619491921,
+        "cpu_cores_by_role": {
+          "api": 0.26851159254706813,
+          "consumer": 0.2674502604296628,
+          "kafka": 0.27004332601829023,
+          "load-balancer": 0.0044935037241716,
+          "maintenance": 0.016017361924422137,
+          "pgbouncer": 0.04577815979577234,
+          "publisher": 0.009808680700632942,
+          "reconciler": 0.00987646182750533,
+          "reservation-writer": 0.0036768136429993496,
+          "simulator": 0.06906201850919566
+        },
+        "api_process_cpu_cores": 0.015999479173221247,
+        "steal_ticks": 0,
+        "phase": "idle_before"
+      },
+      {
+        "seconds": 60.92070572898956,
+        "host_cpu_percent": 28.963529264318836,
+        "cpu_cores_by_role": {
+          "api": 0.3444958450311126,
+          "consumer": 0.29151776538841095,
+          "kafka": 0.28329171163536765,
+          "load-balancer": 0.004477049251749103,
+          "maintenance": 0.020233055169836166,
+          "pgbouncer": 0.04633345865290614,
+          "publisher": 0.014501243697503908,
+          "reconciler": 0.015689854353495417,
+          "reservation-writer": 0.016115719413486905,
+          "simulator": 0.07558264378097794
+        },
+        "api_process_cpu_cores": 0.039067177103752106,
+        "steal_ticks": 0,
+        "phase": "observers_only",
+        "pipeline_samples": 60,
+        "kafka_samples": 30
+      },
+      {
+        "seconds": 60.002797074994305,
+        "host_cpu_percent": 25.185530723887876,
+        "cpu_cores_by_role": {
+          "api": 0.25844503516424566,
+          "consumer": 0.26629386926795223,
+          "kafka": 0.28692642408789965,
+          "load-balancer": 0.004562270649780804,
+          "maintenance": 0.015466195664847481,
+          "pgbouncer": 0.04532172052914682,
+          "publisher": 0.009780794039759448,
+          "reconciler": 0.009858107102252218,
+          "reservation-writer": 0.0037108936725350336,
+          "simulator": 0.06879880940950939
+        },
+        "api_process_cpu_cores": 0.01583259525072884,
+        "steal_ticks": 0,
+        "phase": "idle_middle"
+      },
+      {
+        "seconds": 63.287554723996436,
+        "host_cpu_percent": 29.014481094127113,
+        "cpu_cores_by_role": {
+          "api": 0.34691288193625414,
+          "consumer": 0.2911882135495515,
+          "kafka": 0.26178699860113325,
+          "load-balancer": 0.004450638063492766,
+          "maintenance": 0.020438157322415194,
+          "pgbouncer": 0.04672460506486872,
+          "publisher": 0.014197878301961026,
+          "reconciler": 0.015323249637772726,
+          "reservation-writer": 0.0156029570791046,
+          "simulator": 0.07512205236454395
+        },
+        "api_process_cpu_cores": 0.03871219247899055,
+        "steal_ticks": 0,
+        "phase": "observers_plus_profiler",
+        "pipeline_samples": 60,
+        "kafka_samples": 30,
+        "profiler_cpu_cores": 0.007359735004139817
+      },
+      {
+        "seconds": 60.00234161800472,
+        "host_cpu_percent": 24.61127822734398,
+        "cpu_cores_by_role": {
+          "api": 0.2581573749007147,
+          "consumer": 0.25901634137785856,
+          "kafka": 0.27019672170819387,
+          "load-balancer": 0.00469740000805943,
+          "maintenance": 0.01549569525001678,
+          "pgbouncer": 0.045431260289048835,
+          "publisher": 0.009774501864174128,
+          "reconciler": 0.009864331691721769,
+          "reservation-writer": 0.003704522090406237,
+          "simulator": 0.06795493125849092
+        },
+        "api_process_cpu_cores": 0.01566605526804871,
+        "steal_ticks": 0,
+        "phase": "idle_after"
+      }
+    ],
+    "effects": {
+      "observers": {
+        "container_cpu_delta_cores": 0.14529719702102217,
+        "bracketing_idle_drift_cores": 0.0044459404682081205,
+        "positive_direction_above_idle_drift": true,
+        "host_cpu_delta_percentage_points": 3.838425804915296,
+        "api_process_delta_cores": 0.023151139891777063
+      },
+      "observers_plus_profiler": {
+        "container_cpu_delta_cores": 0.13501903190779097,
+        "bracketing_idle_drift_cores": 0.02487103914924349,
+        "positive_direction_above_idle_drift": true,
+        "host_cpu_delta_percentage_points": 4.116076618511187,
+        "api_process_delta_cores": 0.022962867219601772
+      }
+    },
+    "versions": {
+      "python": "3.12.15",
+      "fastapi": "0.141.1",
+      "psycopg": "3.3.5",
+      "redis": "6.4.0",
+      "kafka-python": "2.3.2",
+      "prometheus-client": "0.26.0"
+    },
+    "images": {
+      "load-balancer": [
+        "sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10"
+      ],
+      "reconciler": [
+        "sha256:57a12dd4be6303ca8dea3daa4bcf2d8201a93976c6df2af51c0f751a9cbcf1a6"
+      ],
+      "reservation-writer": [
+        "sha256:70f1e00672c1f0f5db57c9834164a7dccdc8269f4ae89e6854f11974c625a3fc"
+      ],
+      "api": [
+        "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e"
+      ],
+      "consumer": [
+        "sha256:ce59e827156b470a81b98c2dbc68cb9c69fed03e50ccc2f516ef30b64e0e21fd"
+      ],
+      "simulator": [
+        "sha256:22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452"
+      ],
+      "publisher": [
+        "sha256:e575802519ce7b70b42a87f8e92159f42ddac653b8d489b401fe4ad1785a53e2"
+      ],
+      "maintenance": [
+        "sha256:51b1e282b277e6b34d5f55442a82912fa406c91e808d71394e7da479b12ad83e"
+      ],
+      "pgbouncer": [
+        "sha256:3db3d7223e93af52b4116f642951a1a5fa44702a88c2a59cf7562cac19320c9e"
+      ],
+      "kafka": [
+        "sha256:4ceccc577f03f51f6af8dbfda55194d0d892f4fa7913ffbded567ce3895622ed"
+      ]
+    },
+    "replica_counts": {
+      "load-balancer": 1,
+      "reconciler": 1,
+      "reservation-writer": 3,
+      "api": 4,
+      "consumer": 6,
+      "simulator": 1,
+      "publisher": 1,
+      "maintenance": 1,
+      "pgbouncer": 1,
+      "kafka": 1
+    },
+    "observer_upload_sha256": "50f9ab9e6574b3362dcc6856b2049554379ce7f711c67cefabfce28b94242a82",
+    "owned_processes_reaped": true,
+    "container_scratch_removed": true,
+    "profiler": {
+      "pass": true,
+      "profile_count": 4,
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "profiler_child_cpu_seconds": 0.460775,
+      "elapsed_seconds": 62.607553089997964,
+      "profiler_version": "py-spy 0.4.2",
+      "samples_per_second_per_api": 25,
+      "duration_seconds": 60,
+      "owned_profilers_exited": true
+    },
+    "no_buyer_traffic": true,
+    "scope": "Idle mechanism measurement;not paid-load CPU attribution or production capacity."
+  },
+  "pre_post_audits": {
+    "financial-before": {
+      "financial": {
+        "pass": true,
+        "data": {
+          "orders": 18000,
+          "fulfilled_orders": 18000,
+          "expired_orders": 0,
+          "pending_orders": 0,
+          "payment_attempts": 18000,
+          "pending_payment_attempts": 0,
+          "succeeded_payments": 18000,
+          "bookings": 18000,
+          "tickets": 18000,
+          "payment_callbacks": 18000,
+          "incomplete_callback_deliveries": 0,
+          "callback_delivery_attempts": 18000,
+          "callback_delivery_target": 18000,
+          "duplicate_booked_seats": 0,
+          "multi_booking_orders": 0,
+          "unpublished_outbox": 0,
+          "dead_letters": 0,
+          "expected": 18000,
+          "expected_paid": 18000,
+          "expected_callback_deliveries_per_payment": 1,
+          "pass": true
+        }
+      },
+      "queue": {
+        "pass": true,
+        "data": {
+          "unpublished_outbox": 0,
+          "pending_refresh": 0,
+          "dead_letters": 0,
+          "active_fixture_holds": 0,
+          "overdue_fixture_holds": 0,
+          "pending_fixture_orders": 0,
+          "reservation_stream_entries": 0,
+          "reservation_stream_pending": 0,
+          "pass": true
+        }
+      },
+      "kafka": {
+        "total_lag": 0,
+        "members": 1,
+        "assigned_partitions": 6
+      },
+      "pass": true
+    },
+    "financial-after": {
+      "financial": {
+        "pass": true,
+        "data": {
+          "orders": 18000,
+          "fulfilled_orders": 18000,
+          "expired_orders": 0,
+          "pending_orders": 0,
+          "payment_attempts": 18000,
+          "pending_payment_attempts": 0,
+          "succeeded_payments": 18000,
+          "bookings": 18000,
+          "tickets": 18000,
+          "payment_callbacks": 18000,
+          "incomplete_callback_deliveries": 0,
+          "callback_delivery_attempts": 18000,
+          "callback_delivery_target": 18000,
+          "duplicate_booked_seats": 0,
+          "multi_booking_orders": 0,
+          "unpublished_outbox": 0,
+          "dead_letters": 0,
+          "expected": 18000,
+          "expected_paid": 18000,
+          "expected_callback_deliveries_per_payment": 1,
+          "pass": true
+        }
+      },
+      "queue": {
+        "pass": true,
+        "data": {
+          "unpublished_outbox": 0,
+          "pending_refresh": 0,
+          "dead_letters": 0,
+          "active_fixture_holds": 0,
+          "overdue_fixture_holds": 0,
+          "pending_fixture_orders": 0,
+          "reservation_stream_entries": 0,
+          "reservation_stream_pending": 0,
+          "pass": true
+        }
+      },
+      "kafka": {
+        "total_lag": 0,
+        "members": 6,
+        "assigned_partitions": 6
+      },
+      "pass": true
+    }
+  },
+  "previous_paid_result": "docs/capacity/flash-sale-opening/frozen-baseline-cpu-diagnostic-2026-10-05.json",
+  "previous_paid_qualification": "FAILED",
+  "previous_paid_failed_gates": [
+    "customer_load"
+  ],
+  "paid_runs_started": 0,
+  "temporary_access_cleanup": {
+    "hosts": [
+      {
+        "host_role": "backend",
+        "removed_temporary_key_entries": 1,
+        "remaining_target_entries": 0,
+        "pass": true
+      },
+      {
+        "host_role": "generator",
+        "removed_temporary_key_entries": 1,
+        "remaining_target_entries": 0,
+        "pass": true
+      }
+    ],
+    "pass": true
+  },
+  "local_key_files_removed": true,
+  "limitations": "Single short idle protocol;not under-load cost,causal CPU attribution,candidate benefit or300000/hour qualification. Negative deltas and variation retained.",
+  "interpretation": {
+    "observer_cost": "In this single idle protocol observers increased container CPU by 0.145297 cores and host CPU by 3.838426 percentage points versus neighboring idle windows; the container difference exceeds their 0.004446-core drift. This is descriptive evidence, not a statistical confidence bound or under-load cost.",
+    "profiler_cost": "Measured profiler child CPU was 0.007360 core. The smaller combined-window container delta does not show that profiling saves CPU; windows have different background variation.",
+    "unattributed_idle_api_container_cpu": [
+      {
+        "phase": "idle_before",
+        "container_minus_api_process_cpu_cores": 0.2525121133738469
+      },
+      {
+        "phase": "idle_middle",
+        "container_minus_api_process_cpu_cores": 0.24261243991351683
+      },
+      {
+        "phase": "idle_after",
+        "container_minus_api_process_cpu_cores": 0.242491319632666
+      }
+    ],
+    "next_hypothesis": "Idle API cgroup CPU exceeds the four uvicorn process counters by about 0.24-0.25 core. Compose API readiness starts Python every five seconds; process-spawn/probe overhead is a hypothesis to measure before changing readiness. Other in-container work is not excluded.",
+    "regression_cause": "Unresolved. Idle observer cost alone cannot attribute the prior paid-run CPU regression, prove environment drift or qualify an optimization.",
+    "customer_errors": {
+      "events": [
+        {
+          "utc": "2026-10-04T17:22:41.916024+00:00",
+          "replica_index": 0,
+          "counter_deltas": {
+            "http_503:/v1/orders/{order_id}:GET": 2.0,
+            "http_503:/v1/webhooks/payments:POST": 0,
+            "db_503:TooManyRequests": 2.0,
+            "db_503:PoolTimeout": 0
+          }
+        },
+        {
+          "utc": "2026-10-04T17:22:41.916024+00:00",
+          "replica_index": 2,
+          "counter_deltas": {
+            "http_503:/v1/orders/{order_id}:GET": 0,
+            "http_503:/v1/webhooks/payments:POST": 2.0,
+            "db_503:TooManyRequests": 0,
+            "db_503:PoolTimeout": 2.0
+          }
+        }
+      ],
+      "scope": "Same-replica sampled correlation,not exact request trace"
+    },
+    "error_conclusion": "Two customer status 503s correlate with TooManyRequests admission rejection on one replica; two callback 503s correlate with PoolTimeout on another. These are sampled counter correlations, not individual request traces. All callbacks ultimately succeeded. Investigate these paths separately.",
+    "qualification": "Original 21/22 paid gates remain unchanged; customer_load failed. No new paid traffic and no 300000 tickets/hour qualification."
+  },
+  "post_run_local_validation": {
+    "measurement_source_sha256_executed": "620f4eaeb941fa3573a327fc10d8e20ab3e0136009bd895703c8e1a290fec230",
+    "measurement_source_sha256_after_local_cleanup_fix": "23ac114b5dc418171dc82afbf44a5d8807c07fdcfa704ef241ac7cbed8028537",
+    "local_change": "Check the entire container scratch namespace before entering owned cleanup. A collision now aborts without deleting existing files or terminating their processes.",
+    "tests_passed": 91,
+    "ruff_pass": true,
+    "cloud_reexecuted_after_local_change": false,
+    "scope": "Focused diagnostic unit checks, including injected preexisting-artifact collision; no paid-capacity or application behavior qualification."
+  }
+}

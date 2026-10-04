@@ -232,3 +232,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0144 - Enabled-cache isolated coalescing comparison](0144-enabled-cache-isolated-coalescing-comparison.md)
 
 - [ADR0145: Reserved payment callback admission](0145-reserved-payment-callback-admission.md)
+
+- [0146 - Freeze the experiment and measure observation overhead](0146-freeze-and-measure-observation-overhead.md)
