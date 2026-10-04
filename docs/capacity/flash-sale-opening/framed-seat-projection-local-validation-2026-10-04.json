@@ -11,7 +11,7 @@
     "src/ticketing/infrastructure/cache.py": "004f5ccc790f21519079a885f0269ce45e8a4609f3456bc85c14c75580118f0e",
     "tests/integration/test_bulk_atomic_projection.py": "558a33da6eb50629dd734801bec053d745b60b4af88b0576f58735c1cc699eda"
   },
-  "runtime_candidate_committed": false,
+  "runtime_candidate_committed": true,
   "cloud_access_or_load": false,
   "push_or_main_merge": false,
   "environment": {
@@ -486,5 +486,6 @@
     "Preserve exact candidate source identity and qualify a separate fixed60buyers/s300s cache-factor cloud control after explicit cloud resume.",
     "Keep concentration/one-show changes separate from the cache-factor control.",
     "All cloud source/readiness/generator, post-TTL financial, zero-double-booking, full-keyspace queue/Kafka, restoration and cleanup gates remain mandatory."
-  ]
+  ],
+  "candidate_source_commit": "a97d3620e3b5d2690b33f16c41b7de1b2096a5ac"
 }
