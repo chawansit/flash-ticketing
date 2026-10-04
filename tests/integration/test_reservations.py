@@ -351,6 +351,10 @@ def test_expiry_rechecks_order_state_after_another_worker_commits(system, monkey
     def transaction(*args, **kwargs):
         with original_transaction(*args, **kwargs) as conn:
             if current_thread().name.startswith("stale-expiry"):
+                # This test deliberately blocks on a snapshot gate, not an
+                # application lock. Bound that fixture by its five-second fence.
+                conn.execute("SET LOCAL lock_timeout = '5s'")
+                conn.execute("SET LOCAL statement_timeout = '6s'")
                 slow_pids.append(conn.execute("SELECT pg_backend_pid() AS pid").fetchone()["pid"])
                 yield PausedExpiryConnection(conn)
             else:
