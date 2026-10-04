@@ -2,38 +2,38 @@
   "updated_date_bangkok": "2026-10-04",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "security_note": "Do not publish private manifests/credentials. Authorized temporary SSH key remains for continuation; remove it from both ECS accounts when overall cloud work ends.",
-  "status": "explicitly_approved_observer_requalification_preflight",
-  "cloud_load_requires_resume": false,
-  "handoff_revision": "2d9dbf868c463c76dc0a1bc5ca947f585537e920",
-  "revision_note": "Cloud checkout/images/generator tested2d9dbf8 withpriorobserverquery. LocalofflineADR0125observerSQLcandidate notdeployed. Applicationruntimeunchanged;baselineAPIcache0 andworkerbudgetsrestored.",
-  "backend_application_revision": "2d9dbf868c463c76dc0a1bc5ca947f585537e920",
-  "generator_revision": "2d9dbf868c463c76dc0a1bc5ca947f585537e920",
-  "backend_checkout_revision": "2d9dbf868c463c76dc0a1bc5ca947f585537e920",
-  "tested_generator_revision": "2d9dbf868c463c76dc0a1bc5ca947f585537e920",
+  "security_note": "Temporary experiment SSH key removed from both ECS authorized_keys after all final gates passed. Private evidence remains excluded from publication; reconnecting for future cloud work requires fresh access.",
+  "status": "observer_requalification_passed_bounded_cloud_scope_complete",
+  "cloud_load_requires_resume": true,
+  "handoff_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
+  "revision_note": "Cloud checkouts tested 5706fce. Ten application runtime hashes unchanged from the identified baseline; observer query changed only. Baseline service settings restored. Reporting commit follows tested source revision.",
+  "backend_application_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
+  "generator_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
+  "backend_checkout_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
+  "tested_generator_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
   "local_implementation_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
   "diagnostic_implementation_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
   "last_checked_topology": "Restored4healthyAPIs;postgres/pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4/batch;PgBouncer24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "Customer18000unique tickets,exactfreshfinancial/postTTL/fullqueues/Kafka0/CPU/source/settings/readiness/restoration/idle/privatecleanup passed. Pipelineobserverfailed with2QueryCanceled at3s;overallqualificationfailed. No activegenerator/owneddiagnosticcontainers;baselinebudgets/cache0restored.",
-  "current_run": "checkout-20261003T181918Z-144090",
+  "cloud_state_note": "One repaired-observer 60buyers/s300s1000ms-cache control passed all mandatory gates. Initial failed observer trial remains failed. Exact financial/postTTL/full queues/Kafka/source/restoration/idle/private cleanup verified.",
+  "current_run": "checkout-20261003T234944Z-7734dc",
   "confirmed": [
-    "ADR0122writerfairnessc66265e andADR0123CPUreadiness93e2d20 retained. OvernightADR0124applicationruntime unchanged;runnerCLI1000option only.",
-    "61existingfocusedcache/CPU/CLI unit+realPgRedis integrationpassed6.68s;afterCLIchange69focusedunittests passed1.02s;lint/diffcheckpassed. InitialCLIrejectionbeforetransportretained,no buyerload.",
-    "18000 scheduled/18000 dispatched/18000 customer-confirmed distinct tickets;drops0/retries0;allrequiredgatespass=False.",
-    "Cacheage1000ms;orderHTTP72060to36277;totalHTTP145657to108750. Poll1s/load60buyers/s300s/budgets unchanged.",
-    "Customer ticketwaitp953158.8to1058.7ms;holdtoticketp955192.4to2168.5ms.",
-    "Offered-only sampledAPI1.677to1.273cores;hostCPU91.97to79.15percent;cachemisses35690.0to36233.0. SampledCPU/observer/backgroundlimits remain.",
-    "Fresh financial/zeroDoubleBooking/postTTL/fullQueues/Kafka0/CPU/source/settings/readiness/restoration/idle/privatecleanup passed. Pipelineobserver2QueryCanceled is the failed gate;runner/operator exit1.",
-    "OfflineADR0125singlepassobservercandidate:66focusedunit/realPG integrationpassed1.54s;synthetic118000rowrelations/18000cohort exactninecounts. Ordersplan scans6to1;median93.920to62.063ms. No cloudrootcause orqualificationclaim."
+    "ADR0122 reservation-writer fairness fix retained;492 executed unit/integration tests and real Redis fairness/concurrency/replay evidence remain linked.",
+    "ADR0125 observer repair:66 focused unit and real PostgreSQL integration tests passed1.54s; local nine-counter parity and cloud read-only plan preflight passed.",
+    "18000 scheduled, 18000 dispatched and 18000 customer-confirmed distinct tickets; zero drops/errors/retries.",
+    "All mandatory gates passed: customer load, observer, exact financial/postTTL, zero double booking, full queues, Kafka drain, CPU, source, restoration, generator idle and private cleanup.",
+    "Same60buyers/s300s1000ms-cache configuration and all10 application runtime hashes as the initially failed observer trial. Ticket-wait p951060.9ms;hold-to-ticket p952157.5ms.",
+    "The initial trial remains FAILED; the repaired-observer run is one fully passing bounded1000ms-cache control. No sustained production-capacity claim."
   ],
-  "unresolved": "ADR0124failedobservergate:2QueryCanceled compositecohortstatements under3stimeout;actualcloudqueryplan/catalog/IO/cancellationreasonnotcaptured. Offlinequerycandidate locallyvalidated only. Sustained300000/hour,oneHotConcert,realProvider/outage/failovercapacity unqualified.",
+  "unresolved": "Cloud cancellation reason and actual failed-query runtime/IO were not captured; repeated scans remain a supported hypothesis. Sustained300000/hour,one hot concert,real-provider and outage/failover capacity are unqualified.",
   "next_on_resume": [
-    "Execute read-only cloud PostgreSQL version/catalog/EXPLAIN without ANALYZE preflight.",
-    "If preflight passes, deploy observer-only candidate and run exactly one same60buyers/s300s1000ms-cache requalification; retain all gates and prior failure."
+    "Review the passing observer requalification and initial retained failure.",
+    "Select and explicitly authorize the next bounded experiment after reviewing the remaining capacity hypothesis; no further load is authorized here."
   ],
-  "validation_this_resume": "ADR0124:61focusedunit+realcachePGRedis integrationpassed6.68s;69postCLIunitpassed1.02s;cloudcustomer/financial/drain/recoverypassedbutpipelineobserverfailed2QueryCanceled. ADR0125offline:66focusedunit+PGintegrationpassed1.54s;localpairedplans/counterparitypassed;lint/diffcheck. No application changes/fullsuite rerun.",
+  "validation_this_resume": "66 pre-existing focused observer unit/realPG tests retained; read-only cloud version/catalog/EXPLAIN passed; one exact same-load cloud requalification passed all gates. Application runtime unchanged; full492 suite not rerun.",
   "evidence": [
+    "docs/capacity/flash-sale-opening/paid-observer-cloud-preflight-2026-10-04.json",
+    "docs/capacity/flash-sale-opening/paid-observer-cohort-requalification-2026-10-04.json",
     "docs/capacity/flash-sale-opening/paid-observer-offline-cohort-plan-2026-10-04.json",
     "docs/adr/0125-single-pass-paid-observer-cohort-sampling.md",
     "docs/capacity/flash-sale-opening/order-cache-age-control-2026-10-04.json",
@@ -45,7 +45,7 @@
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
   "authorization": "User authorizes autonomous continuation without routine questions until08:00Asia/Bangkok2026-10-04. Covers bounded implementation/configuration,checks and sanitized feature-branch evidence/checkpoint pushes to existing remote. No higherload/mainmerge;honor review rejection. User specifically approved observer-only cloud preflight/deployment/requalification after the failed observer gate by replying Continue to the concrete next-step proposal.",
-  "scope": "One specifically approved ADR0125 observer-only cloud requalification: read-only preflight,60buyers/s300s1000ms cache,all mandatory gates; no third run/higher load/main merge.",
+  "scope": "The specifically approved observer-only requalification is complete. Cloud run limit2 reached; no more cloud load, higher load or main merge.",
   "roadmap": [
     {
       "step": 1,
@@ -60,7 +60,7 @@
     {
       "step": 3,
       "work": "Reduce order-status read amplification",
-      "status": "shorter_cache_age_failed_gate_diagnosis"
+      "status": "one_passing_shorter_cache_control_after_observer_repair_initial_failure_retained"
     },
     {
       "step": 4,
@@ -99,18 +99,18 @@
     }
   ],
   "publication": {
-    "status": "overnight_sanitized_evidence_commits_on_existing_feature_branch",
+    "status": "sanitized_preflight_published_result_checkpoint_saved",
     "destination": "github.com/chawansit/flash-ticketing.git",
     "branch": "codex/redis-failover-recovery",
-    "evidence_revision": "b3becce88eae676d68302b0c1d08585fcd7e4419",
+    "evidence_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
     "authorization": "User overnightauthorization includes sanitized routine featurebranchpushes until08:00;no mainmerge.",
-    "next_action": "Publishsanitizedcheckpointunderovernightauthorization;no mainmerge."
+    "next_action": "Push sanitized requalification evidence on the existing feature branch, then await a separately authorized next bounded experiment. No main merge."
   },
   "overnight": {
     "expires_bangkok": "2026-10-04T08:00:00+07:00",
     "last_cloud_start_bangkok": "2026-10-04T07:30:00+07:00",
     "cloud_run_limit": 2,
-    "cloud_runs_started": 1,
+    "cloud_runs_started": 2,
     "failed_gate_stops_cloud": true,
     "heartbeat_id": "bounded-capacity-work-until-8am",
     "active_run": null,
@@ -120,15 +120,15 @@
         "evidence": "tmp/adr0124-local-preflight-rejected/runner.log"
       }
     ],
-    "last_run_gates_pass": false,
+    "last_run_gates_pass": true,
     "completed_reports": [
-      "docs/capacity/flash-sale-opening/order-cache-age-control-2026-10-04.json"
+      "docs/capacity/flash-sale-opening/order-cache-age-control-2026-10-04.json",
+      "docs/capacity/flash-sale-opening/paid-observer-cohort-requalification-2026-10-04.json"
     ],
-    "failed_gate": "pipeline_observer:two QueryCanceled cohortstatements",
-    "confirmation_skipped": "Original confirmation skipped after failure; separately approved observer repair requalification follows.",
-    "proposed_requalification": "Explicitly approved by current user Continue; observer-only repair, unchanged load and all gates.",
-    "approval_question_after_bangkok": "2026-10-04T08:00:00+07:00",
-    "heartbeat_schedule": "PAUSED after specific approval",
+    "failed_gate": "Initial trial pipeline observer:two QueryCanceled; retained failed report. Subsequent specifically approved observer repair requalification passed.",
+    "confirmation_skipped": "Original confirmation skipped on observer failure. Separately approved observer-only requalification completed; no third run.",
+    "proposed_requalification": "Completed after specific user Continue approval; all gates passed.",
+    "heartbeat_schedule": "PAUSED; approved bounded work complete",
     "approval_deferred_until_8am": false
   },
   "local_diagnostic_candidate": {
@@ -136,8 +136,10 @@
     "file": "scripts/observe_paid_pipeline.py",
     "implemented": true,
     "locally_validated": true,
-    "cloud_deployed": false,
+    "cloud_deployed": true,
     "timeout_seconds": 3,
-    "source_note": "Featurebranchcandidate/report revision mayfollowcloudtested2d9dbf8;cloudcheckout/images/generator remainlasttestedrevision."
+    "source_note": "Observer candidate adopted for this bounded comparison; application runtime unchanged.",
+    "cloud_tested_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
+    "cloud_qualification": "PASSED"
   }
 }
