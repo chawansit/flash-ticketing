@@ -216,3 +216,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0136 - Bounded bulk commands within atomic seat projection (rejected locally)](0136-bounded-bulk-atomic-seat-projection.md)
 
 - [0137 - Native-filesystem local Linux paid-generator qualification](0137-native-filesystem-local-paid-generator-qualification.md)
+
+- [0138 - Pre-encoded payloads for atomic version-fenced seat projection](0138-preencoded-atomic-seat-projection.md)
