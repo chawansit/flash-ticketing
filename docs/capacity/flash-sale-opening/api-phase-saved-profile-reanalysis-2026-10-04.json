@@ -1,0 +1,205 @@
+{
+  "kind": "offline_saved_profile_phase_context_reanalysis",
+  "source_run": "checkout-20261003T175147Z-e91677",
+  "source_profile_configuration_cache_ms": 3000,
+  "profiles": 4,
+  "sample_observations": 4066,
+  "total_sample_weight": 162.64000000000192,
+  "unit": "seconds",
+  "exclusive_phase_stack_context": [
+    {
+      "symbol": "request_dispatch",
+      "weight": 29.639999999999546,
+      "sample_weight_percent": 18.224299065420066
+    },
+    {
+      "symbol": "database",
+      "weight": 28.399999999999572,
+      "sample_weight_percent": 17.461878996556344
+    },
+    {
+      "symbol": "http_transport",
+      "weight": 26.279999999999617,
+      "sample_weight_percent": 16.158386620757074
+    },
+    {
+      "symbol": "redis",
+      "weight": 13.91999999999988,
+      "sample_weight_percent": 8.558780127889642
+    },
+    {
+      "symbol": "thread_dispatch",
+      "weight": 13.759999999999883,
+      "sample_weight_percent": 8.460403344810452
+    },
+    {
+      "symbol": "logging",
+      "weight": 10.15999999999996,
+      "sample_weight_percent": 6.246925725528676
+    },
+    {
+      "symbol": "instrumentation",
+      "weight": 9.599999999999971,
+      "sample_weight_percent": 5.902606984751512
+    },
+    {
+      "symbol": "dependency_resolution",
+      "weight": 8.399999999999997,
+      "sample_weight_percent": 5.164781111657586
+    },
+    {
+      "symbol": "authentication",
+      "weight": 6.000000000000004,
+      "sample_weight_percent": 3.6891293654697086
+    },
+    {
+      "symbol": "application",
+      "weight": 5.240000000000004,
+      "sample_weight_percent": 3.221839645843545
+    },
+    {
+      "symbol": "async_runtime",
+      "weight": 4.840000000000003,
+      "sample_weight_percent": 2.9758976881455648
+    },
+    {
+      "symbol": "response_encoding",
+      "weight": 3.8800000000000026,
+      "sample_weight_percent": 2.385636989670411
+    },
+    {
+      "symbol": "unclassified",
+      "weight": 1.3600000000000005,
+      "sample_weight_percent": 0.8362026561731336
+    },
+    {
+      "symbol": "synchronization",
+      "weight": 1.1200000000000003,
+      "sample_weight_percent": 0.6886374815543452
+    },
+    {
+      "symbol": "json_helper",
+      "weight": 0.04,
+      "sample_weight_percent": 0.024594195769798037
+    }
+  ],
+  "unattributed_route_phase_context": [
+    {
+      "symbol": "request_dispatch",
+      "weight": 29.559999999999548,
+      "sample_weight_percent": 18.17511067388047
+    },
+    {
+      "symbol": "http_transport",
+      "weight": 26.19999999999962,
+      "sample_weight_percent": 16.10919822921748
+    },
+    {
+      "symbol": "thread_dispatch",
+      "weight": 12.879999999999901,
+      "sample_weight_percent": 7.919331037874908
+    },
+    {
+      "symbol": "logging",
+      "weight": 10.11999999999996,
+      "sample_weight_percent": 6.222331529758879
+    },
+    {
+      "symbol": "dependency_resolution",
+      "weight": 8.399999999999997,
+      "sample_weight_percent": 5.164781111657586
+    },
+    {
+      "symbol": "database",
+      "weight": 6.1200000000000045,
+      "sample_weight_percent": 3.7629119527791026
+    },
+    {
+      "symbol": "authentication",
+      "weight": 6.000000000000004,
+      "sample_weight_percent": 3.6891293654697086
+    },
+    {
+      "symbol": "async_runtime",
+      "weight": 4.840000000000003,
+      "sample_weight_percent": 2.9758976881455648
+    },
+    {
+      "symbol": "response_encoding",
+      "weight": 3.7600000000000025,
+      "sample_weight_percent": 2.311854402361017
+    },
+    {
+      "symbol": "instrumentation",
+      "weight": 3.200000000000002,
+      "sample_weight_percent": 1.967535661583844
+    },
+    {
+      "symbol": "unclassified",
+      "weight": 1.3600000000000005,
+      "sample_weight_percent": 0.8362026561731336
+    },
+    {
+      "symbol": "synchronization",
+      "weight": 1.1200000000000003,
+      "sample_weight_percent": 0.6886374815543452
+    },
+    {
+      "symbol": "redis",
+      "weight": 0.08,
+      "sample_weight_percent": 0.049188391539596074
+    },
+    {
+      "symbol": "json_helper",
+      "weight": 0.04,
+      "sample_weight_percent": 0.024594195769798037
+    }
+  ],
+  "endpoint_stack_presence": [
+    {
+      "symbol": "unattributed",
+      "weight": 113.68000000000657,
+      "sample_weight_percent": 69.89670437777006
+    },
+    {
+      "symbol": "payment_callback",
+      "weight": 15.879999999999837,
+      "sample_weight_percent": 9.763895720609721
+    },
+    {
+      "symbol": "order_status",
+      "weight": 15.559999999999844,
+      "sample_weight_percent": 9.56714215445134
+    },
+    {
+      "symbol": "payment_initiation",
+      "weight": 8.399999999999997,
+      "sample_weight_percent": 5.164781111657586
+    },
+    {
+      "symbol": "seat_hold",
+      "weight": 4.440000000000003,
+      "sample_weight_percent": 2.729955730447584
+    },
+    {
+      "symbol": "reservation_status",
+      "weight": 2.8000000000000016,
+      "sample_weight_percent": 1.7215937038858637
+    },
+    {
+      "symbol": "metrics",
+      "weight": 1.800000000000001,
+      "sample_weight_percent": 1.1067388096409123
+    },
+    {
+      "symbol": "readiness",
+      "weight": 0.08,
+      "sample_weight_percent": 0.049188391539596074
+    }
+  ],
+  "weight_conservation_pass": true,
+  "endpoint_unknown_percent_before_verified_hold_fix": 70.80668962125273,
+  "phase_method": "One nearest recognized owning frame per stack; generic helpers fallback. Exclusive phase context weights partition samples, not charged CPU. Endpoints remain unknown without route frames.",
+  "limitations": "GIL-only nonblocking Python stack observations, not exact CPU or per-route latency. Native work and GIL-released waits are excluded. Inclusive shares overlap; generic framework/dependency stacks remain unattributed. No locals/request data. Historicalcache3000 profile does not substitute for currentcache0 evidence. No new cloud load.",
+  "private_evidence_root": "tmp\\adr0127-saved-profile-analysis"
+}

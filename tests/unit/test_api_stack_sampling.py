@@ -159,3 +159,77 @@ def test_public_summary_removes_profiler_thread_identifiers():
     result = summary.summarize([document])
     assert "12345678" not in json.dumps(result)
     assert any(row["symbol"] == "<unknown>:thread" for row in result["top_inclusive_frames"])
+
+def phase_profile(frames, samples=None, weights=None):
+    document = profile(samples or [list(range(len(frames)))], weights or [1])
+    document["shared"]["frames"] = frames
+    return document
+
+
+def test_phase_context_never_invents_route_for_shared_authentication():
+    result = summary.summarize([phase_profile([
+        {"name": "solve_dependencies", "file": "/private/fastapi/dependencies/utils.py"},
+        {"name": "actor", "file": "/private/ticketing/api.py"},
+        {"name": "loads", "file": "/private/json/__init__.py"},
+    ])])
+    assert result["route_stack_presence"][0]["symbol"] == "unattributed"
+    assert result["exclusive_phase_stack_context"][0]["symbol"] == "authentication"
+    assert result["unattributed_route_phase_context"][0]["symbol"] == "authentication"
+
+
+def test_database_owner_wins_over_generic_synchronization_and_dependencies():
+    frames = [
+        {"name": "solve_dependencies", "file": "/private/fastapi/dependencies/utils.py"},
+        {"name": "execute", "file": "/private/psycopg/cursor.py"},
+        {"name": "notify", "file": "/private/threading.py"},
+    ]
+    assert summary.phase_category(frames) == "database"
+    assert summary.phase_category(frames[:1]) == "dependency_resolution"
+
+
+def test_json_helpers_keep_logging_owner_instead_of_response_encoding():
+    assert summary.phase_category([
+        {"name": "format", "file": "/private/ticketing/observability.py"},
+        {"name": "iterencode", "file": "/private/json/encoder.py"},
+    ]) == "logging"
+    assert summary.phase_category([
+        {"name": "serialize_response", "file": "/private/fastapi/routing.py"},
+        {"name": "jsonable_encoder", "file": "/private/fastapi/encoders.py"},
+    ]) == "response_encoding"
+
+
+def test_phase_weights_conserved_across_documents_recursion_and_unknown_routes():
+    result = summary.summarize([profile(), phase_profile([
+        {"name": "thread (12345678)"},
+        {"name": "opaque_native_symbol", "file": "/private/native/opaque.cc"},
+    ], [[0, 1, 1]], [2])])
+    assert result["total_sample_weight"] == result["phase_total_sample_weight"] == 6
+    assert result["unattributed_route_total_weight"] == 3
+    assert sum(row["weight"] for row in result["exclusive_phase_stack_context"]) == 6
+    assert sum(row["weight"] for row in result["unattributed_route_phase_context"]) == 3
+    assert "unclassified" in {row["symbol"] for row in result["exclusive_phase_stack_context"]}
+    assert "/private" not in json.dumps(result) and "12345678" not in json.dumps(result)
+    assert "not exact CPU" in result["limitations"]
+
+
+@pytest.mark.parametrize(("frames", "phase"), [
+    ([{"name": "get", "file": "/private/redis/client.py"}], "redis"),
+    ([{"name": "labels", "file": "/private/prometheus_client/metrics.py"}], "instrumentation"),
+    ([{"name": "run_sync_in_worker_thread", "file": "/private/anyio/_backends/_asyncio.py"}], "thread_dispatch"),
+    ([{"name": "run_in_threadpool", "file": "/private/starlette/concurrency.py"}], "thread_dispatch"),
+    ([{"name": "send", "file": "/private/uvicorn/protocols/http/httptools_impl.py"}], "http_transport"),
+    ([{"name": "_run", "file": "/private/asyncio/events.py"}], "async_runtime"),
+    ([{"name": "notify", "file": "/private/threading.py"}], "synchronization"),
+    ([{"name": "run"}], "unclassified"),
+])
+def test_phase_specific_context_and_fallbacks(frames, phase):
+    assert summary.phase_category(frames) == phase
+
+
+def test_verified_hold_handler_route_without_guessing_generic_hold():
+    assert summary.route_category([{"name": "hold", "file": "/private/ticketing/api.py"}]) == "seat_hold"
+    assert summary.route_category([{"name": "hold", "file": "/private/generic.py"}]) == "unattributed"
+
+
+def test_logging_package_path_remains_public_and_redacted():
+    assert summary.public_file("/private/python/logging/__init__.py") == "logging/__init__.py"
