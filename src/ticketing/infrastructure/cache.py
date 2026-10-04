@@ -36,40 +36,103 @@ return 1
 """
 # One hash holds metadata and seat fields; a Lua invocation is atomic with readers.
 PUT = """
+local hash_exists = redis.call('EXISTS',KEYS[1]) == 1
 local exists = redis.call('HEXISTS',KEYS[1],'version') == 1
 local dirty = redis.call('HEXISTS',KEYS[1],'updating') == 1
 if ARGV[1] == 'patch' and (not exists or dirty) then return -1 end
-if ARGV[1] == 'full' and not exists then redis.call('DEL',KEYS[2]) end
 local rows = cjson.decode(ARGV[2])
+local payload = ARGV[11]
+local position = 1
+local input_version = ARGV[12]
+if not input_version or not tonumber(input_version) then
+  return redis.error_reply('invalid seat aggregate prediction')
+end
+local input_suffix = ',"version":'..input_version..'}'
+local count = #rows / 2
+if #rows % 2 ~= 0 then return redis.error_reply('invalid seat metadata count') end
+if not payload or (count == 0 and payload ~= '') then
+  return redis.error_reply('invalid seat payload framing')
+end
 local version = tonumber(redis.call('HGET',KEYS[1],'version') or '0')
 local prior_version = version
 local changed = {}
+local changed_bodies = {}
+local changed_old = {}
 local ttl_seconds = tonumber(ARGV[6] or '30')
 local rebuild = ARGV[1] == 'full' and not exists
 local source_total = 0
 if rebuild then version = 0 end
-for _,seat in ipairs(rows) do
-  local raw = redis.call('HGET',KEYS[1],'seat:'..seat.seat_id)
-  local old = raw and cjson.decode(raw) or nil
-  local newer = not old or tonumber(seat.source_version) > tonumber(old.source_version)
-  local selected = newer and seat or old
-  if ARGV[1] == 'full' then
-    source_total = source_total + tonumber(selected.source_version)
+-- Keep command argument groups bounded while the whole invocation stays atomic.
+for first=1,count,256 do
+  local last = math.min(first+255,count)
+  local raw_rows
+  if hash_exists then
+    local fields = {}
+    for index=first,last do fields[index-first+1] = 'seat:'..rows[index*2-1] end
+    raw_rows = redis.call('HMGET',KEYS[1],unpack(fields))
   end
-  if rebuild then
-    version = version + tonumber(selected.source_version)
-  elseif newer then
-    version = version + tonumber(seat.source_version) - (old and tonumber(old.source_version) or 0)
+  for index=first,last do
+    local seat_id = rows[index*2-1]
+    local separator = string.find(payload,'\\n',position,true)
+    if (index < count and not separator) or (index == count and separator) then
+      return redis.error_reply('invalid seat payload framing')
+    end
+    local body = string.sub(payload,position,separator and separator-1 or #payload)
+    if string.sub(body,1,1) ~= '{' or string.sub(body,-#input_suffix) ~= input_suffix then
+      return redis.error_reply('invalid seat payload object')
+    end
+    position = separator and separator+1 or #payload+1
+    local raw = raw_rows and raw_rows[index-first+1]
+    local old = raw and cjson.decode(raw) or nil
+    local source_version = tonumber(rows[index*2])
+    local newer = not old or source_version > tonumber(old.source_version)
+    local selected_source = newer and source_version or tonumber(old.source_version)
+    if ARGV[1] == 'full' then
+      source_total = source_total + selected_source
+    end
+    if rebuild then
+      version = version + selected_source
+    elseif newer then
+      version = version + source_version - (old and tonumber(old.source_version) or 0)
+    end
+    if rebuild or newer or dirty then
+      local selected = #changed+1
+      changed[selected] = seat_id
+      changed_bodies[selected] = newer and body or false
+      if not newer then changed_old[selected] = old end
+    end
   end
-  if rebuild or newer or dirty then table.insert(changed, selected) end
 end
 if ARGV[1] == 'full' and not rebuild and source_total > version then
   version = source_total
 end
+if ARGV[1] == 'full' and not exists then redis.call('DEL',KEYS[2]) end
 redis.call('HSET',KEYS[1],'updating',1)
-for _,seat in ipairs(changed) do
-  seat.version = version
-  redis.call('HSET',KEYS[1],'seat:'..seat.seat_id,cjson.encode(seat))
+local encoded_version = cjson.encode(version)
+local publish_delta = #changed > 0 and version > prior_version
+local delta_seats = {}
+for first=1,#changed,256 do
+  local fields = {}
+  for index=first,math.min(first+255,#changed) do
+    local body = changed_bodies[index]
+    local encoded
+    if body then
+      if encoded_version == input_version then
+        encoded = body
+      else
+        encoded = string.sub(body,1,#body-#input_suffix)..',"version":'..encoded_version..'}'
+      end
+    else
+      local old = changed_old[index]
+      old.version = version
+      encoded = cjson.encode(old)
+    end
+    local offset = (index-first)*2
+    fields[offset+1] = 'seat:'..changed[index]
+    fields[offset+2] = encoded
+    if publish_delta then delta_seats[#delta_seats+1] = encoded end
+  end
+  redis.call('HSET',KEYS[1],unpack(fields))
 end
 redis.call('HSET',KEYS[1],'version',version)
 if ARGV[1] == 'full' then
@@ -81,8 +144,9 @@ if ARGV[1] == 'full' then
   end
 end
 redis.call('HDEL',KEYS[1],'updating')
-if #changed > 0 and version > prior_version then
-  local entry = cjson.encode({from_version=prior_version,version=version,seats=changed})
+if publish_delta then
+  local header = cjson.encode({from_version=prior_version,version=version})
+  local entry = string.sub(header,1,-2)..',"seats":['..table.concat(delta_seats,',')..']}'
   redis.call('ZADD',KEYS[2],version,entry)
   local map_ttl = redis.call('TTL',KEYS[1])
   local delta_ttl = redis.call('TTL',KEYS[2])
@@ -243,7 +307,29 @@ class RedisSeats:
             ),
         }
 
+    @staticmethod
+    def _encoded_seats(seats):
+        # Compact JSON escapes embedded newlines, leaving unambiguous frame separators.
+        seats = list(seats)
+        encode = json.JSONEncoder(default=str, separators=(",", ":")).encode
+        metadata = encode([value for seat in seats for value in (seat["seat_id"], seat["source_version"])])
+        prediction = sum(seat["source_version"] for seat in seats)
+        payload = "\n".join(
+            encode({**{key: value for key, value in seat.items() if key != "version"}, "version": prediction})
+            for seat in seats
+        )
+        return metadata, payload, str(prediction)
+
+    def _patch_arguments(self, event, seats):
+        metadata, payload, prediction = self._encoded_seats(seats)
+        return (
+            self.key(event), self.delta_key(event), "patch", metadata,
+            "", "", "", str(self._seatmap_ttl_seconds),
+            "", "", "", str(self.delta_history_entries), payload, prediction,
+        )
+
     def _full_arguments(self, event, data):
+        metadata, payload, prediction = self._encoded_seats(data["seats"])
         layout = json.dumps(
             {
                 "event_id": str(event),
@@ -260,7 +346,7 @@ class RedisSeats:
             self.key(event),
             self.delta_key(event),
             "full",
-            json.dumps(data["seats"], default=str),
+            metadata,
             layout,
             tag,
             str(uuid4()),
@@ -269,6 +355,8 @@ class RedisSeats:
             str(data.get("sale_ends_epoch", "")),
             data.get("currency", ""),
             str(self.delta_history_entries),
+            payload,
+            prediction,
         )
 
     def put(self, event, version, data):
@@ -289,9 +377,7 @@ class RedisSeats:
         ]
 
     def patch(self, event, seats):
-        return self.redis.eval(
-            PUT, 2, self.key(event), self.delta_key(event), "patch", json.dumps(seats, default=str)
-        ) >= 0
+        return self.redis.eval(PUT, 2, *self._patch_arguments(event, seats)) >= 0
 
     def patch_many(self, updates):
         updates = list(updates)
@@ -299,9 +385,7 @@ class RedisSeats:
             return []
         pipeline = self.redis.pipeline(transaction=False)
         for event, seats in updates:
-            pipeline.eval(
-                PUT, 2, self.key(event), self.delta_key(event), "patch", json.dumps(seats, default=str)
-            )
+            pipeline.eval(PUT, 2, *self._patch_arguments(event, seats))
         results = pipeline.execute(raise_on_error=False)
         for result in results:
             if isinstance(result, RedisError):

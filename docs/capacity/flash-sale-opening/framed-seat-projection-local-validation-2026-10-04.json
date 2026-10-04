@@ -1,0 +1,490 @@
+{
+  "kind": "framed_atomic_seat_projection_local_validation",
+  "date_bangkok": "2026-10-04",
+  "status": "PASSED_SPECIFIED_NATIVE_LINUX_ENVIRONMENT_WINDOWS_FOCUSED_FAILED",
+  "decisions": [
+    "docs/adr/0139-framed-preencoded-seat-projection.md",
+    "docs/adr/0140-native-linux-local-projection-qualification.md"
+  ],
+  "baseline_revision": "e26becaf975a8d77e3f826928c565aa270d13724",
+  "candidate_source_sha256": {
+    "src/ticketing/infrastructure/cache.py": "004f5ccc790f21519079a885f0269ce45e8a4609f3456bc85c14c75580118f0e",
+    "tests/integration/test_bulk_atomic_projection.py": "558a33da6eb50629dd734801bec053d745b60b4af88b0576f58735c1cc699eda"
+  },
+  "runtime_candidate_committed": false,
+  "cloud_access_or_load": false,
+  "push_or_main_merge": false,
+  "environment": {
+    "runner_image_id": "sha256:74909203b87a1ae60435edb8fff17bac0762ed8042d0a6219652ca9b4ed28d69",
+    "python_linux": "3.12.14 (main, Sep 19 2026, 01:04:57) [GCC 14.2.0]",
+    "python_windows": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+    "postgres": "17.6",
+    "redis": "7.4.5-alpine",
+    "copied_native_filesystem": true,
+    "private_owned_network": true,
+    "locked_dependencies_verified": true,
+    "windows_dependencies": {
+      "redis": "6.4.0",
+      "pytest": "8.4.2",
+      "fastapi": "0.141.1",
+      "psycopg": "3.3.5",
+      "psycopg-pool": "3.3.1"
+    },
+    "socket_timeout_ms": 100,
+    "socket_connect_timeout_ms": 100,
+    "retry_added": false
+  },
+  "focused": {
+    "passed": 69,
+    "failed": 0,
+    "skipped": 0,
+    "warnings": 2,
+    "pytest_seconds": 11.32,
+    "raw": "tmp/adr0140-native-investigation/adr0140-evidence/focused.txt"
+  },
+  "full_unit_integration": {
+    "passed": 721,
+    "failed": 0,
+    "skipped": 0,
+    "warnings": 2,
+    "pytest_seconds": 89.64,
+    "raw": "tmp/adr0140-native-investigation/adr0140-evidence/full.txt"
+  },
+  "contracts_executed": [
+    "18000-seat complete projection and replay",
+    "fresh 18000-seat fixture/export/disjoint seat ranges and six signed paid-issued orders with duplicate payment callbacks and consumer replay",
+    "100 simultaneous same-seat hold attempts with exactly one winner in full suite",
+    "stale full versus newer concurrent patch source fencing",
+    "interrupted multi-group publication unreadable until full repair",
+    "lost-ack replay without duplicate deltas or TTL/incarnation regression",
+    "escaped newline/quotes/Unicode",
+    "malformed framing rejected before any map/history mutation",
+    "retained newer SOLD state when version metadata is absent",
+    "predicted aggregate mismatch cannot overwrite computed aggregate",
+    "configured history bound and cache-loss reset"
+  ],
+  "native_linux_comparison": {
+    "method": "Five alternating cold maps per size and implementation on same Redis; full worker seat shape. A missing ack is never waived by eventual fields.",
+    "summary": [
+      {
+        "implementation": "baseline",
+        "seats": 300,
+        "successful_acknowledgements": 5,
+        "samples": 5,
+        "encoding_ms": 0.657,
+        "eval_client_ms": 3.179,
+        "client_total_ms": 3.836,
+        "server_eval_ms": 2.071
+      },
+      {
+        "implementation": "candidate",
+        "seats": 300,
+        "successful_acknowledgements": 5,
+        "samples": 5,
+        "encoding_ms": 1.431,
+        "eval_client_ms": 2.062,
+        "client_total_ms": 3.493,
+        "server_eval_ms": 0.815
+      },
+      {
+        "implementation": "baseline",
+        "seats": 18000,
+        "successful_acknowledgements": 0,
+        "samples": 5,
+        "encoding_ms": 39.764,
+        "eval_client_ms": 104.226,
+        "client_total_ms": 143.991,
+        "server_eval_ms": 155.398
+      },
+      {
+        "implementation": "candidate",
+        "seats": 18000,
+        "successful_acknowledgements": 5,
+        "samples": 5,
+        "encoding_ms": 94.936,
+        "eval_client_ms": 50.944,
+        "client_total_ms": 145.88,
+        "server_eval_ms": 45.991
+      }
+    ],
+    "samples": [
+      {
+        "implementation": "baseline",
+        "seats": 300,
+        "iteration": 0,
+        "encoding_ms": 0.6642220000685484,
+        "eval_client_ms": 3.4982189999936963,
+        "client_total_ms": 4.162441000062245,
+        "server_eval_ms": 2.399,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 307,
+        "argument_count": 12
+      },
+      {
+        "implementation": "candidate",
+        "seats": 300,
+        "iteration": 0,
+        "encoding_ms": 1.4165489999413694,
+        "eval_client_ms": 1.9493660001899116,
+        "client_total_ms": 3.365915000131281,
+        "server_eval_ms": 0.76,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 307,
+        "argument_count": 14
+      },
+      {
+        "implementation": "candidate",
+        "seats": 300,
+        "iteration": 1,
+        "encoding_ms": 1.5484529999412189,
+        "eval_client_ms": 2.255276999903799,
+        "client_total_ms": 3.803729999845018,
+        "server_eval_ms": 0.84,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 307,
+        "argument_count": 14
+      },
+      {
+        "implementation": "baseline",
+        "seats": 300,
+        "iteration": 1,
+        "encoding_ms": 0.7509260001370421,
+        "eval_client_ms": 3.1332059998021577,
+        "client_total_ms": 3.8841319999392,
+        "server_eval_ms": 2.027,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 307,
+        "argument_count": 12
+      },
+      {
+        "implementation": "baseline",
+        "seats": 300,
+        "iteration": 2,
+        "encoding_ms": 0.6382219999068184,
+        "eval_client_ms": 3.137706999950751,
+        "client_total_ms": 3.7759289998575696,
+        "server_eval_ms": 2.094,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 307,
+        "argument_count": 12
+      },
+      {
+        "implementation": "candidate",
+        "seats": 300,
+        "iteration": 2,
+        "encoding_ms": 1.3869469999008288,
+        "eval_client_ms": 2.1005710000281397,
+        "client_total_ms": 3.4875179999289685,
+        "server_eval_ms": 0.97,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 307,
+        "argument_count": 14
+      },
+      {
+        "implementation": "candidate",
+        "seats": 300,
+        "iteration": 3,
+        "encoding_ms": 1.423647999899913,
+        "eval_client_ms": 1.8880640000134008,
+        "client_total_ms": 3.3117119999133138,
+        "server_eval_ms": 0.75,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 307,
+        "argument_count": 14
+      },
+      {
+        "implementation": "baseline",
+        "seats": 300,
+        "iteration": 3,
+        "encoding_ms": 0.6209210000633902,
+        "eval_client_ms": 3.0537039999671833,
+        "client_total_ms": 3.6746250000305736,
+        "server_eval_ms": 1.915,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 307,
+        "argument_count": 12
+      },
+      {
+        "implementation": "baseline",
+        "seats": 300,
+        "iteration": 4,
+        "encoding_ms": 0.6129200000941637,
+        "eval_client_ms": 3.0717039999217377,
+        "client_total_ms": 3.6846240000159014,
+        "server_eval_ms": 1.921,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 307,
+        "argument_count": 12
+      },
+      {
+        "implementation": "candidate",
+        "seats": 300,
+        "iteration": 4,
+        "encoding_ms": 1.3802470000428002,
+        "eval_client_ms": 2.114270999982182,
+        "client_total_ms": 3.494518000024982,
+        "server_eval_ms": 0.756,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 307,
+        "argument_count": 14
+      },
+      {
+        "implementation": "baseline",
+        "seats": 18000,
+        "iteration": 0,
+        "encoding_ms": 37.337771000011344,
+        "eval_client_ms": 103.47372000001087,
+        "client_total_ms": 140.81149100002222,
+        "server_eval_ms": 127.842,
+        "client_error": "TimeoutError",
+        "acknowledgement_success": false,
+        "fields_after_execution": 18007,
+        "argument_count": 12
+      },
+      {
+        "implementation": "candidate",
+        "seats": 18000,
+        "iteration": 0,
+        "encoding_ms": 104.04313999993064,
+        "eval_client_ms": 54.78376400014895,
+        "client_total_ms": 158.8269040000796,
+        "server_eval_ms": 50.656,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 18007,
+        "argument_count": 14
+      },
+      {
+        "implementation": "candidate",
+        "seats": 18000,
+        "iteration": 1,
+        "encoding_ms": 101.08844000001227,
+        "eval_client_ms": 56.34941700009222,
+        "client_total_ms": 157.4378570001045,
+        "server_eval_ms": 48.302,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 18007,
+        "argument_count": 14
+      },
+      {
+        "implementation": "baseline",
+        "seats": 18000,
+        "iteration": 1,
+        "encoding_ms": 38.61311300011039,
+        "eval_client_ms": 104.61325899996154,
+        "client_total_ms": 143.22637200007193,
+        "server_eval_ms": 127.602,
+        "client_error": "TimeoutError",
+        "acknowledgement_success": false,
+        "fields_after_execution": 18007,
+        "argument_count": 12
+      },
+      {
+        "implementation": "baseline",
+        "seats": 18000,
+        "iteration": 2,
+        "encoding_ms": 49.29147699999703,
+        "eval_client_ms": 104.36105000007956,
+        "client_total_ms": 153.6525270000766,
+        "server_eval_ms": 276.353,
+        "client_error": "TimeoutError",
+        "acknowledgement_success": false,
+        "fields_after_execution": 18007,
+        "argument_count": 12
+      },
+      {
+        "implementation": "candidate",
+        "seats": 18000,
+        "iteration": 2,
+        "encoding_ms": 93.31117500005348,
+        "eval_client_ms": 50.17130700002781,
+        "client_total_ms": 143.4824820000813,
+        "server_eval_ms": 45.372,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 18007,
+        "argument_count": 14
+      },
+      {
+        "implementation": "candidate",
+        "seats": 18000,
+        "iteration": 3,
+        "encoding_ms": 90.66888500001369,
+        "eval_client_ms": 49.76099299983616,
+        "client_total_ms": 140.42987799984985,
+        "server_eval_ms": 46.255,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 18007,
+        "argument_count": 14
+      },
+      {
+        "implementation": "baseline",
+        "seats": 18000,
+        "iteration": 3,
+        "encoding_ms": 36.91785599994546,
+        "eval_client_ms": 104.6924620000027,
+        "client_total_ms": 141.61031799994817,
+        "server_eval_ms": 120.136,
+        "client_error": "TimeoutError",
+        "acknowledgement_success": false,
+        "fields_after_execution": 18007,
+        "argument_count": 12
+      },
+      {
+        "implementation": "baseline",
+        "seats": 18000,
+        "iteration": 4,
+        "encoding_ms": 36.661748000142325,
+        "eval_client_ms": 103.99143799986632,
+        "client_total_ms": 140.65318600000865,
+        "server_eval_ms": 125.055,
+        "client_error": "TimeoutError",
+        "acknowledgement_success": false,
+        "fields_after_execution": 18007,
+        "argument_count": 12
+      },
+      {
+        "implementation": "candidate",
+        "seats": 18000,
+        "iteration": 4,
+        "encoding_ms": 85.56741099982901,
+        "eval_client_ms": 43.65638499984925,
+        "client_total_ms": 129.22379599967826,
+        "server_eval_ms": 39.372,
+        "client_error": null,
+        "acknowledgement_success": true,
+        "fields_after_execution": 18007,
+        "argument_count": 14
+      }
+    ],
+    "passed": true
+  },
+  "windows_latest": {
+    "focused": {
+      "passed": 68,
+      "failed": 1,
+      "seconds": 21.5,
+      "warnings": 2,
+      "raw": "tmp/adr0138-capacity-investigation/predicted-suffix-windows-focused-failure.txt"
+    },
+    "failure": "Redis socket timeout on a 513-seat patch replay after concurrent source-fence assertions; large projection and signed financial replay passed. Overall Windows focused gate FAILED.",
+    "full_suite_run": false,
+    "comparison_summary": [
+      {
+        "implementation": "baseline",
+        "seats": 300,
+        "successful_acknowledgements": 5,
+        "samples": 5,
+        "encoding_ms": 1.043,
+        "eval_client_ms": 12.103,
+        "client_total_ms": 13.147,
+        "server_eval_ms": 2.882
+      },
+      {
+        "implementation": "candidate",
+        "seats": 300,
+        "successful_acknowledgements": 5,
+        "samples": 5,
+        "encoding_ms": 2.283,
+        "eval_client_ms": 4.346,
+        "client_total_ms": 6.629,
+        "server_eval_ms": 0.995
+      },
+      {
+        "implementation": "baseline",
+        "seats": 18000,
+        "successful_acknowledgements": 0,
+        "samples": 5,
+        "encoding_ms": 45.486,
+        "eval_client_ms": 126.618,
+        "client_total_ms": 172.104,
+        "server_eval_ms": 158.887
+      },
+      {
+        "implementation": "candidate",
+        "seats": 18000,
+        "successful_acknowledgements": 5,
+        "samples": 5,
+        "encoding_ms": 97.156,
+        "eval_client_ms": 91.411,
+        "client_total_ms": 188.567,
+        "server_eval_ms": 47.418
+      }
+    ]
+  },
+  "retained_failed_attempts": [
+    {
+      "representation": "corrected ADR0138 raw arguments",
+      "passed": 51,
+      "failed": 2,
+      "seconds": 22.9,
+      "raw": "tmp/adr0138-capacity-investigation/raw-argument-resume-failure.txt"
+    },
+    {
+      "representation": "initial framed nested metadata",
+      "passed": 65,
+      "failed": 2,
+      "seconds": 18.19,
+      "raw": "tmp/adr0138-capacity-investigation/framed-initial-failure.txt"
+    },
+    {
+      "representation": "framed indexed arrays",
+      "passed": 66,
+      "failed": 1,
+      "seconds": 15.15,
+      "raw": "tmp/adr0138-capacity-investigation/framed-array-refinement-failure.txt"
+    },
+    {
+      "representation": "absent-hash read elimination",
+      "passed": 66,
+      "failed": 2,
+      "seconds": 14.49,
+      "raw": "tmp/adr0138-capacity-investigation/framed-absent-hash-failure.txt"
+    },
+    {
+      "representation": "flat metadata",
+      "passed": 67,
+      "failed": 1,
+      "seconds": 14.84,
+      "raw": "tmp/adr0138-capacity-investigation/framed-flat-metadata-failure.txt"
+    }
+  ],
+  "diagnostics": {
+    "prefix_raw": "tmp/adr0138-capacity-investigation/framed-prefix-diagnostic.json",
+    "prefix_method": "Separate invocations, not exact additive phase spans.",
+    "discarded_probe": "Redis TIME was fixed inside Lua; zero timing spans are invalid.",
+    "reduced_shape_comparisons": "Earlier framing/raw/flat comparisons omit hold_id/reserved_until_epoch; use final full-worker-shape comparisons for the candidate."
+  },
+  "cleanup": {
+    "owned_containers_removed": true,
+    "owned_network_removed": true,
+    "native_context_removed": true,
+    "private_shard_manifests_removed_by_test": true,
+    "cloud_temporary_access_installed": false
+  },
+  "limitations": [
+    "Five cold snapshots per size/implementation are not a sustained-load or production-capacity proof.",
+    "Baseline client times end at timeout and are censored, not successful completion latencies.",
+    "Native18000-seat candidate mean Python construction94.936ms plus EVAL50.944ms gives145.88ms client total; moving work to Python has a CPU cost.",
+    "The100ms timeout bounds socket operations, not complete request construction/latency.",
+    "A native Linux pass does not waive the retained Windows failure or prove its root cause.",
+    "No live Kafka, cloud post-TTL/full-keyspace queue drain, new RPS or300000paid tickets/hour proof in this experiment."
+  ],
+  "next": [
+    "Preserve exact candidate source identity and qualify a separate fixed60buyers/s300s cache-factor cloud control after explicit cloud resume.",
+    "Keep concentration/one-show changes separate from the cache-factor control.",
+    "All cloud source/readiness/generator, post-TTL financial, zero-double-booking, full-keyspace queue/Kafka, restoration and cleanup gates remain mandatory."
+  ]
+}

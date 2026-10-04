@@ -218,3 +218,7 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0137 - Native-filesystem local Linux paid-generator qualification](0137-native-filesystem-local-paid-generator-qualification.md)
 
 - [0138 - Pre-encoded payloads for atomic version-fenced seat projection](0138-preencoded-atomic-seat-projection.md)
+
+- [0139 - Framed pre-encoded payloads within atomic seat projection](0139-framed-preencoded-seat-projection.md)
+
+- [0140 - Native Linux local projection qualification](0140-native-linux-local-projection-qualification.md)

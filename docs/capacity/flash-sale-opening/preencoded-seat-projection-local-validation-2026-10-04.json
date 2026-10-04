@@ -1,6 +1,6 @@
 {
   "kind": "preencoded_seat_projection_local_checkpoint",
-  "status": "PATCH_HEADER_CORRECTED_PENDING_RETEST",
+  "status": "SUPERSEDED_LOCAL_REPRESENTATION_BY_ADR0139",
   "decision": "docs/adr/0138-preencoded-atomic-seat-projection.md",
   "decision_revision": "9e7ee44",
   "representation_revision": "afd46e42a59c28c16937062b63be32b96caed140",
@@ -17,10 +17,10 @@
   "failure": "Patch header left ARGV10 empty; tonumber(empty) was nil during delta-history arithmetic. Patch/delta regressions failed; overall qualification FAILED.",
   "local_fix": "Pass configured TTL and delta history limit in fixed header; add configured-history-bound regression case.",
   "after_fix": {
-    "database_tests_executed": false,
+    "database_tests_executed": true,
     "full_suite_executed": false,
     "ruff_pass": true,
-    "qualification": "PENDING"
+    "qualification": "FAILED_LARGE_WARMUP"
   },
   "working_source_sha256": {
     "src/ticketing/infrastructure/cache.py": "26bf250a04313a46ec050627be61c21c8355badf3e47e9df40e406ab4c9aacff",
@@ -36,9 +36,14 @@
   "higher_load": false,
   "push_or_main_merge": false,
   "next": [
-    "Restore local Docker availability and inspect/remove only owned experiment leftovers.",
-    "Run focused Redis/concurrency/replay tests, then full financial/concurrency suite if focused gates pass.",
-    "Measure candidate/baseline snapshot cost at unchanged deadlines.",
-    "Prepare a separate fixed60buyers/s300s cache-factor cloud comparison with every financial/durability/zero-double-booking/queue/Kafka gate before concentration-only control."
-  ]
+    "Use successor ADR0139/0140 evidence; preserve these earlier failures. No cloud execution follows from this historical checkpoint."
+  ],
+  "resume_after_header_fix": {
+    "passed": 51,
+    "failed": 2,
+    "seconds": 22.9,
+    "large_show_results": "Both18000-seat checks timed out at unchanged100ms; patch-header regressions passed.",
+    "raw": "tmp/adr0138-capacity-investigation/raw-argument-resume-failure.txt"
+  },
+  "successor_report": "docs/capacity/flash-sale-opening/framed-seat-projection-local-validation-2026-10-04.json"
 }
