@@ -2,11 +2,11 @@
   "updated_date_bangkok": "2026-10-04",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "security_note": "Earlier temporary key removed. New restricted45minute key prepared locally only; new root-key installation was rejected before execution pending specific ADR0127 approval. Passwords are not written/printed. No new load.",
-  "status": "api_phase_diagnostic_prepared_access_review_pending",
-  "cloud_load_requires_resume": false,
+  "security_note": "ADR0127 temporary key entries removed from both ECS root accounts and local key files deleted; no credentials saved in files or environment.",
+  "status": "api_phase_diagnostic_passed_same_load_access_removed",
+  "cloud_load_requires_resume": true,
   "handoff_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
-  "revision_note": "Cloud checkouts/runtime tested 5706fce; ten application module hashes and observer source unchanged from the passing1000ms baseline. Local ADR/report commits may follow. Baseline service budgets andcache0 restored.",
+  "revision_note": "Cloud checkouts/runtime tested5706fce; all ten application module hashes and observer source unchanged from passing cache0 baseline. ADR0127 offline classifier prepared in local0faa9ae; result/checkpoint commit follows. Baseline services/cache0 restored.",
   "backend_application_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
   "generator_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
   "backend_checkout_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
@@ -15,25 +15,27 @@
   "diagnostic_implementation_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
   "last_checked_topology": "Restored4healthyAPIs;postgres/pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4/batch;PgBouncer24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "No active paid generator; exact postTTLfinancial/fullqueues/Kafka/source/settings/restoration/idle/privatecleanup gates passed. Only cache1000ms-to0ms changed in the candidate; prior observer failure remains retained.",
-  "current_run": "checkout-20261004T011046Z-39deb0",
+  "cloud_state_note": "All financial/postTTL/full-keyspace queue/Kafka/source/settings/restoration/idle/private profile scratch gates passed; no active generator. Temporary access removed.",
+  "current_run": "checkout-20261004T020835Z-a401c0",
   "confirmed": [
-    "ADR0122 reservation-writer fairness and492 executed tests retained. No application code changes in ADR0126.",
-    "43 existing disabled-cache/configuration and bounded CLI tests passed2.44s before dispatch; one pytest nodeids-cache permission warning.",
-    "18000 scheduled/18000 dispatched/18000 confirmed distinct paid tickets; zero drops/errors/retries. All mandatory cloud gates passed.",
-    "Cache disabled0ms against passing1000ms baseline; all ten application module hashes,observer query,load andresource budgets unchanged; no cache hit/miss/fill counter increments.",
-    "Offered-only sampled API CPU1.330to1.277cores;hostCPU82.21to80.14percent.",
-    "Hold-to-ticket worst-shardp952161.9ms;durability worst-shardp951044.9ms.",
-    "Initial failed observer trial remains failed; repaired-observer1000ms baseline remains passed. No higher load/main merge."
+    "ADR0122 reservation-writer fairness and492 executed tests retained; all10 application source hashes unchanged in ADR0127.",
+    "18000 scheduled/18000 dispatched/18000 customer-confirmed tickets; no errors/drops/retries; all16 mandatory diagnostic gates passed.",
+    "Exact postTTL financial and zero-double-booking checks passed; full-keyspace queues and Kafka drained; baseline services restored and generator idle.",
+    "Four120s25HzGIL-only/nonblocking profiles: 2135 observations; all phase weights conserved. Stack context is not charged CPU.",
+    "Largest exclusive stack contexts: database22.81percent, request dispatch18.45percent, HTTP transport15.60percent. Endpoint identity unknown for68.62percent; contexts are not chargedCPU.",
+    "Offered-window sampled API CPU 1.278cores; host CPU 81.06percent. External profiler overhead retained separately.",
+    "Hold-to-ticket worst-shardp95 2144.962ms; durability worst-shardp95 1043.052ms.",
+    "Owned profiler processes exited, remote profile scratch removed; both temporary root keys removed and local key files deleted.",
+    "No higher load, second run, external publication or main merge. Prior failed observer evidence retained."
   ],
-  "unresolved": "Currentcache0 APIphase evidence awaits oneapproveddiagnostic afterspecific temporary-access approval. Oldcache3000 samplecontexts are not chargedCPU orcurrentcache0 attribution;most endpoints remainunknown. Productioncapacity unqualified.",
+  "unresolved": "Endpoint identity unknown for68.62percent of sampled weight. Phase contexts are not chargedCPU or per-route elapsed time. Sampled230s CPU windows, freshfixture/background variation and profiler overhead confound differences. No optimization selected; production capacity unqualified.",
   "next_on_resume": [
-    "Resolve pending specific restricted temporary-key approval;donot bypassreview.",
-    "Afteraccess/preflightpasses,run the prepared one60buyers/s300s cache0 diagnostic withfour120s25Hzprofiles andall16mandatorygates.",
-    "Keep samples/counters/errors,complete financial/postTTL/fullqueue/restoration/idle/privatecleanup andremove temporarykey;no secondrun."
+    "Review currentcache0 stack-context evidence before selecting a concrete optimization; create an ADR before any architectural or orchestration change.",
+    "Any further cloud experiment needs a new bounded scope. Retain all financial/durability/zero-double-booking/fullqueue/recovery gates; no higher load/main merge on failed gates."
   ],
-  "validation_this_resume": "64 diagnostic/phase/CPU/startup tests passed0.62s; afteroneRuff-only stylefix34 profilingtests passed0.09s andlint/diffcheckpassed. Fourhistoricalprofiles reanalyzedwithconservedweights;applicationcodeunchanged. No newcloudload orqualification.",
+  "validation_this_resume": "64 focused diagnostic/readiness checks passed0.62s; after lint-only fix34 profiling tests passed0.09s. One authorized60buyers/s300s cache0 external-profile diagnostic passed all16 gates and temporary access cleanup; no application runtime changes.",
   "evidence": [
+    "docs/capacity/flash-sale-opening/api-phase-diagnostic-2026-10-04.json",
     "docs/capacity/flash-sale-opening/api-phase-diagnostic-plan-2026-10-04.json",
     "docs/capacity/flash-sale-opening/api-phase-saved-profile-reanalysis-2026-10-04.json",
     "docs/adr/0127-phase-classification-for-api-stack-diagnostics.md",
@@ -51,8 +53,8 @@
     "docs/adr/0123-bounded-paid-cpu-sampler-readiness.md",
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
-  "authorization": "User authorizes autonomous continuation without routine questions until08:00Asia/Bangkok2026-10-04. Covers bounded implementation/configuration,checks and sanitized feature-branch evidence/checkpoint pushes to existing remote. No higherload/mainmerge;honor review rejection. User specifically approved observer-only cloud preflight/deployment/requalification after the failed observer gate by replying Continue to the concrete next-step proposal. User Go ahead specifically approves the new one-run ADR0126 control and required completion/recovery audits. User explicitly Approved the exact temporary root authorized_keys addition on both ECS hosts and subsequent removal; protected terminal password handling used. User Continue specifically approves one ADR0127 phase-attribution diagnostic atunchanged60buyers/s300s cache0 after saved-profile review.",
-  "scope": "User Continue approved saved-profile investigation,ADR0127 andone60buyers/s300s cache0 diagnostic withall correctness/drain gates. No additional run,higher load,external publication ormain merge.",
+  "authorization": "User authorizes autonomous continuation without routine questions until08:00Asia/Bangkok2026-10-04. Covers bounded implementation/configuration,checks and sanitized feature-branch evidence/checkpoint pushes to existing remote. No higherload/mainmerge;honor review rejection. User specifically approved observer-only cloud preflight/deployment/requalification after the failed observer gate by replying Continue to the concrete next-step proposal. User Go ahead specifically approves the new one-run ADR0126 control and required completion/recovery audits. User explicitly Approved the exact temporary root authorized_keys addition on both ECS hosts and subsequent removal; protected terminal password handling used. User Continue specifically approves one ADR0127 phase-attribution diagnostic atunchanged60buyers/s300s cache0 after saved-profile review. User separately Approved the exact ADR0127 restricted45minute temporary root-key installation and removal; installation, diagnostic and cleanup are complete.",
+  "scope": "One ADR0127 diagnostic completed; no second run, higher load, external publication or main merge authorized.",
   "roadmap": [
     {
       "step": 1,
@@ -97,7 +99,7 @@
     {
       "step": 9,
       "work": "Scale the measured bottleneck",
-      "status": "requalified_writer_API_profile_completed_distributed_cost_unattributed71percent"
+      "status": "same60buyer_cache0_phase_diagnostic_passed_cpu_attribution_remains_limited"
     },
     {
       "step": 10,
@@ -106,7 +108,7 @@
     }
   ],
   "publication": {
-    "status": "adr0126_result_and_cleanup_saved_locally",
+    "status": "adr0127_result_saved_locally_not_pushed",
     "destination": "github.com/chawansit/flash-ticketing.git",
     "branch": "codex/redis-failover-recovery",
     "evidence_revision": "6a1385bbeb13bc50bbd8aae5378dfd7037fde747",
@@ -152,7 +154,7 @@
   "bounded_control": {
     "decision": "0127-phase-classification-for-api-stack-diagnostics",
     "limit": 1,
-    "started": 0,
+    "started": 1,
     "active_run": null,
     "access_ready": false,
     "baseline_report": "docs/capacity/flash-sale-opening/cache-disabled-control-2026-10-04.json",
@@ -176,8 +178,16 @@
       "action": "New restricted temporary root key onboth ECS hosts forADR0127",
       "rejected_before_execution": true,
       "reason": "Priorapproval limited toADR0126;currentContinue approveddiagnostic only",
-      "specific_approval_requested": true
-    }
+      "specific_approval_requested": true,
+      "resolved_by": "User explicitly replied Approved to the ADR0127 temporary root-key request, including restrict, 45-minute expiry and removal after audits."
+    },
+    "temporary_key_installation_authorized": true,
+    "temporary_key_installed": false,
+    "last_run_gates_pass": true,
+    "result": "docs/capacity/flash-sale-opening/api-phase-diagnostic-2026-10-04.json",
+    "qualification": "PASSED",
+    "temporary_key_cleanup_pass": true,
+    "local_temporary_key_files_removed": true
   },
   "previous_bounded_control": {
     "decision": "0126-cache-disabled-same-load-control",
