@@ -127,3 +127,43 @@ def test_invalid_schema_and_future_timestamp_recover_from_postgres(system, cache
     _, stamp = cache.lookup('owner', hold['order_id'])
     cache.put('owner', hold['order_id'], svc.get_order('owner', hold['order_id']), stamp+5000)
     assert cache.lookup('owner', hold['order_id'])[0] is None
+
+
+def test_concurrent_cold_reads_coalesce_real_authorized_postgres_snapshot(system, cache_factory):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+    from unittest.mock import Mock
+
+    svc, db, event = system
+    hold = svc.reserve('owner', event, ['A'], 'coalesced-read')
+    cache = cache_factory('owner', hold['order_id'])
+    entered, release = Event(), Event()
+    original_read = svc.store.get_order
+
+    def read(actor, identifier):
+        entered.set()
+        assert release.wait(2)
+        return original_read(actor, identifier)
+
+    store = Mock(wraps=svc.store)
+    store.get_order.side_effect = read
+    reader = Reservations(store, cache)
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        first = executor.submit(reader.get_order, 'owner', hold['order_id'])
+        assert entered.wait(2)
+        rest = [executor.submit(reader.get_order, 'owner', hold['order_id']) for _ in range(7)]
+        try:
+            deadline = time.monotonic()+1
+            while cache._reads._waiters != 7:
+                assert time.monotonic() < deadline
+                time.sleep(0.001)
+        finally:
+            release.set()
+        rows = [f.result(2) for f in [first, *rest]]
+    assert all(jsonable_encoder(row) == jsonable_encoder(rows[0]) for row in rows)
+    store.get_order.assert_called_once_with('owner', hold['order_id'])
+    assert cache._reads._flights == {} and cache._reads._waiters == 0
+    stats = db.pool.get_stats()
+    assert stats['pool_available'] == stats['pool_size']
+    with pytest.raises(Failure, match='ORDER_NOT_FOUND'):
+        reader.get_order('other', hold['order_id'])

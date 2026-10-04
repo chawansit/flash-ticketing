@@ -47,10 +47,10 @@ def test_redis_read_failure_falls_back_without_retry_or_fill():
 
 def test_cache_fill_failure_does_not_change_successful_read():
     row, redis, store = order(), Mock(), Mock()
-    redis.eval.side_effect = [['', 1000, -2, 0], TimeoutError('fill failed')]
+    redis.eval.side_effect = [['', 1000, -2, 0], ['', 1001, -2, 0], TimeoutError('fill failed')]
     store.get_order.return_value = row
     assert Reservations(store, RedisOrderStatusCache(redis, 3000)).get_order('owner', row['id']) is row
-    assert redis.eval.call_count == 2
+    assert redis.eval.call_count == 3
 
 
 def test_failed_authorization_never_fills_cache():
@@ -59,7 +59,7 @@ def test_failed_authorization_never_fills_cache():
     store.get_order.side_effect = Failure('ORDER_NOT_FOUND', 404)
     with pytest.raises(Failure, match='ORDER_NOT_FOUND'):
         Reservations(store, RedisOrderStatusCache(redis, 3000)).get_order('other', row['id'])
-    assert redis.eval.call_count == 1
+    assert redis.eval.call_count == 2
 
 
 @pytest.mark.parametrize('mutate', [

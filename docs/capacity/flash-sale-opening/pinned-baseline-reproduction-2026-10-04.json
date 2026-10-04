@@ -435,12 +435,28 @@
     "hold_deadlines_elapsed": "Actual deadlines elapsed; this inherited compound gate also requires payment/ticket cohort equality, which failed."
   },
   "post_restoration_accounting": {
-    "status": "UNVERIFIED_AUTHENTICATION_FAILED",
-    "read_only_attempts": 2,
-    "successful_simulated_payments": 16483,
-    "issued_tickets": 13204,
-    "successful_payments_without_verified_ticket_or_refund_classification": 3279,
-    "note": "Existing audit excludes refund status. Do not infer completed refunds or financial loss. No remote mutation occurred in the follow-up attempts."
+    "status": "VERIFIED_SIMULATED_TICKETS_OR_REFUNDS",
+    "observed_at_utc": "2026-10-04T15:54:48.350133+00:00",
+    "prior_read_only_authentication_failures": 2,
+    "successful_payment_accounting": {
+      "succeeded": 16483,
+      "fulfilled": 13204,
+      "refunded": 3279,
+      "refund_pending": 0
+    },
+    "order_status_counts": {
+      "EXPIRED": 1475,
+      "FULFILLED": 13204,
+      "REFUNDED": 3279
+    },
+    "refund_status_counts": {
+      "REFUNDED": 3279
+    },
+    "successful_payments_without_verified_ticket_or_refund_classification": 0,
+    "kafka_lag": 0,
+    "full_keyspace_queues_zero": true,
+    "owned_followup_scratch_removed": true,
+    "note": "Later read-only recovery verification; refunds are simulated, not real-provider refunds. Original failed customer/cohort/deadline gates remain failed."
   },
   "bottleneck_evidence": {
     "historical_pass": {
@@ -607,5 +623,5 @@
       "pinned_reproduction": 6.603185209934291
     }
   },
-  "interpretation": "Pinned baseline also failed; the projection candidate alone cannot explain the regression. CPU saturation, pool contention, amplified status polling and callback delay are observed; initiating cause and missing refund classification remain unresolved. No WAL/storage cause or production capacity is established."
+  "interpretation": "Pinned baseline also failed; the projection candidate alone cannot explain the regression. CPU saturation, pool contention, amplified status polling and callback delay are observed; initiating cause remains unresolved. Later read-only verification accounts all successful simulated payments as tickets or simulated refunds. Original failed gates remain failed; no production capacity or WAL/storage cause is established."
 }

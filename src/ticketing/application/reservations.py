@@ -24,10 +24,18 @@ class Reservations:
         cached, snapshot_start_ms = self.order_cache.lookup(actor, order_id)
         if cached is not None:
             return cached
-        row = self.store.get_order(actor, order_id)
-        if snapshot_start_ms is not None:
-            self.order_cache.put(actor, order_id, row, snapshot_start_ms)
-        return row
+        if snapshot_start_ms is None:
+            # Redis is unavailable: retain the existing bounded database fallback.
+            return self.store.get_order(actor, order_id)
+        with self.order_cache.coalesce(actor, order_id):
+            cached, recheck_start_ms = self.order_cache.lookup(actor, order_id)
+            if cached is not None:
+                return cached
+            row = self.store.get_order(actor, order_id)
+            if recheck_start_ms is not None:
+                # A waiter or delayed fill cannot restart the freshness budget.
+                self.order_cache.put(actor, order_id, row, min(snapshot_start_ms, recheck_start_ms))
+            return row
 
     def get_hold(self, actor, hold_id):
         return self.store.get_hold(actor, hold_id)

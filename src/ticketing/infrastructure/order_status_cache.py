@@ -7,6 +7,7 @@ from uuid import UUID
 
 from redis.exceptions import RedisError
 
+from ticketing.infrastructure.read_coalescer import ReadCoalescer
 from ticketing.observability import ORDER_STATUS_CACHE
 
 MAX_BYTES = 16384
@@ -82,11 +83,15 @@ class RedisOrderStatusCache:
         if not 1 <= max_age_ms <= 3000:
             raise ValueError('Order status max age must be 1..3000 ms')
         self.redis, self.max_age_ms = redis, max_age_ms
+        self._reads = ReadCoalescer()
 
     @staticmethod
     def key(actor, order_id):
         owner = hashlib.sha256(actor.encode()).hexdigest()
         return f'order-status:v1:{{{order_id}}}:{owner}'
+
+    def coalesce(self, actor, order_id):
+        return self._reads.scope(self.key(actor, order_id))
 
     def lookup(self, actor, order_id):
         try:

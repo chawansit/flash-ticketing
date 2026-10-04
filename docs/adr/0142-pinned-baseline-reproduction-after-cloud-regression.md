@@ -50,3 +50,7 @@ Both servers were restored to baseline source/images and normal service settings
 Baseline failure means the projection candidate alone cannot explain this regression; it does not prove the candidate harmless. Keep it unqualified. Before another paid-stage qualification, obtain the missing read-only refund accounting. Next engineering work should isolate API CPU/status-read amplification and callback occupancy, then select and record one mitigation in a new ADR. Preserve the total connection budget, payment authority, hold TTL, uniqueness and full financial/queue gates.
 
 [Executed report](../capacity/flash-sale-opening/pinned-baseline-reproduction-2026-10-04.json). Raw local evidence is retained under the run directory in ignored `tmp/`; the report contains compact summaries only.
+
+### Follow-up recovery verification
+
+On resume, password-only read-only access succeeded at 2026-10-04T15:54:48Z. The fresh fixture snapshot verified 13,204 FULFILLED orders, 3,279 REFUNDED orders/refund requests, 1,475 EXPIRED unpaid orders and zero REFUND_PENDING. All 16,483 successful simulated payments are accounted as 13,204 fulfilled plus 3,279 refunded. Global queues and Kafka lag remained zero. Owned follow-up fixture/queue scratch was removed in finally. No temporary SSH key was reinstalled, runtime changed or new load dispatched. This resolves the accounting uncertainty retained above; it does not retroactively pass the failed original control or validate a real payment/refund provider.

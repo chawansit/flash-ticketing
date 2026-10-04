@@ -2,9 +2,9 @@
   "updated_date_bangkok": "2026-10-04",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0142_baseline_reproduction_failed_cloud_restored_accounting_followup_unverified",
+  "status": "adr0143_local_coalescing_passed_cloud_unchanged_accounting_resolved",
   "cloud_load_requires_resume": true,
-  "security_note": "ADR0142 exact owned temporary root keys removed from both hosts; local key files deleted. Two subsequent password-only read-only snapshots failed authentication; no follow-up remote changes.",
+  "security_note": "No temporary SSH keys installed. Password-only read-only follow-up succeeded; owned follow-up scratch removed. Cloud source/settings unchanged.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,24 +13,25 @@
   "last_checked_topology": "Verified deb330e cloud source/images restored: API4/postgres/pool3/admission4/waiters3/payment0/sharedfalse/cache0; consumer1/pool12; publisher/maintenance/reconciler1; writer/refresh/expiry0; simulator4/batch; PgBouncer24/reserve0/client160. Generator idle. Post-restoration global queues and Kafka lag0.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "current_run": null,
-  "revision_note": "Local qualified runtime a97d362 and earlier evidence retained. ADR0141 candidate and ADR0142 pinned baseline controls both failed. Cloud source/images restored deb330e and normal settings. Current changes are documentation/evidence only; no push or main merge.",
+  "revision_note": "Retained projection candidate plus ADR0143 local status-read coalescing; neither promoted as cloud capacity. Cloud remains deb330e/normalsettings. Accounting verified; failed ADR0142 gates retained.",
   "confirmed": [
     "ADR0142 exactdeb330e baseline/harness reproduction failed19/22gates:18000scheduled/17958dispatched/42drops/1095customerconfirmedbydeadline/16863failedjourneys93.902%,zero customer retries.",
-    "PostTTL16483successful simulatedpayments/13204unique tickets,zero duplicate seats/multi-booking,allcallbacks complete; globalqueues and Kafka lag0.3279successfulpayments refundstatus remains unverified; do not infer accounting from ADR0141.",
+    "PostTTL16483successful simulatedpayments/13204unique tickets,zero duplicate seats/multi-booking,allcallbackscomplete. Follow-up16483=13204fulfilled+3279refunded,zero refundpending;globalqueues/Kafka0. Originalfailedgatespreserved.",
     "Offered sampledCPU99.192% vs81.358%; API1.960vs1.295cores; API acquisitionmean74.942vs2.881ms;statuschecks118580vs36212;callbackbacklog6816,due-to-callbackp95124.340s. Candidate alone cannot explain regression; initiating cause unproved.",
     "Actual holddeadlines elapsed; inherited compound deadlinegatefailedcohort equality. Callback-to-ticketp95263.261ms forissuedtickets; postTTLmetrics are not clientdeadline success.",
     "BothECS normal baseline source/images/settings/readiness, generatoridle and privatecleanup verified. Exacttemporaryrootkeys removedboth/localfilesdeleted. No extra load/push/mainmerge.",
-    "ADR0133 historicalpass remains18000paid-issued at60buyers/s300s; current conditions did not reproduce it. LocalLinux69focused/721fullpass is prior evidence, not cloud capacity proof."
+    "ADR0133 historicalpass remains18000paid-issued at60buyers/s300s; current conditions did not reproduce it. LocalLinux69focused/721fullpass is prior evidence, not cloud capacity proof.",
+    "ADR0143local121focused/739fullpassed.8sameowner/orderconcurrentreads=1PostgreSQLread+1fill;limits128entries/8followersperkey/128total/100ms;cachedefault0. Crossprocess/distinctorder traffic not coalesced; no cloud capacity claim."
   ],
-  "unresolved": "Pinned baseline fails too: initiating cause of CPU saturation/pool contention/callback delay unresolved.3279successful simulatedpayments lack verified refund classification; post-restoration read-only SSH authentication failed twice. Candidate remains unqualified; production capacity and300000tickets/hour unproved.",
+  "unresolved": "Initiating cause of pinned-baseline CPU saturation/pool contention/callback delay unresolved. Candidate remains cloud-unqualified; production capacity and300000tickets/hour unproved.",
   "next_on_resume": [
-    "Obtain read-only refund status/accounting for the ADR0142 fixture using functioning authorized cloud access; preserve all original failed gates.",
-    "Isolate API CPU and order-status read amplification/callback occupancy from existing phase evidence; shared payment initiation/callback pool and simulator whole-cycle occupancy are candidate causes, not established root cause.",
-    "Record a new ADR before selecting one mitigation (bounded committed status cache/coalescing, callback priority, or off-host background work); keep total connection budget/TTL/payment authority unchanged unless explicitly decided.",
-    "Qualify one mitigation against the identified pinned control only after readiness/accounting gates and bounded scope are defined. No automatic new test or production sizing claim."
+    "Prepare isolated source/harness manifests for an enabled-cache control and coalescing candidate without the cloud-unqualified seat-projection change. Keep all budgets/workload fixed.",
+    "Define one bounded cloud qualification with readiness/customer/postTTLfinancial/uniqueness/globalqueue/Kafka/source/cleanup gates; no automatic second run or rate increase.",
+    "Measure extra Redis recheck/100ms follower wait cost and API CPU/pool/callback backlog; local duplicate-query reduction is not production proof.",
+    "Event-driven committed cache updates, client polling jitter, callback priority or off-host background work require separate decisions/factors."
   ],
-  "authorization": "Latest Continue completed one bounded baseline reproduction and required audit/recovery/cleanup. No unattended run, second load, cache enablement, scaling, push or main merge.",
-  "scope": "One60buyers/s300s pinned-baseline reproduction completed. Two prior preparation attempts dispatched no customer load. All22gates evaluated, failed gates preserved; normal cloud recovery and exact key cleanup passed. No additional load or runtime/architecture/infra change.",
+  "authorization": "Continue authorizes read-only accounting follow-up and one focused local mitigation/validation. No new cloud load, cache activation, budget/TTL change, unattended schedule, GitHub push or main merge.",
+  "scope": "ADR0143 bounded miss coordination locally implemented and qualified:43Windows focused,121nativeLinux focused,739fullunit/integrationpassed. Ownedlocalcontainers/network/contextremoved. Defaultcache0/cloudsource/settingsunchanged; no cloudtest/push/mainmerge.",
   "bounded_control": {
     "decision": "0142-pinned-baseline-reproduction-after-cloud-regression",
     "candidate_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -48,7 +49,7 @@
     "runner_startup_attempts": 1,
     "customer_dispatches": 17958,
     "preparation_attempts_without_load": 2,
-    "refund_classification_verified": false
+    "refund_classification_verified": true
   },
   "previous_bounded_control": {
     "decision": "0141-fixed-load-cloud-atomic-projection-qualification",
@@ -73,11 +74,12 @@
     "status": "PAUSED_EXPIRED",
     "active_run": null
   },
-  "workspace_base_revision": "fa7fd1f6a037da57d07d1d2380a840a3e5ceb137",
+  "workspace_base_revision": "1798c0e18e52889fc5e58732e90c8e6282677300",
   "local_candidate": {
-    "revision": "a97d3620e3b5d2690b33f16c41b7de1b2096a5ac",
-    "status": "Retained; locally qualified on native Linux, cloud unqualified. Runtime/tests unchanged in ADR0142.",
-    "report": "docs/capacity/flash-sale-opening/framed-seat-projection-local-validation-2026-10-04.json"
+    "base_revision": "1798c0e18e52889fc5e58732e90c8e6282677300",
+    "retained_projection_revision": "a97d3620e3b5d2690b33f16c41b7de1b2096a5ac",
+    "status": "ADR0143 local coalescing passed121focused/739full; projection remains cloud-unqualified. No cloud deployment.",
+    "source_manifest": "docs/capacity/flash-sale-opening/order-status-coalescing-local-validation-2026-10-04.json"
   },
   "historical_passing_control": {
     "revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -89,10 +91,12 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "Local documentation/evidence checkpoint; no GitHub push or main merge.",
+    "status": "Local candidate and evidence checkpoint; no GitHub push or main merge.",
     "branch": "codex/redis-failover-recovery"
   },
   "evidence": [
+    "docs/capacity/flash-sale-opening/order-status-coalescing-local-validation-2026-10-04.json",
+    "docs/adr/0143-bounded-order-status-miss-coalescing.md",
     "docs/capacity/flash-sale-opening/pinned-baseline-reproduction-2026-10-04.json",
     "docs/adr/0142-pinned-baseline-reproduction-after-cloud-regression.md",
     "docs/capacity/flash-sale-opening/pinned-baseline-reproduction-plan-2026-10-04.json",

@@ -226,3 +226,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0141 - Fixed-load cloud qualification of atomic seat projection](0141-fixed-load-cloud-atomic-projection-qualification.md)
 
 - [0142 - Pinned baseline reproduction after cloud regression](0142-pinned-baseline-reproduction-after-cloud-regression.md)
+
+- [0143 - Bounded order-status miss coalescing](0143-bounded-order-status-miss-coalescing.md)
