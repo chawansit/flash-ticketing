@@ -2,51 +2,38 @@
   "updated_date_bangkok": "2026-10-04",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "security_note": "Previous root keys removed. Freshignored localADR0133 keyprepared,not installed;no passwords saved.",
-  "status": "adr0133_locally_validated_shared_budget_comparison_prepared_approval_pending",
+  "security_note": "ADR0133 restricted temporary root-key entries removed on both hosts and local key files deleted; no credentials saved.",
+  "status": "adr0133_cloud_control_passed_access_removed",
   "cloud_load_requires_resume": true,
-  "handoff_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
-  "revision_note": "Local ADR0133 candidate deb330e:645fullcases plus26runnerchecks validated. Cloudsource/images/settings remain passingADR0129 f3f511d;no newcloudaccess/load.",
-  "backend_application_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
-  "generator_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
-  "backend_checkout_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
-  "tested_generator_revision": "2fe7903d975ed9aa4d8e0a25575010f68ab64a1d",
-  "local_implementation_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
+  "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "revision_note": "ADR0133 candidate deb330e passed all20 same-load cloud gates. Source/images retained on both hosts; normal budgets restored with partition/shared flags0/0. This checkpoint records the executed result; cloud revision differs from the local documentation commit.",
+  "backend_application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "local_implementation_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "diagnostic_implementation_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
-  "last_checked_topology": "Restored4healthyAPIs;postgres/pool3/admission4/waiters3/paymentpartition0/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4/batch;PgBouncer24/reserve0/client160.",
+  "last_checked_topology": "Four healthy APIs on deb330e; postgres/pool3/admission4/waiters3/payment partition0/shared budget0/cache0. Consumer1/pool12; publisher/maintenance/reconciler1; writer/refresh/expiry0; simulator4/batch; PgBouncer24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "All18000 payments/bookings/tickets/callbacks exact postTTL;fiveorder-status503s causedcustomer gatefailure. Other19gates passed. Baseline source/images/settings restored;generatoridle,privatecleanup andtemporarykeyremoval verified.",
-  "current_run": "checkout-20261004T054454Z-5fd8b9",
+  "cloud_state_note": "18000 customer journeys and distinct paid-issued tickets; zero customer errors/drops/retries. PostTTL exact18000 payments/bookings/tickets/callbacks, zero pending/double booking, all queues/Kafka drained. Candidate source retained; feature flags disabled after normal-budget restoration. Generator idle, private cleanup and access removal verified.",
+  "current_run": "checkout-20261004T061810Z-11d61f",
   "confirmed": [
-    "ADR0133:645casespassed106.51s. Shared12budget admits7general/5payment and5general/7payment bursts wherelegacy6/6rejectsone;bothdirectionsofheadroom,bounds,timeoutdebt/recovery,FIFO andexactreplay passed. No cloudqualification.",
-    "ADR0132 customer gatefailed:17995/18000 journeys;fiveTooManyRequests order-status503s,zero payment503/drops/retries. All19othergatespassed;candidate reverted andaccessremoved.",
-    "PostTTL all18000successfulpayments/bookings/tickets/callbacks,zeroexpired/pending/doublebooking/full-keyspacequeue/Kafka backlog. Backendcompletion differs fromcustomer-visible journeycompletion.",
-    "Generalqueue sampledpeak0 onallfourreplicas despitefiveTooManyRequests bursts;sampledidle/queuegauges donotproveheadroom. No instantqueue-depth orcausalthroughputclaim.",
-    "ADR0132 candidate636casespassed93.54s;eleven-waiter burstcompleteswithoutretry,FIFO progress,explicitoverflow/timeout,noborrowing,exactfinancialreplay/zero-doublebook passed. No cloudqualification.",
-    "ADR0131 savedcounter reanalysis:oneTooManyRequests andonepayment-initiation503 on sameAPI/interval;previous summarymissedexistingcause counters. Localheld-two/six-waiter burstreproducedrejectionbeforewrites andexactrecovery/replay.",
-    "ADR0131 failedcustomer gate:17999paid-issued/18000dispatched;onepaymentHTTP503;zero drops/retries. All19othergates passed andcandidate reverted.",
-    "PostTTL:17999successfulpayments/bookings/tickets/callbacks;oneexpiredorder;pendingorders/payments0;zero doublebooking;full-keyspacequeues/Kafka drained.",
-    "Same-runtime allocation1to2 changed only partition budget;observed payment503s603to1 andaggregateacquisitionerrors987to1. Successfulacquisitionmean15.118to1.293ms. Bothallocations unqualified.",
-    "ADR0131two-slot candidate:614localcasespassed;two concurrentcritical transactions undergeneral exhaustion,fullsix-waiter errors/recovery,replay/authorization/lifecycle/metrics passed. No cloudqualification.",
-    "ADR0130 customer gate failed:17397paid-issued/18000dispatched;603paymentHTTP503 failures(3.35percent),zero drops/retries.19of20gatespassed;candidate reverted.",
-    "PostTTL:17397successfulpayments/bookings/tickets/callbacks;603expiredorders;pendingorders/payments0;doublebook0;full-keyspacequeues/Kafkadrained.",
-    "Sampled payment queue reached3waiters onall4replicas;generalqueuepeak0. Aggregate API pool-acquisition errors0to987;mean successful acquisition0.267to15.118ms. Counters are not per-purpose exception attribution.",
-    "ADR0129 recordedbeforeimplementation;all571unit/integrationtests passed,including13newPGlock-order/concurrency/replaychecks;onefewer callbackdomainSELECT validated.",
-    "18000scheduled/dispatched/distinctpaidissuedtickets;zeroerrors,drops,retries;all17requiredgatespassed.",
-    "Exactfinancial/postTTL/zero-double-booking checks passed;full-keyspacequeues andKafka drained.",
-    "Onlycallbackinitialdiscovery/order-lock query changed. Freshpaymentread/lock,alllaterwrites,orderreads,transactiontimeouts,observer/load/resourcebudgets retained.",
-    "MeasuredAPISELECTs305943.0to287918.0;meanconnectionhold20.515to19.013ms.",
-    "SampledAPI CPU1.266to1.240cores;hostCPU80.28to79.42percent.",
-    "Hold-to-ticket worstshardp952166.095to2145.527ms;durabilityp951043.189ms.",
-    "Baseline servicebudgets restored;generator idle,privatebundle/fixturecleanup verified;both temporaryrootkeyentries/localkeyfilesremoved. No higherload,push/mainmerge."
+    "ADR0133 all20 cloud gates passed:18000/18000 customer journeys and distinct paid-issued tickets; zero customer errors, generator drops or retries.",
+    "PostTTL:18000 orders, successful payments, callbacks, bookings and tickets exactly once; zero expired/pending orders or payments, duplicate booked seats, multi-booking orders, outbox/deadletters, full-keyspace queues or Kafka lag.",
+    "Candidate deb330e source/images retained on both hosts. Normal service budgets restored with payment/shared flags disabled; generator idle, private scratch removed, both temporary root-key entries and local key files removed.",
+    "Shared common12/purpose10 configuration and observed bounds verified on every replica. Sparse shared-used peaks4/4/1/1, retained0; samples cannot prove burst headroom. Executed local645cases cover mixed bursts, native FIFO, both directions of protected headroom, explicit overflow, timeout debt/recovery and exact replay.",
+    "Compared with ADR0129: successful API acquisition mean0.267 to2.881ms, connection hold19.013 to19.817ms, ticket worst-shard p952145.527 to2178.208ms, durability1043.189 to1045.874ms; sampled API CPU1.240 to1.295cores and host79.42 to81.36percent. No speed or higher-capacity claim.",
+    "ADR0130/0131/0132 static allocations remain failed controls, respectively603payment503/onepayment503/fiveorder-status503. All were reverted; ADR0133 does not retroactively qualify them.",
+    "ADR0122 writer-starvation/fairness fix and original financial/locking/idempotency/TTL logic retained. Full one-hour300000ticket target remains future validation."
   ],
-  "unresolved": "Sharedbudget locallyvalidated butcloudthroughput unqualified. It can still reject atcombined12 orpurpose10,includingready acquisitions;retained timeoutdebt conservativelylimits recoveryuntilnativequeuecleanup. Priorcustomer gates remainfailed;sharedpassingcloudbaseline retained.",
+  "unresolved": "ADR0133 qualifies one60buyers/s300s development-payment control across60shows; shared guard can still reject at combined12 or purpose10 and retained timeout debt conservatively limits recovery until native cleanup. CPU/latency slightly increased versus ADR0129. Sustained300000/hour, one-hot-concert, real-provider behavior and server-level isolation remain unproved. Feature disabled under restored normal budgets.",
   "next_on_resume": [
-    "After explicitapproval,install freshrestrict/45minute rootSSHkey onboth ECSaccounts andexecute preparedsinglelifecycle foroneunchanged60buyers/s300s/cache0 comparison withall20gates,includingeveryreplica's shared12bound/live-retainedsamples.",
-    "Anyfailedgate:finishfinancial/postTTL/full-keyspacequeue/Kafka audits,restorebaseline source/images/settings,removeaccess;noadditionalrun,higherload,push/mainmerge."
+    "Use ADR0133 as the passing same60buyer baseline. Review bounded idempotent failure-recovery and concert-opening burst requirements locally, then prepare a concrete next comparison around the measured bottleneck.",
+    "Record an ADR before any architectural or orchestration change. Completed one-run scope does not authorize another experiment or increased load; retain all financial/durability/zero-double-booking/queue gates. No push or main merge."
   ],
-  "validation_this_resume": "ADR0133 decision d5b100e beforeimplementation. Focused22passed9.70s;full645passed106.51s;runnerfollowup26passed1.53s. Staticburst failures preserved;shared mixedbursts,headroom,hardbounds,retained timeoutslots/recovery,FIFO,criticaltransactions,exactreplay/zero doublebook passed. Ownedservicesremoved;offlineprobes/Compose/scope checks passed. No cloudaccess/load.",
+  "validation_this_resume": "ADR0133 decision d5b100e preceded implementation. Focused22passed9.70s; full645passed106.51s; runner26passed1.53s; offline gate7cases passed. One approved60buyers/s300s/cache0 cloud control passed all20 gates with18000 unique paid-issued tickets and no customer errors/drops/retries. PostTTL/financial/zero-double-booking/queue/Kafka/source/budget/restoration/idle/cleanup passed. Temporary access removed.",
   "evidence": [
+    "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json",
     "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-plan-2026-10-04.json",
     "docs/capacity/flash-sale-opening/shared-acquisition-budget-local-validation-2026-10-04.json",
     "docs/adr/0133-shared-bounded-api-acquisition-budget.md",
@@ -90,8 +77,8 @@
     "docs/adr/0123-bounded-paid-cpu-sampler-readiness.md",
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
-  "authorization": "User Continue authorizes local diagnosis/ADR0133implementation/validation and concretecomparison preparation. ADR0132one-run approval consumed. FreshADR0133deployment/one-run/restrictedrootaccess approval pending.",
-  "scope": "Preparedone60buyers/s300s/cache0 comparison;fixed4connections/shared12acquisition-and-retained slots;two purpose10 ceilings overlap,protecttwo slots foreachother. Physicalconnections remain2+2. Cloudunchanged;nohigherload,push/mainmerge.",
+  "authorization": "User explicitly Approved ADR0133 deployment, one unchanged60buyers/s300s/cache0 comparison, all20 gates, and restricted45-minute temporary root-key installation/removal on both ECS accounts. The one-run scope is complete.",
+  "scope": "Approved ADR0133 deployment and one unchanged 60 buyers/s, 300s, cache0 comparison completed; all20 gates passed and temporary access removed. No additional run, increased load, GitHub push or main merge.",
   "roadmap": [
     {
       "step": 1,
@@ -111,7 +98,7 @@
     {
       "step": 4,
       "work": "Protect payment/webhook database capacity",
-      "status": "shared_acquisition_budget_locally_validated_cloud_comparison_pending"
+      "status": "shared_acquisition_budget_passed_same60buyer_control_feature_disabled_after_cleanup"
     },
     {
       "step": 5,
@@ -145,12 +132,12 @@
     }
   ],
   "publication": {
-    "status": "adr0133_local_candidate_and_plan_not_pushed",
+    "status": "adr0133_passing_result_saved_locally_not_pushed",
     "destination": "github.com/chawansit/flash-ticketing.git",
     "branch": "codex/redis-failover-recovery",
     "evidence_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-    "authorization": "Localimplementation/validation/preparation authorized;freshcloud/accessscope pending. NoGitHubpush/mainmerge.",
-    "next_action": "Freshcloud/accessscope approvalpending;noGitHubpush/mainmerge."
+    "authorization": "Local commits and one exact cloud comparison/access cleanup approved and completed. No GitHub push/main merge.",
+    "next_action": "Prepare next bounded scope locally; no additional cloud run or increased load in the completed one-run scope."
   },
   "overnight": {
     "expires_bangkok": "2026-10-04T08:00:00+07:00",
@@ -183,18 +170,21 @@
     "locally_validated": true,
     "implementation_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
     "baseline_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
-    "cloud_deployed": false,
-    "cloud_qualification": "NOT_RUN"
+    "cloud_deployed": true,
+    "cloud_qualification": "PASSED_SAME_60_BUYERS_300S",
+    "cloud_tested_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+    "feature_active_after_cleanup": false,
+    "source_and_images_retained": true
   },
   "bounded_control": {
     "decision": "0133-shared-bounded-api-acquisition-budget",
     "limit": 1,
-    "started": 0,
+    "started": 1,
     "active_run": null,
     "access_ready": false,
-    "specific_cloud_access_approval_pending": true,
+    "specific_cloud_access_approval_pending": false,
     "temporary_key_installed": false,
-    "local_key_prepared": true,
+    "local_key_prepared": false,
     "candidate_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
     "plan": "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-plan-2026-10-04.json",
     "baseline_report": "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
@@ -214,7 +204,13 @@
       "lint_whitespace_pass": true,
       "owned_local_services_removed": true,
       "cloud_access_or_load_started": false
-    }
+    },
+    "cloud_access_approved_by": "User explicitly Approved ADR0133 exact deployment/one unchanged60buyers/s300s/cache0 comparison with all20gates and freshrestrict/45minute rootSSHkey installation/removal on both ECSaccounts.",
+    "last_run_gates_pass": true,
+    "result": "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json",
+    "temporary_key_cleanup_pass": true,
+    "local_temporary_key_files_removed": true,
+    "qualification": "PASSED"
   },
   "previous_bounded_control": {
     "decision": "0126-cache-disabled-same-load-control",
