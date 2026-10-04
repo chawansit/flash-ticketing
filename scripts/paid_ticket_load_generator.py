@@ -12,6 +12,7 @@ from uuid import uuid4
 
 import httpx
 from checkout_journey_probe import journey, percentile
+from paid_fixture_layout import validate_child_allocation
 
 
 class ObservedResponseStream(httpx.AsyncByteStream):
@@ -62,6 +63,7 @@ def validate(args, manifest):
     if not 1 <= args.rate <= 500 or not 1 <= args.seconds <= 3600:
         raise ValueError("Rate or duration outside bounded limits")
     scheduled = args.rate * args.seconds
+    validate_child_allocation(manifest, scheduled)
     if scheduled > 300000:
         raise ValueError("Maximum 300000 scheduled journeys")
     if not 1 <= args.concurrency <= 1000 or not 1 <= args.duplicates <= 10:

@@ -8,6 +8,7 @@ from urllib.parse import urlsplit
 from uuid import uuid4
 
 import jwt
+from paid_fixture_layout import fixture_layout
 
 from ticketing.config import Settings
 
@@ -39,6 +40,16 @@ def main():
         parser.error("Invalid viewer count or seat offset")
     source = json.loads(args.results.read_text())
     shows = source["show_ids"]
+    layout = source.get("fixture_layout", "distributed")
+    seats = source.get("seats_per_show", 300)
+    try:
+        fixture_layout(layout, len(shows), seats)
+        if len(set(shows)) != len(shows) or args.seat_offset >= seats:
+            raise ValueError("Fixture shows must be distinct and offset must fit inventory")
+        if layout == "single-concert" and args.seat_offset != 0:
+            raise ValueError("Single-concert parent requires seat offset0")
+    except ValueError as exc:
+        parser.error(str(exc))
     now, identifier = datetime.now(UTC), str(uuid4())
     expiry = now + timedelta(hours=1)
     tokens = [
@@ -58,7 +69,8 @@ def main():
         "show_ids": shows,
         "viewer_tokens": tokens,
         "seat_offset": args.seat_offset,
-        "seats_per_show": 300,
+        "seats_per_show": seats,
+        "fixture_layout": layout,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(payload))

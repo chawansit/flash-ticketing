@@ -9,6 +9,7 @@ from pathlib import Path
 from uuid import uuid4
 
 import psycopg
+from paid_fixture_layout import LAYOUTS, fixture_layout
 
 from ticketing.config import Settings
 from ticketing.infrastructure.cache import RedisSeats
@@ -20,6 +21,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--shows", type=int, default=800)
+    parser.add_argument("--fixture-layout", choices=LAYOUTS, default="distributed")
     parser.add_argument("--seats", type=int, default=300)
     parser.add_argument("--sale-hours", type=int, default=6)
     return parser.parse_args()
@@ -32,8 +34,7 @@ def validate(args: argparse.Namespace, settings: Settings) -> None:
         raise ValueError("Use a fresh output path")
     if not 1 <= args.shows <= 2000:
         raise ValueError("Shows must be between 1 and 2000")
-    if not 1 <= args.seats <= 1000:
-        raise ValueError("Seats must be between 1 and 1000")
+    fixture_layout(getattr(args, "fixture_layout", "distributed"), args.shows, args.seats)
     if not 1 <= args.sale_hours <= 24:
         raise ValueError("Sale hours must be between 1 and 24")
 
@@ -89,6 +90,7 @@ def main() -> None:
         "sale_ends": sale_ends.isoformat(),
         "shows": args.shows,
         "seats_per_show": args.seats,
+        "fixture_layout": args.fixture_layout,
         "show_ids": [str(event_id) for event_id in event_ids],
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)

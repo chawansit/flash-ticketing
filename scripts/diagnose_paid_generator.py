@@ -22,6 +22,7 @@ from types import SimpleNamespace
 from uuid import uuid4
 
 from checkout_journey_probe import percentile
+from paid_fixture_layout import LAYOUTS
 from paid_ticket_load_generator import endpoint
 from paid_ticket_sharded_generator import run as run_shards
 
@@ -32,6 +33,8 @@ class Responder:
         self.command_seconds = command_seconds
         self.ticket_seconds = ticket_seconds
         self.orders = {}
+        self.seat_owners = {}
+        self.duplicate_seat_attempts = 0
         self.hold_keys = {}
         self.commands = {}
         self.requests = Counter()
@@ -77,7 +80,12 @@ class Responder:
             key = headers.get("idempotency-key")
             if not key or len(body.get("seat_ids", [])) != 1:
                 return 400, {"error": "invalid synthetic hold"}
+            pair = (body.get("event_id"), body["seat_ids"][0])
             if key not in self.hold_keys:
+                if pair in self.seat_owners:
+                    self.duplicate_seat_attempts += 1
+                    return 409, {"error": "synthetic seat already held"}
+                self.seat_owners[pair] = key
                 order_id, command_id = str(uuid4()), str(uuid4())
                 row = {"order_id": order_id, "command_id": command_id,
                        "show_id": body["event_id"], "durable_at": now + self.command_seconds,
@@ -171,15 +179,21 @@ class Responder:
                 "handler_p95_ms": percentile(self.handler_ms, 0.95),
                 "handler_max_ms": max(self.handler_ms, default=0),
                 "loop_lag_p95_ms": percentile(self.loop_lag_ms, 0.95),
-                "loop_lag_max_ms": max(self.loop_lag_ms, default=0), "synthetic_orders": len(self.orders)}
+                "loop_lag_max_ms": max(self.loop_lag_ms, default=0), "synthetic_orders": len(self.orders), "unique_assigned_seats": len(self.seat_owners),
+                "duplicate_seat_attempts": self.duplicate_seat_attempts}
 
 
-def manifest(origin, scheduled):
-    shows = max(2, math.ceil(scheduled / 600) * 2)
+def manifest(origin, scheduled, fixture_layout="distributed"):
+    if fixture_layout not in LAYOUTS:
+        raise ValueError("Unsupported fixture layout")
+    if fixture_layout == "single-concert" and not 2 <= scheduled <= 18000:
+        raise ValueError("Single-concert synthetic inventory must fit2..18000")
+    shows = 1 if fixture_layout == "single-concert" else max(2, math.ceil(scheduled / 600) * 2)
     return {"schema_version": 1, "environment": "development", "origin": origin,
             "expires_at": (datetime.now(UTC) + timedelta(hours=1)).isoformat(),
             "show_ids": [str(uuid4()) for _ in range(shows)], "seat_offset": 0,
-            "seats_per_show": 300, "viewer_tokens": ["synthetic-viewer-a", "synthetic-viewer-b"]}
+            "fixture_layout": fixture_layout,
+            "seats_per_show": scheduled if fixture_layout == "single-concert" else 300, "viewer_tokens": ["synthetic-viewer-a", "synthetic-viewer-b"]}
 
 
 def profile_summary(path):
@@ -228,7 +242,8 @@ async def diagnose(args):
             http_client_count=getattr(args, "http_client_count", 1),
             lifecycle_diagnostics=getattr(args, "lifecycle_diagnostics", False),
         )
-        result = await run_shards(generator_args, manifest(server.origin, args.rate * args.seconds))
+        result = await run_shards(generator_args, manifest(
+            server.origin, args.rate * args.seconds, getattr(args, "fixture_layout", "distributed")))
     revision = await asyncio.to_thread(
         subprocess.run, ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True
     )
@@ -237,7 +252,8 @@ async def diagnose(args):
         capture_output=True, text=True, check=True,
     )
     stats = server.stats()
-    responder_valid = (stats["protocol_errors"] == 0 and stats["loop_lag_p95_ms"] <= 10
+    responder_valid = (stats["unique_assigned_seats"] == stats["synthetic_orders"]
+                       and stats["duplicate_seat_attempts"] == 0 and stats["protocol_errors"] == 0 and stats["loop_lag_p95_ms"] <= 10
                        and stats["handler_p95_ms"] <= args.response_ms + 20)
     report = {"kind": "synthetic_generator_control", "production_capacity_evidence": False,
             "created_at_utc": datetime.now(UTC).isoformat(), "source_revision": revision.stdout.strip(),
@@ -249,7 +265,8 @@ async def diagnose(args):
                               "response_ms": args.response_ms, "command_seconds": args.command_seconds,
                               "ticket_seconds": args.ticket_seconds, "poll_seconds": 0.2, "shards": 2,
                               "http_clients_per_shard": getattr(args, "http_client_count", 1),
-                              "lifecycle_diagnostics": getattr(args, "lifecycle_diagnostics", False)},
+                              "lifecycle_diagnostics": getattr(args, "lifecycle_diagnostics", False),
+                              "fixture_layout": getattr(args, "fixture_layout", "distributed")},
             "responder": stats, "responder_valid": responder_valid,
             "generator": result, "pass": responder_valid and result["pass"] and not dirty.stdout.strip()}
     report["profiled"] = profile_directory is not None
@@ -261,6 +278,7 @@ async def diagnose(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--fixture-layout", choices=LAYOUTS, default="distributed")
     parser.add_argument("--rate", type=int, default=60)
     parser.add_argument("--http-client-count", type=int, default=1)
     parser.add_argument("--lifecycle-diagnostics", action="store_true")

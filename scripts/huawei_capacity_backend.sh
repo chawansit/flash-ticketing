@@ -201,12 +201,15 @@ wait_reservation_writer() {
 
 case "${1:-}" in
   prepare)
-    [ "$#" -eq 7 ]
+    [ "$#" -eq 7 ] || [ "$#" -eq 8 ]
+    layout=distributed
+    if [ "$#" -eq 8 ]; then layout=$8; fi
+    case "$layout" in distributed|single-concert) ;; *) exit 2 ;; esac
     run_paths "$2"
     shows=$3; seats=$4; sale_hours=$5; origin=$6; viewers=$7
     api=$(api_id)
     docker exec -u 0 "$api" sh -lc 'mkdir -p /app/tmp && chown 10001:10001 /app/tmp && chmod 700 /app/tmp && rm -f /tmp/capacity-fixture.json /app/tmp/private-load-manifest.json'
-    docker exec "$api" sh -lc 'cd /app && TEST_DATABASE_URL="$DATABASE_URL" TEST_REDIS_URL="$REDIS_URL" python scripts/prepare_capacity_fixture.py --output /tmp/capacity-fixture.json --shows "$1" --seats "$2" --sale-hours "$3"' sh "$shows" "$seats" "$sale_hours"
+    docker exec "$api" sh -lc 'cd /app && TEST_DATABASE_URL="$DATABASE_URL" TEST_REDIS_URL="$REDIS_URL" python scripts/prepare_capacity_fixture.py --output /tmp/capacity-fixture.json --shows "$1" --seats "$2" --sale-hours "$3" --fixture-layout "$4"' sh "$shows" "$seats" "$sale_hours" "$layout"
     docker exec "$api" sh -lc 'cd /app && python scripts/export_load_manifest.py --results /tmp/capacity-fixture.json --origin "$1" --output /app/tmp/private-load-manifest.json --viewers "$2" --seat-offset 0' sh "$origin" "$viewers"
     docker cp "$api":/app/tmp/private-load-manifest.json "$private/manifest.json"
     docker cp "$api":/tmp/capacity-fixture.json "$public/fixture.json"

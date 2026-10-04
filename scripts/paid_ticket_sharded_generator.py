@@ -11,6 +11,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from time import time
 
+from paid_fixture_layout import LAYOUTS, single_concert_parts
+
 LATENCIES = (
     "dispatch_lag_p95_ms", "dispatch_lag_max_ms", "hold_http_p95_ms", "hold_app_p95_ms",
     "hold_client_excess_p95_ms", "command_durable_wait_p95_ms", "durable_p95_ms",
@@ -27,6 +29,11 @@ COUNTS = (
 def split_manifest(manifest, shards, scheduled_per_shard):
     if manifest.get("schema_version") != 1 or manifest.get("environment") != "development":
         raise ValueError("Development-only private manifest required")
+    layout = manifest.get("fixture_layout", "distributed")
+    if layout not in LAYOUTS:
+        raise ValueError("Unsupported fixture layout")
+    if layout == "single-concert":
+        return single_concert_parts(manifest, shards, scheduled_per_shard)
     shows = manifest.get("show_ids", [])
     tokens = manifest.get("viewer_tokens", [])
     if len(shows) != len(set(shows)) or len(shows) < shards or len(tokens) < shards:
@@ -109,6 +116,14 @@ def aggregate(shard_results, rate, seconds, concurrency, exit_codes):
 async def run(args, manifest):
     if args.rate <= 0 or args.rate % 2 or args.concurrency <= 0 or args.concurrency % 2:
         raise ValueError("Two shards require even positive rate and concurrency")
+    if not 2 <= args.rate <= 100 or not 1 <= args.seconds <= 300:
+        raise ValueError("Bounded sharded rate/duration required")
+    if (manifest.get("fixture_layout") == "single-concert"
+            and args.origin.rstrip("/") != manifest.get("origin")):
+        raise ValueError("Origin does not match single-concert manifest")
+    if (not args.seconds <= args.completion_deadline_seconds <= args.seconds + 120
+            or not 2 <= args.concurrency <= 1000):
+        raise ValueError("Bounded completion deadline and concurrency required")
     parts = split_manifest(manifest, 2, args.rate // 2 * args.seconds)
     profile_directory = getattr(args, "profile_directory", None)
     if profile_directory is not None:
@@ -120,42 +135,59 @@ async def run(args, manifest):
         os.chmod(private, 0o700)
         processes = []
         paths = []
-        for index, part in enumerate(parts):
-            manifest_path = Path(private) / f"manifest-{index}.json"
-            output_path = Path(private) / f"result-{index}.json"
-            manifest_path.write_text(json.dumps(part), encoding="utf-8")
-            os.chmod(manifest_path, 0o600)
-            paths.append(output_path)
-            command = [sys.executable]
-            if profile_directory is not None:
-                command += ["-m", "cProfile", "-o", str(profile_directory / f"shard-{index}.prof")]
-            command.append(str(Path(__file__).with_name("paid_ticket_load_generator.py")))
-            proc = await asyncio.create_subprocess_exec(
-                *command,
-                *(["--lifecycle-diagnostics"] if getattr(args, "lifecycle_diagnostics", False) else []),
-                "--manifest", str(manifest_path), "--origin", args.origin,
-                "--output", str(output_path), "--rate", str(args.rate // 2),
-                "--seconds", str(args.seconds),
-                "--completion-deadline-seconds", str(args.completion_deadline_seconds),
-                "--concurrency", str(args.concurrency // 2),
-                "--http-max-connections", str(args.concurrency // 2),
-                "--http-client-count", str(getattr(args, "http_client_count", 1)),
-                "--poll-seconds", str(args.poll_seconds),
-                "--duplicates", str(args.duplicates),
-                "--start-at-epoch", str(start_at),
-                stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL,
-            )
-            processes.append(proc)
         try:
-            exit_codes = list(await asyncio.gather(*(proc.wait() for proc in processes)))
+            for index, part in enumerate(parts):
+                manifest_path = Path(private) / f"manifest-{index}.json"
+                output_path = Path(private) / f"result-{index}.json"
+                manifest_path.write_text(json.dumps(part), encoding="utf-8")
+                os.chmod(manifest_path, 0o600)
+                paths.append(output_path)
+                command = [sys.executable]
+                if profile_directory is not None:
+                    command += ["-m", "cProfile", "-o", str(profile_directory / f"shard-{index}.prof")]
+                command.append(str(Path(__file__).with_name("paid_ticket_load_generator.py")))
+                proc = await asyncio.create_subprocess_exec(
+                    *command,
+                    *(["--lifecycle-diagnostics"] if getattr(args, "lifecycle_diagnostics", False) else []),
+                    "--manifest", str(manifest_path), "--origin", args.origin,
+                    "--output", str(output_path), "--rate", str(args.rate // 2),
+                    "--seconds", str(args.seconds),
+                    "--completion-deadline-seconds", str(args.completion_deadline_seconds),
+                    "--concurrency", str(args.concurrency // 2),
+                    "--http-max-connections", str(args.concurrency // 2),
+                    "--http-client-count", str(getattr(args, "http_client_count", 1)),
+                    "--poll-seconds", str(args.poll_seconds),
+                    "--duplicates", str(args.duplicates),
+                    "--start-at-epoch", str(start_at),
+                    stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL,
+                )
+                processes.append(proc)
+            exit_codes = list(await asyncio.wait_for(
+                asyncio.gather(*(proc.wait() for proc in processes)),
+                timeout=8 + args.completion_deadline_seconds + 20,
+            ))
         finally:
             for proc in processes:
                 if proc.returncode is None:
                     proc.terminate()
-            await asyncio.gather(*(proc.wait() for proc in processes))
+            try:
+                await asyncio.wait_for(asyncio.gather(*(proc.wait() for proc in processes)), timeout=5)
+            except TimeoutError:
+                for proc in processes:
+                    if proc.returncode is None:
+                        proc.kill()
+                await asyncio.gather(*(proc.wait() for proc in processes))
         for output_path in paths:
             results.append(json.loads(output_path.read_text(encoding="utf-8")) if output_path.exists() else {})
     combined = aggregate(results, args.rate, args.seconds, args.concurrency, exit_codes)
+    combined["fixture_layout"] = manifest.get("fixture_layout", "distributed")
+    if combined["fixture_layout"] == "single-concert":
+        combined["seat_allocation"] = {
+            "show_count": 1, "total_assigned": args.rate * args.seconds,
+            "ranges": [part["seat_allocation"] for part in parts],
+            "viewer_counts": [len(part["viewer_tokens"]) for part in parts],
+            "disjoint": parts[0]["seat_allocation"]["stop"] == parts[1]["seat_allocation"]["first"],
+        }
     combined["http_clients_per_shard"] = [row.get("http_client_count", 1) for row in results]
     combined["http_connection_budgets_per_shard"] = [row.get("http_connection_budgets") for row in results]
     return combined

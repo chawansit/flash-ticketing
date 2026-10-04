@@ -15,6 +15,7 @@ from uuid import uuid4
 
 from kafka_lag_observe import source_sha256
 from observe_paid_pipeline import kafka_startup_view, paid_observer_seconds, pipeline_startup_view
+from paid_ticket_sharded_generator import split_manifest
 from unattended_capacity_stage import Transport
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,6 +46,7 @@ parser.add_argument("--api-pool-shared-waiting-candidate", type=int, choices=(0,
 parser.add_argument("--api-pool-waiters-candidate", type=int, choices=(3, 12), default=3)
 parser.add_argument("--order-status-cache-ms-candidate", type=int, choices=(0, 1000, 3000), default=0)
 parser.add_argument("--callback-duplicates", type=int, choices=(1, 3), default=3)
+parser.add_argument("--fixture-layout-candidate", choices=("distributed", "single-concert"), default="distributed")
 parser.add_argument("--shows", type=int, default=2)
 parser.add_argument("--viewers", type=int, default=20)
 args = parser.parse_args()
@@ -59,6 +61,20 @@ if args.api_payment_pool_max_candidate:
 elif args.api_pool_shared_waiting_candidate:
     parser.error("Shared acquisition budget requires an enabled partition")
 EXPECTED = args.paid_rate * args.paid_seconds if args.paid_rate else 10
+SINGLE_CONCERT = args.fixture_layout_candidate == "single-concert"
+SEATS_PER_SHOW = 18000 if SINGLE_CONCERT else 300
+if SINGLE_CONCERT:
+    required = (
+        args.paid_rate, args.paid_seconds, args.shows, args.viewers,
+        args.paid_concurrency, args.paid_generator_shards, args.paid_http_client_count,
+        args.paid_poll_seconds, args.callback_duplicates, args.simulator_dispatch_mode_candidate,
+        args.simulator_concurrency_candidate, args.consumer_candidate, args.consumer_pool_per_instance,
+        args.api_pool_per_instance_candidate, args.api_pool_waiters_candidate,
+        args.api_payment_pool_max_candidate, args.api_pool_shared_waiting_candidate,
+        args.order_status_cache_ms_candidate, args.paid_lifecycle_diagnostics,
+    )
+    if required != (60, 300, 1, 18000, 500, 2, 8, 1.0, 1, "refill", 8, 6, 8, 4, 12, 2, 1, 0, True):
+        parser.error("Single-concert requires the fixed ADR0133 60buyers/s300s profile and one18000-seat show")
 if not 0 <= args.paid_rate <= 100 or not 1 <= args.paid_seconds <= 300:
     parser.error("Bounded paid-stage rate/duration required")
 OBSERVER_SECONDS = paid_observer_seconds(args.paid_seconds)
@@ -71,7 +87,7 @@ if args.paid_http_max_connections and not (
 ):
     parser.error("HTTP connection limit must fit bounded journey concurrency")
 if args.paid_generator_shards == 2 and (
-    args.paid_rate % 2 or args.paid_concurrency % 2 or args.shows < 2 or args.viewers < 2
+    args.paid_rate % 2 or args.paid_concurrency % 2 or (args.shows < 2 and not SINGLE_CONCERT) or args.viewers < 2
     or args.paid_http_max_connections
 ):
     parser.error("Two shards require even rate/concurrency and default per-shard HTTP pools")
@@ -79,8 +95,10 @@ pool_budget = (args.paid_concurrency // 2 if args.paid_generator_shards == 2
                else args.paid_http_max_connections or args.paid_concurrency)
 if not 1 <= args.paid_http_client_count <= min(16, pool_budget):
     parser.error("Client partition must fit per-process HTTP connection budget")
-if EXPECTED > args.shows * 300 or EXPECTED > 300000:
-    parser.error("This smoke runner supports at most 300000 distinct tickets")
+if EXPECTED > args.shows * SEATS_PER_SHOW:
+    parser.error("Fixture has insufficient distinct seats for scheduled tickets")
+if EXPECTED > 300000:
+    parser.error("This smoke runner supports at most300000 distinct tickets")
 BACKEND = args.backend_dir
 GENERATOR = args.generator_dir
 API_HOST = args.backend_host
@@ -173,6 +191,8 @@ partition_check = (
     f'docker exec "$id" python -c {shlex.quote(partition_probe)} || exit 1; done'
 )
 state = {"run": RUN, "phases": [], "pass": False, "error": None,
+         "fixture_configuration": {"layout": args.fixture_layout_candidate, "shows": args.shows,
+                                   "seats_per_show": SEATS_PER_SHOW, "viewers": args.viewers},
          "order_status_cache_ms_candidate": args.order_status_cache_ms_candidate,
          "consumer_pool_per_instance_candidate": args.consumer_pool_per_instance,
          "api_pool_per_instance_candidate": args.api_pool_per_instance_candidate,
@@ -306,7 +326,8 @@ try:
     step(
         "prepare",
         API_HOST,
-        prefix + ["prepare", RUN, str(args.shows), "300", "1", ORIGIN, str(args.viewers)],
+        prefix + ["prepare", RUN, str(args.shows), str(SEATS_PER_SHOW), "1", ORIGIN, str(args.viewers)]
+        + (["single-concert"] if SINGLE_CONCERT else []),
         300,
     )
     prepared = True
@@ -396,6 +417,21 @@ try:
             "manifest-download", API_HOST, f"{BACKEND}/tmp/unattended-{RUN}/private/manifest.json", manifest
         )
         manifest.chmod(0o600)
+        payload = json.loads(manifest.read_text(encoding="utf-8"))
+        if (payload.get("fixture_layout", "distributed") != args.fixture_layout_candidate
+                or len(payload.get("show_ids", [])) != args.shows
+                or payload.get("seats_per_show") != SEATS_PER_SHOW
+                or payload.get("seat_offset") != 0
+                or len(payload.get("viewer_tokens", [])) != args.viewers
+                or payload.get("origin") != ORIGIN):
+            raise RuntimeError("Downloaded fixture manifest mismatches bounded configuration")
+        parts = split_manifest(payload, 2, EXPECTED // 2) if args.paid_generator_shards == 2 else [payload]
+        state["fixture_manifest_preflight"] = {
+            "layout": args.fixture_layout_candidate, "shows": args.shows,
+            "seats_per_show": SEATS_PER_SHOW, "total_seats": args.shows * SEATS_PER_SHOW,
+            "viewers": args.viewers, "pass": True,
+            "ranges": [part.get("seat_allocation") for part in parts],
+        }
         transport.copy_to("manifest-upload", manifest, GEN_HOST, f"/root/unattended-{RUN}-upload.json")
     transport.copy_to(
         "probe-upload",
@@ -411,6 +447,12 @@ try:
             ROOT / "scripts/checkout_journey_probe.py",
             GEN_HOST,
             f"{script_dir}/checkout_journey_probe.py",
+        )
+        transport.copy_to(
+            "fixture-layout-library-upload",
+            ROOT / "scripts/paid_fixture_layout.py",
+            GEN_HOST,
+            f"{script_dir}/paid_fixture_layout.py",
         )
         transport.copy_to(
             "paid-generator-upload",
