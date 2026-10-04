@@ -212,3 +212,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0134 - Local payment recovery validation at commit and acknowledgement boundaries](0134-local-payment-commit-boundary-recovery-validation.md)
 
 - [0135 - Bounded single-concert fixtures and disjoint paid-generator seat ranges](0135-bounded-single-concert-paid-fixtures.md)
+
+- [0136 - Bounded bulk commands within atomic seat projection](0136-bounded-bulk-atomic-seat-projection.md)
