@@ -208,3 +208,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0132 - Explicit financial waiter allocation within the fixed API budget](0132-explicit-fixed-budget-payment-waiters.md)
 
 - [0133 - Shared bounded acquisition budget for isolated API pools](0133-shared-bounded-api-acquisition-budget.md)
+
+- [0134 - Local payment recovery validation at commit and acknowledgement boundaries](0134-local-payment-commit-boundary-recovery-validation.md)
