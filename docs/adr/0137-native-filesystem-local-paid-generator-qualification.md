@@ -34,3 +34,5 @@ Reject source-hash mismatch before the measured stage. Bound owned child waits; 
 ## Validation evidence
 
 At decision time native-filesystem qualification has not run. Retained raw profile and caller evidence: tmp/adr0135-capacity-investigation/client-profile-diagnostic.json and client-profile-import-callers.json. [Failed original controls](../capacity/flash-sale-opening/single-concert-tooling-local-validation-2026-10-04.json). Append actual result, source identity, limits and owned cleanup before claiming a local pass.
+
+Executed native outcome: all6 local synthetic gates and source identity passed;3600/3600 scheduled/completed/distinct/fulfilled by90s, zero drops/retries/errors/duplicate assignments. Worst-shard dispatch p954.069549002451822ms/max96.02319633995648ms. Container exited0 with --rm; Docker unavailable after the reported outage prevents current cleanup reinspection. Original failures retained. See [local result](../capacity/flash-sale-opening/native-filesystem-generator-local-validation-2026-10-04.json). No backend financial or queue proof.

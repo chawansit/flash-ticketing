@@ -75,11 +75,13 @@
     "cloud_faults_executed": false,
     "owned_services_removed": true
   },
-  "status": "adr0135_local_gates_failed_adr0136_bulk_candidate_rejected_restored",
+  "status": "outage_status_checked_adr0138_patch_header_fixed_retest_pending",
   "cloud_load_requires_resume": true,
   "local_implementation_revision": "3e6b83ac32e1824f835b592317bd611c9df944f1",
-  "revision_note": "ADR0135 tooling remains local3e6b83a. ADR0136 bulk publication failed and was restored to exact original cache source. Cloud remains deb330e with normal budgets and disabled flags.",
+  "revision_note": "Committed docs/decisions throughafd46e4; ADR0135 tooling3e6b83a remains local. ADR0138 runtime/cache candidate and tests preserved uncommitted; header corrected but not retested. Cloud last confirmeddeb330e; no cloud change/access/load this continuation.",
   "confirmed": [
+    "ADR0137 native-filesystem same-source/same60/s60s synthetic passed all6gates/sourceidentity:3600distinct fulfilledbydeadline,zerodrops/retries/errors/seatconflicts. Bind-mounted failures retained.",
+    "ADR0138 refined focused37passed/15failed22.15s:18k original100ms warmup and signed financial replay passed; patch history header defect failed regressions. Header now corrected locally; Ruff passed, database/full suite retest pending.",
     "ADR0136 bulk candidate49passed/2failed;18k server139.975ms still exceeds100ms. Rejected and original cache runtime restored; private code/tests/failure evidence retained.",
     "ADR0135 decision4881666 preceded implementation3e6b83a. Bounded opt-in1show/18000seats and two disjoint ranges implemented; distributed defaults preserved.",
     "Focused72passed/1failed; full693passed/2failed. Large-show financial replay stopped before export/payments at100ms Redis prewarm failure.",
@@ -90,13 +92,18 @@
     "ADR0133 last cloud60buyers/s300s all20gates passed:18000distinctpaid-issued,zeroerrors/drops/retries; exactpostTTLfinancialcounts,zerodoublebooking/fullkeyspacequeues/Kafkalag. Source deb330e retained;normalbudgets restored and flagsdisabled.",
     "No cloud access/load, higher load, key installation, GitHub push or main merge during ADR0135 work."
   ],
-  "unresolved": "Single-concert local qualification fails large-snapshot warmup and synthetic timing. No live concentration, simultaneous opening, real-provider/live-fault or sustained300000/hour proof.",
+  "unresolved": "ADR0138 candidate remains unqualified/uncommitted after patch-header correction. Local Docker unavailable after outage; inspect owned remnants before retest. No new live snapshot/concentration/queue-drain proof;300000/hour target unproved.",
   "next_on_resume": [
-    "Create a new ADR for an evidence-backed large-snapshot serialization/publication correction; bulk dispatch alone failed and was reverted. Preserve100ms operation deadline and every concurrency/recovery contract.",
-    "Create an ADR before any cache publication/client architecture correction. Requalify runtime factors separately; concentration-only cloud comparison must not combine an unqualified runtime change.",
-    "After every local gate passes, prepare one concrete lifecycle with all20 financial/durability/zero-double-booking/queue/Kafka gates, four concentration checks and source/configuration restoration."
+    "Restore local Docker availability and inspect/remove only owned experiment leftovers.",
+    "Run focused Redis/concurrency/replay tests, then full financial/concurrency suite if focused gates pass.",
+    "Measure candidate/baseline snapshot cost at unchanged deadlines.",
+    "Prepare a separate fixed60buyers/s300s cache-factor cloud comparison with every financial/durability/zero-double-booking/queue/Kafka gate before concentration-only control."
   ],
   "evidence": [
+    "docs/capacity/flash-sale-opening/preencoded-seat-projection-local-validation-2026-10-04.json",
+    "docs/capacity/flash-sale-opening/native-filesystem-generator-local-validation-2026-10-04.json",
+    "docs/adr/0138-preencoded-atomic-seat-projection.md",
+    "docs/adr/0137-native-filesystem-local-paid-generator-qualification.md",
     "docs/capacity/flash-sale-opening/bulk-seat-projection-local-validation-2026-10-04.json",
     "docs/adr/0136-bounded-bulk-atomic-seat-projection.md",
     "docs/capacity/flash-sale-opening/single-concert-tooling-local-validation-2026-10-04.json",
@@ -106,9 +113,9 @@
     "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json"
   ],
   "authorization": "User Continue authorizes local implementation/qualification and preparation. Failed gates prohibit higherload/cloud progression/mainmerge; no new root access or cloud run started.",
-  "scope": "ADR0135 tooling implemented but unqualified; ADR0136 local candidate rejected and restored. Cloud/financial/cache runtime retains original source; no higherload/access/push/mainmerge.",
+  "scope": "Status/recovery checkpoint after power outage. Local header fix only; no cloud access/load, increased load, push or main merge. No test restart while Docker unavailable.",
   "publication": {
-    "status": "local_commits_not_pushed",
+    "status": "decision_evidence_commits_local_runtime_candidate_uncommitted_not_pushed",
     "branch": "codex/redis-failover-recovery",
     "evidence_revision": "3e6b83ac32e1824f835b592317bd611c9df944f1"
   },
@@ -141,5 +148,22 @@
     "qualification": "FAILED_REJECTED",
     "runtime_restored": true,
     "report": "docs/capacity/flash-sale-opening/bulk-seat-projection-local-validation-2026-10-04.json"
+  },
+  "local_encoded_projection_validation": {
+    "decision": "0138-preencoded-atomic-seat-projection",
+    "status": "PATCH_HEADER_CORRECTED_PENDING_RETEST",
+    "runtime_candidate_committed": false,
+    "report": "docs/capacity/flash-sale-opening/preencoded-seat-projection-local-validation-2026-10-04.json"
+  },
+  "local_generator_qualification": {
+    "decision": "0137-native-filesystem-local-paid-generator-qualification",
+    "status": "PASSED_LOCAL_SYNTHETIC_ONLY",
+    "report": "docs/capacity/flash-sale-opening/native-filesystem-generator-local-validation-2026-10-04.json"
+  },
+  "power_outage_check": {
+    "test_process_running": false,
+    "docker_available": false,
+    "owned_test_container_state": "unverified until Docker returns; inspect before any new run",
+    "git_work_preserved": true
   }
 }

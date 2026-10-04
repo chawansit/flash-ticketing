@@ -1,0 +1,68 @@
+{
+  "kind": "native_filesystem_generator_local_validation",
+  "status": "PASSED_LOCAL_SYNTHETIC_ONLY",
+  "decision": "docs/adr/0137-native-filesystem-local-paid-generator-qualification.md",
+  "source_revision": "3e6b83ac32e1824f835b592317bd611c9df944f1",
+  "source_identity_pass": true,
+  "source_sha256": {
+    "paid_fixture_layout.py": "7b9bc3d6acd3522dfcddfad00cecf049350bad38238dbeb4709a4ea71bf6cf32",
+    "paid_ticket_sharded_generator.py": "4e3162381bcc3e71fc69a5bed3cfaeb24a5bed3dcce71585801c115bb164fcd9",
+    "paid_ticket_load_generator.py": "867a862510bafb66d466e9ba0646a34f756a308cd36f99c99507cd24167b24e4",
+    "checkout_journey_probe.py": "1dc71b1b20f5c3480905b3a2cc511f73a9b17f011d6ac7bab6e5c64e3dbdddd7",
+    "diagnose_paid_generator.py": "742d4af40757e48d7921ef66e68d7b12da94ac7d50ed9c2f4cbef9e99ef53a26",
+    "http_load_generator.py": "1b4736d2293c06bff9ca73476b1416dd6a64079ab2b0cd1bb73218dce2af06a5"
+  },
+  "configuration": {
+    "rate": 60,
+    "seconds": 60,
+    "concurrency": 500,
+    "shards": 2,
+    "http_clients_per_shard": 8,
+    "http_connections_per_shard": 250,
+    "poll_seconds": 1,
+    "fixture_layout": "single-concert",
+    "response_ms": 30,
+    "command_seconds": 0.5,
+    "ticket_seconds": 5
+  },
+  "environment": {
+    "platform": "Linux",
+    "python": "3.12.14",
+    "httpx": "0.28.1",
+    "httpcore": "1.0.9",
+    "network": "none; loopback only",
+    "cpu_quota": 4,
+    "tooling_filesystem": "native Linux; no bind-mounted import path"
+  },
+  "gates": {
+    "generator_strict": true,
+    "unique_seats": true,
+    "no_duplicate_assignment": true,
+    "responder_valid": true,
+    "connections_closed": true,
+    "private_manifests_removed": true
+  },
+  "pass": true,
+  "counts": {
+    "scheduled": 3600,
+    "dispatched": 3600,
+    "completed": 3600,
+    "fulfilled": 3600,
+    "fulfilled_by_deadline": 3600,
+    "distinct_orders": 3600,
+    "distinct_tickets": 3600,
+    "generator_drops": 0,
+    "retry_attempts": 0
+  },
+  "dispatch_lag_p95_ms": 4.069549002451822,
+  "dispatch_lag_max_ms": 96.02319633995648,
+  "handler_p95_ms": 31.1911879980471,
+  "responder_loop_lag_p95_ms": 1.2222539953654632,
+  "raw": "tmp/adr0135-capacity-investigation/linux-native-synthetic-control.json",
+  "profile_evidence": "tmp/adr0135-capacity-investigation/client-profile-import-callers.json",
+  "baseline": "docs/capacity/flash-sale-opening/single-concert-tooling-local-validation-2026-10-04.json",
+  "limits": "Same-source/same-budget filesystem factor only; original bind-mount failures retained. No financial/backend/queue/Kafka capacity qualification.",
+  "container_exit_code": 0,
+  "container_auto_remove_configured": true,
+  "cleanup_reinspection_after_outage": "Docker unavailable"
+}
