@@ -213,4 +213,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 
 - [0135 - Bounded single-concert fixtures and disjoint paid-generator seat ranges](0135-bounded-single-concert-paid-fixtures.md)
 
-- [0136 - Bounded bulk commands within atomic seat projection](0136-bounded-bulk-atomic-seat-projection.md)
+- [0136 - Bounded bulk commands within atomic seat projection (rejected locally)](0136-bounded-bulk-atomic-seat-projection.md)

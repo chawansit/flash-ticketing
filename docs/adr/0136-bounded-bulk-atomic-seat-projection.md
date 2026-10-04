@@ -1,6 +1,6 @@
 # ADR 0136: Bounded bulk commands within atomic seat projection
 
-- Status: Accepted for local implementation and validation; cloud use gated
+- Status: Rejected after local qualification; original runtime restored
 - Date: 2026-10-04
 
 ## Context
@@ -36,3 +36,9 @@ No cloud deployment or workload progression on failed gates. A future cloud qual
 At decision time no bulk implementation or test has executed. Retained failing baseline: [ADR0135 local qualification](../capacity/flash-sale-opening/single-concert-tooling-local-validation-2026-10-04.json).
 
 Required local checks:256-boundary and multi-group cases,18,000-seat unchanged-deadline prewarm/export/signed financial replay, out-of-order and acknowledgement replay, concurrent full/patch selection, dirty-marker repair, TTL/history/incarnation behavior and financial/concurrency regressions. Compare the unchanged implementation and candidate with identical local data/deadlines and retain failed attempts. Synthetic generator timing and cloud capacity remain separate unresolved gates.
+
+## Executed outcome and disposition
+
+Focused49passed/2failed13.33s with no skips; both18,000-seat original-deadline qualification cases failed. Bulk server EVAL139.975ms versus original147.624ms in one owned-local same-data comparison; both exceeded100ms and timed out. Prefix probes are separate invocations, not exact spans. No capacity improvement or successful large-show signed replay is claimed. Broader regression and cloud execution were not started after these failed gates.
+
+The candidate code/tests/patch are retained privately with hashes and failures. Original cache source was restored exactly; the intended partial supersession of ADR0009 did not take effect. Existing publication, locking, financial, idempotency, TTL and scaling decisions remain active. See [retained outcome](../capacity/flash-sale-opening/bulk-seat-projection-local-validation-2026-10-04.json). No cloud access/load, higherload, push or mainmerge. A different encoding/publication pattern requires a new ADR before implementation.

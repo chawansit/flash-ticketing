@@ -75,11 +75,12 @@
     "cloud_faults_executed": false,
     "owned_services_removed": true
   },
-  "status": "adr0135_single_concert_tooling_implemented_local_gates_failed",
+  "status": "adr0135_local_gates_failed_adr0136_bulk_candidate_rejected_restored",
   "cloud_load_requires_resume": true,
   "local_implementation_revision": "3e6b83ac32e1824f835b592317bd611c9df944f1",
-  "revision_note": "ADR0135 local tooling only; cloud remains deb330e and normal budgets/disabled flags. Outcome checkpoint revision follows the implementation.",
+  "revision_note": "ADR0135 tooling remains local3e6b83a. ADR0136 bulk publication failed and was restored to exact original cache source. Cloud remains deb330e with normal budgets and disabled flags.",
   "confirmed": [
+    "ADR0136 bulk candidate49passed/2failed;18k server139.975ms still exceeds100ms. Rejected and original cache runtime restored; private code/tests/failure evidence retained.",
     "ADR0135 decision4881666 preceded implementation3e6b83a. Bounded opt-in1show/18000seats and two disjoint ranges implemented; distributed defaults preserved.",
     "Focused72passed/1failed; full693passed/2failed. Large-show financial replay stopped before export/payments at100ms Redis prewarm failure.",
     "Owned-local snapshot diagnostic: client197.665ms timeout, server EVAL249.684ms. Eventual18007fields does not waive the failed acknowledgement.",
@@ -91,11 +92,13 @@
   ],
   "unresolved": "Single-concert local qualification fails large-snapshot warmup and synthetic timing. No live concentration, simultaneous opening, real-provider/live-fault or sustained300000/hour proof.",
   "next_on_resume": [
-    "Diagnose unchanged distributed synthetic baseline and Redis full-publication cost; retain original deadlines and failed evidence.",
+    "Create a new ADR for an evidence-backed large-snapshot serialization/publication correction; bulk dispatch alone failed and was reverted. Preserve100ms operation deadline and every concurrency/recovery contract.",
     "Create an ADR before any cache publication/client architecture correction. Requalify runtime factors separately; concentration-only cloud comparison must not combine an unqualified runtime change.",
     "After every local gate passes, prepare one concrete lifecycle with all20 financial/durability/zero-double-booking/queue/Kafka gates, four concentration checks and source/configuration restoration."
   ],
   "evidence": [
+    "docs/capacity/flash-sale-opening/bulk-seat-projection-local-validation-2026-10-04.json",
+    "docs/adr/0136-bounded-bulk-atomic-seat-projection.md",
     "docs/capacity/flash-sale-opening/single-concert-tooling-local-validation-2026-10-04.json",
     "docs/capacity/flash-sale-opening/single-concert-same-load-control-requirements-2026-10-04.json",
     "docs/adr/0135-bounded-single-concert-paid-fixtures.md",
@@ -103,7 +106,7 @@
     "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json"
   ],
   "authorization": "User Continue authorizes local implementation/qualification and preparation. Failed gates prohibit higherload/cloud progression/mainmerge; no new root access or cloud run started.",
-  "scope": "ADR0135 tooling implemented but unqualified. Production cache/financial runtime and cloud topology untouched.",
+  "scope": "ADR0135 tooling implemented but unqualified; ADR0136 local candidate rejected and restored. Cloud/financial/cache runtime retains original source; no higherload/access/push/mainmerge.",
   "publication": {
     "status": "local_commits_not_pushed",
     "branch": "codex/redis-failover-recovery",
@@ -132,5 +135,11 @@
     "heartbeat_id": "bounded-capacity-work-until-8am",
     "status": "PAUSED_EXPIRED",
     "active_run": null
+  },
+  "local_bulk_publication_validation": {
+    "decision": "0136-bounded-bulk-atomic-seat-projection",
+    "qualification": "FAILED_REJECTED",
+    "runtime_restored": true,
+    "report": "docs/capacity/flash-sale-opening/bulk-seat-projection-local-validation-2026-10-04.json"
   }
 }
