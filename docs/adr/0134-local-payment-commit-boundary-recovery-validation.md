@@ -1,6 +1,6 @@
 # ADR 0134: Local payment recovery validation at commit and acknowledgement boundaries
 
-- Status: Accepted for local validation; cloud fault injection and automatic paid-client retries remain outside this decision
+- Status: Accepted; 12 local recovery cases and full 657-case suite passed; cloud fault injection and automatic paid-client retries remain outside this decision
 - Date: 2026-10-04
 
 ## Context
@@ -49,3 +49,7 @@ At decision time this matrix has not been implemented or executed. The baseline 
 - [ADR0049 recovery diagnostic limits](0049-bounded-idempotent-retry-diagnostic.md)
 - [ADR0040 orchestration](0040-unattended-distributed-capacity-stages.md)
 - [ADR0090 generator isolation](0090-isolate-paid-generator-with-loopback-responder.md)
+
+Executed validation: 12 focused cases passed in 8.73 seconds; the full unit/integration suite passed 657 cases in 106.10 seconds, with no skips and two existing dependency deprecations. Lint and whitespace checks passed. All six scenarios passed in both pool modes. The first run's five passes, one failure and six setup errors were retained; test fixtures were corrected to fit simulator concurrency to their API settings and advance expiry only on held seats. No production change was needed.
+
+Both loopback test containers were removed, and application settings/state and client/transport/pool/thread cleanup were verified. Four opening preflight controls rejected unsupported one-show fixtures/shard layouts with zero cloud transport calls. [Local validation](../capacity/flash-sale-opening/payment-commit-boundary-local-validation-2026-10-04.json) and [single-concert comparison requirements](../capacity/flash-sale-opening/single-concert-same-load-control-requirements-2026-10-04.json). This validates the enumerated backend recovery contracts locally; automatic paid-client recovery, live fault injection, single-concert tooling and simultaneous opening bursts remain future work.

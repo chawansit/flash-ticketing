@@ -1,0 +1,136 @@
+{
+  "kind": "single_concert_same_load_comparison_requirements",
+  "status": "DESIGNED_NOT_EXECUTABLE_TOOLING_EXTENSION_REQUIRED",
+  "decision_record": "0134-local-payment-commit-boundary-recovery-validation",
+  "baseline_report": "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json",
+  "baseline_run": "checkout-20261004T061810Z-11d61f",
+  "baseline_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "purpose": "Isolate concert concentration before simultaneous opening/read-burst validation.",
+  "candidate_factor": "Concentrate the same18000 distinct seats from60shows x300 seats into1show x18000 seats. Keep arrival rate, duration, client sharding and every service budget fixed.",
+  "configuration": {
+    "rate": 60,
+    "seconds": 300,
+    "concurrency": 500,
+    "generator_shards": 2,
+    "http_clients_per_shard": 8,
+    "http_connections_per_shard": 250,
+    "poll_seconds": 1.0,
+    "callback_duplicates": 1,
+    "simulator_dispatch_mode": "refill",
+    "lifecycle_diagnostics": true,
+    "kafka_observer_backend": "python",
+    "api_replicas": 4,
+    "api_pool_per_replica": 4,
+    "api_pool_waiters_per_replica": 12,
+    "order_status_cache_ms": 0,
+    "consumer_replicas": 6,
+    "consumer_pool_per_replica": 8,
+    "writer_replicas": 3,
+    "writer_batch_size": 4,
+    "simulator_refill_slots": 8,
+    "pgbouncer_server_pool": 24,
+    "api_payment_pool_max": 2,
+    "api_pool_shared_waiting": true
+  },
+  "baseline_fixture": {
+    "shows": 60,
+    "seats_per_show": 300,
+    "total_seats": 18000,
+    "viewers": 18000
+  },
+  "proposed_fixture": {
+    "shows": 1,
+    "seats_per_show": 18000,
+    "total_seats": 18000,
+    "viewers": 18000,
+    "shard_seat_ranges": [
+      {
+        "shard": 0,
+        "first": 0,
+        "last": 8999
+      },
+      {
+        "shard": 1,
+        "first": 9000,
+        "last": 17999
+      }
+    ]
+  },
+  "proposed_cloud_runs": 1,
+  "cloud_runs_started": 0,
+  "cloud_access_started": false,
+  "readiness": {
+    "implemented": false,
+    "preflight_controls_executed": 4,
+    "cloud_transport_calls": 0,
+    "existing_rejections": [
+      {
+        "control": "smoke_runner_one_show_2_shards",
+        "exit_code": 2,
+        "rejected_before_transport": true,
+        "reason": "run_huawei_checkout_smoke.py: error: Two shards require even rate/concurrency and default per-shard HTTP pools",
+        "actual_rejection_constraint": "requires >=2 shows"
+      },
+      {
+        "control": "smoke_runner_one_show_1_shards",
+        "exit_code": 2,
+        "rejected_before_transport": true,
+        "reason": "run_huawei_checkout_smoke.py: error: This smoke runner supports at most 300000 distinct tickets",
+        "actual_rejection_constraint": "18000 expected exceeds one show x300 seats"
+      },
+      {
+        "control": "fixture_18000_seats_one_show",
+        "rejected": true,
+        "reason": "Seats must be between 1 and 1000"
+      },
+      {
+        "control": "two_shards_same_show",
+        "rejected": true,
+        "reason": "Fixture must have distinct shows and enough viewers"
+      }
+    ],
+    "execution_gate": false
+  },
+  "before_implementation": [
+    "Create and link a new ADR covering shared-show shard allocation, bounded18000-seat fixture and paid-stage orchestration changes before implementing them.",
+    "Use explicit opt-in concentration mode with disjoint seat ranges and viewer partitions; leave default distributed-show manifests/controls unchanged.",
+    "Validate exact distinct seat mapping, idempotency and audit cohort identity across shards, including overflow and malformed-manifest rejection before transport.",
+    "Keep fixed maximum18000 total seats and60buyers/s300s for this proposed control; do not use higherload or extra seat-map traffic."
+  ],
+  "before_cloud": [
+    "Requalify changed generator/fixture tooling locally with loopback controls; retain raw failed cases and validate no retries, drops or duplicate assigned seats under controlled healthy latency.",
+    "Prepare one lifecycle command with source/configuration preflight, observers, execution, fresh postTTL audits, cleanup and compact report; paid-stage extension is future work until implemented/tested.",
+    "Identify exact candidate revision, establish concrete bounded authorization/access scope, verify known hosts, and remove restricted temporary access after final audits."
+  ],
+  "required_cloud_gates": [
+    "customer_load",
+    "post_ttl_financial",
+    "zero_double_booking",
+    "full_keyspace_queue_drain",
+    "kafka_drain",
+    "pipeline_observer",
+    "kafka_observer",
+    "cpu_sampler",
+    "source_and_restored_configuration_pass",
+    "generator_idle_pass",
+    "private_cleanup_pass",
+    "hold_deadlines_elapsed",
+    "pipeline_observer_source",
+    "cache_disabled",
+    "candidate_source_identity",
+    "only_expected_runtime_modules_changed",
+    "payment_partition_active",
+    "fixed_connection_and_waiter_budget",
+    "payment_partition_restored",
+    "financial_logic_unchanged"
+  ],
+  "additional_workload_gates": [
+    "one_concert_in_manifest_and_audit",
+    "same18000_total_seats",
+    "disjoint_shard_seat_assignments",
+    "same_client_connection_and_arrival_budgets"
+  ],
+  "failed_gate_behavior": "Finish financial/postTTL/zero-double-booking/full-keyspacequeue/Kafka checks; restore passing ADR0133 source/images and normal settings, remove access and stop. No extra run, increased load or merge on failed gates.",
+  "limitations": "An evenly scheduled one-concert60buyer control is not simultaneous concert opening or a heavy seat-map burst, not real-provider qualification and not sustained300000paid-issued/hour.",
+  "scope": "Current continuation approved local recovery validation and preparation. This requirements document dispatches no cloud traffic and does not install root keys, inject cloud failures, increase load or merge."
+}

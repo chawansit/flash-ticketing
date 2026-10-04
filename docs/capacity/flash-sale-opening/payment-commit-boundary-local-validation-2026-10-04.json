@@ -1,0 +1,190 @@
+{
+  "kind": "local_payment_commit_boundary_recovery_validation",
+  "decision_record": "0134-local-payment-commit-boundary-recovery-validation",
+  "decision_revision": "b33226254dba6c1d0e151d3b77335485f4260daf",
+  "production_source_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "measured_at_utc": "2026-10-04T06:43:58.214306+00:00",
+  "status": "PASSED_LOCAL_ONLY",
+  "runtime_source_unchanged": true,
+  "cloud_access_or_load_started": false,
+  "baseline_report": "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json",
+  "local_services": {
+    "postgres_image": "postgres:17.6",
+    "redis_image": "redis:7.4.5-alpine",
+    "interfaces": "loopback only",
+    "schema_per_case": "fresh isolated schema; dropped at teardown",
+    "fixture_database_pool_max": 40,
+    "owned_containers_removed": true
+  },
+  "pool_controls": [
+    {
+      "name": "normal",
+      "api_max_connections": 3,
+      "api_max_waiting": 3,
+      "payment_partition": 0,
+      "shared_acquisition": false
+    },
+    {
+      "name": "isolated_shared",
+      "api_max_connections": 4,
+      "general_connections": 2,
+      "payment_connections": 2,
+      "shared_acquisition_limit": 12,
+      "purpose_ceiling": 10,
+      "shared_acquisition": true
+    }
+  ],
+  "test_cases_per_mode": 6,
+  "test_cases_total": 12,
+  "scenarios": [
+    {
+      "test": "test_lost_payment_response_replays_after_pool_restart_without_another_payment",
+      "modes": [
+        "normal",
+        "isolated_shared"
+      ],
+      "pass": true
+    },
+    {
+      "test": "test_lost_callback_response_commits_once_then_recovers_through_existing_lease",
+      "modes": [
+        "normal",
+        "isolated_shared"
+      ],
+      "pass": true
+    },
+    {
+      "test": "test_callback_acknowledgement_failure_retains_lease_then_replays_exactly",
+      "modes": [
+        "normal",
+        "isolated_shared"
+      ],
+      "pass": true
+    },
+    {
+      "test": "test_stale_callback_worker_cannot_acknowledge_a_new_lease_owner",
+      "modes": [
+        "normal",
+        "isolated_shared"
+      ],
+      "pass": true
+    },
+    {
+      "test": "test_fulfillment_commit_lost_acknowledgement_replays_same_inbox_event",
+      "modes": [
+        "normal",
+        "isolated_shared"
+      ],
+      "pass": true
+    },
+    {
+      "test": "test_expired_hold_payment_replay_preserves_deadline_and_refunds_late_capture",
+      "modes": [
+        "normal",
+        "isolated_shared"
+      ],
+      "pass": true
+    }
+  ],
+  "fault_scope": {
+    "http": "Real HTTP/1.1 loopback sockets; proxy forwards to actual in-process ASGI routes with JWT/HMAC and real PostgreSQL. Lost response closes socket after route commit.",
+    "process_restart": "API lifespan and pools recreated; not an OS restart.",
+    "worker_acknowledgement": "Injected failure before SQL delivery acknowledgement commit; original exception asserted; later eligible lease replay recovers.",
+    "stale_worker": "Old worker returns work=True but its token-fenced UPDATE changes no durable delivery count after new ownership acknowledges.",
+    "fulfillment": "Failure raised after transaction commit; same durable event/inbox ID replayed through fresh adapter.",
+    "ttl": "Tests advance only their own lease or hold deadlines, and verify recovery never extends the hold. Not a measured live failover window."
+  },
+  "checks": {
+    "lost_first_errors_asserted": true,
+    "signed_callback_and_actor_authorization": true,
+    "same_actor_key_body_durable_replay": true,
+    "changed_key_payload_rejected": true,
+    "exact_single_payment_callback_booking_ticket": true,
+    "exact_OrderPaid_and_TicketsIssued_outbox": true,
+    "zero_double_booking": true,
+    "callback_no_inline_or_pre_lease_retry": true,
+    "token_fenced_acknowledgement": true,
+    "fulfillment_inbox_replay": true,
+    "late_capture_refund_without_inventory_reclaim": true,
+    "unchanged_hold_deadlines": true,
+    "candidate_shared_budget_no_leaks": true,
+    "API_settings_state_and_threads_restored": true
+  },
+  "validation": {
+    "focused": {
+      "command": ".venv/Scripts/python.exe tmp/run_adr0134_checks.py focused",
+      "passed": 12,
+      "seconds": 8.73,
+      "skipped": 0
+    },
+    "full": {
+      "command": ".venv/Scripts/python.exe tmp/run_adr0134_checks.py candidate",
+      "passed": 657,
+      "seconds": 106.1,
+      "skipped": 0
+    },
+    "lint": {
+      "command": ".venv/Scripts/python.exe -m ruff check tests/integration/test_payment_commit_recovery.py",
+      "pass": true
+    },
+    "warnings": [
+      "Starlette httpx deprecation",
+      "AnyIO BlockingPortal alias deprecation"
+    ],
+    "initial_failed_run": {
+      "passed": 5,
+      "failed": 1,
+      "setup_errors": 6,
+      "seconds": 11.24,
+      "reasons": [
+        "Normal pool3 fixture inherited simulator concurrency4 and failed settings validation.",
+        "Expiry fixture attempted reserved_until on unheld seats and violated the existing DB check."
+      ],
+      "fixes": "Test-only simulator concurrency1; advance reserved_until only on held seats; restore app state even on setup failure.",
+      "evidence": "tmp/adr0134-capacity-investigation/initial-focused-failure.txt"
+    },
+    "raw_evidence_root": "tmp/adr0134-capacity-investigation",
+    "test_file": "tests/integration/test_payment_commit_recovery.py",
+    "test_source_sha256": "5d94d4a1f08c6f79e47c0a2a09049b400dbb8c94571f289be39c33e6eae39ec8"
+  },
+  "opening_preflight": {
+    "kind": "single_concert_tooling_preflight",
+    "baseline_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+    "controls": [
+      {
+        "control": "smoke_runner_one_show_2_shards",
+        "exit_code": 2,
+        "rejected_before_transport": true,
+        "reason": "run_huawei_checkout_smoke.py: error: Two shards require even rate/concurrency and default per-shard HTTP pools",
+        "actual_rejection_constraint": "requires >=2 shows"
+      },
+      {
+        "control": "smoke_runner_one_show_1_shards",
+        "exit_code": 2,
+        "rejected_before_transport": true,
+        "reason": "run_huawei_checkout_smoke.py: error: This smoke runner supports at most 300000 distinct tickets",
+        "actual_rejection_constraint": "18000 expected exceeds one show x300 seats"
+      },
+      {
+        "control": "fixture_18000_seats_one_show",
+        "rejected": true,
+        "reason": "Seats must be between 1 and 1000"
+      },
+      {
+        "control": "two_shards_same_show",
+        "rejected": true,
+        "reason": "Fixture must have distinct shows and enough viewers"
+      }
+    ],
+    "cloud_transport_calls": 0,
+    "cloud_load_dispatched": false,
+    "all_expected_rejections_pass": true,
+    "note": "Expected tooling rejections; not a customer/load failure and not an executable cloud plan."
+  },
+  "limitations": [
+    "No new cloud experiment or fault injection; no production runtime or automatic paid-client retry implementation.",
+    "Local fault cases do not run Kafka, full-keyspace queue drain, real-provider capture/refund, datastore failover or OS process kills.",
+    "The last cloud financial/postTTL/zero-double-booking/full-keyspacequeue/Kafka gates remain ADR0133 evidence; they are not newly rerun or substituted by this local matrix.",
+    "Step7 local backend contracts validated; end-to-end paid-client recovery remains unqualified. Step8 opening bursts and one-hour300000ticket proof remain future scope."
+  ]
+}
