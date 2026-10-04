@@ -210,3 +210,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0133 - Shared bounded acquisition budget for isolated API pools](0133-shared-bounded-api-acquisition-budget.md)
 
 - [0134 - Local payment recovery validation at commit and acknowledgement boundaries](0134-local-payment-commit-boundary-recovery-validation.md)
+
+- [0135 - Bounded single-concert fixtures and disjoint paid-generator seat ranges](0135-bounded-single-concert-paid-fixtures.md)
