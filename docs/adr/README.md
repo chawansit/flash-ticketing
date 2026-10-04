@@ -228,3 +228,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0142 - Pinned baseline reproduction after cloud regression](0142-pinned-baseline-reproduction-after-cloud-regression.md)
 
 - [0143 - Bounded order-status miss coalescing](0143-bounded-order-status-miss-coalescing.md)
+
+- [0144 - Enabled-cache isolated coalescing comparison](0144-enabled-cache-isolated-coalescing-comparison.md)
