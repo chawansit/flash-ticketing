@@ -2,42 +2,39 @@
   "updated_date_bangkok": "2026-10-04",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "security_note": "PriorADR0127 keysremoved;no fresh cloudkeyinstalled andno cloudaccess/load inADR0128.",
-  "status": "single_statement_order_read_locally_validated_cloud_access_pending",
+  "security_note": "ADR0128 temporaryrootkey entriesremoved onbothhosts andlocalkeyfilesdeleted;no credentials saved.",
+  "status": "adr0128_cloud_control_passed_access_removed",
   "cloud_load_requires_resume": true,
-  "handoff_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
-  "revision_note": "Cloud checkouts/runtime tested5706fce; all ten application module hashes and observer source unchanged from passing cache0 baseline. ADR0127 offline classifier prepared in local0faa9ae; result/checkpoint commit follows. Baseline services/cache0 restored.",
-  "backend_application_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
-  "generator_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
-  "backend_checkout_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
-  "tested_generator_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
+  "handoff_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
+  "revision_note": "ADR0128 testedcandidate7bbfaa6;cloudcheckouts/runtime retaincandidate andallnineothermodulehashesmatchbaseline. Baseline servicebudgets/cache0 restored;resultcommitsmayfollow.",
+  "backend_application_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
+  "generator_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
+  "backend_checkout_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
+  "tested_generator_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
   "local_implementation_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
   "diagnostic_implementation_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
   "last_checked_topology": "Restored4healthyAPIs;postgres/pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4/batch;PgBouncer24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "All financial/postTTL/full-keyspace queue/Kafka/source/settings/restoration/idle/private profile scratch gates passed; no active generator. Temporary access removed.",
-  "current_run": "checkout-20261004T020835Z-a401c0",
+  "cloud_state_note": "Noactivegenerator;allfinancial/durability/postTTL/zero-double-booking/fullkeyspacequeue/Kafka/observer/source/configurationrestoration/idle/privatecleanup gatespassed. Onlyget_orderquery changed.",
+  "current_run": "checkout-20261004T025114Z-e8b884",
   "confirmed": [
-    "ADR0128 written/committed beforeimplementation;onlyget_orderquery changed toone native-row joinedSELECT,same transactionwrapper/limitsandfinancialmutations.",
-    "All558unit/integration checks passed;deterministicconcurrentfulfillment mixed-snapshot regressionfailsoldcode andpassescandidate.",
-    "ADR0122 reservation-writer fairness and492 executed tests retained; all10 application source hashes unchanged in ADR0127.",
-    "18000 scheduled/18000 dispatched/18000 customer-confirmed tickets; no errors/drops/retries; all16 mandatory diagnostic gates passed.",
-    "Exact postTTL financial and zero-double-booking checks passed; full-keyspace queues and Kafka drained; baseline services restored and generator idle.",
-    "Four120s25HzGIL-only/nonblocking profiles: 2135 observations; all phase weights conserved. Stack context is not charged CPU.",
-    "Largest exclusive stack contexts: database22.81percent, request dispatch18.45percent, HTTP transport15.60percent. Endpoint identity unknown for68.62percent; contexts are not chargedCPU.",
-    "Offered-window sampled API CPU 1.278cores; host CPU 81.06percent. External profiler overhead retained separately.",
-    "Hold-to-ticket worst-shardp95 2144.962ms; durability worst-shardp95 1043.052ms.",
-    "Owned profiler processes exited, remote profile scratch removed; both temporary root keys removed and local key files deleted.",
-    "No higher load, second run, external publication or main merge. Prior failed observer evidence retained."
+    "ADR0128writtenbeforeimplementation;9new realPGregressions plusall558unit/integration tests passed84.46s. Oldread reproducedmixed-snapshotrace;candidatefixedit.",
+    "18000scheduled/18000dispatched/18000 distinctcustomer-confirmed paidtickets;zeroerrors/drops/retries;all16cloudgatespassed.",
+    "Exactfinancial andzero-double-booking checks passed;full-keyspacequeues/Kafkadrained;baseline servicebudgets/cache0restored.",
+    "Onlysrc/ticketing/infrastructure/reservations.py changed amongtenruntime modules;same transactionwrapper,timeouts,observer,load andresourceconfiguration. No profiler.",
+    "Sampled API CPU1.277to1.266cores;hostCPU80.14to80.28percent.",
+    "Hold-to-ticket worstshardp952161.885to2166.095ms;durabilityp951044.723ms.",
+    "TransferredGitbundles removedfrombothhosts;both temporaryrootkey entries/localkeyfiles removed.",
+    "PriorADR0089/0094candidatefailures andADR0124observer failure retained;nohigherload/GitHubpush/mainmerge."
   ],
-  "unresolved": "Candidatepassedlocalcorrectness andindexchecks;cloud performance unqualified. PreviousADR0089/0094 failuresretained. Any one unchanged60/300 control requires specific new temporaryaccess approval.",
+  "unresolved": "One freshfixture comparison andsampledCPU windows cannot establishcausalcapacity/headroom improvement. Domainstatementcountreduction andsnapshotconsistency validated;production300000/hour,onehotconcert/realpayment-provider capacity unqualified.",
   "next_on_resume": [
-    "Resolve specific ADR0128 temporaryroot-key/cloudscopeapproval forone60buyers/s300s cache0 comparison againstpassingunprofiledADR0126.",
-    "Verifybaseline source/settings,deployexactsingle-modulecandidatewithallotherhashesunchanged,runoneboundedcontrolandall16gates.",
-    "Onfailurefinishfinancial/drain/recoveryandrestorebaseline source;alwaysremove ownedtemporarykeys/scratch;noadditionalrun,higherload/mainmerge."
+    "ReviewADR0128 candidate versus identifiedpassingcache0baseline,includingSQLcount/connectionhold,HTTPattempts,CPU andcustomerlatency deltas.",
+    "Select onlyan evidence-backednextchange;createADR first. Furthercloudrun/higherload/merge requires a new explicit scope;neverwaivefinancial/queuegates."
   ],
-  "validation_this_resume": "558unit/integration tests passed84.46s,no skips;2dependencydeprecations.9newrealPGregressions;oldcode2expectedfailures2.63s. Local100000historyplans/shape/authorizationchecks passedaftertwohelper-onlyfailures;lint/diffpass;ownedtestcontainersremoved.",
+  "validation_this_resume": "ADR0128:558unit/integration checks passed84.46s beforedeployment,2dependencydeprecations/no skips;oldcode2expectedconcurrency/roundtripregressionfailures. One60buyers/s300s cache0 comparisoncompleted;allmandatorygates=True. Temporarykey entries/filesremoved.",
   "evidence": [
+    "docs/capacity/flash-sale-opening/order-read-single-statement-control-2026-10-04.json",
     "docs/capacity/flash-sale-opening/order-read-single-statement-control-plan-2026-10-04.json",
     "docs/capacity/flash-sale-opening/order-read-local-validation-2026-10-04.json",
     "docs/capacity/flash-sale-opening/order-read-database-investigation-2026-10-04.json",
@@ -61,7 +58,7 @@
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
   "authorization": "User authorizes autonomous continuation without routine questions until08:00Asia/Bangkok2026-10-04. Covers bounded implementation/configuration,checks and sanitized feature-branch evidence/checkpoint pushes to existing remote. No higherload/mainmerge;honor review rejection. User specifically approved observer-only cloud preflight/deployment/requalification after the failed observer gate by replying Continue to the concrete next-step proposal. User Go ahead specifically approves the new one-run ADR0126 control and required completion/recovery audits. User explicitly Approved the exact temporary root authorized_keys addition on both ECS hosts and subsequent removal; protected terminal password handling used. User Continue specifically approves one ADR0127 phase-attribution diagnostic atunchanged60buyers/s300s cache0 after saved-profile review. User separately Approved the exact ADR0127 restricted45minute temporary root-key installation and removal; installation, diagnostic and cleanup are complete.",
-  "scope": "User Continue approved database-path investigation andtheproposedADR/implementation/correctnessworkflow. Candidatecompletedlocally;one same60/300 cache0 comparisonprepared. Freshrootaccessapprovalpending;nohigherload/mainmerge/publication.",
+  "scope": "One explicitlyapprovedADR0128deployment/comparisoncompleted;noadditionalrun,higherload,publication/mainmerge.",
   "roadmap": [
     {
       "step": 1,
@@ -115,12 +112,12 @@
     }
   ],
   "publication": {
-    "status": "adr0127_result_saved_locally_not_pushed",
+    "status": "adr0128_result_saved_locally_not_pushed",
     "destination": "github.com/chawansit/flash-ticketing.git",
     "branch": "codex/redis-failover-recovery",
     "evidence_revision": "6a1385bbeb13bc50bbd8aae5378dfd7037fde747",
     "authorization": "User overnightauthorization includes sanitized routine featurebranchpushes until08:00;no mainmerge.",
-    "next_action": "Review the locally saved passing comparison. Additional cloud work or publication after the former time-bound authorization requires a new scope."
+    "next_action": "Additionalcloudwork requires anewbounded scope;no newpush/mainmerge."
   },
   "overnight": {
     "expires_bangkok": "2026-10-04T08:00:00+07:00",
@@ -152,18 +149,19 @@
     "file": "src/ticketing/infrastructure/reservations.py",
     "implemented": true,
     "locally_validated": true,
-    "cloud_deployed": false,
-    "cloud_qualification": "PENDING"
+    "cloud_deployed": true,
+    "cloud_qualification": "PASSED",
+    "cloud_tested_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67"
   },
   "bounded_control": {
     "decision": "0128-native-row-single-statement-order-status-reads",
     "limit": 1,
-    "started": 0,
+    "started": 1,
     "active_run": null,
     "access_ready": false,
     "plan": "docs/capacity/flash-sale-opening/order-read-single-statement-control-plan-2026-10-04.json",
     "baseline_report": "docs/capacity/flash-sale-opening/cache-disabled-control-2026-10-04.json",
-    "specific_cloud_access_approval_pending": true,
+    "specific_cloud_access_approval_pending": false,
     "temporary_key_installed": false,
     "local_validation": {
       "passed": 558,
@@ -172,7 +170,13 @@
       "new_regressions": 9,
       "local_plans_shape_and_index_checks_pass": true,
       "owned_test_containers_removed": true
-    }
+    },
+    "cloud_access_approved_by": "User replied Continue directly to exact freshrestricted45minute root-key/deployment/one60/300comparison request.",
+    "last_run_gates_pass": true,
+    "result": "docs/capacity/flash-sale-opening/order-read-single-statement-control-2026-10-04.json",
+    "temporary_key_cleanup_pass": true,
+    "local_temporary_key_files_removed": true,
+    "qualification": "PASSED"
   },
   "previous_bounded_control": {
     "decision": "0126-cache-disabled-same-load-control",
@@ -218,5 +222,6 @@
     "last_run_gates_pass": true,
     "temporary_key_cleanup_pass": true,
     "local_temporary_key_files_removed": true
-  }
+  },
+  "order_read_implementation_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67"
 }

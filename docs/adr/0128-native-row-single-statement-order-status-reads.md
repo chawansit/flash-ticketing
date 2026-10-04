@@ -1,6 +1,6 @@
 # 0128 — Native-row single-statement order-status reads
 
-- **Status:** Accepted for local implementation and controlled validation on 2026-10-04. Cloud qualification is pending.
+- **Status:** Accepted and validated in one unchanged-load control on 2026-10-04; production capacity remains unqualified.
 - **Context:** The passing ADR0127 diagnostic at 60 buyers/s for 300 seconds with cache0 recorded 36,165 order GETs. Of 487 database-context observations, order-status reads account for 19.71% of database-context weight (4.50% of all sampled weight). Callback contexts account for 33.26%, payment initiation for 19.71%, and 27.10% have no route owner. These are stack contexts, not charged CPU or SQL durations.
 - **Prior decisions:** ADR0089 and ADR0094 tested single-snapshot reads with different connection setup and JSON aggregation; both failed customer gates and were reverted. Their historical rejections remain valid. This candidate reopens only the domain read query, retaining ADR0117's common transaction helper and ADR0099's booking-order access index. No accepted authority, durability, locking, messaging, idempotency, TTL or scaling decision is superseded.
 
@@ -45,3 +45,19 @@ Planned regression coverage: pending/paid/fulfilled/expired state and native res
 - [Passing unprofiled cache0 baseline](../capacity/flash-sale-opening/cache-disabled-control-2026-10-04.json)
 
 Executed local validation: two expected baseline failures reproduced in2.63s; candidate passed all558unit/integration tests in84.46s,including9new realPostgreSQL regressions. Two dependency deprecations;no skipped tests. Lint/whitespace passed;both ownedlocalcontainers removed. Populated100000historical-order fixture preserved native shapes/authorization andexistingindexaccess. Full-wrapper medianread timings improved12–16% acrossfour local cases;8seatserverexecution0.113ms combinedbaseline vs0.133ms candidate,so fewerroundtrips do not establish cloud improvement. One startup-race andone benchmark-helper error assertion corrected;application unchanged afterpassed558tests. [Local evidence](../capacity/flash-sale-opening/order-read-local-validation-2026-10-04.json). [Prepared unchanged-load comparison](../capacity/flash-sale-opening/order-read-single-statement-control-plan-2026-10-04.json) remains pending specific temporaryaccess approval;no clouddeployment/load yet.
+
+Cloudscope explicitly approved: user Continue replies to the exact freshrestricted45minute root-key/deployment/one60buyers/s300scomparison request. Transfer the committed candidate bythe previously used Gitbundle/SSH mechanism toboth existingcleancheckouts; no GitHubpush. Existing paidbackendhelper rebuilds/verifiesruntime images before dispatch. Bundlefiles areownedtemporaryscratch andremoved;onfailedgate restorethe baselinecommit/images andverify allservicehashes beforekeyremoval. All mandatorygates remain.
+
+Executed cloudcomparison: checkout-20261004T025114Z-e8b884,same60buyers/s300s/cache0 againstpassingADR0126. QualificationPASSED(all16gates). Both temporaryrootkeys/localkeyfilesremoved andsource/service/idle/privatecleanup verified. [Comparison evidence](../capacity/flash-sale-opening/order-read-single-statement-control-2026-10-04.json). Nohigherload/mainmerge orproductioncapacityclaim.
+
+Observed comparison (sampled boundaries; all API endpoints share these database counters):
+
+| Metric | Baseline | Candidate |
+| --- | ---: | ---: |
+| Measured API SELECT count | 342,499 | 305,943 |
+| Mean API connection hold | 20.94 ms | 20.52 ms |
+| Sampled API CPU | 1.277 cores | 1.266 cores |
+| Host CPU | 80.14% | 80.28% |
+| Hold-to-ticket worst-shard p95 | 2,161.9 ms | 2,166.1 ms |
+
+The domain statement reduction and coherent snapshot are validated; this single fresh fixture shows essentially unchanged end-to-end CPU/latency. It establishes no production capacity or headroom increase.

@@ -1,6 +1,6 @@
 {
   "kind": "proposed_bounded_native_order_read_comparison",
-  "status": "locally_validated_specific_cloud_access_approval_pending",
+  "status": "completed_passed",
   "decision_record": "0128-native-row-single-statement-order-status-reads",
   "baseline_report": "docs/capacity/flash-sale-opening/cache-disabled-control-2026-10-04.json",
   "baseline_run": "checkout-20261004T011046Z-39deb0",
@@ -46,7 +46,7 @@
   },
   "external_profiler_enabled": false,
   "run_limit": 1,
-  "runs_started": 0,
+  "runs_started": 1,
   "active_run": null,
   "required_gates": [
     "customer_load",
@@ -72,9 +72,17 @@
     "key_restrictions": "restrict,forwarding/PTY disabled,45-minute UTC expiry onverifiedOpenSSH7.7+;removeafteraudits.",
     "password_handling": "Protected terminal input only;no credentials in files/environment.",
     "known_host_verification": true,
-    "installation_executed": false,
-    "specific_approval_pending": true
+    "installation_executed": true,
+    "specific_approval_pending": false,
+    "approved_by": "User Continue to exactrequest",
+    "expiry_minutes": 45,
+    "installed_key_removed": true,
+    "local_key_files_removed": true
   },
   "local_validation_report": "docs/capacity/flash-sale-opening/order-read-local-validation-2026-10-04.json",
-  "scope": "One proposed unchanged60buyers/s300s cache0 comparison;nohigherload,mainmerge orremotepublication."
+  "scope": "One proposed unchanged60buyers/s300s cache0 comparison;nohigherload,mainmerge orremotepublication.",
+  "candidate_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
+  "baseline_source_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
+  "result": "docs/capacity/flash-sale-opening/order-read-single-statement-control-2026-10-04.json",
+  "all_required_gates_pass": true
 }
