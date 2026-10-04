@@ -48,3 +48,5 @@ At decision time only the linked executed static controls and installed native p
 - [ADR0131 failure reproduction](../capacity/flash-sale-opening/payment-pool-queue-overflow-diagnosis-2026-10-04.json)
 - [Passing ADR0129 control](../capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json)
 - [Superseded allocation](0132-explicit-fixed-budget-payment-waiters.md)
+
+Executed local candidate validation:645 unit/integration cases passed106.51s, no skips, two dependency deprecations. Focused22 cases passed9.70s after a retained collection-name collision was corrected. Mixed signed HTTP bursts, both directions of protected headroom, combined/per-purpose overflow, retained timeout debt and recovery, FIFO progress, concurrent critical transactions, closure and exact financial replay/zero double booking passed. Offline shell/Python/Compose checks passed and owned services were removed. Financial/worker code and Postgres constructor/transaction/connection/cursor/close AST match passing ADR0129. [Local validation](../capacity/flash-sale-opening/shared-acquisition-budget-local-validation-2026-10-04.json). No cloud access/load.

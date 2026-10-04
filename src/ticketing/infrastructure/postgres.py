@@ -1,10 +1,11 @@
 import logging
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from time import perf_counter as monotonic
+from threading import Lock
 
 from psycopg import Cursor
 from psycopg.rows import dict_row
-from psycopg_pool import ConnectionPool
+from psycopg_pool import ConnectionPool, PoolTimeout, TooManyRequests
 
 from ticketing.observability import (
     DB_COMMIT_SECONDS,
@@ -170,9 +171,180 @@ class Postgres:
                 pass
 
     def sample_pool(self):
-        stats = self.pool.get_stats()
+        roles = getattr(self, "_metric_pool_roles", None)
+        waiter_limits = getattr(self, "_metric_waiter_limits", {})
+        pools = roles if roles is not None else {"general": self.pool}
+        states = {role: pool.get_stats() for role, pool in pools.items()}
         for name in ("pool_size", "pool_available", "requests_waiting", "pool_max"):
-            DB_POOL_STATE.labels(name).set(stats.get(name, 0))
+            DB_POOL_STATE.labels(name).set(sum(stats.get(name, 0) for stats in states.values()))
+            if roles is not None:
+                for role in ("general", "payment"):
+                    DB_POOL_STATE.labels(f"{role}_{name}").set(states.get(role, {}).get(name, 0))
+        if roles is not None:
+            shared = getattr(self, "_shared_acquisition_budget", None)
+            DB_POOL_STATE.labels("pool_max_waiting").set(shared.maximum if shared else sum(waiter_limits.values()))
+            budget_state = shared.snapshot() if shared else {"used": 0, "acquiring": 0, "retained": 0}
+            DB_POOL_STATE.labels("shared_acquisition_limit").set(shared.maximum if shared else 0)
+            for name in ("used", "acquiring", "retained"):
+                DB_POOL_STATE.labels(f"shared_acquisition_{name}").set(budget_state[name])
+            for role in ("general", "payment"):
+                DB_POOL_STATE.labels(f"{role}_max_waiting").set(waiter_limits.get(role, 0))
 
     def close(self):
         self.pool.close()
+
+
+
+class SharedAcquisitionBudget:
+    """Bound live checkout attempts and conservatively retained timeout slots."""
+
+    def __init__(self, maximum, limits, pools):
+        self.maximum = maximum
+        self.limits = limits
+        self.pools = pools
+        self._lock = Lock()
+        self._counts = {role: 0 for role in limits}
+        self._retained = {role: 0 for role in limits}
+        self._rejected = {role: 0 for role in limits}
+
+    def _refresh(self):
+        # Timeout positions can remain in the native FIFO. Reuse their slots
+        # only after its queue is empty; never inspect private queue objects.
+        for role, pool in self.pools.items():
+            if self._retained[role] and not pool.get_stats().get("requests_waiting", 0):
+                self._counts[role] -= self._retained[role]
+                self._retained[role] = 0
+
+    def acquire(self, role):
+        with self._lock:
+            self._refresh()
+            if sum(self._counts.values()) >= self.maximum or self._counts[role] >= self.limits[role]:
+                self._rejected[role] += 1
+                raise TooManyRequests("API shared acquisition budget exhausted")
+            self._counts[role] += 1
+
+    def release(self, role, timed_out=False):
+        with self._lock:
+            if timed_out and self.pools[role].get_stats().get("requests_waiting", 0):
+                self._retained[role] += 1
+            else:
+                self._counts[role] -= 1
+            self._refresh()
+
+    def snapshot(self):
+        with self._lock:
+            self._refresh()
+            return {
+                "used": sum(self._counts.values()),
+                "retained": sum(self._retained.values()),
+                "acquiring": sum(self._counts.values()) - sum(self._retained.values()),
+                "counts": dict(self._counts),
+                "rejected": dict(self._rejected),
+            }
+
+
+class AcquisitionLimitedPool:
+    """Apply one shared guard to the public checkout surface of a native pool."""
+
+    def __init__(self, pool, budget, role):
+        self._native = pool
+        self._budget = budget
+        self._role = role
+
+    def __getattr__(self, name):
+        return getattr(self._native, name)
+
+    def getconn(self, timeout=None):
+        started = monotonic()
+        timeout = self._native.timeout if timeout is None else timeout
+        self._budget.acquire(self._role)
+        timed_out = False
+        try:
+            return self._native.getconn(timeout=timeout - (monotonic() - started))
+        except PoolTimeout:
+            timed_out = True
+            raise
+        finally:
+            self._budget.release(self._role, timed_out)
+
+    def putconn(self, conn):
+        try:
+            return self._native.putconn(conn)
+        finally:
+            self._budget.snapshot()
+
+    @contextmanager
+    def connection(self, timeout=None):
+        conn = self.getconn(timeout)
+        try:
+            with conn:
+                yield conn
+        finally:
+            self.putconn(conn)
+
+    def get_stats(self):
+        stats = self._native.get_stats()
+        rejected = self._budget.snapshot()["rejected"][self._role]
+        if rejected:
+            stats["requests_num"] = stats.get("requests_num", 0) + rejected
+            stats["requests_errors"] = stats.get("requests_errors", 0) + rejected
+        return stats
+
+    def close(self, *args, **kwargs):
+        try:
+            return self._native.close(*args, **kwargs)
+        finally:
+            self._budget.snapshot()
+
+
+def api_pool_budgets(maximum: int, maximum_waiting: int | None, payment_maximum: int = 0, shared_waiting: bool = False):
+    """Partition existing API ceilings; no zero (unlimited) enabled queue."""
+    waiting = maximum if maximum_waiting is None else maximum_waiting
+    if maximum < 1 or waiting < 1 or not 0 <= payment_maximum < maximum:
+        raise ValueError("Invalid API pool budget")
+    if shared_waiting and (not payment_maximum or waiting < maximum):
+        raise ValueError("Shared acquisition budget requires a partition and waiter budget at least total connections")
+    if not payment_maximum:
+        return {"general": {"maximum": maximum, "maximum_waiting": waiting}, "payment": None}
+    if waiting < 2:
+        raise ValueError("Payment partition requires at least two total waiter slots")
+    if shared_waiting:
+        return {
+            "general": {"maximum": maximum - payment_maximum, "maximum_waiting": waiting - payment_maximum},
+            "payment": {"maximum": payment_maximum, "maximum_waiting": waiting - (maximum - payment_maximum)},
+        }
+    payment_waiting = max(1, waiting * payment_maximum // maximum)
+    return {
+        "general": {"maximum": maximum - payment_maximum, "maximum_waiting": waiting - payment_waiting},
+        "payment": {"maximum": payment_maximum, "maximum_waiting": payment_waiting},
+    }
+
+
+def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum=0, shared_waiting=False):
+    """Return general/payment adapters, sharing one pool when disabled."""
+    budgets = api_pool_budgets(maximum, maximum_waiting, payment_maximum, shared_waiting)
+    with ExitStack() as resources:
+        general = Postgres(url, wait_ms=wait_ms, **budgets["general"])
+        resources.callback(general.close)
+        payment = general
+        if budgets["payment"] is not None:
+            payment = Postgres(url, wait_ms=wait_ms, **budgets["payment"])
+            resources.callback(payment.close)
+        shared = None
+        if shared_waiting:
+            native = {"general": general.pool, "payment": payment.pool}
+            shared = SharedAcquisitionBudget(
+                maximum if maximum_waiting is None else maximum_waiting,
+                {role: budget["maximum_waiting"] for role, budget in budgets.items()}, native,
+            )
+            general.pool = AcquisitionLimitedPool(general.pool, shared, "general")
+            payment.pool = AcquisitionLimitedPool(payment.pool, shared, "payment")
+        general._shared_acquisition_budget = payment._shared_acquisition_budget = shared
+        roles = {"general": general.pool}
+        if payment is not general:
+            roles["payment"] = payment.pool
+        general._metric_pool_roles = payment._metric_pool_roles = roles
+        limits = {role: budget["maximum_waiting"] for role, budget in budgets.items() if budget is not None}
+        general._metric_waiter_limits = payment._metric_waiter_limits = limits
+        resources.pop_all()
+        return general, payment
