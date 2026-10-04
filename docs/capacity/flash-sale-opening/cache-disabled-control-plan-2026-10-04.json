@@ -1,6 +1,6 @@
 {
   "kind": "approved_cache_disabled_same_load_control_plan",
-  "status": "access_and_baseline_preflight_passed_ready",
+  "status": "completed_all_gates_passed",
   "decision_record": "0126-cache-disabled-same-load-control",
   "authorization": "User Go ahead approved one cache-disabled comparison against the passing1000ms baseline. Independent one-run scope; earlier two-run allowance remains completed.",
   "baseline_report": "docs/capacity/flash-sale-opening/paid-observer-cohort-requalification-2026-10-04.json",
@@ -33,7 +33,7 @@
     "order_status_cache_ms"
   ],
   "run_limit": 1,
-  "runs_started": 0,
+  "runs_started": 1,
   "active_run": null,
   "failed_gate_stops_progression": true,
   "mandatory_gates": [
@@ -77,5 +77,6 @@
     "source_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
     "runtime_hashes_match_passing_baseline": true
   },
-  "temporary_key_explicitly_approved": true
+  "temporary_key_explicitly_approved": true,
+  "result": "docs/capacity/flash-sale-opening/cache-disabled-control-2026-10-04.json"
 }
