@@ -3,7 +3,7 @@ import hashlib
 import hmac
 import logging
 import time
-from contextlib import asynccontextmanager, suppress
+from contextlib import ExitStack, asynccontextmanager, suppress
 from typing import Annotated, Literal
 from uuid import UUID
 
@@ -24,7 +24,7 @@ from ticketing.domain import Failure
 from ticketing.http import RequestInstrumentation
 from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.order_status_cache import RedisOrderStatusCache
-from ticketing.infrastructure.postgres import Postgres
+from ticketing.infrastructure.postgres import create_api_databases
 from ticketing.infrastructure.redis_reservations import RedisReservationIntake
 from ticketing.infrastructure.reservations import PostgresReservations, RedisFirstReservations
 from ticketing.observability import (
@@ -56,32 +56,42 @@ async def observe_event_loop_lag(interval_seconds: float = 0.05):
 async def lifespan(app):
     settings.validate()
     configure_logging()
-    db = Postgres(settings.database_url, settings.pool_max, settings.pool_wait_ms, settings.pool_max_waiting)
-    cache = RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
-    app.state.db, app.state.cache = db, cache
-    durable = PostgresReservations(db, cache, settings.hold_seconds)
-    intake = RedisReservationIntake(
-        cache,
-        hold_seconds=settings.hold_seconds,
-        replica_acks=settings.redis_reservation_replica_acks,
-        wait_ms=settings.redis_reservation_wait_ms,
-        max_backlog=settings.redis_reservation_max_backlog,
-        max_command_age_seconds=settings.redis_reservation_max_command_age_seconds,
+    db, payment_db = create_api_databases(
+        settings.database_url, settings.pool_max, settings.pool_wait_ms,
+        settings.pool_max_waiting, settings.api_payment_pool_max, settings.api_payment_pool_max_waiting,
     )
-    store = RedisFirstReservations(durable, intake) if settings.reservation_mode == "redis-first" else durable
-    app.state.reservation_intake = intake
-    order_cache = (RedisOrderStatusCache(cache.redis, settings.order_status_cache_ms)
-                   if settings.order_status_cache_ms else None)
-    app.state.reservations = Reservations(store, order_cache)
-    loop_observer = asyncio.create_task(observe_event_loop_lag())
-    try:
-        yield
-    finally:
-        loop_observer.cancel()
-        with suppress(asyncio.CancelledError):
-            await loop_observer
-        db.close()
-        cache.redis.close()
+    with ExitStack() as resources:
+        resources.callback(db.close)
+        if payment_db is not db:
+            resources.callback(payment_db.close)
+        cache = RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
+        resources.callback(cache.redis.close)
+        app.state.db, app.state.payment_db, app.state.cache = db, payment_db, cache
+        durable = PostgresReservations(db, cache, settings.hold_seconds)
+        intake = RedisReservationIntake(
+            cache,
+            hold_seconds=settings.hold_seconds,
+            replica_acks=settings.redis_reservation_replica_acks,
+            wait_ms=settings.redis_reservation_wait_ms,
+            max_backlog=settings.redis_reservation_max_backlog,
+            max_command_age_seconds=settings.redis_reservation_max_command_age_seconds,
+        )
+        store = RedisFirstReservations(durable, intake) if settings.reservation_mode == "redis-first" else durable
+        app.state.reservation_intake = intake
+        order_cache = (RedisOrderStatusCache(cache.redis, settings.order_status_cache_ms)
+                       if settings.order_status_cache_ms else None)
+        app.state.reservations = Reservations(store, order_cache)
+        app.state.payment_reservations = (
+            app.state.reservations if payment_db is db
+            else Reservations(PostgresReservations(payment_db, cache, settings.hold_seconds))
+        )
+        loop_observer = asyncio.create_task(observe_event_loop_lag())
+        try:
+            yield
+        finally:
+            loop_observer.cancel()
+            with suppress(asyncio.CancelledError):
+                await loop_observer
 
 
 app = FastAPI(
@@ -107,6 +117,9 @@ ERRORS = {code: {"model": Error} for code in (401, 403, 404, 409, 422, 429, 503)
 
 
 async def service(request: Request):
+    route_name = getattr(request.scope.get("route"), "name", None)
+    if request.method == "POST" and route_name in {"payment", "callback"}:
+        return request.app.state.payment_reservations
     return request.app.state.reservations
 
 
@@ -208,8 +221,13 @@ def live():
 
 @app.get("/health/ready", tags=["Operations"], responses=ERRORS)
 def ready(request: Request):
-    with request.app.state.db.transaction() as conn:
-        conn.execute("SELECT 1")
+    databases = [request.app.state.db]
+    payment_db = getattr(request.app.state, "payment_db", request.app.state.db)
+    if payment_db is not request.app.state.db:
+        databases.append(payment_db)
+    for database in databases:
+        with database.transaction() as conn:
+            conn.execute("SELECT 1")
     try:
         request.app.state.cache.redis.ping()
     except Exception as exc:

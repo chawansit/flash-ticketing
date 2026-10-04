@@ -1,0 +1,443 @@
+"""Controlled pool exhaustion is separate from cloud capacity qualification."""
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
+from threading import Barrier, Event
+from uuid import uuid4
+
+import pytest
+from conftest import NoShield
+from psycopg_pool import PoolTimeout
+
+from ticketing.application.reservations import Reservations
+from ticketing.infrastructure.postgres import Postgres
+from ticketing.infrastructure.reservations import PostgresReservations
+
+pytestmark = pytest.mark.integration
+
+
+def make_payment(svc, show):
+    hold = svc.reserve("owner", show, ["A"], str(uuid4()))
+    payment = svc.initiate_payment("owner", hold["order_id"], str(uuid4()), "SUCCEEDED", 0, 1)
+    payload = {"callback_id": str(uuid4()), "payment_id": payment["payment_id"],
+               "order_id": hold["order_id"], "amount": 100, "currency": "THB", "outcome": "SUCCEEDED"}
+    return hold, payload
+
+
+class PausedReads:
+    def __init__(self, db, count):
+        self.db = db
+        self.arrived = Barrier(count + 1)
+        self.release = Event()
+
+    @contextmanager
+    def transaction(self):
+        with self.db.transaction() as conn:
+            owner = self
+
+            class Connection:
+                def execute(self, query, params=None):
+                    cursor = conn.execute(query, params)
+                    if "FROM orders" in query:
+                        owner.arrived.wait(timeout=2)
+                        assert owner.release.wait(timeout=2), "Read boundary was not released"
+                    return cursor
+
+            yield Connection()
+
+
+def test_shared_pool_reads_can_exhaust_payment_capacity(system):
+    svc, db, show = system
+    hold, payload = make_payment(svc, show)
+    small = Postgres(db.pool.conninfo, maximum=4, wait_ms=50, maximum_waiting=4)
+    small.pool.resize(4, 4)
+    small.pool.wait(timeout=10)
+    reads = PausedReads(small, 4)
+    reader = Reservations(PostgresReservations(reads, NoShield(), 120))
+    financial = Reservations(PostgresReservations(small, NoShield(), 120))
+    try:
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            futures = [executor.submit(reader.get_order, "owner", hold["order_id"]) for _ in range(4)]
+            try:
+                reads.arrived.wait(timeout=2)
+                assert small.pool.get_stats()["pool_available"] == 0
+                with pytest.raises(PoolTimeout):
+                    financial.initiate_payment("owner", hold["order_id"], str(uuid4()), "SUCCEEDED", 0, 1)
+                with pytest.raises(PoolTimeout):
+                    financial.callback(payload)
+            finally:
+                reads.release.set()
+            assert all(f.result(timeout=2)["status"] == "PENDING" for f in futures)
+        assert financial.callback(payload)["status"] == "book"
+        assert financial.callback(payload)["status"] == "duplicate"
+        with db.transaction() as conn:
+            assert conn.execute("SELECT count(*) AS n FROM bookings").fetchone()["n"] == 1
+            assert conn.execute("SELECT count(*) AS n FROM payment_callbacks").fetchone()["n"] == 1
+        assert small.pool.get_stats()["pool_available"] == 4
+    finally:
+        small.close()
+
+@pytest.mark.parametrize('payment_maximum,payment_waiters',[(1,0),(2,0),(2,11)])
+def test_general_read_saturation_leaves_payment_initiation_and_callback_usable(system,payment_maximum,payment_waiters):
+    from ticketing.infrastructure.postgres import create_api_databases
+    from ticketing.workers import consume_event
+
+    svc, db, show = system
+    hold, payload = make_payment(svc, show)
+    general, payment = create_api_databases(db.pool.conninfo,4,50,12,payment_maximum,payment_waiters)
+    general_maximum=4-payment_maximum
+    general.pool.resize(general_maximum,general_maximum)
+    general.pool.wait(timeout=10)
+    payment.pool.resize(payment_maximum,payment_maximum)
+    payment.pool.wait(timeout=10)
+    reads = PausedReads(general,general_maximum)
+    reader = Reservations(PostgresReservations(reads,NoShield(),120))
+    financial = Reservations(PostgresReservations(payment,NoShield(),120))
+    try:
+        with ThreadPoolExecutor(max_workers=general_maximum) as executor:
+            futures = [executor.submit(reader.get_order,"owner",hold["order_id"]) for _ in range(general_maximum)]
+            try:
+                reads.arrived.wait(timeout=2)
+                assert general.pool.get_stats()["pool_available"] == 0
+                attempt = financial.initiate_payment("owner",hold["order_id"],str(uuid4()),"SUCCEEDED",0,1)
+                assert attempt["payment_id"] == payload["payment_id"]
+                assert financial.callback(payload)["status"] == "book"
+                assert financial.callback(payload)["status"] == "duplicate"
+                assert general.pool.get_stats()["pool_available"] == 0
+            finally:
+                reads.release.set()
+            assert all(f.result(timeout=2)["status"] == "PENDING" for f in futures)
+        envelope = {"event_id":str(uuid4()),"schema_version":1,"event_type":"OrderPaid",
+                    "payload":{"order_id":hold["order_id"]}}
+        consume_event(db,None,envelope)
+        consume_event(db,None,envelope)
+        assert svc.get_order("owner",hold["order_id"])["status"] == "FULFILLED"
+        with db.transaction() as conn:
+            for table in ("bookings","tickets","payment_attempts","payment_callbacks"):
+                assert conn.execute(f"SELECT count(*) AS n FROM {table}").fetchone()["n"] == 1
+        assert general.pool.max_size + payment.pool.max_size == 4
+        assert general.pool.get_stats()["pool_available"] == general_maximum
+        assert payment.pool.get_stats()["pool_available"] == payment_maximum
+    finally:
+        payment.close()
+        general.close()
+
+
+def test_payment_saturation_has_bounded_waiters_visible_errors_and_no_borrowing(system):
+    import time
+
+    from psycopg_pool import TooManyRequests
+
+    from ticketing.infrastructure.postgres import create_api_databases
+
+    svc,db,show = system
+    hold,payload = make_payment(svc,show)
+    general,payment = create_api_databases(db.pool.conninfo,4,150,4,1)
+    financial = Reservations(PostgresReservations(payment,NoShield(),120))
+    normal = Reservations(PostgresReservations(general,NoShield(),120))
+    general.pool.wait(timeout=10)
+    payment.pool.wait(timeout=10)
+    try:
+        with payment.transaction(), ThreadPoolExecutor(max_workers=1) as executor:
+            queued = executor.submit(financial.callback,payload)
+            deadline = time.monotonic()+1
+            while payment.pool.get_stats()["requests_waiting"] != 1:
+                assert time.monotonic()<deadline
+                time.sleep(.001)
+            with pytest.raises(TooManyRequests):
+                financial.callback(payload)
+            assert normal.get_order("owner",hold["order_id"])["status"] == "PENDING"
+            # The only financial waiter times out visibly; it must not borrow
+            # an available general connection or silently retry.
+            with pytest.raises(PoolTimeout):
+                queued.result(timeout=1)
+        assert financial.callback(payload)["status"] == "book"
+        assert financial.callback(payload)["status"] == "duplicate"
+        with db.transaction() as conn:
+            assert conn.execute("SELECT count(*) AS n FROM bookings").fetchone()["n"] == 1
+            assert conn.execute("SELECT count(*) AS n FROM payment_callbacks").fetchone()["n"] == 1
+    finally:
+        payment.close()
+        general.close()
+
+@pytest.mark.parametrize('payment_maximum,payment_waiters',[(1,0),(2,0),(2,11)])
+def test_real_api_routes_complete_payment_while_general_reads_hold_every_general_connection(system, monkeypatch,payment_maximum,payment_waiters):
+    import hashlib
+    import hmac
+    import json
+    import os
+    import time
+    from dataclasses import replace
+
+    import jwt
+    from fastapi.testclient import TestClient
+
+    from ticketing import api
+
+    svc,db,show = system
+    hold,payload = make_payment(svc,show)
+    monkeypatch.setattr(api,"settings",replace(
+        api.settings,database_url=db.pool.conninfo,redis_url=os.environ["TEST_REDIS_URL"],
+        pool_max=4,pool_max_waiting=12,api_payment_pool_max=payment_maximum,
+        api_payment_pool_max_waiting=payment_waiters,simulator_concurrency=1,
+        reservation_mode="postgres",order_status_cache_ms=0,
+    ))
+    names=("db","payment_db","cache","reservations","payment_reservations","reservation_intake")
+    previous={n:getattr(api.app.state,n) for n in names if hasattr(api.app.state,n)}
+    token=jwt.encode({"sub":"owner","exp":int(time.time())+60,"aud":"ticketing","iss":"ticketing"},
+                    api.settings.jwt_secret,algorithm="HS256")
+    authorization={"Authorization":"Bearer "+token}
+    try:
+        with TestClient(api.app) as client:
+            general=api.app.state.db
+            financial=api.app.state.payment_db
+            assert general is not financial
+            general_maximum=4-payment_maximum
+            general.pool.resize(general_maximum,general_maximum)
+            general.pool.wait(timeout=10)
+            financial.pool.wait(timeout=10)
+            reads=PausedReads(general,general_maximum)
+            api.app.state.reservations.store.db=reads
+            with ThreadPoolExecutor(max_workers=general_maximum) as executor:
+                futures=[executor.submit(client.get,"/v1/orders/"+hold["order_id"],headers=authorization)
+                         for _ in range(general_maximum)]
+                try:
+                    reads.arrived.wait(timeout=2)
+                    assert general.pool.get_stats()["pool_available"]==0
+                    response=client.post(
+                        "/v1/orders/"+hold["order_id"]+"/payments",json={"outcome":"SUCCEEDED"},
+                        headers={**authorization,"Idempotency-Key":str(uuid4())},
+                    )
+                    assert response.status_code==202
+                    assert response.json()["payment_id"]==payload["payment_id"]
+                    raw=json.dumps(payload).encode()
+                    timestamp=str(int(time.time()))
+                    signature=hmac.new(api.settings.webhook_secret.encode(),
+                                       timestamp.encode()+b"."+raw,hashlib.sha256).hexdigest()
+                    headers={"X-Payment-Timestamp":timestamp,"X-Payment-Signature":signature,
+                             "Content-Type":"application/json"}
+                    response=client.post("/v1/webhooks/payments",content=raw,headers=headers)
+                    assert response.status_code==200 and response.json()["status"]=="book"
+                    assert general.pool.get_stats()["pool_available"]==0
+                finally:
+                    reads.release.set()
+                assert all(f.result(timeout=2).status_code==200 for f in futures)
+            api.app.state.reservations.store.db=general
+            response=client.get("/metrics")
+            for marker in ['state="pool_max"} 4.0',f'state="general_pool_max"}} {general_maximum}.0',
+                           f'state="payment_pool_max"}} {payment_maximum}.0','state="pool_max_waiting"} 12.0',
+                           f'state="general_max_waiting"}} {12-payment_waiters if payment_waiters else 3*general_maximum}.0',f'state="payment_max_waiting"}} {payment_waiters or 3*payment_maximum}.0']:
+                assert marker in response.text
+            assert client.post("/v1/webhooks/payments",content=raw,headers=headers).json()["status"]=="duplicate"
+            other=jwt.encode({"sub":"other","exp":int(time.time())+60,"aud":"ticketing","iss":"ticketing"},
+                             api.settings.jwt_secret,algorithm="HS256")
+            assert client.get("/v1/orders/"+hold["order_id"],headers={"Authorization":"Bearer "+other}).status_code==404
+        assert general.pool.closed and financial.pool.closed
+        with db.transaction() as conn:
+            assert conn.execute("SELECT count(*) AS n FROM bookings").fetchone()["n"]==1
+            assert conn.execute("SELECT count(*) AS n FROM payment_callbacks").fetchone()["n"]==1
+    finally:
+        for name in names:
+            if name in previous:
+                setattr(api.app.state,name,previous[name])
+            elif hasattr(api.app.state,name):
+                delattr(api.app.state,name)
+
+
+@pytest.mark.parametrize("payment_waiters",[0,11])
+def test_two_critical_transactions_run_together_while_both_general_connections_are_occupied(system,payment_waiters):
+    from ticketing.infrastructure.postgres import create_api_databases
+    from ticketing.workers import consume_event
+
+    svc,db,show=system
+    hold_a,payload_a=make_payment(svc,show)
+    hold_b=svc.reserve("owner",show,["B"],str(uuid4()))
+    general,payment=create_api_databases(db.pool.conninfo,4,50,12,2,payment_waiters)
+    for pool in (general.pool,payment.pool):
+        pool.resize(2,2)
+        pool.wait(timeout=10)
+    reads=PausedReads(general,2)
+    reader=Reservations(PostgresReservations(reads,NoShield(),120))
+    arrived=Barrier(3)
+    release=Event()
+
+    class PausedCritical:
+        @contextmanager
+        def transaction(self):
+            with payment.transaction() as conn:
+                arrived.wait(timeout=2)
+                assert release.wait(timeout=2), "Critical boundary was not released"
+                yield conn
+
+    critical=Reservations(PostgresReservations(PausedCritical(),NoShield(),120))
+    financial=Reservations(PostgresReservations(payment,NoShield(),120))
+    try:
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            reading=[executor.submit(reader.get_order,"owner",hold_a["order_id"]) for _ in range(2)]
+            try:
+                reads.arrived.wait(timeout=2)
+                booking=executor.submit(critical.callback,payload_a)
+                initiation=executor.submit(critical.initiate_payment,"owner",hold_b["order_id"],
+                                           str(uuid4()),"SUCCEEDED",0,1)
+                try:
+                    arrived.wait(timeout=2)
+                    assert general.pool.get_stats()["pool_available"]==0
+                    assert payment.pool.get_stats()["pool_available"]==0
+                finally:
+                    release.set()
+                assert booking.result(timeout=2)["status"]=="book"
+                attempt_b=initiation.result(timeout=2)
+                assert attempt_b["payment_id"]!=payload_a["payment_id"]
+                assert general.pool.get_stats()["pool_available"]==0
+                payload_b={**payload_a,"callback_id":str(uuid4()),"payment_id":attempt_b["payment_id"],
+                           "order_id":hold_b["order_id"]}
+                assert financial.callback(payload_b)["status"]=="book"
+                assert financial.callback(payload_a)["status"]=="duplicate"
+                assert financial.callback(payload_b)["status"]=="duplicate"
+            finally:
+                release.set()
+                reads.release.set()
+            assert all(f.result(timeout=2)["status"]=="PENDING" for f in reading)
+        for hold in (hold_a,hold_b):
+            envelope={"event_id":str(uuid4()),"schema_version":1,"event_type":"OrderPaid",
+                      "payload":{"order_id":hold["order_id"]}}
+            consume_event(db,None,envelope)
+            consume_event(db,None,envelope)
+            assert svc.get_order("owner",hold["order_id"])["status"]=="FULFILLED"
+        with db.transaction() as conn:
+            for table in ("payment_attempts","payment_callbacks","bookings","tickets"):
+                assert conn.execute(f"SELECT count(*) AS n FROM {table}").fetchone()["n"]==2
+            assert conn.execute(
+                "SELECT count(*) AS n FROM (SELECT event_id,seat_id FROM bookings "
+                "GROUP BY event_id,seat_id HAVING count(*)>1) duplicates"
+            ).fetchone()["n"]==0
+        assert general.pool.get_stats()["pool_available"]==2
+        assert payment.pool.get_stats()["pool_available"]==2
+    finally:
+        payment.close()
+        general.close()
+
+
+@pytest.mark.parametrize("payment_waiters",[6,11])
+def test_two_payment_connections_and_bounded_waiters_do_not_borrow(system,payment_waiters):
+    import time
+    from contextlib import ExitStack
+
+    from psycopg_pool import TooManyRequests
+    from ticketing.infrastructure.postgres import create_api_databases
+
+    svc,db,show=system
+    hold,payload=make_payment(svc,show)
+    general,payment=create_api_databases(db.pool.conninfo,4,500,12,2,payment_waiters)
+    for pool in (general.pool,payment.pool):
+        pool.resize(2,2)
+        pool.wait(timeout=10)
+    financial=Reservations(PostgresReservations(payment,NoShield(),120))
+    normal=Reservations(PostgresReservations(general,NoShield(),120))
+    try:
+        with ExitStack() as held, ThreadPoolExecutor(max_workers=payment_waiters) as executor:
+            held.enter_context(payment.transaction())
+            held.enter_context(payment.transaction())
+            queued=[executor.submit(financial.callback,payload) for _ in range(payment_waiters)]
+            deadline=time.monotonic()+.3
+            while payment.pool.get_stats()["requests_waiting"]!=payment_waiters:
+                assert time.monotonic()<deadline, "Financial waiters did not enter the bounded queue"
+                time.sleep(.001)
+            assert general.pool.get_stats()["requests_waiting"]==0
+            with pytest.raises(TooManyRequests):
+                financial.callback(payload)
+            assert normal.get_order("owner",hold["order_id"])["status"]=="PENDING"
+            assert general.pool.get_stats()["pool_available"]==2
+            for future in queued:
+                with pytest.raises(PoolTimeout):
+                    future.result(timeout=1)
+        with db.transaction() as conn:
+            assert conn.execute("SELECT count(*) AS n FROM payment_callbacks").fetchone()["n"]==0
+            assert conn.execute("SELECT count(*) AS n FROM bookings").fetchone()["n"]==0
+        assert financial.callback(payload)["status"]=="book"
+        assert financial.callback(payload)["status"]=="duplicate"
+        with db.transaction() as conn:
+            assert conn.execute("SELECT count(*) AS n FROM bookings").fetchone()["n"]==1
+            assert conn.execute("SELECT count(*) AS n FROM payment_callbacks").fetchone()["n"]==1
+        assert payment.pool.get_stats()["pool_available"]==2
+    finally:
+        payment.close()
+        general.close()
+
+def test_single_general_waiter_overflow_stays_visible_while_payment_progresses(system):
+    import time
+    from contextlib import ExitStack
+    from psycopg_pool import TooManyRequests
+    from ticketing.infrastructure.postgres import create_api_databases
+
+    svc,db,show=system
+    hold,payload=make_payment(svc,show)
+    general,payment=create_api_databases(db.pool.conninfo,4,500,12,2,11)
+    for pool in (general.pool,payment.pool):
+        pool.resize(2,2)
+        pool.wait(timeout=10)
+    normal=Reservations(PostgresReservations(general,NoShield(),120))
+    financial=Reservations(PostgresReservations(payment,NoShield(),120))
+    try:
+        with ExitStack() as held,ThreadPoolExecutor(max_workers=1) as executor:
+            held.enter_context(general.transaction())
+            held.enter_context(general.transaction())
+            waiter=executor.submit(normal.get_order,"owner",hold["order_id"])
+            deadline=time.monotonic()+.3
+            while general.pool.get_stats()["requests_waiting"]!=1:
+                assert time.monotonic()<deadline
+                time.sleep(.001)
+            with pytest.raises(TooManyRequests):
+                normal.get_order("owner",hold["order_id"])
+            assert financial.callback(payload)["status"]=="book"
+            with pytest.raises(PoolTimeout):
+                waiter.result(timeout=1)
+        assert normal.get_order("owner",hold["order_id"])["status"]=="PAID"
+        assert financial.callback(payload)["status"]=="duplicate"
+        assert general.pool.get_stats()["pool_available"]==2
+        assert payment.pool.get_stats()["pool_available"]==2
+    finally:
+        payment.close()
+        general.close()
+
+
+def test_eleven_financial_waiters_make_fifo_progress_without_starvation(system):
+    import time
+    from contextlib import ExitStack
+    from threading import Lock
+    from ticketing.infrastructure.postgres import create_api_databases
+
+    _,db,_=system
+    general,payment=create_api_databases(db.pool.conninfo,4,1000,12,2,11)
+    for pool in (general.pool,payment.pool):
+        pool.resize(2,2)
+        pool.wait(timeout=10)
+    order=[]
+    recorded=Lock()
+    def waiting(index):
+        with payment.transaction() as conn:
+            with recorded:
+                order.append(index)
+            conn.execute("SELECT 1")
+    try:
+        with ExitStack() as held, ExitStack() as primary, ThreadPoolExecutor(max_workers=11) as executor:
+            primary.enter_context(payment.transaction())
+            held.enter_context(payment.transaction())
+            futures=[]
+            deadline=time.monotonic()+.7
+            for index in range(11):
+                futures.append(executor.submit(waiting,index))
+                while payment.pool.get_stats()["requests_waiting"]!=index+1:
+                    assert time.monotonic()<deadline
+                    time.sleep(.001)
+            # Keep one financial connection held so the queue drains serially.
+            # Queue order, rather than thread scheduling after simultaneous release,
+            # is the fairness boundary exercised by this control.
+            primary.close()
+            for future in futures:
+                future.result(timeout=2)
+        assert order==list(range(11))
+        assert len(order)==11
+        assert payment.pool.get_stats()["requests_waiting"]==0
+    finally:
+        payment.close()
+        general.close()

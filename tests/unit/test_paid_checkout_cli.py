@@ -14,7 +14,7 @@ class ReachedTransport(RuntimeError):
 @pytest.mark.parametrize("cache_ms", [0, 1000, 3000])
 @pytest.mark.parametrize("shards", [1, 2])
 @pytest.mark.parametrize("delivery_slots", [8, 12])
-def test_paid_diagnostics_accept_supported_layout_before_transport(monkeypatch, tmp_path, shards, delivery_slots, cache_ms):
+def test_paid_diagnostics_accept_supported_layout_before_transport(monkeypatch, tmp_path, shards, delivery_slots, cache_ms, payment_pool=0):
     scripts = Path(__file__).resolve().parents[2] / "scripts"
     monkeypatch.syspath_prepend(str(scripts))
     import unattended_capacity_stage
@@ -36,7 +36,10 @@ def test_paid_diagnostics_accept_supported_layout_before_transport(monkeypatch, 
         "--paid-http-client-count", str(16 // shards), "--shows", "60", "--viewers", "18000",
         "--paid-lifecycle-diagnostics", "--simulator-concurrency-candidate", str(delivery_slots),
         "--simulator-dispatch-mode-candidate", "refill",
-        "--order-status-cache-ms-candidate", str(cache_ms)])
+        "--order-status-cache-ms-candidate", str(cache_ms),
+        "--api-payment-pool-max-candidate", str(payment_pool),
+        "--api-payment-pool-waiters-candidate", "11" if payment_pool else "0",
+        "--api-pool-per-instance-candidate", "4", "--api-pool-waiters-candidate", "12"])
     with pytest.raises(ReachedTransport):
         runpy.run_path(str(copied), run_name="__main__")
 
@@ -71,3 +74,44 @@ def test_unapproved_cache_age_rejected_before_transport(monkeypatch, cache_ms):
     with pytest.raises(SystemExit) as rejected:
         runpy.run_path(str(scripts / "run_huawei_checkout_smoke.py"), run_name="__main__")
     assert rejected.value.code == 2
+
+
+def test_payment_partition_candidate_reaches_existing_bounded_transport(monkeypatch, tmp_path):
+    test_paid_diagnostics_accept_supported_layout_before_transport(monkeypatch,tmp_path,2,8,0,payment_pool=2)
+
+
+@pytest.mark.parametrize('allocation',[1,3,-1])
+def test_unqualified_payment_allocation_rejected_before_transport(monkeypatch,allocation):
+    scripts=Path(__file__).resolve().parents[2]/'scripts'
+    monkeypatch.syspath_prepend(str(scripts))
+    import unattended_capacity_stage
+    def forbidden_transport(*args,**kwargs):
+        pytest.fail('Rejected allocation reached cloud transport')
+    monkeypatch.setattr(unattended_capacity_stage,'Transport',forbidden_transport)
+    monkeypatch.setattr(sys,'argv',['checkout','--backend-host','root@example.invalid',
+        '--generator-host','root@generator.invalid','--backend-dir','/isolated/backend',
+        '--generator-dir','/isolated/generator','--origin','http://192.0.2.1:8000',
+        '--identity-file','/absent-key','--admission-candidate','4','--admission-rollback','4',
+        '--api-payment-pool-max-candidate',str(allocation)])
+    with pytest.raises(SystemExit) as rejected:
+        runpy.run_path(str(scripts/'run_huawei_checkout_smoke.py'),run_name='__main__')
+    assert rejected.value.code==2
+
+@pytest.mark.parametrize("payment,waiters,total,general_waiters",[
+    (0,11,4,12),(2,0,4,12),(2,11,3,12),(2,11,4,3),(2,6,4,12),(2,12,4,12)
+])
+def test_invalid_payment_waiter_candidate_rejected_before_transport(monkeypatch,payment,waiters,total,general_waiters):
+    scripts=Path(__file__).resolve().parents[2]/"scripts"
+    monkeypatch.syspath_prepend(str(scripts))
+    import unattended_capacity_stage
+    monkeypatch.setattr(unattended_capacity_stage,"Transport",
+                        lambda *a,**k:pytest.fail("Rejected waiter allocation reached cloud transport"))
+    monkeypatch.setattr(sys,"argv",["checkout","--backend-host","root@example.invalid",
+        "--generator-host","root@generator.invalid","--backend-dir","/isolated/backend",
+        "--generator-dir","/isolated/generator","--origin","http://192.0.2.1:8000",
+        "--identity-file","/absent-key","--admission-candidate","4","--admission-rollback","4",
+        "--api-payment-pool-max-candidate",str(payment),"--api-payment-pool-waiters-candidate",str(waiters),
+        "--api-pool-per-instance-candidate",str(total),"--api-pool-waiters-candidate",str(general_waiters)])
+    with pytest.raises(SystemExit) as rejected:
+        runpy.run_path(str(scripts/"run_huawei_checkout_smoke.py"),run_name="__main__")
+    assert rejected.value.code==2

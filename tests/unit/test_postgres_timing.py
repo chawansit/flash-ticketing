@@ -59,23 +59,38 @@ def metric_sum(metric, *labels):
     return child._sum.get()
 
 
-def test_pool_acquire_excludes_checked_out_lifecycle():
+def test_pool_acquire_excludes_checked_out_lifecycle(monkeypatch):
     db = Postgres.__new__(Postgres)
     db.pool = FakePool()
+    # Measure logical boundaries, independent of OS scheduling pauses.
+    clock = [0.0]
+    monkeypatch.setattr(postgres_module, "monotonic", lambda: clock[0])
+    original_get = db.pool.getconn
+
+    def getconn():
+        clock[0] += 0.001
+        return original_get()
+
+    def putconn(connection):
+        assert connection is db.pool.connection
+        clock[0] += 0.002
+
+    monkeypatch.setattr(db.pool, "getconn", getconn)
+    monkeypatch.setattr(db.pool, "putconn", putconn)
     acquire_before = metric_sum(DB_POOL_SECONDS, "ok")
     hold_before = metric_sum(DB_CONNECTION_HOLD_SECONDS)
     return_before = metric_sum(DB_POOL_RETURN_SECONDS)
     in_use_before = DB_POOL_IN_USE._value.get()
 
     with db.connection():
-        time.sleep(0.02)
+        clock[0] += 0.020
 
     acquire_delta = metric_sum(DB_POOL_SECONDS, "ok") - acquire_before
     hold_delta = metric_sum(DB_CONNECTION_HOLD_SECONDS) - hold_before
     return_delta = metric_sum(DB_POOL_RETURN_SECONDS) - return_before
-    assert acquire_delta < 0.01
-    assert hold_delta >= 0.02
-    assert return_delta >= 0.002
+    assert acquire_delta == pytest.approx(0.001)
+    assert hold_delta == pytest.approx(0.022)
+    assert return_delta == pytest.approx(0.002)
     assert hold_delta > acquire_delta
     assert DB_POOL_IN_USE._value.get() == in_use_before
 

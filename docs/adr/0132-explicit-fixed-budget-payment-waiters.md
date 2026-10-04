@@ -41,3 +41,5 @@ At decision time only the saved-evidence reanalysis and executed one-case local 
 - [Overflow diagnosis and reproduction](../capacity/flash-sale-opening/payment-pool-queue-overflow-diagnosis-2026-10-04.json)
 - [Passing ADR0129 comparison](../capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json)
 - [Superseded candidate](0131-two-slot-api-payment-pool-allocation.md)
+
+Executed local candidate validation:636 unit/integration cases passed93.54s, no skips, two dependency deprecations. Both overflow controls, eleven-waiter FIFO progress, signed route isolation, concurrent financial transactions and exact replay/zero-double-booking passed. Budget/settings/lifecycle/metrics and before-transport checks passed. Linux shell/inlinePython/Compose checks passed; owned services removed. Financial/worker code and Postgres constructor/transaction/connection/cursor/close AST match passing ADR0129. [Local validation](../capacity/flash-sale-opening/payment-pool-waiter-allocation-local-validation-2026-10-04.json). No cloud access/load this turn.
