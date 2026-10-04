@@ -2,8 +2,8 @@
   "updated_date_bangkok": "2026-10-04",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "security_note": "ADR0129 restrictedtemporaryrootkeyentries removedonbothhosts andlocalkeyfilesdeleted;nocredentials saved.",
-  "status": "adr0130_partition_locally_validated_cloud_pending",
+  "security_note": "Previous ADR0129 temporary keys removed. Fresh ADR0130 local ignored key prepared; not installed. No passwords saved.",
+  "status": "adr0130_prepared_comparison_awaiting_scoped_approval",
   "cloud_load_requires_resume": true,
   "handoff_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
   "revision_note": "ADR0129 testedcandidatef3f511d; cloudcheckouts/runtime retaincandidate andnineothermodules matchADR0128baseline. Servicebudgets/cache0 restored;resultcommitsmayfollow.",
@@ -29,11 +29,12 @@
   ],
   "unresolved": "ADR0130process-local protectionvalidated;paymentallocation1/general3 mayconstrainnormaltraffic andrequiresunchangedloadcomparison. No PgBouncer/RDSserverreservation,onehotconcert/provider orhourlycapacityproof.",
   "next_on_resume": [
-    "Prepareexactone60/300/cache0 controlagainstADR0129withfixedAPI4connections/12waitersandpaymentpartition1,allfinancial/queue/source/budget/restorationgates.",
-    "Get concretecomparison/freshrestrictedtemporaryrootaccess approval beforeclouddeployment."
+    "Approve concrete ADR0130 deployment and one unchanged 60 buyers/s, 300s, cache0 comparison, including fresh restrict/45-minute temporary root SSH key installation and removal on both ECS hosts.",
+    "After approval execute the prepared one-run lifecycle; retain all 20 gates and access cleanup. Failed gates stop and restore baseline; no higher load or main merge."
   ],
   "validation_this_resume": "ADR0130:604unit/integration casespassed82.98s,noskips/twodependencywarnings;33newcases includingrealHTTPpaymentunderreadexhaustion,boundedcriticalqueue/replay/authorization/lifecycle/metrics. Two testfixture/collection failures retainedandcorrected. Compose/shell/Pythonprobespassed;ownedcontainersremoved. No cloudaccess/load.",
   "evidence": [
+    "docs/capacity/flash-sale-opening/payment-pool-partition-control-plan-2026-10-04.json",
     "docs/capacity/flash-sale-opening/payment-pool-partition-local-validation-2026-10-04.json",
     "docs/adr/0130-fixed-budget-api-payment-pool-partition.md",
     "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
@@ -64,7 +65,7 @@
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
   "authorization": "User Continue approved ADR0129callbackinvestigation/implementation/checks andoneunchanged60/300 comparison. User explicitly Approved theexactfreshrestricted45minute rootkeyinstallation/removal onbothECSaccounts. Onecomparison andaudits/accesscleanupcompleted;noadditionalrun,higherload,push/mainmerge authorized.",
-  "scope": "User Continue authorizesstep4implementation/localvalidation. Opt-inpartition locallyvalidated;cloudbaselinef3f511d unchanged. Preparingoneunchanged60/300 comparisonandrequiredfreshrootaccess forapproval;nohigherload,push/mainmerge.",
+  "scope": "Step4 opt-in implementation and 604-case local validation complete; comparison package prepared. Fresh root-access/deployment/one-run approval pending; cloud remains ADR0129 baseline. No higher load, push or main merge.",
   "roadmap": [
     {
       "step": 1,
@@ -118,12 +119,12 @@
     }
   ],
   "publication": {
-    "status": "adr0129_result_saved_locally_not_pushed",
+    "status": "adr0130_implementation_and_comparison_plan_saved_locally_not_pushed",
     "destination": "github.com/chawansit/flash-ticketing.git",
     "branch": "codex/redis-failover-recovery",
     "evidence_revision": "6a1385bbeb13bc50bbd8aae5378dfd7037fde747",
     "authorization": "Currentapprovalcoverslocalcommits andoneexactcloudcomparison/accesscleanup. Priorovernightpushauthorizationexpired;no newGitHubpush/mainmerge.",
-    "next_action": "No furthercloudrun,push/higherload/mainmerge withincompletedone-run scope."
+    "next_action": "Keep local checkpoint; cloud experiment awaits concrete approval. No GitHub push or main merge authorized."
   },
   "overnight": {
     "expires_bangkok": "2026-10-04T08:00:00+07:00",
@@ -156,34 +157,32 @@
     "locally_validated": true,
     "cloud_deployed": false,
     "baseline_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
-    "cloud_qualification": "NOT_RUN"
+    "cloud_qualification": "NOT_RUN",
+    "implementation_revision": "f421a7637fc35d72b51ba8fec1d786f0042e3a32"
   },
   "bounded_control": {
-    "decision": "0129-payment-derived-order-lock-query",
+    "decision": "0130-fixed-budget-api-payment-pool-partition",
     "limit": 1,
-    "started": 1,
+    "started": 0,
     "active_run": null,
     "access_ready": false,
-    "plan": "docs/capacity/flash-sale-opening/callback-order-lock-control-plan-2026-10-04.json",
-    "baseline_report": "docs/capacity/flash-sale-opening/order-read-single-statement-control-2026-10-04.json",
-    "specific_cloud_access_approval_pending": false,
+    "specific_cloud_access_approval_pending": true,
     "temporary_key_installed": false,
+    "candidate_revision": "f421a7637fc35d72b51ba8fec1d786f0042e3a32",
+    "plan": "docs/capacity/flash-sale-opening/payment-pool-partition-control-plan-2026-10-04.json",
+    "baseline_report": "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
+    "private_lifecycle_entrypoint": "tmp/run_adr0130_comparison.py",
     "local_validation": {
-      "passed": 571,
-      "seconds": 87.28,
-      "baseline_expected_failures": 1,
-      "new_regressions": 13,
-      "local_primary_key_plan_pass": true,
+      "passed": 604,
+      "seconds": 82.98,
+      "new_cases": 33,
+      "controlled_read_starvation_reproduced": true,
+      "real_api_payment_under_general_pool_saturation_pass": true,
       "owned_test_containers_removed": true
     },
-    "private_lifecycle_entrypoint": "tmp/run_adr0129_comparison.py",
-    "candidate_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
-    "cloud_access_approved_by": "User explicitly Approved the concrete freshrestricted45minute root-key installation/removal onbothECSaccounts andoneunchanged60/300 comparison.",
-    "last_run_gates_pass": true,
-    "result": "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
-    "temporary_key_cleanup_pass": true,
-    "local_temporary_key_files_removed": true,
-    "qualification": "PASSED"
+    "local_key_prepared": true,
+    "prepared_scope_pass": true,
+    "bundle_source_revision": "f421a7637fc35d72b51ba8fec1d786f0042e3a32"
   },
   "previous_bounded_control": {
     "decision": "0126-cache-disabled-same-load-control",
@@ -256,5 +255,32 @@
     "local_temporary_key_files_removed": true,
     "qualification": "PASSED"
   },
-  "callback_order_lock_implementation_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410"
+  "callback_order_lock_implementation_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
+  "previous_bounded_control_adr0129": {
+    "decision": "0129-payment-derived-order-lock-query",
+    "limit": 1,
+    "started": 1,
+    "active_run": null,
+    "access_ready": false,
+    "plan": "docs/capacity/flash-sale-opening/callback-order-lock-control-plan-2026-10-04.json",
+    "baseline_report": "docs/capacity/flash-sale-opening/order-read-single-statement-control-2026-10-04.json",
+    "specific_cloud_access_approval_pending": false,
+    "temporary_key_installed": false,
+    "local_validation": {
+      "passed": 571,
+      "seconds": 87.28,
+      "baseline_expected_failures": 1,
+      "new_regressions": 13,
+      "local_primary_key_plan_pass": true,
+      "owned_test_containers_removed": true
+    },
+    "private_lifecycle_entrypoint": "tmp/run_adr0129_comparison.py",
+    "candidate_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
+    "cloud_access_approved_by": "User explicitly Approved the concrete freshrestricted45minute root-key installation/removal onbothECSaccounts andoneunchanged60/300 comparison.",
+    "last_run_gates_pass": true,
+    "result": "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
+    "temporary_key_cleanup_pass": true,
+    "local_temporary_key_files_removed": true,
+    "qualification": "PASSED"
+  }
 }
