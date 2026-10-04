@@ -3,7 +3,7 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "ADR0127 temporary key entries removed from both ECS root accounts and local key files deleted; no credentials saved in files or environment.",
-  "status": "api_phase_diagnostic_passed_same_load_access_removed",
+  "status": "order_read_single_statement_adr_recorded_implementation_pending",
   "cloud_load_requires_resume": true,
   "handoff_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
   "revision_note": "Cloud checkouts/runtime tested5706fce; all ten application module hashes and observer source unchanged from passing cache0 baseline. ADR0127 offline classifier prepared in local0faa9ae; result/checkpoint commit follows. Baseline services/cache0 restored.",
@@ -28,13 +28,16 @@
     "Owned profiler processes exited, remote profile scratch removed; both temporary root keys removed and local key files deleted.",
     "No higher load, second run, external publication or main merge. Prior failed observer evidence retained."
   ],
-  "unresolved": "Endpoint identity unknown for68.62percent of sampled weight. Phase contexts are not chargedCPU or per-route elapsed time. Sampled230s CPU windows, freshfixture/background variation and profiler overhead confound differences. No optimization selected; production capacity unqualified.",
+  "unresolved": "Native-row single-statement order read selected as a local candidate; test, plan and performance evidence pending. ADR0089/0094 historical failures retained. Stack contexts do not establish SQL cost or capacity.",
   "next_on_resume": [
-    "Review currentcache0 stack-context evidence before selecting a concrete optimization; create an ADR before any architectural or orchestration change.",
-    "Any further cloud experiment needs a new bounded scope. Retain all financial/durability/zero-double-booking/fullqueue/recovery gates; no higher load/main merge on failed gates."
+    "Add and execute deterministic single-snapshot/order-shape regressions against old code, then implement ADR0128.",
+    "Run meaningful local correctness/replay/concurrency/transaction tests and compare local query plans without capacity claims.",
+    "Prepare one unchanged60buyers/s300s cache0 control against passing ADR0126; resolve specific access approval before any cloud mutation."
   ],
   "validation_this_resume": "64 focused diagnostic/readiness checks passed0.62s; after lint-only fix34 profiling tests passed0.09s. One authorized60buyers/s300s cache0 external-profile diagnostic passed all16 gates and temporary access cleanup; no application runtime changes.",
   "evidence": [
+    "docs/capacity/flash-sale-opening/order-read-database-investigation-2026-10-04.json",
+    "docs/adr/0128-native-row-single-statement-order-status-reads.md",
     "docs/capacity/flash-sale-opening/api-phase-diagnostic-2026-10-04.json",
     "docs/capacity/flash-sale-opening/api-phase-diagnostic-plan-2026-10-04.json",
     "docs/capacity/flash-sale-opening/api-phase-saved-profile-reanalysis-2026-10-04.json",
@@ -54,7 +57,7 @@
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
   "authorization": "User authorizes autonomous continuation without routine questions until08:00Asia/Bangkok2026-10-04. Covers bounded implementation/configuration,checks and sanitized feature-branch evidence/checkpoint pushes to existing remote. No higherload/mainmerge;honor review rejection. User specifically approved observer-only cloud preflight/deployment/requalification after the failed observer gate by replying Continue to the concrete next-step proposal. User Go ahead specifically approves the new one-run ADR0126 control and required completion/recovery audits. User explicitly Approved the exact temporary root authorized_keys addition on both ECS hosts and subsequent removal; protected terminal password handling used. User Continue specifically approves one ADR0127 phase-attribution diagnostic atunchanged60buyers/s300s cache0 after saved-profile review. User separately Approved the exact ADR0127 restricted45minute temporary root-key installation and removal; installation, diagnostic and cleanup are complete.",
-  "scope": "One ADR0127 diagnostic completed; no second run, higher load, external publication or main merge authorized.",
+  "scope": "User Continue approves saved database-path investigation and the proposed one-optimization ADR/implementation/correctness workflow. Further cloud access remains separately scoped; no higher load/main merge.",
   "roadmap": [
     {
       "step": 1,
@@ -141,15 +144,12 @@
     "approval_deferred_until_8am": false
   },
   "local_diagnostic_candidate": {
-    "decision": "0125-single-pass-paid-observer-cohort-sampling",
-    "file": "scripts/observe_paid_pipeline.py",
-    "implemented": true,
-    "locally_validated": true,
-    "cloud_deployed": true,
-    "timeout_seconds": 3,
-    "source_note": "Observer candidate adopted for this bounded comparison; application runtime unchanged.",
-    "cloud_tested_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
-    "cloud_qualification": "PASSED"
+    "decision": "0128-native-row-single-statement-order-status-reads",
+    "file": "src/ticketing/infrastructure/reservations.py",
+    "implemented": false,
+    "locally_validated": false,
+    "cloud_deployed": false,
+    "cloud_qualification": "PENDING"
   },
   "bounded_control": {
     "decision": "0127-phase-classification-for-api-stack-diagnostics",
