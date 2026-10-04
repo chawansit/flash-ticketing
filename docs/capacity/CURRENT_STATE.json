@@ -2,11 +2,11 @@
   "updated_date_bangkok": "2026-10-04",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "security_note": "ADR0130 restricted temporary root keys removed from both hosts; local key files deleted. No passwords saved.",
-  "status": "adr0130_cloud_gate_failed_source_reverted_access_removed",
+  "security_note": "Previous ADR0130 temporary root keys/localfiles removed. Fresh ignored localADR0131 key prepared,not installed;no passwords saved.",
+  "status": "adr0131_prepared_comparison_awaiting_scoped_approval",
   "cloud_load_requires_resume": true,
   "handoff_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
-  "revision_note": "ADR0130 candidate f421a76 tested against ADR0129 f3f511d. Failed gates: baseline source/images and local candidate runtime restored.",
+  "revision_note": "Cloudsource/settings restored toADR0129 f3f511d afterfailedADR0130. Local ADR0131 candidate7ba8fca validated;no clouddeployment. Result/checkpoint commits mayfollow.",
   "backend_application_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
   "generator_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
   "backend_checkout_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
@@ -18,6 +18,7 @@
   "cloud_state_note": "Failed gates retained;ADR0129 baseline source/images/service budgets restored,generator idle/private cleanup verified andkeys removed.",
   "current_run": "checkout-20261004T042409Z-b580d0",
   "confirmed": [
+    "ADR0131two-slot candidate:614localcasespassed;two concurrentcritical transactions undergeneral exhaustion,fullsix-waiter errors/recovery,replay/authorization/lifecycle/metrics passed. No cloudqualification.",
     "ADR0130 customer gate failed:17397paid-issued/18000dispatched;603paymentHTTP503 failures(3.35percent),zero drops/retries.19of20gatespassed;candidate reverted.",
     "PostTTL:17397successfulpayments/bookings/tickets/callbacks;603expiredorders;pendingorders/payments0;doublebook0;full-keyspacequeues/Kafkadrained.",
     "Sampled payment queue reached3waiters onall4replicas;generalqueuepeak0. Aggregate API pool-acquisition errors0to987;mean successful acquisition0.267to15.118ms. Counters are not per-purpose exception attribution.",
@@ -30,13 +31,16 @@
     "Hold-to-ticket worstshardp952166.095to2145.527ms;durabilityp951043.189ms.",
     "Baseline servicebudgets restored;generator idle,privatebundle/fixturecleanup verified;both temporaryrootkeyentries/localkeyfilesremoved. No higherload,push/mainmerge."
   ],
-  "unresolved": "One-payment-connection partition failed customer gate at unchanged60buyers/s;sampled payment queue reachedits3waiterlimit whilegeneralqueuepeak0. Process-local protection tests passed butallocation isunqualified. Aggregate acquisitionerrors do not identify exception type or one-to-one customer cause.",
+  "unresolved": "Two-slot allocation locallyvalidated butcloudthroughput unqualified. It mayshift saturation to generalreads orremain insufficient forpayments;PgBouncer/RDS servers remain shared. ADR0130's customer gatefailed andisnot waived.",
   "next_on_resume": [
-    "Use retained ADR0130 pool/financial evidence to assess a fixed-total allocation or fairness alternative. Record ADR before changing architecture/allocation, then local concurrency/replay checks.",
-    "Retain ADR0129 baseline. One approved comparison consumed;another cloud comparison needs a new bounded scope. No higher load or main merge on failed gates."
+    "Approve ADR0131 exactdeployment/oneunchanged60buyers/s300s/cache0 comparison includingfreshrestrict/45minute rootSSHkeyinstallation/removal onbothECSaccounts.",
+    "Afterapproval executepreparedsingle lifecyclewithall20gates. Failedgates stop,retainfinancial/fullqueue audits andrestorebaseline;noadditionalrun,higherload ormainmerge."
   ],
-  "validation_this_resume": "ADR0130:604unit/integration cases passed82.98s before deployment;33newcases. One60buyers/s300s/cache0 comparison completed; all20gates=False. Both temporary root-key entries/local files removed.",
+  "validation_this_resume": "ADR0131:614unit/integration casespassed85.20s,noskips/two dependencywarnings. Initial611passed/3failed run retained;warmup/logicalclock/test-onlyadvisory-gate fixtures corrected. Productiondeadlines/financialqueries unchanged;Compose/shell/Pythonprobe checks passed andownedservices removed. No cloudaccess/load.",
   "evidence": [
+    "docs/capacity/flash-sale-opening/payment-pool-two-slot-control-plan-2026-10-04.json",
+    "docs/capacity/flash-sale-opening/payment-pool-two-slot-local-validation-2026-10-04.json",
+    "docs/adr/0131-two-slot-api-payment-pool-allocation.md",
     "docs/capacity/flash-sale-opening/payment-pool-partition-control-2026-10-04.json",
     "docs/capacity/flash-sale-opening/payment-pool-partition-control-plan-2026-10-04.json",
     "docs/capacity/flash-sale-opening/payment-pool-partition-local-validation-2026-10-04.json",
@@ -68,8 +72,8 @@
     "docs/adr/0123-bounded-paid-cpu-sampler-readiness.md",
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
-  "authorization": "User explicitly Approved exact ADR0130 deployment/one60buyers/s300s/cache0 comparison with all gates and restrict/45-minute temporary root access. One-run scope completed.",
-  "scope": "One explicitly approved ADR0130 deployment/comparison and access cleanup completed. No additional run, higher load, publication or main merge.",
+  "authorization": "User Continue authorizesADR0131 localdecision,implementation,validation andconcrete comparison preparation. Prior ADR0130one-run approvalconsumed. Fresh ADR0131deployment/one-run/restrictedrootaccess approval pending.",
+  "scope": "Preparedone60buyers/s300s/cache0 comparison;fixedtotalAPI4connections/12waiters with2+2connections/6+6waiters. Cloud unchanged. No higherload,push/mainmerge.",
   "roadmap": [
     {
       "step": 1,
@@ -89,7 +93,7 @@
     {
       "step": 4,
       "work": "Protect payment/webhook database capacity",
-      "status": "partition_candidate_failed_cloud_gates_reverted"
+      "status": "two_slot_partition_locally_validated_cloud_pending_prior_one_slot_failed_reverted"
     },
     {
       "step": 5,
@@ -123,12 +127,12 @@
     }
   ],
   "publication": {
-    "status": "adr0130_result_saved_locally_not_pushed",
+    "status": "adr0131_implementation_and_plan_saved_locally_not_pushed",
     "destination": "github.com/chawansit/flash-ticketing.git",
     "branch": "codex/redis-failover-recovery",
     "evidence_revision": "6a1385bbeb13bc50bbd8aae5378dfd7037fde747",
     "authorization": "Current approval covered local commits and one exact cloud comparison with access cleanup. No new GitHub push or main merge.",
-    "next_action": "No further cloud run, higher load, GitHub push or main merge within the completed one-run scope."
+    "next_action": "Cloudexperiment awaitsconcreteapproval;noGitHubpush/mainmerge authorized."
   },
   "overnight": {
     "expires_bangkok": "2026-10-04T08:00:00+07:00",
@@ -156,45 +160,44 @@
     "approval_deferred_until_8am": false
   },
   "local_diagnostic_candidate": {
-    "decision": "0130-fixed-budget-api-payment-pool-partition",
-    "implemented": false,
+    "decision": "0131-two-slot-api-payment-pool-allocation",
+    "implemented": true,
     "locally_validated": true,
-    "cloud_deployed": false,
+    "implementation_revision": "7ba8fca0bc2ea40cd58172a1e79d90bce78600a2",
     "baseline_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
-    "cloud_qualification": "FAILED;REVERTED",
-    "implementation_revision": "f421a7637fc35d72b51ba8fec1d786f0042e3a32",
-    "cloud_tested_revision": "f421a7637fc35d72b51ba8fec1d786f0042e3a32",
-    "feature_active_after_cleanup": false
+    "cloud_deployed": false,
+    "cloud_qualification": "NOT_RUN"
   },
   "bounded_control": {
-    "decision": "0130-fixed-budget-api-payment-pool-partition",
+    "decision": "0131-two-slot-api-payment-pool-allocation",
     "limit": 1,
-    "started": 1,
+    "started": 0,
     "active_run": null,
     "access_ready": false,
-    "specific_cloud_access_approval_pending": false,
+    "specific_cloud_access_approval_pending": true,
     "temporary_key_installed": false,
-    "candidate_revision": "f421a7637fc35d72b51ba8fec1d786f0042e3a32",
-    "plan": "docs/capacity/flash-sale-opening/payment-pool-partition-control-plan-2026-10-04.json",
+    "local_key_prepared": true,
+    "candidate_revision": "7ba8fca0bc2ea40cd58172a1e79d90bce78600a2",
+    "plan": "docs/capacity/flash-sale-opening/payment-pool-two-slot-control-plan-2026-10-04.json",
     "baseline_report": "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
-    "private_lifecycle_entrypoint": "tmp/run_adr0130_comparison.py",
-    "local_validation": {
-      "passed": 604,
-      "seconds": 82.98,
-      "new_cases": 33,
-      "controlled_read_starvation_reproduced": true,
-      "real_api_payment_under_general_pool_saturation_pass": true,
-      "owned_test_containers_removed": true
-    },
-    "local_key_prepared": false,
+    "private_lifecycle_entrypoint": "tmp/run_adr0131_comparison.py",
     "prepared_scope_pass": true,
-    "bundle_source_revision": "f421a7637fc35d72b51ba8fec1d786f0042e3a32",
-    "cloud_access_approved_by": "User explicitly Approved ADR0130 deployment, one unchanged60buyers/s300s comparison with all gates, and restrict/45-minute temporary root-key installation/removal on both ECS accounts.",
-    "last_run_gates_pass": false,
-    "result": "docs/capacity/flash-sale-opening/payment-pool-partition-control-2026-10-04.json",
-    "temporary_key_cleanup_pass": true,
-    "local_temporary_key_files_removed": true,
-    "qualification": "FAILED"
+    "bundle_source_revision": "7ba8fca0bc2ea40cd58172a1e79d90bce78600a2",
+    "local_validation": {
+      "command": ".venv/Scripts/python.exe tmp/run_adr0131_candidate_checks.py",
+      "passed": 614,
+      "seconds": 85.2,
+      "skipped": 0,
+      "new_cases": 43,
+      "added_cases_relative_adr0130": 10,
+      "warnings": [
+        "Starlette httpx deprecation",
+        "AnyIO BlockingPortal alias deprecation"
+      ],
+      "lint_whitespace_pass": true,
+      "owned_local_services_removed": true,
+      "cloud_access_or_load_started": false
+    }
   },
   "previous_bounded_control": {
     "decision": "0126-cache-disabled-same-load-control",
@@ -295,5 +298,35 @@
     "local_temporary_key_files_removed": true,
     "qualification": "PASSED"
   },
-  "payment_pool_partition_implementation_revision": "f421a7637fc35d72b51ba8fec1d786f0042e3a32"
+  "payment_pool_partition_implementation_revision": "f421a7637fc35d72b51ba8fec1d786f0042e3a32",
+  "previous_bounded_control_adr0130": {
+    "decision": "0130-fixed-budget-api-payment-pool-partition",
+    "limit": 1,
+    "started": 1,
+    "active_run": null,
+    "access_ready": false,
+    "specific_cloud_access_approval_pending": false,
+    "temporary_key_installed": false,
+    "candidate_revision": "f421a7637fc35d72b51ba8fec1d786f0042e3a32",
+    "plan": "docs/capacity/flash-sale-opening/payment-pool-partition-control-plan-2026-10-04.json",
+    "baseline_report": "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
+    "private_lifecycle_entrypoint": "tmp/run_adr0130_comparison.py",
+    "local_validation": {
+      "passed": 604,
+      "seconds": 82.98,
+      "new_cases": 33,
+      "controlled_read_starvation_reproduced": true,
+      "real_api_payment_under_general_pool_saturation_pass": true,
+      "owned_test_containers_removed": true
+    },
+    "local_key_prepared": false,
+    "prepared_scope_pass": true,
+    "bundle_source_revision": "f421a7637fc35d72b51ba8fec1d786f0042e3a32",
+    "cloud_access_approved_by": "User explicitly Approved ADR0130 deployment, one unchanged60buyers/s300s comparison with all gates, and restrict/45-minute temporary root-key installation/removal on both ECS accounts.",
+    "last_run_gates_pass": false,
+    "result": "docs/capacity/flash-sale-opening/payment-pool-partition-control-2026-10-04.json",
+    "temporary_key_cleanup_pass": true,
+    "local_temporary_key_files_removed": true,
+    "qualification": "FAILED"
+  }
 }
