@@ -1,5 +1,5 @@
 import logging
-from contextlib import ExitStack, contextmanager
+from contextlib import contextmanager
 from time import perf_counter as monotonic
 
 from psycopg import Cursor
@@ -170,55 +170,9 @@ class Postgres:
                 pass
 
     def sample_pool(self):
-        roles = getattr(self, "_metric_pool_roles", None)
-        waiter_limits = getattr(self, "_metric_waiter_limits", {})
-        pools = roles if roles is not None else {"general": self.pool}
-        states = {role: pool.get_stats() for role, pool in pools.items()}
+        stats = self.pool.get_stats()
         for name in ("pool_size", "pool_available", "requests_waiting", "pool_max"):
-            DB_POOL_STATE.labels(name).set(sum(stats.get(name, 0) for stats in states.values()))
-            if roles is not None:
-                for role in ("general", "payment"):
-                    DB_POOL_STATE.labels(f"{role}_{name}").set(states.get(role, {}).get(name, 0))
-        if roles is not None:
-            DB_POOL_STATE.labels("pool_max_waiting").set(sum(waiter_limits.values()))
-            for role in ("general", "payment"):
-                DB_POOL_STATE.labels(f"{role}_max_waiting").set(waiter_limits.get(role, 0))
+            DB_POOL_STATE.labels(name).set(stats.get(name, 0))
 
     def close(self):
         self.pool.close()
-
-
-def api_pool_budgets(maximum: int, maximum_waiting: int | None, payment_maximum: int = 0):
-    """Partition existing API ceilings; no zero (unlimited) enabled queue."""
-    waiting = maximum if maximum_waiting is None else maximum_waiting
-    if maximum < 1 or waiting < 1 or not 0 <= payment_maximum < maximum:
-        raise ValueError("Invalid API pool budget")
-    if not payment_maximum:
-        return {"general": {"maximum": maximum, "maximum_waiting": waiting}, "payment": None}
-    if waiting < 2:
-        raise ValueError("Payment partition requires at least two total waiter slots")
-    payment_waiting = max(1, waiting * payment_maximum // maximum)
-    return {
-        "general": {"maximum": maximum - payment_maximum, "maximum_waiting": waiting - payment_waiting},
-        "payment": {"maximum": payment_maximum, "maximum_waiting": payment_waiting},
-    }
-
-
-def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum=0):
-    """Return general/payment adapters, sharing one pool when disabled."""
-    budgets = api_pool_budgets(maximum, maximum_waiting, payment_maximum)
-    with ExitStack() as resources:
-        general = Postgres(url, wait_ms=wait_ms, **budgets["general"])
-        resources.callback(general.close)
-        payment = general
-        if budgets["payment"] is not None:
-            payment = Postgres(url, wait_ms=wait_ms, **budgets["payment"])
-            resources.callback(payment.close)
-        roles = {"general": general.pool}
-        if payment is not general:
-            roles["payment"] = payment.pool
-        general._metric_pool_roles = payment._metric_pool_roles = roles
-        limits = {role: budget["maximum_waiting"] for role, budget in budgets.items() if budget is not None}
-        general._metric_waiter_limits = payment._metric_waiter_limits = limits
-        resources.pop_all()
-        return general, payment

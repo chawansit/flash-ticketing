@@ -16,7 +16,6 @@ class Settings:
     pool_max_waiting: int | None = (
         int(os.environ["DB_POOL_MAX_WAITING"]) if "DB_POOL_MAX_WAITING" in os.environ else None
     )
-    api_payment_pool_max: int = int(os.getenv("API_PAYMENT_POOL_MAX", "0"))
     pool_wait_ms: int = int(os.getenv("DB_POOL_WAIT_MS", "150"))
     seatmap_ttl_seconds: int = int(os.getenv("SEATMAP_TTL_SECONDS", "120"))
     reserve_concurrency: int = int(os.getenv("RESERVE_CONCURRENCY", "12"))
@@ -76,10 +75,6 @@ class Settings:
             raise RuntimeError("DB_POOL_MAX_WAITING must be between 1 and 64")
         if not 50 <= self.pool_wait_ms <= 1000:
             raise RuntimeError("DB_POOL_WAIT_MS must be between 50 and 1000")
-        if not 0 <= self.api_payment_pool_max < self.pool_max:
-            raise RuntimeError("API_PAYMENT_POOL_MAX must be nonnegative and below DB_POOL_MAX")
-        if self.api_payment_pool_max and (self.pool_max_waiting or self.pool_max) < 2:
-            raise RuntimeError("API payment partition requires at least two total waiter slots")
         if self.reservation_mode not in {"postgres", "redis-first"}:
             raise RuntimeError("RESERVATION_MODE must be postgres or redis-first")
         if not 1 <= self.redis_reserve_concurrency <= 10000:

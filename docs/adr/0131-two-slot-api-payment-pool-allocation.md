@@ -1,6 +1,6 @@
 # 0131 - Two-slot payment allocation within the fixed API pool budget
 
-- **Status:** Accepted for opt-in implementation and local validation; cloud comparison pending.
+- **Status:** Unqualified after a failed cloud comparison; candidate source restored to ADR0129 baseline.
 - **Date:** 2026-10-04
 - **Roadmap:** Step 4, protect payment/webhook database capacity.
 
@@ -46,6 +46,12 @@ Decision-time evidence is the executed ADR0130 comparison and its verified recov
 - [Passing ADR0129 baseline](../capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json)
 - [Prior partition decision](0130-fixed-budget-api-payment-pool-partition.md)
 
-Executed candidate validation:all614 unit/integration cases passed85.2s,no skips andtwo dependency deprecations. Real initiation/callback transactions ran concurrently while both general connections were occupied;real signed HTTP routes,six-waiter overflow/timeouts,no borrowing,exact replay/fulfillment andzero double booking passed. Initial611passed/3failed run is retained;pool warmup andtest-only timing/snapshot fixtures were corrected beforeclean full rerun. Production deadlines andfinancial/worker code are unchanged. Linux shell/inlinePython andAPI-only Compose0/2mapping passed;owned services removed. Runtime matches ADR0130 candidate byte-for-byte,with transaction/connection helpers unchanged frombaseline. [Local validation](../capacity/flash-sale-opening/payment-pool-two-slot-local-validation-2026-10-04.json). No cloud deployment/load/access this decision.
+Executed candidate validation:all614 unit/integration cases passed85.2s,no skips andtwo dependency deprecations. Real initiation/callback transactions ran concurrently while both general connections were occupied;real signed HTTP routes,six-waiter overflow/timeouts,no borrowing,exact replay/fulfillment andzero double booking passed. Initial611passed/3failed run is retained;pool warmup andtest-only timing/snapshot fixtures were corrected beforeclean full rerun. Production deadlines andfinancial/worker code are unchanged. Linux shell/inlinePython andAPI-only Compose0/2mapping passed;owned services removed. Runtime matches ADR0130 candidate byte-for-byte,with transaction/connection helpers unchanged frombaseline. [Local validation](../capacity/flash-sale-opening/payment-pool-two-slot-local-validation-2026-10-04.json). At the local checkpoint no cloud deployment/load/access had run.
 
-The [prepared comparison](../capacity/flash-sale-opening/payment-pool-two-slot-control-plan-2026-10-04.json) identifies candidate7ba8fca,passing ADR0129baseline,one-run60/300/cache0 limits andall20gates. Sourcebundle andfreshrestrictedpublickey areprepared;15helper syntax/scope checks passed. Cloudaccess/deployment/comparison notrun.
+The [prepared comparison](../capacity/flash-sale-opening/payment-pool-two-slot-control-plan-2026-10-04.json) identifies candidate7ba8fca,passing ADR0129baseline,one-run60/300/cache0 limits andall20gates. Sourcebundle andfreshrestrictedpublickey areprepared;15helper syntax/scope checks passed. At preparation no cloudaccess/deployment/comparison had run.
+
+Executed cloud comparison: checkout-20261004T050752Z-12380e,60buyers/s300s/cache0 against passing ADR0129. Failed gates retained;candidate reverted andbaseline source/images/servicebudgets restored. Both temporary root keys/localkeyfiles removed;generator idle andprivate cleanup verified. [Comparison evidence](../capacity/flash-sale-opening/payment-pool-two-slot-control-2026-10-04.json). No higherload,push/mainmerge orhourlyproduction capacityclaim.
+
+The customer gate failed:17999/18000 journeys completed,withonepaymentHTTP503 andzero drops/retries. All19othergates passed. PostTTL counts were17999payments/bookings/tickets/callbacks andoneexpiredorder;no pendingorders/payments,doublebooking orqueue/Kafka backlog. Local614-case validation remains historical evidence at7ba8fca;baseline source/tests were restored exactly,not newlyrerun.
+
+Against the failed ADR0130 allocation,onlythe partition setting changed andall10runtime hashes matched. Observed payment503s fell603to1 andaggregateacquisitionerrors987to1;mean successfulacquisition15.118to1.293ms. Bothallocations remain unqualified. The singleacquisitionerror took0.098ms,consistentwithfail-fast rejection (an inference);exceptiontype/purpose were notrecorded andsparse queue samples cannot exclude a brief overflow. Classify/reproduce thisfailure beforeselectinganotherallocation orrecovery policy;do notwaive thecustomer gate. ADR0103/0083 shared allocation remainsactive.
