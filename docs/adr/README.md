@@ -202,3 +202,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0129 - Payment-derived order lock in one query](0129-payment-derived-order-lock-query.md)
 
 - [0130 - Fixed-budget API payment pool partition](0130-fixed-budget-api-payment-pool-partition.md)
+
+- [0131 - Two-slot payment allocation within the fixed API pool budget](0131-two-slot-api-payment-pool-allocation.md)
