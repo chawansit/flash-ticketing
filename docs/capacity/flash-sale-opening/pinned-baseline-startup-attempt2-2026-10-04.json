@@ -1,0 +1,87 @@
+{
+  "kind": "baseline_runner_not_dispatched",
+  "decision_record": "0142-pinned-baseline-reproduction-after-cloud-regression",
+  "run_id": null,
+  "tested_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "comparison": {
+    "baseline_report": "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json",
+    "factor": "Reproduce historical passing deb330e source and pinned baseline scripts under current cloud conditions; no runtime optimization or higher load."
+  },
+  "required_gates": {
+    "customer_load": false,
+    "post_ttl_financial": false,
+    "zero_double_booking": false,
+    "full_keyspace_queue_drain": false,
+    "kafka_drain": false,
+    "pipeline_observer": false,
+    "kafka_observer": false,
+    "cpu_sampler": false,
+    "source_and_restored_configuration_pass": false,
+    "generator_idle_pass": false,
+    "private_cleanup_pass": false,
+    "hold_deadlines_elapsed": false,
+    "pipeline_observer_source": false,
+    "cache_disabled": false,
+    "candidate_source_identity": false,
+    "only_expected_runtime_modules_changed": false,
+    "payment_partition_active": false,
+    "fixed_connection_and_waiter_budget": false,
+    "payment_partition_restored": false,
+    "financial_logic_unchanged": false,
+    "baseline_runtime_deployed": false,
+    "pinned_harness_identity": false
+  },
+  "all_required_gates_pass": false,
+  "qualification": "NOT_DISPATCHED",
+  "failure_phase": "local_runner_startup",
+  "private_evidence_root": "tmp\\adr0142-preflight-recovery",
+  "scope_status": "Local startup stopped before remote actions. Baseline source/settings recovery and exact key removal verified.",
+  "temporary_access_cleanup": {
+    "hosts": [
+      {
+        "host_role": "backend",
+        "removed_temporary_key_entries": 1,
+        "remaining_target_entries": 0,
+        "pass": true
+      },
+      {
+        "host_role": "generator",
+        "removed_temporary_key_entries": 1,
+        "remaining_target_entries": 0,
+        "pass": true
+      }
+    ],
+    "pass": true,
+    "local_key_files_removed": true
+  },
+  "lifecycle_failed_gates": [],
+  "baseline_source_restored_after_failed_gate": true,
+  "source_restoration_verified": true,
+  "failed_gates": [
+    "customer_load",
+    "post_ttl_financial",
+    "zero_double_booking",
+    "full_keyspace_queue_drain",
+    "kafka_drain",
+    "pipeline_observer",
+    "kafka_observer",
+    "cpu_sampler",
+    "source_and_restored_configuration_pass",
+    "generator_idle_pass",
+    "private_cleanup_pass",
+    "hold_deadlines_elapsed",
+    "pipeline_observer_source",
+    "cache_disabled",
+    "candidate_source_identity",
+    "only_expected_runtime_modules_changed",
+    "payment_partition_active",
+    "fixed_connection_and_waiter_budget",
+    "payment_partition_restored",
+    "financial_logic_unchanged",
+    "baseline_runtime_deployed",
+    "pinned_harness_identity"
+  ],
+  "load_dispatched": false,
+  "failure_reason": "Pinned runner expects its tmp parent to exist; no runner checkpoint, remote action or customer dispatch occurred.",
+  "gate_interpretation": "False entries indicate missing experiment evidence, not observed business failures."
+}

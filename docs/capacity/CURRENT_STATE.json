@@ -2,7 +2,9 @@
   "updated_date_bangkok": "2026-10-04",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "security_note": "ADR0141 exact temporary root-key entries removed on both hosts and local key files deleted.",
+  "status": "adr0142_baseline_reproduction_failed_cloud_restored_accounting_followup_unverified",
+  "cloud_load_requires_resume": true,
+  "security_note": "ADR0142 exact owned temporary root keys removed from both hosts; local key files deleted. Two subsequent password-only read-only snapshots failed authentication; no follow-up remote changes.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -10,185 +12,45 @@
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "last_checked_topology": "Verified deb330e cloud source/images restored: API4/postgres/pool3/admission4/waiters3/payment0/sharedfalse/cache0; consumer1/pool12; publisher/maintenance/reconciler1; writer/refresh/expiry0; simulator4/batch; PgBouncer24/reserve0/client160. Generator idle. Post-restoration global queues and Kafka lag0.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "current_run": "checkout-20261004T145727Z-abde20",
-  "roadmap": [
-    {
-      "step": 1,
-      "work": "Callback phase and barrier diagnostics",
-      "status": "implemented_and_cloud_validated"
-    },
-    {
-      "step": 2,
-      "work": "Bounded continuously refilled simulator",
-      "status": "implemented_and_cloud_validated"
-    },
-    {
-      "step": 3,
-      "work": "Reduce order-status read amplification",
-      "status": "cache_disabled_control_passed_same60buyer_profile"
-    },
-    {
-      "step": 4,
-      "work": "Protect payment/webhook database capacity",
-      "status": "shared_acquisition_budget_passed_same60buyer_control_feature_disabled_after_cleanup"
-    },
-    {
-      "step": 5,
-      "work": "Shorten measured expensive transactions",
-      "status": "writer_fairness_fixed_same60buyer_control_reproduced_with_cpu"
-    },
-    {
-      "step": 6,
-      "work": "Callback connection reuse if needed",
-      "status": "bounded_callback_pool_improved_control_capacity_still_unqualified"
-    },
-    {
-      "step": 7,
-      "work": "Bounded idempotent failure recovery",
-      "status": "backend_commit_boundary_recovery_locally_validated_paid_client_and_live_fault_qualification_pending"
-    },
-    {
-      "step": 8,
-      "work": "Concert-opening admission and read capacity",
-      "status": "native_linux_locally_qualified_cloud_cache_factor_failed_baseline_restored"
-    },
-    {
-      "step": 9,
-      "work": "Scale the measured bottleneck",
-      "status": "same60buyer_cache0_phase_diagnostic_passed_cpu_attribution_remains_limited"
-    },
-    {
-      "step": 10,
-      "work": "Sustained300000paid tickets/hour proof",
-      "status": "conditional_future_work"
-    }
-  ],
-  "local_recovery_validation": {
-    "decision": "0134-local-payment-commit-boundary-recovery-validation",
-    "decision_revision": "b33226254dba6c1d0e151d3b77335485f4260daf",
-    "implemented_test_matrix": true,
-    "local_qualification": "PASSED",
-    "focused_cases": 12,
-    "full_suite_cases": 657,
-    "report": "docs/capacity/flash-sale-opening/payment-commit-boundary-local-validation-2026-10-04.json",
-    "runtime_changed": false,
-    "cloud_faults_executed": false,
-    "owned_services_removed": true
-  },
-  "status": "adr0141_cloud_candidate_failed_baseline_restored_recovery_accounted",
-  "cloud_load_requires_resume": true,
-  "local_implementation_revision": "a97d3620e3b5d2690b33f16c41b7de1b2096a5ac",
-  "revision_note": "Local qualified runtime a97d362 and evidence ddea4c2 retained. One ADR0141 fixed60buyer cloud control failed; both ECS restored to deb330e. Local code/tests unchanged; new decision/results/checkpoint documentation only. No push or main merge.",
+  "current_run": null,
+  "revision_note": "Local qualified runtime a97d362 and earlier evidence retained. ADR0141 candidate and ADR0142 pinned baseline controls both failed. Cloud source/images restored deb330e and normal settings. Current changes are documentation/evidence only; no push or main merge.",
   "confirmed": [
-    "ADR0141 one60buyers/s300s distributed control failed:18000scheduled/17880dispatched/120drops,1057confirmedbydeadline,16823failedjourneys94.09%,zero customer retries.17/22gates passed; no capacity promotion.",
-    "Offered sampled host CPU99.397% vs81.358%; API1.969vs1.295cores; API pool-acquire mean81.083vs2.881ms. Callback backlog7644 and postTTL due-to-callbackp95143.045s. Initiating cause not established.",
-    "PostTTL zero duplicate seats/multi-booking;16309successful simulatorpayments/7182tickets. Read-only later snapshot accounts7182fulfilled+9127refunded,0refundpending; queues/Kafka0. Later recovery does not retroactively pass failed original gates.",
-    "Both ECS clean source/images restoreddeb330e and normal service settings/readiness/generatoridle/privatecleanup verified. Exact temporaryrootkey removed from both/localfiles deleted. Localcache/tests retained; no second test/push/mainmerge.",
-    "Native Linux candidate69focused/721fullpassed; Windows513-seat socket failure retained. Local optimization evidence is not cloud capacity proof.",
-    "ADR0133 last passing cloud control remains18000paid-issued at60buyers/s300s on deb330e; current failed candidate does not replace that historical result."
+    "ADR0142 exactdeb330e baseline/harness reproduction failed19/22gates:18000scheduled/17958dispatched/42drops/1095customerconfirmedbydeadline/16863failedjourneys93.902%,zero customer retries.",
+    "PostTTL16483successful simulatedpayments/13204unique tickets,zero duplicate seats/multi-booking,allcallbacks complete; globalqueues and Kafka lag0.3279successfulpayments refundstatus remains unverified; do not infer accounting from ADR0141.",
+    "Offered sampledCPU99.192% vs81.358%; API1.960vs1.295cores; API acquisitionmean74.942vs2.881ms;statuschecks118580vs36212;callbackbacklog6816,due-to-callbackp95124.340s. Candidate alone cannot explain regression; initiating cause unproved.",
+    "Actual holddeadlines elapsed; inherited compound deadlinegatefailedcohort equality. Callback-to-ticketp95263.261ms forissuedtickets; postTTLmetrics are not clientdeadline success.",
+    "BothECS normal baseline source/images/settings/readiness, generatoridle and privatecleanup verified. Exacttemporaryrootkeys removedboth/localfilesdeleted. No extra load/push/mainmerge.",
+    "ADR0133 historicalpass remains18000paid-issued at60buyers/s300s; current conditions did not reproduce it. LocalLinux69focused/721fullpass is prior evidence, not cloud capacity proof."
   ],
-  "unresolved": "Initiating cause of cloud regression remains unproved: host CPU saturation/API pool contention/callback backlog observed. Native Linux local optimization does not establish cloud benefit. Windows513-seat replay timeout remains unresolved; hot-concert/scaled production capacity and300000paid-issued/hour unproved.",
+  "unresolved": "Pinned baseline fails too: initiating cause of CPU saturation/pool contention/callback delay unresolved.3279successful simulatedpayments lack verified refund classification; post-restoration read-only SSH authentication failed twice. Candidate remains unqualified; production capacity and300000tickets/hour unproved.",
   "next_on_resume": [
-    "Preserve failed ADR0141/recovery evidence and baseline cloud source; do not promote candidate or raise load.",
-    "Reproduce passing deb330e profile under current environmental conditions before attributing regression solely to cache.py; use one explicitly authorized comparison.",
-    "Profile API CPU/pool waits and callback service time/backlog, separating scheduling/network/database/encoding effects; current evidence does not establish WAL/storage cause.",
-    "Keep customer, postTTL financial, zero-double-booking and global queue/Kafka gates. Create ADR before any new architectural/persistence/TTL/budget/topology choice."
+    "Obtain read-only refund status/accounting for the ADR0142 fixture using functioning authorized cloud access; preserve all original failed gates.",
+    "Isolate API CPU and order-status read amplification/callback occupancy from existing phase evidence; shared payment initiation/callback pool and simulator whole-cycle occupancy are candidate causes, not established root cause.",
+    "Record a new ADR before selecting one mitigation (bounded committed status cache/coalescing, callback priority, or off-host background work); keep total connection budget/TTL/payment authority unchanged unless explicitly decided.",
+    "Qualify one mitigation against the identified pinned control only after readiness/accounting gates and bounded scope are defined. No automatic new test or production sizing claim."
   ],
-  "evidence": [
-    "docs/capacity/flash-sale-opening/atomic-projection-cloud-control-2026-10-04.json",
-    "docs/adr/0141-fixed-load-cloud-atomic-projection-qualification.md",
-    "docs/capacity/flash-sale-opening/framed-seat-projection-local-validation-2026-10-04.json",
-    "docs/adr/0139-framed-preencoded-seat-projection.md",
-    "docs/adr/0140-native-linux-local-projection-qualification.md",
-    "docs/capacity/flash-sale-opening/preencoded-seat-projection-local-validation-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/native-filesystem-generator-local-validation-2026-10-04.json",
-    "docs/adr/0138-preencoded-atomic-seat-projection.md",
-    "docs/adr/0137-native-filesystem-local-paid-generator-qualification.md",
-    "docs/capacity/flash-sale-opening/bulk-seat-projection-local-validation-2026-10-04.json",
-    "docs/adr/0136-bounded-bulk-atomic-seat-projection.md",
-    "docs/capacity/flash-sale-opening/single-concert-tooling-local-validation-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/single-concert-same-load-control-requirements-2026-10-04.json",
-    "docs/adr/0135-bounded-single-concert-paid-fixtures.md",
-    "docs/capacity/flash-sale-opening/payment-commit-boundary-local-validation-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json"
-  ],
-  "authorization": "User Continue authorized one presented fixed60buyers/s300s comparison and prior temporary-key permission. Run completed and stopped on failed gates; no authorization inferred for another load, higher rate, infrastructure change, schedule, push or main merge.",
-  "scope": "One cloud cache-factor control executed; gates failed and baseline source/images/settings restored. Financial uniqueness and later complete simulated refund/ticket accounting and full global queues/Kafka recovery verified read-only. Both owned temporary root keys/local key files removed; all raw failed/recovery evidence retained.",
-  "publication": {
-    "status": "local_runtime_tests_decisions_evidence_committed_not_pushed",
-    "branch": "codex/redis-failover-recovery",
-    "candidate_source_revision": "a97d3620e3b5d2690b33f16c41b7de1b2096a5ac",
-    "evidence_revision": "a97d3620e3b5d2690b33f16c41b7de1b2096a5ac"
-  },
-  "opening_comparison_requirements": {
-    "report": "docs/capacity/flash-sale-opening/single-concert-same-load-control-requirements-2026-10-04.json",
-    "status": "CLOUD_CACHE_FACTOR_FAILED_BASELINE_RESTORED",
-    "cloud_runs_started": 1,
-    "execution_ready": false,
-    "local_successor_report": "docs/capacity/flash-sale-opening/framed-seat-projection-local-validation-2026-10-04.json",
-    "latest_cloud_report": "docs/capacity/flash-sale-opening/atomic-projection-cloud-control-2026-10-04.json"
-  },
-  "local_opening_validation": {
-    "decision": "0135-bounded-single-concert-paid-fixtures",
-    "implemented": true,
-    "qualification": "SUCCESSOR_LOCAL_LINUX_PASSED_WINDOWS_FAILURE_RETAINED",
-    "report": "docs/capacity/flash-sale-opening/single-concert-tooling-local-validation-2026-10-04.json",
-    "cleanup": {
-      "remaining_owned_containers": [],
-      "owned_containers_removed": true,
-      "private_shard_manifests_removed": true,
-      "cloud_temporary_access_installed": false
-    },
-    "successor_report": "docs/capacity/flash-sale-opening/framed-seat-projection-local-validation-2026-10-04.json"
-  },
-  "overnight": {
-    "expires_bangkok": "2026-10-04T08:00:00+07:00",
-    "heartbeat_id": "bounded-capacity-work-until-8am",
-    "status": "PAUSED_EXPIRED",
-    "active_run": null
-  },
-  "local_bulk_publication_validation": {
-    "decision": "0136-bounded-bulk-atomic-seat-projection",
-    "qualification": "FAILED_REJECTED",
-    "runtime_restored": true,
-    "report": "docs/capacity/flash-sale-opening/bulk-seat-projection-local-validation-2026-10-04.json"
-  },
-  "local_encoded_projection_validation": {
-    "decision": "0138-preencoded-atomic-seat-projection",
-    "status": "SUPERSEDED_LOCAL_REPRESENTATION_BY_ADR0139",
-    "runtime_candidate_committed": true,
-    "report": "docs/capacity/flash-sale-opening/preencoded-seat-projection-local-validation-2026-10-04.json",
-    "successor_report": "docs/capacity/flash-sale-opening/framed-seat-projection-local-validation-2026-10-04.json"
-  },
-  "local_generator_qualification": {
-    "decision": "0137-native-filesystem-local-paid-generator-qualification",
-    "status": "PASSED_LOCAL_SYNTHETIC_ONLY",
-    "report": "docs/capacity/flash-sale-opening/native-filesystem-generator-local-validation-2026-10-04.json"
-  },
-  "power_outage_check": {
-    "test_process_running": false,
-    "docker_available": true,
-    "owned_test_container_state": "All ADR0138/0139/0140 owned services removed; no remaining experiment containers/network.",
-    "git_work_preserved": true
-  },
-  "local_fixture_tooling_revision": "3e6b83ac32e1824f835b592317bd611c9df944f1",
-  "local_framed_projection_validation": {
-    "decisions": [
-      "0139-framed-preencoded-seat-projection",
-      "0140-native-linux-local-projection-qualification"
-    ],
-    "native_linux": "PASSED_LOCAL_ONLY",
-    "windows": "FOCUSED_FAILED_RETAINED",
-    "focused_cases": 69,
-    "full_cases": 721,
-    "candidate_source_revision": "a97d3620e3b5d2690b33f16c41b7de1b2096a5ac",
-    "report": "docs/capacity/flash-sale-opening/framed-seat-projection-local-validation-2026-10-04.json",
-    "owned_cleanup": true,
-    "cloud_executed": true,
-    "cloud_qualification": "FAILED_BASELINE_RESTORED",
-    "cloud_report": "docs/capacity/flash-sale-opening/atomic-projection-cloud-control-2026-10-04.json"
-  },
+  "authorization": "Latest Continue completed one bounded baseline reproduction and required audit/recovery/cleanup. No unattended run, second load, cache enablement, scaling, push or main merge.",
+  "scope": "One60buyers/s300s pinned-baseline reproduction completed. Two prior preparation attempts dispatched no customer load. All22gates evaluated, failed gates preserved; normal cloud recovery and exact key cleanup passed. No additional load or runtime/architecture/infra change.",
   "bounded_control": {
+    "decision": "0142-pinned-baseline-reproduction-after-cloud-regression",
+    "candidate_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+    "baseline_source_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+    "started": 1,
+    "limit": 1,
+    "active_run": null,
+    "access_ready": false,
+    "specific_cloud_access_approval_pending": false,
+    "temporary_key_installed": false,
+    "last_run_gates_pass": false,
+    "result": "docs/capacity/flash-sale-opening/pinned-baseline-reproduction-2026-10-04.json",
+    "temporary_key_cleanup_pass": true,
+    "local_temporary_key_files_removed": true,
+    "runner_startup_attempts": 1,
+    "customer_dispatches": 17958,
+    "preparation_attempts_without_load": 2,
+    "refund_classification_verified": false
+  },
+  "previous_bounded_control": {
     "decision": "0141-fixed-load-cloud-atomic-projection-qualification",
     "candidate_revision": "ddea4c25da32359004c22cd5fd17e24796b1209c",
     "baseline_source_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -204,5 +66,39 @@
     "local_temporary_key_files_removed": true,
     "recovery_accounting_pass": true,
     "recovery_global_queues_kafka_zero": true
-  }
+  },
+  "overnight": {
+    "expires_bangkok": "2026-10-04T08:00:00+07:00",
+    "heartbeat_id": "bounded-capacity-work-until-8am",
+    "status": "PAUSED_EXPIRED",
+    "active_run": null
+  },
+  "workspace_base_revision": "fa7fd1f6a037da57d07d1d2380a840a3e5ceb137",
+  "local_candidate": {
+    "revision": "a97d3620e3b5d2690b33f16c41b7de1b2096a5ac",
+    "status": "Retained; locally qualified on native Linux, cloud unqualified. Runtime/tests unchanged in ADR0142.",
+    "report": "docs/capacity/flash-sale-opening/framed-seat-projection-local-validation-2026-10-04.json"
+  },
+  "historical_passing_control": {
+    "revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+    "run": "checkout-20261004T061810Z-11d61f",
+    "report": "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json",
+    "buyers_per_second": 60,
+    "seconds": 300,
+    "paid_issued": 18000,
+    "note": "Historical passing result; did not reproduce under current conditions."
+  },
+  "publication": {
+    "status": "Local documentation/evidence checkpoint; no GitHub push or main merge.",
+    "branch": "codex/redis-failover-recovery"
+  },
+  "evidence": [
+    "docs/capacity/flash-sale-opening/pinned-baseline-reproduction-2026-10-04.json",
+    "docs/adr/0142-pinned-baseline-reproduction-after-cloud-regression.md",
+    "docs/capacity/flash-sale-opening/pinned-baseline-reproduction-plan-2026-10-04.json",
+    "docs/capacity/flash-sale-opening/pinned-baseline-preflight-attempt1-2026-10-04.json",
+    "docs/capacity/flash-sale-opening/pinned-baseline-startup-attempt2-2026-10-04.json",
+    "docs/capacity/flash-sale-opening/atomic-projection-cloud-control-2026-10-04.json",
+    "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json"
+  ]
 }

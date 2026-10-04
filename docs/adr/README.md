@@ -224,3 +224,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0140 - Native Linux local projection qualification](0140-native-linux-local-projection-qualification.md)
 
 - [0141 - Fixed-load cloud qualification of atomic seat projection](0141-fixed-load-cloud-atomic-projection-qualification.md)
+
+- [0142 - Pinned baseline reproduction after cloud regression](0142-pinned-baseline-reproduction-after-cloud-regression.md)
