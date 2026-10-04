@@ -2,38 +2,39 @@
   "updated_date_bangkok": "2026-10-04",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "security_note": "ADR0128 rootkey entries/localfiles removed. Fresh ADR0129 local restricted-expiring access key prepared but not installed;cloudaccesspending;no credentials saved.",
-  "status": "adr0129_ready_for_scoped_temporary_access",
+  "security_note": "ADR0129 restrictedtemporaryrootkeyentries removedonbothhosts andlocalkeyfilesdeleted;nocredentials saved.",
+  "status": "adr0129_cloud_control_passed_access_removed",
   "cloud_load_requires_resume": true,
-  "handoff_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
-  "revision_note": "ADR0128 testedcandidate7bbfaa6;cloudcheckouts/runtime retaincandidate andallnineothermodulehashesmatchbaseline. Baseline servicebudgets/cache0 restored;resultcommitsmayfollow.",
-  "backend_application_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
-  "generator_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
-  "backend_checkout_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
-  "tested_generator_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
+  "handoff_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
+  "revision_note": "ADR0129 testedcandidatef3f511d; cloudcheckouts/runtime retaincandidate andnineothermodules matchADR0128baseline. Servicebudgets/cache0 restored;resultcommitsmayfollow.",
+  "backend_application_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
+  "generator_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
+  "backend_checkout_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
+  "tested_generator_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
   "local_implementation_revision": "c66265e3434f1792f82dc375a979c5d30680cd5e",
   "diagnostic_implementation_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
   "last_checked_topology": "Restored4healthyAPIs;postgres/pool3/admission4/waiters3/cache0;consumer1/pool12;publisher/maintenance/reconciler1;writer/refresh/expiry0;simulator4/batch;PgBouncer24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "Noactivegenerator;allfinancial/durability/postTTL/zero-double-booking/fullkeyspacequeue/Kafka/observer/source/configurationrestoration/idle/privatecleanup gatespassed. Onlyget_orderquery changed.",
-  "current_run": "checkout-20261004T025114Z-e8b884",
+  "cloud_state_note": "Allfinancial/durability/postTTL/zero-double-booking/full-keyspacequeue/Kafka/observer/CPU/source/configurationrestore/idle/privatecleanup gatespassed. Onlycallback discovery/order-lockquery changed;ADR0128orderread retained.",
+  "current_run": "checkout-20261004T031924Z-7f98e1",
   "confirmed": [
-    "ADR0128writtenbeforeimplementation;9new realPGregressions plusall558unit/integration tests passed84.46s. Oldread reproducedmixed-snapshotrace;candidatefixedit.",
-    "18000scheduled/18000dispatched/18000 distinctcustomer-confirmed paidtickets;zeroerrors/drops/retries;all16cloudgatespassed.",
-    "Exactfinancial andzero-double-booking checks passed;full-keyspacequeues/Kafkadrained;baseline servicebudgets/cache0restored.",
-    "Onlysrc/ticketing/infrastructure/reservations.py changed amongtenruntime modules;same transactionwrapper,timeouts,observer,load andresourceconfiguration. No profiler.",
-    "Sampled API CPU1.277to1.266cores;hostCPU80.14to80.28percent.",
-    "Hold-to-ticket worstshardp952161.885to2166.095ms;durabilityp951044.723ms.",
-    "TransferredGitbundles removedfrombothhosts;both temporaryrootkey entries/localkeyfiles removed.",
-    "PriorADR0089/0094candidatefailures andADR0124observer failure retained;nohigherload/GitHubpush/mainmerge."
+    "ADR0129 recordedbeforeimplementation;all571unit/integrationtests passed,including13newPGlock-order/concurrency/replaychecks;onefewer callbackdomainSELECT validated.",
+    "18000scheduled/dispatched/distinctpaidissuedtickets;zeroerrors,drops,retries;all17requiredgatespassed.",
+    "Exactfinancial/postTTL/zero-double-booking checks passed;full-keyspacequeues andKafka drained.",
+    "Onlycallbackinitialdiscovery/order-lock query changed. Freshpaymentread/lock,alllaterwrites,orderreads,transactiontimeouts,observer/load/resourcebudgets retained.",
+    "MeasuredAPISELECTs305943.0to287918.0;meanconnectionhold20.515to19.013ms.",
+    "SampledAPI CPU1.266to1.240cores;hostCPU80.28to79.42percent.",
+    "Hold-to-ticket worstshardp952166.095to2145.527ms;durabilityp951043.189ms.",
+    "Baseline servicebudgets restored;generator idle,privatebundle/fixturecleanup verified;both temporaryrootkeyentries/localkeyfilesremoved. No higherload,push/mainmerge."
   ],
-  "unresolved": "One freshfixture comparison andsampledCPU windows cannot establishcausalcapacity/headroom improvement. Domainstatementcountreduction andsnapshotconsistency validated;production300000/hour,onehotconcert/realpayment-provider capacity unqualified.",
+  "unresolved": "One freshfixture comparison andsampledCPU windows do not establishcausalcapacity/headroom improvement. APISELECT counters coverallroutes/setup;not callbackquerytimings. Production300000/hour,onehotconcert/realprovider capacity remainsunqualified.",
   "next_on_resume": [
-    "User approval needed for freshrestricted45minute root-key installation/removal onbothECSaccounts;previousaccessremoved.",
-    "Then deploy validatedf3f511d andexecuteoneunchanged60/300/cache0 comparison againstpassingADR0128 withall17gates;restorebaseline source onfailure/removeaccessafteraudits."
+    "Review ADR0129 observed SQLcount/connectionhold,customerlatency,HTTPattempts andsampledCPU againstADR0128.",
+    "Select only an evidence-backed nextchange andwriteADR beforeimplementation. Anothercloudrun requiresnewbounded scope;nohigherload/mainmerge onfailedgates."
   ],
-  "validation_this_resume": "ADR0129:571unit/integration tests passed87.28s, no skips/two dependency warnings;13 new realPG cases. Baseline1expectedquerycountfailure/12passes. Populated100000order/payment primary-key join validation passed;allownedlocalcontainersremoved. No cloudaccess/load.",
+  "validation_this_resume": "ADR0129:571unit/integration tests passed87.28s beforedeployment;13newrealPG cases,baseline1expectedquerycountfailure/12passes;noskips/twodependencywarnings. One60/300/cache0 comparison completed;all17gates=True. Temporaryrootkeyentries/localfilesremoved.",
   "evidence": [
+    "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
     "docs/capacity/flash-sale-opening/callback-order-lock-control-plan-2026-10-04.json",
     "docs/capacity/flash-sale-opening/callback-order-lock-local-validation-2026-10-04.json",
     "docs/adr/0129-payment-derived-order-lock-query.md",
@@ -60,8 +61,8 @@
     "docs/adr/0123-bounded-paid-cpu-sampler-readiness.md",
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
-  "authorization": "User authorizes autonomous continuation without routine questions until08:00Asia/Bangkok2026-10-04. Covers bounded implementation/configuration,checks and sanitized feature-branch evidence/checkpoint pushes to existing remote. No higherload/mainmerge;honor review rejection. User specifically approved observer-only cloud preflight/deployment/requalification after the failed observer gate by replying Continue to the concrete next-step proposal. User Go ahead specifically approves the new one-run ADR0126 control and required completion/recovery audits. User explicitly Approved the exact temporary root authorized_keys addition on both ECS hosts and subsequent removal; protected terminal password handling used. User Continue specifically approves one ADR0127 phase-attribution diagnostic atunchanged60buyers/s300s cache0 after saved-profile review. User separately Approved the exact ADR0127 restricted45minute temporary root-key installation and removal; installation, diagnostic and cleanup are complete.",
-  "scope": "User Continue approves callback investigation/implementation/checks and one unchanged60/300 comparison. Concrete candidate locally validated. Freshrestricted45minute root-key installation/removal needs scoped approval;no cloudmutation/load/publication/mainmerge yet.",
+  "authorization": "User Continue approved ADR0129callbackinvestigation/implementation/checks andoneunchanged60/300 comparison. User explicitly Approved theexactfreshrestricted45minute rootkeyinstallation/removal onbothECSaccounts. Onecomparison andaudits/accesscleanupcompleted;noadditionalrun,higherload,push/mainmerge authorized.",
+  "scope": "One explicitlyapprovedADR0129 deployment/comparisoncompleted;noadditionalrun,higherload,publication/mainmerge.",
   "roadmap": [
     {
       "step": 1,
@@ -115,12 +116,12 @@
     }
   ],
   "publication": {
-    "status": "adr0129_implementation_and_prepared_comparison_local_not_pushed",
+    "status": "adr0129_result_saved_locally_not_pushed",
     "destination": "github.com/chawansit/flash-ticketing.git",
     "branch": "codex/redis-failover-recovery",
     "evidence_revision": "6a1385bbeb13bc50bbd8aae5378dfd7037fde747",
-    "authorization": "User overnightauthorization includes sanitized routine featurebranchpushes until08:00;no mainmerge.",
-    "next_action": "Additionalcloudwork requires anewbounded scope;no newpush/mainmerge."
+    "authorization": "Currentapprovalcoverslocalcommits andoneexactcloudcomparison/accesscleanup. Priorovernightpushauthorizationexpired;no newGitHubpush/mainmerge.",
+    "next_action": "No furthercloudrun,push/higherload/mainmerge withincompletedone-run scope."
   },
   "overnight": {
     "expires_bangkok": "2026-10-04T08:00:00+07:00",
@@ -151,20 +152,21 @@
     "decision": "0129-payment-derived-order-lock-query",
     "implemented": true,
     "locally_validated": true,
-    "cloud_deployed": false,
+    "cloud_deployed": true,
     "baseline_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
-    "cloud_qualification": "NOT_RUN",
-    "implementation_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410"
+    "cloud_qualification": "PASSED",
+    "implementation_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
+    "cloud_tested_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410"
   },
   "bounded_control": {
     "decision": "0129-payment-derived-order-lock-query",
     "limit": 1,
-    "started": 0,
+    "started": 1,
     "active_run": null,
     "access_ready": false,
     "plan": "docs/capacity/flash-sale-opening/callback-order-lock-control-plan-2026-10-04.json",
     "baseline_report": "docs/capacity/flash-sale-opening/order-read-single-statement-control-2026-10-04.json",
-    "specific_cloud_access_approval_pending": true,
+    "specific_cloud_access_approval_pending": false,
     "temporary_key_installed": false,
     "local_validation": {
       "passed": 571,
@@ -175,7 +177,13 @@
       "owned_test_containers_removed": true
     },
     "private_lifecycle_entrypoint": "tmp/run_adr0129_comparison.py",
-    "candidate_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410"
+    "candidate_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
+    "cloud_access_approved_by": "User explicitly Approved the concrete freshrestricted45minute root-key installation/removal onbothECSaccounts andoneunchanged60/300 comparison.",
+    "last_run_gates_pass": true,
+    "result": "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
+    "temporary_key_cleanup_pass": true,
+    "local_temporary_key_files_removed": true,
+    "qualification": "PASSED"
   },
   "previous_bounded_control": {
     "decision": "0126-cache-disabled-same-load-control",
@@ -247,5 +255,6 @@
     "temporary_key_cleanup_pass": true,
     "local_temporary_key_files_removed": true,
     "qualification": "PASSED"
-  }
+  },
+  "callback_order_lock_implementation_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410"
 }

@@ -1,6 +1,6 @@
 # 0129 - Payment-derived order lock in one query
 
-- **Status:** Accepted for implementation and local validation; cloud comparison pending.
+- **Status:** Accepted and validated in one unchanged-load comparison; production capacity remains unqualified.
 - **Date:** 2026-10-04
 
 ## Context
@@ -58,3 +58,15 @@ With100000 historical orders/payments, the discovery/order-lock query boundary p
 [Local evidence](../capacity/flash-sale-opening/callback-order-lock-local-validation-2026-10-04.json). Cloud deployment/comparison has not started.
 
 The [prepared comparison](../capacity/flash-sale-opening/callback-order-lock-control-plan-2026-10-04.json) identifies candidate f3f511d against passing ADR0128 source7bbfaa6. It retains the16 existing gates and adds callback-only source-change verification. Ten module hashes and unchanged code outside callback are checked before transfer; source identity is checked again after execution. Private one-command lifecycle helpers are syntax-checked, with no cloud access or load executed. Recovery paths are prepared guards, not live validation. Fresh local key/bundle prepared; root installation awaits scoped approval.
+
+Executed cloudcomparison: checkout-20261004T031924Z-7f98e1,same60buyers/s300s/cache0 againstpassingADR0128. All17requiredgatespassed;candidate retained. Both temporaryrootkeys/localkeyfilesremoved;servicebudgets restored,generatoridle/privatecleanup verified. [Comparison evidence](../capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json). No higherload,push/mainmerge orproductioncapacityclaim.
+
+| Metric | ADR0128 baseline | ADR0129 candidate |
+| --- | ---: | ---: |
+| Measured API SELECT count | 305,943.0 | 287,918.0 |
+| Mean API connection hold | 20.52 ms | 19.01 ms |
+| Sampled API CPU | 1.266 cores | 1.240 cores |
+| Host CPU | 80.28% | 79.42% |
+| Hold-to-ticket worst-shard p95 | 2166.1 ms | 2145.5 ms |
+
+These counters cover all API routes and transaction setup. CPU uses sampled endpoints within the offered window, not a full300s integral or query/function attribution. One freshfixture control does not prove a causal capacity or headroom increase.
