@@ -2,9 +2,9 @@
   "updated_date_bangkok": "2026-10-04",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "security_note": "Temporary experiment SSH key removed from both ECS authorized_keys after all final gates passed. Private evidence remains excluded from publication; reconnecting for future cloud work requires fresh access.",
-  "status": "observer_requalification_passed_bounded_cloud_scope_complete",
-  "cloud_load_requires_resume": true,
+  "security_note": "Earlier temporary key removed from both accounts. Fresh ADR0126 key generated locally but not installed. Default SSH denied; browser runtime unavailable. No secret material published.",
+  "status": "cache_disabled_control_approved_prepared_access_pending",
+  "cloud_load_requires_resume": false,
   "handoff_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
   "revision_note": "Cloud checkouts tested 5706fce. Ten application runtime hashes unchanged from the identified baseline; observer query changed only. Baseline service settings restored. Reporting commit follows tested source revision.",
   "backend_application_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
@@ -25,13 +25,15 @@
     "Same60buyers/s300s1000ms-cache configuration and all10 application runtime hashes as the initially failed observer trial. Ticket-wait p951060.9ms;hold-to-ticket p952157.5ms.",
     "The initial trial remains FAILED; the repaired-observer run is one fully passing bounded1000ms-cache control. No sustained production-capacity claim."
   ],
-  "unresolved": "Cloud cancellation reason and actual failed-query runtime/IO were not captured; repeated scans remain a supported hypothesis. Sustained300000/hour,one hot concert,real-provider and outage/failover capacity are unqualified.",
+  "unresolved": "The approved cache-disabled comparison awaits SSH access. Prior temporary key was revoked,default authentication is denied on both hosts,and browser runtime initialization fails. The prior passing1000ms result and initial failed observer trial remain unchanged; sustained production capacity remains unqualified.",
   "next_on_resume": [
-    "Review the passing observer requalification and initial retained failure.",
-    "Select and explicitly authorize the next bounded experiment after reviewing the remaining capacity hypothesis; no further load is authorized here."
+    "Use the fresh public key or an authorized identity-file path to restore access to both existing hosts; never send private-key/password material in chat.",
+    "Run tmp/preflight_adr0126_access.py,then the guarded single tmp/run_adr0126_control.py only after preflight passes.",
+    "Collect all mandatory audits/source/restoration/idle/private cleanup,then remove only the temporary access entry; no second run or higher load."
   ],
-  "validation_this_resume": "66 pre-existing focused observer unit/realPG tests retained; read-only cloud version/catalog/EXPLAIN passed; one exact same-load cloud requalification passed all gates. Application runtime unchanged; full492 suite not rerun.",
+  "validation_this_resume": "43 existing disabled-cache/configuration and bounded CLI unit tests passed2.44s; one pytest-cache permission warning. Helper syntax and exact one-factor/CLI bounds verified. No application source edits or cloud load; no cloud qualification claim.",
   "evidence": [
+    "docs/adr/0126-cache-disabled-same-load-control.md",
     "docs/capacity/flash-sale-opening/paid-observer-cloud-preflight-2026-10-04.json",
     "docs/capacity/flash-sale-opening/paid-observer-cohort-requalification-2026-10-04.json",
     "docs/capacity/flash-sale-opening/paid-observer-offline-cohort-plan-2026-10-04.json",
@@ -44,8 +46,8 @@
     "docs/adr/0123-bounded-paid-cpu-sampler-readiness.md",
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
-  "authorization": "User authorizes autonomous continuation without routine questions until08:00Asia/Bangkok2026-10-04. Covers bounded implementation/configuration,checks and sanitized feature-branch evidence/checkpoint pushes to existing remote. No higherload/mainmerge;honor review rejection. User specifically approved observer-only cloud preflight/deployment/requalification after the failed observer gate by replying Continue to the concrete next-step proposal.",
-  "scope": "The specifically approved observer-only requalification is complete. Cloud run limit2 reached; no more cloud load, higher load or main merge.",
+  "authorization": "User authorizes autonomous continuation without routine questions until08:00Asia/Bangkok2026-10-04. Covers bounded implementation/configuration,checks and sanitized feature-branch evidence/checkpoint pushes to existing remote. No higherload/mainmerge;honor review rejection. User specifically approved observer-only cloud preflight/deployment/requalification after the failed observer gate by replying Continue to the concrete next-step proposal. User Go ahead specifically approves the new one-run ADR0126 control and required completion/recovery audits.",
+  "scope": "User Go ahead approved exactly one new ADR0126 cache-disabled60buyers/s300s control against the passing1000ms baseline. Access pending; no load dispatched. Earlier two-run scope remains completed.",
   "roadmap": [
     {
       "step": 1,
@@ -99,12 +101,12 @@
     }
   ],
   "publication": {
-    "status": "sanitized_preflight_published_result_checkpoint_saved",
+    "status": "prior_requalification_result_published_at6a1385b_new_plan_local",
     "destination": "github.com/chawansit/flash-ticketing.git",
     "branch": "codex/redis-failover-recovery",
-    "evidence_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
+    "evidence_revision": "6a1385bbeb13bc50bbd8aae5378dfd7037fde747",
     "authorization": "User overnightauthorization includes sanitized routine featurebranchpushes until08:00;no mainmerge.",
-    "next_action": "Push sanitized requalification evidence on the existing feature branch, then await a separately authorized next bounded experiment. No main merge."
+    "next_action": "Save ADR0126 plan and local validation; retain former time-bound publication authorization without assuming a new unrestricted push authorization."
   },
   "overnight": {
     "expires_bangkok": "2026-10-04T08:00:00+07:00",
@@ -141,5 +143,27 @@
     "source_note": "Observer candidate adopted for this bounded comparison; application runtime unchanged.",
     "cloud_tested_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
     "cloud_qualification": "PASSED"
+  },
+  "bounded_control": {
+    "decision": "0126-cache-disabled-same-load-control",
+    "plan": "docs/capacity/flash-sale-opening/cache-disabled-control-plan-2026-10-04.json",
+    "limit": 1,
+    "started": 0,
+    "active_run": null,
+    "access_ready": false,
+    "local_validation": {
+      "executed_command": ".venv/Scripts/python.exe -m pytest tests/unit/test_order_status_cache.py tests/unit/test_paid_checkout_cli.py -q",
+      "passed": 43,
+      "seconds": 2.44,
+      "warnings": [
+        "PytestCacheWarning: nodeids cache write denied; tests completed successfully."
+      ],
+      "runtime_application_change": false,
+      "cloud_load_dispatched": false,
+      "helper_syntax_pass": true,
+      "exact_bounded_cli_arguments_verified": true,
+      "single_configuration_factor_verified": true,
+      "mandatory_gates_retained": true
+    }
   }
 }
