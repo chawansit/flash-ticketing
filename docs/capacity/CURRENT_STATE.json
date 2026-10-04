@@ -3,7 +3,7 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "ADR0128 temporaryrootkey entriesremoved onbothhosts andlocalkeyfilesdeleted;no credentials saved.",
-  "status": "adr0129_local_callback_investigation",
+  "status": "adr0129_callback_locally_validated_cloud_pending",
   "cloud_load_requires_resume": true,
   "handoff_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
   "revision_note": "ADR0128 testedcandidate7bbfaa6;cloudcheckouts/runtime retaincandidate andallnineothermodulehashesmatchbaseline. Baseline servicebudgets/cache0 restored;resultcommitsmayfollow.",
@@ -29,11 +29,13 @@
   ],
   "unresolved": "One freshfixture comparison andsampledCPU windows cannot establishcausalcapacity/headroom improvement. Domainstatementcountreduction andsnapshotconsistency validated;production300000/hour,onehotconcert/realpayment-provider capacity unqualified.",
   "next_on_resume": [
-    "Implement and validate ADR0129 payment-derived order lock; preserve fresh payment lock/read and all financial invariants.",
-    "Prepare one control against passing ADR0128; required temporaryaccess approval before cloud deployment."
+    "Prepare one unchanged60buyers/s300s cache0 callback-only comparison against ADR0128.",
+    "Obtain fresh scoped temporaryrootaccess if required; execute all financial and fullqueue/Kafka gates, restorebaseline source onfailure andremoveaccess."
   ],
-  "validation_this_resume": "ADR0128:558unit/integration checks passed84.46s beforedeployment,2dependencydeprecations/no skips;oldcode2expectedconcurrency/roundtripregressionfailures. One60buyers/s300s cache0 comparisoncompleted;allmandatorygates=True. Temporarykey entries/filesremoved.",
+  "validation_this_resume": "ADR0129:571unit/integration tests passed87.28s, no skips/two dependency warnings;13 new realPG cases. Baseline1expectedquerycountfailure/12passes. Populated100000order/payment primary-key join validation passed;allownedlocalcontainersremoved. No cloudaccess/load.",
   "evidence": [
+    "docs/capacity/flash-sale-opening/callback-order-lock-local-validation-2026-10-04.json",
+    "docs/adr/0129-payment-derived-order-lock-query.md",
     "docs/capacity/flash-sale-opening/order-read-single-statement-control-2026-10-04.json",
     "docs/capacity/flash-sale-opening/order-read-single-statement-control-plan-2026-10-04.json",
     "docs/capacity/flash-sale-opening/order-read-local-validation-2026-10-04.json",
@@ -146,10 +148,11 @@
   },
   "local_diagnostic_candidate": {
     "decision": "0129-payment-derived-order-lock-query",
-    "implemented": false,
-    "locally_validated": false,
+    "implemented": true,
+    "locally_validated": true,
     "cloud_deployed": false,
-    "baseline_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67"
+    "baseline_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
+    "cloud_qualification": "NOT_RUN"
   },
   "bounded_control": {
     "decision": "0128-native-row-single-statement-order-status-reads",

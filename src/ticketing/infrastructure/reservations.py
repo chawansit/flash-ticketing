@@ -441,14 +441,14 @@ class PostgresReservations:
 
     def callback(self, payload):
         with self.db.transaction() as conn:
-            payment = conn.execute(
-                "SELECT * FROM payment_attempts WHERE id=%s", (payload["payment_id"],)
-            ).fetchone()
-            if not payment:
-                raise Failure("PAYMENT_NOT_FOUND", 404)
             order = conn.execute(
-                "SELECT * FROM orders WHERE id=%s FOR UPDATE NOWAIT", (payment["order_id"],)
+                """SELECT o.* FROM orders o
+                JOIN payment_attempts p ON p.order_id=o.id
+                WHERE p.id=%s FOR UPDATE OF o NOWAIT""",
+                (payload["payment_id"],),
             ).fetchone()
+            if not order:
+                raise Failure("PAYMENT_NOT_FOUND", 404)
             payment = conn.execute(
                 "SELECT * FROM payment_attempts WHERE id=%s FOR UPDATE NOWAIT", (payload["payment_id"],)
             ).fetchone()

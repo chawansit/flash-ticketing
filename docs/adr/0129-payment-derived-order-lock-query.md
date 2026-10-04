@@ -50,3 +50,9 @@ No new test or cloud result is claimed at decision time. Planned real-PostgreSQL
 - [Transaction-local timeout setup](0117-consolidated-transaction-local-timeouts.md)
 - [PostgreSQL17 locking clauses](https://www.postgresql.org/docs/17/sql-select.html#SQL-FOR-UPDATE-SHARE)
 - [PostgreSQL17 READ COMMITTED snapshots](https://www.postgresql.org/docs/17/transaction-iso.html#XACT-READ-COMMITTED)
+
+Executed local validation: the baseline reproduced one expected statement-count failure, with the other12 new cases passing in5.00s. The candidate passed all571unit/integration tests in87.28s, including13 new real-PostgreSQL tests; no skips and two dependency deprecations. Lint/whitespace passed. Owned test containers were removed.
+
+With100000 historical orders/payments, the discovery/order-lock query boundary preserved native order rows and unknown-payment behavior. Candidate used both primary-key indexes with no sequential scan. The isolated full boundary median was6.769ms baseline versus6.193ms candidate (100 alternating samples each, common timeout setup and commit). Server execution was0.045ms across the two old statements versus0.036ms for the join. This is not a full callback or cloud capacity measurement. Application code outside callback is AST-identical, including ADR0128 order reads. The historical profiled callback is AST-identical to the identified baseline.
+
+[Local evidence](../capacity/flash-sale-opening/callback-order-lock-local-validation-2026-10-04.json). Cloud deployment/comparison has not started.
