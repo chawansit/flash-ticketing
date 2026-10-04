@@ -1,6 +1,6 @@
 # ADR 0132: Explicit financial waiter allocation within the fixed API budget
 
-- Status: Accepted for local implementation; cloud qualification pending
+- Status: Unqualified and reverted after failed cloud customer gate; shared ADR0103/0083 baseline active
 - Date: 2026-10-04
 
 ## Context and evidence
@@ -45,3 +45,7 @@ At decision time only the saved-evidence reanalysis and executed one-case local 
 Executed local candidate validation:636 unit/integration cases passed93.54s, no skips, two dependency deprecations. Both overflow controls, eleven-waiter FIFO progress, signed route isolation, concurrent financial transactions and exact replay/zero-double-booking passed. Budget/settings/lifecycle/metrics and before-transport checks passed. Linux shell/inlinePython/Compose checks passed; owned services removed. Financial/worker code and Postgres constructor/transaction/connection/cursor/close AST match passing ADR0129. [Local validation](../capacity/flash-sale-opening/payment-pool-waiter-allocation-local-validation-2026-10-04.json). No cloud access/load this turn.
 
 Prepared candidate2fe7903 comparison against passing ADR0129,one60/300/cache0 run withall20mandatorygates. Fifteen private helper syntax/scope checks and sourcebundle verification passed;freshignored localkeyprepared,not installed. [Comparison plan](../capacity/flash-sale-opening/payment-pool-waiter-allocation-control-plan-2026-10-04.json). Fresh scoped deployment/comparison/access approval pending.
+
+Executed approved comparison:checkout-20261004T054454Z-5fd8b9,60buyers/s300s/cache0 against passing ADR0129. Customer gate failed:17995/18000 journeys completed, five order-status503s, zero drops/retries. Saved counters identify five TooManyRequests on GETorder status;no payment503 observed. PostTTL independently confirms all18000 payments/bookings/tickets/callbacks, zero pending/double booking/full-keyspacequeues/Kafka lag. All19othergates passed. The sampled general queue peak was0 on every replica despite five transient overflows; it cannot justify a one-waiter allocation.
+
+Candidate source/images/settings were reverted on both hosts and local candidate-owned runtime/tests restored;both root-key entries/localkeyfiles removed, generator idle/privatecleanup verified. The636-case local result remains historical at2fe7903, not a fresh baseline rerun. [Failed comparison](../capacity/flash-sale-opening/payment-pool-waiter-allocation-control-2026-10-04.json). No additionalrun,higherload,push/mainmerge. A future fairness/allocation/recovery change requires a new ADR and separately scoped cloudapproval.

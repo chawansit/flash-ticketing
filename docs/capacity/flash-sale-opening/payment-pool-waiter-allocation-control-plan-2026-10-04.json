@@ -1,6 +1,6 @@
 {
   "kind": "proposed_explicit_fixed_budget_payment_waiter_comparison",
-  "status": "local_validated_comparison_and_access_pending",
+  "status": "failed_stopped_baseline_source_restored",
   "decision_record": "0132-explicit-fixed-budget-payment-waiters",
   "baseline_report": "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
   "baseline_run": "checkout-20261004T031924Z-7f98e1",
@@ -53,7 +53,7 @@
   },
   "external_profiler_enabled": false,
   "run_limit": 1,
-  "runs_started": 0,
+  "runs_started": 1,
   "active_run": null,
   "required_gates": [
     "customer_load",
@@ -83,23 +83,57 @@
     "key_restrictions": "restrict;forwarding/PTYdisabled;45minuteUTCexpiry onverifiedOpenSSH7.7+;removeafteraudits.",
     "password_handling": "Protectedterminalgetpassonly;no passwords infile/environment.",
     "known_host_verification": true,
-    "installation_executed": false,
-    "specific_approval_pending": true,
+    "installation_executed": true,
+    "specific_approval_pending": false,
     "expiry_minutes": 45,
-    "installed_key_removed": false,
-    "local_key_files_removed": false,
-    "local_key_prepared": true,
-    "public_key_fingerprint": "SHA256:SCk0yhwOIgK3ArmC/5FxrFRLtQ2WvqanbntwF+mzpCI"
+    "installed_key_removed": true,
+    "local_key_files_removed": true,
+    "local_key_prepared": false,
+    "public_key_fingerprint": "SHA256:SCk0yhwOIgK3ArmC/5FxrFRLtQ2WvqanbntwF+mzpCI",
+    "approved_by": "User explicitly Approved ADR0132 exact deployment/one unchanged60buyers/s300s/cache0 comparison with all20gates and freshrestrict/45minute rootSSHkey installation/removal on both ECSaccounts.",
+    "installation_verified": true,
+    "installation_results": [
+      {
+        "host_role": "backend",
+        "temporary_key_installed": true,
+        "target_entries": 1,
+        "expiry_time_utc": "20261004062924Z",
+        "forwarding_and_pty_disabled": true,
+        "pass": true
+      },
+      {
+        "host_role": "generator",
+        "temporary_key_installed": true,
+        "target_entries": 1,
+        "expiry_time_utc": "20261004062925Z",
+        "forwarding_and_pty_disabled": true,
+        "pass": true
+      }
+    ],
+    "removal_results": [
+      {
+        "host_role": "backend",
+        "removed_temporary_key_entries": 1,
+        "remaining_target_entries": 0,
+        "pass": true
+      },
+      {
+        "host_role": "generator",
+        "removed_temporary_key_entries": 1,
+        "remaining_target_entries": 0,
+        "pass": true
+      }
+    ]
   },
   "local_validation_report": "docs/capacity/flash-sale-opening/payment-pool-waiter-allocation-local-validation-2026-10-04.json",
-  "scope": "Proposed one unchanged60buyers/s300s/cache0 comparison against passing ADR0129;fresh restricted root access and deployment/comparison awaiting approval. No additionalrun,higherload,push/mainmerge.",
+  "scope": "The explicitly approved single60buyers/s300s/cache0 comparison completed. Customer gatefailed;other19passed. Source/images/settings restored andaccessremoved. No additionalrun,higherload,push/mainmerge.",
   "candidate_revision": "2fe7903d975ed9aa4d8e0a25575010f68ab64a1d",
   "baseline_source_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
   "operator_preparation": {
     "private_lifecycle_entrypoint": "tmp/run_adr0132_comparison.py",
-    "cloud_access_or_load_started": false,
+    "cloud_access_or_load_started": true,
     "remote_publication": false,
-    "failed_gate_source_restoration": "Reused ADR0131 executed recovery guard;candidate settings0/0 rollback/source rebuild verified statically, not live validated forADR0132.",
+    "failed_gate_source_restoration": "Executed and verified: cloudbaseline source/images/settings and localcandidate-owned runtime/tests restored. Historical candidate636tests retained at2fe7903;baseline tests not newly rerun.",
     "private_helpers_syntax_pass": true,
     "prepared_scope_pass": true,
     "helper_count": 15,
@@ -108,10 +142,11 @@
     "bundle_head": "2fe7903d975ed9aa4d8e0a25575010f68ab64a1d",
     "required_gates": 20,
     "local_validation_passed": 636,
-    "temporary_root_access_not_executed": true,
+    "temporary_root_access_not_executed": false,
     "approval_guards_executed": true,
     "all20_gates_retained": true,
-    "cause_and_route_counters_saved_in_result": true
+    "cause_and_route_counters_saved_in_result": true,
+    "cloud_execution_completed": true
   },
   "payment_pool_budget": {
     "total_connections": 4,
@@ -122,5 +157,7 @@
     "payment_waiters": 11
   },
   "financial_logic_unchanged_local_verified": true,
-  "additional_failed_allocation_reference": "docs/capacity/flash-sale-opening/payment-pool-two-slot-control-2026-10-04.json"
+  "additional_failed_allocation_reference": "docs/capacity/flash-sale-opening/payment-pool-two-slot-control-2026-10-04.json",
+  "result": "docs/capacity/flash-sale-opening/payment-pool-waiter-allocation-control-2026-10-04.json",
+  "all_required_gates_pass": false
 }

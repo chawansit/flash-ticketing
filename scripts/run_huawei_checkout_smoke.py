@@ -40,8 +40,6 @@ parser.add_argument("--simulator-concurrency-candidate", type=int, choices=(4, 8
 parser.add_argument("--consumer-candidate", type=int, choices=(1, 2, 4, 6), default=1)
 parser.add_argument("--consumer-pool-per-instance", type=int, choices=(8, 12), default=12)
 parser.add_argument("--api-pool-per-instance-candidate", type=int, choices=(3, 4), default=3)
-parser.add_argument("--api-payment-pool-max-candidate", type=int, choices=(0, 2), default=0)
-parser.add_argument("--api-payment-pool-waiters-candidate", type=int, choices=(0, 11), default=0)
 parser.add_argument("--api-pool-waiters-candidate", type=int, choices=(3, 12), default=3)
 parser.add_argument("--order-status-cache-ms-candidate", type=int, choices=(0, 1000, 3000), default=0)
 parser.add_argument("--callback-duplicates", type=int, choices=(1, 3), default=3)
@@ -52,12 +50,6 @@ if args.paid_lifecycle_diagnostics and not args.paid_rate:
     parser.error("Lifecycle diagnostics require a paid control")
 if (args.consumer_candidate == 6) != (args.consumer_pool_per_instance == 8):
     parser.error("Six consumers require pool8; other approved layouts use pool12")
-if args.api_payment_pool_max_candidate:
-    if (args.api_pool_per_instance_candidate, args.api_pool_waiters_candidate,
-        args.api_payment_pool_waiters_candidate) != (4, 12, 11):
-        parser.error("Payment candidate requires fixed4 connections/12 total waiters with11 payment waiters")
-elif args.api_payment_pool_waiters_candidate:
-    parser.error("Explicit payment waiters require an enabled partition")
 EXPECTED = args.paid_rate * args.paid_seconds if args.paid_rate else 10
 if not 0 <= args.paid_rate <= 100 or not 1 <= args.paid_seconds <= 300:
     parser.error("Bounded paid-stage rate/duration required")
@@ -109,8 +101,6 @@ prefix = [
     f"FLASH_TICKETING_BACKEND_DIR={BACKEND}",
     f"API_POOL_PER_INSTANCE={args.api_pool_per_instance_candidate}",
     f"API_POOL_MAX_WAITING={args.api_pool_waiters_candidate}",
-    f"API_PAYMENT_POOL_MAX={args.api_payment_pool_max_candidate}",
-    f"API_PAYMENT_POOL_MAX_WAITING={args.api_payment_pool_waiters_candidate}",
     f"ORDER_STATUS_CACHE_MS={args.order_status_cache_ms_candidate}",
     f"CONSUMER_POOL_PER_INSTANCE={args.consumer_pool_per_instance}",
     "sh",
@@ -121,8 +111,6 @@ rollback_prefix = [
     f"FLASH_TICKETING_BACKEND_DIR={BACKEND}",
     "API_POOL_PER_INSTANCE=3",
     "API_POOL_MAX_WAITING=3",
-    "API_PAYMENT_POOL_MAX=0",
-    "API_PAYMENT_POOL_MAX_WAITING=0",
     "ORDER_STATUS_CACHE_MS=0",
     "CONSUMER_POOL_PER_INSTANCE=12",
     "sh",
@@ -136,45 +124,10 @@ cache_setting_check = (
     'value=$(docker exec "$id" printenv ORDER_STATUS_CACHE_MS || true); '
     'printf "%s\n" "${value:-0}"; done'
 )
-payment_setting_check = (
-    f'cd {BACKEND}; for id in $({COMPOSE} ps -q api); do '
-    'value=$(docker exec "$id" printenv API_PAYMENT_POOL_MAX || true); '
-    'waiting=$(docker exec "$id" printenv API_PAYMENT_POOL_MAX_WAITING || true); '
-    'printf "%s:%s\n" "' + '$' + '{value:-0}" "' + '$' + '{waiting:-0}"; done'
-)
-partition_probe = """
-import json, urllib.request
-from ticketing.config import Settings
-from ticketing.infrastructure.postgres import api_pool_budgets
-s=Settings()
-b=api_pool_budgets(s.pool_max,s.pool_max_waiting,s.api_payment_pool_max,s.api_payment_pool_max_waiting)
-raw=urllib.request.urlopen('http://127.0.0.1:8000/metrics',timeout=10).read().decode()
-states={}
-prefix='ticketing_db_pool_state{state="'
-for line in raw.splitlines():
- if line.startswith(prefix):
-  key=line.split('"',2)[1]
-  states[key]=float(line.rsplit(' ',1)[1])
-expected={'pool_max':s.pool_max,'general_pool_max':b['general']['maximum'],
-          'payment_pool_max':b['payment']['maximum'] if b['payment'] else 0,
-          'pool_max_waiting':s.pool_max if s.pool_max_waiting is None else s.pool_max_waiting,
-          'general_max_waiting':b['general']['maximum_waiting'],
-          'payment_max_waiting':b['payment']['maximum_waiting'] if b['payment'] else 0}
-result={'payment_maximum':s.api_payment_pool_max,'payment_maximum_waiting':s.api_payment_pool_max_waiting,'budgets':b,'metrics':{k:states.get(k) for k in expected},
-        'pass':all(states.get(k)==v for k,v in expected.items())}
-print(json.dumps(result))
-raise SystemExit(0 if result['pass'] else 1)
-"""
-partition_check = (
-    f'cd {BACKEND}; for id in $({COMPOSE} ps -q api); do '
-    f'docker exec "$id" python -c {shlex.quote(partition_probe)} || exit 1; done'
-)
 state = {"run": RUN, "phases": [], "pass": False, "error": None,
          "order_status_cache_ms_candidate": args.order_status_cache_ms_candidate,
          "consumer_pool_per_instance_candidate": args.consumer_pool_per_instance,
          "api_pool_per_instance_candidate": args.api_pool_per_instance_candidate,
-         "api_payment_pool_max_candidate": args.api_payment_pool_max_candidate,
-         "api_payment_pool_waiters_candidate": args.api_payment_pool_waiters_candidate,
          "paid_configuration": {"rate": args.paid_rate, "seconds": args.paid_seconds,
                                 "concurrency": args.paid_concurrency,
                                 "generator_shards": args.paid_generator_shards,
@@ -229,9 +182,6 @@ try:
     original_cache = step("order-cache-original", API_HOST, ["sh", "-lc", cache_setting_check], 30)
     if original_cache.stdout.splitlines() != ["0"] * 4:
         raise RuntimeError("Expected disabled order cache on all baseline APIs")
-    original_payment = step("payment-pool-original", API_HOST, ["sh", "-lc", payment_setting_check], 30)
-    if original_payment.stdout.splitlines() != ["0:0"] * 4:
-        raise RuntimeError("Expected shared baseline API pools")
     original_budget = step("consumer-budget-original", API_HOST,
         ["sh", "-lc", f"cd {BACKEND} && python3 scripts/verify_consumer_pool_budget.py --consumers 1 --pool-max 12 --api-pool-max 3"], 30)
     state["consumer_budget_original"] = json.loads(original_budget.stdout)
@@ -269,16 +219,6 @@ try:
     candidate_cache = step("order-cache-candidate", API_HOST, ["sh", "-lc", cache_setting_check], 30)
     if candidate_cache.stdout.splitlines() != [str(args.order_status_cache_ms_candidate)] * 4:
         raise RuntimeError("Candidate order cache setting not active on all APIs")
-    candidate_payment = step("payment-pool-candidate", API_HOST, ["sh", "-lc", payment_setting_check], 30)
-    if candidate_payment.stdout.splitlines() != [f"{args.api_payment_pool_max_candidate}:{args.api_payment_pool_waiters_candidate}"] * 4:
-        raise RuntimeError("Candidate payment allocation not active on all APIs")
-    if args.api_payment_pool_max_candidate:
-        partition = step("api-pool-partition-candidate", API_HOST, ["sh", "-lc", partition_check], 45)
-        state["api_pool_partition_candidate"] = [json.loads(line) for line in partition.stdout.splitlines()]
-        if len(state["api_pool_partition_candidate"]) != 4 or not all(
-            row["pass"] for row in state["api_pool_partition_candidate"]
-        ):
-            raise RuntimeError("Actual API pool partition does not match fixed budgets")
     if args.simulator_concurrency_candidate != 4 or args.simulator_dispatch_mode_candidate != "batch":
         simulator_config = (
             f'cd {BACKEND}; id=$({COMPOSE} ps -q simulator); test -n "$id"; '
@@ -697,15 +637,6 @@ finally:
             restored_cache = backend_exec("order-cache-restored", cache_setting_check, 30).stdout.splitlines()
             state["order_status_cache_restored"] = restored_cache == ["0"] * 4
             state["pass"] = state["pass"] and state["order_status_cache_restored"]
-            restored_payment = backend_exec("payment-pool-restored", payment_setting_check, 30).stdout.splitlines()
-            state["api_payment_pool_restored"] = restored_payment == ["0:0"] * 4
-            state["pass"] = state["pass"] and state["api_payment_pool_restored"]
-            if args.api_payment_pool_max_candidate:
-                restored_partition = backend_exec("api-pool-partition-restored", partition_check, 45)
-                state["api_pool_partition_restored"] = [json.loads(line) for line in restored_partition.stdout.splitlines()]
-                state["pass"] = state["pass"] and len(state["api_pool_partition_restored"]) == 4 and all(
-                    row["pass"] and row["payment_maximum"] == 0 and row["payment_maximum_waiting"] == 0 for row in state["api_pool_partition_restored"]
-                )
         except Exception as exc:  # noqa: BLE001 - always attempt teardown
             state["error"] = (state["error"] or "") + "; rollback: " + str(exc)
             state["pass"] = False
