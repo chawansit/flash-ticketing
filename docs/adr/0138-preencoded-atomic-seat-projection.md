@@ -11,7 +11,7 @@ Separate fresh-map prefix probes put original decode at41.678ms, decode-plus-sel
 
 ## Decision
 
-Serialize incoming seat payloads in Python before entering Redis. Transfer each input as seat ID, source version and a complete JSON-object fragment without its aggregate version. The Lua script decodes the small row envelope, retains strict per-seat source-version selection, and appends the final aggregate version to the selected incoming JSON fragment. Retained old states are decoded for fencing and re-encoded only when dirty repair requires rewriting them.
+Serialize incoming seat payloads in Python before entering Redis. Transfer each input as seat ID, source version and a complete JSON-object fragment without its aggregate version. Transfer only seat IDs/source versions in the small JSON metadata envelope and each pre-encoded object as its own raw Redis argument. The Lua script decodes the small metadata envelope, retains strict per-seat source-version selection, and appends the final aggregate version to the selected incoming JSON fragment. Retained old states are decoded for fencing and re-encoded only when dirty repair requires rewriting them.
 
 Use bounded256-field HMGET/HSET groups from the rejected ADR0136 experiment as part of this new candidate. Keep one whole-map atomic Lua invocation. Record delta entries from the exact encoded strings written to the hash and a cjson-encoded numeric version header, avoiding another full seat-object encoding pass. Do not manually encode arbitrary string values in Lua: Python JSON encoding owns strings/objects, Lua adds only the cjson-encoded numeric aggregate and JSON punctuation.
 
@@ -38,3 +38,7 @@ No cloud execution after failed local gates. A future production cache-factor co
 ## Validation evidence
 
 At decision time this representation is not implemented/tested. [Rejected prior candidate and comparison](../capacity/flash-sale-opening/bulk-seat-projection-local-validation-2026-10-04.json). Required local evidence:256 boundaries and18k original-deadline prewarm, stale full/concurrent patch, interrupted publication repair, acknowledgement replay, Unicode/JSON escaping, exact history/incarnation/TTL behavior, signed large-show financial replay and full concurrency/financial regressions. Retain failed initial attempts. Generator native-filesystem qualification under ADR0137 is a separate gate and cannot qualify Redis or cloud financial queues.
+
+### Representation refinement before raw-argument implementation
+
+The first local nested-JSON envelope candidate passed49 checks but retained both18k timeouts; an extra Unicode test also expected fields intentionally omitted by the existing public delta representation. Preserve that failed run and test full states in raw delta history plus the existing public subset. Encoding already-serialized payload strings inside an outer JSON array adds escaping/decoding work. Before the next implementation, keep only IDs/source versions in the JSON envelope and pass payload bodies as raw Redis arguments after the fixed10-field header. Full/patch caller and Lua index agree on that internal ABI. No deadline, stored representation or external delta field changes.
