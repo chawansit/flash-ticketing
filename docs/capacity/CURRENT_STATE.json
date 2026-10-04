@@ -2,8 +2,8 @@
   "updated_date_bangkok": "2026-10-04",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "security_note": "Earlier temporary key removed from both accounts. Fresh ADR0126 key generated locally but not installed. Default SSH denied; browser runtime unavailable. No secret material published.",
-  "status": "cache_disabled_control_approved_prepared_access_pending",
+  "security_note": "User explicitly approved one temporary key entry on each ECS root account for this run; installed using protected terminal password entry with known-host verification. No password written to repository/environment or datastore setting changed. Remove key from both accounts after all final audits/cleanup.",
+  "status": "cache_disabled_control_preflight_passed_ready",
   "cloud_load_requires_resume": false,
   "handoff_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
   "revision_note": "Cloud checkouts tested 5706fce. Ten application runtime hashes unchanged from the identified baseline; observer query changed only. Baseline service settings restored. Reporting commit follows tested source revision.",
@@ -25,11 +25,10 @@
     "Same60buyers/s300s1000ms-cache configuration and all10 application runtime hashes as the initially failed observer trial. Ticket-wait p951060.9ms;hold-to-ticket p952157.5ms.",
     "The initial trial remains FAILED; the repaired-observer run is one fully passing bounded1000ms-cache control. No sustained production-capacity claim."
   ],
-  "unresolved": "The approved cache-disabled comparison awaits SSH access. Prior temporary key was revoked,default authentication is denied on both hosts,and browser runtime initialization fails. The prior passing1000ms result and initial failed observer trial remain unchanged; sustained production capacity remains unqualified.",
+  "unresolved": "Cache-disabled runtime/CPU/latency comparison not yet executed; prior passing1000ms control and initial failed observer trial remain unchanged. Sustained production capacity remains unqualified.",
   "next_on_resume": [
-    "Use the fresh public key or an authorized identity-file path to restore access to both existing hosts; never send private-key/password material in chat.",
-    "Run tmp/preflight_adr0126_access.py,then the guarded single tmp/run_adr0126_control.py only after preflight passes.",
-    "Collect all mandatory audits/source/restoration/idle/private cleanup,then remove only the temporary access entry; no second run or higher load."
+    "Resolve the pending specific temporary-key authorization or choose password-only access.",
+    "After authorized access/source/topology preflight passes,execute exactly one60buyers/s300s0ms-cache comparison and all mandatory correctness/drain/recovery gates."
   ],
   "validation_this_resume": "43 existing disabled-cache/configuration and bounded CLI unit tests passed2.44s; one pytest-cache permission warning. Helper syntax and exact one-factor/CLI bounds verified. No application source edits or cloud load; no cloud qualification claim.",
   "evidence": [
@@ -46,7 +45,7 @@
     "docs/adr/0123-bounded-paid-cpu-sampler-readiness.md",
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
-  "authorization": "User authorizes autonomous continuation without routine questions until08:00Asia/Bangkok2026-10-04. Covers bounded implementation/configuration,checks and sanitized feature-branch evidence/checkpoint pushes to existing remote. No higherload/mainmerge;honor review rejection. User specifically approved observer-only cloud preflight/deployment/requalification after the failed observer gate by replying Continue to the concrete next-step proposal. User Go ahead specifically approves the new one-run ADR0126 control and required completion/recovery audits.",
+  "authorization": "User authorizes autonomous continuation without routine questions until08:00Asia/Bangkok2026-10-04. Covers bounded implementation/configuration,checks and sanitized feature-branch evidence/checkpoint pushes to existing remote. No higherload/mainmerge;honor review rejection. User specifically approved observer-only cloud preflight/deployment/requalification after the failed observer gate by replying Continue to the concrete next-step proposal. User Go ahead specifically approves the new one-run ADR0126 control and required completion/recovery audits. User explicitly Approved the exact temporary root authorized_keys addition on both ECS hosts and subsequent removal; protected terminal password handling used.",
   "scope": "User Go ahead approved exactly one new ADR0126 cache-disabled60buyers/s300s control against the passing1000ms baseline. Access pending; no load dispatched. Earlier two-run scope remains completed.",
   "roadmap": [
     {
@@ -150,7 +149,7 @@
     "limit": 1,
     "started": 0,
     "active_run": null,
-    "access_ready": false,
+    "access_ready": true,
     "local_validation": {
       "executed_command": ".venv/Scripts/python.exe -m pytest tests/unit/test_order_status_cache.py tests/unit/test_paid_checkout_cli.py -q",
       "passed": 43,
@@ -164,6 +163,14 @@
       "exact_bounded_cli_arguments_verified": true,
       "single_configuration_factor_verified": true,
       "mandatory_gates_retained": true
-    }
+    },
+    "review_block": {
+      "action": "Add experiment temporary public key to root authorized_keys on both ECS hosts",
+      "reason": "Automatic review requires explicit authorization for this root-account access change; transient password environment was also flagged.",
+      "executed": true,
+      "specific_approval_requested": true,
+      "resolved_by": "User explicitly replied Approved to exact temporary root-key installation/removal request."
+    },
+    "temporary_key_installed": true
   }
 }
