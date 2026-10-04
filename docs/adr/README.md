@@ -230,3 +230,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0143 - Bounded order-status miss coalescing](0143-bounded-order-status-miss-coalescing.md)
 
 - [0144 - Enabled-cache isolated coalescing comparison](0144-enabled-cache-isolated-coalescing-comparison.md)
+
+- [ADR0145: Reserved payment callback admission](0145-reserved-payment-callback-admission.md)

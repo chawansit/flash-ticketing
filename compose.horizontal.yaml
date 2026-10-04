@@ -6,6 +6,7 @@ services:
       DB_POOL_MAX_WAITING: ${API_POOL_MAX_WAITING:-${API_POOL_PER_INSTANCE:-6}}
       API_PAYMENT_POOL_MAX: ${API_PAYMENT_POOL_MAX:-0}
       API_POOL_SHARED_WAITING: ${API_POOL_SHARED_WAITING:-0}
+      API_CALLBACK_ACQUISITION_RESERVE: ${API_CALLBACK_ACQUISITION_RESERVE:-0}
       RESERVE_CONCURRENCY: ${API_ADMISSION_PER_INSTANCE:-6}
       # Settings are validated as one unit in every process. The API does not run
       # payment simulation, but this value must still fit its per-replica pool.

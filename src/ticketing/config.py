@@ -18,6 +18,7 @@ class Settings:
     )
     api_payment_pool_max: int = int(os.getenv("API_PAYMENT_POOL_MAX", "0"))
     api_pool_shared_waiting: bool = os.getenv("API_POOL_SHARED_WAITING", "0") == "1"
+    api_callback_acquisition_reserve: int = int(os.getenv("API_CALLBACK_ACQUISITION_RESERVE", "0"))
     pool_wait_ms: int = int(os.getenv("DB_POOL_WAIT_MS", "150"))
     seatmap_ttl_seconds: int = int(os.getenv("SEATMAP_TTL_SECONDS", "120"))
     reserve_concurrency: int = int(os.getenv("RESERVE_CONCURRENCY", "12"))
@@ -85,6 +86,14 @@ class Settings:
             not self.api_payment_pool_max or (self.pool_max_waiting or self.pool_max) < self.pool_max
         ):
             raise RuntimeError("API_POOL_SHARED_WAITING requires a partition and waiter budget at least total connections")
+        if not 0 <= self.api_callback_acquisition_reserve <= self.api_payment_pool_max or (
+            self.api_callback_acquisition_reserve and (
+                not self.api_pool_shared_waiting
+                or self.api_callback_acquisition_reserve >= (self.pool_max_waiting or self.pool_max)
+                - (self.pool_max - self.api_payment_pool_max)
+            )
+        ):
+            raise RuntimeError("API_CALLBACK_ACQUISITION_RESERVE requires shared payment admission and remaining submission capacity")
         if self.reservation_mode not in {"postgres", "redis-first"}:
             raise RuntimeError("RESERVATION_MODE must be postgres or redis-first")
         if not 1 <= self.redis_reserve_concurrency <= 10000:

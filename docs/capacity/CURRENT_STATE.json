@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-04",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0144_control_failed_candidate_skipped_accounting_verified",
+  "status": "adr0145_callback_reserve_local_passed_cloud_unqualified",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0144 exact temporary root-key entries removed on both hosts and local key files deleted.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,8 +13,9 @@
   "last_checked_topology": "Verified deb330e cloud source/images restored: API4/postgres/pool3/admission4/waiters3/payment0/sharedfalse/cache0; consumer1/pool12; publisher/maintenance/reconciler1; writer/refresh/expiry0; simulator4/batch; PgBouncer24/reserve0/client160. Generator idle. Post-restoration2026-10-04T16:32:41Z global queues/Kafka lag0. No candidate deployed.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "current_run": null,
-  "revision_note": "Workspace37d1874 plus ADR0144 evidence checkpoint. Isolateddfb11bc native111/663passed; cloud candidate skipped after enabled-cache control failed. Cloud source/images restored todeb330e.",
+  "revision_note": "7659d18 development base plus ADR0145 callback-reserve implementation, final source hashes/native193/765passed. Cloud remainsdeb330e/normalsettings; no new cloud access or deployment.",
   "confirmed": [
+    "ADR0145default0 opt-in callbackreserve: same2nativepools/4connections, totalacquisitions12, sharedpaymentqueue10, submissions8/noncallbacks10/reservedcallbacks2. Finalnative193focused/765fullpassed, Windows68passed, lockeddependencies/source/lint/ownedcleanup verified; financialmutations unchanged.",
     "ADR0144 control60buyers/s300s/cache1000:18000scheduled/17968dispatched/32drops/3799customerconfirmedbydeadline/14169failedjourneys78.857%;zero customer retries;19of22requiredgates passed.",
     "PostTTL16981successful simulatedpayments/16964unique tickets/zero duplicate seats or multi-booking. Later16981=16964fulfilled+17simulatedrefunded,0refundpending;987unpaidexpired;globalqueues/Kafka0. Failedcustomer/ticket/compoundcohortgates retained.",
     "Offered sampledhostCPU97.580%,API1.950cores;APIacquisitionmean64.660ms;callbackbacklogpeak5909;due-to-claim histogramp95upper120s;108207physicalstatuschecks6.022/dispatchedjourney. Cache activation alone did not pass; initiatingcause remainsunproved.",
@@ -22,14 +23,14 @@
     "Isolateddfb11bc coalescing native111focused/663fullpassed with exactexportbytes/lockeddependencies;13runtime normalizedGitsha verified;projection andfinancialmutationmethods unchanged. Candidate skipped,0cloudruns.",
     "ADR0133 historical60buyers/s pass18000paid-issued remains historical; ADR0142cache0 reproduction failed. Neither current result qualifies300000tickets/hour."
   ],
-  "unresolved": "Customer status/payment503s, shared acquisition pressure, API hostCPU saturation and slow callback delivery persist. Cache activation did not qualify; initiating cause and coalescing cloud benefit unproved. No verified300000tickets/hour capacity.",
+  "unresolved": "Cloud callback-reserve benefit unproved; previous customer503/shared admission/CPU saturation/callback delay persist in the last cloud test. Native FIFO and existing simultaneous duplicate NOWAIT lock rejection remain. Initiating regression cause and300000tickets/hour capacity unproved.",
   "next_on_resume": [
-    "Create a separate ADR for callback-priority acquisition within the existing total connection/waiter budget; inspect whether status reads can exhaust the shared admission budget despite payment pool partitioning.",
-    "Validate fairness, bounded waiting, exception/cancellation release, payment idempotency and zero-double-booking locally before proposing one comparable bounded cloud control.",
-    "Change one factor. If CPU remains saturated after callback protection, separately assess moving background services off the API host; retain all customer/financial/queue/source/cleanup gates."
+    "Prepare an isolated ADR0145 revision from clouddeb330e importing onlypostgres/config/api callback reserve plus tests/config/docs; exclude projection/coalescing factors. Verify native source/dependencies and all correctness gates on that isolated tree.",
+    "Record a separately bounded comparison scope against ADR0144 cache1000control: keep60buyers/s300s, all machine/connection/worker budgets, generator/harness and customer/financial/queue/source/cleanup gates unchanged; change onlycallbackreserve0to2. No automatic higherload or retries.",
+    "Evaluate callback admission/delivery backlog, general/submission503s, client paid-ticket success and CPU. If insufficient, choose separate ADR/factor for CPU background-service isolation or duplicate callback lock handling."
   ],
-  "authorization": "User Continue after conditional-pair plan authorizes one enabled-cache control and at most one isolated coalescing candidate only if all control gates and cleanup pass.",
-  "scope": "ADR0144 one60buyers/s300s/cache1000control finished; candidate0runs/skipped. No higherload/retry/additionalexperiment/push/merge. Later read-only accounting completed.",
+  "authorization": "User Continue authorizes the proposed callback admission improvement and local correctness validation. Previous ADR0144 pair stopped after failedcontrol; no automatic higherload or replacement cloudstage.",
+  "scope": "ADR0145 opt-in local implementation and final native validation only. No cloud load/deployment/retryexperiment/push/mainmerge.",
   "bounded_control": {
     "decision": "0144-enabled-cache-isolated-coalescing-comparison",
     "stage": "control",
@@ -72,7 +73,7 @@
     "status": "PAUSED_EXPIRED",
     "active_run": null
   },
-  "workspace_base_revision": "37d1874c41b9ec7a64b6303739ec5808b12b8a03",
+  "workspace_base_revision": "7659d183532da85f32186757e849f8a809e59019",
   "local_candidate": {
     "base_revision": "1798c0e18e52889fc5e58732e90c8e6282677300",
     "retained_projection_revision": "a97d3620e3b5d2690b33f16c41b7de1b2096a5ac",
@@ -89,10 +90,12 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "Local ADR0144 evidence checkpoint only; no GitHub push or main merge.",
+    "status": "Local ADR0145 implementation/evidence checkpoint; no GitHub push or main merge.",
     "branch": "codex/redis-failover-recovery"
   },
   "evidence": [
+    "docs/capacity/flash-sale-opening/callback-admission-reserve-local-validation-2026-10-04.json",
+    "docs/adr/0145-reserved-payment-callback-admission.md",
     "docs/adr/0144-enabled-cache-isolated-coalescing-comparison.md",
     "docs/capacity/flash-sale-opening/isolated-coalescing-local-validation-2026-10-04.json",
     "docs/capacity/flash-sale-opening/enabled-cache-control-2026-10-04.json",
@@ -115,5 +118,14 @@
     "cloud_deployed": false,
     "cloud_qualification": "SKIPPED_CONTROL_FAILED",
     "report": "docs/capacity/flash-sale-opening/isolated-coalescing-local-validation-2026-10-04.json"
+  },
+  "local_callback_candidate": {
+    "decision": "0145-reserved-payment-callback-admission",
+    "workspace_parent_revision": "7659d183532da85f32186757e849f8a809e59019",
+    "source_manifest": "docs/capacity/flash-sale-opening/callback-admission-reserve-local-validation-2026-10-04.json",
+    "local_qualification": "PASSED_193_FOCUSED_765_FULL",
+    "default_reserve": 0,
+    "cloud_deployed": false,
+    "isolated_cloud_revision_prepared": false
   }
 }

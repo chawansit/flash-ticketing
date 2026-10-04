@@ -1,7 +1,7 @@
 import logging
 from contextlib import ExitStack, contextmanager
-from time import perf_counter as monotonic
 from threading import Lock
+from time import perf_counter as monotonic
 
 from psycopg import Cursor
 from psycopg.rows import dict_row
@@ -57,6 +57,8 @@ class MeasuredCursor(Cursor):
 
 class Postgres:
     def __init__(self, url: str, maximum: int = 12, wait_ms: int = 150, maximum_waiting: int | None = None):
+        self._owns_pool = True
+        self.callback_database = self
         self.pool = ConnectionPool(
             url,
             open=True,
@@ -66,6 +68,15 @@ class Postgres:
             max_waiting=maximum if maximum_waiting is None else maximum_waiting,
             kwargs={"row_factory": dict_row, "prepare_threshold": None, "cursor_factory": MeasuredCursor},
         )
+
+    @classmethod
+    def borrow_pool(cls, pool):
+        """A measured adapter over an existing pool; its owner closes it."""
+        adapter = cls.__new__(cls)
+        adapter.pool = pool
+        adapter._owns_pool = False
+        adapter.callback_database = adapter
+        return adapter
 
     @contextmanager
     def transaction(self):
@@ -189,16 +200,24 @@ class Postgres:
                 DB_POOL_STATE.labels(f"shared_acquisition_{name}").set(budget_state[name])
             for role in ("general", "payment"):
                 DB_POOL_STATE.labels(f"{role}_max_waiting").set(waiter_limits.get(role, 0))
+            DB_POOL_STATE.labels("callback_acquisition_reserve").set(shared.callback_reserved if shared else 0)
+            for role in ("general", "payment", "callback"):
+                DB_POOL_STATE.labels(f"{role}_acquisition_used").set(budget_state.get("counts", {}).get(role, 0))
+                DB_POOL_STATE.labels(f"{role}_acquisition_rejected").set(budget_state.get("rejected", {}).get(role, 0))
 
     def close(self):
-        self.pool.close()
+        if getattr(self, "_owns_pool", True):
+            self.pool.close()
 
 
 
 class SharedAcquisitionBudget:
     """Bound live checkout attempts and conservatively retained timeout slots."""
 
-    def __init__(self, maximum, limits, pools):
+    def __init__(self, maximum, limits, pools, callback_reserved=0):
+        if not 0 <= callback_reserved < maximum or (callback_reserved and "callback" not in limits):
+            raise ValueError("Invalid callback acquisition reserve")
+        self.callback_reserved = callback_reserved
         self.maximum = maximum
         self.limits = limits
         self.pools = pools
@@ -206,6 +225,11 @@ class SharedAcquisitionBudget:
         self._counts = {role: 0 for role in limits}
         self._retained = {role: 0 for role in limits}
         self._rejected = {role: 0 for role in limits}
+        # Multiple admission roles may share one physical native FIFO.
+        self._groups = {
+            role: tuple(other for other in limits if pools[other] is pools[role])
+            for role in limits
+        }
 
     def _refresh(self):
         # Timeout positions can remain in the native FIFO. Reuse their slots
@@ -218,7 +242,19 @@ class SharedAcquisitionBudget:
     def acquire(self, role):
         with self._lock:
             self._refresh()
-            if sum(self._counts.values()) >= self.maximum or self._counts[role] >= self.limits[role]:
+            group = self._groups[role]
+            native_full = self._counts[role] >= self.limits[role]
+            if len(group) > 1:
+                ceiling = min(self.limits[item] for item in group)
+                native_full = sum(self._counts[item] for item in group) >= ceiling
+                if self.callback_reserved and role != "callback" and "callback" in group:
+                    submissions = sum(self._counts[item] for item in group if item != "callback")
+                    native_full = native_full or submissions >= ceiling - self.callback_reserved
+            reserve_full = False
+            if self.callback_reserved and role != "callback":
+                noncallback = sum(self._counts.values()) - self._counts["callback"]
+                reserve_full = noncallback >= self.maximum - self.callback_reserved
+            if sum(self._counts.values()) >= self.maximum or native_full or reserve_full:
                 self._rejected[role] += 1
                 raise TooManyRequests("API shared acquisition budget exhausted")
             self._counts[role] += 1
@@ -240,6 +276,7 @@ class SharedAcquisitionBudget:
                 "acquiring": sum(self._counts.values()) - sum(self._retained.values()),
                 "counts": dict(self._counts),
                 "rejected": dict(self._rejected),
+                "callback_reserved": self.callback_reserved,
             }
 
 
@@ -320,9 +357,13 @@ def api_pool_budgets(maximum: int, maximum_waiting: int | None, payment_maximum:
     }
 
 
-def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum=0, shared_waiting=False):
+def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum=0, shared_waiting=False, callback_reserved=0):
     """Return general/payment adapters, sharing one pool when disabled."""
     budgets = api_pool_budgets(maximum, maximum_waiting, payment_maximum, shared_waiting)
+    if not 0 <= callback_reserved <= payment_maximum or (callback_reserved and (
+        not shared_waiting or callback_reserved >= budgets["payment"]["maximum_waiting"]
+    )):
+        raise ValueError("Callback reserve requires shared payment admission and remaining submission capacity")
     with ExitStack() as resources:
         general = Postgres(url, wait_ms=wait_ms, **budgets["general"])
         resources.callback(general.close)
@@ -331,20 +372,29 @@ def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum
             payment = Postgres(url, wait_ms=wait_ms, **budgets["payment"])
             resources.callback(payment.close)
         shared = None
+        callback = payment
         if shared_waiting:
             native = {"general": general.pool, "payment": payment.pool}
+            limits = {role: budget["maximum_waiting"] for role, budget in budgets.items()}
+            if callback_reserved:
+                native["callback"] = native["payment"]
+                limits["callback"] = limits["payment"]
             shared = SharedAcquisitionBudget(
                 maximum if maximum_waiting is None else maximum_waiting,
-                {role: budget["maximum_waiting"] for role, budget in budgets.items()}, native,
+                limits, native, callback_reserved,
             )
+            if callback_reserved:
+                callback = Postgres.borrow_pool(AcquisitionLimitedPool(native["payment"], shared, "callback"))
             general.pool = AcquisitionLimitedPool(general.pool, shared, "general")
             payment.pool = AcquisitionLimitedPool(payment.pool, shared, "payment")
         general._shared_acquisition_budget = payment._shared_acquisition_budget = shared
+        callback._shared_acquisition_budget = shared
+        payment.callback_database = callback
         roles = {"general": general.pool}
         if payment is not general:
             roles["payment"] = payment.pool
-        general._metric_pool_roles = payment._metric_pool_roles = roles
+        general._metric_pool_roles = payment._metric_pool_roles = callback._metric_pool_roles = roles
         limits = {role: budget["maximum_waiting"] for role, budget in budgets.items() if budget is not None}
-        general._metric_waiter_limits = payment._metric_waiter_limits = limits
+        general._metric_waiter_limits = payment._metric_waiter_limits = callback._metric_waiter_limits = limits
         resources.pop_all()
         return general, payment

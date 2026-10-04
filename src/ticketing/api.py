@@ -59,6 +59,7 @@ async def lifespan(app):
     db, payment_db = create_api_databases(
         settings.database_url, settings.pool_max, settings.pool_wait_ms,
         settings.pool_max_waiting, settings.api_payment_pool_max, settings.api_pool_shared_waiting,
+        settings.api_callback_acquisition_reserve,
     )
     with ExitStack() as resources:
         resources.callback(db.close)
@@ -84,6 +85,11 @@ async def lifespan(app):
         app.state.payment_reservations = (
             app.state.reservations if payment_db is db
             else Reservations(PostgresReservations(payment_db, cache, settings.hold_seconds))
+        )
+        callback_db = payment_db.callback_database if settings.api_callback_acquisition_reserve else payment_db
+        app.state.callback_reservations = (
+            app.state.payment_reservations if callback_db is payment_db
+            else Reservations(PostgresReservations(callback_db, cache, settings.hold_seconds))
         )
         loop_observer = asyncio.create_task(observe_event_loop_lag())
         try:
@@ -118,6 +124,8 @@ ERRORS = {code: {"model": Error} for code in (401, 403, 404, 409, 422, 429, 503)
 
 async def service(request: Request):
     route_name = getattr(request.scope.get("route"), "name", None)
+    if request.method == "POST" and route_name == "callback" and settings.api_callback_acquisition_reserve:
+        return request.app.state.callback_reservations
     if request.method == "POST" and route_name in {"payment", "callback"}:
         return request.app.state.payment_reservations
     return request.app.state.reservations

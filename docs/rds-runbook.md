@@ -193,3 +193,12 @@ rate from a failed result. Verify `gates.rollback=true` before any later stage.
 Raw high-volume observer output stays on the backend ECS; compact load, admission,
 durability and rollback evidence is copied locally. Private manifests are removed
 from the operator and both ECSs in the cleanup path.
+
+
+### Optional callback admission reserve (ADR0145)
+
+`API_CALLBACK_ACQUISITION_RESERVE` defaults to `0`. It requires `API_POOL_SHARED_WAITING=1` and an existing `API_PAYMENT_POOL_MAX` partition. A proposed pool4/payment2/acquisition12/reserve2 profile keeps four maximum connections, permits at most12 total live/retained acquisitions, at most10 combined payment/callback acquisitions, at most8 submissions and at most10 non-callback acquisitions. Invalid configurations that leave no submission queue slot fail at startup.
+
+Callbacks borrow the existing payment pool. General requests and payment submissions cannot consume its protected admission headroom, but the native FIFO and transaction timeouts are unchanged. This reserves admission rather than ordering callbacks ahead of queued work. It can increase submission/status503 responses under pressure; no retry or new connection budget is introduced. Disable the setting to restore prior routing.
+
+The feature requires cloud qualification on an isolated source revision. Current development branch also contains unqualified projection/coalescing candidates; do not deploy the whole branch for a one-factor comparison. Local correctness tests do not establish RPS or paid-ticket capacity.
