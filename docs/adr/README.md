@@ -200,3 +200,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0128 - Native-row single-statement order-status reads](0128-native-row-single-statement-order-status-reads.md)
 
 - [0129 - Payment-derived order lock in one query](0129-payment-derived-order-lock-query.md)
+
+- [0130 - Fixed-budget API payment pool partition](0130-fixed-budget-api-payment-pool-partition.md)

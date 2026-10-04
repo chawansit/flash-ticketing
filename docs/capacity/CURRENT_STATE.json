@@ -3,7 +3,7 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "ADR0129 restrictedtemporaryrootkeyentries removedonbothhosts andlocalkeyfilesdeleted;nocredentials saved.",
-  "status": "adr0129_cloud_control_passed_access_removed",
+  "status": "adr0130_shared_pool_starvation_reproduced_decision_recorded",
   "cloud_load_requires_resume": true,
   "handoff_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
   "revision_note": "ADR0129 testedcandidatef3f511d; cloudcheckouts/runtime retaincandidate andnineothermodules matchADR0128baseline. Servicebudgets/cache0 restored;resultcommitsmayfollow.",
@@ -29,11 +29,12 @@
   ],
   "unresolved": "One freshfixture comparison andsampledCPU windows do not establishcausalcapacity/headroom improvement. APISELECT counters coverallroutes/setup;not callbackquerytimings. Production300000/hour,onehotconcert/realprovider capacity remainsunqualified.",
   "next_on_resume": [
-    "Review ADR0129 observed SQLcount/connectionhold,customerlatency,HTTPattempts andsampledCPU againstADR0128.",
-    "Select only an evidence-backed nextchange andwriteADR beforeimplementation. Anothercloudrun requiresnewbounded scope;nohigherload/mainmerge onfailedgates."
+    "ImplementADR0130 opt-infixedtotalconnection/waiter partition;preservequeries/transactions/authorization/errorvisibility.",
+    "Validatecontrolledread/paymentexhaustion,concurrency/replay andlifecycle/metrics;prepareexactoneunchangedloadcomparison forapproval."
   ],
-  "validation_this_resume": "ADR0129:571unit/integration tests passed87.28s beforedeployment;13newrealPG cases,baseline1expectedquerycountfailure/12passes;noskips/twodependencywarnings. One60/300/cache0 comparison completed;all17gates=True. Temporaryrootkeyentries/localfilesremoved.",
+  "validation_this_resume": "ControlledlocalrealPGfour-readoccupancyreproducedbothpayment-initiation andcallbackPoolTimeout. Reproduction1passed0.50s;replayafterreleaseexactonebooking/callback;ownedcontainersremoved. No candidate/cloudresultclaimed.",
   "evidence": [
+    "docs/adr/0130-fixed-budget-api-payment-pool-partition.md",
     "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
     "docs/capacity/flash-sale-opening/callback-order-lock-control-plan-2026-10-04.json",
     "docs/capacity/flash-sale-opening/callback-order-lock-local-validation-2026-10-04.json",
@@ -62,7 +63,7 @@
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
   "authorization": "User Continue approved ADR0129callbackinvestigation/implementation/checks andoneunchanged60/300 comparison. User explicitly Approved theexactfreshrestricted45minute rootkeyinstallation/removal onbothECSaccounts. Onecomparison andaudits/accesscleanupcompleted;noadditionalrun,higherload,push/mainmerge authorized.",
-  "scope": "One explicitlyapprovedADR0129 deployment/comparisoncompleted;noadditionalrun,higherload,publication/mainmerge.",
+  "scope": "User Continue authorizesstep4investigation/ADRbeforeimplementation/localvalidation. Sharedpoolstarvationreproducedlocally;opt-infixedbudgetpartitiondecided. No cloudaccess/load,newrootkey,push/higherload/mainmerge yet.",
   "roadmap": [
     {
       "step": 1,
@@ -149,14 +150,11 @@
     "approval_deferred_until_8am": false
   },
   "local_diagnostic_candidate": {
-    "decision": "0129-payment-derived-order-lock-query",
-    "implemented": true,
-    "locally_validated": true,
-    "cloud_deployed": true,
-    "baseline_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
-    "cloud_qualification": "PASSED",
-    "implementation_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
-    "cloud_tested_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410"
+    "decision": "0130-fixed-budget-api-payment-pool-partition",
+    "implemented": false,
+    "locally_validated": false,
+    "cloud_deployed": false,
+    "baseline_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410"
   },
   "bounded_control": {
     "decision": "0129-payment-derived-order-lock-query",

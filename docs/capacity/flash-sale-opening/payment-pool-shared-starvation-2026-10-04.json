@@ -1,0 +1,18 @@
+{
+  "kind": "controlled_shared_api_pool_starvation",
+  "baseline_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
+  "real_actor_owned_order_reads_holding_pool": 4,
+  "shared_pool_total_connections": 4,
+  "test_pool_wait_ms": 50,
+  "expected_payment_pooltimeouts": [
+    "payment_initiation",
+    "payment_callback"
+  ],
+  "booking_and_callback_after_release": 1,
+  "executed_tests_passed": 1,
+  "seconds": 0.5,
+  "owned_local_services_removed": true,
+  "cloud_access_or_load_started": false,
+  "scope": "Controlled local exhaustion, not cloud incident or capacity measurement.",
+  "private_evidence": "tmp/adr0130-capacity-investigation/baseline-validation.txt"
+}
