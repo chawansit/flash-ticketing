@@ -1,0 +1,188 @@
+{
+  "kind": "isolated_local_order_read_plan_and_roundtrip_comparison",
+  "decision_record": "0128-native-row-single-statement-order-status-reads",
+  "postgres_version": "17.6 (Debian 17.6-2.pgdg13+1)",
+  "historical_orders": 100000,
+  "target_cases": {
+    "pending": {
+      "tickets": 0,
+      "native_shape_equal": true,
+      "timings_ms": {
+        "baseline": {
+          "median": 3.9775000186637044,
+          "p95": 6.526899989694357
+        },
+        "candidate": {
+          "median": 3.341050003655255,
+          "p95": 5.884999991394579
+        }
+      }
+    },
+    "paid": {
+      "tickets": 0,
+      "native_shape_equal": true,
+      "timings_ms": {
+        "baseline": {
+          "median": 3.6093000089749694,
+          "p95": 5.047600017860532
+        },
+        "candidate": {
+          "median": 3.1936000159475952,
+          "p95": 4.67610004125163
+        }
+      }
+    },
+    "fulfilled_one": {
+      "tickets": 1,
+      "native_shape_equal": true,
+      "timings_ms": {
+        "baseline": {
+          "median": 3.5024500102736056,
+          "p95": 4.497400019317865
+        },
+        "candidate": {
+          "median": 3.0638000171165913,
+          "p95": 4.063099971972406
+        }
+      }
+    },
+    "fulfilled_eight": {
+      "tickets": 8,
+      "native_shape_equal": true,
+      "timings_ms": {
+        "baseline": {
+          "median": 3.628300008131191,
+          "p95": 5.89380000019446
+        },
+        "candidate": {
+          "median": 3.161900007398799,
+          "p95": 5.4725000518374145
+        }
+      }
+    }
+  },
+  "domain_selects": {
+    "baseline": 2,
+    "candidate": 1
+  },
+  "transaction_setup_and_pool_lifecycle_unchanged": true,
+  "paired_iterations_per_case": 100,
+  "plans": [
+    {
+      "name": "baseline_order",
+      "planning_ms": 0.068,
+      "execution_ms": 0.022,
+      "relation_access": [
+        {
+          "table": "orders",
+          "node": "Index Scan",
+          "index": "orders_pkey",
+          "actual_rows": 1
+        }
+      ]
+    },
+    {
+      "name": "baseline_tickets",
+      "planning_ms": 0.283,
+      "execution_ms": 0.091,
+      "relation_access": [
+        {
+          "table": "bookings",
+          "node": "Index Scan",
+          "index": "bookings_order_id",
+          "actual_rows": 8
+        },
+        {
+          "table": "tickets",
+          "node": "Index Scan",
+          "index": "tickets_booking_id_key",
+          "actual_rows": 1
+        }
+      ]
+    },
+    {
+      "name": "candidate",
+      "planning_ms": 0.245,
+      "execution_ms": 0.133,
+      "relation_access": [
+        {
+          "table": "orders",
+          "node": "Index Scan",
+          "index": "orders_pkey",
+          "actual_rows": 1
+        },
+        {
+          "table": "bookings",
+          "node": "Index Scan",
+          "index": "bookings_order_id",
+          "actual_rows": 8
+        },
+        {
+          "table": "tickets",
+          "node": "Index Scan",
+          "index": "tickets_booking_id_key",
+          "actual_rows": 1
+        }
+      ]
+    }
+  ],
+  "all_shape_authorization_and_index_checks_pass": true,
+  "limitations": "Synthetic loopback local fixture, warm caches and one connection; timings include full existing transaction/pool wrapper. Plan eligibility/timings are not cloud SQL cost, capacity or performance qualification.",
+  "executed_validation": {
+    "baseline_regressions": {
+      "command": "pytest tests/integration/test_order_single_statement.py -k 'one_domain_select or one_snapshot' -q -p no:cacheprovider",
+      "expected_failures": 2,
+      "deselected": 7,
+      "seconds": 2.63,
+      "reproduced": "Two domain SELECTs andPAID response withlatercommitted tickets."
+    },
+    "candidate_tests": {
+      "command": "pytest tests/unit tests/integration -q -p no:cacheprovider",
+      "passed": 558,
+      "seconds": 84.46,
+      "warnings": [
+        "Starlette httpx testclient deprecation",
+        "AnyIO BlockingPortal alias deprecation"
+      ],
+      "skipped": 0,
+      "new_real_postgres_regressions": 9
+    },
+    "local_plan_attempts": [
+      {
+        "attempt": 1,
+        "pass": false,
+        "reason": "Temporary PostgreSQL startup restart;client connection closed before schema/query work."
+      },
+      {
+        "attempt": 2,
+        "pass": false,
+        "reason": "Benchmark helper comparedstr(Failure) rather thanFailure.code;native-shape/timing/plans completed but finalreport notpublished."
+      },
+      {
+        "attempt": 3,
+        "pass": true,
+        "reason": "Bounded client-readiness anderror-code assertion corrected;application unchanged."
+      }
+    ],
+    "lint_whitespace_pass": true,
+    "owned_local_test_containers_removed": true,
+    "application_changed_modules": [
+      "src/ticketing/infrastructure/reservations.py"
+    ],
+    "private_evidence_root": "tmp\\adr0128-database-investigation",
+    "no_new_cloud_access_or_load": true
+  },
+  "source_sha256_normalized_lf": {
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "f515fbd8020a138962ef0af1d255d15a1ab60adb3dc2eaf08ad49d969ee88ab1",
+    "src/ticketing/infrastructure/reservations.py": "fa0010328b29870e5504bc3ff980602cb39a3495db7b972e655b271f3e539276",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/order_status_cache.py": "85cb2678d68885e6c8930dcebb95122d3139d5c19c825f702b8b4ad4ae1e402a",
+    "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+    "src/ticketing/api.py": "4043e5e5d0fc57f82a44e49feef0582d7f7b8d567ccab4b59f295a7485fce32d",
+    "src/ticketing/config.py": "adb8d36ad61bac358a2d88d83d1a650c5f0e953f5c77a5c6830e42759eb352d7",
+    "src/ticketing/workers.py": "c87f75def0e95090252517723dc8fdf1786317a2853d32f634ab351d3d05cb57",
+    "src/ticketing/observability.py": "8cf47f1b830ad761d6efb78cb31f207ccf0aed97fbb118bbb180276eec8ffbfa"
+  },
+  "cloud_qualification": "PENDING"
+}

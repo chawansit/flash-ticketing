@@ -323,14 +323,24 @@ class PostgresReservations:
 
     def get_order(self, actor, order_id):
         with self.db.transaction() as conn:
-            row = conn.execute("SELECT * FROM orders WHERE id=%s AND actor=%s", (order_id, actor)).fetchone()
-            if not row:
-                raise Failure("ORDER_NOT_FOUND", 404)
-            row["tickets"] = conn.execute(
-                """SELECT t.id,b.seat_id FROM tickets t JOIN bookings b
-                ON b.id=t.booking_id WHERE b.order_id=%s ORDER BY b.seat_id""",
-                (order_id,),
+            rows = conn.execute(
+                """SELECT o.*, t.id AS _ticket_id, b.seat_id AS _ticket_seat_id
+                FROM orders o
+                LEFT JOIN (bookings b JOIN tickets t ON t.booking_id=b.id) ON b.order_id=o.id
+                WHERE o.id=%s AND o.actor=%s ORDER BY b.seat_id""",
+                (order_id, actor),
             ).fetchall()
+            if not rows:
+                raise Failure("ORDER_NOT_FOUND", 404)
+            tickets = [
+                {"id": row["_ticket_id"], "seat_id": row["_ticket_seat_id"]}
+                for row in rows
+                if row["_ticket_id"] is not None
+            ]
+            row = rows[0]
+            row.pop("_ticket_id")
+            row.pop("_ticket_seat_id")
+            row["tickets"] = tickets
             return row
 
     def get_hold(self, actor, hold_id):

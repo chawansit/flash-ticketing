@@ -2,8 +2,8 @@
   "updated_date_bangkok": "2026-10-04",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "security_note": "ADR0127 temporary key entries removed from both ECS root accounts and local key files deleted; no credentials saved in files or environment.",
-  "status": "order_read_single_statement_adr_recorded_implementation_pending",
+  "security_note": "PriorADR0127 keysremoved;no fresh cloudkeyinstalled andno cloudaccess/load inADR0128.",
+  "status": "single_statement_order_read_locally_validated_cloud_access_pending",
   "cloud_load_requires_resume": true,
   "handoff_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
   "revision_note": "Cloud checkouts/runtime tested5706fce; all ten application module hashes and observer source unchanged from passing cache0 baseline. ADR0127 offline classifier prepared in local0faa9ae; result/checkpoint commit follows. Baseline services/cache0 restored.",
@@ -18,6 +18,8 @@
   "cloud_state_note": "All financial/postTTL/full-keyspace queue/Kafka/source/settings/restoration/idle/private profile scratch gates passed; no active generator. Temporary access removed.",
   "current_run": "checkout-20261004T020835Z-a401c0",
   "confirmed": [
+    "ADR0128 written/committed beforeimplementation;onlyget_orderquery changed toone native-row joinedSELECT,same transactionwrapper/limitsandfinancialmutations.",
+    "All558unit/integration checks passed;deterministicconcurrentfulfillment mixed-snapshot regressionfailsoldcode andpassescandidate.",
     "ADR0122 reservation-writer fairness and492 executed tests retained; all10 application source hashes unchanged in ADR0127.",
     "18000 scheduled/18000 dispatched/18000 customer-confirmed tickets; no errors/drops/retries; all16 mandatory diagnostic gates passed.",
     "Exact postTTL financial and zero-double-booking checks passed; full-keyspace queues and Kafka drained; baseline services restored and generator idle.",
@@ -28,14 +30,16 @@
     "Owned profiler processes exited, remote profile scratch removed; both temporary root keys removed and local key files deleted.",
     "No higher load, second run, external publication or main merge. Prior failed observer evidence retained."
   ],
-  "unresolved": "Native-row single-statement order read selected as a local candidate; test, plan and performance evidence pending. ADR0089/0094 historical failures retained. Stack contexts do not establish SQL cost or capacity.",
+  "unresolved": "Candidatepassedlocalcorrectness andindexchecks;cloud performance unqualified. PreviousADR0089/0094 failuresretained. Any one unchanged60/300 control requires specific new temporaryaccess approval.",
   "next_on_resume": [
-    "Add and execute deterministic single-snapshot/order-shape regressions against old code, then implement ADR0128.",
-    "Run meaningful local correctness/replay/concurrency/transaction tests and compare local query plans without capacity claims.",
-    "Prepare one unchanged60buyers/s300s cache0 control against passing ADR0126; resolve specific access approval before any cloud mutation."
+    "Resolve specific ADR0128 temporaryroot-key/cloudscopeapproval forone60buyers/s300s cache0 comparison againstpassingunprofiledADR0126.",
+    "Verifybaseline source/settings,deployexactsingle-modulecandidatewithallotherhashesunchanged,runoneboundedcontrolandall16gates.",
+    "Onfailurefinishfinancial/drain/recoveryandrestorebaseline source;alwaysremove ownedtemporarykeys/scratch;noadditionalrun,higherload/mainmerge."
   ],
-  "validation_this_resume": "64 focused diagnostic/readiness checks passed0.62s; after lint-only fix34 profiling tests passed0.09s. One authorized60buyers/s300s cache0 external-profile diagnostic passed all16 gates and temporary access cleanup; no application runtime changes.",
+  "validation_this_resume": "558unit/integration tests passed84.46s,no skips;2dependencydeprecations.9newrealPGregressions;oldcode2expectedfailures2.63s. Local100000historyplans/shape/authorizationchecks passedaftertwohelper-onlyfailures;lint/diffpass;ownedtestcontainersremoved.",
   "evidence": [
+    "docs/capacity/flash-sale-opening/order-read-single-statement-control-plan-2026-10-04.json",
+    "docs/capacity/flash-sale-opening/order-read-local-validation-2026-10-04.json",
     "docs/capacity/flash-sale-opening/order-read-database-investigation-2026-10-04.json",
     "docs/adr/0128-native-row-single-statement-order-status-reads.md",
     "docs/capacity/flash-sale-opening/api-phase-diagnostic-2026-10-04.json",
@@ -57,7 +61,7 @@
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
   "authorization": "User authorizes autonomous continuation without routine questions until08:00Asia/Bangkok2026-10-04. Covers bounded implementation/configuration,checks and sanitized feature-branch evidence/checkpoint pushes to existing remote. No higherload/mainmerge;honor review rejection. User specifically approved observer-only cloud preflight/deployment/requalification after the failed observer gate by replying Continue to the concrete next-step proposal. User Go ahead specifically approves the new one-run ADR0126 control and required completion/recovery audits. User explicitly Approved the exact temporary root authorized_keys addition on both ECS hosts and subsequent removal; protected terminal password handling used. User Continue specifically approves one ADR0127 phase-attribution diagnostic atunchanged60buyers/s300s cache0 after saved-profile review. User separately Approved the exact ADR0127 restricted45minute temporary root-key installation and removal; installation, diagnostic and cleanup are complete.",
-  "scope": "User Continue approves saved database-path investigation and the proposed one-optimization ADR/implementation/correctness workflow. Further cloud access remains separately scoped; no higher load/main merge.",
+  "scope": "User Continue approved database-path investigation andtheproposedADR/implementation/correctnessworkflow. Candidatecompletedlocally;one same60/300 cache0 comparisonprepared. Freshrootaccessapprovalpending;nohigherload/mainmerge/publication.",
   "roadmap": [
     {
       "step": 1,
@@ -146,48 +150,29 @@
   "local_diagnostic_candidate": {
     "decision": "0128-native-row-single-statement-order-status-reads",
     "file": "src/ticketing/infrastructure/reservations.py",
-    "implemented": false,
-    "locally_validated": false,
+    "implemented": true,
+    "locally_validated": true,
     "cloud_deployed": false,
     "cloud_qualification": "PENDING"
   },
   "bounded_control": {
-    "decision": "0127-phase-classification-for-api-stack-diagnostics",
+    "decision": "0128-native-row-single-statement-order-status-reads",
     "limit": 1,
-    "started": 1,
+    "started": 0,
     "active_run": null,
     "access_ready": false,
+    "plan": "docs/capacity/flash-sale-opening/order-read-single-statement-control-plan-2026-10-04.json",
     "baseline_report": "docs/capacity/flash-sale-opening/cache-disabled-control-2026-10-04.json",
-    "plan": "docs/capacity/flash-sale-opening/api-phase-diagnostic-plan-2026-10-04.json",
-    "local_validation": {
-      "command": ".venv/Scripts/python.exe -m pytest tests/unit/test_api_stack_sampling.py tests/unit/test_paid_cpu_collector.py tests/unit/test_paid_observer_startup.py -q -p no:cacheprovider",
-      "passed": 64,
-      "seconds": 0.62,
-      "scope": "Diagnostic classifier,readiness andbounded collector only; application unchanged.",
-      "saved_profile_reanalysis_pass": true,
-      "initial_lint_finding": "PIE810; corrected equivalent startswith-tuple expression",
-      "after_lint_fix_profile_tests": {
-        "passed": 34,
-        "seconds": 0.09
-      },
-      "lint_and_whitespace_pass": true,
-      "operator_helper_syntax_pass": true,
-      "exact_baseline_cli_configuration_pass": true
-    },
-    "access_review": {
-      "action": "New restricted temporary root key onboth ECS hosts forADR0127",
-      "rejected_before_execution": true,
-      "reason": "Priorapproval limited toADR0126;currentContinue approveddiagnostic only",
-      "specific_approval_requested": true,
-      "resolved_by": "User explicitly replied Approved to the ADR0127 temporary root-key request, including restrict, 45-minute expiry and removal after audits."
-    },
-    "temporary_key_installation_authorized": true,
+    "specific_cloud_access_approval_pending": true,
     "temporary_key_installed": false,
-    "last_run_gates_pass": true,
-    "result": "docs/capacity/flash-sale-opening/api-phase-diagnostic-2026-10-04.json",
-    "qualification": "PASSED",
-    "temporary_key_cleanup_pass": true,
-    "local_temporary_key_files_removed": true
+    "local_validation": {
+      "passed": 558,
+      "seconds": 84.46,
+      "baseline_expected_failures": 2,
+      "new_regressions": 9,
+      "local_plans_shape_and_index_checks_pass": true,
+      "owned_test_containers_removed": true
+    }
   },
   "previous_bounded_control": {
     "decision": "0126-cache-disabled-same-load-control",
@@ -221,6 +206,16 @@
     "last_run_gates_pass": true,
     "result": "docs/capacity/flash-sale-opening/cache-disabled-control-2026-10-04.json",
     "qualification": "PASSED",
+    "temporary_key_cleanup_pass": true,
+    "local_temporary_key_files_removed": true
+  },
+  "previous_api_diagnostic_control": {
+    "decision": "0127-phase-classification-for-api-stack-diagnostics",
+    "limit": 1,
+    "started": 1,
+    "active_run": null,
+    "result": "docs/capacity/flash-sale-opening/api-phase-diagnostic-2026-10-04.json",
+    "last_run_gates_pass": true,
     "temporary_key_cleanup_pass": true,
     "local_temporary_key_files_removed": true
   }
