@@ -105,5 +105,13 @@
   },
   "cloud_qualification": "NOT_RUN",
   "scope": "Local protection/fairness/recovery proof only;no new cloud access/load. Total acquisition bound includes ready attempts and conservatively retained timeout slots;purpose ceilings overlap.",
-  "private_evidence_root": "tmp/adr0133-capacity-investigation"
+  "private_evidence_root": "tmp/adr0133-capacity-investigation",
+  "post_full_validation": {
+    "edit": "Runner probe additionally checks shared used/acquiring/retained scalar bounds;runtime unchanged.",
+    "command": ".venv/Scripts/python.exe -m pytest tests/unit/test_paid_checkout_cli.py -q -p no:cacheprovider",
+    "passed": 26,
+    "seconds": 1.53,
+    "offline_probe_and_compose_checks_repeated": true,
+    "cloud_access_or_load_started": false
+  }
 }

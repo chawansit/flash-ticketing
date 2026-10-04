@@ -163,6 +163,8 @@ expected={'pool_max':s.pool_max,'general_pool_max':b['general']['maximum'],
           'shared_acquisition_limit':(s.pool_max if s.pool_max_waiting is None else s.pool_max_waiting) if s.api_pool_shared_waiting else 0}
 result={'payment_maximum':s.api_payment_pool_max,'shared_waiting':s.api_pool_shared_waiting,'budgets':b,'metrics':{k:states.get(k) for k in expected},
         'pass':all(states.get(k)==v for k,v in expected.items())}
+result['shared_budget_sample']={name:states.get('shared_acquisition_'+name) for name in ('used','acquiring','retained')}
+result['pass']=result['pass'] and all(value is not None and 0 <= value <= expected['shared_acquisition_limit'] for value in result['shared_budget_sample'].values())
 print(json.dumps(result))
 raise SystemExit(0 if result['pass'] else 1)
 """
