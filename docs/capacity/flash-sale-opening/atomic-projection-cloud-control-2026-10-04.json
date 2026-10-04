@@ -1,0 +1,462 @@
+{
+  "kind": "fixed_load_atomic_projection_cloud_control",
+  "decision_record": "0141-fixed-load-cloud-atomic-projection-qualification",
+  "run_id": "checkout-20261004T145727Z-abde20",
+  "tested_revision": "ddea4c25da32359004c22cd5fd17e24796b1209c",
+  "comparison": {
+    "baseline_report": "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json",
+    "baseline_run": "checkout-20261004T061810Z-11d61f",
+    "factor": "Only atomic Redis seat projection representation/computation changes; financial logic, connection budgets and distributed60-show300-seat workload match ADR0133.",
+    "changed_configuration_keys": [],
+    "limitations": "One five-minute distributed development-payment run. Fresh fixture/background and sampled CPU variance; p95 is worst shard, not combined. No higher RPS, hot-concert, real provider or300000/hour proof."
+  },
+  "configuration": {
+    "rate": 60,
+    "seconds": 300,
+    "concurrency": 500,
+    "generator_shards": 2,
+    "http_clients_per_shard": 8,
+    "http_connections_per_shard": 250,
+    "poll_seconds": 1.0,
+    "callback_duplicates": 1,
+    "simulator_dispatch_mode": "refill",
+    "lifecycle_diagnostics": true,
+    "kafka_observer_backend": "python",
+    "api_replicas": 4,
+    "api_pool_per_replica": 4,
+    "api_pool_waiters_per_replica": 12,
+    "order_status_cache_ms": 0,
+    "consumer_replicas": 6,
+    "consumer_pool_per_replica": 8,
+    "writer_replicas": 3,
+    "writer_batch_size": 4,
+    "simulator_refill_slots": 8,
+    "pgbouncer_server_pool": 24,
+    "api_payment_pool_max": 2,
+    "api_pool_shared_waiting": true
+  },
+  "required_gates": {
+    "customer_load": false,
+    "post_ttl_financial": false,
+    "zero_double_booking": true,
+    "full_keyspace_queue_drain": false,
+    "kafka_drain": false,
+    "pipeline_observer": true,
+    "kafka_observer": true,
+    "cpu_sampler": true,
+    "source_and_restored_configuration_pass": true,
+    "generator_idle_pass": true,
+    "private_cleanup_pass": true,
+    "hold_deadlines_elapsed": false,
+    "pipeline_observer_source": true,
+    "cache_disabled": true,
+    "candidate_source_identity": true,
+    "only_expected_runtime_modules_changed": true,
+    "payment_partition_active": true,
+    "fixed_connection_and_waiter_budget": true,
+    "payment_partition_restored": true,
+    "financial_logic_unchanged": true,
+    "atomic_projection_candidate_deployed": true,
+    "fixed_workload_matches_baseline": true
+  },
+  "all_required_gates_pass": false,
+  "qualification": "FAILED",
+  "failed_gates": [
+    "customer_load",
+    "post_ttl_financial",
+    "full_keyspace_queue_drain",
+    "kafka_drain",
+    "hold_deadlines_elapsed"
+  ],
+  "customer": {
+    "scheduled": 18000,
+    "dispatched": 17880,
+    "generator_drops": 120,
+    "fulfilled_by_deadline": 1057,
+    "distinct_orders": 1057,
+    "distinct_tickets": 1057,
+    "retry_attempts": 0,
+    "outcomes": {
+      "fulfilled": 1057,
+      "payment_http_503": 1571,
+      "order_http_503": 14969,
+      "ticket_timeout": 283
+    },
+    "physical_http_attempts": {
+      "holds": 17880,
+      "reservation_commands": 37055,
+      "payments": 17880,
+      "orders": 112438
+    },
+    "durable_p95_ms": 3127.74351099506,
+    "hold_to_ticket_p95_ms": 14902.705588989193,
+    "hold_http_p95_ms": 148.09995499672368,
+    "payment_http_p95_ms": 367.6930269866716,
+    "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+    "ticket_wait_p95_ms": 12751.148311013822,
+    "payment_to_ticket_p95_ms": 12985.120152006857
+  },
+  "errors": {
+    "failed_customer_journeys": 16823,
+    "journey_error_percent_of_dispatched": 94.08836689038031,
+    "generator_drops": 120,
+    "retry_attempts": 0,
+    "physical_customer_http_attempts": 185253,
+    "http_error_percentage": "Not inferred from failed journeys; per-request outcomes require separate counters."
+  },
+  "post_ttl_correctness": {
+    "orders": 17880,
+    "fulfilled_orders": 7182,
+    "expired_orders": 1571,
+    "pending_orders": 0,
+    "payment_attempts": 16309,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 16309,
+    "bookings": 7182,
+    "tickets": 7182,
+    "payment_callbacks": 16309,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 16309,
+    "callback_delivery_target": 16309,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 17880,
+    "expected_paid": 16221,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": false
+  },
+  "full_keyspace_queues": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 2,
+    "dead_letters": 0,
+    "active_fixture_holds": 0,
+    "overdue_fixture_holds": 0,
+    "pending_fixture_orders": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "pass": false
+  },
+  "kafka": {
+    "samples": 203,
+    "sample_errors": 0,
+    "max_total_lag": 50,
+    "max_partition_lag": 22,
+    "partition_lag_peaks": {
+      "0": 13,
+      "1": 16,
+      "2": 19,
+      "3": 13,
+      "4": 15,
+      "5": 22
+    },
+    "last_total_lag": 9,
+    "members_min": 6,
+    "members_max": 6,
+    "drain_after_peak_seconds": 26.352475,
+    "ownership_observed": true,
+    "max_partitions_per_member": 1,
+    "last_member_partition_groups": [
+      [
+        0
+      ],
+      [
+        1
+      ],
+      [
+        2
+      ],
+      [
+        3
+      ],
+      [
+        4
+      ],
+      [
+        5
+      ]
+    ]
+  },
+  "container_cpu": {
+    "observed": true,
+    "pass": true,
+    "samples": 49,
+    "sample_start_utc": "2026-10-04T14:59:10.179896+00:00",
+    "sample_end_utc": "2026-10-04T15:03:10.180248+00:00",
+    "window_seconds": 240.0003583630023,
+    "host_cpu_mean_percent": 97.15315127147407,
+    "aggregate_cpu_cores_by_role": {
+      "api": 1.9096640943626741,
+      "consumer": 0.5121384894521388,
+      "kafka": 0.29031492900779343,
+      "load-balancer": 0.07163123054173819,
+      "maintenance": 0.08339733797283158,
+      "pgbouncer": 0.29012223762884953,
+      "publisher": 0.12563639573568344,
+      "reconciler": 0.03888956693090848,
+      "reservation-writer": 0.27851620912539626,
+      "simulator": 0.09199174597317386
+    },
+    "scope": "Cumulative host/cgroup CPU counters over240s; API includes observers; no function attribution."
+  },
+  "offered_window_container_cpu": {
+    "baseline": {
+      "samples": 47,
+      "window_seconds": 229.99968874600017,
+      "start_offset_seconds": 2.580125,
+      "end_offset_seconds": 232.579816,
+      "host_cpu_mean_percent": 81.35794126444294,
+      "aggregate_cpu_cores_by_role": {
+        "simulator": 0.1443116692068881,
+        "consumer": 0.5158442850373782,
+        "maintenance": 0.07803901430415368,
+        "reconciler": 0.024311685074387922,
+        "publisher": 0.1365918804989963,
+        "load-balancer": 0.046021379671036956,
+        "api": 1.2950369395018582,
+        "reservation-writer": 0.23815257011278268,
+        "pgbouncer": 0.310334115620586,
+        "kafka": 0.26804972361542884
+      },
+      "scope": "Only sampled endpoints within offered300s;includes API observers. Not a full300s integral or function CPU attribution."
+    },
+    "candidate": {
+      "samples": 47,
+      "window_seconds": 230.0002759739873,
+      "start_offset_seconds": 2.131774,
+      "end_offset_seconds": 232.132044,
+      "host_cpu_mean_percent": 99.39675729825669,
+      "aggregate_cpu_cores_by_role": {
+        "simulator": 0.09149671630124512,
+        "consumer": 0.5170601187167712,
+        "maintenance": 0.08559333642811157,
+        "reconciler": 0.03973754362378974,
+        "publisher": 0.12976628342557106,
+        "load-balancer": 0.07420557183127158,
+        "api": 1.968897189719965,
+        "reservation-writer": 0.28808267607250093,
+        "pgbouncer": 0.29822662911829584,
+        "kafka": 0.2862081087565523
+      },
+      "scope": "Only sampled endpoints within offered300s;includes API observers. Not a full300s integral or function CPU attribution."
+    }
+  },
+  "comparison_deltas": {
+    "durable_p95_ms": {
+      "baseline": 1045.8742629998596,
+      "candidate": 3127.74351099506,
+      "delta": 2081.8692479952006,
+      "percent_change": 199.05540480782247
+    },
+    "hold_to_ticket_p95_ms": {
+      "baseline": 2178.2080449920613,
+      "candidate": 14902.705588989193,
+      "delta": 12724.497543997131,
+      "percent_change": 584.1727365414954
+    },
+    "hold_http_p95_ms": {
+      "baseline": 16.631653008516878,
+      "candidate": 148.09995499672368,
+      "delta": 131.4683019882068,
+      "percent_change": 790.4704476511349
+    },
+    "payment_http_p95_ms": {
+      "baseline": 68.4089970018249,
+      "candidate": 367.6930269866716,
+      "delta": 299.2840299848467,
+      "percent_change": 437.49220585248884
+    },
+    "payment_to_ticket_p95_ms": {
+      "baseline": 1113.1586309929844,
+      "candidate": 12985.120152006857,
+      "delta": 11871.961521013873,
+      "percent_change": 1066.5112042857345
+    },
+    "host_cpu_mean_percent": {
+      "baseline": 81.35794126444294,
+      "candidate": 99.39675729825669,
+      "delta": 18.038816033813745,
+      "percent_change": 22.172163839767066
+    },
+    "cpu_cores_api": {
+      "baseline": 1.2950369395018582,
+      "candidate": 1.968897189719965,
+      "delta": 0.6738602502181068,
+      "percent_change": 52.03405630091989
+    },
+    "cpu_cores_pgbouncer": {
+      "baseline": 0.310334115620586,
+      "candidate": 0.29822662911829584,
+      "delta": -0.012107486502290155,
+      "percent_change": -3.90143586955575
+    },
+    "cpu_cores_consumer": {
+      "baseline": 0.5158442850373782,
+      "candidate": 0.5170601187167712,
+      "delta": 0.0012158336793929303,
+      "percent_change": 0.23569780933112996
+    },
+    "cpu_cores_reservation-writer": {
+      "baseline": 0.23815257011278268,
+      "candidate": 0.28808267607250093,
+      "delta": 0.04993010595971825,
+      "percent_change": 20.965596103402405
+    }
+  },
+  "shared_acquisition_budget_samples": [
+    {
+      "replica_index": 0,
+      "samples": 279,
+      "peak_used": 12.0,
+      "peak_retained": 1.0,
+      "pass": true
+    },
+    {
+      "replica_index": 1,
+      "samples": 279,
+      "peak_used": 12.0,
+      "peak_retained": 0.0,
+      "pass": true
+    },
+    {
+      "replica_index": 2,
+      "samples": 279,
+      "peak_used": 12.0,
+      "peak_retained": 1.0,
+      "pass": true
+    },
+    {
+      "replica_index": 3,
+      "samples": 279,
+      "peak_used": 12.0,
+      "peak_retained": 0.0,
+      "pass": true
+    }
+  ],
+  "source_verification_scope": {
+    "runtime_modules": 11,
+    "changed_modules": [
+      "src/ticketing/infrastructure/cache.py"
+    ],
+    "source_sha256": {
+      "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+      "src/ticketing/infrastructure/postgres.py": "b11dd08700c476f00304302c9199dfb2017aa6fed81ca2033eb89347fb351f4b",
+      "src/ticketing/infrastructure/reservations.py": "ae44dffde81c06a9aa4990dd22ddd86f799ee371001db9222abc73aae3dea5c7",
+      "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+      "src/ticketing/infrastructure/order_status_cache.py": "85cb2678d68885e6c8930dcebb95122d3139d5c19c825f702b8b4ad4ae1e402a",
+      "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+      "src/ticketing/api.py": "ed4a9f07085fd9491457271c09f9bbc97822cdea4235ad138a167c9649a8b911",
+      "src/ticketing/config.py": "351051acfbf561a5a217118c8325a8ec85e38ead20756da9e9e6f7b980eb4cc6",
+      "src/ticketing/workers.py": "c87f75def0e95090252517723dc8fdf1786317a2853d32f634ab351d3d05cb57",
+      "src/ticketing/observability.py": "8cf47f1b830ad761d6efb78cb31f207ccf0aed97fbb118bbb180276eec8ffbfa",
+      "src/ticketing/infrastructure/cache.py": "004f5ccc790f21519079a885f0269ce45e8a4609f3456bc85c14c75580118f0e"
+    },
+    "evidence": [
+      "tmp/adr0141-source-sync.json",
+      "tmp\\checkout-20261004T145727Z-abde20\\deployment.json"
+    ],
+    "scope": "Exact candidate checkout hashes on both hosts plus pre-dispatch worker source verification; normal restored source is recorded separately."
+  },
+  "recovery": {
+    "source_and_restored_configuration_pass": true,
+    "generator_idle_pass": true,
+    "private_cleanup_pass": true,
+    "hold_deadlines_elapsed": true
+  },
+  "observer_source_verification": {
+    "uploaded": "50f9ab9e6574b3362dcc6856b2049554379ce7f711c67cefabfce28b94242a82",
+    "container": "50f9ab9e6574b3362dcc6856b2049554379ce7f711c67cefabfce28b94242a82",
+    "checkout": "1890ac0302507fc81a3c451351521684aa92b00b47316ab320af44b592dacaf2",
+    "checkout_normalized_sha256": "1890ac0302507fc81a3c451351521684aa92b00b47316ab320af44b592dacaf2",
+    "line_ending_note": "Windows local/uploaded/container bytes include CRLF; Git Linux checkout uses LF. Uploaded and active-container raw bytes exactly match local candidate; normalized checkout matches.",
+    "expected": "50f9ab9e6574b3362dcc6856b2049554379ce7f711c67cefabfce28b94242a82",
+    "pass_gate": true
+  },
+  "validation": {
+    "native_focused": 69,
+    "native_full_unit_integration": 721,
+    "local_report": "docs/capacity/flash-sale-opening/framed-seat-projection-local-validation-2026-10-04.json",
+    "offline_report_guard_cases": 7
+  },
+  "private_evidence_root": "tmp\\checkout-20261004T145727Z-abde20",
+  "temporary_access_cleanup": {
+    "hosts": [
+      {
+        "host_role": "backend",
+        "removed_temporary_key_entries": 1,
+        "remaining_target_entries": 0,
+        "pass": true
+      },
+      {
+        "host_role": "generator",
+        "removed_temporary_key_entries": 1,
+        "remaining_target_entries": 0,
+        "pass": true
+      }
+    ],
+    "pass": true,
+    "local_key_files_removed": true
+  },
+  "post_restoration_safety": {
+    "observed_at_utc": "2026-10-04T15:12:05.237937+00:00",
+    "order_status_counts": {
+      "EXPIRED": 1571,
+      "FULFILLED": 7182,
+      "REFUNDED": 9127
+    },
+    "refund_status_counts": {
+      "REFUNDED": 9127
+    },
+    "successful_payment_accounting": {
+      "succeeded": 16309,
+      "fulfilled": 7182,
+      "refunded": 9127,
+      "refund_pending": 0
+    },
+    "kafka": {
+      "total_lag": 0,
+      "max_partition_lag": 0,
+      "assigned_partitions": 6,
+      "members": 1
+    },
+    "scope": "Read-only post-restoration safety snapshot; simulated refund rows, no real provider or new load.",
+    "full_keyspace_queues": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "active_fixture_holds": 0,
+      "overdue_fixture_holds": 0,
+      "pending_fixture_orders": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "pass": true
+    }
+  },
+  "baseline_source_restored_after_failed_gate": true,
+  "restored_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "source_restoration_verified": true,
+  "lifecycle_failed_gates": [],
+  "diagnostic_summary": {
+    "api_db_pool_acquire_mean_ms": {
+      "baseline": 2.8814039689094764,
+      "candidate": 81.08337183297458
+    },
+    "api_event_loop_lag_mean_ms": 25.15993178052123,
+    "callback_due_to_arrival_p95_ms": 143044.67,
+    "offered_window_callback_backlog": {
+      "max": 7644,
+      "last": 7644,
+      "delta": 7644,
+      "p95": 7293
+    },
+    "api_database_capacity_rejections": 16925.0,
+    "interpretation": "Observed host/pool saturation and callback backlog with late-expiry refunds; exact initiating cause of regression remains unproved. SQL/writer times include scheduling/network effects. No WAL/storage bottleneck attribution from these data."
+  },
+  "scope_status": "One failed control stopped. Baseline cloud source/images/settings restored; temporary keys and private manifests removed. Read-only recovery snapshot confirms all simulated successful payments ticketed or refunded and full queues/Kafka drained later. This does not retroactively pass original customer, financial-ticket or drain gates. No second run, increased load, push or main merge.",
+  "gate_interpretation": {
+    "hold_deadlines_elapsed": "This inherited gate requires both elapsed hold deadlines and cohort/ticket equality. Deadlines elapsed, but cohort equality failed.",
+    "queue_and_kafka": "Original post-TTL queue evidence and last control-observer Kafka lag failed; later read-only post-restoration zero values do not retroactively pass them.",
+    "financial": "All successful simulated payments are later accounted for by issued tickets or completed simulated refunds; the fixed successful-ticket cohort gate still failed. Real provider refunds remain separate scope."
+  }
+}

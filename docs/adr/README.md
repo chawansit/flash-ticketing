@@ -222,3 +222,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0139 - Framed pre-encoded payloads within atomic seat projection](0139-framed-preencoded-seat-projection.md)
 
 - [0140 - Native Linux local projection qualification](0140-native-linux-local-projection-qualification.md)
+
+- [0141 - Fixed-load cloud qualification of atomic seat projection](0141-fixed-load-cloud-atomic-projection-qualification.md)

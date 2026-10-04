@@ -2,15 +2,15 @@
   "updated_date_bangkok": "2026-10-04",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "security_note": "ADR0133 restricted temporary root-key entries removed on both hosts and local key files deleted; no credentials saved.",
+  "security_note": "ADR0141 exact temporary root-key entries removed on both hosts and local key files deleted.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "Four healthy APIs on deb330e; postgres/pool3/admission4/waiters3/payment partition0/shared budget0/cache0. Consumer1/pool12; publisher/maintenance/reconciler1; writer/refresh/expiry0; simulator4/batch; PgBouncer24/reserve0/client160.",
+  "last_checked_topology": "Verified deb330e cloud source/images restored: API4/postgres/pool3/admission4/waiters3/payment0/sharedfalse/cache0; consumer1/pool12; publisher/maintenance/reconciler1; writer/refresh/expiry0; simulator4/batch; PgBouncer24/reserve0/client160. Generator idle. Post-restoration global queues and Kafka lag0.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "current_run": "checkout-20261004T061810Z-11d61f",
+  "current_run": "checkout-20261004T145727Z-abde20",
   "roadmap": [
     {
       "step": 1,
@@ -50,7 +50,7 @@
     {
       "step": 8,
       "work": "Concert-opening admission and read capacity",
-      "status": "single_concert_tooling_and_projection_native_linux_locally_qualified_cloud_control_pending"
+      "status": "native_linux_locally_qualified_cloud_cache_factor_failed_baseline_restored"
     },
     {
       "step": 9,
@@ -75,27 +75,28 @@
     "cloud_faults_executed": false,
     "owned_services_removed": true
   },
-  "status": "adr0139_native_linux_qualified_windows_timeout_retained_cloud_control_pending",
+  "status": "adr0141_cloud_candidate_failed_baseline_restored_recovery_accounted",
   "cloud_load_requires_resume": true,
   "local_implementation_revision": "a97d3620e3b5d2690b33f16c41b7de1b2096a5ac",
-  "revision_note": "Local atomic projection candidate committed at a97d3620e3b5d2690b33f16c41b7de1b2096a5ac; exact runtime/test hashes verified by native Linux qualification. Cloud last confirmed deb330e unchanged. Following checkpoint changes documentation only; no push, main merge, cloud access or load.",
+  "revision_note": "Local qualified runtime a97d362 and evidence ddea4c2 retained. One ADR0141 fixed60buyer cloud control failed; both ECS restored to deb330e. Local code/tests unchanged; new decision/results/checkpoint documentation only. No push or main merge.",
   "confirmed": [
-    "ADR0139/0140 native Linux source/locked dependencies verified: focused69passed/full721passed, zero failures/skips.100ms Redis socket/connect deadlines unchanged; no retry added.",
-    "Same native Redis, five alternating full-worker-shape18k samples: baselineack0/5/server155.398ms; candidateack5/5/server45.991ms. Candidate Python94.936ms/EVAL50.944ms/client145.88ms. Baseline client times censored by timeout; no RPS claim.",
-    "Large18k fixture/export/disjoint ranges and six signed paid-issued financial replay orders passed; full suite includes100 simultaneous same-seat holds with exactly one winner. Partial publication, source fencing, lost-ack replay, TTL/history/incarnation contracts passed.",
-    "Windows latest focused68passed/1failed21.50s: large checks passed,513-seat patch replay socket timed out. Failure retained and not waived; native pass does not prove its cause.",
-    "Owned local test/benchmark containers, network and native copied context removed. Private fixture manifests removed by test. No cloud access/key install/load/push/main merge.",
-    "ADR0137 native synthetic generator3600journeys passed separately. This is not backend/cloud capacity proof.",
-    "ADR0133 last cloud60buyers/s300s passed all20gates:18000distinctpaid-issued,zeroerrors/drops/retries; exactpostTTLfinancialcounts/zero-double-booking/fullkeyspacequeues/Kafkalag. Source deb330e and normal budgets restored; flagsdisabled."
+    "ADR0141 one60buyers/s300s distributed control failed:18000scheduled/17880dispatched/120drops,1057confirmedbydeadline,16823failedjourneys94.09%,zero customer retries.17/22gates passed; no capacity promotion.",
+    "Offered sampled host CPU99.397% vs81.358%; API1.969vs1.295cores; API pool-acquire mean81.083vs2.881ms. Callback backlog7644 and postTTL due-to-callbackp95143.045s. Initiating cause not established.",
+    "PostTTL zero duplicate seats/multi-booking;16309successful simulatorpayments/7182tickets. Read-only later snapshot accounts7182fulfilled+9127refunded,0refundpending; queues/Kafka0. Later recovery does not retroactively pass failed original gates.",
+    "Both ECS clean source/images restoreddeb330e and normal service settings/readiness/generatoridle/privatecleanup verified. Exact temporaryrootkey removed from both/localfiles deleted. Localcache/tests retained; no second test/push/mainmerge.",
+    "Native Linux candidate69focused/721fullpassed; Windows513-seat socket failure retained. Local optimization evidence is not cloud capacity proof.",
+    "ADR0133 last passing cloud control remains18000paid-issued at60buyers/s300s on deb330e; current failed candidate does not replace that historical result."
   ],
-  "unresolved": "Native Linux local candidate qualified; Windows513-seat replay socket failure remains unexplained. Full snapshot Python preparation remains O(inventory) and costly. No live cache-factor/concentration control or new cloud postTTL/fullqueue/Kafka proof;300000paid-issued/hour unproved.",
+  "unresolved": "Initiating cause of cloud regression remains unproved: host CPU saturation/API pool contention/callback backlog observed. Native Linux local optimization does not establish cloud benefit. Windows513-seat replay timeout remains unresolved; hot-concert/scaled production capacity and300000paid-issued/hour unproved.",
   "next_on_resume": [
-    "Use committed candidate a97d3620e3b5d2690b33f16c41b7de1b2096a5ac and exact source hashes from docs/capacity/flash-sale-opening/framed-seat-projection-local-validation-2026-10-04.json; keep original/failed local evidence.",
-    "After explicit cloud resume, qualify one separate fixed60buyers/s300s cache-factor control against passing ADR0133, with unchanged machines/workload/connection budgets.",
-    "Preserve source/image/readiness/generator checks, postTTL financial counts, zero-double-booking, full-keyspace queues/Kafka, settings restoration and temporary-access/private-file cleanup.",
-    "Only after that control passes, consider a separate concentration-only single-concert control. No higher-load or300000/hour claim from local microbenchmarks."
+    "Preserve failed ADR0141/recovery evidence and baseline cloud source; do not promote candidate or raise load.",
+    "Reproduce passing deb330e profile under current environmental conditions before attributing regression solely to cache.py; use one explicitly authorized comparison.",
+    "Profile API CPU/pool waits and callback service time/backlog, separating scheduling/network/database/encoding effects; current evidence does not establish WAL/storage cause.",
+    "Keep customer, postTTL financial, zero-double-booking and global queue/Kafka gates. Create ADR before any new architectural/persistence/TTL/budget/topology choice."
   ],
   "evidence": [
+    "docs/capacity/flash-sale-opening/atomic-projection-cloud-control-2026-10-04.json",
+    "docs/adr/0141-fixed-load-cloud-atomic-projection-qualification.md",
     "docs/capacity/flash-sale-opening/framed-seat-projection-local-validation-2026-10-04.json",
     "docs/adr/0139-framed-preencoded-seat-projection.md",
     "docs/adr/0140-native-linux-local-projection-qualification.md",
@@ -111,8 +112,8 @@
     "docs/capacity/flash-sale-opening/payment-commit-boundary-local-validation-2026-10-04.json",
     "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json"
   ],
-  "authorization": "User Continue authorized this local implementation/qualification and preparation. This bounded local experiment completed; cloud load/access needs explicit resume. Existing expired automation remains paused.",
-  "scope": "Implemented and locally committed atomic Redis projection optimization; native Linux focused/full tests and original/candidate microbenchmarks executed. Retained Windows failed gate. No cloud access/load, increased load, GitHub push or main merge.",
+  "authorization": "User Continue authorized one presented fixed60buyers/s300s comparison and prior temporary-key permission. Run completed and stopped on failed gates; no authorization inferred for another load, higher rate, infrastructure change, schedule, push or main merge.",
+  "scope": "One cloud cache-factor control executed; gates failed and baseline source/images/settings restored. Financial uniqueness and later complete simulated refund/ticket accounting and full global queues/Kafka recovery verified read-only. Both owned temporary root keys/local key files removed; all raw failed/recovery evidence retained.",
   "publication": {
     "status": "local_runtime_tests_decisions_evidence_committed_not_pushed",
     "branch": "codex/redis-failover-recovery",
@@ -121,10 +122,11 @@
   },
   "opening_comparison_requirements": {
     "report": "docs/capacity/flash-sale-opening/single-concert-same-load-control-requirements-2026-10-04.json",
-    "status": "LOCAL_LINUX_QUALIFIED_CLOUD_CONTROL_PENDING",
-    "cloud_runs_started": 0,
+    "status": "CLOUD_CACHE_FACTOR_FAILED_BASELINE_RESTORED",
+    "cloud_runs_started": 1,
     "execution_ready": false,
-    "local_successor_report": "docs/capacity/flash-sale-opening/framed-seat-projection-local-validation-2026-10-04.json"
+    "local_successor_report": "docs/capacity/flash-sale-opening/framed-seat-projection-local-validation-2026-10-04.json",
+    "latest_cloud_report": "docs/capacity/flash-sale-opening/atomic-projection-cloud-control-2026-10-04.json"
   },
   "local_opening_validation": {
     "decision": "0135-bounded-single-concert-paid-fixtures",
@@ -182,6 +184,25 @@
     "candidate_source_revision": "a97d3620e3b5d2690b33f16c41b7de1b2096a5ac",
     "report": "docs/capacity/flash-sale-opening/framed-seat-projection-local-validation-2026-10-04.json",
     "owned_cleanup": true,
-    "cloud_executed": false
+    "cloud_executed": true,
+    "cloud_qualification": "FAILED_BASELINE_RESTORED",
+    "cloud_report": "docs/capacity/flash-sale-opening/atomic-projection-cloud-control-2026-10-04.json"
+  },
+  "bounded_control": {
+    "decision": "0141-fixed-load-cloud-atomic-projection-qualification",
+    "candidate_revision": "ddea4c25da32359004c22cd5fd17e24796b1209c",
+    "baseline_source_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+    "started": 1,
+    "limit": 1,
+    "active_run": null,
+    "access_ready": false,
+    "specific_cloud_access_approval_pending": false,
+    "temporary_key_installed": false,
+    "last_run_gates_pass": false,
+    "result": "docs/capacity/flash-sale-opening/atomic-projection-cloud-control-2026-10-04.json",
+    "temporary_key_cleanup_pass": true,
+    "local_temporary_key_files_removed": true,
+    "recovery_accounting_pass": true,
+    "recovery_global_queues_kafka_zero": true
   }
 }
