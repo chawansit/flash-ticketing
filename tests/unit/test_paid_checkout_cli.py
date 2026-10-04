@@ -14,7 +14,7 @@ class ReachedTransport(RuntimeError):
 @pytest.mark.parametrize("cache_ms", [0, 1000, 3000])
 @pytest.mark.parametrize("shards", [1, 2])
 @pytest.mark.parametrize("delivery_slots", [8, 12])
-def test_paid_diagnostics_accept_supported_layout_before_transport(monkeypatch, tmp_path, shards, delivery_slots, cache_ms, payment_pool=0):
+def test_paid_diagnostics_accept_supported_layout_before_transport(monkeypatch, tmp_path, shards, delivery_slots, cache_ms):
     scripts = Path(__file__).resolve().parents[2] / "scripts"
     monkeypatch.syspath_prepend(str(scripts))
     import unattended_capacity_stage
@@ -36,8 +36,7 @@ def test_paid_diagnostics_accept_supported_layout_before_transport(monkeypatch, 
         "--paid-http-client-count", str(16 // shards), "--shows", "60", "--viewers", "18000",
         "--paid-lifecycle-diagnostics", "--simulator-concurrency-candidate", str(delivery_slots),
         "--simulator-dispatch-mode-candidate", "refill",
-        "--order-status-cache-ms-candidate", str(cache_ms),
-        "--api-payment-pool-max-candidate", str(payment_pool)])
+        "--order-status-cache-ms-candidate", str(cache_ms)])
     with pytest.raises(ReachedTransport):
         runpy.run_path(str(copied), run_name="__main__")
 
@@ -72,7 +71,3 @@ def test_unapproved_cache_age_rejected_before_transport(monkeypatch, cache_ms):
     with pytest.raises(SystemExit) as rejected:
         runpy.run_path(str(scripts / "run_huawei_checkout_smoke.py"), run_name="__main__")
     assert rejected.value.code == 2
-
-
-def test_payment_partition_candidate_reaches_existing_bounded_transport(monkeypatch, tmp_path):
-    test_paid_diagnostics_accept_supported_layout_before_transport(monkeypatch,tmp_path,2,8,0,payment_pool=1)

@@ -1,6 +1,6 @@
 # 0130 - Fixed-budget API payment pool partition
 
-- **Status:** Accepted for opt-in implementation and local validation; cloud comparison pending.
+- **Status:** Unqualified after a failed cloud comparison; candidate source restored to ADR0129 baseline.
 - **Date:** 2026-10-04
 - **Roadmap:** Step4, protect payment/webhook database capacity.
 
@@ -55,6 +55,12 @@ Executed candidate validation: all604unit/integration cases passed82.98s with no
 
 The initial collection failure from duplicate test basenames and one incomplete fake-adapter fixture were corrected; failed runs retained privately. Clean full rerun passed. Linux inline-probe Python/shell syntax and API-only Compose0/1 mapping passed after LF-byte preflight correction. Ownedlocalservices removed. Postgres transaction/connection/constructor/cursor/close are AST-identical to baseline; durable reservation, workers and seven other runtime modules unchanged. API function changes are lifespan/service/readiness only.
 
-[Local validation](../capacity/flash-sale-opening/payment-pool-partition-local-validation-2026-10-04.json). Cloud source remains passing ADR0129f3f511d; no deployment/load/access yet. Local protection does not establish that the one-connection payment allocation sustains the normal cloud workload.
+[Local validation](../capacity/flash-sale-opening/payment-pool-partition-local-validation-2026-10-04.json). At the local checkpoint, cloud source remained passing ADR0129f3f511d; no deployment/load/access had run. Local protection does not establish that the one-connection payment allocation sustains the normal cloud workload.
 
-The [prepared unchanged-load comparison](../capacity/flash-sale-opening/payment-pool-partition-control-plan-2026-10-04.json) specifies candidate f421a76, the ADR0129 baseline, all20 mandatory gates and exact source/budget checks. The local source bundle and restricted temporary public key are prepared; helper syntax and bounded-scope checks passed. Cloud deployment, access installation, comparison and failure-path restoration have not been executed or live validated.
+The [prepared unchanged-load comparison](../capacity/flash-sale-opening/payment-pool-partition-control-plan-2026-10-04.json) specifies candidate f421a76, the ADR0129 baseline, all20 mandatory gates and exact source/budget checks. At preparation, the local source bundle and restricted temporary public key were ready; helper syntax and bounded-scope checks passed. Cloud deployment, access installation, comparison and failure-path restoration had not been executed at that checkpoint.
+
+Executed cloud comparison: checkout-20261004T042409Z-b580d0,60buyers/s300s/cache0 against passing ADR0129. Failed gates retained;candidate reverted andbaseline source/images/servicebudgets restored. Both temporary root keys/localkeyfiles removed;generator idle andprivate cleanup verified. [Comparison evidence](../capacity/flash-sale-opening/payment-pool-partition-control-2026-10-04.json). No higherload,push/mainmerge orhourlyproduction capacityclaim.
+
+The customer gate failed:17397/18000 journeys completed and603 payment-initiation requests returned HTTP503(3.35%). All other19gates passed, including exact financial/postTTL/durability,zero-double-booking,full queues/Kafka andaccess cleanup. PostTTL financial counts were17397 successfulpayments/bookings/tickets/callbacks and603expiredorders;pendingorders/payments0.
+
+Payment queues reached their3waiter limit in samples on all4replicas;generalqueue sample peaks were0. Aggregate API acquisitionerrors rose0to987 andsuccessful-acquisition mean0.267to15.118ms. These counters include callbacks/observers anddo not provide per-purpose exception attribution. This one-payment-connection allocation is unqualified despite its local isolation proof. Restore ADR0103/0083 shared allocation;any replacement needs a new decision/local validation andseparately bounded comparison. Candidate tests/source remain recoverable atf421a76 andprivate failure evidence;baseline source andtests were restored exactly,not newly rerun.
