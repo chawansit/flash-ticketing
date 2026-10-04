@@ -1,0 +1,62 @@
+{
+  "decision": "0147-fixed-budget-two-host-api-comparison",
+  "status": "LOCAL_PREPARATION_PASSED_LIVE_NOT_EXECUTED",
+  "workspace_parent_revision": "405dada430d65f06c162a1d8f78397fa3f88c893",
+  "frozen_application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "scope": "Secret-free bundle preparation and supplied-inventory contract checks. No remote inventory collected, image transfer, deployment, contention test, paid run or capacity qualification.",
+  "known_host_roles": [
+    "primary API/background ECS",
+    "dedicated generator ECS"
+  ],
+  "missing_host": "Second independent matching 4-vCPU/8-GiB API ECS; address/access not supplied.",
+  "control_api_placement": {
+    "primary": 4,
+    "secondary": 0
+  },
+  "candidate_api_placement": {
+    "primary": 2,
+    "secondary": 2
+  },
+  "api_connections_total": 16,
+  "payment_connections_included_in_total": 8,
+  "pgbouncer": {
+    "instances": 1,
+    "server_pool": 24,
+    "reserve_pool": 0,
+    "max_clients": 160
+  },
+  "workload": {
+    "buyers_per_second": 60,
+    "seconds": 300,
+    "scheduled_tickets": 18000,
+    "customer_retries": 0
+  },
+  "original_paid_gate_count": 22,
+  "additional_two_host_gate_count": 10,
+  "local_validation": {
+    "tests_passed": 43,
+    "ruff_pass": true,
+    "compose_primary_valid": true,
+    "compose_secondary_valid": true,
+    "nginx_syntax_pass": true,
+    "configuration_checks_synthetic_only": true,
+    "nginx_network_disabled": true,
+    "ephemeral_validation_container_removed": true
+  },
+  "files_sha256": {
+    "scripts/prepare_two_host_scaling.py": "992d0288de41406eecc5edc9ab25bcada34c54fe005ec804a06ea2457d9aa763",
+    "tests/unit/test_two_host_scaling_preparation.py": "a1764edb1b71f7248064c5652ab20599eabcbed48d84155c3afdc7bacf7d68cc"
+  },
+  "private_preparation_bundle": "tmp/adr0147-preparation-20261005",
+  "private_synthetic_validation": "tmp/adr0147-local-validation-20261005",
+  "paid_runs_started": 0,
+  "cloud_mutations": false,
+  "remaining_work": [
+    "Verify second API host and private network access",
+    "Export/import exact API image and privately reproduce settings with shared PgBouncer route",
+    "Implement and qualify both-host CPU and all-four-replica observers plus bounded deployment/restore adapter",
+    "Prove cross-host atomic hold and replay safety",
+    "Execute matched paid comparison only after prerequisites; preserve all gates"
+  ],
+  "limits": "Supplied inventory checks are not remote attestation. Legacy paid runner/observers still assume four local APIs and must not be used unchanged for candidate qualification. No RPS gain or300000/hour claim."
+}

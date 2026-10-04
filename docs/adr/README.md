@@ -234,3 +234,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0145: Reserved payment callback admission](0145-reserved-payment-callback-admission.md)
 
 - [0146 - Freeze the experiment and measure observation overhead](0146-freeze-and-measure-observation-overhead.md)
+
+- [0147 - Fixed-budget two-host API comparison](0147-fixed-budget-two-host-api-comparison.md)
