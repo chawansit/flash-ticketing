@@ -3,88 +3,14 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "ADR0133 restricted temporary root-key entries removed on both hosts and local key files deleted; no credentials saved.",
-  "status": "adr0134_local_recovery_validated_single_concert_requirements_prepared",
-  "cloud_load_requires_resume": true,
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "revision_note": "Cloud application/generator source deb330e retained from passing ADR0133 with normal budgets and both flags disabled. ADR0134 adds local recovery tests only; current result/checkpoint commit is separate from cloud runtime.",
   "backend_application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "local_implementation_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "diagnostic_implementation_revision": "93e2d20f217e1e621e3347d34276cd6e9bcaf053",
   "last_checked_topology": "Four healthy APIs on deb330e; postgres/pool3/admission4/waiters3/payment partition0/shared budget0/cache0. Consumer1/pool12; publisher/maintenance/reconciler1; writer/refresh/expiry0; simulator4/batch; PgBouncer24/reserve0/client160.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
-  "cloud_state_note": "18000 customer journeys and distinct paid-issued tickets; zero customer errors/drops/retries. PostTTL exact18000 payments/bookings/tickets/callbacks, zero pending/double booking, all queues/Kafka drained. Candidate source retained; feature flags disabled after normal-budget restoration. Generator idle, private cleanup and access removal verified.",
   "current_run": "checkout-20261004T061810Z-11d61f",
-  "confirmed": [
-    "ADR0134:12 local fault/recovery cases passed in normal and isolated/shared pool modes; full657cases passed. Lost postcommit responses, pool recreation, delivery acknowledgement failure, stale token fencing, fulfillment inbox replay and expired-hold refund preserve exact financial effects and hold deadlines.",
-    "One-concert tooling gap confirmed by four local preflight rejections before any cloud transport. Current fixtures/shards cannot represent18000distinct seats in one show. Same-load requirements prepared; tooling not yet implemented.",
-    "ADR0133 all20 cloud gates passed:18000/18000 customer journeys and distinct paid-issued tickets; zero customer errors, generator drops or retries.",
-    "PostTTL:18000 orders, successful payments, callbacks, bookings and tickets exactly once; zero expired/pending orders or payments, duplicate booked seats, multi-booking orders, outbox/deadletters, full-keyspace queues or Kafka lag.",
-    "Candidate deb330e source/images retained on both hosts. Normal service budgets restored with payment/shared flags disabled; generator idle, private scratch removed, both temporary root-key entries and local key files removed.",
-    "Shared common12/purpose10 configuration and observed bounds verified on every replica. Sparse shared-used peaks4/4/1/1, retained0; samples cannot prove burst headroom. Executed local645cases cover mixed bursts, native FIFO, both directions of protected headroom, explicit overflow, timeout debt/recovery and exact replay.",
-    "Compared with ADR0129: successful API acquisition mean0.267 to2.881ms, connection hold19.013 to19.817ms, ticket worst-shard p952145.527 to2178.208ms, durability1043.189 to1045.874ms; sampled API CPU1.240 to1.295cores and host79.42 to81.36percent. No speed or higher-capacity claim.",
-    "ADR0130/0131/0132 static allocations remain failed controls, respectively603payment503/onepayment503/fiveorder-status503. All were reverted; ADR0133 does not retroactively qualify them.",
-    "ADR0122 writer-starvation/fairness fix and original financial/locking/idempotency/TTL logic retained. Full one-hour300000ticket target remains future validation."
-  ],
-  "unresolved": "Backend ambiguous-commit recovery contracts pass locally. Paid generator remains fail-fast/no-retry; live faults and real-provider recovery remain unqualified. Current tooling cannot support1concert/18000seats/two disjoint generator shards. No new cloud queue-drain proof; last cloud all20 gates remain passing ADR0133. Hourly300000ticket target unproved.",
-  "next_on_resume": [
-    "Create a new ADR before implementing bounded one-concert fixture and disjoint shared-show shard allocation; use the prepared requirements to keep60buyers/s300s,18000total seats and all service/client budgets fixed.",
-    "Implement and locally qualify the tooling, then prepare one executable lifecycle with every financial/durability/zero-double-booking/queue/Kafka gate and rollback to passing ADR0133. Do not treat a one-concert scheduled control as simultaneous opening-burst proof.",
-    "Design automatic paid-client recovery or live fault injection separately if needed; keep first errors/physical attempts visible and never replace no-retry capacity results with recovered ones."
-  ],
-  "validation_this_resume": "ADR0134 decision b332262 preceded tests. Focused12passed8.73s; full657passed106.10s with no skips and two dependency deprecations. Initial fixture failures retained and corrected. Lint/whitespace/source-identity/owned-container cleanup passed. Four opening tooling rejection controls passed with zero cloud transport calls.",
-  "evidence": [
-    "docs/capacity/flash-sale-opening/payment-commit-boundary-local-validation-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/single-concert-same-load-control-requirements-2026-10-04.json",
-    "docs/adr/0134-local-payment-commit-boundary-recovery-validation.md",
-    "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-plan-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/shared-acquisition-budget-local-validation-2026-10-04.json",
-    "docs/adr/0133-shared-bounded-api-acquisition-budget.md",
-    "docs/capacity/flash-sale-opening/payment-pool-waiter-allocation-control-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/payment-pool-waiter-allocation-control-plan-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/payment-pool-waiter-allocation-local-validation-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/payment-pool-queue-overflow-diagnosis-2026-10-04.json",
-    "docs/adr/0132-explicit-fixed-budget-payment-waiters.md",
-    "docs/capacity/flash-sale-opening/payment-pool-two-slot-control-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/payment-pool-two-slot-control-plan-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/payment-pool-two-slot-local-validation-2026-10-04.json",
-    "docs/adr/0131-two-slot-api-payment-pool-allocation.md",
-    "docs/capacity/flash-sale-opening/payment-pool-partition-control-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/payment-pool-partition-control-plan-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/payment-pool-partition-local-validation-2026-10-04.json",
-    "docs/adr/0130-fixed-budget-api-payment-pool-partition.md",
-    "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/callback-order-lock-control-plan-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/callback-order-lock-local-validation-2026-10-04.json",
-    "docs/adr/0129-payment-derived-order-lock-query.md",
-    "docs/capacity/flash-sale-opening/order-read-single-statement-control-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/order-read-single-statement-control-plan-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/order-read-local-validation-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/order-read-database-investigation-2026-10-04.json",
-    "docs/adr/0128-native-row-single-statement-order-status-reads.md",
-    "docs/capacity/flash-sale-opening/api-phase-diagnostic-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/api-phase-diagnostic-plan-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/api-phase-saved-profile-reanalysis-2026-10-04.json",
-    "docs/adr/0127-phase-classification-for-api-stack-diagnostics.md",
-    "docs/capacity/flash-sale-opening/cache-disabled-control-2026-10-04.json",
-    "docs/adr/0126-cache-disabled-same-load-control.md",
-    "docs/capacity/flash-sale-opening/paid-observer-cloud-preflight-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/paid-observer-cohort-requalification-2026-10-04.json",
-    "docs/capacity/flash-sale-opening/paid-observer-offline-cohort-plan-2026-10-04.json",
-    "docs/adr/0125-single-pass-paid-observer-cohort-sampling.md",
-    "docs/capacity/flash-sale-opening/order-cache-age-control-2026-10-04.json",
-    "docs/adr/0124-shorter-advisory-order-status-snapshot-age.md",
-    "docs/capacity/flash-sale-opening/api-stack-diagnostic-requalification-2026-10-04.json",
-    "docs/adr/0118-bounded-external-api-stack-sampling.md",
-    "docs/capacity/flash-sale-opening/paid-writer-fairness-repeat-2026-10-04.json",
-    "docs/adr/0123-bounded-paid-cpu-sampler-readiness.md",
-    "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
-  ],
-  "authorization": "User said Continue and approved after ADR0133, authorizing the next local recovery validation and concert-opening comparison preparation. No new cloud access/load occurred.",
-  "scope": "ADR0134 local failure matrix and opening requirements completed. Runtime/cloud unchanged; no increased load, root-key installation, cloud fault injection, push or merge.",
   "roadmap": [
     {
       "step": 1,
@@ -124,7 +50,7 @@
     {
       "step": 8,
       "work": "Concert-opening admission and read capacity",
-      "status": "single_concert_same_load_requirements_prepared_tooling_extension_required"
+      "status": "single_concert_tooling_implemented_local_warmup_and_synthetic_gates_failed"
     },
     {
       "step": 9,
@@ -137,291 +63,6 @@
       "status": "conditional_future_work"
     }
   ],
-  "publication": {
-    "status": "adr0134_local_tests_evidence_not_pushed",
-    "destination": "github.com/chawansit/flash-ticketing.git",
-    "branch": "codex/redis-failover-recovery",
-    "evidence_revision": "b33226254dba6c1d0e151d3b77335485f4260daf",
-    "authorization": "Local recovery validation and opening comparison preparation approved; no GitHub push/main merge.",
-    "next_action": "Implement ADR-backed single-concert tooling locally before any new cloud comparison."
-  },
-  "overnight": {
-    "expires_bangkok": "2026-10-04T08:00:00+07:00",
-    "last_cloud_start_bangkok": "2026-10-04T07:30:00+07:00",
-    "cloud_run_limit": 2,
-    "cloud_runs_started": 2,
-    "failed_gate_stops_cloud": true,
-    "heartbeat_id": "bounded-capacity-work-until-8am",
-    "active_run": null,
-    "local_preflight_rejections": [
-      {
-        "reason": "RunnerCLI accepted only0/3000;1000 rejected before checkpoint/transport;no cloudrun dispatched",
-        "evidence": "tmp/adr0124-local-preflight-rejected/runner.log"
-      }
-    ],
-    "last_run_gates_pass": true,
-    "completed_reports": [
-      "docs/capacity/flash-sale-opening/order-cache-age-control-2026-10-04.json",
-      "docs/capacity/flash-sale-opening/paid-observer-cohort-requalification-2026-10-04.json"
-    ],
-    "failed_gate": "Initial trial pipeline observer:two QueryCanceled; retained failed report. Subsequent specifically approved observer repair requalification passed.",
-    "confirmation_skipped": "Original confirmation skipped on observer failure. Separately approved observer-only requalification completed; no third run.",
-    "proposed_requalification": "Completed after specific user Continue approval; all gates passed.",
-    "heartbeat_schedule": "PAUSED; approved bounded work complete",
-    "approval_deferred_until_8am": false
-  },
-  "local_diagnostic_candidate": {
-    "decision": "0133-shared-bounded-api-acquisition-budget",
-    "implemented": true,
-    "locally_validated": true,
-    "implementation_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-    "baseline_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
-    "cloud_deployed": true,
-    "cloud_qualification": "PASSED_SAME_60_BUYERS_300S",
-    "cloud_tested_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-    "feature_active_after_cleanup": false,
-    "source_and_images_retained": true
-  },
-  "bounded_control": {
-    "decision": "0133-shared-bounded-api-acquisition-budget",
-    "limit": 1,
-    "started": 1,
-    "active_run": null,
-    "access_ready": false,
-    "specific_cloud_access_approval_pending": false,
-    "temporary_key_installed": false,
-    "local_key_prepared": false,
-    "candidate_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-    "plan": "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-plan-2026-10-04.json",
-    "baseline_report": "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
-    "private_lifecycle_entrypoint": "tmp/run_adr0133_comparison.py",
-    "prepared_scope_pass": true,
-    "bundle_source_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-    "local_validation": {
-      "command": ".venv/Scripts/python.exe tmp/run_adr0133_candidate_checks.py",
-      "passed": 645,
-      "seconds": 106.51,
-      "skipped": 0,
-      "new_cases_relative_passing_baseline": 74,
-      "warnings": [
-        "Starlette httpx deprecation",
-        "AnyIO BlockingPortal alias deprecation"
-      ],
-      "lint_whitespace_pass": true,
-      "owned_local_services_removed": true,
-      "cloud_access_or_load_started": false
-    },
-    "cloud_access_approved_by": "User explicitly Approved ADR0133 exact deployment/one unchanged60buyers/s300s/cache0 comparison with all20gates and freshrestrict/45minute rootSSHkey installation/removal on both ECSaccounts.",
-    "last_run_gates_pass": true,
-    "result": "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json",
-    "temporary_key_cleanup_pass": true,
-    "local_temporary_key_files_removed": true,
-    "qualification": "PASSED"
-  },
-  "previous_bounded_control": {
-    "decision": "0126-cache-disabled-same-load-control",
-    "plan": "docs/capacity/flash-sale-opening/cache-disabled-control-plan-2026-10-04.json",
-    "limit": 1,
-    "started": 1,
-    "active_run": null,
-    "access_ready": true,
-    "local_validation": {
-      "executed_command": ".venv/Scripts/python.exe -m pytest tests/unit/test_order_status_cache.py tests/unit/test_paid_checkout_cli.py -q",
-      "passed": 43,
-      "seconds": 2.44,
-      "warnings": [
-        "PytestCacheWarning: nodeids cache write denied; tests completed successfully."
-      ],
-      "runtime_application_change": false,
-      "cloud_load_dispatched": false,
-      "helper_syntax_pass": true,
-      "exact_bounded_cli_arguments_verified": true,
-      "single_configuration_factor_verified": true,
-      "mandatory_gates_retained": true
-    },
-    "review_block": {
-      "action": "Add experiment temporary public key to root authorized_keys on both ECS hosts",
-      "reason": "Automatic review requires explicit authorization for this root-account access change; transient password environment was also flagged.",
-      "executed": true,
-      "specific_approval_requested": true,
-      "resolved_by": "User explicitly replied Approved to exact temporary root-key installation/removal request."
-    },
-    "temporary_key_installed": false,
-    "last_run_gates_pass": true,
-    "result": "docs/capacity/flash-sale-opening/cache-disabled-control-2026-10-04.json",
-    "qualification": "PASSED",
-    "temporary_key_cleanup_pass": true,
-    "local_temporary_key_files_removed": true
-  },
-  "previous_api_diagnostic_control": {
-    "decision": "0127-phase-classification-for-api-stack-diagnostics",
-    "limit": 1,
-    "started": 1,
-    "active_run": null,
-    "result": "docs/capacity/flash-sale-opening/api-phase-diagnostic-2026-10-04.json",
-    "last_run_gates_pass": true,
-    "temporary_key_cleanup_pass": true,
-    "local_temporary_key_files_removed": true
-  },
-  "order_read_implementation_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
-  "previous_bounded_control_adr0128": {
-    "decision": "0128-native-row-single-statement-order-status-reads",
-    "limit": 1,
-    "started": 1,
-    "active_run": null,
-    "access_ready": false,
-    "plan": "docs/capacity/flash-sale-opening/order-read-single-statement-control-plan-2026-10-04.json",
-    "baseline_report": "docs/capacity/flash-sale-opening/cache-disabled-control-2026-10-04.json",
-    "specific_cloud_access_approval_pending": false,
-    "temporary_key_installed": false,
-    "local_validation": {
-      "passed": 558,
-      "seconds": 84.46,
-      "baseline_expected_failures": 2,
-      "new_regressions": 9,
-      "local_plans_shape_and_index_checks_pass": true,
-      "owned_test_containers_removed": true
-    },
-    "cloud_access_approved_by": "User replied Continue directly to exact freshrestricted45minute root-key/deployment/one60/300comparison request.",
-    "last_run_gates_pass": true,
-    "result": "docs/capacity/flash-sale-opening/order-read-single-statement-control-2026-10-04.json",
-    "temporary_key_cleanup_pass": true,
-    "local_temporary_key_files_removed": true,
-    "qualification": "PASSED"
-  },
-  "callback_order_lock_implementation_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
-  "previous_bounded_control_adr0129": {
-    "decision": "0129-payment-derived-order-lock-query",
-    "limit": 1,
-    "started": 1,
-    "active_run": null,
-    "access_ready": false,
-    "plan": "docs/capacity/flash-sale-opening/callback-order-lock-control-plan-2026-10-04.json",
-    "baseline_report": "docs/capacity/flash-sale-opening/order-read-single-statement-control-2026-10-04.json",
-    "specific_cloud_access_approval_pending": false,
-    "temporary_key_installed": false,
-    "local_validation": {
-      "passed": 571,
-      "seconds": 87.28,
-      "baseline_expected_failures": 1,
-      "new_regressions": 13,
-      "local_primary_key_plan_pass": true,
-      "owned_test_containers_removed": true
-    },
-    "private_lifecycle_entrypoint": "tmp/run_adr0129_comparison.py",
-    "candidate_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
-    "cloud_access_approved_by": "User explicitly Approved the concrete freshrestricted45minute root-key installation/removal onbothECSaccounts andoneunchanged60/300 comparison.",
-    "last_run_gates_pass": true,
-    "result": "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
-    "temporary_key_cleanup_pass": true,
-    "local_temporary_key_files_removed": true,
-    "qualification": "PASSED"
-  },
-  "payment_pool_partition_implementation_revision": "7ba8fca0bc2ea40cd58172a1e79d90bce78600a2",
-  "previous_bounded_control_adr0130": {
-    "decision": "0130-fixed-budget-api-payment-pool-partition",
-    "limit": 1,
-    "started": 1,
-    "active_run": null,
-    "access_ready": false,
-    "specific_cloud_access_approval_pending": false,
-    "temporary_key_installed": false,
-    "candidate_revision": "f421a7637fc35d72b51ba8fec1d786f0042e3a32",
-    "plan": "docs/capacity/flash-sale-opening/payment-pool-partition-control-plan-2026-10-04.json",
-    "baseline_report": "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
-    "private_lifecycle_entrypoint": "tmp/run_adr0130_comparison.py",
-    "local_validation": {
-      "passed": 604,
-      "seconds": 82.98,
-      "new_cases": 33,
-      "controlled_read_starvation_reproduced": true,
-      "real_api_payment_under_general_pool_saturation_pass": true,
-      "owned_test_containers_removed": true
-    },
-    "local_key_prepared": false,
-    "prepared_scope_pass": true,
-    "bundle_source_revision": "f421a7637fc35d72b51ba8fec1d786f0042e3a32",
-    "cloud_access_approved_by": "User explicitly Approved ADR0130 deployment, one unchanged60buyers/s300s comparison with all gates, and restrict/45-minute temporary root-key installation/removal on both ECS accounts.",
-    "last_run_gates_pass": false,
-    "result": "docs/capacity/flash-sale-opening/payment-pool-partition-control-2026-10-04.json",
-    "temporary_key_cleanup_pass": true,
-    "local_temporary_key_files_removed": true,
-    "qualification": "FAILED"
-  },
-  "previous_bounded_control_adr0131": {
-    "decision": "0131-two-slot-api-payment-pool-allocation",
-    "limit": 1,
-    "started": 1,
-    "active_run": null,
-    "access_ready": false,
-    "specific_cloud_access_approval_pending": false,
-    "temporary_key_installed": false,
-    "local_key_prepared": false,
-    "candidate_revision": "7ba8fca0bc2ea40cd58172a1e79d90bce78600a2",
-    "plan": "docs/capacity/flash-sale-opening/payment-pool-two-slot-control-plan-2026-10-04.json",
-    "baseline_report": "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
-    "private_lifecycle_entrypoint": "tmp/run_adr0131_comparison.py",
-    "prepared_scope_pass": true,
-    "bundle_source_revision": "7ba8fca0bc2ea40cd58172a1e79d90bce78600a2",
-    "local_validation": {
-      "command": ".venv/Scripts/python.exe tmp/run_adr0131_candidate_checks.py",
-      "passed": 614,
-      "seconds": 85.2,
-      "skipped": 0,
-      "new_cases": 43,
-      "added_cases_relative_adr0130": 10,
-      "warnings": [
-        "Starlette httpx deprecation",
-        "AnyIO BlockingPortal alias deprecation"
-      ],
-      "lint_whitespace_pass": true,
-      "owned_local_services_removed": true,
-      "cloud_access_or_load_started": false
-    },
-    "cloud_access_approved_by": "User explicitly Approved ADR0131 deployment, one unchanged60buyers/s300s comparison with all gates, and restrict/45-minute temporary root-key installation/removal on both ECS accounts.",
-    "last_run_gates_pass": false,
-    "result": "docs/capacity/flash-sale-opening/payment-pool-two-slot-control-2026-10-04.json",
-    "temporary_key_cleanup_pass": true,
-    "local_temporary_key_files_removed": true,
-    "qualification": "FAILED"
-  },
-  "previous_bounded_control_adr0132": {
-    "decision": "0132-explicit-fixed-budget-payment-waiters",
-    "limit": 1,
-    "started": 1,
-    "active_run": null,
-    "access_ready": false,
-    "specific_cloud_access_approval_pending": false,
-    "temporary_key_installed": false,
-    "local_key_prepared": false,
-    "candidate_revision": "2fe7903d975ed9aa4d8e0a25575010f68ab64a1d",
-    "plan": "docs/capacity/flash-sale-opening/payment-pool-waiter-allocation-control-plan-2026-10-04.json",
-    "baseline_report": "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
-    "private_lifecycle_entrypoint": "tmp/run_adr0132_comparison.py",
-    "prepared_scope_pass": true,
-    "bundle_source_revision": "2fe7903d975ed9aa4d8e0a25575010f68ab64a1d",
-    "local_validation": {
-      "command": ".venv/Scripts/python.exe tmp/run_adr0132_candidate_checks.py",
-      "passed": 636,
-      "seconds": 93.54,
-      "skipped": 0,
-      "new_cases_relative_passing_baseline": 65,
-      "added_cases_relative_adr0131": 22,
-      "warnings": [
-        "Starlette httpx deprecation",
-        "AnyIO BlockingPortal alias deprecation"
-      ],
-      "lint_whitespace_pass": true,
-      "owned_local_services_removed": true,
-      "cloud_access_or_load_started": false
-    },
-    "cloud_access_approved_by": "User explicitly Approved ADR0132 exact deployment/one unchanged60buyers/s300s/cache0 comparison with all20gates and freshrestrict/45minute rootSSHkey installation/removal on both ECSaccounts.",
-    "last_run_gates_pass": false,
-    "result": "docs/capacity/flash-sale-opening/payment-pool-waiter-allocation-control-2026-10-04.json",
-    "temporary_key_cleanup_pass": true,
-    "local_temporary_key_files_removed": true,
-    "qualification": "FAILED"
-  },
   "local_recovery_validation": {
     "decision": "0134-local-payment-commit-boundary-recovery-validation",
     "decision_revision": "b33226254dba6c1d0e151d3b77335485f4260daf",
@@ -434,10 +75,62 @@
     "cloud_faults_executed": false,
     "owned_services_removed": true
   },
+  "status": "adr0135_single_concert_tooling_implemented_local_gates_failed",
+  "cloud_load_requires_resume": true,
+  "local_implementation_revision": "3e6b83ac32e1824f835b592317bd611c9df944f1",
+  "revision_note": "ADR0135 local tooling only; cloud remains deb330e and normal budgets/disabled flags. Outcome checkpoint revision follows the implementation.",
+  "confirmed": [
+    "ADR0135 decision4881666 preceded implementation3e6b83a. Bounded opt-in1show/18000seats and two disjoint ranges implemented; distributed defaults preserved.",
+    "Focused72passed/1failed; full693passed/2failed. Large-show financial replay stopped before export/payments at100ms Redis prewarm failure.",
+    "Owned-local snapshot diagnostic: client197.665ms timeout, server EVAL249.684ms. Eventual18007fields does not waive the failed acknowledgement.",
+    "Synthetic60/s60s: all3600 eventually fulfilled uniquely, zero HTTP outcomes/errors/drops/retries or duplicate seat assignment;3411 by90s deadline. Worst-shard dispatch lag p9522985.178ms/max24484.736ms. Strict gates failed.",
+    "Existing idle timing test full-suite49.886ms vs50ms failed; unchanged isolated rerun passed. Overall full suite remains failed.",
+    "ADR0134 focused12/full657 financial recovery tests passed before tooling changes.",
+    "ADR0133 last cloud60buyers/s300s all20gates passed:18000distinctpaid-issued,zeroerrors/drops/retries; exactpostTTLfinancialcounts,zerodoublebooking/fullkeyspacequeues/Kafkalag. Source deb330e retained;normalbudgets restored and flagsdisabled.",
+    "No cloud access/load, higher load, key installation, GitHub push or main merge during ADR0135 work."
+  ],
+  "unresolved": "Single-concert local qualification fails large-snapshot warmup and synthetic timing. No live concentration, simultaneous opening, real-provider/live-fault or sustained300000/hour proof.",
+  "next_on_resume": [
+    "Diagnose unchanged distributed synthetic baseline and Redis full-publication cost; retain original deadlines and failed evidence.",
+    "Create an ADR before any cache publication/client architecture correction. Requalify runtime factors separately; concentration-only cloud comparison must not combine an unqualified runtime change.",
+    "After every local gate passes, prepare one concrete lifecycle with all20 financial/durability/zero-double-booking/queue/Kafka gates, four concentration checks and source/configuration restoration."
+  ],
+  "evidence": [
+    "docs/capacity/flash-sale-opening/single-concert-tooling-local-validation-2026-10-04.json",
+    "docs/capacity/flash-sale-opening/single-concert-same-load-control-requirements-2026-10-04.json",
+    "docs/adr/0135-bounded-single-concert-paid-fixtures.md",
+    "docs/capacity/flash-sale-opening/payment-commit-boundary-local-validation-2026-10-04.json",
+    "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json"
+  ],
+  "authorization": "User Continue authorizes local implementation/qualification and preparation. Failed gates prohibit higherload/cloud progression/mainmerge; no new root access or cloud run started.",
+  "scope": "ADR0135 tooling implemented but unqualified. Production cache/financial runtime and cloud topology untouched.",
+  "publication": {
+    "status": "local_commits_not_pushed",
+    "branch": "codex/redis-failover-recovery",
+    "evidence_revision": "3e6b83ac32e1824f835b592317bd611c9df944f1"
+  },
   "opening_comparison_requirements": {
     "report": "docs/capacity/flash-sale-opening/single-concert-same-load-control-requirements-2026-10-04.json",
-    "status": "DESIGNED_NOT_EXECUTABLE_TOOLING_EXTENSION_REQUIRED",
+    "status": "IMPLEMENTED_LOCAL_QUALIFICATION_FAILED",
     "cloud_runs_started": 0,
     "execution_ready": false
+  },
+  "local_opening_validation": {
+    "decision": "0135-bounded-single-concert-paid-fixtures",
+    "implemented": true,
+    "qualification": "FAILED",
+    "report": "docs/capacity/flash-sale-opening/single-concert-tooling-local-validation-2026-10-04.json",
+    "cleanup": {
+      "remaining_owned_containers": [],
+      "owned_containers_removed": true,
+      "private_shard_manifests_removed": true,
+      "cloud_temporary_access_installed": false
+    }
+  },
+  "overnight": {
+    "expires_bangkok": "2026-10-04T08:00:00+07:00",
+    "heartbeat_id": "bounded-capacity-work-until-8am",
+    "status": "PAUSED_EXPIRED",
+    "active_run": null
   }
 }

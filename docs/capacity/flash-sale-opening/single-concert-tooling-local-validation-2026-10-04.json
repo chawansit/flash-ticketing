@@ -1,0 +1,237 @@
+{
+  "kind": "single_concert_tooling_local_validation",
+  "status": "IMPLEMENTED_LOCAL_QUALIFICATION_FAILED",
+  "decision": "docs/adr/0135-bounded-single-concert-paid-fixtures.md",
+  "decision_revision": "4881666",
+  "implementation_revision": "3e6b83ac32e1824f835b592317bd611c9df944f1",
+  "baseline_cloud_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "implemented": [
+    "Opt-in bounded single-concert fixture/export/runner propagation",
+    "Disjoint contiguous seat ranges and viewer partitions validated before HTTP",
+    "All18000 assignment coverage, malformed/overflow rejection and fixed cloud profile rejection",
+    "Terminate/reap owned child on second-launch failure and bound process cleanup",
+    "Synthetic responder rejects duplicate seat assignment across logical holds"
+  ],
+  "focused": {
+    "passed": 72,
+    "failed": 1,
+    "skipped": 0,
+    "seconds": 8.31,
+    "raw": "tmp/adr0135-capacity-investigation/focused-validation.txt"
+  },
+  "full_suite": {
+    "passed": 693,
+    "failed": 2,
+    "skipped": 0,
+    "seconds": 105.56,
+    "warnings": 2,
+    "raw": "tmp/adr0135-capacity-investigation/candidate-validation.txt",
+    "failed_cases": [
+      "test_large_single_concert_fixture_export_and_disjoint_paid_replay",
+      "test_real_idle_close_reuse_and_early_client_expiry"
+    ]
+  },
+  "idle_timing": {
+    "full_suite_actual_seconds": 0.0498860000516288,
+    "required_seconds": 0.05,
+    "unchanged_isolated_rerun": {
+      "passed": 1,
+      "seconds": 1.83
+    },
+    "full_suite_not_retroactively_passed": true
+  },
+  "large_show_financial_replay": {
+    "executed": false,
+    "blocked_at": "snapshot prewarm; original100ms deadline",
+    "planned_cases": 6,
+    "gate_waived": false
+  },
+  "snapshot_diagnostic": {
+    "kind": "single_concert_snapshot_warmup_diagnostic",
+    "seats": 18000,
+    "redis_operation_timeout_ms": 100,
+    "wall_ms": 732.9596999916248,
+    "warmup_pass": false,
+    "error": {
+      "type": "RuntimeError",
+      "cause": "TimeoutError"
+    },
+    "client_phases": [
+      {
+        "phase": "cache_put",
+        "client_wall_ms": 197.665199986659,
+        "outcome": "TimeoutError"
+      }
+    ],
+    "server_eval_samples": [
+      {
+        "command": "EVAL",
+        "server_duration_ms": 249.684
+      }
+    ],
+    "cache_after_operation": {
+      "fields": 18007,
+      "has_updating_marker": false,
+      "has_version": true
+    },
+    "note": "Owned local Redis slowlog only; observer read timeout2s does not change operation deadline100ms. Server completion after lost client acknowledgement does not waive warmup failure."
+  },
+  "snapshot_phase_diagnostic_limit": "Redis TIME was fixed across the Lua invocation; zero phase spans do not measure server work. Raw diagnostic retained; excluded from causal claims.",
+  "single_concert_synthetic": {
+    "source_revision": "3e6b83a",
+    "configuration": {
+      "rate": 60,
+      "seconds": 60,
+      "concurrency": 500,
+      "shards": 2,
+      "http_clients_per_shard": 8,
+      "http_connections_per_shard": 250,
+      "poll_seconds": 1,
+      "fixture_layout": "single-concert",
+      "response_ms": 30,
+      "command_seconds": 0.5,
+      "ticket_seconds": 5
+    },
+    "environment": {
+      "platform": "Linux",
+      "python": "3.12.14",
+      "httpx": "0.28.1",
+      "httpcore": "1.0.9",
+      "network": "none; loopback only",
+      "cpu_quota": 4
+    },
+    "pass": false,
+    "required_gates": {
+      "generator_strict": false,
+      "unique_seats": true,
+      "no_duplicate_assignment": true,
+      "responder_valid": true,
+      "connections_closed": true,
+      "private_manifests_removed": true
+    },
+    "scheduled": 3600,
+    "dispatched": 3600,
+    "completed": 3600,
+    "fulfilled_eventually": 3600,
+    "fulfilled_by_deadline": 3411,
+    "late_fulfilled": 189,
+    "distinct_orders": 3600,
+    "distinct_tickets": 3600,
+    "outcomes": {
+      "fulfilled": 3600
+    },
+    "drops": 0,
+    "retries": 0,
+    "dispatch_lag_p95_ms": 22985.178148330306,
+    "dispatch_lag_max_ms": 24484.73590533831,
+    "physical_http_attempts": {
+      "holds": 3600,
+      "reservation_commands": 5516,
+      "payments": 3600,
+      "orders": 12583
+    },
+    "responder": {
+      "handler_p95_ms": 31.127548005315475,
+      "loop_lag_p95_ms": 1.0969209834001958,
+      "protocol_errors": 0,
+      "unique_assigned_seats": 3600,
+      "duplicate_seat_attempts": 0,
+      "accepted_connections": 353,
+      "closed_connections": 353
+    },
+    "child_loop_lag_p95_ms": [
+      169.90049499145243,
+      163.7678139959462
+    ],
+    "durability_and_backend_queues": "not_applicable_synthetic"
+  },
+  "synthetic_raw": "tmp/adr0135-capacity-investigation/linux-synthetic-control.json",
+  "syntax_and_lint": {
+    "changed_python_lint_pass": true,
+    "linux_sh_syntax_pass": true,
+    "git_whitespace_pass": true
+  },
+  "cloud_access_started": false,
+  "cloud_runs_started": 0,
+  "higher_load_started": false,
+  "runtime_cache_changed": false,
+  "github_push_or_main_merge": false,
+  "failed_gate_behavior": "Retain all failures; do not dispatch cloud concentration comparison, increase load or merge.",
+  "next_action": "Diagnose unchanged distributed synthetic baseline and18k Redis publication. Create ADR before production publication/client pattern changes; qualify each runtime factor separately.",
+  "limits": "Local synthetic completion and assignment do not establish financial/backend capacity or cloud queue drain. Last executed cloud financial/durability/zero-double-booking/full-keyspacequeue/Kafka gates remain passing ADR0133.",
+  "distributed_synthetic_baseline": {
+    "source_revision": "3e6b83ac32e1824f835b592317bd611c9df944f1",
+    "configuration": {
+      "rate": 60,
+      "seconds": 60,
+      "concurrency": 500,
+      "shards": 2,
+      "http_clients_per_shard": 8,
+      "http_connections_per_shard": 250,
+      "poll_seconds": 1,
+      "fixture_layout": "distributed",
+      "response_ms": 30,
+      "command_seconds": 0.5,
+      "ticket_seconds": 5
+    },
+    "environment": {
+      "platform": "Linux",
+      "python": "3.12.14",
+      "httpx": "0.28.1",
+      "httpcore": "1.0.9",
+      "network": "none; loopback only",
+      "cpu_quota": 4
+    },
+    "pass": false,
+    "required_gates": {
+      "generator_strict": false,
+      "unique_seats": true,
+      "no_duplicate_assignment": true,
+      "responder_valid": true,
+      "connections_closed": true,
+      "private_manifests_removed": true
+    },
+    "scheduled": 3600,
+    "dispatched": 3600,
+    "completed": 3600,
+    "fulfilled_eventually": 3600,
+    "fulfilled_by_deadline": 3346,
+    "late_fulfilled": 254,
+    "distinct_orders": 3600,
+    "distinct_tickets": 3600,
+    "outcomes": {
+      "fulfilled": 3600
+    },
+    "drops": 0,
+    "retries": 0,
+    "dispatch_lag_p95_ms": 24246.806634342647,
+    "dispatch_lag_max_ms": 26114.34147733962,
+    "physical_http_attempts": {
+      "holds": 3600,
+      "reservation_commands": 5481,
+      "payments": 3600,
+      "orders": 12405
+    },
+    "responder": {
+      "handler_p95_ms": 31.132103002164513,
+      "loop_lag_p95_ms": 1.1026470019714907,
+      "protocol_errors": 0,
+      "unique_assigned_seats": 3600,
+      "duplicate_seat_attempts": 0,
+      "accepted_connections": 392,
+      "closed_connections": 392
+    },
+    "child_loop_lag_p95_ms": [
+      168.89222999452613,
+      170.0694959872635
+    ],
+    "durability_and_backend_queues": "not_applicable_synthetic"
+  },
+  "baseline_raw": "tmp/adr0135-capacity-investigation/linux-synthetic-distributed-baseline.json",
+  "cleanup": {
+    "remaining_owned_containers": [],
+    "owned_containers_removed": true,
+    "private_shard_manifests_removed": true,
+    "cloud_temporary_access_installed": false
+  }
+}

@@ -1,6 +1,6 @@
 {
   "kind": "single_concert_same_load_comparison_requirements",
-  "status": "DESIGNED_NOT_EXECUTABLE_TOOLING_EXTENSION_REQUIRED",
+  "status": "IMPLEMENTED_LOCAL_QUALIFICATION_FAILED",
   "decision_record": "0134-local-payment-commit-boundary-recovery-validation",
   "baseline_report": "docs/capacity/flash-sale-opening/shared-acquisition-budget-control-2026-10-04.json",
   "baseline_run": "checkout-20261004T061810Z-11d61f",
@@ -60,7 +60,7 @@
   "cloud_runs_started": 0,
   "cloud_access_started": false,
   "readiness": {
-    "implemented": false,
+    "implemented": true,
     "preflight_controls_executed": 4,
     "cloud_transport_calls": 0,
     "existing_rejections": [
@@ -89,7 +89,13 @@
         "reason": "Fixture must have distinct shows and enough viewers"
       }
     ],
-    "execution_gate": false
+    "execution_gate": false,
+    "failed_local_gates": [
+      "18000-seat original-deadline snapshot prewarm",
+      "synthetic strict arrival lag and completion deadline",
+      "full suite overall failed"
+    ],
+    "existing_rejections_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc"
   },
   "before_implementation": [
     "Create and link a new ADR covering shared-show shard allocation, bounded18000-seat fixture and paid-stage orchestration changes before implementing them.",
@@ -132,5 +138,8 @@
   ],
   "failed_gate_behavior": "Finish financial/postTTL/zero-double-booking/full-keyspacequeue/Kafka checks; restore passing ADR0133 source/images and normal settings, remove access and stop. No extra run, increased load or merge on failed gates.",
   "limitations": "An evenly scheduled one-concert60buyer control is not simultaneous concert opening or a heavy seat-map burst, not real-provider qualification and not sustained300000paid-issued/hour.",
-  "scope": "Current continuation approved local recovery validation and preparation. This requirements document dispatches no cloud traffic and does not install root keys, inject cloud failures, increase load or merge."
+  "scope": "Current continuation approved local recovery validation and preparation. This requirements document dispatches no cloud traffic and does not install root keys, inject cloud failures, increase load or merge.",
+  "tooling_decision_record": "docs/adr/0135-bounded-single-concert-paid-fixtures.md",
+  "local_validation_report": "docs/capacity/flash-sale-opening/single-concert-tooling-local-validation-2026-10-04.json",
+  "implementation_revision": "3e6b83ac32e1824f835b592317bd611c9df944f1"
 }
