@@ -204,3 +204,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0130 - Fixed-budget API payment pool partition](0130-fixed-budget-api-payment-pool-partition.md)
 
 - [0131 - Two-slot payment allocation within the fixed API pool budget](0131-two-slot-api-payment-pool-allocation.md)
+
+- [0132 - Explicit financial waiter allocation within the fixed API budget](0132-explicit-fixed-budget-payment-waiters.md)
