@@ -50,3 +50,9 @@ Executed: shared-pool reproduction1passed in0.50s, two expected PoolTimeout exce
 - [Bounded API waiter decision](0083-bounded-api-db-pool-waiters.md)
 - [Four-connection allocation](0103-api-pool-four-fixed-server-budget.md)
 - [Psycopg pool bounds and queue semantics](https://www.psycopg.org/psycopg3/docs/api/pool.html)
+
+Executed candidate validation: all604unit/integration cases passed82.98s with no skips and two dependency deprecations, including33new cases. The real API completed payment initiation and a signed callback while all three general connections were held by real order reads. Payment-pool overflow/timeout remained visible without fallback; callback/fulfillment replay, actor authorization, signatures and exact bookings/tickets passed. Shared and partitioned lifecycle cleanup/readiness and aggregate/purpose gauges passed.
+
+The initial collection failure from duplicate test basenames and one incomplete fake-adapter fixture were corrected; failed runs retained privately. Clean full rerun passed. Linux inline-probe Python/shell syntax and API-only Compose0/1 mapping passed after LF-byte preflight correction. Ownedlocalservices removed. Postgres transaction/connection/constructor/cursor/close are AST-identical to baseline; durable reservation, workers and seven other runtime modules unchanged. API function changes are lifespan/service/readiness only.
+
+[Local validation](../capacity/flash-sale-opening/payment-pool-partition-local-validation-2026-10-04.json). Cloud source remains passing ADR0129f3f511d; no deployment/load/access yet. Local protection does not establish that the one-connection payment allocation sustains the normal cloud workload.

@@ -3,7 +3,7 @@
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
   "security_note": "ADR0129 restrictedtemporaryrootkeyentries removedonbothhosts andlocalkeyfilesdeleted;nocredentials saved.",
-  "status": "adr0130_shared_pool_starvation_reproduced_decision_recorded",
+  "status": "adr0130_partition_locally_validated_cloud_pending",
   "cloud_load_requires_resume": true,
   "handoff_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
   "revision_note": "ADR0129 testedcandidatef3f511d; cloudcheckouts/runtime retaincandidate andnineothermodules matchADR0128baseline. Servicebudgets/cache0 restored;resultcommitsmayfollow.",
@@ -27,13 +27,14 @@
     "Hold-to-ticket worstshardp952166.095to2145.527ms;durabilityp951043.189ms.",
     "Baseline servicebudgets restored;generator idle,privatebundle/fixturecleanup verified;both temporaryrootkeyentries/localkeyfilesremoved. No higherload,push/mainmerge."
   ],
-  "unresolved": "One freshfixture comparison andsampledCPU windows do not establishcausalcapacity/headroom improvement. APISELECT counters coverallroutes/setup;not callbackquerytimings. Production300000/hour,onehotconcert/realprovider capacity remainsunqualified.",
+  "unresolved": "ADR0130process-local protectionvalidated;paymentallocation1/general3 mayconstrainnormaltraffic andrequiresunchangedloadcomparison. No PgBouncer/RDSserverreservation,onehotconcert/provider orhourlycapacityproof.",
   "next_on_resume": [
-    "ImplementADR0130 opt-infixedtotalconnection/waiter partition;preservequeries/transactions/authorization/errorvisibility.",
-    "Validatecontrolledread/paymentexhaustion,concurrency/replay andlifecycle/metrics;prepareexactoneunchangedloadcomparison forapproval."
+    "Prepareexactone60/300/cache0 controlagainstADR0129withfixedAPI4connections/12waitersandpaymentpartition1,allfinancial/queue/source/budget/restorationgates.",
+    "Get concretecomparison/freshrestrictedtemporaryrootaccess approval beforeclouddeployment."
   ],
-  "validation_this_resume": "ControlledlocalrealPGfour-readoccupancyreproducedbothpayment-initiation andcallbackPoolTimeout. Reproduction1passed0.50s;replayafterreleaseexactonebooking/callback;ownedcontainersremoved. No candidate/cloudresultclaimed.",
+  "validation_this_resume": "ADR0130:604unit/integration casespassed82.98s,noskips/twodependencywarnings;33newcases includingrealHTTPpaymentunderreadexhaustion,boundedcriticalqueue/replay/authorization/lifecycle/metrics. Two testfixture/collection failures retainedandcorrected. Compose/shell/Pythonprobespassed;ownedcontainersremoved. No cloudaccess/load.",
   "evidence": [
+    "docs/capacity/flash-sale-opening/payment-pool-partition-local-validation-2026-10-04.json",
     "docs/adr/0130-fixed-budget-api-payment-pool-partition.md",
     "docs/capacity/flash-sale-opening/callback-order-lock-control-2026-10-04.json",
     "docs/capacity/flash-sale-opening/callback-order-lock-control-plan-2026-10-04.json",
@@ -63,7 +64,7 @@
     "docs/adr/0122-reservation-writer-visited-stream-continuation.md"
   ],
   "authorization": "User Continue approved ADR0129callbackinvestigation/implementation/checks andoneunchanged60/300 comparison. User explicitly Approved theexactfreshrestricted45minute rootkeyinstallation/removal onbothECSaccounts. Onecomparison andaudits/accesscleanupcompleted;noadditionalrun,higherload,push/mainmerge authorized.",
-  "scope": "User Continue authorizesstep4investigation/ADRbeforeimplementation/localvalidation. Sharedpoolstarvationreproducedlocally;opt-infixedbudgetpartitiondecided. No cloudaccess/load,newrootkey,push/higherload/mainmerge yet.",
+  "scope": "User Continue authorizesstep4implementation/localvalidation. Opt-inpartition locallyvalidated;cloudbaselinef3f511d unchanged. Preparingoneunchanged60/300 comparisonandrequiredfreshrootaccess forapproval;nohigherload,push/mainmerge.",
   "roadmap": [
     {
       "step": 1,
@@ -83,7 +84,7 @@
     {
       "step": 4,
       "work": "Protect payment/webhook database capacity",
-      "status": "conditional_future_work"
+      "status": "opt_in_fixed_budget_payment_partition_locally_validated_cloud_pending"
     },
     {
       "step": 5,
@@ -151,10 +152,11 @@
   },
   "local_diagnostic_candidate": {
     "decision": "0130-fixed-budget-api-payment-pool-partition",
-    "implemented": false,
-    "locally_validated": false,
+    "implemented": true,
+    "locally_validated": true,
     "cloud_deployed": false,
-    "baseline_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410"
+    "baseline_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
+    "cloud_qualification": "NOT_RUN"
   },
   "bounded_control": {
     "decision": "0129-payment-derived-order-lock-query",

@@ -1,0 +1,104 @@
+{
+  "kind": "fixed_budget_api_payment_pool_local_validation",
+  "decision_record": "0130-fixed-budget-api-payment-pool-partition",
+  "baseline_application_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
+  "adr_before_implementation_revision": "3bae88a",
+  "roadmap_step": 4,
+  "setting": "API_PAYMENT_POOL_MAX;default0sharedpool;candidate1",
+  "candidate_budget": {
+    "total_connections": 4,
+    "general_connections": 3,
+    "payment_connections": 1,
+    "total_waiters": 12,
+    "general_waiters": 9,
+    "payment_waiters": 3
+  },
+  "executed_validation": {
+    "command": ".venv/Scripts/python.exe tmp/run_adr0130_candidate_checks.py candidate",
+    "passed": 604,
+    "seconds": 82.98,
+    "skipped": 0,
+    "new_cases": 33,
+    "warnings": [
+      "Starlette httpx deprecation",
+      "AnyIO BlockingPortal alias deprecation"
+    ],
+    "lint_whitespace_pass": true,
+    "owned_local_services_removed": true,
+    "cloud_access_or_load_started": false
+  },
+  "controlled_protection": {
+    "shared_pool_baseline_payment_and_callback_timeouts_reproduced": true,
+    "general_pool_saturation_payment_initiation_and_callback_pass": true,
+    "real_http_api_route_wiring_under_saturation_pass": true,
+    "payment_pool_queue_overflow_and_timeout_visible": true,
+    "no_fallback_or_borrowing": true,
+    "callback_and_fulfillment_replay_exact": true,
+    "authorization_and_hmac_checks_preserved": true,
+    "lifecycle_cleanup_and_readiness_both_pools_pass": true,
+    "aggregate_and_purpose_budget_metrics_pass": true
+  },
+  "source_verification": {
+    "runtime_modules": 10,
+    "changed_runtime_modules": [
+      "src/ticketing/infrastructure/postgres.py",
+      "src/ticketing/api.py",
+      "src/ticketing/config.py"
+    ],
+    "expected_runtime_source_sha256": {
+      "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+      "src/ticketing/infrastructure/postgres.py": "5861c46b7292acec20d02d9cc3897023581cd3db1b1f2f0e52532dcb1bb3ff08",
+      "src/ticketing/infrastructure/reservations.py": "ae44dffde81c06a9aa4990dd22ddd86f799ee371001db9222abc73aae3dea5c7",
+      "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+      "src/ticketing/infrastructure/order_status_cache.py": "85cb2678d68885e6c8930dcebb95122d3139d5c19c825f702b8b4ad4ae1e402a",
+      "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+      "src/ticketing/api.py": "452fce4448342c567900072457f955d55ad784cbd5b707fb7165030e1e147ff3",
+      "src/ticketing/config.py": "89b3fa63ba90c732fd544c27baebbc01eb323758bd42278d6d639ea37e0de5a1",
+      "src/ticketing/workers.py": "c87f75def0e95090252517723dc8fdf1786317a2853d32f634ab351d3d05cb57",
+      "src/ticketing/observability.py": "8cf47f1b830ad761d6efb78cb31f207ccf0aed97fbb118bbb180276eec8ffbfa"
+    },
+    "seven_other_modules_unchanged": true,
+    "financial_reservation_and_worker_code_unchanged": true,
+    "transaction_connection_constructor_cursor_and_close_ast_unchanged": true,
+    "api_changed_functions": [
+      "lifespan",
+      "service",
+      "ready"
+    ]
+  },
+  "orchestration_preflight": {
+    "inline_python_probe_syntax_pass": true,
+    "remote_shell_probe_syntax_pass": true,
+    "compose_mapping": [
+      {
+        "payment_maximum": 0,
+        "api_total_connections": 4,
+        "api_total_waiters": 12,
+        "flag_is_api_only": true
+      },
+      {
+        "payment_maximum": 1,
+        "api_total_connections": 4,
+        "api_total_waiters": 12,
+        "flag_is_api_only": true
+      }
+    ],
+    "cloud_access_or_load_started": false,
+    "pass": true
+  },
+  "retained_repaired_validation_failures": [
+    {
+      "kind": "testmodulebasename_collision",
+      "result": "collectionerror7.60s",
+      "evidence": "tmp\\adr0130-capacity-investigation\\collection-failure.txt"
+    },
+    {
+      "kind": "fake_adapter_missing_close",
+      "result": "603passed/1failed93.50s;fixedfakeadapter",
+      "evidence": "tmp\\adr0130-capacity-investigation\\mock-fixture-failure.txt"
+    }
+  ],
+  "operator_preparation": "Linux shell preflight switched to LF bytes after Windows text-pipe newline translation; inline-helper quoting errors corrected. No cloud mutation/load.",
+  "limitations": "Process-local API client/queue isolation only;PgBouncer/RDS server capacity, locks, CPU, thread/provider failures unprotected. One payment connection may constrain throughput; normal cloud workload remains untested. Sharedmode isdefault.",
+  "private_evidence_root": "tmp\\adr0130-capacity-investigation"
+}
