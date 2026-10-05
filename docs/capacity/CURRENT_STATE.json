@@ -114,18 +114,18 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "GitHub docs-only snapshot verified throughADR0163,local validation and off/on plan;implementation remains local;main unchanged.",
+    "status": "Verified documentation-only publication through ADR0170 executed control; implementation remains local; main unchanged.",
     "authorization": "Direct user request to check unpublished local ADRs and upload important records.",
     "branch": "codex/publish-adr-0126-0161",
-    "verified_remote_revision": "36f24d42eed6e8e82cccc418f5b0d0dd0284bd20",
+    "verified_remote_revision": "dc472f63b26a073683f244a7fc0a26a9227ec6be",
     "url": "https://github.com/chawansit/flash-ticketing/tree/codex/publish-adr-0126-0161/docs/adr",
     "report": "docs/capacity/flash-sale-opening/adr-publication-2026-10-05.json",
     "engineering_branch_pushed": false,
     "main_merged": false,
     "scope_adjustment": "Automatic approval review rejected full engineering-branch push as beyond ADR authorization. Separate reviewed docs-only snapshot published successfully.",
-    "latest_adr": "ADR0163",
-    "latest_evidence": "docs/capacity/flash-sale-opening/partial-timeout-profile-local-validation-2026-10-06.json",
-    "latest_receipt": "tmp/adr0163-checks/publication.json"
+    "latest_adr": "ADR0170",
+    "latest_evidence": "docs/capacity/flash-sale-opening/payment-stall-diagnostic-control-2026-10-06.json",
+    "latest_receipt": "tmp/adr0170-documentation-publication.json"
   },
   "evidence": [
     "docs/capacity/flash-sale-opening/partial-timeout-profile-local-validation-2026-10-06.json",
@@ -590,7 +590,7 @@
     }
   ],
   "qualified_runner_revision": "f24ad70e8bc77807f703ca9f10dbc687b5d9f905",
-  "checkpoint_revision_note": "Local documentation publication checkpoint; tested runtime bytes and failed-control scope unchanged. Public ADR-only branch is recorded separately in publication.",
+  "checkpoint_revision_note": "CURRENT_STATE references the preceding verified engineering checkpoint; application profile remains frozen at its recorded source/image identities.",
   "local_dispatch_inventory_qualification": {
     "decision": "0155-dispatch-time-inventory-qualification",
     "parent_workspace_revision": "20d02167d34420e94d3c302843a202d64a3c51c6",
@@ -1122,7 +1122,7 @@
     ],
     "scope_closed": true
   },
-  "revision": "87529ed947f04d3559d026790a63f2eaf7fd212a",
+  "revision": "f3e3d2f9675a37e7bae9316eb84409f7e4e2be3f",
   "latest_experiment": {
     "decision": "ADR0170",
     "run": "adr0151-3f6e2d8a0021",
@@ -1160,8 +1160,8 @@
   },
   "github_documentation_publication": {
     "branch": "codex/publish-adr-0126-0161",
-    "verified_revision": "57a18e34ad5c1cacd16998ff31888370157eb7f0",
-    "scope": "Documentation through ADR0170 local qualification and plan; current measured report pending publication; engineering source not pushed; main unchanged",
+    "verified_revision": "dc472f63b26a073683f244a7fc0a26a9227ec6be",
+    "scope": "ADR0170 executed cloud control and ADR0166 lifecycle evidence published; documentation only; engineering source not pushed; main unchanged",
     "main_revision": "878d364acd4e508150dee25c6eb13af6bc72226f"
   },
   "default_projection_restored_verified": true,
