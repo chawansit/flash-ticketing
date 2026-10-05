@@ -12,7 +12,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from urllib.request import urlopen
 
-from prepare_two_host_scaling import BACKGROUND, validate_inventory
+from prepare_two_host_scaling import API_SETTINGS, BACKGROUND, validate_inventory
 
 FROZEN_NORMALIZED_SHA256 = "1890ac0302507fc81a3c451351521684aa92b00b47316ab320af44b592dacaf2"
 FROZEN_IMAGE_ID = "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e"
@@ -143,10 +143,19 @@ def verify_admission_factor_evidence(inventory):
     marker = inventory.get("status_refresh_contract", {})
     arm = inventory.get("arm")
     flag = "1" if arm == "candidate" else "0"
-    if (arm not in {"control", "candidate"} or marker.get("decision") != "ADR0163"
-            or marker.get("factor") != "api_API_PARTIAL_TIMEOUT_RECLAIM"
-            or marker.get("partial_timeout_reclaim") != flag or marker.get("async_intake") != "0"):
+    expected_marker = {"decision": "ADR0163", "arm": arm, "factor": "api_API_PARTIAL_TIMEOUT_RECLAIM",
+                       "partial_timeout_reclaim": flag, "async_intake": "0", "cache_age_ms": 1000,
+                       "poll_ms": 500, "api_image_id": marker.get("api_image_id")}
+    if arm not in {"control", "candidate"} or marker != expected_marker:
         raise ValueError("Exact partial timeout factor evidence required")
+    expected_settings = {**API_SETTINGS, "ORDER_STATUS_CACHE_MS": "1000",
+                         "ORDER_STATUS_EVENT_REFRESH": "0", "ORDER_STATUS_EVENT_REFRESH_DEDUP": "0",
+                         "ORDER_STATUS_POLL_MS": "500", "PAYMENT_CALLBACK_PROVIDER": "simulator",
+                         "CONFIRMATION_MAX_PENDING": "10000", "CONFIRMATION_LEASE_SECONDS": "30",
+                         "CONFIRMATION_MAX_ATTEMPTS": "8", "CONFIRMATION_RETRY_MS": "100",
+                         "PAYMENT_CONFIRMATION_ASYNC": "0", "API_PARTIAL_TIMEOUT_RECLAIM": flag}
+    if any(a.get("settings") != expected_settings for a in inventory.get("apis", [])):
+        raise ValueError("Complete exact admission API settings required before compatibility projection")
     # Compatibility view only: reuse the exact common receipt-worker/budget checks.
     common = copy.deepcopy(inventory)
     common["arm"] = "control"
@@ -235,6 +244,10 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
             for api in structural["apis"]:
                 api["settings"].pop("PAYMENT_CONFIRMATION_ASYNC")
                 api["settings"].pop("ORDER_STATUS_POLL_MS")
+        if marker["decision"] == "ADR0163":
+            # Full extended dictionaries were verified above; keep every original budget.
+            for api in structural["apis"]:
+                api["settings"] = {key: api["settings"][key] for key in API_SETTINGS}
         validate_inventory(structural, image_id=marker["api_image_id"], now=now)
     if inventory.get("status_refresh_contract", {}).get("decision") in {"ADR0161", "ADR0163"}:
         module.METRICS["confirmation"] = ("confirm_one", "http://confirmation:9101/metrics")

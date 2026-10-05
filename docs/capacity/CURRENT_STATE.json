@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0163_pinned_local_images_profile_qualified_cloud_runner_pending",
+  "status": "adr0164_cloud_safety_backend_passed_observer_failed_restored_adr0165_fix_in_qualification",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -45,14 +45,14 @@
     "ADR0162 real expired-prefix/live-tail FIFO mechanism reproduced;candidate restores conservative headroom under unchanged ceilings.1180host tests passed;nativecore355passed1skip1intermittentprojectiontimeout,standalonererun1passed.Authority/transaction AST unchanged,owned resourcesremoved,0cloud calls.",
     "ADR0163 isolated five-file admission export213files21modules;6immutable images verified.32host profile checks and272native tests passed;2image factor probes.Source/financial authority unchangedrelativefrozenparent,callback reserveexcluded.No cloudcall,deployment orcustomerdispatch."
   ],
-  "unresolved": "Cloud runner/observer integration for exactADR0163 profile and fresh bounded scope pending. Exact prior503cause/capacity gain unproven. Prior engineering-tree18,000-seat projection timeout remains unresolved and excluded from this frozen export;new272passes do not close that gate.300000paid-issued tickets/hour unqualified.",
+  "unresolved": "Observer exact-schema compatibility failed before paid dispatch; ADR0165 correction under local qualification. No measured comparison or capacity benefit. Separate 18000-seat projection remains unresolved; 300000 tickets/hour unqualified.",
   "next_on_resume": [
     "Integrate exactADR0163 factor/profile into reused bounded runner and observer;pin diagnostics/export/image identities,keep original lock/stop/recovery and allfinancial/post-TTL/queue gates.",
     "Qualify runner locally:missing/drifted settings,old-scope rejection,both real constructors,bounded gates,cleanup and failure-time diagnostics without retries/budget increases.",
     "Only after qualification establish fresh bounded safety off/on and60journeys/s300s control/candidate scope;async intake0both,onlyreclamation0->1;stop failedcontrol.Keep84tickets/s and hourly stages as future work."
   ],
-  "authorization": "Latest user continue authorizes pinned local source/profile/image preparation and ongoing important ADR-only publication.No new cloud stage/deployment,engineering push,merge or hourly run activated in this checkpoint.",
-  "scope": "ADR0163 local qualification complete and docs-only snapshot published;cloud-capable runner/observer integration remains future work.PriorADR0161consumed scope stays closed.",
+  "authorization": "Direct user continue authorizes runner integration and one ADR0164 controlled comparison,then evidence-led work;no automatic failed protocol replacement. Later stages require exact decision/profile qualification.",
+  "scope": "ADR0164:fresh off/on safety pair(max2tickets),then only if passed one60journeys/s300s control/candidate pair(max2paidstages+2safety).Stop failedcontrol;allfinancial/postTTL/fullqueues preserved.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -1003,5 +1003,58 @@
     "source_manifest_sha256": "13d78bdf41e7d442f87ee04d1bb4f357d648789adf0e5270a23b06d74c55ccd2",
     "images_staged_on_cloud": false,
     "cloud_execution_implemented": false
-  }
+  },
+  "bounded_partial_timeout_reclamation": {
+    "status": "FAILED_OBSERVER_RESTORED_SCOPE_CLOSED",
+    "authorization_id": "adr0164-partial-timeout-pair-2026-10-06",
+    "binding": {
+      "adapter_identity": {
+        "scripts/observe_two_host_pipeline.py": "41b0d9a025c5c606d430c8b5607b0b6c020173e79fa8c5ca2fe5489c93ca3686",
+        "scripts/prepare_two_host_scaling.py": "2837924087e960a2048804bb2e345e8f621c479282ad46ac5b3641a104d21b39",
+        "scripts/observe_two_host_cpu.py": "f38dc5ded7103ab70e2ab5dcaed79dd72528259390432967b5d600befc9e23e1",
+        "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+        "scripts/run_two_host_paid_comparison.py": "d8fc2af6438994d4af607a866bcb3a5254eb9d48ffed29a9ad32e5ac241634e7",
+        "scripts/qualify_two_host_deployment.py": "946266d17a917422a302f7280a0a73cb1f1fcdca5f0ac57814e175dd8bc83f27",
+        "scripts/collect_two_host_inventory.py": "8a889fba8f39c0205671d05b77fe239f795465506fdea0f6a8ead4d88ce387c1",
+        "scripts/runtime_source_identity.py": "5dd0db433abf10e79a3bf1c21ca29d28e85137e7f3e1483e9e96df35462ead80",
+        "scripts/probe_two_host_safety.py": "f61f3e718a19c158aa4c4f90a3411160facd9441d8dea9d7e53e20a0fe920bd2",
+        "scripts/run_status_refresh_comparison.py": "8eebd8bd1feea6d81cd56d3117a5b0cd125ac7206912648a71b5c774eb0155d6",
+        "scripts/status_refresh_contract.py": "98941571768e1a3984318dc22762bccc1713278f84f7acde11b61f8568932f27",
+        "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+        "experiment_plan": "570689bc9ff5fbea1f333935a6840e66243113408b85b5708790be8cf0df98ba",
+        "scripts/run_partial_timeout_comparison.py": "1b08342da2850da1de57afbcfb27ed8fd0a01e760dec3c933d1baa727bad6d1c",
+        "scripts/partial_timeout_contract.py": "f733230349eb9c7bb6a0ef2ef0c3a8352a5a37ff1e4bb592df87cbff7d7d4aa6",
+        "scripts/prepare_partial_timeout_reclamation.py": "0573f2a7f94177567ce58a5b9b43aee6a6bede552e1530fcb72e70b8d8b1a076",
+        "scripts/prepare_status_refresh_artifacts.py": "dd06c8574b63061dcecf69d2da9f9d0c0fa82b4df36a6c57f0c35099d9431467",
+        "scripts/status_refresh_image_install.py": "9a20736841a226feb599850b51493cf9383df89b4d8d5506a8cc4de9f9198752",
+        "scripts/stage_status_refresh_images.py": "bca16228d09c77456518b19e496cbf5b5a757ff664fddb672295f2666117ae15",
+        "scripts/run_async_confirmation_comparison.py": "4b52fe1fe7466b76b0de1437ef5eba21d15860d9ec87afd695a72b87eeade664",
+        "scripts/checkout_journey_probe.py": "10b14c979133188d42aaba5a9a91ab599101922e2d284e85dbe6c03244e3a5bc",
+        "scripts/fetch_status_refresh_parents.py": "b6d3437edcd429c39c6984cab4dcf783e431e3c397b5c1b92d39f75808f98d6c",
+        "scripts/partial_timeout_profile.py": "2c75b4b42e25c106384f87ba566b4caa58c758b6d055d27688d1f811358be519",
+        "artifacts/partial-timeout-reclamation/manifest.json": "5fb51d138dce9b04d1c40506e861b20350d08da421a7832392f4f0c48ea9c0fa",
+        "artifacts/partial-timeout-reclamation/adr0163.patch": "6950c3f3286f0ce3f4934e16682648ab52bb3ca165bf9992dbdce32a143a2a34"
+      },
+      "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+      "artifact_sha256": "3c045c15719fedeea69df0ab5bfd274e53d8989f2e9de113a3457d72c5c03b6d",
+      "source_manifest_sha256": "13d78bdf41e7d442f87ee04d1bb4f357d648789adf0e5270a23b06d74c55ccd2"
+    },
+    "qualification_runs_authorized": 1,
+    "qualification_protocols_started": 1,
+    "paid_runs_authorized": 2,
+    "paid_runs_started": 0,
+    "paid_protocols_started": 0,
+    "safety_tickets_authorized": 4,
+    "safety_protocols_started": 1,
+    "active_run": null,
+    "scope": "ADR0164:fresh off/on safety pair(max2tickets),then only if passed one60journeys/s300s control/candidate pair(max2paidstages+2safety).Stop failedcontrol;allfinancial/postTTL/fullqueues preserved.",
+    "approval_source": "Direct user continue after requested integration/comparison and all6evidence steps;ADR0164exactinitialbounds.",
+    "prior_scope_reopened": false,
+    "qualification_arms": [
+      "control"
+    ],
+    "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
+    "closed_after_failed_qualification": true
+  },
+  "next_action": "Qualify ADR0165 observer correction, then use distinct bound scope for fresh safety and matched60/s300s comparison. Do not reset ADR0164 counters."
 }

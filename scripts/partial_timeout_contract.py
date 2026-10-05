@@ -17,7 +17,7 @@ PLAN = ROOT / "docs/capacity/flash-sale-opening/partial-timeout-runner-plan-2026
 
 def source_contract():
     plan = json.loads(PLAN.read_text())
-    if (plan.get("decision") != "ADR0164" or plan.get("factor") != FACTOR
+    if (plan.get("decision") != "ADR0165" or plan.get("factor") != FACTOR
             or plan.get("common") != COMMON or plan.get("expected_runtime_source_sha256") != export.manifest()["runtime_source_sha256"]):
         raise ValueError("Exact bounded admission plan required")
     return verify_source(ROOT / plan["isolated_source_directory"])

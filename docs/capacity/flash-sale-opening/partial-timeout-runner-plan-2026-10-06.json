@@ -1,5 +1,5 @@
 {
-  "decision": "ADR0164",
+  "decision": "ADR0165",
   "factor": "api_API_PARTIAL_TIMEOUT_RECLAIM",
   "common": {
     "primary_apis": 2,
@@ -304,7 +304,7 @@
       }
     }
   },
-  "status": "RUNNER_LOCAL_QUALIFIED_CLOUD_NOT_STARTED",
+  "status": "OBSERVER_CORRECTION_LOCAL_QUALIFIED_CLOUD_NOT_STARTED",
   "cloud_calls": 0,
   "cloud_execution_implemented": true,
   "fresh_scope_required": true,
@@ -318,5 +318,7 @@
     "complete_global_queues_and_Kafka_drain",
     "restoration"
   ],
-  "isolated_source_directory": "tmp/adr0163-offline-images/source"
+  "isolated_source_directory": "tmp/adr0163-offline-images/source",
+  "previous_failed_protocol": "adr0151-6cf227629f33",
+  "previous_scope_reopened": false
 }

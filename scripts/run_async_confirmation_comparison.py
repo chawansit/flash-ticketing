@@ -35,10 +35,10 @@ def create_runner(*, policy_module=None, ledger=None, authorization=None, decisi
         return {**original_identity(), **{
             "scripts/" + name: engine.comparison.source_sha256((ROOT / "scripts" / name).read_bytes())
             for name in ("run_" + profile_name + "_comparison.py", profile_name + "_contract.py",
-                         "prepare_" + ("partial_timeout_reclamation" if decision == "ADR0164" else "async_confirmation") + ".py", "prepare_status_refresh_artifacts.py",
+                         "prepare_" + ("partial_timeout_reclamation" if decision in {"ADR0164", "ADR0165"} else "async_confirmation") + ".py", "prepare_status_refresh_artifacts.py",
                          "status_refresh_image_install.py", "stage_status_refresh_images.py", "run_async_confirmation_comparison.py",
                          "checkout_journey_probe.py", "fetch_status_refresh_parents.py",
-                         *( ("partial_timeout_profile.py",) if decision == "ADR0164" else () ))},
+                         *( ("partial_timeout_profile.py",) if decision in {"ADR0164", "ADR0165"} else () ))},
             **{"artifacts/" + artifact_directory + "/" + name: engine.comparison.source_sha256(
                 (ROOT / "artifacts" / artifact_directory / name).read_bytes())
                for name in ("manifest.json", patch_name)}}
@@ -63,7 +63,7 @@ def create_runner(*, policy_module=None, ledger=None, authorization=None, decisi
                                    execute=execute, qualification=qualification)
         report.update(experiment_decision=decision, factor=policy.FACTOR,
                       scope=("Fixed2+2API, identical images/cache/refresh/dedup-off/500ms polling and aggregate budgets; "
-                             + ("only partial timeout reclamation0->1;synchronous intake both arms." if decision == "ADR0164"
+                             + ("only partial timeout reclamation0->1;synchronous intake both arms." if decision in {"ADR0164", "ADR0165"}
                                 else "only durable callback intake0->1.") + "60journeys/s300s each; no hourly capacity claim."))
         path = engine.ROOT / "tmp" / report["run"] / "comparison-summary.json"
         if path.exists():
@@ -105,7 +105,7 @@ def create_runner(*, policy_module=None, ledger=None, authorization=None, decisi
             result.update(confirmation_observed=True, confirmation_backlog_peak=maximum)
         except (OSError, ValueError, KeyError, TypeError) as exc:
             result.update(confirmation_observed=False, confirmation_failure_type=type(exc).__name__)
-        if decision == "ADR0164":
+        if decision in {"ADR0164", "ADR0165"}:
             try:
                 from observe_two_host_pipeline import admission_failure_metrics
                 keys = set(admission_failure_metrics("# TYPE ticketing_db_acquisition_failures_total counter"))
@@ -154,7 +154,7 @@ def create_runner(*, policy_module=None, ledger=None, authorization=None, decisi
             result["pass"] = False
             result["gates"]["all_required_gates_pass"] = False
             result["gates"]["failed_gates"].append("confirmation_worker_metrics_coverage")
-        if kwargs.get("execute") and decision == "ADR0164" and (not measured or measured.get("admission_diagnostics_observed") is not True):
+        if kwargs.get("execute") and decision in {"ADR0164", "ADR0165"} and (not measured or measured.get("admission_diagnostics_observed") is not True):
             result["pass"] = False
             result["gates"]["all_required_gates_pass"] = False
             result["gates"]["failed_gates"].append("admission_diagnostics_coverage")

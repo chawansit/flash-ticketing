@@ -270,3 +270,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0163: Isolated partial-timeout reclamation source and comparison profile](0163-isolated-partial-timeout-reclamation-profile.md) - Local preparation; cloud unqualified.
 
 - [ADR0164: Bounded partial-timeout reclamation cloud comparison](0164-bounded-partial-timeout-reclamation-comparison.md) - Runner integration and bounded qualification; performance unmeasured.
+
+- [ADR0165: Exact admission observer compatibility and fresh qualification](0165-exact-admission-observer-compatibility.md)

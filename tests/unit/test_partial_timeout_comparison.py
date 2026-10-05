@@ -164,3 +164,26 @@ def test_admission_measurements_require_complete_nonreset_api_counter_coverage(t
     assert result["admission_diagnostics_observed"] is (drift is None)
     if drift is None:
         assert result["admission_failure_deltas"]["acquisition_failure:payment:native_timeout"] == 4
+
+
+@pytest.mark.parametrize("arm", ["control", "candidate"])
+def test_real_observer_installation_accepts_complete_admission_schema_without_mutating_evidence(arm):
+    from datetime import datetime
+
+    from status_refresh_contract import digest
+    data = inventory(contract(arm));before = copy.deepcopy(data)
+    frozen = observer.load_frozen(Path("scripts/observe_paid_pipeline.py"))
+    frozen.api_replicas = lambda *args: []
+    routes = observer.install_adapter(frozen, data, image_id=data["apis"][0]["image_id"],
+                                      now=datetime.fromisoformat(data["captured_at"]),
+                                      approved_inventory_sha256=digest(data))
+    assert len(routes) == 4 and data == before
+
+
+@pytest.mark.parametrize("setting", ["RESERVE_CONCURRENCY", "ORDER_STATUS_EVENT_REFRESH", "CONFIRMATION_MAX_PENDING",
+                                      "PAYMENT_CALLBACK_PROVIDER", "REDIS_RESERVATION_MAX_COMMAND_AGE_SECONDS", "unknown"])
+def test_complete_schema_rejects_drift_before_historical_projection(setting):
+    data = inventory(contract("candidate"))
+    data["apis"][0]["settings"][setting] = "unexpected"
+    with pytest.raises(ValueError, match="Complete exact"):
+        observer.verify_admission_factor_evidence(data)
