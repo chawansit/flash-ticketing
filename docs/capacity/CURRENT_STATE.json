@@ -13,7 +13,7 @@
   "last_checked_topology": "Failed paid controlfinally restored exact primary runtime:API4,original background services,secondaryAPI0;allDB/Redisqueues/Kafkalag0,oneconsumer member,generatoridle.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "current_run": null,
-  "revision_note": "Parentd40540d; current uncommitted changes are ADR0147 orchestration/observation/recovery, not application optimization. Frozen application/generator remain deb330e.",
+  "revision_note": "Integrated runner/recovery code committed at9adee8941bdb0830c0ca636730ae62fc0c61fb63; frozen application/generator remain deb330e. No application code optimization deployed. Failed control/partial recovery retained; replacement pair awaits authorization.",
   "confirmed": [
     "Multi-host paid runner implemented; final pre-keepalive dryc0dae8f43adc passed both stages,100-way safety/replay/post-TTL,global queues,cleanup and exact restoration. Earlier failed dry runs retained; fixed host/workload/budget comparison remains unqualified.",
     "Controled20dc431b67:18000dispatched,17999customer confirmations,onepayment503(0.005556%journeys),drops0.17999successful payments/tickets,oneunpaidexpiredorder,doublebookings0,pendingorders0,allqueues/Kafka0. Candidate not started; originalruntime restored and generator idle.",
@@ -126,5 +126,6 @@
     "default_reserve": 0,
     "cloud_deployed": false,
     "isolated_cloud_revision_prepared": false
-  }
+  },
+  "workspace_checkpoint_revision": "9adee8941bdb0830c0ca636730ae62fc0c61fb63"
 }
