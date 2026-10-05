@@ -1,6 +1,6 @@
 # ADR0159: Index the safety audit through the probe actors
 
-- Status: Accepted for local harness correction; fresh cloud safety unqualified
+- Status: Accepted; corrected cloud safety pair passed; measured comparison pending
 - Date: 2026-10-05
 
 ## Context
@@ -37,3 +37,10 @@ Recorded before implementation. Failed safety evidence:tmp/adr0151-6a6446959501/
 After implementation, **7 native PostgreSQL17.6 tests passed** against an owned isolated local container: valid ownership with unrelated history; missing/extra participant records; actor mismatch; wrong seat pointer; expired hold; second active owner from a nonparticipant. The owned container was removed. **287 harness tests passed**, including existing safety/32-gate/restoration regressions, malformed actor namespaces rejected before DB connection, and uploaded-probe hash drift changing the approval binding. Changed-file Ruff and diff checks passed. All19 application runtime modules remain unchanged; no image rebuild or further cloud customer traffic occurred.
 
 [Safety failure, restoration and corrective evidence](../capacity/flash-sale-opening/order-status-dedup-safety-audit-correction-2026-10-05.json). The fresh two-ticket, zero-capacity replacement proposal remains inactive. Cloud safety, deduplication performance and hourly capacity remain unqualified.
+
+
+## Corrected cloud safety qualification (2026-10-05)
+
+Run **adr0151-a6cdb46f8cff** passed both dedup-off/on arms after ADR0158/0159 harness corrections. Each arm verified source/images/factor,100 cross-host requests with exactly1accepted hold and99expected conflicts,one durable owner,hold/payment replay,other-actor denial and one customer-confirmed paid ticket. After hold expiry each retained1successful payment,1booking,1ticket and3callback deliveries,with0duplicate seats/orders and0pending financial work. Full global queues/Kafka lag returned to0;observer qualification,private cleanup and original topology restoration passed after each arm. Total2simulated safety tickets and0capacity stages; no customer retry hid failures.
+
+[Safety qualification evidence](../capacity/flash-sale-opening/order-status-refresh-dedup-safety-qualification-2026-10-05.json). This qualifies the tested bounded safety configuration only. Deduplication CPU/DB cost and capacity improvement remain unmeasured; a separate fixed-load off/on comparison is proposed but not authorized. Earlier failed reports and consumed scopes remain preserved.

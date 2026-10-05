@@ -42,3 +42,10 @@ The final exporter verifies 207 files and 19 runtime modules. Final Compose rend
 [Local validation report](../capacity/flash-sale-opening/order-status-refresh-dedup-local-validation-2026-10-05.json) records counts, source identity, attempt history and raw evidence hashes. Native tests use an acknowledged outbox producer mock, not a real Kafka cluster. That native validation stage built no images and made no cloud calls/customer load; no production CPU/RPS improvement is claimed. The cloud comparison harness still needs adaptation and fresh safety qualification for this factor; the previous matched-run allowance remains consumed.
 
 Subsequent [ADR0157](0157-isolated-deduplication-comparison-profile.md) preparation built and verified six offline images and the separate comparison profile. Cloud staging/safety and performance measurement remain pending.
+
+
+## Corrected cloud safety qualification (2026-10-05)
+
+Run **adr0151-a6cdb46f8cff** passed both dedup-off/on arms after ADR0158/0159 harness corrections. Each arm verified source/images/factor,100 cross-host requests with exactly1accepted hold and99expected conflicts,one durable owner,hold/payment replay,other-actor denial and one customer-confirmed paid ticket. After hold expiry each retained1successful payment,1booking,1ticket and3callback deliveries,with0duplicate seats/orders and0pending financial work. Full global queues/Kafka lag returned to0;observer qualification,private cleanup and original topology restoration passed after each arm. Total2simulated safety tickets and0capacity stages; no customer retry hid failures.
+
+[Safety qualification evidence](../capacity/flash-sale-opening/order-status-refresh-dedup-safety-qualification-2026-10-05.json). This qualifies the tested bounded safety configuration only. Deduplication CPU/DB cost and capacity improvement remain unmeasured; a separate fixed-load off/on comparison is proposed but not authorized. Earlier failed reports and consumed scopes remain preserved.

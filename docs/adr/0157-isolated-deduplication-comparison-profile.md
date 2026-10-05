@@ -1,6 +1,6 @@
 # ADR0157: Isolated deduplication comparison profile
 
-- Status: Accepted for local harness implementation; cloud execution unqualified
+- Status: Accepted; corrected bounded cloud safety pair qualified; measured comparison pending
 - Date: 2026-10-05
 
 ## Context
@@ -38,3 +38,10 @@ Decision recorded before implementation. Executed **277 broader regression check
 Six offline immutable candidate images covering seven roles passed source/import/bytecode, app/installed module, dependency and inherited full configuration/parent layer checks. Three flag-setting smoke checks ran in network-disabled, read-only consumer containers and exited successfully. All 19 runtime modules match the prior native-tested ADR0156 candidate; application tests were not repeated for this harness-only stage.
 
 [Preparation evidence](../capacity/flash-sale-opening/order-status-refresh-dedup-preparation-2026-10-05.json) preserves attempts, raw hashes and exact next-scope proposal. No image staging, service deployment, cloud safety ticket or capacity load occurred. The dry proposal permits at most two isolated simulated paid-issued safety tickets and zero capacity stages only if subsequently authorized. Live capability and performance improvement remain unqualified.
+
+
+## Corrected cloud safety qualification (2026-10-05)
+
+Run **adr0151-a6cdb46f8cff** passed both dedup-off/on arms after ADR0158/0159 harness corrections. Each arm verified source/images/factor,100 cross-host requests with exactly1accepted hold and99expected conflicts,one durable owner,hold/payment replay,other-actor denial and one customer-confirmed paid ticket. After hold expiry each retained1successful payment,1booking,1ticket and3callback deliveries,with0duplicate seats/orders and0pending financial work. Full global queues/Kafka lag returned to0;observer qualification,private cleanup and original topology restoration passed after each arm. Total2simulated safety tickets and0capacity stages; no customer retry hid failures.
+
+[Safety qualification evidence](../capacity/flash-sale-opening/order-status-refresh-dedup-safety-qualification-2026-10-05.json). This qualifies the tested bounded safety configuration only. Deduplication CPU/DB cost and capacity improvement remain unmeasured; a separate fixed-load off/on comparison is proposed but not authorized. Earlier failed reports and consumed scopes remain preserved.
