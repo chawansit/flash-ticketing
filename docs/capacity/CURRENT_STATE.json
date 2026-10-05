@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-05",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0147_replacement_matched_pair_passed_restored",
+  "status": "adr0148_local_preparation_passed_waiting_bounded_probe_approval",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,22 +13,23 @@
   "last_checked_topology": "Exact original primary runtime restored: API4 and original background services; secondary API0. All DB/Redis queues and Kafka lag0, one normal consumer member, generator idle, owned credential snapshots removed.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "current_run": null,
-  "revision_note": "Frozen application/generator remain deb330e; corrected runner qualified and replacement matched pair passed. Only evidence/documentation changed; no application optimization deployed.",
+  "revision_note": "Frozen application/generator unchanged atdeb330e; prior matched pair passed. ADR0148 rate/log-diagnostic adapter changes are local only,203 focused tests/Ruff passed; require exact live dry before a newly approved paid probe.",
   "confirmed": [
     "Exact corrected-adapter dry193bc294b81f passed both topology/observer stages,100-way cross-host safety/replay, post-expiry audit, queues and restoration.",
     "Replacement paid pair9738b5fd822b passed all22 paid plus10 additional gates for each arm. Both arms dispatched18000 and confirmed/durably issued18000 paid tickets; customer errors0, drops0, double-booking0, queues/Kafka lag0.",
     "Primary offered-window CPU83.107% control versus69.562% candidate; candidate secondary17.573%. Hold HTTP p9517.310ms versus11.643ms; hold-to-ticket p952147.031ms versus2127.276ms.",
     "Aggregate API CPU1.302 versus1.384 cores; API pool-acquire observer-lifetime mean2.340 versus4.314ms. Compute placement improved primary headroom but not every metric.",
     "Internal simulator delivery-error phase calls17 control/22 candidate and consumer55P03 count1 each were observed despite zero customer errors and full drain. Their cause remains unproven.",
-    "Original failed controled20dc431b67 remains archived/failed; replacement authorization consumed exactly one control and one candidate. No automatic additional load."
+    "Frozen coordinator requires even integer rates. Prepared84/s300s candidate-only probe with25200 journeys,84 shows and exact25200 financial expectations;203 focused tests/Ruff passed. No ADR0148 live cloud access/load/configuration change.",
+    "Frozen code verifies consumer batch maximum5 attempts and callback lease15s; installed psycopg maps55P03 toLockNotAvailable. Exact initial exception/lock cause still absent; bounded private worker-log retention is prepared."
   ],
-  "unresolved": "Maximum capacity,300000 paid tickets/hour and synchronized flash-opening behavior are unverified. One ordered pair establishes same-load primary headroom and hold-response improvement, not higher throughput. Internal recovered worker errors and prior payment503 cause remain unexplained.",
+  "unresolved": "Maximum capacity,300000 paid tickets/hour and simultaneous flash opening remain unverified. Prior recovered callback errors and lock cause are unresolved. ADR0148 is locally prepared only; no live dry/paid qualification or rate improvement claim.",
   "next_on_resume": [
-    "Review retained worker error/pool evidence without changing application or budgets.",
-    "Propose a separately authorized bounded two-host rate probe toward83.333+ paid tickets/s, preserving all financial/source/observer/drain gates; only after passing probes consider long steady and flash-opening validation."
+    "Obtain approval for exactly one84-buyers/s300s two-host paid probe (25200 journeys), plus at most two separate safety tickets across dry/paid qualification; unchanged budgets/all gates.",
+    "After approval, run the single bounded ADR0148 command with exact dry qualification, worker exception retention, payment durability, zero double-booking, queue drain and exact restoration; stop on failure without replacement."
   ],
-  "authorization": "User Continue authorized exactly one replacement control and conditional candidate at60 buyers/s300s, unchanged budgets/all gates. Both attempts completed and consumed; previous failed original attempt remains archived.",
-  "scope": "Replacement matched pair complete; no further paid stage authorized. No rate escalation, automatic replacement, GitHub push or main merge.",
+  "authorization": "Latest Continue authorized review and preparation of the next bounded probe proposal. Original matched-pair authorization remains consumed; no new paid-capacity authorization has been inferred.",
+  "scope": "ADR0148 preparation/review complete; one new84/s probe and isolated safety tickets await explicit approval. Prior ADR0147 attempts remain consumed. No new cloud test, application deployment, rate escalation beyond proposal, GitHub push or main merge.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -89,10 +90,11 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "Local replacement comparison evidence; no GitHub push or main merge.",
+    "status": "Local matched comparison plus ADR0148 preparation; no GitHub push or main merge.",
     "branch": "codex/redis-failover-recovery"
   },
   "evidence": [
+    "docs/capacity/flash-sale-opening/two-host-rate-probe-preparation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/two-host-paid-replacement-comparison-2026-10-05.json",
     "docs/capacity/flash-sale-opening/two-host-ssh-idle-qualification-2026-10-05.json",
     "docs/capacity/flash-sale-opening/two-host-paid-comparison-2026-10-05.json",
@@ -133,7 +135,7 @@
     "cloud_deployed": false,
     "isolated_cloud_revision_prepared": false
   },
-  "workspace_checkpoint_revision": "9adee8941bdb0830c0ca636730ae62fc0c61fb63",
+  "workspace_checkpoint_revision": "45962879e9922741c62669a05e41343dd5356f24",
   "archived_bounded_controls": [
     {
       "archived_at_utc": "2026-10-05T02:54:16.069405+00:00",
@@ -162,5 +164,18 @@
         "ssh_idle_qualification": "docs/capacity/flash-sale-opening/two-host-ssh-idle-qualification-2026-10-05.json"
       }
     }
-  ]
+  ],
+  "bounded_rate_probe": {
+    "decision": "0148-bounded-two-host-84-buyer-rate-probe",
+    "authorization_id": "adr0148-84-buyers-300s",
+    "status": "PREPARED_AWAITING_APPROVAL",
+    "qualification_runs_authorized": 0,
+    "qualification_protocols_started": 0,
+    "paid_runs_authorized": 0,
+    "paid_runs_started": 0,
+    "limit": 1,
+    "active_run": null,
+    "attempted_paid_arms": [],
+    "preparation_report": "docs/capacity/flash-sale-opening/two-host-rate-probe-preparation-2026-10-05.json"
+  }
 }

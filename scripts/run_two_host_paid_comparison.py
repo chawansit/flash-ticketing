@@ -180,7 +180,9 @@ def adapter_identity():
     return {"scripts/" + name: source_sha256((ROOT / "scripts" / name).read_bytes()) for name in paths}
 
 
-def financial_audit_program(event_ids):
+def financial_audit_program(event_ids, expected_tickets=18000):
+    if type(expected_tickets) is not int or expected_tickets not in (18000, 25200):
+        raise ValueError("Unsupported bounded financial expectation")
     return r"""import json,os,time,sys,psycopg
 sys.path.insert(0,'/app/scripts')
 from audit_checkout_smoke import audit
@@ -192,10 +194,10 @@ if not 0<=delay<=150:raise ValueError('TTL wait exceeds bound')
 time.sleep(delay+.25)
 with psycopg.connect(os.environ['DATABASE_URL'],autocommit=True) as conn:
  conn.execute("SET statement_timeout='10s'")
- result=audit(conn,events,18000,18000,1)
+ result=audit(conn,events,__EXPECTED__,__EXPECTED__,1)
  result['hold_deadlines_elapsed']=bool(conn.execute('SELECT coalesce(max(expires_at)<clock_timestamp(),true) FROM holds WHERE event_id=ANY(%s::uuid[])',(events,)).fetchone()[0])
 print(json.dumps(result))
-""".replace("EVENTS", repr(event_ids))
+""".replace("EVENTS", repr(event_ids)).replace("__EXPECTED__", str(expected_tickets))
 
 
 def drain(session, cid):
@@ -210,8 +212,13 @@ def drain(session, cid):
 
 
 class Stages:
-    def __init__(self, execute, bundle):
+    def __init__(self, execute, bundle, *, rate=60, ledger_key="bounded_control", stage_limit=2):
+        if (type(rate) is not int or type(stage_limit) is not int
+                or (rate, ledger_key, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1))):
+            raise ValueError("Unsupported bounded stage contract")
         self.execute, self.bundle, self.results = execute, bundle, {}
+        self.rate, self.ledger_key, self.stage_limit = rate, ledger_key, stage_limit
+        self.expected_tickets = rate * 300
 
     def __call__(self, session, arm, routes, saved, owner, output):
         local = output / arm
@@ -277,7 +284,7 @@ class Stages:
                 "import json,os,subprocess;from pathlib import Path;p=Path("
                 + repr(directory)
                 + ");env=dict(os.environ,TEST_DATABASE_URL=os.environ['DATABASE_URL'],TEST_REDIS_URL=os.environ['REDIS_URL']);r=subprocess.run(['python','/app/scripts/prepare_capacity_fixture.py','--output',str(p/'fixture.json'),'--shows',"
-                + repr("60" if self.execute else "1")
+                + repr(str(self.rate) if self.execute else "1")
                 + ",'--seats','300','--sale-hours','1'],env=env,capture_output=True,text=True,timeout=90);r.check_returncode();print((p/'fixture.json').read_text())"
             )
             fixture = session.api(cid, fixture_program, 115)
@@ -296,7 +303,7 @@ manifest={'schema_version':1,'environment':'development','id':identity,'origin':
 print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest['show_ids'])}))
 """.replace("DIRECTORY", repr(directory))
                 .replace("ORIGIN", repr(origin))
-                .replace("VIEWERS", "18000" if self.execute else "2")
+                .replace("VIEWERS", str(self.expected_tickets) if self.execute else "2")
             )
             session.api(cid, mint, 45)
             manifest_raw = copy_out(
@@ -430,17 +437,17 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                 job = self.launch(session, role, cid, args, location, jobs, record)
                 record[role + "_cpu_path"] = location + "/cpu.json"
             if self.execute:
-                if session.state["capacity_stages_started"] >= 2:
+                if session.state["capacity_stages_started"] >= self.stage_limit:
                     raise ValueError("Paid stage limit exceeded")
                 session.state["capacity_stages_started"] += 1
                 state_path = ROOT / "docs/capacity/CURRENT_STATE.json"
                 journal = json.loads(state_path.read_text())
-                journal["bounded_control"]["paid_runs_started"] = session.state["capacity_stages_started"]
-                journal["bounded_control"]["attempted_paid_arms"] = [*session.state.get("attempted_paid_arms", []), arm]
+                journal[self.ledger_key]["paid_runs_started"] = session.state["capacity_stages_started"]
+                journal[self.ledger_key]["attempted_paid_arms"] = [*session.state.get("attempted_paid_arms", []), arm]
                 state_path.write_text(json.dumps(journal, indent=2) + "\n")
                 session.state.setdefault("attempted_paid_arms", []).append(arm)
                 session.checkpoint()
-                if session.state["capacity_stages_started"] > 2:
+                if session.state["capacity_stages_started"] > self.stage_limit:
                     raise ValueError("Paid stage limit exceeded")
                 args = [
                     "/root/http-load-venv/bin/python",
@@ -456,7 +463,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                     "--output",
                     gen + "/customer.json",
                     "--rate",
-                    "60",
+                    str(self.rate),
                     "--seconds",
                     "300",
                     "--completion-deadline-seconds",
@@ -506,7 +513,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                     offered_start_utc=offered_start,
                     offered_end_utc=offered_end,
                 )
-                record["financial"] = session.api(cid, financial_audit_program(event_ids), 175)
+                record["financial"] = session.api(cid, financial_audit_program(event_ids, self.expected_tickets), 175)
             record["global_queues"] = drain(session, cid)
             # Stop and collect before the finally-restored container disappears.
             for role, job in jobs:
@@ -575,7 +582,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
             if record["customers_dispatched"]:
                 # Audits remain mandatory even if CPU/transport/observer collection failed.
                 for name, operation in (
-                    ("financial", lambda: session.api(cid, financial_audit_program(event_ids), 175)),
+                    ("financial", lambda: session.api(cid, financial_audit_program(event_ids, self.expected_tickets), 175)),
                     ("global_queues", lambda: drain(session, cid)),
                 ):
                     if name not in record:

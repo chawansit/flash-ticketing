@@ -236,3 +236,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0146 - Freeze the experiment and measure observation overhead](0146-freeze-and-measure-observation-overhead.md)
 
 - [0147 - Fixed-budget two-host API comparison](0147-fixed-budget-two-host-api-comparison.md)
+
+- [0148 - Bounded two-host 84-buyer rate probe](0148-bounded-two-host-84-buyer-rate-probe.md)
