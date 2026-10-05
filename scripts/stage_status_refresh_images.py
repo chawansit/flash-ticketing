@@ -8,12 +8,12 @@ import re
 import sys
 import time
 from pathlib import Path
-from uuid import uuid4
 
 from fetch_status_refresh_parents import (
     MAX_ARCHIVE,
     cleanup_program,
     inventory_program,
+    new_owner_name,
     owner_path,
     parents_from_inventory,
     validate_owner,
@@ -23,6 +23,11 @@ from qualify_two_host_deployment import GENERATOR_IDLE, ROOT, Session
 from run_status_refresh_comparison import STATE, binding_for, validate_release
 from run_two_host_paid_comparison import validate_config
 from status_refresh_contract import ROLES, StatusRefreshContract, source_contract
+
+
+def new_stage_output():
+    """Generate the exact directory name accepted by the shared ownership validator."""
+    return ROOT / "tmp" / new_owner_name()
 
 
 def hash_file(path):
@@ -230,7 +235,7 @@ def main():
     if not sys.stdin.isatty():
         raise ValueError("Protected terminal required")
     sys.path.insert(0, str(args.ssh_runtime.resolve()))
-    output = ROOT / "tmp" / ("adr0153-parents-" + uuid4().hex[:12])
+    output = new_stage_output()
     result = stage(
         json.loads(args.config.read_text()),
         json.loads(args.artifact.read_text()),

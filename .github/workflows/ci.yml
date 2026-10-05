@@ -9,6 +9,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Validate repository names and references
+        run: python scripts/check_repository_names.py --all
       - run: python -m pip install -r requirements.lock
       - run: python -m ruff check src tests scripts
       - run: docker compose up -d --build --wait

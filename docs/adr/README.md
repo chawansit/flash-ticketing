@@ -278,3 +278,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0167: Bounded large projection contention measurement](0167-bounded-large-projection-contention-measurement.md)
 
 - [ADR0168: Atomic projection source-version index](0168-atomic-projection-source-version-index.md)
+
+- [ADR0169: Canonical names and reference gates](0169-canonical-names-and-reference-gates.md)

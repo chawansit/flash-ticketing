@@ -16,6 +16,13 @@ from qualify_two_host_deployment import GENERATOR_IDLE, ROOT, Session
 from run_two_host_paid_comparison import REVISION, validate_config
 from two_host_topology import NORMAL_COUNTS
 
+STAGE_OWNER_PREFIX = "adr0153-parents-"
+
+
+def new_owner_name():
+    return STAGE_OWNER_PREFIX + uuid4().hex[:12]
+
+
 MAX_ARCHIVE = 3 * 1024**3
 
 
@@ -56,7 +63,7 @@ def owner_path(repo, name):
         not base.is_absolute()
         or len(base.parts) < 3
         or ".." in base.parts
-        or not re.fullmatch(r"adr0153-parents-[0-9a-f]{12}", name)
+        or not re.fullmatch(re.escape(STAGE_OWNER_PREFIX) + r"[0-9a-f]{12}", name)
     ):
         raise ValueError("Owned absolute repository and run required")
     return str(base / "tmp" / name)
@@ -69,7 +76,7 @@ def validate_owner(owner):
         or ".." in path.parts
         or len(path.parts) < 5
         or path.parent.name != "tmp"
-        or not re.fullmatch(r"adr0153-parents-[0-9a-f]{12}", path.name)
+        or not re.fullmatch(re.escape(STAGE_OWNER_PREFIX) + r"[0-9a-f]{12}", path.name)
     ):
         raise ValueError("Exact owned remote export directory required")
     return str(path)
