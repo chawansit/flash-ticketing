@@ -133,7 +133,8 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
             if contract is not None:
                 contract.verify_worker_settings(role, worker_env)
             proof = session.call("primary", container_identity_program(row, role, expected), 50)
-            proof["settings"] = {k: worker_env.get(k, "0") for k in ("ORDER_STATUS_CACHE_MS", "ORDER_STATUS_EVENT_REFRESH")}
+            setting_keys = contract.settings(role) if contract is not None else ("ORDER_STATUS_CACHE_MS", "ORDER_STATUS_EVENT_REFRESH")
+            proof["settings"] = {k: worker_env.get(k, "0") for k in setting_keys}
             worker_sources.append(proof)
     observed_apis = []
     for route in routes:
@@ -152,6 +153,7 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
                 **proof,
                 "settings": {k: env.get(k) for k in API_SETTINGS},
                 "ORDER_STATUS_EVENT_REFRESH": env.get("ORDER_STATUS_EVENT_REFRESH", "0"),
+                "ORDER_STATUS_EVENT_REFRESH_DEDUP": env.get("ORDER_STATUS_EVENT_REFRESH_DEDUP"),
                 "pgbouncer_host_role": "primary",
                 "pgbouncer_port": url.port or 5432,
                 "database_url_host": url.hostname,
@@ -177,8 +179,10 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
         "global_queues_zero": queue["pass"],
         "identity_provenance": "Live DMI instance UUID, actual bound addresses and container inspection; authority values are fingerprinted.",
     }
-    view = validate_inventory(inventory, image_id=IMAGE if contract is None else contract.images["api"], contract=contract)
     if contract is not None:
-        inventory["status_refresh_contract"] = {"decision": "ADR0151", "cache_age_ms": 1000,
-                                                "api_image_id": contract.images["api"], "arm": arm}
+        inventory["status_refresh_contract"] = (
+            contract.inventory_marker() if hasattr(contract, "inventory_marker") else
+            {"decision": "ADR0151", "cache_age_ms": 1000, "api_image_id": contract.images["api"], "arm": arm}
+        )
+    view = validate_inventory(inventory, image_id=IMAGE if contract is None else contract.images["api"], contract=contract)
     return inventory, view, primary, secondary

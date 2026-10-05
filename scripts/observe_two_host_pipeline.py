@@ -12,7 +12,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from urllib.request import urlopen
 
-from prepare_two_host_scaling import validate_inventory
+from prepare_two_host_scaling import BACKGROUND, validate_inventory
 
 FROZEN_NORMALIZED_SHA256 = "1890ac0302507fc81a3c451351521684aa92b00b47316ab320af44b592dacaf2"
 FROZEN_IMAGE_ID = "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e"
@@ -79,6 +79,33 @@ def extra_api_metrics(payload):
     return result
 
 
+def verify_dedup_factor_evidence(inventory):
+    arm = inventory.get("arm")
+    marker = inventory.get("status_refresh_contract", {})
+    expected = {"decision": "ADR0157", "cache_age_ms": 1000, "arm": arm,
+                "api_image_id": marker.get("api_image_id"), "consumer_event_refresh": "1",
+                "consumer_event_refresh_dedup": "1" if arm == "candidate" else "0"}
+    if arm not in {"control", "candidate"} or marker != expected:
+        raise ValueError("Exact deduplication inventory marker required")
+    if any(a.get("ORDER_STATUS_EVENT_REFRESH_DEDUP") != "0" for a in inventory.get("apis", [])):
+        raise ValueError("API deduplication must explicitly be disabled")
+    workers = inventory.get("worker_sources", [])
+    counts = {r: 0 for r in BACKGROUND}
+    for row in workers:
+        role = row.get("role")
+        settings = row.get("settings", {})
+        want = {"ORDER_STATUS_CACHE_MS": "1000" if role == "consumer" else "0",
+                "ORDER_STATUS_EVENT_REFRESH": "1" if role == "consumer" else "0",
+                "ORDER_STATUS_EVENT_REFRESH_DEDUP": expected["consumer_event_refresh_dedup"]
+                if role == "consumer" else "0"}
+        if role not in counts or any(settings.get(k) != v for k, v in want.items()):
+            raise ValueError("Explicit worker deduplication factor evidence required")
+        counts[role] += 1
+    if counts != {r: c["replicas"] for r, c in BACKGROUND.items()}:
+        raise ValueError("Complete factor evidence required")
+
+
+
 def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, approved_inventory_sha256=None):
     if approved_inventory_sha256 is None:
         validate_inventory(inventory, image_id=image_id, now=now)
@@ -87,11 +114,13 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
         marker = inventory.get("status_refresh_contract", {})
         if (not isinstance(approved_inventory_sha256, str)
                 or not re.fullmatch(r"[0-9a-f]{64}", approved_inventory_sha256)
-                or actual != approved_inventory_sha256 or marker.get("decision") != "ADR0151"
+                or actual != approved_inventory_sha256 or marker.get("decision") not in {"ADR0151", "ADR0157"}
                 or marker.get("cache_age_ms") != 1000 or marker.get("arm") != inventory.get("arm")
                 or not isinstance(marker.get("api_image_id"), str)
                 or not re.fullmatch(r"sha256:[0-9a-f]{64}", marker["api_image_id"])):
             raise ValueError("Exact host-qualified inventory digest required")
+        if marker["decision"] == "ADR0157":
+            verify_dedup_factor_evidence(inventory)
         if any(a.get("settings", {}).get("ORDER_STATUS_CACHE_MS") != "1000"
                or a.get("ORDER_STATUS_EVENT_REFRESH", "0") != "0" for a in inventory["apis"]):
             raise ValueError("Explicit equal cache age and consumer-only factor required")

@@ -1,0 +1,242 @@
+{
+  "kind": "dedup_images_and_comparison_profile_local_preparation",
+  "recorded_at_utc": "2026-10-05T10:59:42.955319+00:00",
+  "workspace_parent_revision": "95a22cd36acff4c1d85ec12248e7198e92ae0d32",
+  "decisions": [
+    "0156-fresh-fulfilled-snapshot-refresh-deduplication",
+    "0157-isolated-deduplication-comparison-profile"
+  ],
+  "status": "OFFLINE_IMAGES_AND_LOCAL_PROFILE_VERIFIED_CLOUD_STAGING_AND_SAFETY_PENDING",
+  "images": {
+    "pass": true,
+    "unique_images": 6,
+    "roles": 7,
+    "checks": [
+      {
+        "parent": "sha256:22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452",
+        "candidate": "sha256:c354599c9077f4833fc7d7af88d0e145eed7de194dbae9af7030383ee97ab146",
+        "roles": [
+          "simulator"
+        ],
+        "source_import_bytecode_verified": true,
+        "inherited_full_config_and_parent_layers_verified": true,
+        "proof_keys": [
+          "source_identity",
+          "app_and_installed_modules_verified",
+          "dependency_inputs_match"
+        ]
+      },
+      {
+        "parent": "sha256:51b1e282b277e6b34d5f55442a82912fa406c91e808d71394e7da479b12ad83e",
+        "candidate": "sha256:80e8064a3d4ac48b3123d873dbe75d64b33ff249b7c0194de152da3ae4fe5af3",
+        "roles": [
+          "maintenance"
+        ],
+        "source_import_bytecode_verified": true,
+        "inherited_full_config_and_parent_layers_verified": true,
+        "proof_keys": [
+          "source_identity",
+          "app_and_installed_modules_verified",
+          "dependency_inputs_match"
+        ]
+      },
+      {
+        "parent": "sha256:57a12dd4be6303ca8dea3daa4bcf2d8201a93976c6df2af51c0f751a9cbcf1a6",
+        "candidate": "sha256:604cdd4e9f87eb24d85cf10c1bb7468ddaa40e368bcad73825288b4d6339813d",
+        "roles": [
+          "reconciler"
+        ],
+        "source_import_bytecode_verified": true,
+        "inherited_full_config_and_parent_layers_verified": true,
+        "proof_keys": [
+          "source_identity",
+          "app_and_installed_modules_verified",
+          "dependency_inputs_match"
+        ]
+      },
+      {
+        "parent": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e",
+        "candidate": "sha256:8876a8f3ab11702088fb8570353a1b66eab697cc1d33333e44be3c66c73261d7",
+        "roles": [
+          "api",
+          "reservation-writer"
+        ],
+        "source_import_bytecode_verified": true,
+        "inherited_full_config_and_parent_layers_verified": true,
+        "proof_keys": [
+          "source_identity",
+          "app_and_installed_modules_verified",
+          "dependency_inputs_match"
+        ]
+      },
+      {
+        "parent": "sha256:ce59e827156b470a81b98c2dbc68cb9c69fed03e50ccc2f516ef30b64e0e21fd",
+        "candidate": "sha256:7c2d5a0f88d80979b436b9fd72d371afd21f3927e9700e39bbbe0918cedbe930",
+        "roles": [
+          "consumer"
+        ],
+        "source_import_bytecode_verified": true,
+        "inherited_full_config_and_parent_layers_verified": true,
+        "proof_keys": [
+          "source_identity",
+          "app_and_installed_modules_verified",
+          "dependency_inputs_match"
+        ]
+      },
+      {
+        "parent": "sha256:e575802519ce7b70b42a87f8e92159f42ddac653b8d489b401fe4ad1785a53e2",
+        "candidate": "sha256:06f1d84c86bff050c01f49e4f3cc9f317f0a33fb03c2afe9ef13eb13d5eec6a7",
+        "roles": [
+          "publisher"
+        ],
+        "source_import_bytecode_verified": true,
+        "inherited_full_config_and_parent_layers_verified": true,
+        "proof_keys": [
+          "source_identity",
+          "app_and_installed_modules_verified",
+          "dependency_inputs_match"
+        ]
+      }
+    ],
+    "settings_smoke": [
+      {
+        "refresh": false,
+        "dedup": false,
+        "cache_ms": 0,
+        "max_hints": 1024
+      },
+      {
+        "refresh": true,
+        "dedup": false,
+        "cache_ms": 1000,
+        "max_hints": 1024
+      },
+      {
+        "refresh": true,
+        "dedup": true,
+        "cache_ms": 1000,
+        "max_hints": 1024
+      }
+    ],
+    "source_files_verified": 207,
+    "runtime_modules_verified": 19,
+    "source_manifest_sha256": "cb4937dace028ab13ede592119ab8d1493c8ecf7cb449a25f345050c98237917",
+    "cloud_calls": 0,
+    "settings_containers_auto_removed": true
+  },
+  "artifact_receipt": {
+    "images": {
+      "api": "sha256:8876a8f3ab11702088fb8570353a1b66eab697cc1d33333e44be3c66c73261d7",
+      "consumer": "sha256:7c2d5a0f88d80979b436b9fd72d371afd21f3927e9700e39bbbe0918cedbe930",
+      "publisher": "sha256:06f1d84c86bff050c01f49e4f3cc9f317f0a33fb03c2afe9ef13eb13d5eec6a7",
+      "simulator": "sha256:c354599c9077f4833fc7d7af88d0e145eed7de194dbae9af7030383ee97ab146",
+      "maintenance": "sha256:80e8064a3d4ac48b3123d873dbe75d64b33ff249b7c0194de152da3ae4fe5af3",
+      "reconciler": "sha256:604cdd4e9f87eb24d85cf10c1bb7468ddaa40e368bcad73825288b4d6339813d",
+      "reservation-writer": "sha256:8876a8f3ab11702088fb8570353a1b66eab697cc1d33333e44be3c66c73261d7"
+    },
+    "parent_images": {
+      "api": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e",
+      "consumer": "sha256:ce59e827156b470a81b98c2dbc68cb9c69fed03e50ccc2f516ef30b64e0e21fd",
+      "publisher": "sha256:e575802519ce7b70b42a87f8e92159f42ddac653b8d489b401fe4ad1785a53e2",
+      "simulator": "sha256:22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452",
+      "maintenance": "sha256:51b1e282b277e6b34d5f55442a82912fa406c91e808d71394e7da479b12ad83e",
+      "reconciler": "sha256:57a12dd4be6303ca8dea3daa4bcf2d8201a93976c6df2af51c0f751a9cbcf1a6",
+      "reservation-writer": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e"
+    },
+    "source_manifest_sha256": "cb4937dace028ab13ede592119ab8d1493c8ecf7cb449a25f345050c98237917"
+  },
+  "comparison": {
+    "factor": "consumer_ORDER_STATUS_EVENT_REFRESH_DEDUP",
+    "control": "0",
+    "candidate": "1",
+    "consumer_event_refresh_both_arms": "1",
+    "cache_ms": 1000,
+    "apis_per_host": 2,
+    "total_api_connections": 16,
+    "payment_connections_included": 8,
+    "planned_buyer_journeys_per_second": 60,
+    "planned_duration_seconds": 300,
+    "planned_stage_execution_authorized": false
+  },
+  "implemented": [
+    "Separate contract and private engine namespace reuse original protocol without altering the historical runner or consumed ledger.",
+    "Strict API/worker dedup flags and ADR0157 marker captured before inventory qualification; observer checks exact approved digest and complete factor evidence using only the existing two uploaded scripts.",
+    "New profile identity includes old engine, shared adapters, new entry points/contracts, plan and pinned artifact. Old qualification/authorization cannot release this profile.",
+    "Separate image-staging entry point reuses owned upload/seal/load and runtime identity checks; same approval binding and shared exclusive lock. Success releases lock; ambiguous/unproven staging retains it.",
+    "Default preparation validates pinned source and makes no cloud calls, paid launches or state/allowance changes. Dry proposal is reviewable but has not been activated."
+  ],
+  "validation": {
+    "broader_tests_passed": 277,
+    "final_profile_tests_passed": 32,
+    "test_counts_overlap": true,
+    "combined_unique_cases": 280,
+    "combined_scope_note": "Broader run contained29 profile cases plus248 legacy/related cases; final32-case profile run covers3 added staging ownership cases and final wrapper. Counts are not additive.",
+    "ruff_pass": true,
+    "original_engine_contract_stager_and_artifacts_unchanged": true,
+    "shared_lock_absent": true,
+    "all32_gates_preserved_synthetically": true,
+    "runtime_modules_identical_to_native_tested_candidate": 19,
+    "native_tests_repeated_this_stage": false,
+    "previous_native_result": "docs/capacity/flash-sale-opening/order-status-refresh-dedup-local-validation-2026-10-05.json",
+    "attempts": [
+      "Initial profile pair suite:123 passed/2 failed from an incorrect test fixture image constant; corrected tests, no application change.",
+      "First broader suite:270 passed/1 failed because a preparation filename from an earlier test remained; changed fixture to unique owned output, preserving old evidence.",
+      "Corrected broader suite272 passed; explicit missing-flag drift and source/artifact/plan checks added, then277 broader tests passed.",
+      "Final32 profile tests include staging-lock success, ambiguous failure and unproven runtime checks. Changed-source/test Ruff passed."
+    ]
+  },
+  "cloud": {
+    "calls": 0,
+    "image_staging_performed": false,
+    "service_deployments": 0,
+    "customer_dispatches": 0,
+    "capacity_stages_started": 0,
+    "new_allowance_created": false,
+    "runtime_contacted_this_stage": false,
+    "higher_capacity_or_300000_tickets_per_hour_qualified": false
+  },
+  "reviewable_next_scope": {
+    "proposal": "tmp/adr0157-checks/dry-scope-proposal.json",
+    "sha256": "f2aab13a3af4e7300f45f1fa993b1ff462d4ed6220b1eb499c68c09704b68515",
+    "status": "PROPOSAL_ONLY_NOT_AUTHORIZED",
+    "image_cache_staging_without_service_deployment": true,
+    "qualification_pairs": 1,
+    "simulated_safety_tickets_max": 2,
+    "capacity_stages_max": 0,
+    "automatic_replacement": false
+  },
+  "limits": [
+    "Actual staging, live settings/source/TTL/queue recovery and safety remain unqualified for ADR0157. Synthetic checks do not prove cloud behavior.",
+    "Previous cloud60/s comparison measured event refresh, not this deduplication factor; no CPU/RPS/tickets-hour improvement is claimed.",
+    "Future matched paid run requires a fresh successful exact-bound safety report and a separate bounded allowance. All financial/durability/double-booking/global-drain/restoration gates remain."
+  ],
+  "next": [
+    "Authorize/stage immutable candidates and run the proposed two-ticket safety-only pair. Live preflight must verify current resource sizes, authorities, runtime parents and readiness; no load if stale or mismatched.",
+    "After safety passes, propose one fixed60 journeys/s300s off/on measured pair; record net DB acquisitions, consumer/API/host CPU and customer latency/errors.",
+    "Advance capacity only after measured improvement and all mandatory gates pass."
+  ],
+  "private_evidence": {
+    "image_receipt": "tmp/adr0156-offline-images/artifact-receipt.json",
+    "image_validation": "tmp/adr0156-offline-images/final-image-validation.json",
+    "build_output": "tmp/adr0156-offline-build-output.txt",
+    "build_result": "tmp/adr0156-offline-build-result.json",
+    "regression_log": "tmp/adr0157-checks/tests.txt",
+    "regression_result": "tmp/adr0157-checks/test-result.json",
+    "final_profile_log": "tmp/adr0157-checks/final-profile-tests.txt",
+    "preparation": "tmp/adr0157-checks/comparison-preparation-final.json",
+    "scope_proposal": "tmp/adr0157-checks/dry-scope-proposal.json",
+    "earlier_regression_failure": "tmp/adr0157-checks/tests-attempt1.txt"
+  },
+  "private_evidence_sha256": {
+    "image_receipt": "84561514f2b6252d5e9753ed6ceb3892b24a772877c6a6a2bab6b99e823a8f47",
+    "image_validation": "0c65b92d8f123e2eb8928b3ef94094babc3c662ba4a29ae6aa909053e6e5f31b",
+    "build_output": "0e7466fb5a8ac79f2baf998fc540fd2a249ccd08068df7d2f15fc0e8812a258b",
+    "build_result": "41c99023ca053a57cc0b2f08dcef5af203fc691057585746b46ce83ed33ddb0a",
+    "regression_log": "55f152d54706a60154a62b0756fd38b971ca33128241c5cff14262eda3b4cc19",
+    "regression_result": "3aa00f2201476f006a5146e7538e4ec1bea3664058d3dab8e8c2438865514fb8",
+    "final_profile_log": "1d634c6eedf3d171d5bb20575abfc55c6a060c0bd3aeab2a17617405fc99eedd",
+    "preparation": "8451f3826eeec65a531b48ec7ec0da23f61a6b3cd9077fab0e8b7579e2071271",
+    "scope_proposal": "f2aab13a3af4e7300f45f1fa993b1ff462d4ed6220b1eb499c68c09704b68515",
+    "earlier_regression_failure": "d85a3dafac881242806946274a3fa6e9834024197334660a6c3c20c3d34a64ad"
+  }
+}

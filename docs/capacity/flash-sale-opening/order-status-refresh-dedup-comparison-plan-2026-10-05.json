@@ -1,0 +1,60 @@
+{
+  "decision": "ADR0157",
+  "status": "LOCAL_PREPARATION_CLOUD_UNQUALIFIED",
+  "base_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "isolated_source_directory": "tmp/adr0156-offline-images/source",
+  "expected_runtime_source_sha256": {
+    "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/api.py": "ed4a9f07085fd9491457271c09f9bbc97822cdea4235ad138a167c9649a8b911",
+    "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/application/ports.py": "7850899c6174f7a636320d271bd71001641c02b7261f7fc664abdd284d069d91",
+    "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+    "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+    "src/ticketing/config.py": "89db765f1b679287fdaaa5c37e432593d6a09bb3f872cfcf7cf5c7ed5df87686",
+    "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+    "src/ticketing/http.py": "a18f73c197561aa94cbe4875c73494b29456261277736b150c3ef5198a0dbce5",
+    "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+    "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+    "src/ticketing/infrastructure/order_status_projector.py": "8e89ce45e57123f5fc1499e5d2bf57752395e57374f50729a975f402cd31ac88",
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "b11dd08700c476f00304302c9199dfb2017aa6fed81ca2033eb89347fb351f4b",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/reservations.py": "ae44dffde81c06a9aa4990dd22ddd86f799ee371001db9222abc73aae3dea5c7",
+    "src/ticketing/observability.py": "8cf47f1b830ad761d6efb78cb31f207ccf0aed97fbb118bbb180276eec8ffbfa",
+    "src/ticketing/workers.py": "d237c9c014b023dac694c47155c2037cc5fb02fbfb7c273b47e9be8aa374267b"
+  },
+  "artifact_receipt": {
+    "images": {
+      "api": "sha256:8876a8f3ab11702088fb8570353a1b66eab697cc1d33333e44be3c66c73261d7",
+      "consumer": "sha256:7c2d5a0f88d80979b436b9fd72d371afd21f3927e9700e39bbbe0918cedbe930",
+      "publisher": "sha256:06f1d84c86bff050c01f49e4f3cc9f317f0a33fb03c2afe9ef13eb13d5eec6a7",
+      "simulator": "sha256:c354599c9077f4833fc7d7af88d0e145eed7de194dbae9af7030383ee97ab146",
+      "maintenance": "sha256:80e8064a3d4ac48b3123d873dbe75d64b33ff249b7c0194de152da3ae4fe5af3",
+      "reconciler": "sha256:604cdd4e9f87eb24d85cf10c1bb7468ddaa40e368bcad73825288b4d6339813d",
+      "reservation-writer": "sha256:8876a8f3ab11702088fb8570353a1b66eab697cc1d33333e44be3c66c73261d7"
+    },
+    "parent_images": {
+      "api": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e",
+      "consumer": "sha256:ce59e827156b470a81b98c2dbc68cb9c69fed03e50ccc2f516ef30b64e0e21fd",
+      "publisher": "sha256:e575802519ce7b70b42a87f8e92159f42ddac653b8d489b401fe4ad1785a53e2",
+      "simulator": "sha256:22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452",
+      "maintenance": "sha256:51b1e282b277e6b34d5f55442a82912fa406c91e808d71394e7da479b12ad83e",
+      "reconciler": "sha256:57a12dd4be6303ca8dea3daa4bcf2d8201a93976c6df2af51c0f751a9cbcf1a6",
+      "reservation-writer": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e"
+    },
+    "source_manifest_sha256": "cb4937dace028ab13ede592119ab8d1493c8ecf7cb449a25f345050c98237917"
+  },
+  "factor": "consumer_ORDER_STATUS_EVENT_REFRESH_DEDUP",
+  "control": "0",
+  "candidate": "1",
+  "common": {
+    "consumer_event_refresh": "1",
+    "cache_age_ms": 1000,
+    "primary_apis": 2,
+    "secondary_apis": 2,
+    "buyer_journeys_per_second": 60,
+    "duration_seconds": 300
+  },
+  "cloud_execution_performed": false
+}
