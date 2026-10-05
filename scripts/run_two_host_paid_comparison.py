@@ -641,6 +641,17 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                     except Exception as exc:  # noqa: BLE001 - retain partial failure evidence
                         record.setdefault("trace_collection_errors", []).append(type(exc).__name__)
             retain_observer_summaries(local, record, inventory if "inventory" in locals() else None)
+            if (self.contract is not None and self.contract.inventory_marker().get("decision") == "ADR0163"
+                    and "inventory" in locals()):
+                try:
+                    from admission_failure_evidence import collect
+
+                    record["admission_failure_capture"] = collect(session, inventory, local)
+                    if record["admission_failure_capture"]["complete"] is not True:
+                        record["pass"] = False
+                except Exception as exc:  # noqa: BLE001 - retain failed diagnostics; always continue financial cleanup.
+                    record["admission_failure_capture"] = {"complete": False, "failure_type": type(exc).__name__}
+                    record["pass"] = False
             for role, job in jobs:
                 try:
                     log = "job-" + job["name"] + ".log"

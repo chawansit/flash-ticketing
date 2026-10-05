@@ -272,3 +272,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0164: Bounded partial-timeout reclamation cloud comparison](0164-bounded-partial-timeout-reclamation-comparison.md) - Runner integration and bounded qualification; performance unmeasured.
 
 - [ADR0165: Exact admission observer compatibility and fresh qualification](0165-exact-admission-observer-compatibility.md)
+
+- [ADR0166: Retain bounded admission failure evidence before teardown](0166-bounded-admission-failure-evidence-retention.md)

@@ -38,6 +38,7 @@ def create_runner(*, policy_module=None, ledger=None, authorization=None, decisi
                          "prepare_" + ("partial_timeout_reclamation" if decision in {"ADR0164", "ADR0165"} else "async_confirmation") + ".py", "prepare_status_refresh_artifacts.py",
                          "status_refresh_image_install.py", "stage_status_refresh_images.py", "run_async_confirmation_comparison.py",
                          "checkout_journey_probe.py", "fetch_status_refresh_parents.py",
+                         *( ("admission_failure_evidence.py",) if decision in {"ADR0164", "ADR0165"} else () ),
                          *( ("partial_timeout_profile.py",) if decision in {"ADR0164", "ADR0165"} else () ))},
             **{"artifacts/" + artifact_directory + "/" + name: engine.comparison.source_sha256(
                 (ROOT / "artifacts" / artifact_directory / name).read_bytes())
@@ -140,6 +141,8 @@ def create_runner(*, policy_module=None, ledger=None, authorization=None, decisi
         queues = record.get("global_queues", {})
         required = {"durable_confirmation_receipts_complete": receipt.get("pass") is True,
                     "durable_confirmation_global_drain": policy.receipt_drained(queues)}
+        if decision in {"ADR0164", "ADR0165"}:
+            required["admission_failure_evidence_complete"] = record.get("admission_failure_capture", {}).get("complete") is True
         result["confirmation"] = required
         result["failed_gates"] += [k for k, passed in required.items() if not passed]
         result["all_required_gates_pass"] = result["all_required_gates_pass"] and all(required.values())

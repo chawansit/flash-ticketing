@@ -1,0 +1,27 @@
+{
+  "decision": "ADR0165",
+  "implementation_revision": "aee64e2",
+  "regression_tests": {
+    "passed": 252,
+    "seconds": 42.55,
+    "raw_evidence": "tmp/adr0165-regression-tests.txt"
+  },
+  "pre_correction_reproduction": {
+    "failed": 2,
+    "cause": "Historical exact API settings mismatch at real observer installation boundary",
+    "raw_evidence": "tmp/adr0165-reproduction.txt"
+  },
+  "captured_cloud_inventory_replay": {
+    "pass": true,
+    "captured_inventory_sha256": "220418b3e28d26914b0f27ae8284c8e3e5fdd67172b6886f7dc0dde6dc44b26c",
+    "four_replicas": true,
+    "evidence_unchanged": true,
+    "network_calls": 0,
+    "temporal_scope": "Captured-time replay of actual failed inventory, not current readiness"
+  },
+  "ruff": "passed for changed files",
+  "whitespace_check": "passed",
+  "financial_source_or_image_changes": false,
+  "higher_load_authorized_by_this_profile": false,
+  "projection_18000_issue": "unresolved; independent of observer correction"
+}

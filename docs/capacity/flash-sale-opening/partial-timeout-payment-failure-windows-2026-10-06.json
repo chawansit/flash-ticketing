@@ -1,0 +1,564 @@
+{
+  "decision": "ADR0165",
+  "run": "adr0151-7acbc3dc2a41",
+  "scope": "Adjacent one-second samples; these are not atomic failure-time snapshots",
+  "windows": [
+    {
+      "arm": "control",
+      "api": "primary-api-1",
+      "payment_native_timeouts": 1.0,
+      "samples": [
+        {
+          "utc": "2026-10-05T18:07:38.820844+00:00",
+          "lock_waiters": 0,
+          "pending_callbacks": 9,
+          "pool": {
+            "pool_state:pool_size": 4.0,
+            "pool_state:general_pool_size": 2.0,
+            "pool_state:payment_pool_size": 2.0,
+            "pool_state:pool_available": 2.0,
+            "pool_state:general_pool_available": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:requests_waiting": 3.0,
+            "pool_state:general_requests_waiting": 0.0,
+            "pool_state:payment_requests_waiting": 3.0,
+            "pool_state:pool_max": 4.0,
+            "pool_state:general_pool_max": 2.0,
+            "pool_state:payment_pool_max": 2.0,
+            "pool_state:pool_max_waiting": 12.0,
+            "pool_state:shared_acquisition_limit": 12.0,
+            "pool_state:shared_acquisition_used": 3.0,
+            "pool_state:shared_acquisition_acquiring": 3.0,
+            "pool_state:shared_acquisition_retained": 0.0,
+            "pool_state:general_max_waiting": 10.0,
+            "pool_state:payment_max_waiting": 10.0
+          },
+          "failure_counters": {
+            "acquisition_failure:payment:role_limit": 0.0,
+            "acquisition_failure:payment:native_timeout": 0.0,
+            "acquisition_failure:payment:native_limit": 0.0,
+            "acquisition_failure:payment:global_limit": 0.0,
+            "acquisition_failure:general:role_limit": 0.0,
+            "acquisition_failure:general:native_timeout": 0.0,
+            "acquisition_failure:general:native_limit": 0.0,
+            "acquisition_failure:general:global_limit": 0.0
+          },
+          "interval_ms": {}
+        },
+        {
+          "utc": "2026-10-05T18:07:39.820926+00:00",
+          "lock_waiters": 0,
+          "pending_callbacks": 17,
+          "pool": {
+            "pool_state:pool_size": 4.0,
+            "pool_state:general_pool_size": 2.0,
+            "pool_state:payment_pool_size": 2.0,
+            "pool_state:pool_available": 2.0,
+            "pool_state:general_pool_available": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:requests_waiting": 3.0,
+            "pool_state:general_requests_waiting": 0.0,
+            "pool_state:payment_requests_waiting": 3.0,
+            "pool_state:pool_max": 4.0,
+            "pool_state:general_pool_max": 2.0,
+            "pool_state:payment_pool_max": 2.0,
+            "pool_state:pool_max_waiting": 12.0,
+            "pool_state:shared_acquisition_limit": 12.0,
+            "pool_state:shared_acquisition_used": 3.0,
+            "pool_state:shared_acquisition_acquiring": 3.0,
+            "pool_state:shared_acquisition_retained": 0.0,
+            "pool_state:general_max_waiting": 10.0,
+            "pool_state:payment_max_waiting": 10.0
+          },
+          "failure_counters": {
+            "acquisition_failure:payment:role_limit": 0.0,
+            "acquisition_failure:payment:native_timeout": 0.0,
+            "acquisition_failure:payment:native_limit": 0.0,
+            "acquisition_failure:payment:global_limit": 0.0,
+            "acquisition_failure:general:role_limit": 0.0,
+            "acquisition_failure:general:native_timeout": 0.0,
+            "acquisition_failure:general:native_limit": 0.0,
+            "acquisition_failure:general:global_limit": 0.0
+          },
+          "interval_ms": {}
+        },
+        {
+          "utc": "2026-10-05T18:07:40.821003+00:00",
+          "lock_waiters": 0,
+          "pending_callbacks": 16,
+          "pool": {
+            "pool_state:pool_size": 4.0,
+            "pool_state:general_pool_size": 2.0,
+            "pool_state:payment_pool_size": 2.0,
+            "pool_state:pool_available": 2.0,
+            "pool_state:general_pool_available": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:requests_waiting": 2.0,
+            "pool_state:general_requests_waiting": 0.0,
+            "pool_state:payment_requests_waiting": 2.0,
+            "pool_state:pool_max": 4.0,
+            "pool_state:general_pool_max": 2.0,
+            "pool_state:payment_pool_max": 2.0,
+            "pool_state:pool_max_waiting": 12.0,
+            "pool_state:shared_acquisition_limit": 12.0,
+            "pool_state:shared_acquisition_used": 3.0,
+            "pool_state:shared_acquisition_acquiring": 2.0,
+            "pool_state:shared_acquisition_retained": 1.0,
+            "pool_state:general_max_waiting": 10.0,
+            "pool_state:payment_max_waiting": 10.0
+          },
+          "failure_counters": {
+            "acquisition_failure:payment:role_limit": 0.0,
+            "acquisition_failure:payment:native_timeout": 1.0,
+            "acquisition_failure:payment:native_limit": 0.0,
+            "acquisition_failure:payment:global_limit": 0.0,
+            "acquisition_failure:general:role_limit": 0.0,
+            "acquisition_failure:general:native_timeout": 0.0,
+            "acquisition_failure:general:native_limit": 0.0,
+            "acquisition_failure:general:global_limit": 0.0
+          },
+          "interval_ms": {
+            "db_pool_acquire:ok": {
+              "count": 37.0,
+              "mean_ms": 136.84078856966005
+            },
+            "db_pool_acquire:error": {
+              "count": 1.0,
+              "mean_ms": 500.4223519936204
+            },
+            "db_commit:all": {
+              "count": 37.0,
+              "mean_ms": 34.015546486763334
+            },
+            "db_connection_hold:all": {
+              "count": 37.0,
+              "mean_ms": 59.68694707750016
+            }
+          }
+        },
+        {
+          "utc": "2026-10-05T18:07:41.821071+00:00",
+          "lock_waiters": 0,
+          "pending_callbacks": 46,
+          "pool": {
+            "pool_state:pool_size": 4.0,
+            "pool_state:general_pool_size": 2.0,
+            "pool_state:payment_pool_size": 2.0,
+            "pool_state:pool_available": 2.0,
+            "pool_state:general_pool_available": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:requests_waiting": 1.0,
+            "pool_state:general_requests_waiting": 0.0,
+            "pool_state:payment_requests_waiting": 1.0,
+            "pool_state:pool_max": 4.0,
+            "pool_state:general_pool_max": 2.0,
+            "pool_state:payment_pool_max": 2.0,
+            "pool_state:pool_max_waiting": 12.0,
+            "pool_state:shared_acquisition_limit": 12.0,
+            "pool_state:shared_acquisition_used": 1.0,
+            "pool_state:shared_acquisition_acquiring": 1.0,
+            "pool_state:shared_acquisition_retained": 0.0,
+            "pool_state:general_max_waiting": 10.0,
+            "pool_state:payment_max_waiting": 10.0
+          },
+          "failure_counters": {
+            "acquisition_failure:payment:role_limit": 0.0,
+            "acquisition_failure:payment:native_timeout": 1.0,
+            "acquisition_failure:payment:native_limit": 0.0,
+            "acquisition_failure:payment:global_limit": 0.0,
+            "acquisition_failure:general:role_limit": 0.0,
+            "acquisition_failure:general:native_timeout": 0.0,
+            "acquisition_failure:general:native_limit": 0.0,
+            "acquisition_failure:general:global_limit": 0.0
+          },
+          "interval_ms": {
+            "db_pool_acquire:ok": {
+              "count": 51.0,
+              "mean_ms": 38.04266866805561
+            },
+            "db_commit:all": {
+              "count": 51.0,
+              "mean_ms": 9.278895783662687
+            },
+            "db_connection_hold:all": {
+              "count": 51.0,
+              "mean_ms": 36.39087580114731
+            }
+          }
+        }
+      ]
+    },
+    {
+      "arm": "control",
+      "api": "primary-api-1",
+      "payment_native_timeouts": 1.0,
+      "samples": [
+        {
+          "utc": "2026-10-05T18:07:58.089955+00:00",
+          "lock_waiters": 0,
+          "pending_callbacks": 8,
+          "pool": {
+            "pool_state:pool_size": 4.0,
+            "pool_state:general_pool_size": 2.0,
+            "pool_state:payment_pool_size": 2.0,
+            "pool_state:pool_available": 2.0,
+            "pool_state:general_pool_available": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:requests_waiting": 5.0,
+            "pool_state:general_requests_waiting": 0.0,
+            "pool_state:payment_requests_waiting": 5.0,
+            "pool_state:pool_max": 4.0,
+            "pool_state:general_pool_max": 2.0,
+            "pool_state:payment_pool_max": 2.0,
+            "pool_state:pool_max_waiting": 12.0,
+            "pool_state:shared_acquisition_limit": 12.0,
+            "pool_state:shared_acquisition_used": 5.0,
+            "pool_state:shared_acquisition_acquiring": 5.0,
+            "pool_state:shared_acquisition_retained": 0.0,
+            "pool_state:general_max_waiting": 10.0,
+            "pool_state:payment_max_waiting": 10.0
+          },
+          "failure_counters": {
+            "acquisition_failure:payment:role_limit": 0.0,
+            "acquisition_failure:payment:native_timeout": 1.0,
+            "acquisition_failure:payment:native_limit": 0.0,
+            "acquisition_failure:payment:global_limit": 0.0,
+            "acquisition_failure:general:role_limit": 0.0,
+            "acquisition_failure:general:native_timeout": 0.0,
+            "acquisition_failure:general:native_limit": 0.0,
+            "acquisition_failure:general:global_limit": 0.0
+          },
+          "interval_ms": {}
+        },
+        {
+          "utc": "2026-10-05T18:07:59.111592+00:00",
+          "lock_waiters": 0,
+          "pending_callbacks": 26,
+          "pool": {
+            "pool_state:pool_size": 4.0,
+            "pool_state:general_pool_size": 2.0,
+            "pool_state:payment_pool_size": 2.0,
+            "pool_state:pool_available": 2.0,
+            "pool_state:general_pool_available": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:requests_waiting": 3.0,
+            "pool_state:general_requests_waiting": 0.0,
+            "pool_state:payment_requests_waiting": 3.0,
+            "pool_state:pool_max": 4.0,
+            "pool_state:general_pool_max": 2.0,
+            "pool_state:payment_pool_max": 2.0,
+            "pool_state:pool_max_waiting": 12.0,
+            "pool_state:shared_acquisition_limit": 12.0,
+            "pool_state:shared_acquisition_used": 3.0,
+            "pool_state:shared_acquisition_acquiring": 3.0,
+            "pool_state:shared_acquisition_retained": 0.0,
+            "pool_state:general_max_waiting": 10.0,
+            "pool_state:payment_max_waiting": 10.0
+          },
+          "failure_counters": {
+            "acquisition_failure:payment:role_limit": 0.0,
+            "acquisition_failure:payment:native_timeout": 1.0,
+            "acquisition_failure:payment:native_limit": 0.0,
+            "acquisition_failure:payment:global_limit": 0.0,
+            "acquisition_failure:general:role_limit": 0.0,
+            "acquisition_failure:general:native_timeout": 0.0,
+            "acquisition_failure:general:native_limit": 0.0,
+            "acquisition_failure:general:global_limit": 0.0
+          },
+          "interval_ms": {}
+        },
+        {
+          "utc": "2026-10-05T18:08:00.111661+00:00",
+          "lock_waiters": 0,
+          "pending_callbacks": 13,
+          "pool": {
+            "pool_state:pool_size": 4.0,
+            "pool_state:general_pool_size": 2.0,
+            "pool_state:payment_pool_size": 2.0,
+            "pool_state:pool_available": 2.0,
+            "pool_state:general_pool_available": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:requests_waiting": 1.0,
+            "pool_state:general_requests_waiting": 0.0,
+            "pool_state:payment_requests_waiting": 1.0,
+            "pool_state:pool_max": 4.0,
+            "pool_state:general_pool_max": 2.0,
+            "pool_state:payment_pool_max": 2.0,
+            "pool_state:pool_max_waiting": 12.0,
+            "pool_state:shared_acquisition_limit": 12.0,
+            "pool_state:shared_acquisition_used": 1.0,
+            "pool_state:shared_acquisition_acquiring": 1.0,
+            "pool_state:shared_acquisition_retained": 0.0,
+            "pool_state:general_max_waiting": 10.0,
+            "pool_state:payment_max_waiting": 10.0
+          },
+          "failure_counters": {
+            "acquisition_failure:payment:role_limit": 0.0,
+            "acquisition_failure:payment:native_timeout": 2.0,
+            "acquisition_failure:payment:native_limit": 0.0,
+            "acquisition_failure:payment:global_limit": 0.0,
+            "acquisition_failure:general:role_limit": 0.0,
+            "acquisition_failure:general:native_timeout": 0.0,
+            "acquisition_failure:general:native_limit": 0.0,
+            "acquisition_failure:general:global_limit": 0.0
+          },
+          "interval_ms": {
+            "db_pool_acquire:ok": {
+              "count": 47.0,
+              "mean_ms": 63.922945447167024
+            },
+            "db_pool_acquire:error": {
+              "count": 1.0,
+              "mean_ms": 500.2791629813146
+            },
+            "db_commit:all": {
+              "count": 47.0,
+              "mean_ms": 22.442571298675016
+            },
+            "db_connection_hold:all": {
+              "count": 47.0,
+              "mean_ms": 46.03394749017056
+            }
+          }
+        },
+        {
+          "utc": "2026-10-05T18:08:01.111756+00:00",
+          "lock_waiters": 0,
+          "pending_callbacks": 31,
+          "pool": {
+            "pool_state:pool_size": 4.0,
+            "pool_state:general_pool_size": 2.0,
+            "pool_state:payment_pool_size": 2.0,
+            "pool_state:pool_available": 2.0,
+            "pool_state:general_pool_available": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:requests_waiting": 2.0,
+            "pool_state:general_requests_waiting": 0.0,
+            "pool_state:payment_requests_waiting": 2.0,
+            "pool_state:pool_max": 4.0,
+            "pool_state:general_pool_max": 2.0,
+            "pool_state:payment_pool_max": 2.0,
+            "pool_state:pool_max_waiting": 12.0,
+            "pool_state:shared_acquisition_limit": 12.0,
+            "pool_state:shared_acquisition_used": 2.0,
+            "pool_state:shared_acquisition_acquiring": 2.0,
+            "pool_state:shared_acquisition_retained": 0.0,
+            "pool_state:general_max_waiting": 10.0,
+            "pool_state:payment_max_waiting": 10.0
+          },
+          "failure_counters": {
+            "acquisition_failure:payment:role_limit": 0.0,
+            "acquisition_failure:payment:native_timeout": 2.0,
+            "acquisition_failure:payment:native_limit": 0.0,
+            "acquisition_failure:payment:global_limit": 0.0,
+            "acquisition_failure:general:role_limit": 0.0,
+            "acquisition_failure:general:native_timeout": 0.0,
+            "acquisition_failure:general:native_limit": 0.0,
+            "acquisition_failure:general:global_limit": 0.0
+          },
+          "interval_ms": {
+            "db_pool_acquire:ok": {
+              "count": 66.0,
+              "mean_ms": 22.388566363422964
+            },
+            "db_commit:all": {
+              "count": 66.0,
+              "mean_ms": 11.052605545211753
+            },
+            "db_connection_hold:all": {
+              "count": 66.0,
+              "mean_ms": 33.28859505806273
+            }
+          }
+        }
+      ]
+    },
+    {
+      "arm": "candidate",
+      "api": "primary-api-2",
+      "payment_native_timeouts": 1.0,
+      "samples": [
+        {
+          "utc": "2026-10-05T18:22:36.942488+00:00",
+          "lock_waiters": 0,
+          "pending_callbacks": 12,
+          "pool": {
+            "pool_state:pool_size": 4.0,
+            "pool_state:general_pool_size": 2.0,
+            "pool_state:payment_pool_size": 2.0,
+            "pool_state:pool_available": 2.0,
+            "pool_state:general_pool_available": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:requests_waiting": 0.0,
+            "pool_state:general_requests_waiting": 0.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:pool_max": 4.0,
+            "pool_state:general_pool_max": 2.0,
+            "pool_state:payment_pool_max": 2.0,
+            "pool_state:pool_max_waiting": 12.0,
+            "pool_state:shared_acquisition_limit": 12.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0,
+            "pool_state:general_max_waiting": 10.0,
+            "pool_state:payment_max_waiting": 10.0
+          },
+          "failure_counters": {
+            "acquisition_failure:payment:role_limit": 0.0,
+            "acquisition_failure:payment:global_limit": 0.0,
+            "acquisition_failure:payment:native_limit": 0.0,
+            "acquisition_failure:payment:native_timeout": 0.0,
+            "acquisition_failure:general:role_limit": 0.0,
+            "acquisition_failure:general:global_limit": 0.0,
+            "acquisition_failure:general:native_limit": 0.0,
+            "acquisition_failure:general:native_timeout": 0.0
+          },
+          "interval_ms": {}
+        },
+        {
+          "utc": "2026-10-05T18:22:37.942559+00:00",
+          "lock_waiters": 0,
+          "pending_callbacks": 12,
+          "pool": {
+            "pool_state:pool_size": 4.0,
+            "pool_state:general_pool_size": 2.0,
+            "pool_state:payment_pool_size": 2.0,
+            "pool_state:pool_available": 2.0,
+            "pool_state:general_pool_available": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:requests_waiting": 1.0,
+            "pool_state:general_requests_waiting": 0.0,
+            "pool_state:payment_requests_waiting": 1.0,
+            "pool_state:pool_max": 4.0,
+            "pool_state:general_pool_max": 2.0,
+            "pool_state:payment_pool_max": 2.0,
+            "pool_state:pool_max_waiting": 12.0,
+            "pool_state:shared_acquisition_limit": 12.0,
+            "pool_state:shared_acquisition_used": 1.0,
+            "pool_state:shared_acquisition_acquiring": 1.0,
+            "pool_state:shared_acquisition_retained": 0.0,
+            "pool_state:general_max_waiting": 10.0,
+            "pool_state:payment_max_waiting": 10.0
+          },
+          "failure_counters": {
+            "acquisition_failure:payment:role_limit": 0.0,
+            "acquisition_failure:payment:global_limit": 0.0,
+            "acquisition_failure:payment:native_limit": 0.0,
+            "acquisition_failure:payment:native_timeout": 0.0,
+            "acquisition_failure:general:role_limit": 0.0,
+            "acquisition_failure:general:global_limit": 0.0,
+            "acquisition_failure:general:native_limit": 0.0,
+            "acquisition_failure:general:native_timeout": 0.0
+          },
+          "interval_ms": {}
+        },
+        {
+          "utc": "2026-10-05T18:22:38.942627+00:00",
+          "lock_waiters": 0,
+          "pending_callbacks": 21,
+          "pool": {
+            "pool_state:pool_size": 4.0,
+            "pool_state:general_pool_size": 2.0,
+            "pool_state:payment_pool_size": 2.0,
+            "pool_state:pool_available": 2.0,
+            "pool_state:general_pool_available": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:requests_waiting": 2.0,
+            "pool_state:general_requests_waiting": 0.0,
+            "pool_state:payment_requests_waiting": 2.0,
+            "pool_state:pool_max": 4.0,
+            "pool_state:general_pool_max": 2.0,
+            "pool_state:payment_pool_max": 2.0,
+            "pool_state:pool_max_waiting": 12.0,
+            "pool_state:shared_acquisition_limit": 12.0,
+            "pool_state:shared_acquisition_used": 3.0,
+            "pool_state:shared_acquisition_acquiring": 2.0,
+            "pool_state:shared_acquisition_retained": 1.0,
+            "pool_state:general_max_waiting": 10.0,
+            "pool_state:payment_max_waiting": 10.0
+          },
+          "failure_counters": {
+            "acquisition_failure:payment:role_limit": 0.0,
+            "acquisition_failure:payment:global_limit": 0.0,
+            "acquisition_failure:payment:native_limit": 0.0,
+            "acquisition_failure:payment:native_timeout": 1.0,
+            "acquisition_failure:general:role_limit": 0.0,
+            "acquisition_failure:general:global_limit": 0.0,
+            "acquisition_failure:general:native_limit": 0.0,
+            "acquisition_failure:general:native_timeout": 0.0
+          },
+          "interval_ms": {
+            "db_pool_acquire:ok": {
+              "count": 30.0,
+              "mean_ms": 118.38222283307307
+            },
+            "db_pool_acquire:error": {
+              "count": 1.0,
+              "mean_ms": 500.37222099490464
+            },
+            "db_commit:all": {
+              "count": 30.0,
+              "mean_ms": 40.316431232107185
+            },
+            "db_connection_hold:all": {
+              "count": 30.0,
+              "mean_ms": 59.272282964472346
+            }
+          }
+        },
+        {
+          "utc": "2026-10-05T18:22:39.942666+00:00",
+          "lock_waiters": 0,
+          "pending_callbacks": 47,
+          "pool": {
+            "pool_state:pool_size": 4.0,
+            "pool_state:general_pool_size": 2.0,
+            "pool_state:payment_pool_size": 2.0,
+            "pool_state:pool_available": 2.0,
+            "pool_state:general_pool_available": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:requests_waiting": 2.0,
+            "pool_state:general_requests_waiting": 0.0,
+            "pool_state:payment_requests_waiting": 2.0,
+            "pool_state:pool_max": 4.0,
+            "pool_state:general_pool_max": 2.0,
+            "pool_state:payment_pool_max": 2.0,
+            "pool_state:pool_max_waiting": 12.0,
+            "pool_state:shared_acquisition_limit": 12.0,
+            "pool_state:shared_acquisition_used": 2.0,
+            "pool_state:shared_acquisition_acquiring": 2.0,
+            "pool_state:shared_acquisition_retained": 0.0,
+            "pool_state:general_max_waiting": 10.0,
+            "pool_state:payment_max_waiting": 10.0
+          },
+          "failure_counters": {
+            "acquisition_failure:payment:role_limit": 0.0,
+            "acquisition_failure:payment:global_limit": 0.0,
+            "acquisition_failure:payment:native_limit": 0.0,
+            "acquisition_failure:payment:native_timeout": 1.0,
+            "acquisition_failure:general:role_limit": 0.0,
+            "acquisition_failure:general:global_limit": 0.0,
+            "acquisition_failure:general:native_limit": 0.0,
+            "acquisition_failure:general:native_timeout": 0.0
+          },
+          "interval_ms": {
+            "db_pool_acquire:ok": {
+              "count": 40.0,
+              "mean_ms": 80.26880517500103
+            },
+            "db_commit:all": {
+              "count": 40.0,
+              "mean_ms": 30.629248127661413
+            },
+            "db_connection_hold:all": {
+              "count": 40.0,
+              "mean_ms": 52.05306372590712
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "structured_request_snapshots_retained": false,
+  "limitation": "The runner retained metrics but not db_acquisition_failure logs before experimental containers were removed."
+}

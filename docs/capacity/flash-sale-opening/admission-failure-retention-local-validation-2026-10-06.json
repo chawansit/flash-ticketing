@@ -1,0 +1,28 @@
+{
+  "decision": "ADR0166",
+  "status": "IMPLEMENTED_LOCAL_QUALIFIED_CLOUD_UNTESTED",
+  "regression_tests": {
+    "passed": 271,
+    "seconds": 32.89,
+    "raw_evidence": "tmp/adr0166-regression-tests-qualified.txt"
+  },
+  "ruff": "passed",
+  "git_diff_check": "passed",
+  "diagnostics": {
+    "api_replicas": 4,
+    "max_input_bytes_per_replica": 33554432,
+    "max_line_bytes": 16384,
+    "max_records_per_replica": 128,
+    "max_log_stream_seconds_per_replica": 10,
+    "allowlist": true,
+    "before_after_identity": true,
+    "per_replica_counter_coverage": true,
+    "retained_before_container_removal": true
+  },
+  "application_images_changed": false,
+  "database_budget_or_deadline_changed": false,
+  "cloud_calls": 0,
+  "new_load_scope": false,
+  "cloud_qualification_pending": true,
+  "remaining_issue": "Native payment-pool 500ms timeout / commit-tail origin still unproven; need newly retained snapshots in a separately bounded qualified experiment."
+}

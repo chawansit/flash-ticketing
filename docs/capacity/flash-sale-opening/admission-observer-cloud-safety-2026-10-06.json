@@ -1,0 +1,28 @@
+{
+  "decision": "ADR0165",
+  "run": "adr0151-8b852e47621c",
+  "pass": true,
+  "experiment_decision": "ADR0165",
+  "factor": "api_API_PARTIAL_TIMEOUT_RECLAIM",
+  "capacity_stages_started": 0,
+  "safety_protocols_started": 2,
+  "arms": {
+    "control": {
+      "pass": true,
+      "restoration_complete": true,
+      "pre_safety_source_pass": true,
+      "capacity_stages_started": 0,
+      "failure_type": null
+    },
+    "candidate": {
+      "pass": true,
+      "restoration_complete": true,
+      "pre_safety_source_pass": true,
+      "capacity_stages_started": 0,
+      "failure_type": null
+    }
+  },
+  "previous_scope_reopened": false,
+  "projection_18000_issue": "unresolved; not included in this safety profile",
+  "raw_evidence_directory": "tmp/adr0151-8b852e47621c"
+}
