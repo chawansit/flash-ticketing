@@ -1,0 +1,169 @@
+{
+  "decision": "ADR0153",
+  "status": "REAL_ORIGINALS_RETRIEVED_SIX_CANDIDATES_VERIFIED_LOCAL_CLOUD_STAGING_AND_DRY_PENDING",
+  "recorded_at_utc": "2026-10-05T06:50:38.795671+00:00",
+  "parent_workspace_revision": "a89390d4ce3048cbd1094312c1479d2409321837",
+  "frozen_application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "cloud_inspection": {
+    "frozen_primary_revision_verified": true,
+    "normal_primary_api_count": 4,
+    "generator_idle": true,
+    "secondary_public_ssh": "timeout",
+    "pinned_secondary_private_ssh": "succeeded",
+    "primary_runtime_identity_unchanged_after_retrieval": true,
+    "queues_not_reaudited_this_step": true
+  },
+  "retrieval": {
+    "distinct_original_images": 6,
+    "archive_bytes": 78502912,
+    "archive_sha256": "4e2b1f28db82a696684b715a1beae22b53f7898225971a087643558beb4c740c",
+    "transfer_size_and_sha256_verified": true,
+    "owned_remote_archive_and_directory_removed": true,
+    "keys_installed": false,
+    "no_service_deployment": true,
+    "customer_dispatches": 0
+  },
+  "artifact_receipt": {
+    "images": {
+      "api": "sha256:1787fa893e3debc1a5c6e31c95344d3548621c250f9f73c5b03bbc636c3cd3e6",
+      "consumer": "sha256:b064d035c8865f317ab1da3490f3d8cb9993b32486bc164f5e82ef89bd02bd6e",
+      "publisher": "sha256:fb5636d760e0e53128e4a4a0f4cb33b6d76ae166d336cecb6f69fc97f2838715",
+      "simulator": "sha256:38ece172d6aa61236833d02d22849cf50cbb04b9ea6f2f586a1f446253c8bc24",
+      "maintenance": "sha256:0e1a3dad9280ab6e1502719462415e58debeda44033b49871c9ceff051e04d20",
+      "reconciler": "sha256:1012926a64e6a2ccf48a6f518c5ea3013872d2bea3161e781c9522ab5395b78c",
+      "reservation-writer": "sha256:1787fa893e3debc1a5c6e31c95344d3548621c250f9f73c5b03bbc636c3cd3e6"
+    },
+    "parent_images": {
+      "api": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e",
+      "consumer": "sha256:ce59e827156b470a81b98c2dbc68cb9c69fed03e50ccc2f516ef30b64e0e21fd",
+      "publisher": "sha256:e575802519ce7b70b42a87f8e92159f42ddac653b8d489b401fe4ad1785a53e2",
+      "simulator": "sha256:22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452",
+      "maintenance": "sha256:51b1e282b277e6b34d5f55442a82912fa406c91e808d71394e7da479b12ad83e",
+      "reconciler": "sha256:57a12dd4be6303ca8dea3daa4bcf2d8201a93976c6df2af51c0f751a9cbcf1a6",
+      "reservation-writer": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e"
+    },
+    "source_manifest_sha256": "81e9af585e8a20a81a2de72a04057faefe773f6f94e66a88b9887fe7617c8a48"
+  },
+  "local_image_validation_by_parent": {
+    "sha256:22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452": {
+      "parent_runtime_modules_verified": 18,
+      "candidate_runtime_modules_verified": 19,
+      "app_installed_import_code_match": true,
+      "frozen_dependency_inputs_match": true,
+      "parent_layers_and_full_inherited_config_match": true
+    },
+    "sha256:51b1e282b277e6b34d5f55442a82912fa406c91e808d71394e7da479b12ad83e": {
+      "parent_runtime_modules_verified": 18,
+      "candidate_runtime_modules_verified": 19,
+      "app_installed_import_code_match": true,
+      "frozen_dependency_inputs_match": true,
+      "parent_layers_and_full_inherited_config_match": true
+    },
+    "sha256:57a12dd4be6303ca8dea3daa4bcf2d8201a93976c6df2af51c0f751a9cbcf1a6": {
+      "parent_runtime_modules_verified": 18,
+      "candidate_runtime_modules_verified": 19,
+      "app_installed_import_code_match": true,
+      "frozen_dependency_inputs_match": true,
+      "parent_layers_and_full_inherited_config_match": true
+    },
+    "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e": {
+      "parent_runtime_modules_verified": 18,
+      "candidate_runtime_modules_verified": 19,
+      "app_installed_import_code_match": true,
+      "frozen_dependency_inputs_match": true,
+      "parent_layers_and_full_inherited_config_match": true
+    },
+    "sha256:ce59e827156b470a81b98c2dbc68cb9c69fed03e50ccc2f516ef30b64e0e21fd": {
+      "parent_runtime_modules_verified": 18,
+      "candidate_runtime_modules_verified": 19,
+      "app_installed_import_code_match": true,
+      "frozen_dependency_inputs_match": true,
+      "parent_layers_and_full_inherited_config_match": true
+    },
+    "sha256:e575802519ce7b70b42a87f8e92159f42ddac653b8d489b401fe4ad1785a53e2": {
+      "parent_runtime_modules_verified": 18,
+      "candidate_runtime_modules_verified": 19,
+      "app_installed_import_code_match": true,
+      "frozen_dependency_inputs_match": true,
+      "parent_layers_and_full_inherited_config_match": true
+    }
+  },
+  "runner_contract": {
+    "both_arms_validated": true,
+    "source_modules": 19,
+    "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+    "artifact_sha256": "5131aa8213cc768239c513607b1dbaaae645e50bed9510fd20ada4cf51e76c03",
+    "adapter_identity": {
+      "scripts/observe_two_host_pipeline.py": "733dac867102e057c0edc9d96de104b964d859d17f8cd1f8ade28ab019934846",
+      "scripts/prepare_two_host_scaling.py": "727ddc19e66dcc3780e398cc610c4d0d835ee23809d21ddc492d426d29cf7bc8",
+      "scripts/observe_two_host_cpu.py": "9057624cfa1796e4e84c21409f45a84fca00cae11fc7e43bd7902074660abad6",
+      "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+      "scripts/run_two_host_paid_comparison.py": "e9b289caee351bec29a31199d094b8ff6546b37c207cb0344a07f066b90452d1",
+      "scripts/qualify_two_host_deployment.py": "1cda5f0bb34729c2a2ea8a0cb242344c5a1e07a8bf55aa0b29eff71aeb7625fd",
+      "scripts/collect_two_host_inventory.py": "5b345464ab18c4a4ad18616dbd44f414a88b7dc0d4b7a79b496810cff7f78ed7",
+      "scripts/runtime_source_identity.py": "d7a1c8c67ff414ed6280ebda4e6b0a1dfad6f7c9910c0c363f94956d14c04eac",
+      "scripts/run_status_refresh_comparison.py": "3f03a2f2dfb27b2875c6f77fb6d585309549433c5d97e61514791c537ddf0266",
+      "scripts/status_refresh_contract.py": "e5eb0164974fa0e443ef65922ca481faf96933fc9f5b02c301b9fd4cfbbbce5f",
+      "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+      "experiment_plan": "fb3d0e4dd468b08dd74c0689a12018c3b0af8f1ec9b2225bd6f37a98e6579cf6"
+    }
+  },
+  "executed_checks": {
+    "local_harness_tests_passed": 402,
+    "ruff": "passed",
+    "diff": "passed_before_report_update",
+    "real_offline_image_build_exit_code": 0,
+    "unique_real_candidate_images_built": 6,
+    "final_default_comparison_preparation": "passed_zero_cloud_calls"
+  },
+  "scope_proposal": {
+    "active": false,
+    "qualification_pairs": 1,
+    "safety_tickets_max": 2,
+    "paid_capacity_stages": 0,
+    "waiting_for_user_scope_reply": true
+  },
+  "limitations": [
+    "Candidate images are local only; no cloud candidate staging, deployment or customer safety/payment requests executed.",
+    "Image/source proof does not attest an already running Python process; live source/start/financial checks still required.",
+    "No latency/throughput improvement or300000 paid issued tickets/hour qualification claimed.",
+    "No native financial suite rerun for artifact retrieval; ADR0149 financial correctness results remain historical.",
+    "Previous paid/safety allowances remain consumed; dry proposal is not installed in CURRENT_STATE.",
+    "No GitHub push/main merge."
+  ],
+  "next": [
+    "Stage exact verified candidates and required original parents in host image caches, with ownership/hash/provenance checks and no service recreation.",
+    "On explicit fresh scope approval, run one dry qualification pair capped at2 isolated safety tickets and0 capacity stages; retain every financial/drain/source/restore gate.",
+    "Paid off/on comparison requires its own concrete release scope and matching fresh qualification."
+  ],
+  "private_evidence_sha256": {
+    "tmp/adr0153-checks/checks.json": "7491f5047e9c753ebe758780fb2657d57c3d4ff7324d06676c305e63c55f0ac9",
+    "tmp/adr0153-checks/pytest.txt": "b8f82426babd082e543fa8408f0c83263bd20b3ed81d40cc1363382b3f39b036",
+    "tmp/adr0153-checks/ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "tmp/adr0153-checks/real-build.txt": "acd1345a37f82d75d4d8f80769f45b91c22c474785a47715c6dc878a1e365981",
+    "tmp/adr0153-parents-abf91bd7ef9b/retrieval-summary.json": "a9a23ab3f5e88b567da6f87d5ac7ba67068c2d8f3f46eb6dad9d488ea6485ebc",
+    "tmp/adr0153-parents-abf91bd7ef9b/export.private.json": "fab01b8a927ae7a328959040a1a468a999376aa8648ad0ed27bc939e2924cbc3",
+    "tmp/adr0153-real-candidate-build/artifact-receipt.json": "c388f57d3946cd10ca51a2391ce1a0af2e72470534a174ad8c7a49b50b19c8e6",
+    "tmp/adr0153-inspection/tcp-reachability.json": "70de6661b40a5f6b69f22623b43119abc77cfa61a734589882402be5d6fd0a94",
+    "tmp/adr0153-inspection-hop/inspection.private.json": "1caedfd7138841853cb803a58a56b3b756a1c0fc095bac16313f53af0ccc4bb2",
+    "tmp/adr0153-real-candidate-build/build-22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452/parent-source-proof.json": "b0cd0db22786ace0c2f36837d7983acb781e6261e9dc7686eb10126326ce1847",
+    "tmp/adr0153-real-candidate-build/build-22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452/candidate-source-proof.json": "f5668510f6b2e67e5f77273f5028123ab06b53a99458fe55e20c1f651e974673",
+    "tmp/adr0153-real-candidate-build/build-22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452/build.log": "3091d14d2b49b0a37f6f9a7f9b7dfe7605be8b3e57e26e4ddac0b6204a6e5b1d",
+    "tmp/adr0153-real-candidate-build/build-51b1e282b277e6b34d5f55442a82912fa406c91e808d71394e7da479b12ad83e/parent-source-proof.json": "b0cd0db22786ace0c2f36837d7983acb781e6261e9dc7686eb10126326ce1847",
+    "tmp/adr0153-real-candidate-build/build-51b1e282b277e6b34d5f55442a82912fa406c91e808d71394e7da479b12ad83e/candidate-source-proof.json": "f5668510f6b2e67e5f77273f5028123ab06b53a99458fe55e20c1f651e974673",
+    "tmp/adr0153-real-candidate-build/build-51b1e282b277e6b34d5f55442a82912fa406c91e808d71394e7da479b12ad83e/build.log": "b79539949eeb6f6569420ead67e8633e9cfac28f30c24d3baf3f8ccc224bb94b",
+    "tmp/adr0153-real-candidate-build/build-57a12dd4be6303ca8dea3daa4bcf2d8201a93976c6df2af51c0f751a9cbcf1a6/parent-source-proof.json": "b0cd0db22786ace0c2f36837d7983acb781e6261e9dc7686eb10126326ce1847",
+    "tmp/adr0153-real-candidate-build/build-57a12dd4be6303ca8dea3daa4bcf2d8201a93976c6df2af51c0f751a9cbcf1a6/candidate-source-proof.json": "f5668510f6b2e67e5f77273f5028123ab06b53a99458fe55e20c1f651e974673",
+    "tmp/adr0153-real-candidate-build/build-57a12dd4be6303ca8dea3daa4bcf2d8201a93976c6df2af51c0f751a9cbcf1a6/build.log": "baca79824d5e548079dbd4014d8c8bcb9434e42ecc028700ec220435c0f972fb",
+    "tmp/adr0153-real-candidate-build/build-7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e/parent-source-proof.json": "b0cd0db22786ace0c2f36837d7983acb781e6261e9dc7686eb10126326ce1847",
+    "tmp/adr0153-real-candidate-build/build-7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e/candidate-source-proof.json": "f5668510f6b2e67e5f77273f5028123ab06b53a99458fe55e20c1f651e974673",
+    "tmp/adr0153-real-candidate-build/build-7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e/build.log": "1d4c858cfaa3f79ef8a8f5a89100bda01f21a320c076c1ee66c4d23a6a4557d7",
+    "tmp/adr0153-real-candidate-build/build-ce59e827156b470a81b98c2dbc68cb9c69fed03e50ccc2f516ef30b64e0e21fd/parent-source-proof.json": "b0cd0db22786ace0c2f36837d7983acb781e6261e9dc7686eb10126326ce1847",
+    "tmp/adr0153-real-candidate-build/build-ce59e827156b470a81b98c2dbc68cb9c69fed03e50ccc2f516ef30b64e0e21fd/candidate-source-proof.json": "f5668510f6b2e67e5f77273f5028123ab06b53a99458fe55e20c1f651e974673",
+    "tmp/adr0153-real-candidate-build/build-ce59e827156b470a81b98c2dbc68cb9c69fed03e50ccc2f516ef30b64e0e21fd/build.log": "7924c2c91ab461f7f5457268bb8d790bff6881f79770b2e9649024442dd4ab1e",
+    "tmp/adr0153-real-candidate-build/build-e575802519ce7b70b42a87f8e92159f42ddac653b8d489b401fe4ad1785a53e2/parent-source-proof.json": "b0cd0db22786ace0c2f36837d7983acb781e6261e9dc7686eb10126326ce1847",
+    "tmp/adr0153-real-candidate-build/build-e575802519ce7b70b42a87f8e92159f42ddac653b8d489b401fe4ad1785a53e2/candidate-source-proof.json": "f5668510f6b2e67e5f77273f5028123ab06b53a99458fe55e20c1f651e974673",
+    "tmp/adr0153-real-candidate-build/build-e575802519ce7b70b42a87f8e92159f42ddac653b8d489b401fe4ad1785a53e2/build.log": "fa198ec1d98ca7561f57c38ee4cbb325cd94ea1e6c27a47a37da953745b16c8d",
+    "tmp/adr0153-checks/final-comparison-preparation.json": "9f032c85cad18745f3e94f999625f4efefe27b7726a87643266f1506186f550c"
+  }
+}

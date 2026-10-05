@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-05",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0152_reproducible_source_offline_image_fixture_validation_passed",
+  "status": "adr0153_real_candidate_images_verified_local_staging_and_dry_pending",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "Fresh verified original primaryAPI4/runtime fingerprints restored; secondary test APIs/owned CPU job absent, generator idle, credential snapshots removed; all DB/Redis queues and Kafka lag0 with one normal consumer.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "current_run": null,
-  "revision_note": "ADR0152 exports207 frozen/qualified files and19 runtime modules;385 harness checks/Ruff and1 real offline Docker fixture test passed. Source-only build tooling implemented; exact cloud API parent absent locally, real role candidates/live qualification pending. Cloud not contacted.",
+  "revision_note": "ADR0153 pinned cloud inspection/retrieval passed;6 originals downloaded/SHA verified/remote archive removed, primary container identities unchanged.6 real candidates built locally and source/config/dependency verified;402 harness tests/Ruff passed. No deployment/customer load.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -25,16 +25,17 @@
     "ADR0149 default-disabled committed-event status refresh:155 isolated focused/663 full native tests passed, source/dependencies verified, financial transaction AST unchanged and unrelated local optimizations excluded. No cloud RPS claim.",
     "ADR0150 passed270 focused local harness checks/Ruff. Pre-dispatch all4APIs/13workers source/import/bytecode and immutable start/image proof implemented; bounded owned-stop recovery and finally summaries qualified synthetically. Retained ADR0148 offline392pipeline/231Kafka summaries preserved failed fields; traffic distribution explicitly fails sampling-gap coverage.",
     "ADR0151 local fixed-factor runner passed350 focused harness tests/Ruff; explicit allowance/source/image/cache/budget checks,32 gates, control stopping, per-arm restore and ambiguous replay protection exercised synthetically. Default preparation made0 cloud calls/customer dispatches; capacity unmeasured.",
-    "ADR0152 reproducible pinned eight-file overlay exported207 files;385 local harness checks/Ruff and1 offline Docker fixture integration passed. Both source roots/import bytecode/full inherited config/19 installed RECORD entries verified. Fixture cannot emit cloud receipt; no customers/cloud calls."
+    "ADR0152 reproducible pinned eight-file overlay exported207 files;385 local harness checks/Ruff and1 offline Docker fixture integration passed. Both source roots/import bytecode/full inherited config/19 installed RECORD entries verified. Fixture cannot emit cloud receipt; no customers/cloud calls.",
+    "ADR0153 retrieved6 original cloud images (78502912-byte verified archive), removed exact owned remote artifact, and verified unchanged primary container identities. All6 real candidates passed18-module parent/19-module candidate app/installed/import-code/dependency/full config/layer checks;402 harness tests/Ruff passed. No safety/paid customers."
   ],
-  "unresolved": "Original immutable cloud role parents must be obtained before real image derivation. Candidate images/live qualification and event-refresh capacity improvement remain unmeasured;84 buyers/s and300000 paid issued tickets/hour unqualified.",
+  "unresolved": "Real candidate images are local only. Host cache staging and fresh live safety/source/financial/drain/restoration qualification remain pending. Dry-only scope proposal awaiting user reply; paid-stage allowances remain consumed and performance benefit unmeasured.",
   "next_on_resume": [
-    "Obtain original per-role parent identities and exact images; retain their immutable provenance.",
-    "Run explicit offline derivation for real parents, retain complete artifact receipt and transfer exact candidates/parents to required hosts.",
-    "Bind concrete new bounded release scope and execute fresh separate live qualification before any paid comparison."
+    "Stage exact verified candidates and required original parents in host image caches, with ownership/hash/provenance checks and no service recreation.",
+    "On explicit fresh scope approval, run one dry qualification pair capped at2 isolated safety tickets and0 capacity stages; retain every financial/drain/source/restore gate.",
+    "Paid off/on comparison requires its own concrete release scope and matching fresh qualification."
   ],
-  "authorization": "User Continue authorized reproducible local artifact preparation/build tooling and offline fixture checks. Previous paid/safety allowances remain consumed; no new cloud load/configuration, GitHub push or merge approved this checkpoint.",
-  "scope": "ADR0152 pinned source patch/export, offline image tooling, unit/harness checks and synthetic local Docker images only. No cloud connection, transfer, deployment or customer dispatch.",
+  "authorization": "User Continue authorized original artifact inspection/retrieval and real local image derivation. New async scope request proposes image staging plus1 dry pair(max2 simulated safety tickets,0 capacity stages); not yet approved or activated. No service deployment/customer load/GitHub push/merge occurred.",
+  "scope": "ADR0153 read-only cloud runtime inspection, bounded immutable image export/download/remote artifact cleanup, local Docker image load/build/source verification and harness checks. Running services not recreated.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -95,10 +96,11 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "ADR0152 artifact tooling/source overlay and local validation saved locally; no GitHub push/main merge.",
+    "status": "ADR0153 real-image preparation and local checks saved locally; no GitHub push/main merge.",
     "branch": "codex/redis-failover-recovery"
   },
   "evidence": [
+    "docs/capacity/flash-sale-opening/status-refresh-real-image-preparation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/status-refresh-artifact-local-validation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/order-status-event-refresh-runner-local-validation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/import-identity-observer-recovery-local-validation-2026-10-05.json",
@@ -256,7 +258,7 @@
     "parent_workspace_revision": "1d5ebf586cec9e635311ed1cf1b7de4b6cb80e27",
     "runtime_modules_verified": 19,
     "cloud_qualified": false,
-    "images_prepared": false,
+    "images_prepared": true,
     "capacity_improvement_measured": false,
     "report": "docs/capacity/flash-sale-opening/order-status-event-refresh-runner-local-validation-2026-10-05.json",
     "runner_guide": "docs/capacity/flash-sale-opening/order-status-event-refresh-runner.md",
@@ -268,13 +270,26 @@
     "local_qualification": "PASSED_385_HARNESS_1_OFFLINE_DOCKER_RUFF",
     "source_files_verified": 207,
     "runtime_modules_verified": 19,
-    "cloud_parent_available_locally": false,
-    "real_cloud_images_built": 0,
+    "cloud_parent_available_locally": true,
+    "real_cloud_images_built": 6,
     "synthetic_local_images_built": 2,
     "cloud_qualified": false,
     "report": "docs/capacity/flash-sale-opening/status-refresh-artifact-local-validation-2026-10-05.json",
     "source_artifact": "artifacts/status-refresh/manifest.json",
     "source_directory": "tmp/adr0152-qualified-artifacts/source",
     "preparation_receipt": "tmp/adr0152-checks/comparison-preparation.json"
+  },
+  "local_real_status_refresh_images": {
+    "decision": "0153-owned-cloud-parent-image-retrieval",
+    "parent_workspace_revision": "a89390d4ce3048cbd1094312c1479d2409321837",
+    "report": "docs/capacity/flash-sale-opening/status-refresh-real-image-preparation-2026-10-05.json",
+    "originals_retrieved": 6,
+    "candidate_images_verified": 6,
+    "artifact_receipt": "tmp/adr0153-real-candidate-build/artifact-receipt.json",
+    "host_staged": false,
+    "cloud_qualified": false,
+    "capacity_improvement_measured": false,
+    "dry_scope_proposal": "tmp/adr0153-checks/dry-scope-proposal.json",
+    "dry_scope_active": false
   }
 }

@@ -15,6 +15,16 @@ Use a fresh output filename. This command verifies the complete 19-module isolat
 
 The actual artifact receipt must contain exactly `images`, `parent_images` and `source_manifest_sha256`. Each image/parent map needs API plus consumer, writer, maintenance, publisher, reconciler and simulator roles. Use immutable image IDs. All images must preserve their recorded parent layers and inherited Env/Cmd/Entrypoint/User/WorkingDir, with the required source-manifest label. Verify both `/app` and installed import sources; retained cached code must match the source. No image build/pull/export is performed by this runner.
 
+## Retrieve exact originals
+
+With authorized artifact-only scope, the original-image helper uses the protected password terminal and existing pinned host identities:
+
+```powershell
+.venv/Scripts/python.exe scripts/fetch_status_refresh_parents.py --config tmp/adr0147-live-config.json --ssh-runtime tmp/adr0126-ssh-runtime --private-fallback
+```
+
+It checks the frozen normal topology and idle generator, exports only the inspected immutable original images, verifies the transferred archive, removes the sealed owned remote archive and compares running container identities before local image loading. `--private-fallback` uses the pinned secondary identity through the primary after direct transport timeout. No deployment or customer request is made. Failed or ambiguous exports are not automatically replayed; inspect their owned evidence before recovery.
+
 ## Offline image build
 
 The exact immutable original role images must already be present in the local Docker daemon. Supply a JSON object mapping API, consumer, reservation-writer, maintenance, publisher, reconciler and simulator to their original immutable IDs. The API parent must be the frozen cloud image; a local test parent is rejected.
@@ -25,7 +35,7 @@ The exact immutable original role images must already be present in the local Do
 
 Use a fresh output directory. The command preflights every parent before building any candidate, preserves dependency inputs and runtime configuration, copies qualified bytes into both source roots, updates installed package records and checks imports/bytecode. Builds and verification containers use no network; it does not pull, transfer, deploy or dispatch customers. A complete successful build writes `artifact-receipt.json` for the comparison runner. Partial failures retain logs and never emit a deployment receipt. Local tags and images are retained; no automatic pruning is performed.
 
-The real frozen API parent is currently absent locally. A separately labeled Docker fixture validated these mechanics but cannot qualify cloud provenance or performance.
+ADR0153 retrieved the six real immutable originals over pinned SSH, verified archive size/SHA and removed the owned remote archive. All six real candidate images have now been built locally and verified. The private artifact receipt is `tmp/adr0153-real-candidate-build/artifact-receipt.json`. They have not been staged or deployed on cloud hosts; fresh live qualification and performance remain pending. The earlier Docker fixture remains synthetic historical evidence.
 
 ## Cloud release
 
@@ -41,4 +51,4 @@ A paid arm schedules 60 buyers/s for 300 seconds using 60 fresh 300-seat shows, 
 
 The comparison report records paid/customer outcomes, error/drop counts, p95 timings, CPU, financial and queue audits, status checks per dispatched journey, consumer database work, callback backlog and cache outcome deltas. Cache totals cover the full observer lifetime including the completion tail. Missing samples, resets or invalid counters produce an explicit unavailable result. `performance_measurement_complete` is separate from correctness gates; incomplete measurement does not establish an optimization benefit. Neither total HTTP attempts nor the offered buyer rate is automatically a tickets/hour capacity measurement.
 
-Cloud image validation, dry safety/payment checks and performance improvement remain unmeasured until actually executed. The local validation report records only tests that ran.
+Local real-image source/configuration checks have executed. Cloud image staging, dry safety/payment checks and performance improvement remain pending. The local validation report records only tests that ran.
