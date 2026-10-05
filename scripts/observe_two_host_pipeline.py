@@ -106,6 +106,55 @@ def verify_dedup_factor_evidence(inventory):
 
 
 
+def verify_confirmation_factor_evidence(inventory):
+    marker = inventory.get("status_refresh_contract", {})
+    arm = inventory.get("arm")
+    flag = "1" if arm == "candidate" else "0"
+    expected = {**BACKGROUND, "simulator": {**BACKGROUND["simulator"], "pool_per_replica": 10},
+                "confirmation": {"replicas": 1, "pool_per_replica": 2, "concurrency": 2}}
+    if (arm not in {"control", "candidate"} or marker.get("decision") != "ADR0161"
+            or marker.get("async_confirmation") != flag or marker.get("poll_ms") != 500
+            or inventory.get("background") != expected):
+        raise ValueError("Exact confirmation placement/pool allocation required")
+    counts = {r: 0 for r in expected}
+    for row in inventory.get("worker_sources", []):
+        role, settings = row.get("role"), row.get("settings", {})
+        if role not in counts:
+            raise ValueError("Unexpected confirmation background role")
+        counts[role] += 1
+        if (settings.get("ORDER_STATUS_EVENT_REFRESH") != ("1" if role == "consumer" else "0")
+                or settings.get("ORDER_STATUS_EVENT_REFRESH_DEDUP") != "0"
+                or settings.get("PAYMENT_CONFIRMATION_ASYNC") != ("1" if role == "confirmation" else "0")
+                or settings.get("ORDER_STATUS_POLL_MS") != "500"):
+            raise ValueError("Explicit common background feature settings required")
+        if role in {"confirmation", "simulator"} and settings.get("DB_POOL_MAX") != ("2" if role == "confirmation" else "10"):
+            raise ValueError("Simulator/confirmation aggregate connection budget differs")
+        if role == "confirmation" and settings.get("CONFIRMATION_CONCURRENCY") != "2":
+            raise ValueError("Confirmation concurrency differs")
+    if counts != {r: c["replicas"] for r, c in expected.items()}:
+        raise ValueError("Every confirmation worker must be observed")
+    if any(a.get("settings", {}).get("PAYMENT_CONFIRMATION_ASYNC") != flag
+           or a.get("settings", {}).get("ORDER_STATUS_POLL_MS") != "500" for a in inventory.get("apis", [])):
+        raise ValueError("Explicit common polling and isolated API intake factor required")
+
+
+def confirmation_startup(row):
+    replicas = row.get("confirmation_db_replicas", {})
+    if row.get("confirmation_replicas") != 1 or len(replicas) != 1:
+        raise ValueError("Confirmation worker metrics missing")
+    for metric in replicas.values():
+        for key in ("process_cpu_seconds_total", "confirmation_metric:ticketing_payment_confirmation_pending",
+                    "confirmation_metric:ticketing_payment_confirmation_review",
+                    "confirmation_metric:ticketing_payment_confirmation_oldest_seconds"):
+            value = metric.get(key)
+            if type(value) not in {int, float} or not math.isfinite(value) or value < 0:
+                raise ValueError("Confirmation queue/CPU metrics invalid or missing")
+        if metric["confirmation_metric:ticketing_payment_confirmation_pending"] != 0:
+            raise ValueError("Confirmation queue must start drained")
+    if any(k.endswith("_error") for k in row):
+        raise ValueError("Confirmation startup observer error")
+
+
 def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, approved_inventory_sha256=None):
     if approved_inventory_sha256 is None:
         validate_inventory(inventory, image_id=image_id, now=now)
@@ -114,11 +163,13 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
         marker = inventory.get("status_refresh_contract", {})
         if (not isinstance(approved_inventory_sha256, str)
                 or not re.fullmatch(r"[0-9a-f]{64}", approved_inventory_sha256)
-                or actual != approved_inventory_sha256 or marker.get("decision") not in {"ADR0151", "ADR0157"}
+                or actual != approved_inventory_sha256 or marker.get("decision") not in {"ADR0151", "ADR0157", "ADR0161"}
                 or marker.get("cache_age_ms") != 1000 or marker.get("arm") != inventory.get("arm")
                 or not isinstance(marker.get("api_image_id"), str)
                 or not re.fullmatch(r"sha256:[0-9a-f]{64}", marker["api_image_id"])):
             raise ValueError("Exact host-qualified inventory digest required")
+        if marker["decision"] == "ADR0161":
+            verify_confirmation_factor_evidence(inventory)
         if marker["decision"] == "ADR0157":
             verify_dedup_factor_evidence(inventory)
         if any(a.get("settings", {}).get("ORDER_STATUS_CACHE_MS") != "1000"
@@ -129,7 +180,30 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
         structural["arm"] = "candidate"
         for api in structural["apis"]:
             api["settings"]["ORDER_STATUS_CACHE_MS"] = "0"
+        if marker["decision"] == "ADR0161":
+            structural["background"] = copy.deepcopy(BACKGROUND)
+            for api in structural["apis"]:
+                api["settings"].pop("PAYMENT_CONFIRMATION_ASYNC")
+                api["settings"].pop("ORDER_STATUS_POLL_MS")
         validate_inventory(structural, image_id=marker["api_image_id"], now=now)
+    if inventory.get("status_refresh_contract", {}).get("decision") == "ADR0161":
+        module.METRICS["confirmation"] = ("confirm_one", "http://confirmation:9101/metrics")
+        original_parser = module.parse_api_metrics
+
+        def parse_confirmation(payload):
+            result = original_parser(payload)
+            for line in payload.splitlines():
+                if line.startswith("process_start_time_seconds "):
+                    result["process_start_time_seconds"] = float(line.rsplit(" ", 1)[1])
+                if line.startswith(("ticketing_payment_confirmation_", "ticketing_payment_confirmations_total")) and " " in line:
+                    name, value = line.rsplit(" ", 1)
+                    numeric = float(value)
+                    if not math.isfinite(numeric) or numeric < 0:
+                        raise ValueError("Invalid confirmation metric")
+                    result["confirmation_metric:" + name] = numeric
+            return result
+
+        module.parse_api_metrics = parse_confirmation
     entries = sorted(inventory["apis"], key=lambda a: (a["host_role"], a["container_id"]))
     endpoints = {f"{a['host_role']}:{a['container_id']}": a for a in entries}
     original_discovery = module.api_replicas

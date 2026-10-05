@@ -226,10 +226,10 @@ print(json.dumps(result))
 """.replace("EVENTS", repr(event_ids)).replace("__EXPECTED__", str(expected_tickets))
 
 
-def drain(session, cid):
+def drain(session, cid, audit_program=GLOBAL_AUDIT):
     deadline = time.monotonic() + 60
     while True:
-        queue = session.api(cid, GLOBAL_AUDIT, 45)
+        queue = session.api(cid, audit_program, 45)
         if queue["pass"] and queue["kafka_members"] == 6:
             return queue
         if time.monotonic() >= deadline:
@@ -259,10 +259,13 @@ def cpu_spec(arm, role, rows, inventory, *, fixed_two_host=False):
 class Stages:
     def __init__(self, execute, bundle, *, rate=60, ledger_key="bounded_control", stage_limit=2, contract=None):
         if (type(rate) is not int or type(stage_limit) is not int
-                or (rate, ledger_key, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1))):
+                or (rate, ledger_key, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1), (60, "bounded_async_confirmation", 1))):
             raise ValueError("Unsupported bounded stage contract")
-        if ledger_key in {"bounded_status_refresh", "bounded_status_refresh_dedup"} and contract is None:
+        if ledger_key in {"bounded_status_refresh", "bounded_status_refresh_dedup", "bounded_async_confirmation"} and contract is None:
             raise ValueError("Isolated refresh contract required")
+        if ledger_key == "bounded_async_confirmation" and (
+                not hasattr(contract, "inventory_marker") or contract.inventory_marker().get("decision") != "ADR0161"):
+            raise ValueError("Exact durable confirmation contract required")
         self.contract = contract
         self.execute, self.bundle, self.results = execute, bundle, {}
         self.rate, self.ledger_key, self.stage_limit = rate, ledger_key, stage_limit
@@ -303,7 +306,7 @@ class Stages:
                         session, arm, routes, baseline_env,
                         contract=self.contract,
                         expected_worker_images={role: saved["model"]["services"][role]["image"]
-                                               for role in ("consumer", "reservation-writer", "maintenance", "publisher", "reconciler", "simulator")},
+                                               for role in (self.contract.background if self.contract is not None else ("consumer", "reservation-writer", "maintenance", "publisher", "reconciler", "simulator"))},
                     )
                     break
                 except ValueError as exc:
@@ -447,6 +450,8 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                     raise TimeoutError("Observer startup bound exceeded")
                 time.sleep(1)
             record["pipeline_startup"] = pipeline_startup_view(status["pipeline"], 6)
+            if self.contract is not None and hasattr(self.contract, "verify_pipeline_startup"):
+                self.contract.verify_pipeline_startup(status["pipeline"])
             record["kafka_startup"] = kafka_startup_view(status["kafka"], 6)
             if not record["pipeline_startup"]["pass"] or not record["kafka_startup"]["pass"]:
                 raise ValueError("Observer startup gate failed")
@@ -575,7 +580,9 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                     offered_end_utc=offered_end,
                 )
                 record["financial"] = session.api(cid, financial_audit_program(event_ids, self.expected_tickets), 175)
-            record["global_queues"] = drain(session, cid)
+            if self.execute and self.contract is not None and hasattr(self.contract, "stage_receipt_audit"):
+                record["confirmation_receipts"] = self.contract.stage_receipt_audit(session, cid, event_ids, self.expected_tickets)
+            record["global_queues"] = drain(session, cid, getattr(self.contract, "global_audit", GLOBAL_AUDIT))
             # Collect available traces before any owned stop can lose the SSH transport.
             for name in ("pipeline", "kafka"):
                 raw = copy_out(session, cid, directory + "/" + name + ".jsonl", remote + "/" + name + ".jsonl")
@@ -650,7 +657,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                 # Audits remain mandatory even if CPU/transport/observer collection failed.
                 for name, operation in (
                     ("financial", lambda: session.api(cid, financial_audit_program(event_ids, self.expected_tickets), 175)),
-                    ("global_queues", lambda: drain(session, cid)),
+                    ("global_queues", lambda: drain(session, cid, getattr(self.contract, "global_audit", GLOBAL_AUDIT))),
                 ):
                     if name not in record:
                         try:

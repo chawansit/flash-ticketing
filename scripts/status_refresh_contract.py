@@ -54,6 +54,9 @@ def source_contract():
 
 
 class StatusRefreshContract:
+    roles = ROLES
+    background = BACKGROUND
+
     def __init__(self, artifact, arm, sources):
         if arm not in {"control", "candidate"}:
             raise ValueError("Only off/on arms allowed")
@@ -66,8 +69,8 @@ class StatusRefreshContract:
             or artifact["source_manifest_sha256"] != self.source_manifest
             or not isinstance(artifact["images"], dict)
             or not isinstance(artifact["parent_images"], dict)
-            or set(artifact["images"]) != set(ROLES)
-            or set(artifact["parent_images"]) != set(ROLES)
+            or set(artifact["images"]) != set(self.roles)
+            or set(artifact["parent_images"]) != set(self.roles)
         ):
             raise ValueError("Exact per-role isolated artifact receipt required")
         for values in (artifact["images"], artifact["parent_images"]):
@@ -172,7 +175,7 @@ class StatusRefreshContract:
 
     def primary_model(self, model):
         result = copy.deepcopy(model)
-        for role in ROLES:
+        for role in self.roles:
             result["services"][role]["image"] = self.images[role]
             result["services"][role]["environment"].update(self.settings(role))
         return result
@@ -200,9 +203,9 @@ class StatusRefreshContract:
 
     def verify_inventory(self, data):
         workers = data.get("worker_sources", [])
-        if len(workers) != 13:
+        if len(workers) != sum(v["replicas"] for v in self.background.values()):
             raise ValueError("Complete worker source evidence required")
-        ids, counts = set(), {role: 0 for role in BACKGROUND}
+        ids, counts = set(), {role: 0 for role in self.background}
         for row in workers:
             role = row.get("role")
             if (
@@ -216,13 +219,13 @@ class StatusRefreshContract:
             if row.get("source_identity", {}).get("source_hashes_match") is not True:
                 raise ValueError("Worker import source differs")
             self.verify_worker_settings(role, row.get("settings", {}))
-        if counts != {k: v["replicas"] for k, v in BACKGROUND.items()}:
+        if counts != {k: v["replicas"] for k, v in self.background.items()}:
             raise ValueError("Worker role counts differ")
         if any(a.get("ORDER_STATUS_EVENT_REFRESH", "0") != "0" for a in data["apis"]):
             raise ValueError("Only consumer refresh may change")
 
     def image_program(self, roles):
-        if not set(roles) <= set(ROLES):
+        if not set(roles) <= set(self.roles):
             raise ValueError("Unknown artifact role")
         values = {r: {"image": self.images[r], "parent": self.parents[r]} for r in roles}
         return (
@@ -243,9 +246,9 @@ print(json.dumps({'artifact_roles_verified':list(values)}))
         )
 
     def pre_mutation(self, session, saved):
-        if any(saved["model"]["services"][r]["image"] != self.parents[r] for r in ROLES):
+        if any(saved["model"]["services"][r]["image"] != self.parents[r] for r in self.roles if r != "confirmation"):
             raise ValueError("Saved per-role parents differ from artifact receipt")
-        session.call("primary", self.image_program(ROLES), 120)
+        session.call("primary", self.image_program(self.roles), 120)
         session.call("secondary", self.image_program(("api",)), 45)
 
     def pre_safety(self, session, routes, saved):
@@ -257,7 +260,7 @@ print(json.dumps({'artifact_roles_verified':list(values)}))
             self.arm,
             routes,
             snapshot["model"]["services"]["api"]["environment"],
-            expected_worker_images={r: self.images[r] for r in BACKGROUND},
+            expected_worker_images={r: self.images[r] for r in self.background},
             contract=self,
         )
         if view.get("inventory_contract_pass") is not True:

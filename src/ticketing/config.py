@@ -13,6 +13,14 @@ class Settings:
     order_status_cache_ms: int = int(os.getenv("ORDER_STATUS_CACHE_MS", "0"))
     order_status_event_refresh: bool = os.getenv("ORDER_STATUS_EVENT_REFRESH", "0") == "1"
     order_status_event_refresh_dedup: bool = os.getenv("ORDER_STATUS_EVENT_REFRESH_DEDUP", "0") == "1"
+    payment_confirmation_async: bool = os.getenv("PAYMENT_CONFIRMATION_ASYNC", "0") == "1"
+    payment_callback_provider: str = os.getenv("PAYMENT_CALLBACK_PROVIDER", "simulator")
+    confirmation_max_pending: int = int(os.getenv("CONFIRMATION_MAX_PENDING", "10000"))
+    confirmation_concurrency: int = int(os.getenv("CONFIRMATION_CONCURRENCY", "2"))
+    confirmation_lease_seconds: int = int(os.getenv("CONFIRMATION_LEASE_SECONDS", "30"))
+    confirmation_max_attempts: int = int(os.getenv("CONFIRMATION_MAX_ATTEMPTS", "8"))
+    confirmation_retry_ms: int = int(os.getenv("CONFIRMATION_RETRY_MS", "100"))
+    order_status_poll_ms: int = int(os.getenv("ORDER_STATUS_POLL_MS", "0"))
     hold_seconds: int = int(os.getenv("HOLD_SECONDS", "120"))
     pool_max: int = int(os.getenv("DB_POOL_MAX", "12"))
     pool_max_waiting: int | None = (
@@ -74,6 +82,21 @@ class Settings:
             or self.seatmap_ttl_seconds < 1
         ):
             raise RuntimeError("Invalid positive configuration")
+        if not (1 <= len(self.payment_callback_provider) <= 64 and
+                all(c.isalnum() or c in "-_" for c in self.payment_callback_provider)):
+            raise RuntimeError("Invalid PAYMENT_CALLBACK_PROVIDER")
+        if not 1 <= self.confirmation_max_pending <= 1000000:
+            raise RuntimeError("CONFIRMATION_MAX_PENDING must be between1 and1000000")
+        if not 1 <= self.confirmation_concurrency <= 64 or (
+            self.payment_confirmation_async and self.confirmation_concurrency > self.pool_max
+        ):
+            raise RuntimeError("CONFIRMATION_CONCURRENCY must fit DB_POOL_MAX")
+        if not 5 <= self.confirmation_lease_seconds <= 300:
+            raise RuntimeError("CONFIRMATION_LEASE_SECONDS must be between5 and300")
+        if not 1 <= self.confirmation_max_attempts <= 20 or not 50 <= self.confirmation_retry_ms <= 5000:
+            raise RuntimeError("Invalid bounded confirmation retry configuration")
+        if self.order_status_poll_ms != 0 and not 100 <= self.order_status_poll_ms <= 1500:
+            raise RuntimeError("ORDER_STATUS_POLL_MS must be0 or between100 and1500")
         if self.order_status_event_refresh and not self.order_status_cache_ms:
             raise RuntimeError("ORDER_STATUS_EVENT_REFRESH requires ORDER_STATUS_CACHE_MS")
         if self.order_status_event_refresh_dedup and not self.order_status_event_refresh:

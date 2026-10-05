@@ -338,3 +338,28 @@ BROWSE_BODY_OUTCOMES = Counter(
 )
 BROWSE_BODY_BYTES = Gauge("ticketing_browse_body_bytes", "Retained serialized browse payload bytes")
 BROWSE_BODY_ENTRIES = Gauge("ticketing_browse_body_entries", "Retained serialized browse representations")
+
+
+PAYMENT_RECEIPTS = Counter(
+    "ticketing_payment_receipts_total", "Durable callback receipt outcomes", ["outcome"]
+)
+PAYMENT_CONFIRMATIONS = Counter(
+    "ticketing_payment_confirmations_total", "Financial confirmation outcomes", ["outcome"]
+)
+PAYMENT_CONFIRMATION_PHASE = Histogram(
+    "ticketing_payment_confirmation_phase_seconds", "Receipt and confirmation phase duration",
+    ["phase"], buckets=(.001,.005,.01,.025,.05,.1,.25,.5,1,2,5,10,30),
+)
+PAYMENT_CONFIRMATION_AGE = Histogram(
+    "ticketing_payment_confirmation_age_seconds", "Receipt age when financial confirmation commits",
+    buckets=(.01,.05,.1,.25,.5,1,2,5,10,30,60,120),
+)
+PAYMENT_CONFIRMATION_PENDING = Gauge(
+    "ticketing_payment_confirmation_pending", "Unresolved durable receipts including review"
+)
+PAYMENT_CONFIRMATION_REVIEW = Gauge(
+    "ticketing_payment_confirmation_review", "Receipts requiring explicit operator reconciliation"
+)
+PAYMENT_CONFIRMATION_OLDEST = Gauge(
+    "ticketing_payment_confirmation_oldest_seconds", "Oldest unresolved durable receipt age"
+)

@@ -441,97 +441,102 @@ class PostgresReservations:
 
     def callback(self, payload):
         with self.db.transaction() as conn:
-            order = conn.execute(
-                """SELECT o.* FROM orders o
+            return self.apply_callback(conn, payload)
+
+    def apply_callback(self, conn, payload):
+        """Apply financial effects in the caller-owned transaction; never commit here."""
+        order = conn.execute(
+            """SELECT o.* FROM orders o
                 JOIN payment_attempts p ON p.order_id=o.id
                 WHERE p.id=%s FOR UPDATE OF o NOWAIT""",
-                (payload["payment_id"],),
-            ).fetchone()
-            if not order:
-                raise Failure("PAYMENT_NOT_FOUND", 404)
-            payment = conn.execute(
-                "SELECT * FROM payment_attempts WHERE id=%s FOR UPDATE NOWAIT", (payload["payment_id"],)
-            ).fetchone()
-            if (
-                str(order["id"]) != payload["order_id"]
-                or order["total"] != payload["amount"]
-                or order["currency"] != payload["currency"]
-            ):
-                raise Failure("PAYMENT_MISMATCH", 422)
-            previous = conn.execute(
-                "SELECT * FROM payment_callbacks WHERE id=%s", (payload["callback_id"],)
-            ).fetchone()
-            if previous:
-                if previous["payload_hash"] != digest(payload):
-                    raise Failure("CALLBACK_MISMATCH")
-                return {"status": "duplicate"}
-            conn.execute(
-                "INSERT INTO payment_callbacks(id,payment_id,payload_hash) VALUES (%s,%s,%s)",
-                (payload["callback_id"], payload["payment_id"], digest(payload)),
-            )
-            if payment["status"] == "SUCCEEDED":
-                return {"status": "duplicate"}
-            hold = conn.execute(
-                "SELECT * FROM holds WHERE id=%s FOR UPDATE NOWAIT", (order["hold_id"],)
-            ).fetchone()
-            seats = conn.execute(
-                """SELECT s.* FROM event_seats s JOIN order_items i
+            (payload["payment_id"],),
+        ).fetchone()
+        if not order:
+            raise Failure("PAYMENT_NOT_FOUND", 404)
+        payment = conn.execute(
+            "SELECT * FROM payment_attempts WHERE id=%s FOR UPDATE NOWAIT", (payload["payment_id"],)
+        ).fetchone()
+        if (
+            str(order["id"]) != payload["order_id"]
+            or order["total"] != payload["amount"]
+            or order["currency"] != payload["currency"]
+        ):
+            raise Failure("PAYMENT_MISMATCH", 422)
+        previous = conn.execute(
+            "SELECT * FROM payment_callbacks WHERE id=%s", (payload["callback_id"],)
+        ).fetchone()
+        if previous:
+            if previous["payload_hash"] != digest(payload):
+                raise Failure("CALLBACK_MISMATCH")
+            return {"status": "duplicate"}
+        conn.execute(
+            "INSERT INTO payment_callbacks(id,payment_id,payload_hash) VALUES (%s,%s,%s)",
+            (payload["callback_id"], payload["payment_id"], digest(payload)),
+        )
+        if payment["status"] == "SUCCEEDED":
+            return {"status": "duplicate"}
+        hold = conn.execute(
+            "SELECT * FROM holds WHERE id=%s FOR UPDATE NOWAIT", (order["hold_id"],)
+        ).fetchone()
+        seats = conn.execute(
+            """SELECT s.* FROM event_seats s JOIN order_items i
                 ON i.event_id=s.event_id AND i.seat_id=s.seat_id
                 WHERE i.order_id=%s ORDER BY s.seat_id FOR UPDATE OF s NOWAIT""",
-                (order["id"],),
-            ).fetchall()
-            now = conn.execute("SELECT clock_timestamp() AS now").fetchone()["now"]
-            valid = (
-                bool(seats)
-                and hold["status"] == "ACTIVE"
-                and hold["expires_at"] > now
-                and all(
-                    r["hold_id"] == hold["id"] and r["booked_order_id"] is None and r["reserved_until"] > now
-                    for r in seats
-                )
+            (order["id"],),
+        ).fetchall()
+        now = conn.execute("SELECT clock_timestamp() AS now").fetchone()["now"]
+        valid = (
+            bool(seats)
+            and hold["status"] == "ACTIVE"
+            and hold["expires_at"] > now
+            and all(
+                r["hold_id"] == hold["id"] and r["booked_order_id"] is None and r["reserved_until"] > now
+                for r in seats
             )
-            decision = payment_decision(order["status"], valid, payload["outcome"])
+        )
+        decision = payment_decision(order["status"], valid, payload["outcome"])
+        conn.execute(
+            "UPDATE payment_attempts SET status=%s WHERE id=%s", (payload["outcome"], payment["id"])
+        )
+        if decision == "BOOK":
+            for seat in seats:
+                conn.execute(
+                    "INSERT INTO bookings VALUES (%s,%s,%s,%s)",
+                    (uuid4(), order["event_id"], seat["seat_id"], order["id"]),
+                )
             conn.execute(
-                "UPDATE payment_attempts SET status=%s WHERE id=%s", (payload["outcome"], payment["id"])
-            )
-            if decision == "BOOK":
-                for seat in seats:
-                    conn.execute(
-                        "INSERT INTO bookings VALUES (%s,%s,%s,%s)",
-                        (uuid4(), order["event_id"], seat["seat_id"], order["id"]),
-                    )
-                conn.execute(
-                    """UPDATE event_seats SET booked_order_id=%s,hold_id=NULL,
+                """UPDATE event_seats SET booked_order_id=%s,hold_id=NULL,
                     reserved_until=NULL,version=version+1 WHERE hold_id=%s""",
-                    (order["id"], hold["id"]),
-                )
-                conn.execute("UPDATE holds SET status='CONSUMED' WHERE id=%s", (hold["id"],))
-                conn.execute("UPDATE orders SET status='PAID' WHERE id=%s", (order["id"],))
-                event(conn, order["id"], "OrderPaid", {"order_id": str(order["id"])})
-            elif decision in {"REFUND", "FAILED"}:
-                self._release(conn, order, "EXPIRED" if decision == "REFUND" else "RELEASED")
-                conn.execute(
-                    "UPDATE orders SET status=%s WHERE id=%s",
-                    ("REFUND_PENDING" if decision == "REFUND" else "FAILED", order["id"]),
-                )
-                if decision == "REFUND":
-                    conn.execute(
-                        "INSERT INTO refund_requests VALUES (%s,%s,'PENDING') ON CONFLICT DO NOTHING",
-                        (payment["id"], order["id"]),
-                    )
-                    event(
-                        conn,
-                        order["id"],
-                        "RefundRequested",
-                        {"payment_id": str(payment["id"]), "order_id": str(order["id"])},
-                    )
-            event(
-                conn,
-                order["id"],
-                "SeatsChanged",
-                {"event_id": str(order["event_id"]), "seats": [r["seat_id"] for r in seats]},
+                (order["id"], hold["id"]),
             )
-            return {"status": decision.lower()}
+            conn.execute("UPDATE holds SET status='CONSUMED' WHERE id=%s", (hold["id"],))
+            conn.execute("UPDATE orders SET status='PAID' WHERE id=%s", (order["id"],))
+            event(conn, order["id"], "OrderPaid", {"order_id": str(order["id"])})
+        elif decision in {"REFUND", "FAILED"}:
+            self._release(conn, order, "EXPIRED" if decision == "REFUND" else "RELEASED")
+            conn.execute(
+                "UPDATE orders SET status=%s WHERE id=%s",
+                ("REFUND_PENDING" if decision == "REFUND" else "FAILED", order["id"]),
+            )
+            if decision == "REFUND":
+                conn.execute(
+                    "INSERT INTO refund_requests VALUES (%s,%s,'PENDING') ON CONFLICT DO NOTHING",
+                    (payment["id"], order["id"]),
+                )
+                event(
+                    conn,
+                    order["id"],
+                    "RefundRequested",
+                    {"payment_id": str(payment["id"]), "order_id": str(order["id"])},
+                )
+        event(
+            conn,
+            order["id"],
+            "SeatsChanged",
+            {"event_id": str(order["event_id"]), "seats": [r["seat_id"] for r in seats]},
+        )
+        return {"status": decision.lower()}
+
 
 
 

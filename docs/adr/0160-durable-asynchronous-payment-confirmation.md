@@ -1,6 +1,6 @@
 # ADR0160: Durable asynchronous payment confirmation
 
-- Status: Proposed; design only, not implemented or capacity-qualified
+- Status: Accepted for default-off implementation and local validation; cloud qualification pending
 - Date: 2026-10-05
 
 ## Context
@@ -58,3 +58,16 @@ Before enabling: execute concurrent duplicate receipts, changed-payload rejectio
 Measure receipt acknowledgement separately from receipt-to-financial-commit, payment-to-ticket/customer-confirmation, oldest pending receipt, retries/review states, gateway redeliveries, CPU, DB queries/locks/pool waits and status polling. Proposed receipt p95 target100ms must be validated rather than declared achieved. Compare an identified passing control against one candidate with unchanged machines, total budgets, offered journeys and customer-completion gates. At one ticket per successful journey,300000tickets/hour requires83.33 paid-issued tickets/s sustained; acknowledgement RPS is not that measure. A separate bounded cloud scope is required after local correctness qualification.
 
 [Latest measured failure and restoration evidence](../capacity/flash-sale-opening/order-status-dedup-measured-control-failure-2026-10-05.json).
+
+
+## Implementation authorization and bounded defaults
+
+The user authorized steps1-6 on2026-10-05. Implement and locally validate this default-off boundary before a bounded cloud comparison; stop after a failed control. No higher-rate, hourly run, main merge or publication follows automatically.
+
+Use one configured provider namespace per ingress deployment (development default simulator), HTTP200 with status received and stable receipt ID, matching the current simulator transport. Real gateway acknowledgement adapters remain future work. Store a verified normalized payload; preserve current signature/schema validation. Add a per-provider durable outstanding counter updated in the receipt transaction: insertion and capacity reservation succeed together or both roll back. Completed receipts decrement in the financial commit; unresolved REVIEW receipts retain capacity and require operator resolution. Duplicate receipt acknowledgement does not consume capacity. This short counter lock serializes admission across replicas but provides an exact hard ceiling; count-before-insert races are rejected as an alternative. Default maximum10000 unresolved receipts, lease30seconds, processing concurrency2, maximum8claims, retry base100ms capped30seconds with jitter. Transient PostgreSQL/pool failures retry; domain mismatches and unclassified processing failures enter visible REVIEW. No accepted work expires automatically.
+
+A receipt lock precedes the existing financial lock order. Direct financial callbacks never acquire receipt locks, avoiding a reverse dependency. Refactor financial application into one shared conn operation and preserve SQL/business decisions. Check live lease token before application and at terminal update; failure rolls back all effects. Worker claims and external calls must not share retained DB connections. Add pending/review/oldest-age/phase counters and no payload logging.
+
+For status polling add a stable server interval range and let the existing paid client honor it with jitter. Preserve the previous default polling behavior until the comparison profile explicitly enables the same guidance in both arms; do not change generator concurrency or hide original HTTP errors. Confirmation processing and receipt intake are separately timed. Any cloud connection-budget reallocation and harness adaptation require a subsequent ADR before implementation; all aggregate ceilings and financial/queue gates must be explicit.
+
+Executed local evidence:739 native Linux unit/integration tests passed (prior738-pass/1-test read-only setup failure retained);2 native PostgreSQL audit tests passed;421 focused host harness tests passed;Ruff and diff checks passed. Reproducible213-file/21-module source and6 immutable offline images verified;financial transaction AST preserved and unrelated callback reserve excluded. [Local validation](../capacity/flash-sale-opening/async-payment-confirmation-local-validation-2026-10-05.json). Cloud qualification/comparison remain pending.

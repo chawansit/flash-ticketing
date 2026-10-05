@@ -2,8 +2,8 @@
   "updated_date_bangkok": "2026-10-05",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0159_measured_control_failed_restored_candidate_skipped",
-  "cloud_load_requires_resume": true,
+  "status": "adr0160_local_validated_adr0161_cloud_qualification_pending",
+  "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -42,13 +42,13 @@
     "ADR0159 corrected off/ona6cdb46f8cff passed source/identity,same-seat100requests=>1winner each,hold/payment replay,other-actor denial,1paid/confirmed ticket each,post-TTL1payment1booking1ticket3callback deliveries,no duplicates,fullqueues/Kafka0,observers/exactrestoration.2 safety tickets/0 capacity stages;dedup CPU/RPS benefit still unmeasured.",
     "ADR0157/0159 measuredf550731d5714:29/32gates,18000scheduled14921dispatched14192confirmed,729errors4.886%,3079drops.AfterTTL14907payments/bookings/tickets,14unpaidexpired,duplicates0.Fullqueues/Kafka0,originalruntime restored;candidate skipped,no dedup benefit claim."
   ],
-  "unresolved": "Control callback due-to-claim mean6.77s/backlog525,primaryCPU92.08%,status checks7.97/journey. Root trigger unproven;historical reference has different images.Dedup-on untested;300000tickets/hour unqualified.",
+  "unresolved": "Cloud qualification and async capacity benefit unmeasured. Prior regression trigger unproven;300000tickets/hour remains unqualified.",
   "next_on_resume": [
-    "Use proposedADR0160 for durable callback receipt and separate confirmation-worker local design/implementation;ADR remains proposed and no load authorized.",
-    "Attribute failed control regression;local receipt/worker crash,replay,expiry,reassigned-seat and queue correctness must pass before a new bounded cloud scope."
+    "Stage verified immutable ADR0160 images without changing services.",
+    "Execute one fresh safety off/on pair under ADR0161 ledger;only after all gates pass execute matched60/s300s pair;stop after failed control."
   ],
-  "authorization": "Approved fixed pair stopped after failed control as required.1measured stage+1additional safety protocol executed;candidate skipped.No automatic replacement,higher load,push or merge.",
-  "scope": "One fixed60 journeys/s300s dedup-off/on measured pair:2 measured stages,18000 scheduled journeys per arm,and2 additional simulated safety tickets. Retain completed dry counters1qualification/2safety and all mandatory32gates,post-TTL/global zero-double-booking/full queues/Kafka/restoration. Unchanged images,machines,budgets,1000ms cache,event refresh-on;only consumer dedup0->1. Stop after failed control;no automatic replacement,higher rate,hour-long run,push or merge.",
+  "authorization": "User continue with #1-#6 authorizes ADR0160 implementation and ADR0161 bounded safety/control/candidate comparison. No higher-rate/hourly run,push or merge.",
+  "scope": "ADR0161:new independent allowance,max1 safety pair(2 simulated tickets),then only after passing qualification1 matched60journeys/s300s off/on pair(max2 measured stages+2 safety tickets). Same machines/images/aggregate budgets;stop after failed control,retain all financial/TTL/queue gates.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -898,9 +898,57 @@
   "qualified_dedup_runner_revision": "168158c3ee1deea1a0e76beaabec54de1be39e5a",
   "proposed_payment_confirmation": {
     "decision": "docs/adr/0160-durable-asynchronous-payment-confirmation.md",
-    "status": "DESIGN_ONLY_NOT_IMPLEMENTED",
-    "scope": "User proposed asynchronous gateway confirmation;record proposed durable receipt+financial worker boundary. No runtime,migration,cloud load or new measured allowance.",
-    "holds": "Existing TTL/ownership/refund rules unchanged;separate ADR required for payment-pending inventory lease.",
-    "next": "Review/implement default-off receipt and confirmation boundary with local crash/replay/expiry tests;retain regression attribution and all financial/customer-completion gates."
+    "status": "DEFAULT_OFF_IMPLEMENTED_LOCAL_VALIDATED_CLOUD_PENDING",
+    "local_evidence": "docs/capacity/flash-sale-opening/async-payment-confirmation-local-validation-2026-10-05.json",
+    "holds": "No TTL extension;existing ownership/refund logic preserved.",
+    "native_tests": 739,
+    "native_receipt_audit_tests": 2,
+    "host_harness_tests": 421,
+    "source_manifest_sha256": "15936b47f1c006655a4354b63b9ce36db10af3c20b2c0894c66397f01fb66290"
+  },
+  "bounded_async_confirmation": {
+    "status": "LOCAL_QUALIFIED_STAGING_PENDING",
+    "authorization_id": "adr0161-async-confirmation-pair-2026-10-05",
+    "binding": {
+      "adapter_identity": {
+        "scripts/observe_two_host_pipeline.py": "a5392a9cbc6cb98709b103d44bf90d2f318bade2a410852680b8f65f9c4a70b5",
+        "scripts/prepare_two_host_scaling.py": "2837924087e960a2048804bb2e345e8f621c479282ad46ac5b3641a104d21b39",
+        "scripts/observe_two_host_cpu.py": "f38dc5ded7103ab70e2ab5dcaed79dd72528259390432967b5d600befc9e23e1",
+        "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+        "scripts/run_two_host_paid_comparison.py": "3848a6e8e2a27e8a12451223d045c30b4afac2d7d651c51088ace461bd39f9e2",
+        "scripts/qualify_two_host_deployment.py": "946266d17a917422a302f7280a0a73cb1f1fcdca5f0ac57814e175dd8bc83f27",
+        "scripts/collect_two_host_inventory.py": "8a889fba8f39c0205671d05b77fe239f795465506fdea0f6a8ead4d88ce387c1",
+        "scripts/runtime_source_identity.py": "5dd0db433abf10e79a3bf1c21ca29d28e85137e7f3e1483e9e96df35462ead80",
+        "scripts/probe_two_host_safety.py": "f61f3e718a19c158aa4c4f90a3411160facd9441d8dea9d7e53e20a0fe920bd2",
+        "scripts/run_status_refresh_comparison.py": "8eebd8bd1feea6d81cd56d3117a5b0cd125ac7206912648a71b5c774eb0155d6",
+        "scripts/status_refresh_contract.py": "98941571768e1a3984318dc22762bccc1713278f84f7acde11b61f8568932f27",
+        "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+        "experiment_plan": "4f1cfccaaa0a08cedfb2fedc784cc8e3c651a330b87a6a4da27859afd2b2ef6d",
+        "scripts/run_async_confirmation_comparison.py": "6ca76a3d1659fa20d1e365f06e9d13297ff94a9bf0cad44d91464f1240a85c24",
+        "scripts/async_confirmation_contract.py": "4aaa3607a9e06c3d93e278db25a501311eed46a65360110bc394aaf6ed4c83d2",
+        "scripts/prepare_async_confirmation.py": "439904bd5571a11b90fbe6fb678e5d2cffac40c8cc3364b115258fe7224b0275",
+        "scripts/prepare_status_refresh_artifacts.py": "dd06c8574b63061dcecf69d2da9f9d0c0fa82b4df36a6c57f0c35099d9431467",
+        "scripts/status_refresh_image_install.py": "9a20736841a226feb599850b51493cf9383df89b4d8d5506a8cc4de9f9198752",
+        "scripts/stage_status_refresh_images.py": "bca16228d09c77456518b19e496cbf5b5a757ff664fddb672295f2666117ae15",
+        "scripts/checkout_journey_probe.py": "10b14c979133188d42aaba5a9a91ab599101922e2d284e85dbe6c03244e3a5bc",
+        "scripts/fetch_status_refresh_parents.py": "b6d3437edcd429c39c6984cab4dcf783e431e3c397b5c1b92d39f75808f98d6c",
+        "artifacts/async-payment-confirmation/manifest.json": "bb8f627491cbd990c47e6a62974f241aa48a3a64a3d4f9e423066571ec15de42",
+        "artifacts/async-payment-confirmation/adr0160.patch": "87d088138b581cda3dc2ee53943265530a917d5b3f6d5cbd25d70f0b6bb420f6"
+      },
+      "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+      "artifact_sha256": "4408054664118370bb647c7fbb8af39770ceea0eb7d84582c639613880cdb4c2",
+      "source_manifest_sha256": "15936b47f1c006655a4354b63b9ce36db10af3c20b2c0894c66397f01fb66290"
+    },
+    "qualification_runs_authorized": 1,
+    "qualification_protocols_started": 0,
+    "paid_runs_authorized": 2,
+    "paid_runs_started": 0,
+    "paid_protocols_started": 0,
+    "safety_tickets_authorized": 4,
+    "safety_protocols_started": 0,
+    "active_run": null,
+    "scope": "ADR0161:new independent allowance,max1 safety pair(2 simulated tickets),then only after passing qualification1 matched60journeys/s300s off/on pair(max2 measured stages+2 safety tickets). Same machines/images/aggregate budgets;stop after failed control,retain all financial/TTL/queue gates.",
+    "approval_source": "Direct user continue with #1-#6;ADR0160 step6 controlled same-load comparison;ADR0161 documents exact bounds.",
+    "approved_at_utc": "2026-10-05T15:25:02.307829+00:00"
   }
 }

@@ -171,7 +171,7 @@ def stage(config, artifact, output, password):
         session = Session(config, output, password)
         session.phase("staging-runtime-preflight")
         before = session.call("primary", inventory_program(config["primary"]["repo"]), 45)
-        if parents_from_inventory(before) != contract.parents:
+        if parents_from_inventory(before) != getattr(contract, "original_parents", contract.parents):
             raise ValueError("Original runtime parents differ")
         secondary_before = session.call("secondary", secondary_inventory(), 30)
         if secondary_before["containers"]:
@@ -200,7 +200,7 @@ def stage(config, artifact, output, password):
             if loaded != {"loaded_images": images}:
                 raise ValueError("Loaded image receipt differs")
             host["artifact_proof"] = session.call(
-                role, contract.image_program(ROLES if role == "primary" else ("api",)), 120
+                role, contract.image_program(contract.roles if role == "primary" else ("api",)), 120
             )
             host.update(session.call(role, cleanup_program(seal), 30))
         if before != session.call("primary", inventory_program(config["primary"]["repo"]), 45):

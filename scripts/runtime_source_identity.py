@@ -47,7 +47,7 @@ def container_identity_program(row, role, expected, *, readiness=False):
     if (not isinstance(cid, str) or not re.fullmatch(r"[0-9a-f]{64}", cid)
             or not isinstance(image, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", image)
             or not isinstance(started, str) or not 1 <= len(started) <= 64
-            or role not in {"api", "consumer", "reservation-writer", "maintenance", "publisher", "reconciler", "simulator"}):
+            or role not in {"api", "consumer", "reservation-writer", "maintenance", "publisher", "reconciler", "simulator", "confirmation"}):
         raise ValueError("Inspected immutable container/image/start identity required")
     proof = source_identity_program(expected, readiness=readiness)
     return r"""import json,subprocess

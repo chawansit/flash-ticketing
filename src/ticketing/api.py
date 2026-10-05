@@ -18,12 +18,14 @@ from psycopg.errors import DeadlockDetected, LockNotAvailable, QueryCanceled
 from psycopg_pool import PoolTimeout, TooManyRequests
 from pydantic import BaseModel, Field
 
+from ticketing.application.payment_confirmation import PaymentConfirmation
 from ticketing.application.reservations import Reservations
 from ticketing.config import Settings
 from ticketing.domain import Failure
 from ticketing.http import RequestInstrumentation
 from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.order_status_cache import RedisOrderStatusCache
+from ticketing.infrastructure.payment_confirmation import PostgresPaymentConfirmation
 from ticketing.infrastructure.postgres import create_api_databases
 from ticketing.infrastructure.redis_reservations import RedisReservationIntake
 from ticketing.infrastructure.reservations import PostgresReservations, RedisFirstReservations
@@ -91,6 +93,7 @@ async def lifespan(app):
             app.state.payment_reservations if callback_db is payment_db
             else Reservations(PostgresReservations(callback_db, cache, settings.hold_seconds))
         )
+        app.state.payment_confirmation = PaymentConfirmation(PostgresPaymentConfirmation(callback_db, settings))
         loop_observer = asyncio.create_task(observe_event_loop_lag())
         try:
             yield
@@ -403,6 +406,9 @@ def get_order(order_id: UUID, who: Actor, svc: Service, response: Response):
     """
     response.headers["Cache-Control"] = "private, no-store"
     response.headers["Vary"] = "Authorization"
+    if settings.order_status_poll_ms:
+        response.headers["X-Poll-Interval-Ms"] = str(settings.order_status_poll_ms)
+        response.headers["X-Poll-Jitter-Percent"] = "20"
     return svc.get_order(who, order_id)
 
 
@@ -424,6 +430,11 @@ async def callback(
 ):
     """HMAC-SHA256 over timestamp + '.' + raw JSON body. Signature expires after 5 minutes.
 
+    With PAYMENT_CONFIRMATION_ASYNC=1, HTTP200/status=received acknowledges a durable
+    receipt only. Financial confirmation and ticket issuance happen in workers.
+    Acknowledged receipts remain durable across restarts; monitor REVIEW states.
+
+
     Payload schema: callback_id, payment_id, order_id (UUID), amount (minor units), currency,
     outcome (SUCCEEDED or FAILED). Duplicate callback IDs and semantic duplicates are safe.
     """
@@ -438,4 +449,7 @@ async def callback(
     # The database adapter is synchronous; do not block FastAPI's event loop.
     from starlette.concurrency import run_in_threadpool
 
-    return await run_in_threadpool(svc.callback, body.model_dump(mode="json"))
+    payload = body.model_dump(mode="json")
+    if settings.payment_confirmation_async:
+        return await run_in_threadpool(request.app.state.payment_confirmation.receive, payload)
+    return await run_in_threadpool(svc.callback, payload)

@@ -8,6 +8,7 @@ import argparse
 import asyncio
 import json
 import math
+import random
 import re
 from collections import Counter
 from datetime import UTC, datetime, timedelta
@@ -26,6 +27,17 @@ def app_duration_ms(response):
     value = response.headers.get("server-timing", "")
     match = re.search(r"(?:^|,)\s*app;dur=([0-9]+(?:\.[0-9]+)?)", value)
     return float(match.group(1)) if match else None
+
+
+def status_poll_delay(response, fallback):
+    """Honor bounded server guidance; malformed/missing hints retain the control interval."""
+    try:
+        milliseconds = int(getattr(response, "headers", {}).get("X-Poll-Interval-Ms", "0"))
+    except (TypeError, ValueError):
+        return fallback
+    if not 100 <= milliseconds <= 1500:
+        return fallback
+    return random.uniform(.8, 1.2) * milliseconds / 1000
 
 
 async def journey(client, manifest, index, run_id, timeout_seconds, poll_seconds, duplicates):
@@ -109,7 +121,7 @@ async def journey(client, manifest, index, run_id, timeout_seconds, poll_seconds
                 }
             if body["status"] not in {"PENDING", "PAID"}:
                 return {"outcome": "order_terminal_without_ticket", "durable_ms": durable_ms}
-            await asyncio.sleep(poll_seconds)
+            await asyncio.sleep(status_poll_delay(order, poll_seconds))
         return {"outcome": "ticket_timeout", "durable_ms": durable_ms}
     except (httpx.HTTPError, ValueError, KeyError, TypeError) as exc:
         return {"outcome": f"probe_{type(exc).__name__}"}

@@ -21,6 +21,7 @@ from ticketing.config import Settings
 from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.order_status_cache import RedisOrderStatusCache
 from ticketing.infrastructure.order_status_projector import ORDER_EVENTS, CommittedOrderStatusProjector
+from ticketing.infrastructure.payment_confirmation import PostgresPaymentConfirmation
 from ticketing.infrastructure.payment_transport import CallbackTransport
 from ticketing.infrastructure.postgres import Postgres
 from ticketing.infrastructure.redis_reservations import RedisReservationIntake
@@ -1033,12 +1034,14 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "role",
-        choices=["publisher", "consumer", "reservation-writer", "maintenance", "refresh", "expiry", "reconciler", "simulator"],
+        choices=["publisher", "consumer", "reservation-writer", "maintenance", "refresh", "expiry", "reconciler", "simulator", "confirmation"],
     )
     role = parser.parse_args().role
     configure_logging()
     settings = Settings()
     settings.validate()
+    if role == "confirmation" and not settings.payment_confirmation_async:
+        raise RuntimeError("Confirmation worker requires PAYMENT_CONFIRMATION_ASYNC=1")
     if role == "simulator" and settings.environment != "development":
         raise RuntimeError("Simulator is development only")
     signal.signal(signal.SIGTERM, stop)
@@ -1065,6 +1068,9 @@ def main():
     reservation_consumer = f"{socket.gethostname()}-{os.getpid()}"
     producer = consumer = executor = callback_transport = None
     try:
+        if role == "confirmation":
+            PostgresPaymentConfirmation(db, settings).run(store, lambda: running)
+            return
         if role == "simulator":
             callback_transport = CallbackTransport(
                 os.getenv("API_URL", "http://localhost:8000") + "/v1/webhooks/payments",

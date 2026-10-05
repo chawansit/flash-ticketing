@@ -289,7 +289,7 @@ def build_one(output, data, parent_id, *, timeout=300):
     context = output / "context"
     context.mkdir()
     # Only qualified payload bytes and installer go into the image, never tests/config/secrets.
-    for path in [*data["runtime_source_sha256"], "manifest.json", "install.py"]:
+    for path in [*data["runtime_source_sha256"], *data.get("migration_sha256", {}), "manifest.json", "install.py"]:
         supplied = output.parent / "image-context" / path
         destination = context / path
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -315,6 +315,7 @@ def build_one(output, data, parent_id, *, timeout=300):
 def validate_context(context, data, expected_dockerfile):
     expected = {
         **data["runtime_source_sha256"],
+        **data.get("migration_sha256", {}),
         "install.py": sha(INSTALLER.read_bytes()),
         "manifest.json": sha((json.dumps(data, sort_keys=True) + "\n").encode()),
         "Dockerfile": sha(expected_dockerfile.encode()),

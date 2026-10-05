@@ -336,6 +336,9 @@ def run(config, output, *, stage_hook=None, runtime_policy=None):
     if not sys.stdin.isatty():
         raise ValueError("Protected password terminal required")
     session = Session(config, output, getpass.getpass("ECS password: "))
+    counts = getattr(runtime_policy, "candidate_counts", CANDIDATE_COUNTS)
+    changed = getattr(runtime_policy, "changed_services", CHANGED)
+    global_audit = getattr(runtime_policy, "global_audit", GLOBAL_AUDIT)
     saved = None
     mutated = False
     secondary_started = False
@@ -440,24 +443,24 @@ def run(config, output, *, stage_hook=None, runtime_policy=None):
         session.call("primary", check)
         session.phase("four-primary-control-topology")
         mutated = True
-        session.up("primary", live_path, CANDIDATE_COUNTS, ["pgbouncer"])
+        session.up("primary", live_path, counts, ["pgbouncer"])
         session.up(
             "primary",
             live_path,
-            CANDIDATE_COUNTS,
-            [r for r in CHANGED if r not in {"api", "pgbouncer", "load-balancer"}],
+            counts,
+            [r for r in changed if r not in {"api", "pgbouncer", "load-balancer"}],
         )
-        session.up("primary", live_path, CANDIDATE_COUNTS, ["api"])
+        session.up("primary", live_path, counts, ["api"])
         primary_rows = session.wait("primary", 4)
         controls = endpoints(primary_rows, "primary", primary["private_ipv4"], runtime_policy=runtime_policy)
         session.put("primary", routes_path, nginx_config(controls))
-        session.up("primary", live_path, CANDIDATE_COUNTS, ["load-balancer"])
+        session.up("primary", live_path, counts, ["load-balancer"])
         session.state["four_primary_control_ready"] = True
         if stage_hook is not None:
             session.phase("control-stage")
             stage_hook(session, "control", controls, saved, owner, output)
         session.phase("two-plus-two-topology")
-        session.up("primary", live_path, {**CANDIDATE_COUNTS, "api": 2}, ["api"])
+        session.up("primary", live_path, {**counts, "api": 2}, ["api"])
         primary_rows = session.wait("primary", 2)
         secondary_model = json.loads(secondary_compose())
         secondary_model["services"]["api"]["image"] = IMAGE
@@ -482,7 +485,7 @@ def run(config, output, *, stage_hook=None, runtime_policy=None):
             secondary_rows, "secondary", config["secondary"]["private_ipv4"], runtime_policy=runtime_policy
         )
         session.put("primary", routes_path, nginx_config(routes))
-        session.up("primary", live_path, CANDIDATE_COUNTS, ["load-balancer"])
+        session.up("primary", live_path, counts, ["load-balancer"])
         session.phase("cross-host-private-readiness")
         urls = [f"http://{r['private_ipv4']}:{r['port']}/health/ready" for r in routes]
         session.call(
@@ -576,11 +579,13 @@ with psycopg.connect(os.environ['DATABASE_URL'],autocommit=True) as conn:
  result=audit(conn,events,1,1,3);result['hold_deadlines_elapsed']=bool(elapsed);assert result['pass'] and elapsed;print(json.dumps(result))
 """.replace("EVENTS", repr([event]))
         session.state["post_ttl_financial"] = session.api(cid, program, 175)
+        if runtime_policy is not None and hasattr(runtime_policy, "stage_receipt_audit"):
+            session.state["safety_confirmation_receipts"] = runtime_policy.stage_receipt_audit(session, cid, [event], 1)
         drain = None
         drain_deadline = time.monotonic() + 60
         while time.monotonic() < drain_deadline:
             try:
-                drain = session.api(cid, GLOBAL_AUDIT, 45)
+                drain = session.api(cid, global_audit, 45)
                 if drain["pass"] and drain["kafka_members"] == 6:
                     break
             except RuntimeError:
@@ -622,9 +627,13 @@ with psycopg.connect(os.environ['DATABASE_URL'],autocommit=True) as conn:
             session.state["secondary_cleanup_error_type"] = type(exc).__name__
         try:
             if saved and mutated:
+                if runtime_policy is not None and hasattr(runtime_policy, "before_restore"):
+                    runtime_policy.before_restore(session, cid, live_path)
                 session.up("primary", restore_path, saved["counts"], ["pgbouncer"])
                 session.up("primary", restore_path, saved["counts"], [r for r in CHANGED if r != "pgbouncer"])
                 session.wait("primary", 4)
+                if runtime_policy is not None and hasattr(runtime_policy, "after_restore"):
+                    runtime_policy.after_restore(session, live_path)
                 final_rows = session.call("primary", INSPECT)
                 session.state.update(restored(saved, final_rows))
                 restored_cid = next(
@@ -636,7 +645,7 @@ with psycopg.connect(os.environ['DATABASE_URL'],autocommit=True) as conn:
                 final_queue = None
                 while time.monotonic() < restore_audit_deadline:
                     try:
-                        final_queue = session.api(restored_cid, GLOBAL_AUDIT, 45)
+                        final_queue = session.api(restored_cid, global_audit, 45)
                         if final_queue["pass"] and final_queue["kafka_members"] == 1:
                             break
                     except RuntimeError:

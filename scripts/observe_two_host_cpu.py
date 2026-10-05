@@ -18,6 +18,7 @@ BACKGROUND_ROLES = {
     "publisher",
     "reconciler",
     "simulator",
+    "confirmation",
     "kafka",
     "pgbouncer",
     "load-balancer",

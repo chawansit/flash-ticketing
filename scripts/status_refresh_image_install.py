@@ -44,7 +44,11 @@ def verify(manifest, *, parent):
             raise ValueError("Complete package source differs")
     if any(sha((Path("/app") / p).read_bytes()) != h for p, h in manifest["dependency_input_sha256"].items()):
         raise ValueError("Frozen dependency inputs differ")
-    return {"app_and_installed_modules_verified": len(expected), "dependency_inputs_match": True}
+    migrations = manifest.get("migration_sha256", {})
+    if not parent and any(sha((Path("/app") / p).read_bytes()) != h for p, h in migrations.items()):
+        raise ValueError("Pinned additive migration differs")
+    return {"app_and_installed_modules_verified": len(expected), "dependency_inputs_match": True,
+            **({"migration_inputs_match": True} if migrations else {})}
 
 
 def install(payload):
@@ -91,6 +95,18 @@ def install(payload):
     ]
     with record.open("w", newline="") as stream:
         csv.writer(stream).writerows(sorted([*retained, *replacements.values()]))
+    for relative, expected_hash in manifest.get("migration_sha256", {}).items():
+        if relative != "migrations/009_payment_confirmation_receipts.sql":
+            raise ValueError("Only explicitly pinned additive receipt migration allowed")
+        source_migration = payload / relative
+        target = Path("/app") / relative
+        if source_migration.is_symlink() or target.is_symlink() or sha(source_migration.read_bytes()) != expected_hash:
+            raise ValueError("Migration payload drift")
+        if target.exists() and sha(target.read_bytes()) != expected_hash:
+            raise ValueError("Never overwrite a different migration")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(source_migration.read_bytes())
+        target.chmod(0o644)
     return verify(manifest, parent=False)
 
 

@@ -108,7 +108,7 @@ def validate_inventory(data, *, image_id, now=None, contract=None):
         raise ValueError("Generator must remain dedicated")
     if hosts["secondary"]["non_api_services"]:
         raise ValueError("Secondary must not add a pooler, broker or background services")
-    if data["background"] != BACKGROUND:
+    if data["background"] != (BACKGROUND if contract is None else contract.background):
         raise ValueError("Background placement/settings changed")
     if data["pgbouncer"] != {
         "host_role": "primary",

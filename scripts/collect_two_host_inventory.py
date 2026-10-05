@@ -62,6 +62,7 @@ print(json.dumps({'machine_id_sha256':hashlib.sha256(uuid.encode()).hexdigest(),
 
 
 def observe(session, arm, routes, baseline_env, *, expected_worker_images, contract=None):
+    roles = BACKGROUND if contract is None else contract.background
     primary = session.call("primary", INSPECT)
     # Include all secondary resources, not just the expected project's running APIs.
     secondary = session.call(
@@ -96,9 +97,11 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
         "load-balancer": 1,
         "pgbouncer": 1,
     }
+    if contract is not None:
+        expected_counts.update({r: c["replicas"] for r, c in roles.items()})
     if {k: len(v) for k, v in groups.items()} != expected_counts:
         raise ValueError("Observed primary placement differs")
-    background = {k: {"replicas": len(groups[k])} for k in BACKGROUND}
+    background = {k: {"replicas": len(groups[k])} for k in roles}
     background["consumer"]["pool_per_replica"] = int(environment(groups["consumer"][0])["DB_POOL_MAX"])
     if any(environment(r)["DB_POOL_MAX"] != "8" for r in groups["consumer"]):
         raise ValueError("Consumer pool differs")
@@ -111,8 +114,10 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
     background["simulator"].update(
         concurrency=int(sim["SIMULATOR_CONCURRENCY"]), dispatch_mode=sim["SIMULATOR_DISPATCH_MODE"]
     )
+    if contract is not None and hasattr(contract, "inventory_background"):
+        background = contract.inventory_background(groups, background)
     pool = environment(groups["pgbouncer"][0])
-    queue = session.api(groups["api"][0]["Id"], GLOBAL_AUDIT, 60)
+    queue = session.api(groups["api"][0]["Id"], getattr(contract, "global_audit", GLOBAL_AUDIT), 60)
     if queue["kafka_members"] != 6:
         raise ValueError("Six Kafka members required before dispatch")
     expected = json.loads(
@@ -123,9 +128,9 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
     if contract is not None:
         expected = contract.sources
     worker_sources = []
-    if set(expected_worker_images) != set(BACKGROUND):
+    if set(expected_worker_images) != set(roles):
         raise ValueError("Every background role needs a saved immutable image")
-    for role in BACKGROUND:
+    for role in roles:
         for row in groups[role]:
             if row["Image"] != expected_worker_images[role]:
                 raise ValueError("Background role image differs from saved snapshot")
@@ -151,7 +156,7 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
                 "revision": REVISION,
                 "started_at": identity["started_at"],
                 **proof,
-                "settings": {k: env.get(k) for k in API_SETTINGS},
+                "settings": {k: env.get(k) for k in (API_SETTINGS if contract is None else contract.api_settings)},
                 "ORDER_STATUS_EVENT_REFRESH": env.get("ORDER_STATUS_EVENT_REFRESH", "0"),
                 "ORDER_STATUS_EVENT_REFRESH_DEDUP": env.get("ORDER_STATUS_EVENT_REFRESH_DEDUP"),
                 "pgbouncer_host_role": "primary",
