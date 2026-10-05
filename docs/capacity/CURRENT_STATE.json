@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-05",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0147_two_host_safety_restore_qualified_paid_integration_pending",
+  "status": "adr0147_failed_control_checkpoint_replacement_pair_authorization_needed",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -10,42 +10,46 @@
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "Live ADR0147 control4primary thencandidate2+2 readiness and safety passed. Exact original runtime fingerprints/counts restored: primaryAPI4, original background services, secondaryAPI0; global DB/Redis queues/Kafka lag0 with one consumer member. Both protocol credential snapshots removed after fresh verification.",
+  "last_checked_topology": "Failed paid controlfinally restored exact primary runtime:API4,original background services,secondaryAPI0;allDB/Redisqueues/Kafkalag0,oneconsumer member,generatoridle.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "current_run": null,
-  "revision_note": "Operational deployment/safety adapters locally validated and live-qualified; application and frozen paid harness remain deb330e. No matched capacity stage run. Workspace parent94ed1587bee5f5d362b3291cfaba535f26dfe05f.",
+  "revision_note": "Parentd40540d; current uncommitted changes are ADR0147 orchestration/observation/recovery, not application optimization. Frozen application/generator remain deb330e.",
   "confirmed": [
-    "ADR0147 retry passed100-way cross-host hold: one202/99409, one durable owner, hold/payment replay, actor denial and one ticket. Post-TTL audit:1order/payment/booking/ticket,3callback deliveries,zero duplicate booking. Full queues/Kafka0 and exact normal restoration;118focused tests/Ruff passed.",
-    "ADR0147 first qualification failed at safety probe before any durable order/payment/ticket. Omitted restore count defect fixed; targeted recovery verified exact saved runtime semantics and empty queues.116focused tests/Ruff passed for deployment/evidence adapters.",
-    "ADR0147 secondary host prepared: matching pinned Docker dependencies, exact API image,12 installed module hashes, owner-only rendered environment parity; primary topology unchanged,secondaryAPI0.",
-    "ADR0147 observer adapters:83focused tests/Ruff passed; both-host passive10s CPU smoke passed. Full paid/multi-host pipeline execution still pending.",
-    "ADR0146 one no-buyer protocol: all seven diagnostic gates passed; observers +0.145297 container core/+3.838426 host percentage points versus bracketed idle, profiler 0.007360 core. Single idle protocol; not under-load cost. Normal settings and key/scratch cleanup verified.",
-    "Frozen paid diagnostic: 18000 dispatched/17998 customer confirmations; two status503s (0.011111% journeys), all18000 paid tickets durable, zero double booking, full queues/Kafka0. 21/22 paid gates passed; customer_load still failed.",
-    "Saved same-replica counter deltas correlate two status503s with admission rejection and two callback503s with PoolTimeout on another replica. All callbacks eventually delivered; not individual request traces.",
-    "91 focused diagnostic tests and Ruff passed after local namespace cleanup correction; corrected script not reexecuted on cloud. ADR0143/0145 application candidates remain cloud-unqualified."
+    "Multi-host paid runner implemented; final pre-keepalive dryc0dae8f43adc passed both stages,100-way safety/replay/post-TTL,global queues,cleanup and exact restoration. Earlier failed dry runs retained; fixed host/workload/budget comparison remains unqualified.",
+    "Controled20dc431b67:18000dispatched,17999customer confirmations,onepayment503(0.005556%journeys),drops0.17999successful payments/tickets,oneunpaidexpiredorder,doublebookings0,pendingorders0,allqueues/Kafka0. Candidate not started; originalruntime restored and generator idle.",
+    "Secondary SSH reset while checking completed CPU jobs; pipeline/Kafka trace unavailable after teardown. CPU recovered read-only:primary82.299%,API1.2967cores. Original failed gates remain failed; payment503 cause unproven.",
+    "Current harness adds30s SSH keepalive and finally raw-trace retention;155focused tests and Ruff passed. All3SSHclients survived330s passive idle; generatoridle,no customer load. This is not full corrected-harness paid qualification.",
+    "Application/image and78-file generator manifest stay frozen atdeb330e. ADR0143 coalescing and0145 callback-reserve application candidates remain cloud-unqualified and were not deployed in this comparison."
   ],
-  "unresolved": "Matched paid runner/fresh inventory and full offered-window multi-host observation not integrated/executed. Current customer availability failure and300000tickets/hour remain unresolved; safety qualification does not demonstrate capacity improvement.",
+  "unresolved": "Matched comparison incomplete. Control full-completion/financial/observer gates failed and one-control attempt consumed; payment503 cause unproven. Keepalive/trace-retention fixes tested locally; passive330s idle passed. Replacement pair needs explicit authorization and exact-adapter dry qualification; no gate relaxation or automatic paid retry.",
   "next_on_resume": [
-    "Integrate fresh observed inventory and bounded matched paid driver with qualified two-host deployment/restore, frozen generator/audits, both-host CPU and all-replica pipeline observers.",
-    "Qualify observer startup/common offered-window collection and preserve all22 original plus10 multi-host gates; do not reuse legacy runner unchanged.",
-    "Then at most one60buyers/s300s four-primary control and one2+2 candidate, with post-TTL financial/zero-double-booking/global drain and verified restoration after each."
+    "Obtain authorization for one replacement60buyers/s300s control and one2+2 candidate; retain prior consumed attempt and exact-adapter dry qualification.",
+    "Capture per-replica pool/admission/payment/observer traces on the replacement pair while preserving all22+10 gates, durability/zero-double-booking/drain/restore."
   ],
   "authorization": "User supplied new ECS and existing credentials for accepted ADR0147 comparison. Host prerequisites/image/config and read-only bounded checks authorized. Paid traffic requires qualified deployment/observation/concurrency/restoration. No new service purchase/rate escalation/GitHub push/main merge.",
-  "scope": "ADR0147 safety/deployment/restore checkpoint complete; matched paid capacity integration/comparison remains pending within the accepted fixed-budget plan. No rate escalation, service purchase, GitHub push or main merge.",
+  "scope": "Failed original control consumed; no automatic paid retry/candidate progression. Read-only CPU recovery and passive330s SSH liveness qualification authorized; replacement paid pair pending explicit authorization.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
-    "paid_runs_started": 0,
+    "paid_runs_started": 1,
     "limit": 2,
     "active_run": null,
     "temporary_key_installed": false,
-    "status": "TOPOLOGY_SAFETY_RESTORE_QUALIFIED_PAID_PENDING",
+    "status": "FAILED_CONTROL_RESTORED_REPLACEMENT_PAIR_AUTHORIZATION_NEEDED",
     "local_preparation_report": "docs/capacity/flash-sale-opening/two-host-scaling-preparation-2026-10-05.json",
     "live_qualification": "CROSS_HOST_SAFETY_POST_TTL_QUEUES_RESTORE_PASSED",
     "host_preparation_report": "docs/capacity/flash-sale-opening/two-host-host-preparation-2026-10-05.json",
     "topology_qualification_protocols_started": 2,
     "last_qualification_run": "adr0147-topology-57b91b69e9dc",
     "qualification_report": "docs/capacity/flash-sale-opening/two-host-safety-qualification-2026-10-05.json",
-    "credential_snapshots_removed": true
+    "credential_snapshots_removed": true,
+    "dry_integration_protocols_started": 7,
+    "last_runner_report": "tmp/adr0147-topology-ed20dc431b67/integration-summary.json",
+    "dry_qualification_report": "tmp/adr0147-topology-c0dae8f43adc/integration-summary.json",
+    "attempted_paid_arms": [
+      "control"
+    ],
+    "comparison_report": "docs/capacity/flash-sale-opening/two-host-paid-comparison-2026-10-05.json",
+    "ssh_idle_qualification": "docs/capacity/flash-sale-opening/two-host-ssh-idle-qualification-2026-10-05.json"
   },
   "previous_bounded_control": {
     "decision": "0146-observation-overhead",
@@ -80,10 +84,15 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "Local ADR0147 live safety/restore checkpoint; no GitHub push/main merge.",
+    "status": "Local integrated-runner/failed-control/recovery checkpoint; no GitHub push or main merge.",
     "branch": "codex/redis-failover-recovery"
   },
   "evidence": [
+    "docs/capacity/flash-sale-opening/two-host-ssh-idle-qualification-2026-10-05.json",
+    "docs/capacity/flash-sale-opening/two-host-paid-comparison-2026-10-05.json",
+    "tmp/adr0147-topology-f817c3558bc3/integration-summary.json",
+    "tmp/adr0147-topology-f817c3558bc3/state.json",
+    "tmp/adr0147-topology-f817c3558bc3/cpu-job-errors.private.json",
     "docs/capacity/flash-sale-opening/two-host-safety-qualification-2026-10-05.json",
     "docs/capacity/flash-sale-opening/two-host-qualification-recovery-2026-10-05.json",
     "docs/capacity/flash-sale-opening/two-host-host-preparation-2026-10-05.json",

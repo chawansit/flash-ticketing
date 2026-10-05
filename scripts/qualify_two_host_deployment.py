@@ -23,6 +23,17 @@ ROOT = Path(__file__).resolve().parents[1]
 IMAGE = "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e"
 INSPECT = "import json,subprocess;ids=subprocess.check_output(['docker','ps','-q','--no-trunc','--filter','label=com.docker.compose.project=flash-ticketing'],text=True).split();print(json.dumps(json.loads(subprocess.check_output(['docker','inspect',*ids],text=True)) if ids else []))"
 
+GENERATOR_IDLE = r"""import json
+from pathlib import Path
+active=[]
+for p in Path('/proc').iterdir():
+ if not p.name.isdigit():continue
+ try:args=(p/'cmdline').read_bytes().split(b'\0')
+ except OSError:continue
+ if any(arg==b'ticketing.api:app' or Path(arg.decode(errors='replace')).name in {'paid_ticket_sharded_generator.py','paid_ticket_load_generator.py','run_synchronized_paid_generator.py'} for arg in args):active.append(p.name)
+print(json.dumps({'generator_idle':not active}))
+"""
+
 
 class Session:
     def __init__(self, config, output, password):
@@ -53,6 +64,7 @@ class Session:
                     auth_timeout=15,
                     banner_timeout=15,
                 )
+                client.get_transport().set_keepalive(30)
                 self.clients[role] = client
         except BaseException:
             self.close()
@@ -133,15 +145,12 @@ else:raise TimeoutError('API readiness bound expired')
         return self.call(role, code.replace("PROJECT", repr(project)).replace("COUNT", str(count)))
 
     def api(self, cid, program, timeout=180):
+        command = ["docker", "exec", cid, "python", "-c", program]
         return self.call(
             "primary",
-            "import subprocess;print(subprocess.check_output(['docker','exec',"
-            + repr(cid)
-            + ",'python','-c',"
-            + repr(program)
-            + "],text=True,stderr=subprocess.PIPE,timeout="
-            + str(timeout - 15)
-            + "))",
+            "import subprocess,sys;r=subprocess.run(" + repr(command)
+            + ",text=True,capture_output=True,timeout=" + str(timeout - 15)
+            + ");sys.stderr.write(r.stderr);print(r.stdout);sys.exit(r.returncode)",
             timeout,
         )
 
@@ -251,7 +260,7 @@ print(json.dumps(result))
 )
 
 
-def run(config, output):
+def run(config, output, *, stage_hook=None):
     if not sys.stdin.isatty():
         raise ValueError("Protected password terminal required")
     session = Session(config, output, getpass.getpass("ECS password: "))
@@ -277,10 +286,7 @@ def run(config, output):
             + repr(primary["repo"])
             + ",text=True,stderr=subprocess.PIPE))",
         )
-        generator_status = session.call(
-            "generator",
-            "import json;from pathlib import Path;active=[]\nfor p in Path('/proc').iterdir():\n if not p.name.isdigit():continue\n try:cmd=(p/'cmdline').read_bytes()\n except OSError:continue\n if any(x in cmd for x in (b'paid_ticket_stage.py',b'paid_ticket_sharded_generator.py',b'ticketing.api:app')):active.append(p.name)\nprint(json.dumps({'generator_idle':not active}))",
-        )
+        generator_status = session.call("generator", GENERATOR_IDLE)
         if generator_status.get("generator_idle") is not True:
             raise ValueError("Generator must remain idle and API-free")
         session.state["generator_idle"] = True
@@ -370,6 +376,9 @@ def run(config, output):
         session.put("primary", routes_path, nginx_config(controls))
         session.up("primary", live_path, CANDIDATE_COUNTS, ["load-balancer"])
         session.state["four_primary_control_ready"] = True
+        if stage_hook is not None:
+            session.phase("control-stage")
+            stage_hook(session, "control", controls, saved, owner, output)
         session.phase("two-plus-two-topology")
         session.up("primary", live_path, {**CANDIDATE_COUNTS, "api": 2}, ["api"])
         primary_rows = session.wait("primary", 2)
@@ -499,6 +508,9 @@ with psycopg.connect(os.environ['DATABASE_URL'],autocommit=True) as conn:
             raise ValueError("Global queues/Kafka did not drain")
         session.state["queue_after"] = drain
         session.state["qualification_checks_pass"] = True
+        if stage_hook is not None:
+            session.phase("candidate-stage")
+            stage_hook(session, "candidate", routes, saved, owner, output)
     except (Exception, KeyboardInterrupt) as exc:  # noqa: BLE001 - restoration must run
         session.state["failure_type"] = type(exc).__name__
         session.state["failure_phase"] = session.state["phases"][-1]
@@ -551,6 +563,12 @@ with psycopg.connect(os.environ['DATABASE_URL'],autocommit=True) as conn:
                 if not final_queue or not final_queue["pass"] or final_queue["kafka_members"] != 1:
                     raise ValueError("Restored queues/Kafka not drained")
                 session.state["restored_global_queues"] = final_queue
+                if stage_hook is not None:
+                    session.state["generator_idle_after"] = session.call("generator", GENERATOR_IDLE)[
+                        "generator_idle"
+                    ]
+                    if session.state["generator_idle_after"] is not True:
+                        raise ValueError("Generator still active after restoration")
                 session.state["restore_pass"] = bool(session.state.get("secondary_resources_removed"))
                 if session.state["restore_pass"]:
                     session.call("primary", cleanup_program(owner, None))
@@ -597,7 +615,7 @@ def main():
                 "restore_pass": result["restore_pass"],
                 "failure_phase": result.get("failure_phase"),
                 "failure_type": result.get("failure_type"),
-                "capacity_stages_started": 0,
+                "capacity_stages_started": result["capacity_stages_started"],
             }
         ),
         flush=True,
