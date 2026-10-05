@@ -29,6 +29,27 @@ if now < start or remaining <= 0 or remaining > tonumber(ARGV[4]) then return -1
 if redis.call('SET',KEYS[1],ARGV[1],'NX','PX',remaining) then return 1 end
 return 0
 """
+PUBLISH = """
+local stamp = redis.call('TIME')
+local now = tonumber(stamp[1])*1000 + math.floor(tonumber(stamp[2])/1000)
+local start = tonumber(ARGV[2])
+local deadline = tonumber(ARGV[3])
+local remaining = deadline-now
+if now < start or remaining <= 0 or remaining > tonumber(ARGV[4]) then return -1 end
+local old = redis.call('GET',KEYS[1])
+if old and string.len(old) <= tonumber(ARGV[5]) then
+    local ok, payload = pcall(cjson.decode,old)
+    local ttl = redis.call('PTTL',KEYS[1])
+    if ok and type(payload) == 'table' and payload.schema_version == 1
+       and type(payload.snapshot_start_ms) == 'number' and type(payload.fresh_until_ms) == 'number'
+       and payload.snapshot_start_ms <= now and payload.snapshot_start_ms >= start
+       and payload.fresh_until_ms > now and ttl > 0 and ttl <= payload.fresh_until_ms-now
+       and payload.fresh_until_ms-payload.snapshot_start_ms <= tonumber(ARGV[4])
+       then return 0 end
+end
+redis.call('SET',KEYS[1],ARGV[1],'PX',remaining)
+return 1
+"""
 STATUSES = {'PENDING', 'FAILED', 'EXPIRED', 'REFUND_PENDING', 'REFUNDED', 'PAID', 'FULFILLED'}
 FIELDS = {'id', 'actor', 'hold_id', 'event_id', 'total', 'currency', 'status', 'created_at', 'tickets'}
 
@@ -140,3 +161,28 @@ class RedisOrderStatusCache:
             ORDER_STATUS_CACHE.labels('redis_error').inc()
         except (ValueError, TypeError, KeyError):
             ORDER_STATUS_CACHE.labels('fill_skipped').inc()
+
+    def snapshot_start(self):
+        seconds, micros = self.redis.time()
+        return int(seconds)*1000 + int(micros)//1000
+
+    def publish(self, actor, order_id, row, snapshot_start_ms):
+        """Replace only an older advisory snapshot after a fresh committed read."""
+        try:
+            if type(snapshot_start_ms) is not int:
+                raise ValueError('Invalid snapshot timestamp')
+            raw = json.dumps({'schema_version': 1, 'snapshot_start_ms': snapshot_start_ms,
+                              'fresh_until_ms': snapshot_start_ms+self.max_age_ms,
+                              'order': row}, default=scalar, separators=(',', ':'))
+            if len(raw.encode()) > MAX_BYTES or not valid_order(json.loads(raw)['order'], actor, order_id):
+                ORDER_STATUS_CACHE.labels('event_fill_skipped').inc()
+                return
+            result = self.redis.eval(PUBLISH, 1, self.key(actor, order_id), raw,
+                                     snapshot_start_ms, snapshot_start_ms+self.max_age_ms,
+                                     self.max_age_ms, MAX_BYTES)
+            ORDER_STATUS_CACHE.labels({1: 'event_fill', 0: 'event_fill_raced',
+                                       -1: 'event_fill_stale'}[int(result)]).inc()
+        except RedisError:
+            ORDER_STATUS_CACHE.labels('redis_error').inc()
+        except (ValueError, TypeError, KeyError):
+            ORDER_STATUS_CACHE.labels('event_fill_skipped').inc()

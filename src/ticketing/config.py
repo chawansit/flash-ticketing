@@ -11,6 +11,7 @@ class Settings:
     webhook_secret: str = os.getenv("WEBHOOK_SECRET", "local-webhook-secret-change-me")
     environment: str = os.getenv("ENVIRONMENT", "development")
     order_status_cache_ms: int = int(os.getenv("ORDER_STATUS_CACHE_MS", "0"))
+    order_status_event_refresh: bool = os.getenv("ORDER_STATUS_EVENT_REFRESH", "0") == "1"
     hold_seconds: int = int(os.getenv("HOLD_SECONDS", "120"))
     pool_max: int = int(os.getenv("DB_POOL_MAX", "12"))
     pool_max_waiting: int | None = (
@@ -72,6 +73,8 @@ class Settings:
             or self.seatmap_ttl_seconds < 1
         ):
             raise RuntimeError("Invalid positive configuration")
+        if self.order_status_event_refresh and not self.order_status_cache_ms:
+            raise RuntimeError("ORDER_STATUS_EVENT_REFRESH requires ORDER_STATUS_CACHE_MS")
         if not 0 <= self.order_status_cache_ms <= 3000:
             raise RuntimeError("ORDER_STATUS_CACHE_MS must be between 0 and 3000")
         if self.pool_max_waiting is not None and not 1 <= self.pool_max_waiting <= 64:

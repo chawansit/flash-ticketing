@@ -19,6 +19,8 @@ from redis.exceptions import RedisError
 from ticketing.application.reservations import Reservations
 from ticketing.config import Settings
 from ticketing.infrastructure.cache import RedisSeats
+from ticketing.infrastructure.order_status_cache import RedisOrderStatusCache
+from ticketing.infrastructure.order_status_projector import ORDER_EVENTS, CommittedOrderStatusProjector
 from ticketing.infrastructure.payment_transport import CallbackTransport
 from ticketing.infrastructure.postgres import Postgres
 from ticketing.infrastructure.redis_reservations import RedisReservationIntake
@@ -728,8 +730,15 @@ def reconcile_pass(db, cache, settings, deadline):
 
 
 @measured_work("consume_event")
+def consume_event(db, cache, envelope, order_status_projector=None):
+    _consume_event_transaction(db, cache, envelope)
+    if order_status_projector is not None and envelope["event_type"] in ORDER_EVENTS:
+        data = envelope.get("payload")
+        order_status_projector.refresh(data.get("order_id") if isinstance(data, dict) else None)
+
+
 @measured_consumer_event
-def consume_event(db, cache, envelope):
+def _consume_event_transaction(db, cache, envelope):
     if envelope["schema_version"] != 1:
         raise ValueError("Unsupported event schema")
     kind, data = envelope["event_type"], envelope["payload"]
@@ -817,7 +826,7 @@ def consume_refresh_batch(db, envelopes):
     return len(inserted_ids)
 
 
-def consume_events(db, cache, envelopes):
+def consume_events(db, cache, envelopes, order_status_projector=None):
     pending_refresh = []
 
     def flush_refresh():
@@ -831,7 +840,10 @@ def consume_events(db, cache, envelopes):
             pending_refresh.append(envelope)
             continue
         flush_refresh()
-        consume_event(db, cache, envelope)
+        if order_status_projector is None:
+            consume_event(db, cache, envelope)
+        else:
+            consume_event(db, cache, envelope, order_status_projector=order_status_projector)
     flush_refresh()
 
 
@@ -848,11 +860,15 @@ def dead_letter_message(db, message):
         )
 
 
-def consume_kafka_messages(db, cache, messages):
+def consume_kafka_messages(db, cache, messages, order_status_projector=None):
     EVENT_CONSUMER_BATCH_SIZE.observe(len(messages))
     for attempt in range(5):
         try:
-            consume_events(db, cache, [json.loads(message.value) for message in messages])
+            envelopes = [json.loads(message.value) for message in messages]
+            if order_status_projector is None:
+                consume_events(db, cache, envelopes)
+            else:
+                consume_events(db, cache, envelopes, order_status_projector=order_status_projector)
             return
         except Exception as exc:
             observe_consumer_batch_error(exc)
@@ -865,12 +881,16 @@ def consume_kafka_messages(db, cache, messages):
     # inbox rows make replay of valid records inexpensive and safe.
     for message in messages:
         try:
-            consume_event(db, cache, json.loads(message.value))
+            envelope = json.loads(message.value)
+            if order_status_projector is None:
+                consume_event(db, cache, envelope)
+            else:
+                consume_event(db, cache, envelope, order_status_projector=order_status_projector)
         except Exception:
             dead_letter_message(db, message)
             log.exception("dead_letter")
 
-def consume_iteration(consumer, db, cache, batch_size):
+def consume_iteration(consumer, db, cache, batch_size, order_status_projector=None):
     """Time the existing poll/process/rewind/commit sequence without altering its boundaries."""
     with consumer_phase("poll"):
         batches = consumer.poll(timeout_ms=500, max_records=batch_size)
@@ -882,7 +902,10 @@ def consume_iteration(consumer, db, cache, batch_size):
         for tp, messages in batches.items():
             if messages:
                 with consumer_phase("partition", tp.partition):
-                    consume_kafka_messages(db, cache, messages)
+                    if order_status_projector is None:
+                        consume_kafka_messages(db, cache, messages)
+                    else:
+                        consume_kafka_messages(db, cache, messages, order_status_projector=order_status_projector)
     except Exception:
         for tp, offset in starts.items():
             with consumer_phase("rewind", tp.partition):
@@ -1022,6 +1045,10 @@ def main():
     db, cache = Postgres(settings.database_url, settings.pool_max), RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
     store = PostgresReservations(db, cache, settings.hold_seconds)
     service = Reservations(store)
+    order_status_projector = (
+        CommittedOrderStatusProjector(db, RedisOrderStatusCache(cache.redis, settings.order_status_cache_ms))
+        if role == "consumer" and settings.order_status_event_refresh else None
+    )
     intake = RedisReservationIntake(
         cache,
         hold_seconds=settings.hold_seconds,
@@ -1102,7 +1129,9 @@ def main():
                         or work
                     )
                 else:
-                    work = consume_iteration(consumer, db, cache, settings.consumer_batch_size)
+                    work = consume_iteration(
+                        consumer, db, cache, settings.consumer_batch_size, order_status_projector=order_status_projector
+                    )
                 if not work:
                     time.sleep(0.1)
             except Exception as exc:
