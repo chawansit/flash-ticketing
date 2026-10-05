@@ -264,3 +264,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0160: Durable asynchronous payment confirmation](0160-durable-asynchronous-payment-confirmation.md) - Default-off implementation and local/cloud safety validated; asynchronous throughput benefit unmeasured.
 
 - [ADR0161: Isolated asynchronous confirmation qualification and comparison](0161-isolated-asynchronous-confirmation-comparison.md) - Safety pair passed; measured control failed, candidate skipped and original deployment restored.
+
+- [ADR0162: Failure-time acquisition evidence and conservative partial timeout reclamation](0162-partial-timeout-slot-reclamation.md) - Local reproduction and opt-in qualification; cloud unqualified.

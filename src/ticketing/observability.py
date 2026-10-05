@@ -134,6 +134,10 @@ DB_ROLLBACK_SECONDS = Histogram("ticketing_db_rollback_seconds", "Time spent rol
 DB_POOL_SECONDS = Histogram(
     "ticketing_db_pool_acquire_seconds", "Pool acquisition including failures", ["outcome"]
 )
+DB_ACQUISITION_FAILURES = Counter(
+    "ticketing_db_acquisition_failures_total", "Connection checkout failures by fixed admission reason",
+    ["role", "reason"],
+)
 DB_POOL_RETURN_SECONDS = Histogram(
     "ticketing_db_pool_return_seconds", "Time spent returning a DB connection to the pool"
 )

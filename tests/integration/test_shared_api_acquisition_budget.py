@@ -8,10 +8,12 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import ExitStack
 from dataclasses import replace
 from uuid import uuid4
+
 import jwt
 import pytest
 from fastapi.testclient import TestClient
 from psycopg_pool import PoolClosed, PoolTimeout, TooManyRequests
+
 from ticketing import api
 from ticketing.infrastructure.postgres import create_api_databases
 from ticketing.workers import consume_event
@@ -23,9 +25,9 @@ def wait_queue(pool,count,deadline):
         assert time.monotonic()<deadline,"Native queue did not reach controlled boundary"
         time.sleep(.001)
 
-@pytest.mark.parametrize("shared",[False,True])
+@pytest.mark.parametrize("shared,reclaim",[(False,False),(True,False),(True,True)])
 @pytest.mark.parametrize("readers,payers",[(7,5),(5,7)])
-def test_mixed_http_burst_static_boundary_vs_shared_exact_financial_replay(system,monkeypatch,shared,readers,payers):
+def test_mixed_http_burst_static_boundary_vs_shared_exact_financial_replay(system,monkeypatch,shared,reclaim,readers,payers):
     svc,db,show=system
     with db.transaction() as conn:
         for seat in "DEFG":
@@ -35,7 +37,8 @@ def test_mixed_http_burst_static_boundary_vs_shared_exact_financial_replay(syste
     monkeypatch.setattr(api,"settings",replace(
         api.settings,database_url=db.pool.conninfo,redis_url=os.environ["TEST_REDIS_URL"],
         pool_max=4,pool_max_waiting=12,pool_wait_ms=1000,api_payment_pool_max=2,
-        api_pool_shared_waiting=shared,simulator_concurrency=1,reservation_mode="postgres",order_status_cache_ms=0,
+        api_pool_shared_waiting=shared,api_partial_timeout_reclaim=reclaim,
+        simulator_concurrency=1,reservation_mode="postgres",order_status_cache_ms=0,
     ))
     names=("db","payment_db","cache","reservations","payment_reservations","reservation_intake")
     previous={n:getattr(api.app.state,n) for n in names if hasattr(api.app.state,n)}

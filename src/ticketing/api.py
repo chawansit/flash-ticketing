@@ -62,6 +62,7 @@ async def lifespan(app):
         settings.database_url, settings.pool_max, settings.pool_wait_ms,
         settings.pool_max_waiting, settings.api_payment_pool_max, settings.api_pool_shared_waiting,
         settings.api_callback_acquisition_reserve,
+        settings.api_partial_timeout_reclaim,
     )
     with ExitStack() as resources:
         resources.callback(db.close)
@@ -215,6 +216,9 @@ async def unavailable_error(request, exc):
     else:
         cause = "OperationalError"
     request.state.db_failure_type = cause
+    evidence = getattr(exc, "acquisition_failure", None)
+    if evidence is not None:
+        request.state.db_acquisition_failure = evidence
     DB_UNAVAILABLE.labels(cause).inc()
     return await business_error(request, Failure("DATABASE_UNAVAILABLE", 503))
 

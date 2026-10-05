@@ -8,6 +8,7 @@ from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool, PoolTimeout, TooManyRequests
 
 from ticketing.observability import (
+    DB_ACQUISITION_FAILURES,
     DB_COMMIT_SECONDS,
     DB_CONNECTION_HOLD_SECONDS,
     DB_ERRORS,
@@ -20,6 +21,7 @@ from ticketing.observability import (
     DB_ROLLBACK_SECONDS,
     DB_SECONDS,
     DB_TRANSACTION_BODY_SECONDS,
+    REQUEST_ID,
 )
 
 logger = logging.getLogger(__name__)
@@ -171,6 +173,16 @@ class Postgres:
                 if conn is not None:
                     DB_POOL_IN_USE.dec()
                 self.sample_pool()
+        except (PoolTimeout, TooManyRequests) as exc:
+            evidence = getattr(exc, "acquisition_failure", None)
+            if evidence is not None:
+                try:
+                    logger.warning("db_acquisition_failure", extra={"fields": {
+                        "event": "db_acquisition_failure", "request_id": REQUEST_ID.get(), **evidence,
+                    }})
+                except Exception:  # noqa: BLE001, S110 - logs must not mask the original DB failure.
+                    pass
+            raise
         finally:
             if outcome == "error":
                 DB_POOL_SECONDS.labels(outcome).observe(monotonic() - start)
@@ -214,9 +226,10 @@ class Postgres:
 class SharedAcquisitionBudget:
     """Bound live checkout attempts and conservatively retained timeout slots."""
 
-    def __init__(self, maximum, limits, pools, callback_reserved=0):
+    def __init__(self, maximum, limits, pools, callback_reserved=0, reclaim_partial_timeouts=False):
         if not 0 <= callback_reserved < maximum or (callback_reserved and "callback" not in limits):
             raise ValueError("Invalid callback acquisition reserve")
+        self.reclaim_partial_timeouts = reclaim_partial_timeouts
         self.callback_reserved = callback_reserved
         self.maximum = maximum
         self.limits = limits
@@ -232,32 +245,74 @@ class SharedAcquisitionBudget:
         }
 
     def _refresh(self):
-        # Timeout positions can remain in the native FIFO. Reuse their slots
-        # only after its queue is empty; never inspect private queue objects.
+        # Public FIFO length bounds remaining expired positions. Never subtract
+        # active checkouts: they may hold admission but not yet be queued.
         for role, pool in self.pools.items():
-            if self._retained[role] and not pool.get_stats().get("requests_waiting", 0):
-                self._counts[role] -= self._retained[role]
-                self._retained[role] = 0
+            if self._retained[role]:
+                waiting = pool.get_stats().get("requests_waiting", 0)
+                retained = min(self._retained[role], waiting) if self.reclaim_partial_timeouts else (
+                    self._retained[role] if waiting else 0
+                )
+                self._counts[role] -= self._retained[role] - retained
+                self._retained[role] = retained
 
     def acquire(self, role):
         with self._lock:
             self._refresh()
             group = self._groups[role]
+            group_reserve_full = False
             native_full = self._counts[role] >= self.limits[role]
             if len(group) > 1:
                 ceiling = min(self.limits[item] for item in group)
                 native_full = sum(self._counts[item] for item in group) >= ceiling
                 if self.callback_reserved and role != "callback" and "callback" in group:
                     submissions = sum(self._counts[item] for item in group if item != "callback")
-                    native_full = native_full or submissions >= ceiling - self.callback_reserved
+                    group_reserve_full = submissions >= ceiling - self.callback_reserved
+                    native_full = native_full or group_reserve_full
             reserve_full = False
             if self.callback_reserved and role != "callback":
                 noncallback = sum(self._counts.values()) - self._counts["callback"]
                 reserve_full = noncallback >= self.maximum - self.callback_reserved
             if sum(self._counts.values()) >= self.maximum or native_full or reserve_full:
                 self._rejected[role] += 1
-                raise TooManyRequests("API shared acquisition budget exhausted")
+                reason = "global_limit" if sum(self._counts.values()) >= self.maximum else (
+                    "callback_reserve" if reserve_full or group_reserve_full else "role_limit"
+                )
+                exc = TooManyRequests("API shared acquisition budget exhausted")
+                exc.acquisition_failure = self._failure_snapshot_unlocked(role, reason, "guard_rejection")
+                raise exc
             self._counts[role] += 1
+
+    def _failure_snapshot_unlocked(self, role, reason, capture):
+        # This runs only on failure. Do not serialize connection info or errors.
+        try:
+            stats = self.pools[role].get_stats()
+            native = {key: stats.get(key, 0) for key in (
+                "pool_size", "pool_available", "requests_waiting", "pool_max"
+            )}
+        except Exception:  # noqa: BLE001 - diagnostic snapshot failure must preserve the driver error.
+            native = None
+        return {
+            "role": role,
+            "reason": reason,
+            "capture": capture,
+            "native_pool": native,
+            "guard": {
+                "maximum": self.maximum,
+                "used": sum(self._counts.values()),
+                "acquiring": sum(self._counts.values()) - sum(self._retained.values()),
+                "retained": sum(self._retained.values()),
+                "counts": dict(self._counts),
+                "retained_by_role": dict(self._retained),
+                "limits": dict(self.limits),
+                "callback_reserved": self.callback_reserved,
+                "partial_timeout_reclaim": self.reclaim_partial_timeouts,
+            },
+        }
+
+    def failure_snapshot(self, role, reason):
+        with self._lock:
+            return self._failure_snapshot_unlocked(role, reason, "native_failure_before_release")
 
     def release(self, role, timed_out=False):
         with self._lock:
@@ -294,15 +349,32 @@ class AcquisitionLimitedPool:
     def getconn(self, timeout=None):
         started = monotonic()
         timeout = self._native.timeout if timeout is None else timeout
-        self._budget.acquire(self._role)
+        try:
+            self._budget.acquire(self._role)
+        except TooManyRequests as exc:
+            self._record_failure(exc, started)
+            raise
         timed_out = False
         try:
             return self._native.getconn(timeout=timeout - (monotonic() - started))
-        except PoolTimeout:
-            timed_out = True
+        except (PoolTimeout, TooManyRequests) as exc:
+            timed_out = isinstance(exc, PoolTimeout)
+            self._record_failure(exc, started)
             raise
         finally:
             self._budget.release(self._role, timed_out)
+
+    def _record_failure(self, exc, started):
+        try:
+            evidence = getattr(exc, "acquisition_failure", None)
+            if evidence is None:
+                reason = "native_timeout" if isinstance(exc, PoolTimeout) else "native_limit"
+                evidence = self._budget.failure_snapshot(self._role, reason)
+            evidence = {**evidence, "elapsed_ms": round((monotonic() - started) * 1000, 3)}
+            exc.acquisition_failure = evidence
+            DB_ACQUISITION_FAILURES.labels(self._role, evidence["reason"]).inc()
+        except Exception:  # noqa: BLE001 - diagnostic failure cannot prevent finally-release.
+            return
 
     def putconn(self, conn):
         try:
@@ -357,8 +429,11 @@ def api_pool_budgets(maximum: int, maximum_waiting: int | None, payment_maximum:
     }
 
 
-def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum=0, shared_waiting=False, callback_reserved=0):
+def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum=0, shared_waiting=False,
+                         callback_reserved=0, reclaim_partial_timeouts=False):
     """Return general/payment adapters, sharing one pool when disabled."""
+    if reclaim_partial_timeouts and not shared_waiting:
+        raise ValueError("Partial timeout reclamation requires shared acquisition admission")
     budgets = api_pool_budgets(maximum, maximum_waiting, payment_maximum, shared_waiting)
     if not 0 <= callback_reserved <= payment_maximum or (callback_reserved and (
         not shared_waiting or callback_reserved >= budgets["payment"]["maximum_waiting"]
@@ -381,7 +456,7 @@ def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum
                 limits["callback"] = limits["payment"]
             shared = SharedAcquisitionBudget(
                 maximum if maximum_waiting is None else maximum_waiting,
-                limits, native, callback_reserved,
+                limits, native, callback_reserved, reclaim_partial_timeouts,
             )
             if callback_reserved:
                 callback = Postgres.borrow_pool(AcquisitionLimitedPool(native["payment"], shared, "callback"))
