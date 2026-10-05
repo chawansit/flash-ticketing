@@ -1,6 +1,6 @@
 # Engineering decision records
 
-Publication checkpoint (2026-10-05): this documentation branch publishes ADR0126-ADR0162, the ADR0118 update and their referenced public evidence. Implementation/test commits remain on the local engineering branch; this branch is a decision/evidence snapshot, not a deployment-ready implementation. Failed experiments and unqualified capacity claims remain explicitly recorded.
+Publication checkpoint (2026-10-06): this documentation branch publishes ADR0126-ADR0163, the ADR0118 update and their referenced public evidence. Implementation/test commits remain on the local engineering branch; this branch is a decision/evidence snapshot, not a deployment-ready implementation. Failed experiments and unqualified capacity claims remain explicitly recorded.
 
 Create or update an ADR whenever selecting or changing an architectural pattern. Record context, decision, alternatives, consequences, failure handling and validation. Accepted decisions are superseded by a linked new ADR rather than silently rewritten. These initial records document existing implementation, not new scope approval.
 
@@ -268,3 +268,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0161: Isolated asynchronous confirmation qualification and comparison](0161-isolated-asynchronous-confirmation-comparison.md) - Safety pair passed; measured control failed, candidate skipped and original deployment restored.
 
 - [ADR0162: Failure-time acquisition evidence and conservative partial timeout reclamation](0162-partial-timeout-slot-reclamation.md) - Local reproduction and opt-in qualification; cloud unqualified.
+
+- [ADR0163: Isolated partial-timeout reclamation source and comparison profile](0163-isolated-partial-timeout-reclamation-profile.md) - Local preparation; cloud unqualified.
