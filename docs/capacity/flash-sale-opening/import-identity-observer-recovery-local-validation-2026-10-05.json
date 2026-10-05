@@ -1,0 +1,84 @@
+{
+  "kind": "source_import_identity_and_owned_observer_recovery_local_validation",
+  "recorded_at_utc": "2026-10-05T05:14:42.772750+00:00",
+  "decision": "0150-import-identity-and-bounded-observer-recovery",
+  "workspace_parent_revision": "6fb1edff414055d25a7dc8475f5deeff654af559",
+  "status": "LOCAL_VALIDATION_PASSED_CLOUD_UNQUALIFIED",
+  "validation": {
+    "focused_passed": 270,
+    "failed": 0,
+    "lint": "passed",
+    "diff_check": "passed",
+    "executed_on": "Windows workspace Python",
+    "scope": [
+      "actual isolated Python import/source mismatch and timestamp-valid altered bytecode",
+      "embedded immutable role/image/container/start identity checks before and after source proof",
+      "live-inventory synthetic coverage: four APIs and thirteen background containers; saved-role drift rejection",
+      "protected password lifetime, pinned direct/private-hop selection, auth/key rejection, explicit reconnect budgets",
+      "no call RPC replay; exact owned-stop retry bounds; existing PID/start/command reuse refusal",
+      "finally summary wiring, partial/missing trace errors, preserved failed customer/financial/restore fields",
+      "existing frozen generator, authorization ledger, gates, replay safety and topology restoration contracts"
+    ]
+  },
+  "offline_failed_run_recovery": {
+    "source_run": "adr0148-rate-072a42fcef02",
+    "original_failure_and_customer_financial_queue_fields_unchanged": true,
+    "original_pass": false,
+    "pipeline_samples": 392,
+    "kafka_samples": 231,
+    "distribution_recovered": false,
+    "distribution_missing_coverage_explicit": true,
+    "no_cloud_calls": true,
+    "distribution_failure_reason": "Metric sampling gap"
+  },
+  "implemented": [
+    "Strict /app plus import-resolved source and loader-code proof; private module origins retained.",
+    "Pre-dispatch role-specific immutable image/container/start proof for all seventeen Python service containers.",
+    "Raw traces captured before owned observer stopping; finally summaries retained with explicit missing/corrupt/coverage failures.",
+    "Explicit pinned reconnection only; at most two attempts per role per Session. Optional secondary private hop defaults off.",
+    "Exact identity-guarded owned-stop may reconnect/repeat once; customer/deployment calls never automatically replay."
+  ],
+  "adapter_source_sha256": {
+    "scripts/observe_two_host_pipeline.py": "78ef7c634f4a4354f56c461533ea9a4720d6c32cb46561362d12f2d369bcd6d5",
+    "scripts/prepare_two_host_scaling.py": "8bce6b140fac5ba03f469a448503dbd510122e6578a7bc915dba1bd40cd46964",
+    "scripts/observe_two_host_cpu.py": "9057624cfa1796e4e84c21409f45a84fca00cae11fc7e43bd7902074660abad6",
+    "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+    "scripts/run_two_host_paid_comparison.py": "8052c54d9a468149ee3b667fe7687ec356ce0dc268dad4bac3545721a33c9cfd",
+    "scripts/qualify_two_host_deployment.py": "4222f07fb49a464113cb4677cd6173d8141f1bee8d2c00f6cccf0b2c6142de77",
+    "scripts/collect_two_host_inventory.py": "da9a21489efbe9a95b789d1a3556862a6aada9152df1a431c5189320a790b7da",
+    "scripts/runtime_source_identity.py": "d7a1c8c67ff414ed6280ebda4e6b0a1dfad6f7c9910c0c363f94956d14c04eac"
+  },
+  "raw_evidence": [
+    {
+      "path": "tmp/adr0150-local/pytest.txt",
+      "sha256": "22e9719724547f3544584cb992389de05a05c59392cb812accd9dfaa8daa3f18"
+    },
+    {
+      "path": "tmp/adr0150-local/ruff.txt",
+      "sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+    },
+    {
+      "path": "tmp/adr0150-local/diff-check.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tmp/adr0150-local/checks.json",
+      "sha256": "1cc78952af6b30bb03f97a58940ff8043e41583e9aaaa39f172a22bc24bcc413"
+    },
+    {
+      "path": "tmp/adr0150-local/offline-recovery.json",
+      "sha256": "9fb614275d3dc745109a3c9e160d79282d2712d715fbb23f4b84ce620415c546"
+    }
+  ],
+  "limitations": [
+    "No live SSH/source preflight, safety ticket, new image build, paid load or cloud configuration change.",
+    "Import proof certifies the verification interpreter, not arbitrary old in-memory Python objects.",
+    "Existing cloud qualification is invalidated by changed adapter identity and must be repeated within separately approved scope.",
+    "Historical failed run remains failed; offline distribution is unqualified because of a sampling gap.",
+    "ADR0151 comparison manifest is proposed, not an executable or authorized paired runner."
+  ],
+  "cloud_load_performed": false,
+  "capacity_improvement_measured": false,
+  "github_pushed": false,
+  "main_merged": false
+}

@@ -7,6 +7,7 @@ from urllib.parse import urlsplit
 
 from prepare_two_host_scaling import API_SETTINGS, BACKGROUND, REVISION, validate_inventory
 from qualify_two_host_deployment import GLOBAL_AUDIT, IMAGE, INSPECT, ROOT
+from runtime_source_identity import container_identity_program
 from two_host_topology import environment, grouped
 
 
@@ -60,7 +61,7 @@ print(json.dumps({'machine_id_sha256':hashlib.sha256(uuid.encode()).hexdigest(),
 """
 
 
-def observe(session, arm, routes, baseline_env):
+def observe(session, arm, routes, baseline_env, *, expected_worker_images):
     primary = session.call("primary", INSPECT)
     # Include all secondary resources, not just the expected project's running APIs.
     secondary = session.call(
@@ -119,22 +120,28 @@ def observe(session, arm, routes, baseline_env):
             ROOT / "docs/capacity/flash-sale-opening/frozen-baseline-cpu-diagnostic-plan-2026-10-05.json"
         ).read_text()
     )["expected_runtime_source_sha256"]
+    worker_sources = []
+    if set(expected_worker_images) != set(BACKGROUND):
+        raise ValueError("Every background role needs a saved immutable image")
+    for role in BACKGROUND:
+        for row in groups[role]:
+            if row["Image"] != expected_worker_images[role]:
+                raise ValueError("Background role image differs from saved snapshot")
+            worker_sources.append(session.call("primary", container_identity_program(row, role, expected), 50))
     observed_apis = []
     for route in routes:
         row = by_id[route["container_id"]]
         env = environment(row)
-        source_check = (
-            "import hashlib,json,urllib.request;from pathlib import Path;expected="
-            + repr(expected)
-            + ";actual={k:hashlib.sha256((Path('/app')/k).read_bytes().replace(b'\\r\\n',b'\\n')).hexdigest() for k in expected};ready=json.loads(urllib.request.urlopen('http://127.0.0.1:8000/health/ready',timeout=3).read());print(json.dumps({'source_hashes_match':actual==expected,'ready':ready['status']=='ready'}))"
-        )
-        proof = container_call(session, route["host_role"], row["Id"], source_check)
+        source_check = container_identity_program(row, "api", expected, readiness=True)
+        identity = session.call(route["host_role"], source_check, 50)
+        proof = identity["source_identity"]
         url = urlsplit(env["DATABASE_URL"])
         observed_apis.append(
             {
                 **route,
                 "image_id": row["Image"],
                 "revision": REVISION,
+                "started_at": identity["started_at"],
                 **proof,
                 "settings": {k: env.get(k) for k in API_SETTINGS},
                 "pgbouncer_host_role": "primary",
@@ -151,6 +158,7 @@ def observe(session, arm, routes, baseline_env):
         "apis": observed_apis,
         "baseline_authorities": authorities(baseline_env),
         "background": background,
+        "worker_sources": worker_sources,
         "pgbouncer": {
             "host_role": "primary",
             "server_pool": int(pool["DEFAULT_POOL_SIZE"]),

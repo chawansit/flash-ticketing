@@ -128,7 +128,7 @@ def test_worker_log_collection_rejects_changed_identity_or_missing_coverage(tmp_
     spec.write_text(json.dumps({"containers": rows}))
     def inspect(args, **kwargs):
         if args[1] == "exec":
-            return json.dumps({"source_match": case != "changed-source"})
+            return json.dumps({"source_hashes_match": case != "changed-source"})
         cid = args[-1]
         role = next(r["role"] for r in rows if r["id"] == cid)
         return json.dumps([{"Id": cid, "Image": "changed" if case == "changed-image" else IMAGE,
@@ -148,7 +148,7 @@ def test_worker_log_collection_is_time_scoped_bounded_and_read_only(tmp_path, mo
     calls = []
     def inspect(args, **kwargs):
         if args[1] == "exec":
-            return json.dumps({"source_match": True})
+            return json.dumps({"source_hashes_match": True})
         cid = args[-1]
         role = next(r["role"] for r in rows if r["id"] == cid)
         return json.dumps([{"Id": cid, "Image": images[role], "Config": {"Labels": {"com.docker.compose.service": role}}}])

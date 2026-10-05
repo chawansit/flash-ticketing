@@ -17,7 +17,7 @@ from observe_two_host_cpu import compare_windows
 from observe_two_host_cpu import summarize as summarize_cpu
 from observe_two_host_pipeline import summarize_distribution
 from prepare_two_host_scaling import REVISION
-from qualify_two_host_deployment import GLOBAL_AUDIT, ROOT, run
+from qualify_two_host_deployment import GLOBAL_AUDIT, ROOT, run, transport_failure
 from summarize_paid_kafka_lag import summarize as summarize_kafka
 from summarize_paid_pipeline import summarize as summarize_pipeline
 
@@ -175,8 +175,34 @@ def kafka_pass(summary):
     )
 
 
+def retain_observer_summaries(local, record, inventory=None):
+    """Retain diagnostic summaries without clearing any original failure/pass field."""
+    rows_by_name = {}
+    for name, summarize in (("pipeline", summarize_pipeline), ("kafka", summarize_kafka)):
+        path = local / (name + ".jsonl")
+        if not path.exists():
+            record.setdefault("summary_collection_errors", {})[name] = "FileNotFoundError"
+            continue
+        try:
+            rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+            if not rows:
+                raise ValueError("Empty observer trace")
+            rows_by_name[name] = rows
+            record[name + "_summary"] = summarize(rows)
+        except Exception as exc:  # noqa: BLE001 - preserve stage failure and other evidence
+            record.setdefault("summary_collection_errors", {})[name] = type(exc).__name__
+    if inventory and "pipeline" in rows_by_name and record.get("offered_start_utc") and record.get("offered_end_utc"):
+        try:
+            record["distribution"] = summarize_distribution(
+                rows_by_name["pipeline"], inventory, offered_start_utc=record["offered_start_utc"],
+                offered_end_utc=record["offered_end_utc"],
+            )
+        except Exception as exc:  # noqa: BLE001 - no inferred offered-window coverage
+            record.setdefault("summary_collection_errors", {})["distribution"] = type(exc).__name__
+
+
 def adapter_identity():
-    paths = [*ADAPTERS, "run_two_host_paid_comparison.py", "qualify_two_host_deployment.py", "collect_two_host_inventory.py"]
+    paths = [*ADAPTERS, "run_two_host_paid_comparison.py", "qualify_two_host_deployment.py", "collect_two_host_inventory.py", "runtime_source_identity.py"]
     return {"scripts/" + name: source_sha256((ROOT / "scripts" / name).read_bytes()) for name in paths}
 
 
@@ -251,7 +277,11 @@ class Stages:
             deadline = time.monotonic() + 45
             while True:
                 try:
-                    inventory, view, primary, secondary = observe(session, arm, routes, baseline_env)
+                    inventory, view, primary, secondary = observe(
+                        session, arm, routes, baseline_env,
+                        expected_worker_images={role: saved["model"]["services"][role]["image"]
+                                               for role in ("consumer", "reservation-writer", "maintenance", "publisher", "reconciler", "simulator")},
+                    )
                     break
                 except ValueError as exc:
                     if (
@@ -515,7 +545,12 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                 )
                 record["financial"] = session.api(cid, financial_audit_program(event_ids, self.expected_tickets), 175)
             record["global_queues"] = drain(session, cid)
-            # Stop and collect before the finally-restored container disappears.
+            # Collect available traces before any owned stop can lose the SSH transport.
+            for name in ("pipeline", "kafka"):
+                raw = copy_out(session, cid, directory + "/" + name + ".jsonl", remote + "/" + name + ".jsonl")
+                (local / (name + ".jsonl")).write_bytes(raw)
+            retain_observer_summaries(local, record, inventory)
+            # Final stopped traces are collected again on the normal success path.
             for role, job in jobs:
                 stopped = self.stop(session, role, cid, job)
                 if stopped["running"]:
@@ -564,6 +599,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                         (local / (name + ".jsonl")).write_bytes(raw)
                     except Exception as exc:  # noqa: BLE001 - retain partial failure evidence
                         record.setdefault("trace_collection_errors", []).append(type(exc).__name__)
+            retain_observer_summaries(local, record, inventory if "inventory" in locals() else None)
             for role, job in jobs:
                 try:
                     log = "job-" + job["name"] + ".log"
@@ -659,7 +695,14 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
 
     def stop(self, session, role, cid, job):
         code = process_program(job, stop=True)
-        return session.api(cid, code, 45) if role == "container" else session.call(role, code, 45)
+        try:
+            return session.api(cid, code, 45) if role == "container" else session.call(role, code, 45)
+        except Exception as exc:
+            if not transport_failure(exc):
+                raise
+            # Only this exact identity-guarded cleanup program may be repeated.
+            session.reconnect("primary" if role == "container" else role)
+            return session.api(cid, code, 45) if role == "container" else session.call(role, code, 45)
 
     def wait(self, session, job, role, timeout, *, allowed_returncodes=None):
         deadline = time.monotonic() + timeout

@@ -1,0 +1,92 @@
+{
+  "decision": "0151-identical-cache-age-committed-status-refresh-comparison",
+  "status": "PROPOSED_NOT_EXECUTABLE_NOT_AUTHORIZED",
+  "recorded_at_utc": "2026-10-05T05:12:27.996282+00:00",
+  "cloud_execution_performed": false,
+  "base_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "isolated_source_directory": "tmp/adr0149-isolated-source",
+  "isolated_source_manifest_verified_locally": true,
+  "expected_runtime_source_sha256": {
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "b11dd08700c476f00304302c9199dfb2017aa6fed81ca2033eb89347fb351f4b",
+    "src/ticketing/infrastructure/reservations.py": "ae44dffde81c06a9aa4990dd22ddd86f799ee371001db9222abc73aae3dea5c7",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/order_status_cache.py": "357b4e825701a99e13e3cf5ffd64bfb49748c6371ef090c3d5e71f2ac88fe7e9",
+    "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+    "src/ticketing/api.py": "ed4a9f07085fd9491457271c09f9bbc97822cdea4235ad138a167c9649a8b911",
+    "src/ticketing/config.py": "de47f818672a1c6b4d37e4a760ed61faf6f0497c32e5d709d91ebd3841b330bd",
+    "src/ticketing/workers.py": "06ac4a6e45640a9abe1dfbfc4f0d3c6b4346b55d4d74bbc6f4bdbc6518e6b395",
+    "src/ticketing/observability.py": "8cf47f1b830ad761d6efb78cb31f207ccf0aed97fbb118bbb180276eec8ffbfa",
+    "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+    "src/ticketing/application/ports.py": "7850899c6174f7a636320d271bd71001641c02b7261f7fc664abdd284d069d91",
+    "src/ticketing/infrastructure/order_status_projector.py": "ea9e553528f4af3c56723cfdf27dd44fb0098608ebb82a41a013344a4adf75a8"
+  },
+  "comparison": {
+    "control": {
+      "consumer_ORDER_STATUS_EVENT_REFRESH": "0"
+    },
+    "candidate": {
+      "consumer_ORDER_STATUS_EVENT_REFRESH": "1"
+    },
+    "common": {
+      "ORDER_STATUS_CACHE_MS": "1000",
+      "api_replicas_primary": 2,
+      "api_replicas_secondary": 2,
+      "api_pool_total": 16,
+      "payment_pool_included_total": 8,
+      "api_acquisition_slots_each": 12,
+      "api_acquisition_wait_ms": 500,
+      "callback_reserve": 0,
+      "reservation_concurrency_each": 4,
+      "consumer_replicas": 6,
+      "consumer_pool_each": 8,
+      "writer_replicas": 3,
+      "writer_batch_size": 4,
+      "simulator_concurrency": 8,
+      "simulator_dispatch_mode": "refill",
+      "pgbouncer_server_pool": 24,
+      "pgbouncer_reserve_pool": 0,
+      "pgbouncer_max_clients": 160,
+      "api_host_vcpus_each": 4,
+      "api_host_memory_gib_each": 8,
+      "load_balancer": "unchanged leastconn/private upstreams/no retry",
+      "images": "same immutable per-role candidate images in both arms; future build/import qualification required"
+    }
+  },
+  "proposed_workload": {
+    "buyers_per_second": 60,
+    "seconds": 300,
+    "unique_show_seats_each_arm": 18000,
+    "fresh_isolated_shows_each_arm": 60,
+    "seats_per_show": 300,
+    "journey_concurrency_total": 500,
+    "generator_shards": 2,
+    "max_active_journeys_each_shard": 250,
+    "http_clients_each_shard": 8,
+    "connections_each_shard": 250,
+    "status_poll_seconds": 1,
+    "callback_target": 1,
+    "customer_retry": false,
+    "completion_deadline_seconds": 420
+  },
+  "gate_policy": {
+    "existing_customer_latency_error_drop_financial_double_booking_queue_kafka_observer_restore_gates": "retain",
+    "cache_disabled_assertion": "future candidate-aware adapter must require same explicit1000ms bounded authorized cache policy instead; no latency or correctness gate relaxation",
+    "control_failure": "stop without candidate dispatch",
+    "candidate_failure": "stop, audit/drain/restore; no automatic replacement or higher-rate run"
+  },
+  "measurements": [
+    "customer confirmations/errors/drops and paid issued tickets",
+    "status reads per journey/cache hit and miss counts",
+    "hold-to-ticket latency and callback backlog",
+    "consumer DB query utilization/time and Kafka lag",
+    "API host CPU and all four replica traffic distribution"
+  ],
+  "prerequisites_remaining": [
+    "implement candidate-aware two-host factor runner and separate approval ledger; existing runner changes placement between arms",
+    "prepare matching per-role candidate image build with both /app and installed import identity; no frozen generator change",
+    "qualify changed source/config inventory contract and dry observer/recovery/safety/post-TTL gates before paid dispatch",
+    "prepare explicit bounded approval scope for safety tickets and exactly one pair; prior paid authorization is consumed"
+  ],
+  "no_capacity_improvement_claim": true
+}

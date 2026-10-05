@@ -35,11 +35,25 @@ print(json.dumps({'generator_idle':not active}))
 """
 
 
+def transport_failure(exc):
+    """Narrow transport failures only; never retry authorization/remote ownership errors."""
+    import sys
+
+    if isinstance(exc, (EOFError, ConnectionError, TimeoutError)):
+        return True
+    paramiko = sys.modules.get("paramiko")
+    if paramiko is None:
+        return False
+    rejected = (paramiko.AuthenticationException, paramiko.BadHostKeyException, paramiko.ChannelException)
+    return isinstance(exc, paramiko.SSHException) and not isinstance(exc, rejected)
+
+
 class Session:
     def __init__(self, config, output, password):
-        import paramiko
-
+        if type(config.get("secondary_ssh_private_fallback", False)) is not bool:
+            raise ValueError("Private SSH fallback must be explicitly boolean")
         self.config, self.output, self.clients = config, output, {}
+        self._password, self._closed, self._via_primary = password, False, set()
         self.state = {
             "run_id": output.name,
             "capacity_stages_started": 0,
@@ -47,32 +61,88 @@ class Session:
             "pass": False,
             "restore_pass": False,
             "phases": [],
+            "ssh_reconnect_attempts": {},
+            "ssh_routes": {},
         }
         try:
             for role in ("primary", "secondary", "generator"):
-                item = config[role]
-                client = paramiko.SSHClient()
-                client.load_host_keys(config["known_hosts"])
-                client.set_missing_host_key_policy(paramiko.RejectPolicy())
-                client.connect(
-                    item["host"],
-                    username="root",
-                    password=password,
-                    look_for_keys=False,
-                    allow_agent=False,
-                    timeout=12,
-                    auth_timeout=15,
-                    banner_timeout=15,
-                )
-                client.get_transport().set_keepalive(30)
-                self.clients[role] = client
+                self.clients[role] = self._open(role)
         except BaseException:
             self.close()
             raise
 
+    def _open(self, role):
+        import paramiko
+
+        item = self.config[role]
+
+        def client():
+            result = paramiko.SSHClient()
+            try:
+                result.load_host_keys(self.config["known_hosts"])
+                result.set_missing_host_key_policy(paramiko.RejectPolicy())
+                return result
+            except BaseException:
+                result.close()
+                raise
+
+        options = {"username": "root", "password": self._password, "look_for_keys": False,
+                   "allow_agent": False, "timeout": 12, "auth_timeout": 15, "banner_timeout": 15}
+        opened, channel = client(), None
+        try:
+            try:
+                opened.connect(item["host"], **options)
+                self.state["ssh_routes"][role] = "direct"
+            except (TimeoutError, OSError):
+                opened.close()
+                if role != "secondary" or not self.config.get("secondary_ssh_private_fallback", False):
+                    raise
+                address = private_ipv4(item["private_ipv4"])
+                parent = self.clients["primary"].get_transport()
+                if parent is None or not parent.is_active():
+                    raise RuntimeError("Pinned primary hop is unavailable")
+                channel = parent.open_channel("direct-tcpip", (address, 22), ("127.0.0.1", 0), timeout=12)
+                opened = client()
+                # The public identity still selects the same pinned secondary host key.
+                opened.connect(item["host"], sock=channel, **options)
+                self._via_primary.add(role)
+                self.state["ssh_routes"][role] = "pinned_private_hop"
+            opened.get_transport().set_keepalive(30)
+            return opened
+        except BaseException:
+            opened.close()
+            if channel is not None:
+                channel.close()
+            raise
+
+    def reconnect(self, role):
+        if self._closed or role not in {"primary", "secondary", "generator"}:
+            raise ValueError("Closed or unknown SSH role")
+        attempts = self.state["ssh_reconnect_attempts"]
+        if attempts.get(role, 0) >= 2:
+            raise RuntimeError("SSH reconnect budget exhausted")
+        attempts[role] = attempts.get(role, 0) + 1
+        self.checkpoint()
+        if role == "primary":
+            for child in self._via_primary:
+                self.clients[child].close()
+            self._via_primary.clear()
+        self._via_primary.discard(role)
+        self.clients[role].close()
+        self.clients[role] = self._open(role)
+        self.checkpoint()
+
     def close(self):
-        for c in self.clients.values():
-            c.close()
+        try:
+            for c in self.clients.values():
+                try:
+                    c.close()
+                except Exception as exc:  # noqa: BLE001 - close remaining transports and clear credentials
+                    self.state.setdefault("ssh_close_errors", []).append(type(exc).__name__)
+        finally:
+            self.clients.clear()
+            self._password = None
+            self._closed = True
 
     def checkpoint(self):
         (self.output / "state.json").write_text(json.dumps(self.state, indent=2) + "\n")

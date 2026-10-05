@@ -10,6 +10,7 @@ from uuid import uuid4
 
 import run_two_host_paid_comparison as comparison
 from qualify_two_host_deployment import ROOT, run
+from runtime_source_identity import source_identity_program
 from summarize_two_host_paid_comparison import compact
 
 LEDGER = "bounded_rate_probe"
@@ -48,10 +49,7 @@ def worker_logs_program(spec_path, since, expected_images):
     ):
         raise ValueError("Immutable saved worker images required")
     expected_source = json.loads(comparison.PLAN.read_text())["expected_runtime_source_sha256"]
-    source_check = (
-        "import hashlib,json;from pathlib import Path;expected=" + repr(expected_source)
-        + ";actual={k:hashlib.sha256((Path('/app')/k).read_bytes().replace(bytes([13,10]),bytes([10]))).hexdigest() for k in expected};print(json.dumps({'source_match':actual==expected}))"
-    )
+    source_check = source_identity_program(expected_source)
     return r"""import json,re,subprocess
 from pathlib import Path
 spec=json.loads(Path(SPEC).read_text())
@@ -64,11 +62,11 @@ for row in spec['containers']:
  current=json.loads(subprocess.check_output(['docker','inspect',cid],text=True,timeout=10))[0]
  if current['Id']!=cid or current['Image']!=images[row['role']] or current['Config']['Labels']['com.docker.compose.service']!=row['role']:raise ValueError('Diagnostic container/source changed')
  proof=json.loads(subprocess.check_output(['docker','exec',cid,'python','-c',SOURCE_CHECK],text=True,timeout=12))
- if proof.get('source_match') is not True:raise ValueError('Diagnostic worker frozen source differs')
+ if proof.get('source_hashes_match') is not True:raise ValueError('Diagnostic worker frozen source differs')
  result=subprocess.run(['docker','logs','--since',SINCE,'--tail','200',cid],capture_output=True,timeout=12)
  if result.returncode:raise ValueError('Diagnostic log unavailable')
  raw=result.stdout+result.stderr
- logs.append({'role':row['role'],'container_id':cid,'image':current['Image'],'source_match':True,'tail_truncated':len(raw)>16384,'text':raw[-16384:].decode(errors='replace')})
+ logs.append({'role':row['role'],'container_id':cid,'image':current['Image'],'source_match':True,'source_identity':proof,'tail_truncated':len(raw)>16384,'text':raw[-16384:].decode(errors='replace')})
 if sum(row['role']=='consumer' for row in logs)!=6 or sum(row['role']=='simulator' for row in logs)!=1:raise ValueError('Diagnostic worker coverage differs')
 print(json.dumps({'logs':logs}))
 """.replace("SPEC", repr(spec_path)).replace("SINCE", repr(since)).replace("IMAGES", repr(expected_images)).replace("SOURCE_CHECK", repr(source_check))
