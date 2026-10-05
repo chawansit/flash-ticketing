@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0166_failure_retention_local_qualified_measured_reclamation_candidate_rejected",
+  "status": "adr0168_projection_candidate_rejected_cloud_comparison_restored",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "Measured control restoration passed:original primary4API/runtime semantics;secondary test resources/credential snapshots removed;generator idle;all tracked global queues/Kafka lag0,1 normal consumer.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "ADR0163 frozen ADR0160 parent plus five-file admission overlay:213files21modules verified;6immutable images source/import/dependency/config passed;32host profile and272native tests passed;2actual image off/on settings probes passed.Source/authority/transaction parity checked,callback reserve excluded,owned native resources removed.No cloud staging/deployment/customer load;capacity unmeasured.",
+  "revision_note": "Frozen cloud application/profile unchanged. ADR0165control18000paid-issued vs candidate17999;reclamation notadopted. ADR0166retention271localtests. ADR0168projection106nativeintegrationtests;isolatedcandidate rejected afterread/clientregression,baseline source restored. No higher load/async/hour qualification.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -1056,7 +1056,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Measure separate 18000-seat Redis projection under bounded local contention, then make one evidence-based isolated correction. Payment native-timeout origin remains unresolved; capture implementation cloud-unqualified. No higher load or automatic failed-protocol replay.",
+  "next_action": "Capture payment native-pool timeout and commit-stall cause with ADR0166qualified retention under fresh bounded baseline control; no stale-ledger replay. Address18kclient/read cost separately; do notadopt indexed candidate. Asyncconfirmation,84successful tickets/s,openingburst andhour300000qualification remain pending.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1119,7 +1119,7 @@
     ],
     "scope_closed": true
   },
-  "revision": "aee64e2d21c79930a2533eb95a4760f90fdf7537",
+  "revision": "9ab75b1834e24ba31e8144d472f07c7fadb7389f",
   "latest_experiment": {
     "decision": "ADR0165",
     "run": "adr0151-7acbc3dc2a41",
@@ -1140,5 +1140,15 @@
     "passed": 271,
     "cloud_calls": 0,
     "evidence": "docs/capacity/flash-sale-opening/admission-failure-retention-local-validation-2026-10-06.json"
+  },
+  "latest_projection": {
+    "decision": "ADR0168",
+    "implemented_candidate": "artifacts/projection-source-index/adr0168.patch",
+    "adopted": false,
+    "native_tests_passed": 106,
+    "original_timeout_reproduced": true,
+    "cloud_calls": 0,
+    "issue_closed": false,
+    "evidence": "docs/capacity/flash-sale-opening/large-projection-contention-comparison-2026-10-06.json"
   }
 }

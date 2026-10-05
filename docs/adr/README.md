@@ -274,3 +274,7 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0165: Exact admission observer compatibility and fresh qualification](0165-exact-admission-observer-compatibility.md)
 
 - [ADR0166: Retain bounded admission failure evidence before teardown](0166-bounded-admission-failure-evidence-retention.md)
+
+- [ADR0167: Bounded large projection contention measurement](0167-bounded-large-projection-contention-measurement.md)
+
+- [ADR0168: Atomic projection source-version index](0168-atomic-projection-source-version-index.md)

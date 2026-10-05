@@ -1,0 +1,19 @@
+{
+  "decision": "ADR0168",
+  "status": "EXPERIMENTAL_NOT_ADOPTED",
+  "baseline_revision": "9ab75b1834e24ba31e8144d472f07c7fadb7389f",
+  "patch_sha256": "1f0128fc382c83c1a47e14cc52ff7625d60fc60dfdf4702cd5c50892c6cb50a8",
+  "files": {
+    "src/ticketing/infrastructure/cache.py": {
+      "baseline_sha256": "004f5ccc790f21519079a885f0269ce45e8a4609f3456bc85c14c75580118f0e",
+      "candidate_sha256": "8cf8c2632afc69ef379169ff20fb4f8e8afd5f37ba3acbddcb83157e290eaaa5"
+    },
+    "tests/integration/test_bulk_atomic_projection.py": {
+      "baseline_sha256": "558a33da6eb50629dd734801bec053d745b60b4af88b0576f58735c1cc699eda",
+      "candidate_sha256": "5bbc301c255c03922b5dcffa7bc28894579570ce80176cf5ef5696f1193558b7"
+    }
+  },
+  "native_tests_passed": 106,
+  "cloud_calls": 0,
+  "reason": "Lua improvement did not consistently improve end-to-end publication; large reads regressed. No cloud rollout."
+}
