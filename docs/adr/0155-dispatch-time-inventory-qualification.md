@@ -1,6 +1,6 @@
 # ADR0155: Bind inventory freshness to dispatch time
 
-- Status: Accepted; fresh two-ticket dry qualification passed; measured replacement is not authorized
+- Status: Accepted; fresh dry and separately approved matched paid comparison passed;further load is not authorized
 - Date: 2026-10-05
 
 ## Context
@@ -36,3 +36,7 @@ The [executed comparison report](../capacity/flash-sale-opening/status-refresh-p
 The user separately approved one fresh exact-bound off/on safety qualification pair with at most two simulated isolated tickets and zero paid capacity stages. Prior failed scope is archived intact. This authorizes no automatic replacement or measured comparison. Live results will be recorded after execution.
 
 Fresh dry8148deab5b1c executed on corrected runnerf24ad70 and passed both off/on arms.Each100-way cross-host race yielded1 hold/1 paid issued customer-confirmed ticket;hold/payment replay,other-actor authorization,duplicate callbacks,post-TTL durability,zero double-booking,full queue/Kafka drain,observer checks and exact restoration passed.Two safety protocols and zero capacity stages consumed.Stored qualification receipts match canonical inventory/image/source/arm proofs.See the [fresh qualification report](../capacity/flash-sale-opening/status-refresh-dispatch-qualification-2026-10-05.json).No paid-stage dispatch-admission chronology/full-length final gate or performance improvement was measured;those remain local regression coverage and future separately approved comparison.No previous failed result is rewritten.
+
+Following the passing fresh dry,the user separately approved one replacement matched refresh-off/on performance comparison at60 buyer journeys/s300s per arm (18000 scheduled each),max2 measured stages and2 additional safety tickets.Identical2+2 placement,images/cache/machines/budgets;no retries,higher rate,automatic replacement,push or merge.The prior successful dry and failed measured scopes remain archived.Outcomes pending;approval itself is not performance evidence.
+
+The separately approved corrected matched pair001831458f5a executed off/on60 buyer journeys/s300s each and passed all32 gates in both arms.Each18000/18000 paid issued/customer-confirmed,0 errors/drops/duplicates,post-TTL financial durability/full queue drain/exact restoration.Fresh persisted receipts passed before actual launch and at final full-length analysis.Two measured stages and two additional safety tickets consumed scope.See the [matched comparison report](../capacity/flash-sale-opening/status-refresh-paid-replacement-comparison-2026-10-05.json).Cache/API efficiency improved but consumer DB work rose;this validates the timing correction and fixed-load behavior,not increased maximum/hourly capacity.Prior failed control remains unchanged.No further load,push or merge authorized.

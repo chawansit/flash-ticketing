@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-05",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0155_fresh_dry_pair_passed_restored_paid_comparison_pending",
+  "status": "adr0155_matched_paid_comparison_passed_restored_consumer_read_cost_identified",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -10,10 +10,10 @@
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "Original primary4API/runtime semantics restored after both arms;secondary test resources/credential snapshots removed,generator idle,all DB/Redis queues/Kafka lag0 with1 normal consumer.",
+  "last_checked_topology": "Primary original4API/runtime semantics restored,secondary test resources/credential snapshots removed,generator idle;global DB/Redis queues andKafka lag0 with1 normal consumer after each arm.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "current_run": null,
-  "revision_note": "ADR0155 fresh dry8148deab5b1c passed both off/on arms on runnerf24ad70.Each100-way same-seat race had1 durable hold/paid issued customer-confirmed simulated ticket;replay/authorization/post-TTL/zero-double-booking/global drain/observers/exact restoration passed.Stored canonical qualification receipts verified.No capacity dispatch;old failed measured control remains failed.",
+  "revision_note": "Matched corrected comparison001831458f5a passed all32 gates per off/on arm on runnerf24ad70.Both18000/18000 confirmed paid issued tickets,errors/drops/doubles0,post-TTL durability/full queues/restoration passed.Fresh dispatch receipts and final long-run freshness check passed.Cache misses-49.887%,API CPU-4.091%,butconsumer DB acquisitions+53.134%;primaryCPU69.03->69.95 and ticketp95littlechanged.Higher sustainable/hourly capacity unmeasured.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -32,16 +32,18 @@
     "ADR0151 measured control ef88e8fe34b2:18000 scheduled/dispatched/confirmed,0 customer errors/drops,18000 payments/bookings/tickets,duplicate seats/orders0,post-TTL financial work0,full queues/Kafka0,normal runtime restored.31/32 gates passed; bounded_equal_cache_age failed and candidate was not launched.",
     "Control worst-shard hold-to-ticket p952183.21ms; primary CPU69.598%,secondary18.512%;36253 status checks=2.014/journey;observed cache hits0/misses36253. This is one control, not an off/on benefit or hourly capacity qualification.",
     "ADR0155 admission-time inventory receipt fix passed303 focused harness tests (includes earlier190),Ruff and diff checks. Offline original inventory stale at analysis and valid at capture; corrected validator rejects old record lacking receipt. Default preparation made0 cloud calls/customer dispatches. Original gates and ledgers preserved.",
-    "ADR0155 fresh dry8148deab5b1c passed off/on exact source/image2+2 placement,same-seat100 requests=>1 hold1 ticket each,replays/other-actor/post-TTL durability/duplicates0/full queues0/observers/restoration;stored inventory receipts match.The2 safety protocols and0 capacity stages consumed authorized scope.No performance benefit claim."
+    "ADR0155 fresh dry8148deab5b1c passed off/on exact source/image2+2 placement,same-seat100 requests=>1 hold1 ticket each,replays/other-actor/post-TTL durability/duplicates0/full queues0/observers/restoration;stored inventory receipts match.The2 safety protocols and0 capacity stages consumed authorized scope.No performance benefit claim.",
+    "Corrected matched off/on001831458f5a:all32 gates each arm,18000 scheduled/dispatched/confirmed each,0 errors/drops/doubles,18000 payments/bookings/tickets each,post-TTL/full queues0/exact restoration.Fresh persisted admission receipts and final long-run receipt validation passed;2 measured stages plus2 additional safety tickets consumed scope.",
+    "Refresh-on:status cache misses36336->18209 (-49.887%),cache hit share0->49.706%,API DB acquisitions73061->54930,aggregate API CPU1.4366->1.3778 cores (-4.091%).Consumer acquisitions66137->101278 (+53.134%),consumer CPU201.78->219.12s (+8.594%).API+consumer acquisitions+12.220% over observer lifetimes.PrimaryCPU69.029->69.952%,hold-to-ticket p952141.06->2126.49ms;no higher-capacity claim."
   ],
-  "unresolved": "Refresh-on performance benefit and300000-ticket/hour capacity remain unmeasured.Corrected paid dispatch-admission chronology/full-length final gate has local regression coverage only;fresh cloud dry qualifies source/safety/observation/restoration.",
+  "unresolved": "Status refresh reduces API cache misses but adds about2 consumer snapshot reads/journey;net primaryCPU and end-to-end latency have not materially improved in this single pair.Maximum capacity and300000 paid-ticket/hour target remain unqualified.",
   "next_on_resume": [
-    "Obtain separate approval for matched refresh-off/on60 buyer journeys/s300s each,18000 scheduled per arm,max2 measured stages and2 additional isolated safety tickets,no retries/higher rate/replacement.",
-    "Before dispatch verify fresh successful dry8148deab5b1c age<=3600s and exact source/artifact/config/adapter binding.If stale or changed,do not bypass or start paid;fresh bounded qualification needs approval.",
-    "Require all32 paid/observation gates,durability/zero-double-booking/full queues/restoration;compare status-cache/DB/CPU/latency/customer errors/drops before claiming benefit or choosing higher load."
+    "Review repeated OrderPaid/TicketsIssued snapshot-read work and propose one safe consumer optimization.Create ADR before changing advisory refresh/replay/recovery policy;preserve post-commit boundaries,owner validation,absoluteTTL,financial transaction AST,replay repair and default-off rollback.",
+    "Execute focused unit/real DBRedis integration checks for chosen change;produce a reproducible isolated source/image candidate and fresh exact-bound safety qualification before a matched test.No benefit from local tests alone.",
+    "Only after a measured net-efficiency gain,seek bounded84-buyer/s300s probe or appropriate longer capacity validation;preserve error/latency,durability/zero-double-booking/full-drain/restoration gates.No automatic higher load."
   ],
-  "authorization": "User Approve authorized exactly1 fresh off/on safety qualification,max2 simulated tickets,0 capacity stages.Completed and restored;scope consumed.No measured replacement,push or merge authorized.",
-  "scope": "Completed ADR0155 two-ticket safety qualification;inactive proposal for separate matched paid comparison;preserve prior failed measured evidence and archived scopes.",
+  "authorization": "User Approve authorized one replacement matched60 buyer journeys/s300s off/on pair,max2 measured stages and2 additional safety tickets.Completed both and restored;scope consumed.No higher rate,automatic replacement,new deployment,push or merge authorized.",
+  "scope": "Completed matched fixed-factor experiment and analysis;next consumer refresh optimization is proposed future work requiring ADR before policy change.No active cloud run.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -102,10 +104,11 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "ADR0155 fresh two-ticket dry passed;report/checkpoint saved locally.No capacity load,GitHub push or main merge.",
+    "status": "Matched off/on60-buyer/s comparison passed and restored;report/checkpoint saved locally.No GitHub push/main merge.",
     "branch": "codex/redis-failover-recovery"
   },
   "evidence": [
+    "docs/capacity/flash-sale-opening/status-refresh-paid-replacement-comparison-2026-10-05.json",
     "docs/capacity/flash-sale-opening/status-refresh-dispatch-qualification-2026-10-05.json",
     "docs/capacity/flash-sale-opening/status-refresh-paid-comparison-2026-10-05.json",
     "docs/capacity/flash-sale-opening/status-refresh-real-image-preparation-2026-10-05.json",
@@ -251,7 +254,10 @@
     "cloud_deployed": false,
     "capacity_improvement_measured": false,
     "report": "docs/capacity/flash-sale-opening/order-status-event-refresh-local-validation-2026-10-05.json",
-    "source_directory": "tmp/adr0152-qualified-artifacts/source"
+    "source_directory": "tmp/adr0152-qualified-artifacts/source",
+    "cloud_temporarily_tested": true,
+    "current_production_refresh_enabled": false,
+    "matched_paid_comparison_report": "docs/capacity/flash-sale-opening/status-refresh-paid-replacement-comparison-2026-10-05.json"
   },
   "local_harness_recovery": {
     "decision": "0150-import-identity-and-bounded-observer-recovery",
@@ -272,8 +278,10 @@
     "runner_guide": "docs/capacity/flash-sale-opening/order-status-event-refresh-runner.md",
     "local_preparation": "tmp/adr0151-local/reviewed-preparation.json",
     "latest_local_preparation": "tmp/adr0155-checks/comparison-preparation.json",
-    "cloud_qualification_scope": "Dry source/safety/observer/receipt/restoration only;paid dispatch-admission/full-length gate not exercised.",
-    "latest_dry_report": "tmp\\adr0151-8148deab5b1c\\comparison-summary.json"
+    "cloud_qualification_scope": "Fresh dry plus matched60-buyer/s300s off/on comparison:source/safety/paid dispatch-admission/full-length final freshness/all32 gates/restoration passed;higher capacity unmeasured.",
+    "latest_dry_report": "tmp\\adr0151-8148deab5b1c\\comparison-summary.json",
+    "latest_paid_report": "tmp/adr0151-001831458f5a/comparison-summary.json",
+    "fixed_load_efficiency_comparison_complete": true
   },
   "local_status_refresh_artifacts": {
     "decision": "0152-reproducible-isolated-status-refresh-artifacts",
@@ -306,8 +314,10 @@
     "failed_dry_report": "tmp/adr0151-6d045bfad023/comparison-summary.json",
     "corrected_cpu_mapping_cloud_tested": true,
     "corrected_dry_report": "tmp/adr0151-cb2e26816335/comparison-summary.json",
-    "cloud_qualification_scope": "Dry source/safety/observer/receipt/restoration only;paid dispatch-admission/full-length gate not exercised.",
-    "latest_dry_report": "tmp\\adr0151-8148deab5b1c\\comparison-summary.json"
+    "cloud_qualification_scope": "Fresh dry plus matched60-buyer/s300s off/on comparison:source/safety/paid dispatch-admission/full-length final freshness/all32 gates/restoration passed;higher capacity unmeasured.",
+    "latest_dry_report": "tmp\\adr0151-8148deab5b1c\\comparison-summary.json",
+    "latest_paid_report": "tmp/adr0151-001831458f5a/comparison-summary.json",
+    "fixed_load_efficiency_comparison_complete": true
   },
   "bounded_status_refresh": {
     "authorization_id": "adr0151-status-refresh-pair-2026-10-05",
@@ -332,27 +342,37 @@
     },
     "qualification_runs_authorized": 1,
     "qualification_protocols_started": 1,
-    "paid_runs_authorized": 0,
-    "paid_runs_started": 0,
-    "paid_protocols_started": 0,
-    "safety_tickets_authorized": 2,
-    "safety_protocols_started": 2,
+    "paid_runs_authorized": 2,
+    "paid_runs_started": 2,
+    "paid_protocols_started": 2,
+    "safety_tickets_authorized": 4,
+    "safety_protocols_started": 4,
     "active_run": null,
-    "status": "ADR0155_FRESH_DRY_PAIR_PASSED_RESTORED_SCOPE_CONSUMED",
-    "scope": "One fresh ADR0155 exact-bound off/on safety qualification pair;max2 simulated isolated tickets,0 paid capacity stages;mandatory source/replay/post-TTL/double-booking/full-drain/restoration gates;no automatic replacement or capacity execution.",
-    "release_instance": "2fea4c3124c44663b112f0e9e3b1d13f",
-    "approved_at_utc": "2026-10-05T08:49:06.355966+00:00",
-    "approval_source": "User Approve after explicit proposal of fresh safety qualification,max2 simulated tickets,no capacity load.",
+    "status": "ADR0155_MATCHED_PAID_PAIR_PASSED_RESTORED_SCOPE_CONSUMED",
+    "scope": "One replacement matched refresh-off/on pair:identical2+2API placement and machines/images/cache/budgets,60 buyer journeys/s300s each,18000 scheduled per arm,max2 measured stages and2 additional isolated safety tickets.Stop on any control gate failure.No retries,higher rate,automatic replacement,push or merge;mandatory all32 gates/post-TTL/durability/doubles0/full drain/restoration.",
+    "release_instance": "a20aa9a73e6a4c3693a4e5d7a80bc4a6",
+    "approved_at_utc": "2026-10-05T09:19:47.342494+00:00",
+    "approval_source": "User Approve after passing fresh safety qualification and explicit proposed60 buyer journeys/s300s each matched performance comparison,max2 additional safety tickets.",
     "replacement_authorized": false,
     "qualification_arms": [
       "control",
       "candidate"
     ],
-    "last_runner_report": "tmp/adr0151-8148deab5b1c/comparison-summary.json",
+    "last_runner_report": "tmp/adr0151-001831458f5a/comparison-summary.json",
     "dry_qualification_report": "tmp/adr0151-8148deab5b1c/comparison-summary.json",
-    "qualification_report": "docs/capacity/flash-sale-opening/status-refresh-dispatch-qualification-2026-10-05.json"
+    "qualification_report": "docs/capacity/flash-sale-opening/status-refresh-dispatch-qualification-2026-10-05.json",
+    "paid_protocol_arms": [
+      "control",
+      "candidate"
+    ],
+    "attempted_paid_arms": [
+      "control",
+      "candidate"
+    ],
+    "all_required_gates_pass": true,
+    "comparison_report": "docs/capacity/flash-sale-opening/status-refresh-paid-replacement-comparison-2026-10-05.json"
   },
-  "latest_checkpoint_evidence": "docs/capacity/flash-sale-opening/status-refresh-dispatch-qualification-2026-10-05.json",
+  "latest_checkpoint_evidence": "docs/capacity/flash-sale-opening/status-refresh-paid-replacement-comparison-2026-10-05.json",
   "archived_status_refresh_scopes": [
     {
       "authorization_id": "adr0151-status-refresh-pair-2026-10-05",
@@ -488,10 +508,53 @@
         "bounded_equal_cache_age"
       ],
       "comparison_report": "docs/capacity/flash-sale-opening/status-refresh-paid-comparison-2026-10-05.json"
+    },
+    {
+      "authorization_id": "adr0151-status-refresh-pair-2026-10-05",
+      "binding": {
+        "adapter_identity": {
+          "scripts/observe_two_host_pipeline.py": "733dac867102e057c0edc9d96de104b964d859d17f8cd1f8ade28ab019934846",
+          "scripts/prepare_two_host_scaling.py": "727ddc19e66dcc3780e398cc610c4d0d835ee23809d21ddc492d426d29cf7bc8",
+          "scripts/observe_two_host_cpu.py": "c186aedc7a52e4e671a21caf30af211991f251dd637a02807307769752acda04",
+          "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+          "scripts/run_two_host_paid_comparison.py": "3e610e31634d38697bb8911ad9f31798396855b134117bd47fe1732b355ec20e",
+          "scripts/qualify_two_host_deployment.py": "1cda5f0bb34729c2a2ea8a0cb242344c5a1e07a8bf55aa0b29eff71aeb7625fd",
+          "scripts/collect_two_host_inventory.py": "5b345464ab18c4a4ad18616dbd44f414a88b7dc0d4b7a79b496810cff7f78ed7",
+          "scripts/runtime_source_identity.py": "d7a1c8c67ff414ed6280ebda4e6b0a1dfad6f7c9910c0c363f94956d14c04eac",
+          "scripts/run_status_refresh_comparison.py": "8eebd8bd1feea6d81cd56d3117a5b0cd125ac7206912648a71b5c774eb0155d6",
+          "scripts/status_refresh_contract.py": "94d2d0cf1896efaf559c8b74c84c49a021b53ce2270aa1fcbca700818239835b",
+          "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+          "experiment_plan": "fb3d0e4dd468b08dd74c0689a12018c3b0af8f1ec9b2225bd6f37a98e6579cf6"
+        },
+        "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+        "artifact_sha256": "5131aa8213cc768239c513607b1dbaaae645e50bed9510fd20ada4cf51e76c03",
+        "source_manifest_sha256": "81e9af585e8a20a81a2de72a04057faefe773f6f94e66a88b9887fe7617c8a48"
+      },
+      "qualification_runs_authorized": 1,
+      "qualification_protocols_started": 1,
+      "paid_runs_authorized": 0,
+      "paid_runs_started": 0,
+      "paid_protocols_started": 0,
+      "safety_tickets_authorized": 2,
+      "safety_protocols_started": 2,
+      "active_run": null,
+      "status": "ADR0155_FRESH_DRY_PAIR_PASSED_RESTORED_SCOPE_CONSUMED",
+      "scope": "One fresh ADR0155 exact-bound off/on safety qualification pair;max2 simulated isolated tickets,0 paid capacity stages;mandatory source/replay/post-TTL/double-booking/full-drain/restoration gates;no automatic replacement or capacity execution.",
+      "release_instance": "2fea4c3124c44663b112f0e9e3b1d13f",
+      "approved_at_utc": "2026-10-05T08:49:06.355966+00:00",
+      "approval_source": "User Approve after explicit proposal of fresh safety qualification,max2 simulated tickets,no capacity load.",
+      "replacement_authorized": false,
+      "qualification_arms": [
+        "control",
+        "candidate"
+      ],
+      "last_runner_report": "tmp/adr0151-8148deab5b1c/comparison-summary.json",
+      "dry_qualification_report": "tmp/adr0151-8148deab5b1c/comparison-summary.json",
+      "qualification_report": "docs/capacity/flash-sale-opening/status-refresh-dispatch-qualification-2026-10-05.json"
     }
   ],
   "qualified_runner_revision": "f24ad70e8bc77807f703ca9f10dbc687b5d9f905",
-  "checkpoint_revision_note": "f24ad70 is the unchanged corrected runner used for fresh dry8148deab5b1c;the following documentation checkpoint adds results without changing adapter identity.Measured paid control still usedfa67e08 and remains failed.",
+  "checkpoint_revision_note": "f24ad70 is the unchanged runner used for successful dry8148deab5b1c and matched paid001831458f5a.Preceding result checkpoint912cc42;following documentation commit records measurements without changing adapters.Originalfa67e08 failed measured result remains intact.",
   "local_dispatch_inventory_qualification": {
     "decision": "0155-dispatch-time-inventory-qualification",
     "parent_workspace_revision": "20d02167d34420e94d3c302843a202d64a3c51c6",
@@ -501,7 +564,9 @@
     "report": "docs/capacity/flash-sale-opening/status-refresh-paid-comparison-2026-10-05.json",
     "preparation": "tmp/adr0155-checks/comparison-preparation.json",
     "source_or_image_rebuild_required": false,
-    "cloud_qualification_scope": "Dry source/safety/observer/receipt/restoration only;paid dispatch-admission/full-length gate not exercised.",
-    "latest_dry_report": "tmp\\adr0151-8148deab5b1c\\comparison-summary.json"
+    "cloud_qualification_scope": "Fresh dry plus matched60-buyer/s300s off/on comparison:source/safety/paid dispatch-admission/full-length final freshness/all32 gates/restoration passed;higher capacity unmeasured.",
+    "latest_dry_report": "tmp\\adr0151-8148deab5b1c\\comparison-summary.json",
+    "latest_paid_report": "tmp/adr0151-001831458f5a/comparison-summary.json",
+    "fixed_load_efficiency_comparison_complete": true
   }
 }

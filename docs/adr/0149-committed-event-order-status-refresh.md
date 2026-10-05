@@ -1,6 +1,6 @@
 # ADR0149: Refresh advisory order status after committed events
 
-- Status: Implemented and locally validated; disabled by default, cloud unqualified
+- Status: Implemented;isolated matched60-buyer/s cloud comparison passed;disabled by default,higher capacity unqualified
 - Date: 2026-10-05
 
 ## Context
@@ -48,3 +48,7 @@ An isolated candidate was prepared on frozen deb330ec91e553640d1d0ba10e92aa8f29c
 Owned containers/network/copied test contexts were removed and absence verified. Cloud unchanged, no load, image deployment, RPS improvement, GitHub push or merge. Snapshot-start fencing orders read freshness rather than database versions: bounded staleness is guaranteed by validation/expiry, not strictly monotonic display state. Fresh snapshot reads add consumer work; measure net benefit before scaling. [Local qualification evidence](../capacity/flash-sale-opening/order-status-event-refresh-local-validation-2026-10-05.json).
 
 Next prepare isolated image/import-source identity and observer/SSH recovery, then a separately authorized comparison with identical enabled-cache age/budgets/workload in both arms and only event refresh toggled. Cache age selection, callback reserve activation and client polling/jitter are separate factors; no automatic84/s retry follows these local results.
+
+## Matched cloud comparison
+
+The separately approved ADR0151/0155 comparison001831458f5a passed off/on60 buyer journeys/s300s each at identical1000ms cache,2+2API placement,machines/images/budgets.Each18000/18000 confirmed paid issued tickets,0 errors/drops/doubles,post-TTL durability/full queues/restoration.All32 gates passed.See the [report](../capacity/flash-sale-opening/status-refresh-paid-replacement-comparison-2026-10-05.json).Status-cache misses-49.887%,API CPU-4.091%;consumer acquisitions+53.134%,API+consumer acquisitions+12.220% over observer lifetimes.PrimaryCPU69.029->69.952% and ticketp952141.06->2126.49ms showed little net change.No higher sustainable/hourly capacity is established;normal runtime was restored and the option remains disabled by default.Next review repeated committed-snapshot reads;no refresh-policy change is chosen/implemented by this result.
