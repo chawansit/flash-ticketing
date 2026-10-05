@@ -1,0 +1,179 @@
+{
+  "date_bangkok": "2026-10-05",
+  "decision": "ADR0153 staging / ADR0151 dry qualification",
+  "scope": {
+    "qualification_pairs_authorized": 1,
+    "safety_tickets_maximum": 2,
+    "paid_capacity_stages_authorized": 0,
+    "automatic_replacement": false
+  },
+  "staging": {
+    "pass": true,
+    "customer_dispatches": 0,
+    "service_deployments": 0,
+    "runtime_identities_unchanged": true,
+    "generator_idle": true,
+    "hosts": {
+      "primary": {
+        "images": [
+          "sha256:0e1a3dad9280ab6e1502719462415e58debeda44033b49871c9ceff051e04d20",
+          "sha256:1012926a64e6a2ccf48a6f518c5ea3013872d2bea3161e781c9522ab5395b78c",
+          "sha256:1787fa893e3debc1a5c6e31c95344d3548621c250f9f73c5b03bbc636c3cd3e6",
+          "sha256:38ece172d6aa61236833d02d22849cf50cbb04b9ea6f2f586a1f446253c8bc24",
+          "sha256:b064d035c8865f317ab1da3490f3d8cb9993b32486bc164f5e82ef89bd02bd6e",
+          "sha256:fb5636d760e0e53128e4a4a0f4cb33b6d76ae166d336cecb6f69fc97f2838715"
+        ],
+        "archive_bytes": 79383552,
+        "archive_sha256": "0be3d576c07955756d8bd5975596035f12be2fe85dbeb11e808b8438ece9f8f3",
+        "artifact_roles_verified": [
+          "api",
+          "consumer",
+          "reservation-writer",
+          "maintenance",
+          "publisher",
+          "reconciler",
+          "simulator"
+        ],
+        "remote_archive_removed": true
+      },
+      "secondary": {
+        "images": [
+          "sha256:1787fa893e3debc1a5c6e31c95344d3548621c250f9f73c5b03bbc636c3cd3e6",
+          "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e"
+        ],
+        "archive_bytes": 78567424,
+        "archive_sha256": "d48416fa90f82ee6c09d0a6511d80209a38fa087625142f75ab785d60bf7088b",
+        "artifact_roles_verified": [
+          "api"
+        ],
+        "remote_archive_removed": true
+      }
+    },
+    "raw_evidence": "tmp/adr0153-parents-d3f2ec89590b/staging-summary.json"
+  },
+  "local_validation": {
+    "focused_tests_passed": 115,
+    "ruff_passed": true,
+    "diff_check_passed": true,
+    "warning": "Pytest cache write unavailable; executed test assertions passed."
+  },
+  "qualification": {
+    "status": "FAILED_CONTROL_RESTORED",
+    "run": "adr0151-6d045bfad023",
+    "pass": false,
+    "finished_at_utc": "2026-10-05T07:18:41.870960+00:00",
+    "safety_protocols_started": 1,
+    "capacity_stages_started": 0,
+    "candidate_arm_started": false,
+    "pre_safety_source_pass": true,
+    "safety": {
+      "pass": true,
+      "wave_requests": 100,
+      "requests_per_host": [
+        50,
+        50
+      ],
+      "wave_statuses": {
+        "409": 99,
+        "202": 1
+      },
+      "accepted_holds": 1,
+      "one_durable_owner_before_payment": true,
+      "cross_host_hold_replay": true,
+      "cross_host_payment_replay": true,
+      "other_actor_denied": true,
+      "customer_ticket_confirmed": true
+    },
+    "post_ttl_financial": {
+      "orders": 1,
+      "fulfilled_orders": 1,
+      "expired_orders": 0,
+      "pending_orders": 0,
+      "payment_attempts": 1,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 1,
+      "bookings": 1,
+      "tickets": 1,
+      "payment_callbacks": 1,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 3,
+      "callback_delivery_target": 3,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 1,
+      "expected_paid": 1,
+      "expected_callback_deliveries_per_payment": 3,
+      "pass": true,
+      "hold_deadlines_elapsed": true
+    },
+    "queue_after": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "pending_callback_deliveries": 0,
+      "pending_refunds": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "kafka_total_lag": 0,
+      "kafka_members": 6,
+      "pass": true
+    },
+    "restoration": {
+      "restore_pass": true,
+      "primary_runtime_semantics_restored": true,
+      "secondary_resources_removed": true,
+      "generator_idle_after": true,
+      "credential_snapshots_removed": true,
+      "restored_global_queues": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "pending_callback_deliveries": 0,
+        "pending_refunds": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "kafka_total_lag": 0,
+        "kafka_members": 1,
+        "pass": true
+      }
+    },
+    "observer_failure": {
+      "phase": "candidate-stage (physical hook for logical control)",
+      "cause": "CPU observer inferred historical four-primary/zero-secondary placement from logical control; actual fixed placement was two APIs per host.",
+      "primary_and_secondary_error": "Placement differs from arm",
+      "financial_checks_passed": true,
+      "customer_capacity_dispatches": 0
+    },
+    "raw_evidence": "tmp/adr0151-6d045bfad023/comparison-summary.json",
+    "ledger_consumed": true,
+    "replacement_authorized": false
+  },
+  "performance_improvement_measured": false,
+  "hourly_target_qualified": false,
+  "correction": {
+    "decision": "ADR0154",
+    "implemented_locally": true,
+    "cloud_rerun": false,
+    "regression_tests_passed": 202,
+    "ruff_passed": true,
+    "actual_retained_inventory_cpu_specs": {
+      "primary": {
+        "pass": true,
+        "logical_arm": "control",
+        "placement": "two-plus-two",
+        "api_count": 2
+      },
+      "secondary": {
+        "pass": true,
+        "logical_arm": "control",
+        "placement": "two-plus-two",
+        "api_count": 2
+      }
+    },
+    "old_failed_evidence_preserved": true,
+    "preparation_binding_changed": true
+  },
+  "next_action": "Fresh approval for one corrected dry qualification pair, max2 simulated safety tickets and0 paid capacity stages; retain all existing gates. Do not replay consumed scope."
+}

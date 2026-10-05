@@ -31,14 +31,25 @@ def timestamp(value):
     return result.astimezone(UTC)
 
 
+def placement(spec):
+    arm = spec.get("arm")
+    if arm not in {"control", "candidate"}:
+        raise ValueError("Unknown logical CPU arm")
+    value = spec.get("placement", "four-primary" if arm == "control" else "two-plus-two")
+    if value not in {"four-primary", "two-plus-two"} or (value == "four-primary" and arm != "control"):
+        raise ValueError("Unknown or incompatible CPU placement")
+    return value
+
+
 def validate_spec(spec):
     if spec.get("schema") != 1 or spec.get("host_role") not in HOST_ROLES:
         raise ValueError("Unknown host CPU specification")
     if not re.fullmatch(r"[0-9a-f]{64}", spec.get("instance_uuid_sha256", "")):
         raise ValueError("Verified instance identity required")
+    physical = placement(spec)
     rows = spec.get("containers", [])
     if not isinstance(rows, list) or (
-        not rows and not (spec.get("arm") == "control" and spec["host_role"] == "secondary")
+        not rows and not (physical == "four-primary" and spec["host_role"] == "secondary")
     ):
         raise ValueError("Observed containers required")
     ids = set()
@@ -51,7 +62,7 @@ def validate_spec(spec):
             raise ValueError("Secondary must be API-only")
         ids.add(entry["id"])
     count = sum(entry["role"] == "api" for entry in rows)
-    expected = (4 if spec["host_role"] == "primary" else 0) if spec.get("arm") == "control" else 2
+    expected = (4 if spec["host_role"] == "primary" else 0) if physical == "four-primary" else 2
     if spec.get("arm") not in {"control", "candidate"} or count != expected:
         raise ValueError("Placement differs from arm")
     return rows
@@ -140,6 +151,7 @@ def collect(spec, start_at, *, seconds=300, interval=5):
         "schema": 1,
         "host_role": spec["host_role"],
         "arm": spec["arm"],
+        "placement": placement(spec),
         "instance_uuid_sha256": actual,
         "requested_start_utc": start.isoformat(),
         "seconds": seconds,
@@ -167,6 +179,7 @@ def summarize(data):
         "arm": data["arm"],
         "instance_uuid_sha256": data["instance_uuid_sha256"],
         "containers": data["containers"],
+        **({"placement": data["placement"]} if "placement" in data else {}),
     }
     entries = validate_spec(spec)
     ids = {entry["id"] for entry in entries}
@@ -211,6 +224,7 @@ def summarize(data):
     return {
         "host_role": data["host_role"],
         "arm": data["arm"],
+        "placement": placement(spec),
         "instance_uuid_sha256": data["instance_uuid_sha256"],
         "start_utc": first["utc"],
         "end_utc": last["utc"],
@@ -226,6 +240,7 @@ def compare_windows(primary, secondary, *, offered_start_utc, offered_end_utc):
         primary["host_role"] != "primary"
         or secondary["host_role"] != "secondary"
         or primary["arm"] != secondary["arm"]
+        or placement(primary) != placement(secondary)
         or primary["instance_uuid_sha256"] == secondary["instance_uuid_sha256"]
     ):
         raise ValueError("Distinct matched host roles required")

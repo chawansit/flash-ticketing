@@ -281,3 +281,88 @@ def test_distribution_missing_restart_starvation_or_window_gap_cannot_pass(probl
             offered_start_utc=NOW.isoformat(),
             offered_end_utc=(NOW + timedelta(seconds=3)).isoformat(),
         )
+
+
+@pytest.mark.parametrize("arm", ["control", "candidate"])
+def test_fixed_two_host_runner_emits_valid_specs_without_relabeling_factor(arm):
+    from run_two_host_paid_comparison import cpu_spec
+
+    summaries = []
+    for role in ("primary", "secondary"):
+        data = cpu_data(role, "candidate")
+        rows = [
+            {"Id": e["id"], "Config": {"Labels": {"com.docker.compose.service": e["role"]}}}
+            for e in data["containers"]
+        ]
+        observed = {"hosts": {role: {"machine_id_sha256": data["instance_uuid_sha256"]}}}
+        spec = cpu_spec(arm, role, rows, observed, fixed_two_host=True)
+        assert spec["arm"] == arm and spec["placement"] == "two-plus-two"
+        cpu.validate_spec(spec)
+        data.update(arm=arm, placement=spec["placement"])
+        summary = cpu.summarize(data)
+        assert summary["placement"] == "two-plus-two" and summary["arm"] == arm
+        summaries.append(summary)
+    assert (
+        cpu.compare_windows(
+            *summaries,
+            offered_start_utc=NOW.isoformat(),
+            offered_end_utc=(NOW + timedelta(seconds=15)).isoformat(),
+        )["aggregate_api_cpu_cores"]
+        == 4
+    )
+
+
+@pytest.mark.parametrize("role", ["primary", "secondary"])
+def test_legacy_control_spec_keeps_four_primary_and_zero_secondary(role):
+    from run_two_host_paid_comparison import cpu_spec
+
+    data = cpu_data(role, "control")
+    rows = [
+        {"Id": e["id"], "Config": {"Labels": {"com.docker.compose.service": e["role"]}}}
+        for e in data["containers"]
+    ]
+    observed = {"hosts": {role: {"machine_id_sha256": data["instance_uuid_sha256"]}}}
+    spec = cpu_spec("control", role, rows, observed)
+    assert "placement" not in spec and cpu.placement(spec) == "four-primary"
+    assert len(cpu.validate_spec(spec)) == (4 if role == "primary" else 0)
+
+
+@pytest.mark.parametrize(
+    "defect", ["missing", "count", "unknown", "four-primary-candidate", "secondary-worker"]
+)
+def test_fixed_two_host_spec_rejects_topology_drift_before_launch(defect):
+    from run_two_host_paid_comparison import cpu_spec
+
+    data = cpu_data("secondary", "candidate")
+    rows = [
+        {"Id": e["id"], "Config": {"Labels": {"com.docker.compose.service": e["role"]}}}
+        for e in data["containers"]
+    ]
+    observed = {"hosts": {"secondary": {"machine_id_sha256": data["instance_uuid_sha256"]}}}
+    if defect == "missing":
+        rows = []
+    if defect == "count":
+        rows.pop()
+    if defect == "secondary-worker":
+        rows[0]["Config"]["Labels"]["com.docker.compose.service"] = "consumer"
+    if defect in {"missing", "count", "secondary-worker"}:
+        with pytest.raises(ValueError):
+            cpu_spec("control", "secondary", rows, observed, fixed_two_host=True)
+    else:
+        data["placement"] = "unknown" if defect == "unknown" else "four-primary"
+        with pytest.raises(ValueError):
+            cpu.validate_spec(data)
+
+
+def test_cpu_comparison_rejects_same_factor_with_different_physical_placement():
+    primary = cpu.summarize(cpu_data("primary", "control"))
+    data = cpu_data("secondary", "candidate")
+    data.update(arm="control", placement="two-plus-two")
+    secondary = cpu.summarize(data)
+    with pytest.raises(ValueError, match="Distinct matched host roles"):
+        cpu.compare_windows(
+            primary,
+            secondary,
+            offered_start_utc=NOW.isoformat(),
+            offered_end_utc=(NOW + timedelta(seconds=15)).isoformat(),
+        )

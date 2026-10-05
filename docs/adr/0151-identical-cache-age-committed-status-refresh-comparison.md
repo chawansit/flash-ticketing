@@ -1,6 +1,6 @@
 # ADR0151: Identical-cache-age committed status refresh comparison
 
-- Status: Accepted; local runner implemented and tested; image/live qualification and execution approval pending
+- Status: Accepted; images staged; dry control failed on CPU placement mapping and restored; ADR0154 correction awaiting replacement qualification
 - Date: 2026-10-05
 
 ## Context
@@ -48,3 +48,5 @@ Dry-only authorization may reserve one qualification pair and two safety tickets
 The [local runner validation report](../capacity/flash-sale-opening/order-status-event-refresh-runner-local-validation-2026-10-05.json) records 350 executed focused harness tests and passing lint/diff checks, including both successful and unavailable cache-measurement reporting. These are local unit/synthetic protocol checks, not a cloud safety, durability or capacity result. Default preparation was executed with zero cloud calls and zero customer dispatches. Candidate image construction, reproducible isolated-source export and fresh live qualification remain pending.
 
 ADR0152 supersedes the ignored temporary-source prerequisite with a pinned eight-file patch, reproducible Git export and offline per-role image derivation. The runner now points to that reproduced source tree. The original local test report remains historical evidence; the changed experiment-plan binding requires a fresh preparation receipt. No execution allowance or live gate is superseded.
+
+The approved dry pair6d045bfad023 exercised one control safety ticket: loaded-source, payment replay, post-TTL durability and full queue gates passed. Both CPU observers rejected the inherited four-primary control mapping; candidate was stopped and original runtime/queues restored. ADR0154 adds explicit observer placement. Original failed evidence and consumed allowance remain; no corrected replacement or paid comparison has run.

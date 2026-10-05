@@ -243,8 +243,10 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 
 - [0150 - Import identity and bounded observer recovery](0150-import-identity-and-bounded-observer-recovery.md)
 
-- [0151: Identical-cache-age committed status refresh comparison](0151-identical-cache-age-committed-status-refresh-comparison.md) â€” Local runner implemented; image/live qualification pending, no cloud execution.
+- [0151: Identical-cache-age committed status refresh comparison](0151-identical-cache-age-committed-status-refresh-comparison.md) â€” Images staged; dry control failed and restored; ADR0154 correction awaits fresh qualification.
 
-- [ADR0152: Reproducible isolated status-refresh artifacts](0152-reproducible-isolated-status-refresh-artifacts.md) â€” Local artifact tooling; cloud parent and live qualification pending.
+- [ADR0152: Reproducible isolated status-refresh artifacts](0152-reproducible-isolated-status-refresh-artifacts.md) â€” Real parent/candidate images verified (ADR0153); corrected live qualification pending (ADR0154).
 
-- [ADR0153: Owned retrieval of original cloud parent images](0153-owned-cloud-parent-image-retrieval.md) — Artifact retrieval/local derivation; no deployment or load authorization.
+- [ADR0153: Owned retrieval of original cloud parent images](0153-owned-cloud-parent-image-retrieval.md) — Artifact retrieval, local derivation and verified image-cache staging; separate dry control failed and restored (ADR0154).
+
+- [ADR0154: Explicit CPU observer placement](0154-explicit-cpu-observer-placement.md) — Harness correction after failed dry control; replacement cloud run needs fresh approval.

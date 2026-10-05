@@ -13,7 +13,7 @@ from uuid import uuid4
 from collect_two_host_inventory import observe
 from kafka_lag_observe import source_sha256
 from observe_paid_pipeline import kafka_startup_view, pipeline_startup_view
-from observe_two_host_cpu import compare_windows
+from observe_two_host_cpu import compare_windows, validate_spec
 from observe_two_host_cpu import summarize as summarize_cpu
 from observe_two_host_pipeline import summarize_distribution
 from prepare_two_host_scaling import REVISION
@@ -237,6 +237,25 @@ def drain(session, cid):
         time.sleep(2)
 
 
+def cpu_spec(arm, role, rows, inventory, *, fixed_two_host=False):
+    if type(fixed_two_host) is not bool:
+        raise ValueError("Explicit CPU placement policy required")
+    spec = {
+        "schema": 1,
+        "arm": arm,
+        "host_role": role,
+        "instance_uuid_sha256": inventory["hosts"][role]["machine_id_sha256"],
+        "containers": [
+            {"id": r["Id"], "role": r["Config"]["Labels"]["com.docker.compose.service"]}
+            for r in rows
+        ],
+    }
+    if fixed_two_host:
+        spec["placement"] = "two-plus-two"
+    validate_spec(spec)  # Exact emitted spec must pass before upload or owned job launch.
+    return spec
+
+
 class Stages:
     def __init__(self, execute, bundle, *, rate=60, ledger_key="bounded_control", stage_limit=2, contract=None):
         if (type(rate) is not int or type(stage_limit) is not int
@@ -443,16 +462,9 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                         + repr(location)
                         + ").mkdir(mode=0o700);print(json.dumps({'fresh':True}))",
                     )
-                spec = {
-                    "schema": 1,
-                    "arm": arm,
-                    "host_role": role,
-                    "instance_uuid_sha256": inventory["hosts"][role]["machine_id_sha256"],
-                    "containers": [
-                        {"id": r["Id"], "role": r["Config"]["Labels"]["com.docker.compose.service"]}
-                        for r in rows
-                    ],
-                }
+                spec = cpu_spec(
+                    arm, role, rows, inventory, fixed_two_host=self.contract is not None,
+                )
                 session.put(role, location + "/cpu-spec.json", json.dumps(spec), True)
                 session.put(
                     role,
