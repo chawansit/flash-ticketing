@@ -5,6 +5,7 @@ import asyncio
 import ipaddress
 import json
 import os
+import re
 from collections import Counter
 from pathlib import Path
 from time import monotonic
@@ -60,7 +61,14 @@ def wave_view(responses):
     return winner, statuses
 
 
+def probe_actors(run_id):
+    if not isinstance(run_id, str) or not re.fullmatch(r"adr0147-[0-9a-f]{32}", run_id):
+        raise ValueError("Fresh probe actor namespace required")
+    return [f"{run_id}-{i}" for i in range(100)]
+
+
 def audit_one_owner(event_id, body, run_id):
+    actors = probe_actors(run_id)
     with psycopg.connect(os.environ["DATABASE_URL"], autocommit=False) as conn:
         conn.execute("SET TRANSACTION READ ONLY")
         conn.execute("SET LOCAL statement_timeout = '3s'")
@@ -70,8 +78,8 @@ def audit_one_owner(event_id, body, run_id):
               AND o.hold_id=h.id AND o.actor=h.actor AND r.actor=h.actor)
             FROM idempotency_records r LEFT JOIN holds h ON h.id=(r.response->>'hold_id')::uuid
             LEFT JOIN orders o ON o.id=(r.response->>'order_id')::uuid
-            WHERE r.operation='hold' AND r.key LIKE %s""",
-            (body["hold_id"], event_id, run_id + "-%"),
+            WHERE r.operation='hold' AND r.key LIKE %s AND r.actor=ANY(%s::text[])""",
+            (body["hold_id"], event_id, run_id + "-%", actors),
         ).fetchone()
         seat = conn.execute(
             "SELECT hold_id FROM event_seats WHERE event_id=%s AND seat_id='S0'", (event_id,)
@@ -229,7 +237,7 @@ def main():
     tokens = [
         jwt.encode(
             {
-                "sub": f"{identifier}-{i}",
+                "sub": actor,
                 "aud": "ticketing",
                 "iss": "ticketing",
                 "exp": int(time.time()) + 600,
@@ -237,7 +245,7 @@ def main():
             os.environ["JWT_SECRET"],
             algorithm="HS256",
         )
-        for i in range(100)
+        for actor in probe_actors(identifier)
     ]
     with args.output.open("x") as out:
         os.chmod(args.output, 0o600)

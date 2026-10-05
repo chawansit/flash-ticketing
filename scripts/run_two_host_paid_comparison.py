@@ -202,7 +202,7 @@ def retain_observer_summaries(local, record, inventory=None):
 
 
 def adapter_identity():
-    paths = [*ADAPTERS, "run_two_host_paid_comparison.py", "qualify_two_host_deployment.py", "collect_two_host_inventory.py", "runtime_source_identity.py"]
+    paths = [*ADAPTERS, "run_two_host_paid_comparison.py", "qualify_two_host_deployment.py", "collect_two_host_inventory.py", "runtime_source_identity.py", "probe_two_host_safety.py"]
     return {"scripts/" + name: source_sha256((ROOT / "scripts" / name).read_bytes()) for name in paths}
 
 

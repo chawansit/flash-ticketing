@@ -342,3 +342,21 @@ def test_real_constructor_preflight_failure_cannot_reserve_or_connect(tmp_path, 
     assert seen == (["control"] if failed_arm == "control" else ["control", "candidate"])
     assert engine.STATE.read_bytes() == before and not engine.LOCK.exists()
     assert not list((tmp_path / "tmp").iterdir())
+
+
+def test_uploaded_safety_probe_is_part_of_exact_approval_binding(tmp_path, monkeypatch):
+    shared = original.comparison
+    before = shared.adapter_identity()
+    key = "scripts/probe_two_host_safety.py"
+    assert key in before
+    for name in before:
+        target = tmp_path / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((policy.ROOT / name).read_bytes())
+    monkeypatch.setattr(shared, "ROOT", tmp_path)
+    assert shared.adapter_identity() == before
+    path = tmp_path / key
+    path.write_bytes(path.read_bytes() + b"\n# synthetic uploaded probe drift\n")
+    after = shared.adapter_identity()
+    assert after[key] != before[key]
+    assert {k for k in before if before[k] != after[k]} == {key}

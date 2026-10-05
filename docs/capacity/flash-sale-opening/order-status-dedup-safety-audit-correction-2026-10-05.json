@@ -1,0 +1,128 @@
+{
+  "decision": "ADR0159",
+  "experiment_decision": "ADR0157",
+  "parent_workspace_revision": "78adfaa1b12abdf0529f7c3cd64f8c9643457dcf",
+  "recorded_at_utc": "2026-10-05T13:37:30.065261+00:00",
+  "failed_safety_control": {
+    "run": "adr0151-6a6446959501",
+    "pass": false,
+    "pre_safety_source_verified": true,
+    "wave_requests": 100,
+    "requests_per_host": [
+      50,
+      50
+    ],
+    "accepted_holds": 1,
+    "expected_seat_conflicts": 99,
+    "transport_errors": 0,
+    "failed_phase": "durable-owner",
+    "failure_type": "QueryCanceled",
+    "statement_timeout_seconds": 3,
+    "payment_requested": false,
+    "paid_issued_tickets": 0,
+    "candidate_started": false,
+    "capacity_stages_started": 0,
+    "post_ttl_financial_gate": null,
+    "complete_zero_double_booking_gate": null,
+    "scope_consumed": true,
+    "evidence": "tmp/adr0151-6a6446959501/comparison-summary.json",
+    "evidence_sha256": "1d6b05b1b7e72f08ade4dde6e3eeff96f58663a716d2b4986b7fe0ccc92c1174",
+    "state_sha256": "f339e4370bcdbdecaa1cba5e0532ba4ef638f95806edd75994a376f27f6a9f38"
+  },
+  "restoration": {
+    "pass": true,
+    "primary_runtime_semantics_restored": true,
+    "secondary_resources_removed": true,
+    "credential_snapshots_removed": true,
+    "generator_idle": true,
+    "queues": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "pending_callback_deliveries": 0,
+      "pending_refunds": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "kafka_total_lag": 0,
+      "kafka_members": 1,
+      "pass": true
+    },
+    "owned_lock_released": true
+  },
+  "read_only_diagnosis": {
+    "customer_requests": 0,
+    "schema_or_parameter_changes": 0,
+    "idempotency_records_approx_rows": 4587504,
+    "existing_primary_key": [
+      "actor",
+      "operation",
+      "key"
+    ],
+    "original_query_has_no_actor_predicate": true,
+    "comparison": {
+      "original": {
+        "rows": [
+          [
+            1,
+            1,
+            1,
+            1
+          ]
+        ],
+        "elapsed_seconds": 1.7015548039926216
+      },
+      "actor_scoped": {
+        "rows": [
+          [
+            1,
+            1,
+            1,
+            1
+          ]
+        ],
+        "elapsed_seconds": 0.03182514899526723
+      },
+      "read_only": true,
+      "customer_requests": 0
+    },
+    "interpretation": "Missing leading-actor predicate creates expensive history-dependent audit access. Most likely cause of prior ownership-audit timeout; the later read-only comparison succeeded below3s and did not reproduce that timeout. One diagnostic pair is not a backend capacity benchmark.",
+    "evidence": "tmp/adr0158-owner-diagnostic-0e2187517586/query-plans.json",
+    "sha256": "1b2d0d3df77c737cab61f9803a08f85abd506bdfce7dfcddd6485179983d5ea1",
+    "earlier_diagnostic_attempt": "First diagnostic programme had a quoting SyntaxError before DB execution; corrected EXPLAIN and bounded comparison succeeded."
+  },
+  "local_correction": {
+    "participant_actors": 100,
+    "existing_index_used": true,
+    "global_active_owner_query_unchanged": true,
+    "global_post_ttl_and_queue_gates_unchanged": true,
+    "statement_timeout_unchanged": true,
+    "uploaded_probe_hash_bound_to_approval": true,
+    "runtime_modules_unchanged": 19,
+    "images_rebuilt": 0
+  },
+  "validation": {
+    "native_postgresql_tests_passed": 7,
+    "native_postgresql_version": "17.6 (Debian 17.6-2.pgdg13+1)",
+    "native_owned_container_removed": true,
+    "native_cloud_requests": 0,
+    "harness_tests_passed": 287,
+    "ruff_pass": true,
+    "diff_check_pass": true,
+    "native_log": "tmp/adr0159-checks/native-tests.txt",
+    "native_log_sha256": "9545b750f7c9c96923979fbc61801704c84e67d9ebd69749d7ef5288ce8cb484",
+    "harness_log": "tmp/adr0159-checks/harness-tests.txt",
+    "harness_log_sha256": "201bf306c8722135cdb8eef4b642a3dc56e15a8f2a74086b87527d5e5180d833"
+  },
+  "next_proposal": {
+    "path": "tmp/adr0159-checks/replacement-safety-proposal.json",
+    "sha256": "160ac9038dd0bebd6ab53ef71a1b0b9e426809178015968e58f2d8f2e9f577a2",
+    "authorized": false,
+    "max_safety_tickets": 2,
+    "capacity_stages": 0,
+    "automatic_replacement": false
+  },
+  "cloud_safety_qualified": false,
+  "performance_measurement_complete": false,
+  "capacity_improvement_measured": false,
+  "hourly_target_qualified": false
+}

@@ -258,3 +258,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0157: Isolated deduplication comparison profile](0157-isolated-deduplication-comparison-profile.md)
 
 - [ADR0158: Pre-reservation bounded stage-profile validation](0158-pre-reservation-stage-profile-validation.md)
+
+- [ADR0159: Indexed safety-probe actor audit](0159-indexed-safety-probe-actor-audit.md)

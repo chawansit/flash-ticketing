@@ -401,3 +401,17 @@ def test_cleanup_removes_only_owned_snapshot_files(tmp_path, prefix):
 def test_cleanup_refuses_unowned_directory(tmp_path):
     with pytest.raises(ValueError, match="Owned"):
         exec(compile(driver.cleanup_program(str(tmp_path), None), "owned_cleanup", "exec"), {})  # noqa: S102 - trusted program
+
+
+@pytest.mark.parametrize("run_id", ["old", "adr0147-" + "g" * 32, "adr0147-" + "a" * 31, None])
+def test_probe_actor_namespace_rejected_before_database(monkeypatch, run_id):
+    monkeypatch.setattr(probe.psycopg, "connect", lambda *_a, **_k: pytest.fail("Must not connect"))
+    with pytest.raises(ValueError, match="actor namespace"):
+        probe.audit_one_owner("unused", {}, run_id)
+
+
+def test_probe_actor_subjects_cover_all100_participants():
+    identifier = "adr0147-" + "a" * 32
+    actors = probe.probe_actors(identifier)
+    assert len(actors) == len(set(actors)) == 100
+    assert actors[0] == identifier + "-0" and actors[-1] == identifier + "-99"
