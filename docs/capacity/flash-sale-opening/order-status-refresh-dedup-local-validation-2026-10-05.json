@@ -37,12 +37,13 @@
       "test_runner_image": "sha256:74909203b87a1ae60435edb8fff17bac0762ed8042d0a6219652ca9b4ed28d69"
     },
     "host": {
-      "passed": 88,
+      "passed": 89,
       "failed": 0,
       "command": "pytest tests/unit/test_status_refresh_dedup_artifacts.py tests/unit/test_order_status_projector.py tests/unit/test_order_status_cache.py tests/unit/test_order_status_coalescing.py -q -p no:cacheprovider",
       "ruff_pass": true,
       "earlier_87_test_run_pass": true,
-      "new_compose_regression_included": true
+      "new_compose_regression_included": true,
+      "patch_checkout_attributes_regression_included": true
     },
     "final_source_and_compose": {
       "final_source_files_verified": 207,
@@ -102,7 +103,8 @@
       "Initial Ruff issues corrected; final changed source/test/script lint passed.",
       "Native attempt1 stopped before tests due to owned container workspace permission; resources cleaned. Retry used owned local container root, with no exposed host ports.",
       "Native attempt2 stopped before tests because exported Windows line endings differed from canonical source bytes; dependencies matched. Resources cleaned; canonical LF export verified before successful native run.",
-      "Final Compose rendering found an indentation defect in the new environment field. Corrected only compose.yaml in final export, added host regression and successfully rendered workspace plus isolated Compose. All 19 runtime modules and all test bytes are identical to the successful native run; original raw native evidence was retained."
+      "Final Compose rendering found an indentation defect in the new environment field. Corrected only compose.yaml in final export, added host regression and successfully rendered workspace plus isolated Compose. All 19 runtime modules and all test bytes are identical to the successful native run; original raw native evidence was retained.",
+      "Staged diff check identified valid blank unified-patch context as whitespace and missing LF checkout pin. Extended the existing patch .gitattributes rule to the separate dedup artifact and added a Git attribute regression; final host suite89 passed. Initial documentation commit preceded this packaging fix; final combined and staged diff checks passed before completion."
     ],
     "owned_cleanup_complete": true
   },
@@ -155,7 +157,7 @@
     "native-output.txt": "e17cf4abce541ad6a2d8f90f03e30995255bc3b84944fac0b87a0b364b903035",
     "structural-proof.json": "fc9b6e330727f2d9343a5d87a55df44ce0047b732a94ee41e18da66bce504244",
     "final-verification.json": "09874a112a312e2f588d6f4b108dc888ce637f46829715b54e3c211f7a439940",
-    "host-checks.json": "35723881e9795d2db9278c2a9d95bf3aa9d9fbd18151a9df746068379b351819",
+    "host-checks.json": "9acdc5496d0442e38ccf2427306d5739a834dc174ced09bc1921825e95439994",
     "compose-render-attempt.json": "01436d9b337b6744c1c7a1bf6f409c698c1b8d70b38c95d31a466aa8df867dd3"
   }
 }

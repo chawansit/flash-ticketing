@@ -1,1 +1,2 @@
 artifacts/status-refresh/*.patch text eol=lf whitespace=-blank-at-eol
+artifacts/status-refresh-dedup/*.patch text eol=lf whitespace=-blank-at-eol

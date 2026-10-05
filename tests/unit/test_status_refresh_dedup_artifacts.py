@@ -1,5 +1,6 @@
 import hashlib
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -80,3 +81,13 @@ def test_compose_inherits_disabled_dedup_flag():
     assert "api" in roles and "consumer" in roles
     assert all(env["ORDER_STATUS_EVENT_REFRESH_DEDUP"] == "${ORDER_STATUS_EVENT_REFRESH_DEDUP:-0}"
                for env in roles.values())
+
+
+def test_dedup_patch_checkout_keeps_lf_and_patch_context():
+    attrs = subprocess.check_output(
+        ["git", "check-attr", "text", "eol", "whitespace", "--", "artifacts/status-refresh-dedup/adr0156.patch"],
+        cwd=dedup.base.ROOT, text=True,
+    )
+    assert ": text: set" in attrs
+    assert ": eol: lf" in attrs
+    assert ": whitespace: -blank-at-eol" in attrs
