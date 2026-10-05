@@ -1,6 +1,6 @@
 # ADR0154: Separate CPU observer placement from experiment factor
 
-- Status: Accepted for harness correction; replacement cloud qualification is not authorized
+- Status: Accepted; corrected dry pair passed and restored; paid capacity comparison not authorized
 - Date: 2026-10-05
 
 ## Context
@@ -32,3 +32,7 @@ Observation contract only. No production pattern, connection budget, hold/paymen
 The [staging and dry report](../capacity/flash-sale-opening/status-refresh-staging-and-dry-qualification-2026-10-05.json) preserves the failed cloud control. Both CPU logs show the same placement exception. Local regression checks and result counts will be added after execution. Candidate live arm and performance benefit remain unmeasured.
 
 Executed202 focused harness tests and Ruff passed. The exact retained live2+2 inventory produces valid corrected control CPU specs for both hosts. No corrected cloud protocol was run; the failed ledger remains consumed.
+
+The user subsequently requested Continue for the identified corrected dry replacement. A fresh exact-bound scope now authorizes one pair, max2 simulated safety tickets and0 capacity stages. The earlier failed scope remains archived with its consumption/evidence; no further replacement or paid launch is authorized. Outcome remains pending.
+
+The [corrected qualification report](../capacity/flash-sale-opening/status-refresh-corrected-dry-qualification-2026-10-05.json) records the executed drycb2e26816335: both logical arms passed CPU observation with explicit two-plus-two placement, full loaded-source/financial/replay/post-TTL/zero-double-booking/queue/restoration gates. Two simulated safety tickets were confirmed and zero capacity stages ran. Original primaryAPI4 restored, secondary resources/credential snapshots removed, generator idle, Kafka lag/all queues0. Old failed evidence and scope preserved. Performance improvement remains unmeasured; any paid comparison needs separate approval and matching dry age<=3600s.

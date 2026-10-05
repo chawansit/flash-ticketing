@@ -1,6 +1,6 @@
 # ADR0151: Identical-cache-age committed status refresh comparison
 
-- Status: Accepted; images staged; dry control failed on CPU placement mapping and restored; ADR0154 correction awaiting replacement qualification
+- Status: Accepted; images staged and corrected dry pair passed/restored; paid comparison requires separate approval
 - Date: 2026-10-05
 
 ## Context
@@ -50,3 +50,5 @@ The [local runner validation report](../capacity/flash-sale-opening/order-status
 ADR0152 supersedes the ignored temporary-source prerequisite with a pinned eight-file patch, reproducible Git export and offline per-role image derivation. The runner now points to that reproduced source tree. The original local test report remains historical evidence; the changed experiment-plan binding requires a fresh preparation receipt. No execution allowance or live gate is superseded.
 
 The approved dry pair6d045bfad023 exercised one control safety ticket: loaded-source, payment replay, post-TTL durability and full queue gates passed. Both CPU observers rejected the inherited four-primary control mapping; candidate was stopped and original runtime/queues restored. ADR0154 adds explicit observer placement. Original failed evidence and consumed allowance remain; no corrected replacement or paid comparison has run.
+
+The separately approved corrected drycb2e26816335 passed both fixed2+2 off/on arms with two simulated safety tickets, complete required qualification/restoration and zero capacity stages. See the [corrected qualification report](../capacity/flash-sale-opening/status-refresh-corrected-dry-qualification-2026-10-05.json). Prior failed control remains failed historical evidence. No new capacity result is claimed.
