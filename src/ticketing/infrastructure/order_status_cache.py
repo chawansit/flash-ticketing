@@ -176,13 +176,15 @@ class RedisOrderStatusCache:
                               'order': row}, default=scalar, separators=(',', ':'))
             if len(raw.encode()) > MAX_BYTES or not valid_order(json.loads(raw)['order'], actor, order_id):
                 ORDER_STATUS_CACHE.labels('event_fill_skipped').inc()
-                return
+                return False
             result = self.redis.eval(PUBLISH, 1, self.key(actor, order_id), raw,
                                      snapshot_start_ms, snapshot_start_ms+self.max_age_ms,
                                      self.max_age_ms, MAX_BYTES)
             ORDER_STATUS_CACHE.labels({1: 'event_fill', 0: 'event_fill_raced',
                                        -1: 'event_fill_stale'}[int(result)]).inc()
+            return int(result) == 1
         except RedisError:
             ORDER_STATUS_CACHE.labels('redis_error').inc()
         except (ValueError, TypeError, KeyError):
             ORDER_STATUS_CACHE.labels('event_fill_skipped').inc()
+        return False

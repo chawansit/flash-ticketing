@@ -252,3 +252,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0154: Explicit CPU observer placement](0154-explicit-cpu-observer-placement.md) — Harness correction qualified by restored off/on dry pair; capacity improvement unmeasured.
 
 - [ADR0155: Dispatch-time inventory qualification](0155-dispatch-time-inventory-qualification.md) — Fix final analysis expiry without relaxing freshness at admission; fresh cloud qualification pending.
+
+- [ADR0156: Fresh fulfilled snapshot refresh deduplication](0156-fresh-fulfilled-snapshot-refresh-deduplication.md)

@@ -2,8 +2,8 @@
   "updated_date_bangkok": "2026-10-05",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0155_matched_paid_comparison_passed_restored_consumer_read_cost_identified",
-  "cloud_load_requires_resume": false,
+  "status": "adr0156_consumer_refresh_dedup_locally_validated_default_off_cloud_unqualified",
+  "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "Primary original4API/runtime semantics restored,secondary test resources/credential snapshots removed,generator idle;global DB/Redis queues andKafka lag0 with1 normal consumer after each arm.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "current_run": null,
-  "revision_note": "Matched corrected comparison001831458f5a passed all32 gates per off/on arm on runnerf24ad70.Both18000/18000 confirmed paid issued tickets,errors/drops/doubles0,post-TTL durability/full queues/restoration passed.Fresh dispatch receipts and final long-run freshness check passed.Cache misses-49.887%,API CPU-4.091%,butconsumer DB acquisitions+53.134%;primaryCPU69.03->69.95 and ticketp95littlechanged.Higher sustainable/hourly capacity unmeasured.",
+  "revision_note": "ADR0156 bounded advisory snapshot dedup implemented default-off.182 focused/690 full isolated native tests and88 host tests passed;runtime/dependencies/financial AST/protected source verified.Final Compose indentation fixed and rendered;all runtime/test bytes unchanged.No images built/cloud calls/load.Original cloud runtimes restored;previous matched allowance consumed.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -34,16 +34,17 @@
     "ADR0155 admission-time inventory receipt fix passed303 focused harness tests (includes earlier190),Ruff and diff checks. Offline original inventory stale at analysis and valid at capture; corrected validator rejects old record lacking receipt. Default preparation made0 cloud calls/customer dispatches. Original gates and ledgers preserved.",
     "ADR0155 fresh dry8148deab5b1c passed off/on exact source/image2+2 placement,same-seat100 requests=>1 hold1 ticket each,replays/other-actor/post-TTL durability/duplicates0/full queues0/observers/restoration;stored inventory receipts match.The2 safety protocols and0 capacity stages consumed authorized scope.No performance benefit claim.",
     "Corrected matched off/on001831458f5a:all32 gates each arm,18000 scheduled/dispatched/confirmed each,0 errors/drops/doubles,18000 payments/bookings/tickets each,post-TTL/full queues0/exact restoration.Fresh persisted admission receipts and final long-run receipt validation passed;2 measured stages plus2 additional safety tickets consumed scope.",
-    "Refresh-on:status cache misses36336->18209 (-49.887%),cache hit share0->49.706%,API DB acquisitions73061->54930,aggregate API CPU1.4366->1.3778 cores (-4.091%).Consumer acquisitions66137->101278 (+53.134%),consumer CPU201.78->219.12s (+8.594%).API+consumer acquisitions+12.220% over observer lifetimes.PrimaryCPU69.029->69.952%,hold-to-ticket p952141.06->2126.49ms;no higher-capacity claim."
+    "Refresh-on:status cache misses36336->18209 (-49.887%),cache hit share0->49.706%,API DB acquisitions73061->54930,aggregate API CPU1.4366->1.3778 cores (-4.091%).Consumer acquisitions66137->101278 (+53.134%),consumer CPU201.78->219.12s (+8.594%).API+consumer acquisitions+12.220% over observer lifetimes.PrimaryCPU69.029->69.952%,hold-to-ticket p952141.06->2126.49ms;no higher-capacity claim.",
+    "ADR0156 eligible fresh OrderPaid/TicketsIssued pair snapshot reads2->1;182 focused/690 full native and88 host tests passed;protected financial AST/source/locked deps verified;207-file19-module export,Compose default-off andowned cleanup verified.No cloud performance claim."
   ],
-  "unresolved": "Status refresh reduces API cache misses but adds about2 consumer snapshot reads/journey;net primaryCPU and end-to-end latency have not materially improved in this single pair.Maximum capacity and300000 paid-ticket/hour target remain unqualified.",
+  "unresolved": "Local eligible pair saves one advisory snapshot DB read (2->1), but production net CPU/RPS benefit is unmeasured.Offline images and exact-bound dedup-only comparison harness are not yet qualified.Maximum capacity and300000 paid tickets/hour remain unqualified.",
   "next_on_resume": [
-    "Review repeated OrderPaid/TicketsIssued snapshot-read work and propose one safe consumer optimization.Create ADR before changing advisory refresh/replay/recovery policy;preserve post-commit boundaries,owner validation,absoluteTTL,financial transaction AST,replay repair and default-off rollback.",
-    "Execute focused unit/real DBRedis integration checks for chosen change;produce a reproducible isolated source/image candidate and fresh exact-bound safety qualification before a matched test.No benefit from local tests alone.",
-    "Only after a measured net-efficiency gain,seek bounded84-buyer/s300s probe or appropriate longer capacity validation;preserve error/latency,durability/zero-double-booking/full-drain/restoration gates.No automatic higher load."
+    "Prepare and verify immutable offline candidate images, then adapt the exact-bound fixed-factor comparison for dedup off versus on with refresh enabled in both arms.",
+    "Fresh cloud safety qualification and matched load require separate bounded authorization; preserve latency, customer errors, post-TTL payment/ticket durability, zero double-booking, global queue/Kafka drain and restoration gates.",
+    "Measure net consumer DB/CPU and end-to-end latency before claiming capacity improvement or attempting a higher-rate/hourly validation."
   ],
-  "authorization": "User Approve authorized one replacement matched60 buyer journeys/s300s off/on pair,max2 measured stages and2 additional safety tickets.Completed both and restored;scope consumed.No higher rate,automatic replacement,new deployment,push or merge authorized.",
-  "scope": "Completed matched fixed-factor experiment and analysis;next consumer refresh optimization is proposed future work requiring ADR before policy change.No active cloud run.",
+  "authorization": "User Continue authorizes local ADR0156 implementation/validation and source preparation. Previous matched cloud allowance consumed; no new cloud traffic, deployment, higher-rate test, push or merge.",
+  "scope": "Local default-off advisory consumer optimization completed and reproducibly exported. No active cloud job. Runtime/image candidate and dedup-factor cloud harness remain future scope.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -554,7 +555,7 @@
     }
   ],
   "qualified_runner_revision": "f24ad70e8bc77807f703ca9f10dbc687b5d9f905",
-  "checkpoint_revision_note": "f24ad70 is the unchanged runner used for successful dry8148deab5b1c and matched paid001831458f5a.Preceding result checkpoint912cc42;following documentation commit records measurements without changing adapters.Originalfa67e08 failed measured result remains intact.",
+  "checkpoint_revision_note": "Parent checkpoint882009e recorded matched refresh off/on measurements. Following ADR0156 commit implements locally validated default-off dedup only; qualified cloud runner f24ad70 and historical consumed ledgers remain unchanged.",
   "local_dispatch_inventory_qualification": {
     "decision": "0155-dispatch-time-inventory-qualification",
     "parent_workspace_revision": "20d02167d34420e94d3c302843a202d64a3c51c6",
@@ -568,5 +569,20 @@
     "latest_dry_report": "tmp\\adr0151-8148deab5b1c\\comparison-summary.json",
     "latest_paid_report": "tmp/adr0151-001831458f5a/comparison-summary.json",
     "fixed_load_efficiency_comparison_complete": true
+  },
+  "local_status_refresh_dedup": {
+    "decision": "0156-fresh-fulfilled-snapshot-refresh-deduplication",
+    "report": "docs/capacity/flash-sale-opening/order-status-refresh-dedup-local-validation-2026-10-05.json",
+    "workspace_parent_revision": "882009e7ac84f32fa99fbbc4db5c2dccfe35fb8c",
+    "native_focused_passed": 182,
+    "native_full_passed": 690,
+    "host_passed": 88,
+    "default_enabled": false,
+    "cloud_qualified": false,
+    "images_built": 0,
+    "cloud_calls": 0,
+    "source_manifest_sha256": "cb4937dace028ab13ede592119ab8d1493c8ecf7cb449a25f345050c98237917",
+    "final_export": "tmp/adr0156-final",
+    "next_action": "Offline images and exact-bound dedup-only comparison preparation; separate authorization before cloud safety/load."
   }
 }

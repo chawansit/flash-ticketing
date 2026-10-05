@@ -734,7 +734,9 @@ def consume_event(db, cache, envelope, order_status_projector=None):
     _consume_event_transaction(db, cache, envelope)
     if order_status_projector is not None and envelope["event_type"] in ORDER_EVENTS:
         data = envelope.get("payload")
-        order_status_projector.refresh(data.get("order_id") if isinstance(data, dict) else None)
+        order_status_projector.refresh(
+            data.get("order_id") if isinstance(data, dict) else None, event_type=envelope["event_type"]
+        )
 
 
 @measured_consumer_event
@@ -1046,7 +1048,10 @@ def main():
     store = PostgresReservations(db, cache, settings.hold_seconds)
     service = Reservations(store)
     order_status_projector = (
-        CommittedOrderStatusProjector(db, RedisOrderStatusCache(cache.redis, settings.order_status_cache_ms))
+        CommittedOrderStatusProjector(
+            db, RedisOrderStatusCache(cache.redis, settings.order_status_cache_ms),
+            deduplicate=settings.order_status_event_refresh_dedup,
+        )
         if role == "consumer" and settings.order_status_event_refresh else None
     )
     intake = RedisReservationIntake(

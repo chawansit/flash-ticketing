@@ -1,0 +1,161 @@
+{
+  "kind": "order_status_refresh_dedup_local_validation",
+  "decision": "0156-fresh-fulfilled-snapshot-refresh-deduplication",
+  "recorded_at_utc": "2026-10-05T10:35:27.476348+00:00",
+  "workspace_parent_revision": "882009e7ac84f32fa99fbbc4db5c2dccfe35fb8c",
+  "frozen_base_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "baseline": "Qualified ADR0149 committed-event refresh candidate used by passing matched comparison 001831458f5a. This isolated overlay changes only refresh deduplication; prior source/image receipts remain unchanged.",
+  "default_enabled": false,
+  "setting": "ORDER_STATUS_EVENT_REFRESH_DEDUP=1 requires ORDER_STATUS_EVENT_REFRESH=1 and its unchanged positive cache age <=3000 ms.",
+  "implemented": [
+    "Bounded 1024-hint per-consumer table records DB-derived owner, exact fulfilled snapshot fingerprint and conservative monotonic deadline only after successful OrderPaid publication.",
+    "TicketsIssued skips its advisory snapshot read only after an actor-scoped Redis lookup validates the same fresh snapshot. No TTL renewal or hint lifetime extension on skip.",
+    "Missing, stale, corrupt, different or errored projection falls back to committed DB read; restart and eviction lose hints safely. OrderPaid replay and RefundRequested always read; refund clears hints.",
+    "Financial/inbox transaction, reservation locking, payment idempotency, delivery semantics, connection budgets and cache TTL are unchanged."
+  ],
+  "local_query_count": {
+    "eligible_pair_snapshot_reads_baseline": 2,
+    "eligible_pair_snapshot_reads_candidate": 1,
+    "additional_redis_lookups": 1,
+    "real_integration_pair_total_db_transactions_baseline": 4,
+    "real_integration_pair_total_db_transactions_candidate": 3,
+    "scope": "Two financial/inbox transactions still execute. Only one advisory snapshot read is saved for a matching fresh same-process pair. This is local correctness/query-count evidence, not an RPS benchmark."
+  },
+  "validation": {
+    "isolated_native": {
+      "focused_passed": 182,
+      "full_unit_integration_passed": 690,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 2,
+      "focused_and_full_counts_overlap": true,
+      "source_verified": true,
+      "locked_dependencies_verified": true,
+      "python": "3.12.14 (main, Sep 19 2026, 01:04:57) [GCC 14.2.0]",
+      "postgres": "17.6",
+      "redis": "7.4.5",
+      "test_runner_image": "sha256:74909203b87a1ae60435edb8fff17bac0762ed8042d0a6219652ca9b4ed28d69"
+    },
+    "host": {
+      "passed": 88,
+      "failed": 0,
+      "command": "pytest tests/unit/test_status_refresh_dedup_artifacts.py tests/unit/test_order_status_projector.py tests/unit/test_order_status_cache.py tests/unit/test_order_status_coalescing.py -q -p no:cacheprovider",
+      "ruff_pass": true,
+      "earlier_87_test_run_pass": true,
+      "new_compose_regression_included": true
+    },
+    "final_source_and_compose": {
+      "final_source_files_verified": 207,
+      "runtime_modules_identical_to_native_tested": 19,
+      "final_export_changes_after_native_tests": [
+        "compose.yaml indentation only; all other source and test bytes identical"
+      ],
+      "financial_ast_unchanged_root_and_isolated": true,
+      "protected_files_unchanged": [
+        "src/ticketing/api.py",
+        "src/ticketing/application/reservations.py",
+        "src/ticketing/infrastructure/reservations.py",
+        "src/ticketing/infrastructure/postgres.py",
+        "src/ticketing/infrastructure/redis_reservations.py",
+        "src/ticketing/infrastructure/cache.py"
+      ],
+      "historical_artifacts_unchanged": true,
+      "compose_render_passed": [
+        {
+          "path": "compose.yaml",
+          "disabled_roles": [
+            "api",
+            "consumer",
+            "maintenance",
+            "publisher",
+            "reconciler",
+            "reservation-writer",
+            "simulator"
+          ]
+        },
+        {
+          "path": "tmp/adr0156-final/source/compose.yaml",
+          "disabled_roles": [
+            "api",
+            "consumer",
+            "maintenance",
+            "publisher",
+            "reconciler",
+            "reservation-writer",
+            "simulator"
+          ]
+        }
+      ],
+      "owned_native_cleanup_complete": true,
+      "source_manifest_sha256": "cb4937dace028ab13ede592119ab8d1493c8ecf7cb449a25f345050c98237917",
+      "cloud_calls": 0,
+      "images_built": 0
+    },
+    "executed_safety": [
+      "Eligible one-read and disabled two-read pairs; explicit-success-only hint creation; bounded eviction and deadline expiry; replay/restart/refund fallbacks.",
+      "Cache deletion, corruption and expiration repaired with real PostgreSQL/Redis. Redis publication outage preserved committed unique ticket and subsequent repair.",
+      "Injected event actor/status ignored; unauthorized actor cannot read owner snapshot; skip does not extend TTL; local owned outbox drains.",
+      "Existing rollback, payment replay/recovery and 100-request same-seat contention tests passed; financial transaction AST and six protected source files remain unchanged."
+    ],
+    "attempt_history": [
+      "Initial host run: 74 passed and 3 legacy stub failures after adding event_type; corrected stubs, 77 passed, then artifact checks 87 passed. Final Compose regression included: 88 passed.",
+      "Initial Ruff issues corrected; final changed source/test/script lint passed.",
+      "Native attempt1 stopped before tests due to owned container workspace permission; resources cleaned. Retry used owned local container root, with no exposed host ports.",
+      "Native attempt2 stopped before tests because exported Windows line endings differed from canonical source bytes; dependencies matched. Resources cleaned; canonical LF export verified before successful native run.",
+      "Final Compose rendering found an indentation defect in the new environment field. Corrected only compose.yaml in final export, added host regression and successfully rendered workspace plus isolated Compose. All 19 runtime modules and all test bytes are identical to the successful native run; original raw native evidence was retained."
+    ],
+    "owned_cleanup_complete": true
+  },
+  "artifact": {
+    "manifest": "artifacts/status-refresh-dedup/manifest.json",
+    "patch": "artifacts/status-refresh-dedup/adr0156.patch",
+    "preparation_script": "scripts/prepare_status_refresh_dedup.py",
+    "final_export": "tmp/adr0156-final",
+    "source_files_verified": 207,
+    "runtime_modules_verified": 19,
+    "overlay_files": 8,
+    "source_manifest_sha256": "cb4937dace028ab13ede592119ab8d1493c8ecf7cb449a25f345050c98237917",
+    "images_built": 0,
+    "optional_image_build_path_executed": false
+  },
+  "capacity": {
+    "cloud_calls": 0,
+    "customer_load_runs": 0,
+    "cloud_deployed": false,
+    "cloud_safety_qualified": false,
+    "net_cpu_or_rps_improvement_measured": false,
+    "300000_tickets_per_hour_qualified": false
+  },
+  "limits": [
+    "Native tests use real owned local PostgreSQL and Redis, with acknowledged outbox producer mocks; no real Kafka cluster or cloud queue gate was exercised.",
+    "Hints are advisory and process-local. Delayed delivery, eviction, changed state or restart can retain both snapshot reads. A concurrent change can remain hidden only within the existing bounded cache freshness window.",
+    "The cloud comparison runner is not yet adapted or qualified for the new deduplication factor. Existing consumed authorization ledger and historical benchmark gates remain unchanged."
+  ],
+  "next": [
+    "Prepare and verify immutable offline candidate images, then adapt the exact-bound fixed-factor comparison for dedup off versus on with refresh enabled in both arms.",
+    "Fresh cloud safety qualification and matched load require separate bounded authorization; preserve latency, customer errors, post-TTL payment/ticket durability, zero double-booking, global queue/Kafka drain and restoration gates.",
+    "Measure net consumer DB/CPU and end-to-end latency before claiming capacity improvement or attempting a higher-rate/hourly validation."
+  ],
+  "private_evidence": {
+    "host-result.json": "tmp/adr0156-tests/host-result.json",
+    "result.json": "tmp/adr0156-tests/result.json",
+    "focused.txt": "tmp/adr0156-tests/focused.txt",
+    "full.txt": "tmp/adr0156-tests/full.txt",
+    "native-output.txt": "tmp/adr0156-tests/native-output.txt",
+    "structural-proof.json": "tmp/adr0156-tests/structural-proof.json",
+    "final-verification.json": "tmp/adr0156-tests/final-verification.json",
+    "host-checks.json": "tmp/adr0156-tests/host-checks.json",
+    "compose-render-attempt.json": "tmp/adr0156-tests/compose-render-attempt.json"
+  },
+  "private_evidence_sha256": {
+    "host-result.json": "805cf7a796e5c84b3bc05017fc12c6e522295705d79ef67c09d22de68c37d4b6",
+    "result.json": "54ac777adb6a3eca8b9a2ec74749e17439a99b5abf364643d62bed66989ba7cd",
+    "focused.txt": "23db75a4c53b30a432ea4476ebcd63800e9c57cbd3d207335a836fec98c24fc7",
+    "full.txt": "236dbfae239272967be58b53b1f70543cfa737ab750e763069ae20289f19f406",
+    "native-output.txt": "e17cf4abce541ad6a2d8f90f03e30995255bc3b84944fac0b87a0b364b903035",
+    "structural-proof.json": "fc9b6e330727f2d9343a5d87a55df44ce0047b732a94ee41e18da66bce504244",
+    "final-verification.json": "09874a112a312e2f588d6f4b108dc888ce637f46829715b54e3c211f7a439940",
+    "host-checks.json": "35723881e9795d2db9278c2a9d95bf3aa9d9fbd18151a9df746068379b351819",
+    "compose-render-attempt.json": "01436d9b337b6744c1c7a1bf6f409c698c1b8d70b38c95d31a466aa8df867dd3"
+  }
+}
