@@ -1,0 +1,140 @@
+{
+  "kind": "committed_order_status_event_refresh_local_qualification",
+  "recorded_at_utc": "2026-10-05T04:51:30.461007+00:00",
+  "workspace_parent_revision": "dfc5c29dadd8e21728ec647a962d8db3c77d32a3",
+  "decision": "0149-committed-event-order-status-refresh",
+  "isolated_candidate": {
+    "frozen_base_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+    "isolated_patch_applied": true,
+    "consumer_financial_transaction_ast_unchanged": true,
+    "protected_files_lf_normalized_identical_to_frozen_base": [
+      "src/ticketing/infrastructure/reservations.py",
+      "src/ticketing/infrastructure/postgres.py",
+      "src/ticketing/infrastructure/redis_reservations.py",
+      "src/ticketing/infrastructure/cache.py",
+      "src/ticketing/application/reservations.py",
+      "src/ticketing/api.py"
+    ],
+    "changed_files": [
+      "src/ticketing/config.py",
+      "src/ticketing/workers.py",
+      "src/ticketing/infrastructure/order_status_cache.py",
+      "src/ticketing/infrastructure/order_status_projector.py",
+      ".env.example",
+      "compose.yaml",
+      "tests/unit/test_order_status_projector.py",
+      "tests/integration/test_order_status_event_refresh.py"
+    ],
+    "changed_source_sha256": {
+      "src/ticketing/config.py": "de47f818672a1c6b4d37e4a760ed61faf6f0497c32e5d709d91ebd3841b330bd",
+      "src/ticketing/workers.py": "06ac4a6e45640a9abe1dfbfc4f0d3c6b4346b55d4d74bbc6f4bdbc6518e6b395",
+      "src/ticketing/infrastructure/order_status_cache.py": "357b4e825701a99e13e3cf5ffd64bfb49748c6371ef090c3d5e71f2ac88fe7e9",
+      "src/ticketing/infrastructure/order_status_projector.py": "ea9e553528f4af3c56723cfdf27dd44fb0098608ebb82a41a013344a4adf75a8",
+      ".env.example": "d6868cd889e857b8ea8d7d6a4a33e8feb48f3e497ec70d4921261d7026aa51b4",
+      "compose.yaml": "ad2494f488e60dc1eca61efa545c5df0fd6247a9398058c653b9e1a65f256750",
+      "tests/unit/test_order_status_projector.py": "1fc72deec94de6812bcecb921ecec83fde5d5664a8873fd6492189a8451755ed",
+      "tests/integration/test_order_status_event_refresh.py": "c89c5cb25bf4a547135708b67b5542df54779b0083d197652e566eb8d590550e"
+    },
+    "unrelated_local_coalescing_callback_reserve_and_seat_projection_excluded": true,
+    "cloud_deployed": false,
+    "native_isolated_validation": "PASSED_155_FOCUSED_663_FULL"
+  },
+  "default_enabled": false,
+  "setting": "ORDER_STATUS_EVENT_REFRESH=1 requires positive ORDER_STATUS_CACHE_MS<=3000",
+  "implemented": [
+    "OrderPaid, TicketsIssued and RefundRequested consumers request advisory refresh only after successful transaction exit; duplicate inbox events may refresh without redoing financial writes.",
+    "One fresh internal order/ticket read per relevant delivered event derives owner from PostgreSQL and releases the existing consumer connection before Redis publication.",
+    "Redis-time absolute deadlines and strictly-newer-start publication prevent older-start event snapshots from replacing newer-start snapshots; ordinary read-through remains NX.",
+    "Event payload actor/status is ignored for snapshot contents. API cache authorization/schema/freshness validation remains active.",
+    "Publication/read/cache failures remain advisory and cannot trigger financial rollback or consumer replay solely to repair the cache.",
+    "Default-disabled wiring reaches consumer iteration/batch/poison isolation paths. No new pools, threads, queues, customer retries, client polling, hold TTL or callback reserve activation."
+  ],
+  "validation": {
+    "lint": "changed-source/test Ruff passed",
+    "diff_check": "passed",
+    "windows_focused": {
+      "passed": 79,
+      "failed": 0,
+      "scope": "projector/cache/coalescing/callback reserve units"
+    },
+    "development_branch_native": {
+      "focused_passed": 211,
+      "focused_exit_code": 0,
+      "full_passed": 1003,
+      "full_setup_errors": 9,
+      "full_exit_code": 1,
+      "setup_error_reason": "Container lacks Git; nine frozen-runner bundle fixtures could not start. Full native development-branch suite is not claimed passed."
+    },
+    "host_git_dependent_modules": {
+      "passed": 96,
+      "failed": 0,
+      "scope": "test_two_host_paid_runner.py and test_two_host_rate_probe.py, including all nine Git-dependent setup-error cases"
+    },
+    "isolated_frozen_base_native": {
+      "focused_passed": 155,
+      "full_passed": 663,
+      "failed": 0,
+      "skipped": 0,
+      "source_verified": true,
+      "locked_dependencies_verified": true,
+      "python": "3.12.14 (main, Sep 19 2026, 01:04:57) [GCC 14.2.0]",
+      "focused_wall_seconds": 20.89454360200034,
+      "full_wall_seconds": 89.54036935399927,
+      "runner_image": "sha256:74909203b87a1ae60435edb8fff17bac0762ed8042d0a6219652ca9b4ed28d69"
+    },
+    "executed_correctness": [
+      "Committed fulfillment replaced live pending snapshot; subsequent authorized cached ticket read used no API DB read.",
+      "Snapshot publication held no DB connection; cross-actor read was rejected; event-injected actor/status did not enter cache data.",
+      "Redis publication outage after fulfillment left one durable ticket/inbox; duplicate event repaired cache without creating a second ticket.",
+      "Rolled-back fulfillment retained PAID order, no ticket/inbox and no fabricated cached fulfillment.",
+      "Delayed older pending fill/publication could not overwrite live ticket snapshot; same timestamp did not extend TTL; expired publication was rejected.",
+      "Out-of-order/replayed event used current committed state; corrupt future/nonexpiring cached entry recovered.",
+      "Existing real PostgreSQL/Redis100-request seat contention, payment recovery/replay and shared API/payment connection-budget regressions passed.",
+      "Owned test outbox drained with mocked acknowledged broker; no real Kafka cluster/end-to-end cloud delivery was tested."
+    ],
+    "owned_cleanup_verified": true,
+    "attempt_history": [
+      "Initial Windows run74 passed/5 failed: existing fixed-three-argument metric decorator rejected optional projector argument. Kept decorator on unchanged transaction helper; corrected run79 passed.",
+      "Initial local lint found nested test contexts; repaired before final lint.",
+      "First native staging omitted new untracked tests; source verification passed but no tests ran (collection exit4). Corrected explicit source inclusion; owned cleanup passed.",
+      "Isolated patch check initially rejected .env context from an unrelated callback-reserve change. Applied only selected code/Compose hunks and appended default-disabled environment examples separately.",
+      "Archive protected-file byte comparison encountered Windows CRLF conversion. Verified LF-normalized source equality and exact financial transaction AST; no application discrepancy found."
+    ]
+  },
+  "capacity": {
+    "cloud_access": false,
+    "cloud_deployed": false,
+    "cloud_load_started": 0,
+    "improvement_measured": false,
+    "300000_tickets_per_hour_qualified": false,
+    "last_cloud_result": "docs/capacity/flash-sale-opening/two-host-84-buyer-probe-2026-10-05.json"
+  },
+  "limits": [
+    "Snapshot start orders freshness, not a database version. Overlapping reads are only bounded-staleness snapshots; strict monotonic display state/instant visibility is not guaranteed.",
+    "Snapshot reads add consumer DB/CPU cost (up to one per relevant event). Equal-ms starts, outage/crash or publication races may require bounded expiry/read-through.",
+    "Isolated candidate excludes local coalescing, callback reserve and seat-projection changes. Existing development-branch candidates remain opt-in/cloud-unqualified.",
+    "A future comparison must use identical enabled-cache age, inventory, generator, host sizes, budgets, client deadlines and financial/zero-double-booking/global queue/Kafka gates in both arms. Do not compare bundled settings against previous cache-disabled probe as an isolated effect."
+  ],
+  "next": [
+    "Prepare source/import identity and owned observer/SSH recovery support for separate isolated candidate qualification before paid load.",
+    "Prepare one-factor event-refresh-off versus on comparison at identical enabled-cache age and fixed budgets; record chosen age/topology/workload in the experiment decision before execution.",
+    "Keep callback reservation as the next independent factor. No automatic cloud retry, generator concurrency increase, higher rate/hour stage or GitHub publication."
+  ],
+  "private_evidence": {
+    "development_branch": "tmp/adr0149-native-attempt2/adr0149-evidence/result.json",
+    "development_full_log": "tmp/adr0149-native-attempt2/adr0149-evidence/full.txt",
+    "isolated": "tmp/adr0149-isolated-native/adr0149-evidence/result.json",
+    "isolated_full_log": "tmp/adr0149-isolated-native/adr0149-evidence/full.txt",
+    "host_git_checks": "tmp/adr0149-host-git-checks.txt",
+    "isolated_source": "tmp/adr0149-isolated-source",
+    "isolation": "tmp/adr0149-isolation.private.json"
+  },
+  "private_evidence_sha256": {
+    "development_branch": "6920e068bade722879ccffcaf84f5ee00fb7d28f3b065ac0e416a29ef7575dbb",
+    "development_full_log": "a66352d9309ef1aafa984df6fd32eb1080b20db42a79ff4c5a61f63c2a26e121",
+    "isolated": "dbb5ce824d7ef6f475bc227e7994d9a25fbe63eec9c7c88b192a059f9acbe821",
+    "isolated_full_log": "35bd4a82d59aba930f1625a1bef8ee09e8501cb80fadc4bfc5968d0ad74f3273",
+    "host_git_checks": "8aa9fc210cdcdfee2081c07dc3000eef9d36ed70a09364e7a6fbfce5f390431f",
+    "isolation": "426a20099a6bff3581734f9d300e2fc895ee5b0e310c4bacaee23107102bc3d7"
+  }
+}

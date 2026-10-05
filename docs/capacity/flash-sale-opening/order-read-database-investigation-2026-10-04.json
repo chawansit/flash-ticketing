@@ -1,0 +1,109 @@
+{
+  "kind": "offline_database_path_attribution",
+  "run": "checkout-20261004T020835Z-a401c0",
+  "source_local_revision": "0e2e75b3fe4ff14454097575d57c7f696a5f4a12",
+  "application_runtime_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
+  "customer_order_http_attempts": 36165,
+  "total_sample_observations": 2135,
+  "database_phase_observations": 487,
+  "database_phase_weight": 19.479999999999762,
+  "database_context_routes": [
+    {
+      "label": "payment_callback",
+      "weight": 6.480000000000005,
+      "percent_of_database_phase_weight": 33.26488706365546,
+      "percent_of_all_sample_weight": 7.587822014051336
+    },
+    {
+      "label": "unattributed",
+      "weight": 5.280000000000004,
+      "percent_of_database_phase_weight": 27.10472279260815,
+      "percent_of_all_sample_weight": 6.182669789227014
+    },
+    {
+      "label": "order_status",
+      "weight": 3.8400000000000025,
+      "percent_of_database_phase_weight": 19.712525667351382,
+      "percent_of_all_sample_weight": 4.496487119437829
+    },
+    {
+      "label": "payment_initiation",
+      "weight": 3.8400000000000025,
+      "percent_of_database_phase_weight": 19.712525667351382,
+      "percent_of_all_sample_weight": 4.496487119437829
+    },
+    {
+      "label": "readiness",
+      "weight": 0.04,
+      "percent_of_database_phase_weight": 0.2053388090349101,
+      "percent_of_all_sample_weight": 0.046838407494144016
+    }
+  ],
+  "nearest_application_owner_contexts": [
+    {
+      "label": "ticketing/infrastructure/reservations.py:callback",
+      "weight": 5.760000000000004,
+      "percent_of_database_phase_weight": 29.56878850102708,
+      "percent_of_all_sample_weight": 6.744730679156744
+    },
+    {
+      "label": "<no application owner>",
+      "weight": 5.280000000000004,
+      "percent_of_database_phase_weight": 27.10472279260815,
+      "percent_of_all_sample_weight": 6.182669789227014
+    },
+    {
+      "label": "ticketing/infrastructure/reservations.py:get_order",
+      "weight": 3.8400000000000025,
+      "percent_of_database_phase_weight": 19.712525667351382,
+      "percent_of_all_sample_weight": 4.496487119437829
+    },
+    {
+      "label": "ticketing/infrastructure/reservations.py:initiate_payment",
+      "weight": 3.120000000000002,
+      "percent_of_database_phase_weight": 16.016427104722997,
+      "percent_of_all_sample_weight": 3.6533957845432354
+    },
+    {
+      "label": "ticketing/infrastructure/reservations.py:event",
+      "weight": 0.7200000000000001,
+      "percent_of_database_phase_weight": 3.6960985626283827,
+      "percent_of_all_sample_weight": 0.8430913348945925
+    },
+    {
+      "label": "ticketing/infrastructure/reservations.py:remember",
+      "weight": 0.39999999999999997,
+      "percent_of_database_phase_weight": 2.053388090349101,
+      "percent_of_all_sample_weight": 0.4683840749414402
+    },
+    {
+      "label": "ticketing/infrastructure/reservations.py:idem",
+      "weight": 0.32,
+      "percent_of_database_phase_weight": 1.642710472279281,
+      "percent_of_all_sample_weight": 0.3747072599531521
+    },
+    {
+      "label": "ticketing/api.py:ready",
+      "weight": 0.04,
+      "percent_of_database_phase_weight": 0.2053388090349101,
+      "percent_of_all_sample_weight": 0.046838407494144016
+    }
+  ],
+  "order_read_statement_count": {
+    "baseline_domain_selects": 2,
+    "candidate_domain_selects": 1,
+    "transaction_wrapper_changed": false
+  },
+  "candidate": "Single actor-scoped native-row join; preserve common transaction setup/limits,pool lifecycle,UUID types,seat order andfinancial mutation authority.",
+  "prior_candidates": "ADR0089/0094 remain rejected. Neither prior JSON aggregation nor separate connection lifecycle reused.",
+  "source_hashes": {
+    "src/ticketing/infrastructure/postgres.py": "331152520b5beca236680e31f77bcdcab5872df8967295fb274b042db1b3196c",
+    "src/ticketing/infrastructure/reservations.py": "bda9331782d048f7f74f7b458987530cbb7f9b4b441fc21cfdde2c373bce20d5",
+    "src/ticketing/api.py": "608206401c05226ab5f03f39bbc5be0320614fc8f570c062b6f4e1f394e5d8ae"
+  },
+  "mapping_weight_conservation_pass": true,
+  "backend_statement_timings_field": "Journey lifecycle timestamps,not SQL execution timings.",
+  "private_evidence_root": "tmp/adr0128-database-investigation",
+  "cloud_access_or_load_started": false,
+  "limitations": "Exclusive recognized database contexts, not chargedCPU/query-duration or SQL invocation counts. Stacks have no parameter values; context-manager call lines can identify setup/commit without query identity."
+}

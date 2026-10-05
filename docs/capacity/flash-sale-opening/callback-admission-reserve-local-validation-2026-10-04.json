@@ -1,0 +1,111 @@
+{
+  "decision_record": "0145-reserved-payment-callback-admission",
+  "qualification": "LOCAL_PASSED_CLOUD_UNQUALIFIED",
+  "workspace_parent_revision": "7659d183532da85f32186757e849f8a809e59019",
+  "source_scope": "Final uncommitted ADR0145 source over7659d18 development branch. Exact tested raw bytes and normalized LF hashes below; parent revision alone is not the tested implementation. Branch contains prior unqualified projection/coalescing changes; cloud needs separate isolated source qualification.",
+  "runtime_modules_changed_this_step": [
+    "src/ticketing/infrastructure/postgres.py",
+    "src/ticketing/config.py",
+    "src/ticketing/api.py"
+  ],
+  "source_identity": {
+    "src/ticketing/infrastructure/postgres.py": {
+      "tested_raw_sha256": "b3e2b8291b8bdffbf3bcec2c96ec8a933a6508ffe8e792f7efd55ebef5671be8",
+      "normalized_lf_sha256": "151e968747b1ee58939569dae59405cd276108e33bac1f17350205b59aec139a"
+    },
+    "src/ticketing/config.py": {
+      "tested_raw_sha256": "1150cd22f5f73bc70685d2bedec562b7068bac4d8921f0819ebcd4ace6afc81d",
+      "normalized_lf_sha256": "ef31b5b3af3a628427b5d791cd6af85ba6334d521afdb52aa9c341038bd51818"
+    },
+    "src/ticketing/api.py": {
+      "tested_raw_sha256": "849d129205ad10c81cf2cf4506af26eb67778aefe6c785785e6d73948aba350c",
+      "normalized_lf_sha256": "8638ac9fdefb13989fe64a2ab7af35285c4282f3202ff025d0e5172c5c809005"
+    },
+    "tests/unit/test_callback_admission_reserve.py": {
+      "tested_raw_sha256": "7f141ee1c6023253dc2a946054c1b29bd29c8156970644963dd60dbe793125d1",
+      "normalized_lf_sha256": "cb385a1fd7bf8915dcf1622f58f34ae8584e477ce16d7f4b90b2691c0d08fa37"
+    },
+    "tests/integration/test_callback_admission_pressure.py": {
+      "tested_raw_sha256": "58bc48d1fcd9a52c97a42e1b23b95ea2d08676a9412ecea0184febe3595e3996",
+      "normalized_lf_sha256": "ab39395cc5fb1034738d7167f900d22c04e05e8f239b3db46f7bb85ee7beab31"
+    }
+  },
+  "source_verified": true,
+  "locked_dependencies_verified": true,
+  "runner_image": "sha256:74909203b87a1ae60435edb8fff17bac0762ed8042d0a6219652ca9b4ed28d69",
+  "python": "3.12.14 (main, Sep 19 2026, 01:04:57) [GCC 14.2.0]",
+  "tests": {
+    "focused": {
+      "passed": 193,
+      "skipped": 0,
+      "exit_code": 0,
+      "wall_seconds": 30.32712181699935
+    },
+    "full": {
+      "passed": 765,
+      "skipped": 0,
+      "exit_code": 0,
+      "wall_seconds": 99.41784012300013
+    }
+  },
+  "windows_focused": {
+    "passed": 68,
+    "scope": "Unit admission/routing/pool ownership suites; overlaps native focused suite."
+  },
+  "lint": "Executed ruff check on changed source and both new tests; passed.",
+  "checks_executed": [
+    "General/submission and submission-only floods leave callback acquisition headroom.",
+    "Callback flood retains general headroom; combined callback/payment native ceiling and total ceiling remain bounded.",
+    "Conservative native timeout retention across shared roles; BaseException cleanup; borrowed callback adapter does not close pool owner.",
+    "Only callback POST uses borrowed role; signed callback exhaustion remains503/Retry-After, invalid signature401, no general/payment fallback.",
+    "Real PostgreSQL FIFO queues fill at submission8/callback2 plus readers0or2; both independent callbacks progress after held connections return.",
+    "Replay same and distinct callback IDs after commit; two payments/tickets remain unique and mocked-broker outbox drain completes.",
+    "Existing100 concurrent Redis-first holds have exactly one winner with writer replay safety; payment commit recovery and full regressions passed."
+  ],
+  "configuration": {
+    "default_callback_reserve": 0,
+    "proposed_api_total_connections": 4,
+    "proposed_payment_connections": 2,
+    "proposed_total_acquisition_ceiling": 12,
+    "callback_reserve": 2,
+    "combined_payment_callback_native_ceiling": 10,
+    "submission_acquisition_ceiling": 8,
+    "noncallback_total_acquisition_ceiling": 10
+  },
+  "unchanged_financial_mutation_source": [
+    "src/ticketing/infrastructure/reservations.py",
+    "src/ticketing/infrastructure/redis_reservations.py",
+    "src/ticketing/infrastructure/payment_transport.py",
+    "src/ticketing/workers.py"
+  ],
+  "owned_local_cleanup": true,
+  "cloud_access": false,
+  "cloud_load": false,
+  "cloud_deployed": false,
+  "retained_attempts": [
+    {
+      "path": "tmp/adr0145-native-preparation-attempt1",
+      "result": "Collection failure: duplicated unit/integration module basename; zero tests executed; owned cleanup passed."
+    },
+    {
+      "path": "tmp/adr0145-native-preparation-attempt2",
+      "result": "188passed/1failed focused: simultaneous duplicate callbacks hit existing NOWAIT row-lock rejection. Independent-order pressure and post-commit replay now test admission and idempotency separately. No retry hides a load result; owned cleanup passed."
+    },
+    {
+      "path": "tmp/adr0145-native-preparation-attempt3",
+      "result": "189passed/2failed focused: assertion expected2 callback rows, while distinct semantic duplicate IDs correctly record4. Assertion corrected; owned cleanup passed."
+    },
+    {
+      "path": "tmp/adr0145-native-before-final-config-guard",
+      "result": "191focused/763fullpassed before additional startup guard; final source rerun includes guard and two rejection cases; owned cleanup passed."
+    }
+  ],
+  "private_evidence_root": "tmp/adr0145-native-investigation",
+  "limitations": [
+    "Admission reservation preserves native FIFO and cannot preempt active transactions or CPU stalls.",
+    "Simultaneous duplicate callbacks can still receive existing NOWAIT lock errors; no persistence/idempotency pattern was changed.",
+    "General/status or submission rejections may increase. No submission fairness guarantee during a sustained callback flood.",
+    "Local broker acknowledgments are mocked, not Kafka capacity or cloud queue evidence.",
+    "No RPS, latency improvement or300000tickets/hour capacity claim."
+  ]
+}

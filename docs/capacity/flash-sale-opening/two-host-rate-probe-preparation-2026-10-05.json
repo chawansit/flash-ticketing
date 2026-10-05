@@ -1,0 +1,74 @@
+{
+  "kind": "bounded_two_host_rate_probe_preparation",
+  "status": "LOCAL_PREPARATION_PASSED_CLOUD_EXECUTION_NOT_AUTHORIZED",
+  "decision": "docs/adr/0148-bounded-two-host-84-buyer-rate-probe.md",
+  "prior_baseline": "docs/capacity/flash-sale-opening/two-host-paid-replacement-comparison-2026-10-05.json",
+  "application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "workload": {
+    "offered_buyers_per_second": 84,
+    "dispatch_seconds": 300,
+    "scheduled_journeys": 25200,
+    "shows": 84,
+    "seats_per_show": 300,
+    "generator_shards": 2,
+    "buyers_per_shard_per_second": 42,
+    "seats_and_journeys_per_shard": 12600,
+    "concurrency": 500,
+    "http_clients_per_shard": 8,
+    "poll_seconds": 1,
+    "customer_retries": 0,
+    "callback_delivery_target": 1,
+    "completion_deadline_seconds": 420
+  },
+  "topology": "Two APIs per host, same frozen application and aggregate budgets as ADR0147 candidate; primary background/Nginx/PgBouncer unchanged.",
+  "scope": {
+    "capacity_runs_proposed": 1,
+    "isolated_safety_tickets_max": 2,
+    "safety_callback_deliveries_per_ticket": 3,
+    "paid_capacity_runs_executed": 0,
+    "live_qualifications_executed": 0,
+    "automatic_paid_replacement": false,
+    "higher_rate_or_hour_stage": false,
+    "publication_authorized": false
+  },
+  "compatibility": "Initially proposed85 rejected by exact frozen coordinator even-integer contract.84/s splits into42/s and42 shows per shard; frozen-source tests verified sufficient disjoint inventory/viewers and rejection of insufficient fixture. No85/s cloud attempt.",
+  "review": {
+    "consumer_sqlstate": "55P03",
+    "installed_exception_class": "LockNotAvailable",
+    "exact_lock_cause": "Not retained/proven",
+    "frozen_consumer_batch_attempts_max": 5,
+    "frozen_callback_lease_seconds": 15,
+    "control_delivery_error_phase_calls": 17,
+    "candidate_delivery_error_phase_calls": 22,
+    "callback_error_cause": "Exact HTTP/transport exception not retained; final callback targets/tickets/queues passed in both previous stages.",
+    "api_pool_acquire_mean_ms": {
+      "control": 2.3403411304417276,
+      "candidate": 4.31351855989308
+    },
+    "mean_window_note": "Full prior pipeline observer lifetime, not offered-window p95.",
+    "future_diagnostics": "Exact frozen simulator/six consumer container identities; stage-scoped trailing200 lines/16KiB each retained privately before teardown. Bounded tail may omit earlier errors; literal exception matches are not unique incident counts."
+  },
+  "local_validation": {
+    "focused_pytest_passed": 203,
+    "ruff": "passed",
+    "live_performance_test": "not executed",
+    "checks": [
+      "ADR0147 defaults retained",
+      "distinct authorization and consumed-ledger guards",
+      "all32 known baseline gates/restore required",
+      "one-command dry-before-paid progression and stop on dry failure",
+      "candidate-only capacity hook",
+      "25200 financial audit expected counts executed with synthetic connections",
+      "identity/source/coverage/bounded read-only error logs",
+      "missing diagnostic fails otherwise successful stage",
+      "exact frozen coordinator even-rate and shard-inventory compatibility"
+    ]
+  },
+  "required_gates": "All22 paid plus10 multi-host gates, plus retained worker error evidence; no relaxation.",
+  "interpretation": "84 completed tickets/s has302400/hour arithmetic equivalent; a passing300-second stage does not validate sustained-hour, simultaneous flash opening or maximum capacity.",
+  "source_sha256": {
+    "scripts/run_two_host_paid_comparison.py": "00f9ec7ea953cefeaa22d1088302a13a7936849502e62663bf0793e5fd3b483f",
+    "scripts/run_two_host_rate_probe.py": "431ff30d6d0a981d7319ef8462d29d887c62fe325ad6b60e6e49a6c56d0071f4",
+    "tests/unit/test_two_host_rate_probe.py": "3b66862b82b1ac09e5487875619b40f70ab5057fcfb64b949749a98e590a958b"
+  }
+}

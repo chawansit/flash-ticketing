@@ -1,0 +1,28 @@
+{
+  "kind": "passive_ssh_idle_qualification",
+  "idle_seconds": 330,
+  "keepalive_seconds": 30,
+  "clients": {
+    "primary": {
+      "reachable": true
+    },
+    "secondary": {
+      "reachable": true
+    },
+    "generator": {
+      "reachable": true
+    }
+  },
+  "pass": true,
+  "generator_idle": true,
+  "adapter_identity": {
+    "scripts/observe_two_host_pipeline.py": "78ef7c634f4a4354f56c461533ea9a4720d6c32cb46561362d12f2d369bcd6d5",
+    "scripts/prepare_two_host_scaling.py": "8bce6b140fac5ba03f469a448503dbd510122e6578a7bc915dba1bd40cd46964",
+    "scripts/observe_two_host_cpu.py": "9057624cfa1796e4e84c21409f45a84fca00cae11fc7e43bd7902074660abad6",
+    "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+    "scripts/run_two_host_paid_comparison.py": "1364613e7f21e49a01398c824d0db2ac4c69ea2c761b0bc7a1b3af78d808ca80",
+    "scripts/qualify_two_host_deployment.py": "5c1b2e8da5fbaee742bf314be88f361845d068a1a068165e0e94e5220a568bc5",
+    "scripts/collect_two_host_inventory.py": "af8e946dd3c08f16bd2c58abb3ede866794c9da6636958310568247edd4237f9"
+  },
+  "no_customer_load": true
+}

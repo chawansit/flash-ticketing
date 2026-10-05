@@ -1,0 +1,66 @@
+{
+  "decision": "ADR0151",
+  "status": "LOCAL_RUNNER_TESTS_PASSED_IMAGES_AND_LIVE_QUALIFICATION_PENDING",
+  "recorded_at_utc": "2026-10-05T06:06:46.547090+00:00",
+  "parent_workspace_revision": "1d5ebf586cec9e635311ed1cf1b7de4b6cb80e27",
+  "frozen_application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "adapter_identity": {
+    "scripts/observe_two_host_pipeline.py": "733dac867102e057c0edc9d96de104b964d859d17f8cd1f8ade28ab019934846",
+    "scripts/prepare_two_host_scaling.py": "727ddc19e66dcc3780e398cc610c4d0d835ee23809d21ddc492d426d29cf7bc8",
+    "scripts/observe_two_host_cpu.py": "9057624cfa1796e4e84c21409f45a84fca00cae11fc7e43bd7902074660abad6",
+    "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+    "scripts/run_two_host_paid_comparison.py": "e9b289caee351bec29a31199d094b8ff6546b37c207cb0344a07f066b90452d1",
+    "scripts/qualify_two_host_deployment.py": "1cda5f0bb34729c2a2ea8a0cb242344c5a1e07a8bf55aa0b29eff71aeb7625fd",
+    "scripts/collect_two_host_inventory.py": "5b345464ab18c4a4ad18616dbd44f414a88b7dc0d4b7a79b496810cff7f78ed7",
+    "scripts/runtime_source_identity.py": "d7a1c8c67ff414ed6280ebda4e6b0a1dfad6f7c9910c0c363f94956d14c04eac",
+    "scripts/run_status_refresh_comparison.py": "3f03a2f2dfb27b2875c6f77fb6d585309549433c5d97e61514791c537ddf0266",
+    "scripts/status_refresh_contract.py": "e5eb0164974fa0e443ef65922ca481faf96933fc9f5b02c301b9fd4cfbbbce5f",
+    "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+    "experiment_plan": "9856a7fad5a5f8f2b6f47904f916d9bc43f480669930298f50afb4dfa37e4438"
+  },
+  "runtime_modules_verified": 19,
+  "executed_validation": {
+    "focused_harness_tests_passed": 350,
+    "test_scope": [
+      "status-refresh contract and pair runner",
+      "runtime/import/bytecode identity",
+      "bounded transport/observer recovery",
+      "existing deployment/paid runner/rate probe/scaling/observers"
+    ],
+    "ruff": "passed",
+    "git_diff_check": "passed",
+    "local_preparation": "executed",
+    "cloud_calls": 0,
+    "paid_launches": 0,
+    "safety_tickets_created": 0,
+    "warning": "Pytest could not write its optional node-ID cache (Windows access denied); all 350 tests executed and passed."
+  },
+  "implemented": [
+    "Fixed two APIs per host and 1000 ms advisory cache in both arms; only consumer refresh flag changes.",
+    "Exact source/config/adapter/artifact binding; complete 19-module source verification and immutable per-role image/parent/config checks before safety fixtures.",
+    "Exclusive owned run lock, durable consumption counters and separate dry/paid commands; no automatic paid release or replay.",
+    "Control failure stops candidate; per-arm restoration, idle generator, financial audit and complete queue/Kafka drain required.",
+    "All 32 existing gates retained; only cache_disabled replaced with explicit bounded_equal_cache_age.",
+    "Cache outcome metrics collected from existing scrapes; gaps/resets/missing measurements reported unavailable without disrupting proven restoration."
+  ],
+  "limitations": [
+    "Local unit and synthetic protocol checks are not cloud integration, live durability or performance measurements.",
+    "Candidate images have not been built, transferred or deployed. Reproducible export of the isolated source tree remains pending.",
+    "No application/native financial suite rerun in this harness-only change; ADR0149 records earlier executed 155 focused/663 full isolated tests.",
+    "No new approval ledger granted, SSH connection, cloud setting change, GitHub push or main merge.",
+    "300000 paid issued tickets/hour and optimization benefit remain unqualified."
+  ],
+  "next": [
+    "Reproduce/export isolated ADR0149 source overlay and prepare matching immutable per-role candidate images.",
+    "Prepare concrete bounded artifact/config/adapter approval scope and fresh separate live dry qualification.",
+    "Only after release prerequisites, compare off/on at 60 buyers/s for 300 seconds per arm with unchanged budgets and every financial/queue/latency gate."
+  ],
+  "private_evidence_sha256": {
+    "tmp/adr0151-local/final-checks.json": "653923edc7bc0f487464df2a84c079b21fc1dd45bb364b81168649403685f7b2",
+    "tmp/adr0151-local/pytest-final.txt": "f0d59fc0d9e69a9861d9aba09fbf01bfe0c6d59b88369a97781625a5aaf12d92",
+    "tmp/adr0151-local/ruff-final.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "tmp/adr0151-local/prepare-final.txt": "84c03018527a8a8e4b7c06f22675c93650714bd9f5c8a373748a131b524f3f06",
+    "tmp/adr0151-local/diff-final.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tmp/adr0151-local/reviewed-preparation.json": "8857005c5d6091721ceaf16110868c8e43146f5a5d925d640cc01453c3297bd9"
+  }
+}

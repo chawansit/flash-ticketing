@@ -1,5 +1,7 @@
 # Engineering decision records
 
+Publication checkpoint (2026-10-05): this documentation branch publishes ADR0126-ADR0161, the ADR0118 update and their referenced public evidence. Implementation/test commits remain on the local engineering branch; this branch is a decision/evidence snapshot, not a deployment-ready implementation. Failed experiments and unqualified capacity claims remain explicitly recorded.
+
 Create or update an ADR whenever selecting or changing an architectural pattern. Record context, decision, alternatives, consequences, failure handling and validation. Accepted decisions are superseded by a linked new ADR rather than silently rewritten. These initial records document existing implementation, not new scope approval.
 
 - [PostgreSQL authority and Redis admission](0001-postgresql-authority.md)
@@ -192,3 +194,75 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0124 - Shorter advisory order-status snapshot age](0124-shorter-advisory-order-status-snapshot-age.md)
 
 - [0125 - Single-pass paid observer cohort sampling](0125-single-pass-paid-observer-cohort-sampling.md)
+
+- [0126 - Cache-disabled same-load control](0126-cache-disabled-same-load-control.md)
+
+- [0127 - Phase classification for bounded API stack diagnostics](0127-phase-classification-for-api-stack-diagnostics.md)
+
+- [0128 - Native-row single-statement order-status reads](0128-native-row-single-statement-order-status-reads.md)
+
+- [0129 - Payment-derived order lock in one query](0129-payment-derived-order-lock-query.md)
+
+- [0130 - Fixed-budget API payment pool partition](0130-fixed-budget-api-payment-pool-partition.md)
+
+- [0131 - Two-slot payment allocation within the fixed API pool budget](0131-two-slot-api-payment-pool-allocation.md)
+
+- [0132 - Explicit financial waiter allocation within the fixed API budget](0132-explicit-fixed-budget-payment-waiters.md)
+
+- [0133 - Shared bounded acquisition budget for isolated API pools](0133-shared-bounded-api-acquisition-budget.md)
+
+- [0134 - Local payment recovery validation at commit and acknowledgement boundaries](0134-local-payment-commit-boundary-recovery-validation.md)
+
+- [0135 - Bounded single-concert fixtures and disjoint paid-generator seat ranges](0135-bounded-single-concert-paid-fixtures.md)
+
+- [0136 - Bounded bulk commands within atomic seat projection (rejected locally)](0136-bounded-bulk-atomic-seat-projection.md)
+
+- [0137 - Native-filesystem local Linux paid-generator qualification](0137-native-filesystem-local-paid-generator-qualification.md)
+
+- [0138 - Pre-encoded payloads for atomic version-fenced seat projection](0138-preencoded-atomic-seat-projection.md)
+
+- [0139 - Framed pre-encoded payloads within atomic seat projection](0139-framed-preencoded-seat-projection.md)
+
+- [0140 - Native Linux local projection qualification](0140-native-linux-local-projection-qualification.md)
+
+- [0141 - Fixed-load cloud qualification of atomic seat projection](0141-fixed-load-cloud-atomic-projection-qualification.md)
+
+- [0142 - Pinned baseline reproduction after cloud regression](0142-pinned-baseline-reproduction-after-cloud-regression.md)
+
+- [0143 - Bounded order-status miss coalescing](0143-bounded-order-status-miss-coalescing.md)
+
+- [0144 - Enabled-cache isolated coalescing comparison](0144-enabled-cache-isolated-coalescing-comparison.md)
+
+- [ADR0145: Reserved payment callback admission](0145-reserved-payment-callback-admission.md)
+
+- [0146 - Freeze the experiment and measure observation overhead](0146-freeze-and-measure-observation-overhead.md)
+
+- [0147 - Fixed-budget two-host API comparison](0147-fixed-budget-two-host-api-comparison.md)
+
+- [0148 - Bounded two-host 84-buyer rate probe](0148-bounded-two-host-84-buyer-rate-probe.md)
+
+- [0149 - Committed-event advisory order-status refresh](0149-committed-event-order-status-refresh.md)
+
+- [0150 - Import identity and bounded observer recovery](0150-import-identity-and-bounded-observer-recovery.md)
+
+- [0151: Identical-cache-age committed status refresh comparison](0151-identical-cache-age-committed-status-refresh-comparison.md) - Matched 60 journeys/s replacement comparison passed; prior failed attempts retained; higher capacity unqualified.
+
+- [ADR0152: Reproducible isolated status-refresh artifacts](0152-reproducible-isolated-status-refresh-artifacts.md) - Immutable images verified and used in qualified fixed-load comparison.
+
+- [ADR0153: Owned retrieval of original cloud parent images](0153-owned-cloud-parent-image-retrieval.md) - Owned parent retrieval, derivation and immutable staging verified; later deployment results in ADR0154/0155.
+
+- [ADR0154: Explicit CPU observer placement](0154-explicit-cpu-observer-placement.md) - Corrected dry pair passed and restored; fixed-load results in ADR0155.
+
+- [ADR0155: Dispatch-time inventory qualification](0155-dispatch-time-inventory-qualification.md) - Fresh qualification and separately authorized matched paid comparison passed; no maximum-capacity claim.
+
+- [ADR0156: Fresh fulfilled snapshot refresh deduplication](0156-fresh-fulfilled-snapshot-refresh-deduplication.md)
+
+- [ADR0157: Isolated deduplication comparison profile](0157-isolated-deduplication-comparison-profile.md)
+
+- [ADR0158: Pre-reservation bounded stage-profile validation](0158-pre-reservation-stage-profile-validation.md)
+
+- [ADR0159: Indexed safety-probe actor audit](0159-indexed-safety-probe-actor-audit.md)
+
+- [ADR0160: Durable asynchronous payment confirmation](0160-durable-asynchronous-payment-confirmation.md) - Default-off implementation and local/cloud safety validated; asynchronous throughput benefit unmeasured.
+
+- [ADR0161: Isolated asynchronous confirmation qualification and comparison](0161-isolated-asynchronous-confirmation-comparison.md) - Safety pair passed; measured control failed, candidate skipped and original deployment restored.

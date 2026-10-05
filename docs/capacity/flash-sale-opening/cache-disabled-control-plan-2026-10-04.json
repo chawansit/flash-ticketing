@@ -1,0 +1,82 @@
+{
+  "kind": "approved_cache_disabled_same_load_control_plan",
+  "status": "completed_all_gates_passed",
+  "decision_record": "0126-cache-disabled-same-load-control",
+  "authorization": "User Go ahead approved one cache-disabled comparison against the passing1000ms baseline. Independent one-run scope; earlier two-run allowance remains completed.",
+  "baseline_report": "docs/capacity/flash-sale-opening/paid-observer-cohort-requalification-2026-10-04.json",
+  "baseline_run": "checkout-20261003T234944Z-7734dc",
+  "baseline_tested_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
+  "configuration": {
+    "rate": 60,
+    "seconds": 300,
+    "concurrency": 500,
+    "generator_shards": 2,
+    "http_clients_per_shard": 8,
+    "http_connections_per_shard": 250,
+    "poll_seconds": 1.0,
+    "callback_duplicates": 1,
+    "simulator_dispatch_mode": "refill",
+    "lifecycle_diagnostics": true,
+    "kafka_observer_backend": "python",
+    "api_replicas": 4,
+    "api_pool_per_replica": 4,
+    "api_pool_waiters_per_replica": 12,
+    "order_status_cache_ms": 0,
+    "consumer_replicas": 6,
+    "consumer_pool_per_replica": 8,
+    "writer_replicas": 3,
+    "writer_batch_size": 4,
+    "simulator_refill_slots": 8,
+    "pgbouncer_server_pool": 24
+  },
+  "changed_configuration_keys": [
+    "order_status_cache_ms"
+  ],
+  "run_limit": 1,
+  "runs_started": 1,
+  "active_run": null,
+  "failed_gate_stops_progression": true,
+  "mandatory_gates": [
+    "customer_load",
+    "post_ttl_financial",
+    "zero_double_booking",
+    "full_keyspace_queue_drain",
+    "kafka_drain",
+    "pipeline_observer",
+    "kafka_observer",
+    "cpu_sampler",
+    "source_and_restored_configuration_pass",
+    "generator_idle_pass",
+    "private_cleanup_pass",
+    "hold_deadlines_elapsed",
+    "pipeline_observer_source",
+    "cache_disabled"
+  ],
+  "scope": "No higher load,application code/schema/budget changes or main merge. Complete the explicitly approved run and recovery checks even if they extend beyond the former overnight cutoff; no recurring continuation or second run.",
+  "comparison_limits": "One fresh-fixture comparison; sampled CPU includes observers and background variation. Not sustained300000/hour,one-hot-concert or real-provider capacity.",
+  "local_validation": {
+    "executed_command": ".venv/Scripts/python.exe -m pytest tests/unit/test_order_status_cache.py tests/unit/test_paid_checkout_cli.py -q",
+    "passed": 43,
+    "seconds": 2.44,
+    "warnings": [
+      "PytestCacheWarning: nodeids cache write denied; tests completed successfully."
+    ],
+    "runtime_application_change": false,
+    "cloud_load_dispatched": false,
+    "helper_syntax_pass": true,
+    "exact_bounded_cli_arguments_verified": true,
+    "single_configuration_factor_verified": true,
+    "mandatory_gates_retained": true
+  },
+  "access_bootstrap_executed": true,
+  "access_preflight": {
+    "pass": true,
+    "both_hosts_accessible": true,
+    "restored_baseline_verified": true,
+    "runtime_modules": 10,
+    "source_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
+    "runtime_hashes_match_passing_baseline": true
+  },
+  "temporary_key_explicitly_approved": true,
+  "result": "docs/capacity/flash-sale-opening/cache-disabled-control-2026-10-04.json"
+}

@@ -1,0 +1,113 @@
+{
+  "kind": "bounded_bulk_seat_projection_local_validation",
+  "status": "REJECTED_LOCAL_GATES_FAILED_RUNTIME_RESTORED",
+  "decision": "docs/adr/0136-bounded-bulk-atomic-seat-projection.md",
+  "decision_revision": "3d45071",
+  "baseline_revision": "3e6b83ac32e1824f835b592317bd611c9df944f1",
+  "candidate_commit": null,
+  "candidate_saved_private": true,
+  "candidate_source_sha256": "fea12160f85d187b58025dbf074641aa4322b97289f4e3418261a40d5fc52281",
+  "focused": {
+    "passed": 49,
+    "failed": 2,
+    "skipped": 0,
+    "seconds": 13.33,
+    "warnings": 2,
+    "raw": "tmp/adr0136-capacity-investigation/focused-validation.txt"
+  },
+  "passed_contracts": "Group-boundary<=513, racing stale full/new patch, interrupted-write marker/repair, lost acknowledgement replay/TTL/history/incarnation; existing cache regressions.",
+  "failed_cases": [
+    "full_projection_across_group_boundaries[18000]",
+    "large_single_concert_fixture_export_and_disjoint_paid_replay"
+  ],
+  "full_suite_executed_for_bulk_candidate": false,
+  "why_no_broader_run": "Focused18k gates failed; no new edit qualified a candidate for broader financial regression.",
+  "snapshot_cost_comparison": {
+    "kind": "unchanged_deadline_snapshot_baseline_bulk_comparison",
+    "samples": [
+      {
+        "implementation": "baseline",
+        "seats": 300,
+        "client_deadline_ms": 100,
+        "client_error": null,
+        "client_wall_ms": 4.561100038699806,
+        "server_eval_ms": 1.877,
+        "fields_after_completion": 307,
+        "prefix_probes": []
+      },
+      {
+        "implementation": "bulk_candidate",
+        "seats": 300,
+        "client_deadline_ms": 100,
+        "client_error": null,
+        "client_wall_ms": 2.426499966531992,
+        "server_eval_ms": 1.48,
+        "fields_after_completion": 307,
+        "prefix_probes": []
+      },
+      {
+        "implementation": "baseline",
+        "seats": 18000,
+        "client_deadline_ms": 100,
+        "client_error": "TimeoutError",
+        "client_wall_ms": 115.15699996380135,
+        "server_eval_ms": 147.624,
+        "fields_after_completion": 18007,
+        "prefix_probes": [
+          {
+            "cumulative_prefix": "decode",
+            "server_ms": 41.678
+          },
+          {
+            "cumulative_prefix": "select",
+            "server_ms": 91.424
+          },
+          {
+            "cumulative_prefix": "write",
+            "server_ms": 125.522
+          }
+        ]
+      },
+      {
+        "implementation": "bulk_candidate",
+        "seats": 18000,
+        "client_deadline_ms": 100,
+        "client_error": "TimeoutError",
+        "client_wall_ms": 132.31919996906072,
+        "server_eval_ms": 139.975,
+        "fields_after_completion": 18007,
+        "prefix_probes": [
+          {
+            "cumulative_prefix": "decode",
+            "server_ms": 30.649
+          },
+          {
+            "cumulative_prefix": "select",
+            "server_ms": 43.629
+          },
+          {
+            "cumulative_prefix": "write",
+            "server_ms": 104.602
+          }
+        ]
+      }
+    ],
+    "prefix_probes_limit": "Separate fresh-map invocations, not exact timing spans;2s observer permits measurement only, no gate waiver.",
+    "production_cloud_changed": false
+  },
+  "decision_outcome": "Bulk calls reduce some per-seat dispatch work but measured18k server EVAL139.975ms still exceeds100ms. Both large-show qualification cases fail. Reject and restore original cache source; do not claim capacity improvement.",
+  "cache_source_restored_sha256": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+  "restore_validation": "Git source diff versus3e6b83a must be empty; this is byte/source restoration, not an unexecuted test pass.",
+  "raw_paths": [
+    "tmp/adr0136-capacity-investigation/rejected-candidate-cache.py",
+    "tmp/adr0136-capacity-investigation/rejected-candidate-tests.py",
+    "tmp/adr0136-capacity-investigation/rejected-candidate.patch",
+    "tmp/adr0136-capacity-investigation/snapshot-cost-comparison.json"
+  ],
+  "diagnostic_attempt_error": "First cost helper used str prefix against Redis slowlog bytes and failed; owned container removed. Corrected bytes handling before retained successful measurement.",
+  "cloud_access_or_load": false,
+  "increased_load": false,
+  "push_or_main_merge": false,
+  "gate_waived": false,
+  "next_action": "Design bounded encoded publication or reduce Lua serialization work in a new ADR; preserve atomic readers, per-seat fencing, marker repair, delta history/incarnation and original deadline. Keep local generator timing diagnosis separate."
+}

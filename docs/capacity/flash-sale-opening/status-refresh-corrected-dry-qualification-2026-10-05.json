@@ -1,0 +1,240 @@
+{
+  "date_bangkok": "2026-10-05",
+  "decision": "ADR0154 / ADR0151",
+  "local_checkpoint_revision": "fa67e087293f72f4064477278d805a5ab0e7ea8a",
+  "comparison": "Refresh off/on on identical2+2API placement,1000ms cache and unchanged machine/connection budgets",
+  "scope": {
+    "qualification_pairs_authorized": 1,
+    "safety_tickets_maximum": 2,
+    "paid_capacity_stages_authorized": 0,
+    "automatic_replacement": false,
+    "prior_failed_scope_preserved": true
+  },
+  "binding": {
+    "adapter_identity": {
+      "scripts/observe_two_host_pipeline.py": "733dac867102e057c0edc9d96de104b964d859d17f8cd1f8ade28ab019934846",
+      "scripts/prepare_two_host_scaling.py": "727ddc19e66dcc3780e398cc610c4d0d835ee23809d21ddc492d426d29cf7bc8",
+      "scripts/observe_two_host_cpu.py": "c186aedc7a52e4e671a21caf30af211991f251dd637a02807307769752acda04",
+      "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+      "scripts/run_two_host_paid_comparison.py": "a5393f78e97a7b8e53b896e0bc2150937bfbdd4ba5b16f6c246582ca03071e1e",
+      "scripts/qualify_two_host_deployment.py": "1cda5f0bb34729c2a2ea8a0cb242344c5a1e07a8bf55aa0b29eff71aeb7625fd",
+      "scripts/collect_two_host_inventory.py": "5b345464ab18c4a4ad18616dbd44f414a88b7dc0d4b7a79b496810cff7f78ed7",
+      "scripts/runtime_source_identity.py": "d7a1c8c67ff414ed6280ebda4e6b0a1dfad6f7c9910c0c363f94956d14c04eac",
+      "scripts/run_status_refresh_comparison.py": "3f03a2f2dfb27b2875c6f77fb6d585309549433c5d97e61514791c537ddf0266",
+      "scripts/status_refresh_contract.py": "e5eb0164974fa0e443ef65922ca481faf96933fc9f5b02c301b9fd4cfbbbce5f",
+      "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+      "experiment_plan": "fb3d0e4dd468b08dd74c0689a12018c3b0af8f1ec9b2225bd6f37a98e6579cf6"
+    },
+    "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+    "artifact_sha256": "5131aa8213cc768239c513607b1dbaaae645e50bed9510fd20ada4cf51e76c03",
+    "source_manifest_sha256": "81e9af585e8a20a81a2de72a04057faefe773f6f94e66a88b9887fe7617c8a48"
+  },
+  "qualification": {
+    "status": "PASSED_BOTH_ARMS_RESTORED",
+    "run": "adr0151-cb2e26816335",
+    "control": {
+      "pass": true,
+      "restoration_complete": true,
+      "loaded_sources_verified": true,
+      "safety": {
+        "pass": true,
+        "wave_requests": 100,
+        "requests_per_host": [
+          50,
+          50
+        ],
+        "wave_statuses": {
+          "202": 1,
+          "409": 99
+        },
+        "accepted_holds": 1,
+        "one_durable_owner_before_payment": true,
+        "cross_host_hold_replay": true,
+        "cross_host_payment_replay": true,
+        "other_actor_denied": true,
+        "customer_ticket_confirmed": true
+      },
+      "transport_errors": 0,
+      "post_ttl_financial": {
+        "orders": 1,
+        "fulfilled_orders": 1,
+        "expired_orders": 0,
+        "pending_orders": 0,
+        "payment_attempts": 1,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 1,
+        "bookings": 1,
+        "tickets": 1,
+        "payment_callbacks": 1,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 3,
+        "callback_delivery_target": 3,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 1,
+        "expected_paid": 1,
+        "expected_callback_deliveries_per_payment": 3,
+        "pass": true,
+        "hold_deadlines_elapsed": true
+      },
+      "queue_after": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "pending_callback_deliveries": 0,
+        "pending_refunds": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "kafka_total_lag": 0,
+        "kafka_members": 6,
+        "pass": true
+      },
+      "observer_stage_pass": true,
+      "pre_dispatch_qualified": true,
+      "private_cleanup_pass": true,
+      "cpu_observer_placements": {
+        "primary": "two-plus-two",
+        "secondary": "two-plus-two"
+      },
+      "cpu_observer_arms": {
+        "primary": "control",
+        "secondary": "control"
+      },
+      "consumer_refresh_flags": [
+        "0"
+      ],
+      "restoration": {
+        "restore_pass": true,
+        "primary_runtime_semantics_restored": true,
+        "secondary_resources_removed": true,
+        "generator_idle_after": true,
+        "credential_snapshots_removed": true,
+        "restored_global_queues": {
+          "unpublished_outbox": 0,
+          "pending_refresh": 0,
+          "dead_letters": 0,
+          "pending_callback_deliveries": 0,
+          "pending_refunds": 0,
+          "reservation_stream_entries": 0,
+          "reservation_stream_pending": 0,
+          "kafka_total_lag": 0,
+          "kafka_members": 1,
+          "pass": true
+        }
+      },
+      "capacity_stages_started": 0,
+      "customer_capacity_dispatches": false,
+      "raw_evidence_directory": "tmp/adr0151-cb2e26816335/adr0151-arm-ba7cb912328c"
+    },
+    "finished_at_utc": "2026-10-05T07:59:09.995567+00:00",
+    "finished_at_bangkok": "2026-10-05T14:59:09.995567+07:00",
+    "safety_protocols_started": 2,
+    "capacity_stages_started": 0,
+    "raw_evidence": "tmp/adr0151-cb2e26816335/comparison-summary.json",
+    "qualification_matches_current_binding": true,
+    "pass": true,
+    "candidate": {
+      "pass": true,
+      "restoration_complete": true,
+      "loaded_sources_verified": true,
+      "safety": {
+        "pass": true,
+        "wave_requests": 100,
+        "requests_per_host": [
+          50,
+          50
+        ],
+        "wave_statuses": {
+          "202": 1,
+          "409": 99
+        },
+        "accepted_holds": 1,
+        "one_durable_owner_before_payment": true,
+        "cross_host_hold_replay": true,
+        "cross_host_payment_replay": true,
+        "other_actor_denied": true,
+        "customer_ticket_confirmed": true
+      },
+      "transport_errors": 0,
+      "post_ttl_financial": {
+        "orders": 1,
+        "fulfilled_orders": 1,
+        "expired_orders": 0,
+        "pending_orders": 0,
+        "payment_attempts": 1,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 1,
+        "bookings": 1,
+        "tickets": 1,
+        "payment_callbacks": 1,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 3,
+        "callback_delivery_target": 3,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 1,
+        "expected_paid": 1,
+        "expected_callback_deliveries_per_payment": 3,
+        "pass": true,
+        "hold_deadlines_elapsed": true
+      },
+      "queue_after": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "pending_callback_deliveries": 0,
+        "pending_refunds": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "kafka_total_lag": 0,
+        "kafka_members": 6,
+        "pass": true
+      },
+      "observer_stage_pass": true,
+      "pre_dispatch_qualified": true,
+      "private_cleanup_pass": true,
+      "cpu_observer_placements": {
+        "primary": "two-plus-two",
+        "secondary": "two-plus-two"
+      },
+      "cpu_observer_arms": {
+        "primary": "candidate",
+        "secondary": "candidate"
+      },
+      "consumer_refresh_flags": [
+        "1"
+      ],
+      "restoration": {
+        "restore_pass": true,
+        "primary_runtime_semantics_restored": true,
+        "secondary_resources_removed": true,
+        "generator_idle_after": true,
+        "credential_snapshots_removed": true,
+        "restored_global_queues": {
+          "unpublished_outbox": 0,
+          "pending_refresh": 0,
+          "dead_letters": 0,
+          "pending_callback_deliveries": 0,
+          "pending_refunds": 0,
+          "reservation_stream_entries": 0,
+          "reservation_stream_pending": 0,
+          "kafka_total_lag": 0,
+          "kafka_members": 1,
+          "pass": true
+        }
+      },
+      "capacity_stages_started": 0,
+      "customer_capacity_dispatches": false,
+      "raw_evidence_directory": "tmp/adr0151-cb2e26816335/adr0151-arm-3edc25db0637"
+    }
+  },
+  "performance_improvement_measured": false,
+  "hourly_target_qualified": false,
+  "previous_failed_evidence": "docs/capacity/flash-sale-opening/status-refresh-staging-and-dry-qualification-2026-10-05.json",
+  "next_action": "Separate approval for a matched paid off/on comparison: identical2+2 placement and budgets,60 buyer journeys/s for300s per arm (18000 scheduled each), max2 additional isolated safety tickets, no retries/higher rate/automatic replacement. Requires this exact-bound successful dry receipt to remain within3600s, otherwise fresh qualification is required.",
+  "future_paid_scope_proposal": "tmp/adr0153-checks/future-paid-pair-scope-proposal.json"
+}

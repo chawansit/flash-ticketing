@@ -1,0 +1,168 @@
+{
+  "kind": "fixed_budget_two_host_paid_comparison",
+  "run": "adr0147-topology-ed20dc431b67",
+  "pass": false,
+  "restore_pass": true,
+  "capacity_stages_started": 1,
+  "application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "scope": "Four APIs on one host versus two on each host; same offered workload and database budgets. This does not measure maximum capacity or sustained hourly throughput.",
+  "stages": {
+    "control": {
+      "stage_pass": false,
+      "customer_pass": false,
+      "offered_buyers_per_second": 60,
+      "dispatch_seconds": 300,
+      "scheduled": 18000,
+      "dispatched": 18000,
+      "customer_confirmations_by_deadline": 17999,
+      "generator_drops": 0,
+      "failed_dispatched_journeys": 1,
+      "errors_per_dispatched_journey_percent": 0.005555555555555556,
+      "customer_outcomes": {
+        "fulfilled": 17999,
+        "payment_http_503": 1
+      },
+      "customer_http_attempts_total": 108694,
+      "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+      "p95_ms": {
+        "hold_http_p95_ms": 17.406544007826596,
+        "durable_p95_ms": 1064.2147779872175,
+        "payment_http_p95_ms": 78.57091398909688,
+        "payment_to_ticket_p95_ms": 1119.849086011527,
+        "hold_to_ticket_p95_ms": 2211.7016990086995
+      },
+      "host_cpu_percent": null,
+      "aggregate_api_cpu_cores": null,
+      "financial": {
+        "orders": 18000,
+        "fulfilled_orders": 17999,
+        "expired_orders": 1,
+        "pending_orders": 0,
+        "payment_attempts": 17999,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 17999,
+        "bookings": 17999,
+        "tickets": 17999,
+        "payment_callbacks": 17999,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 17999,
+        "callback_delivery_target": 17999,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 18000,
+        "expected_paid": 18000,
+        "expected_callback_deliveries_per_payment": 1,
+        "pass": false,
+        "hold_deadlines_elapsed": true
+      },
+      "global_queues": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "pending_callback_deliveries": 0,
+        "pending_refunds": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "kafka_total_lag": 0,
+        "kafka_members": 6,
+        "pass": true
+      },
+      "all_four_replicas_observed": null,
+      "request_shares": [],
+      "private_cleanup_pass": false,
+      "failure_type": "ConnectionResetError"
+    }
+  },
+  "latency_comparison": {},
+  "gates": {
+    "control": {
+      "paid": {
+        "customer_load": false,
+        "post_ttl_financial": false,
+        "zero_double_booking": false,
+        "full_keyspace_queue_drain": true,
+        "kafka_drain": true,
+        "pipeline_observer": false,
+        "kafka_observer": false,
+        "cpu_sampler": false,
+        "source_and_restored_configuration_pass": true,
+        "generator_idle_pass": true,
+        "private_cleanup_pass": false,
+        "hold_deadlines_elapsed": true,
+        "pipeline_observer_source": true,
+        "cache_disabled": true,
+        "candidate_source_identity": true,
+        "only_expected_runtime_modules_changed": true,
+        "payment_partition_active": true,
+        "fixed_connection_and_waiter_budget": true,
+        "payment_partition_restored": true,
+        "financial_logic_unchanged": true,
+        "baseline_runtime_deployed": true,
+        "pinned_harness_identity": true
+      },
+      "additional": {
+        "distinct_api_and_generator_machines": true,
+        "fixed_aggregate_budgets": true,
+        "all_four_replicas_observed": false,
+        "both_hosts_cpu_observed": false,
+        "same_offered_measurement_window": false,
+        "per_replica_traffic_distribution": false,
+        "cross_host_one_seat_one_owner": false,
+        "cross_host_idempotent_replay": false,
+        "secondary_resources_removed": true,
+        "primary_lb_and_four_apis_restored": true
+      },
+      "all_required_gates_pass": false,
+      "failed_gates": [
+        "all_four_replicas_observed",
+        "both_hosts_cpu_observed",
+        "cpu_sampler",
+        "cross_host_idempotent_replay",
+        "cross_host_one_seat_one_owner",
+        "customer_load",
+        "kafka_observer",
+        "per_replica_traffic_distribution",
+        "pipeline_observer",
+        "post_ttl_financial",
+        "private_cleanup_pass",
+        "same_offered_measurement_window",
+        "zero_double_booking"
+      ],
+      "scope": "Gate-map evaluation only; live evidence must be collected by a qualified runner."
+    }
+  },
+  "adapter_identity": {
+    "scripts/observe_two_host_pipeline.py": "78ef7c634f4a4354f56c461533ea9a4720d6c32cb46561362d12f2d369bcd6d5",
+    "scripts/prepare_two_host_scaling.py": "8bce6b140fac5ba03f469a448503dbd510122e6578a7bc915dba1bd40cd46964",
+    "scripts/observe_two_host_cpu.py": "9057624cfa1796e4e84c21409f45a84fca00cae11fc7e43bd7902074660abad6",
+    "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+    "scripts/run_two_host_paid_comparison.py": "016152ca3e7cdcbfecc91f7c12ab16c7f547f317cdab84a98791b45da539aaa7",
+    "scripts/qualify_two_host_deployment.py": "63b6cf35b2d518a939d6175fa017faf0e05f3a3c5da1c6512032a495b366cda2",
+    "scripts/collect_two_host_inventory.py": "af8e946dd3c08f16bd2c58abb3ede866794c9da6636958310568247edd4237f9"
+  },
+  "http_rps_note": "Customer HTTP attempts include completion-tail requests; do not divide by dispatch duration and call that offered-window HTTP RPS. Journey errors are not HTTP error percentage.",
+  "recovered_cpu_evidence": {
+    "both_hosts_cpu_observed": true,
+    "same_offered_measurement_window": true,
+    "aggregate_api_cpu_cores": 1.2967208610194607,
+    "host_cpu_percent": {
+      "primary": 82.29925920885887,
+      "secondary": 0.22276732078494194
+    }
+  },
+  "recovery_scope": "Read-only recovered shared-window CPU samples; original failed observer/gate results are retained. Pipeline/Kafka traces were not copied before teardown and could not be recovered.",
+  "candidate_status": "NOT_STARTED_CONTROL_GATES_FAILED",
+  "diagnosis": "One payment HTTP503 led to one unpaid expired order; all17999 successful payments have17999 durable tickets,zero double bookings,pending orders0. Cause of payment503 is not established; per-replica pipeline trace lost on transport failure.",
+  "harness_followup": {
+    "ssh_keepalive_seconds": 30,
+    "failure_path_trace_copy": true,
+    "local_focused_tests_passed": 155,
+    "ruff_passed": true,
+    "passive_ssh_idle_qualification": "PASSED_330_SECONDS_ALL_THREE_CLIENTS_GENERATOR_IDLE",
+    "replacement_paid_pair": "Requires explicit authorization; original at-most-one-control/one-candidate scope is not automatically retried.",
+    "evidence": "two-host-ssh-idle-qualification-2026-10-05.json",
+    "qualification_limit": "One passive idle test, not a passing paid run with corrected harness."
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "kind": "shared_bounded_api_acquisition_budget_local_validation",
+  "decision_record": "0133-shared-bounded-api-acquisition-budget",
+  "decision_revision": "d5b100e",
+  "baseline_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
+  "candidate_budget": {
+    "total_connections": 4,
+    "general_connections": 2,
+    "payment_connections": 2,
+    "effective_combined_acquisition_and_retained_slot_limit": 12,
+    "general_acquisition_ceiling": 10,
+    "payment_acquisition_ceiling": 10,
+    "protected_headroom_per_purpose": 2,
+    "purpose_limits_overlap": true,
+    "native_queue_ceiling_sum_is_not_effective_total": 20
+  },
+  "source_verification": {
+    "runtime_modules": 10,
+    "changed_runtime_modules": [
+      "src/ticketing/infrastructure/postgres.py",
+      "src/ticketing/api.py",
+      "src/ticketing/config.py"
+    ],
+    "expected_runtime_source_sha256": {
+      "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+      "src/ticketing/infrastructure/postgres.py": "b11dd08700c476f00304302c9199dfb2017aa6fed81ca2033eb89347fb351f4b",
+      "src/ticketing/infrastructure/reservations.py": "ae44dffde81c06a9aa4990dd22ddd86f799ee371001db9222abc73aae3dea5c7",
+      "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+      "src/ticketing/infrastructure/order_status_cache.py": "85cb2678d68885e6c8930dcebb95122d3139d5c19c825f702b8b4ad4ae1e402a",
+      "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+      "src/ticketing/api.py": "ed4a9f07085fd9491457271c09f9bbc97822cdea4235ad138a167c9649a8b911",
+      "src/ticketing/config.py": "351051acfbf561a5a217118c8325a8ec85e38ead20756da9e9e6f7b980eb4cc6",
+      "src/ticketing/workers.py": "c87f75def0e95090252517723dc8fdf1786317a2853d32f634ab351d3d05cb57",
+      "src/ticketing/observability.py": "8cf47f1b830ad761d6efb78cb31f207ccf0aed97fbb118bbb180276eec8ffbfa"
+    },
+    "seven_other_modules_unchanged": true,
+    "financial_reservation_and_worker_code_unchanged": true,
+    "transaction_connection_constructor_cursor_and_close_ast_unchanged": true,
+    "api_changed_functions": [
+      "lifespan",
+      "service",
+      "ready"
+    ],
+    "runtime_identical_to_prior_partition_candidate": false,
+    "guard_uses_only_public_native_pool_surface": true
+  },
+  "executed_validation": {
+    "command": ".venv/Scripts/python.exe tmp/run_adr0133_candidate_checks.py",
+    "passed": 645,
+    "seconds": 106.51,
+    "skipped": 0,
+    "new_cases_relative_passing_baseline": 74,
+    "warnings": [
+      "Starlette httpx deprecation",
+      "AnyIO BlockingPortal alias deprecation"
+    ],
+    "lint_whitespace_pass": true,
+    "owned_local_services_removed": true,
+    "cloud_access_or_load_started": false
+  },
+  "focused_validation": {
+    "passed": 22,
+    "seconds": 9.7,
+    "raw": "tmp/adr0133-capacity-investigation/focused-validation.txt"
+  },
+  "coverage": [
+    "Real signed HTTP mixed7general/5payment and5general/7payment bursts:legacy6/6 rejects one;shared budget admits12 withoutretry;original error retained in static controls",
+    "Two distinct financial transactions and real signed routes progress while general connections occupied",
+    "Both directions of ten dominant waiters plus two other waiters; combined12 and per-purpose10 overflow remain explicit",
+    "Native timeout entries retain all12 budget slots; return/cleanup releases debt and database transactions recover",
+    "Per-purpose ten-waiter FIFO drain while the other purpose completes SQL; no admitted-waiter starvation",
+    "Close unblocks waiting clients and clears budget; partial setup/lifecycle/readiness/authorization/signatures remain covered",
+    "Forty simultaneous mixed acquisition attempts admit exactly12 and preserve each ten-slot ceiling; remaining attempts reject",
+    "Exact initiation/callback/consumer replay and financial counts;zero doublebooking;existing writer fairness and financial integration checks retained",
+    "Supported candidate4connections/shared12 settings accepted;invalid/staticfailed budgets rejected beforecloudtransport"
+  ],
+  "initial_failed_validation": {
+    "kind": "pytest_collection_module_name_collision",
+    "error_count": 1,
+    "seconds": 0.47,
+    "raw": "tmp/adr0133-capacity-investigation/initial-collection-failure.txt",
+    "correction": "Renamed integration test module before focused and full successful runs;no runtime change"
+  },
+  "orchestration_preflight": {
+    "inline_python_probe_syntax_pass": true,
+    "remote_shell_probe_syntax_pass": true,
+    "compose_mapping": [
+      {
+        "payment_maximum": 0,
+        "shared_waiting": false,
+        "api_total_connections": 4,
+        "api_total_waiters": 12,
+        "flag_is_api_only": true
+      },
+      {
+        "payment_maximum": 2,
+        "shared_waiting": true,
+        "api_total_connections": 4,
+        "api_total_waiters": 12,
+        "flag_is_api_only": true
+      }
+    ],
+    "cloud_access_or_load_started": false,
+    "pass": true
+  },
+  "cloud_qualification": "NOT_RUN",
+  "scope": "Local protection/fairness/recovery proof only;no new cloud access/load. Total acquisition bound includes ready attempts and conservatively retained timeout slots;purpose ceilings overlap.",
+  "private_evidence_root": "tmp/adr0133-capacity-investigation",
+  "post_full_validation": {
+    "edit": "Runner probe additionally checks shared used/acquiring/retained scalar bounds;runtime unchanged.",
+    "command": ".venv/Scripts/python.exe -m pytest tests/unit/test_paid_checkout_cli.py -q -p no:cacheprovider",
+    "passed": 26,
+    "seconds": 1.53,
+    "offline_probe_and_compose_checks_repeated": true,
+    "cloud_access_or_load_started": false
+  }
+}

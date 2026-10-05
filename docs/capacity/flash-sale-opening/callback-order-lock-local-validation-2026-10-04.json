@@ -1,0 +1,56 @@
+{
+  "kind": "callback_order_lock_local_validation",
+  "decision_record": "0129-payment-derived-order-lock-query",
+  "baseline_application_revision": "7bbfaa6a945ba2fef652266e997fcdfbd85c9d67",
+  "adr_before_implementation_revision": "13f9e46",
+  "changed_function": "PostgresReservations.callback",
+  "outside_callback_ast_unchanged": true,
+  "historical_profile_callback_ast_matches_baseline": true,
+  "domain_select_count_successful_multiseat": {
+    "baseline": 7,
+    "candidate": 6
+  },
+  "first_lock": "order only; payment-derived association",
+  "fresh_payment_read_and_lock_retained": true,
+  "executed_validation": {
+    "command": ".venv/Scripts/python.exe tmp/run_adr0129_candidate_checks.py candidate",
+    "passed": 571,
+    "seconds": 87.28,
+    "skipped": 0,
+    "new_real_postgres_regressions": 13,
+    "baseline_expected_failures": 1,
+    "baseline_other_new_tests_passed": 12,
+    "warnings": [
+      "Starlette httpx deprecation",
+      "AnyIO BlockingPortal alias deprecation"
+    ],
+    "lint_whitespace_pass": true,
+    "owned_test_containers_removed": true,
+    "cloud_access_or_load_started": false
+  },
+  "populated_local_query_boundary": {
+    "historical_orders_and_payments": 100000,
+    "native_order_equal": true,
+    "unknown_payment_no_row": true,
+    "candidate_indexes": [
+      "payment_attempts_pkey",
+      "orders_pkey"
+    ],
+    "candidate_no_sequential_scan": true,
+    "samples_per_mode": 100,
+    "median_ms": {
+      "baseline": 6.769450003048405,
+      "candidate": 6.192549975821748
+    },
+    "scope": "Isolated loopback query boundary with common timeout setup/commit, not full callback or cloud capacity. No financial mutation tested by this benchmark.",
+    "execution_ms": {
+      "baseline_payment": 0.016,
+      "baseline_order": 0.029,
+      "candidate": 0.036
+    },
+    "pass": true
+  },
+  "source_sha256": "ae44dffde81c06a9aa4990dd22ddd86f799ee371001db9222abc73aae3dea5c7",
+  "private_evidence_root": "tmp\\adr0129-callback-investigation",
+  "limitations": "Historical stack context is not SQL duration or charged CPU. Populated loopback timing tests discovery/order-lock boundary only; cloud comparison pending."
+}

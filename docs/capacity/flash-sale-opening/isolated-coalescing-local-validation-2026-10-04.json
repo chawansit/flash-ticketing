@@ -1,0 +1,202 @@
+{
+  "decision_record": "0144-enabled-cache-isolated-coalescing-comparison",
+  "revision": "dfb11bc8b6907bcaf2b9cde3d7e2f7ddf1724a19",
+  "baseline_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "qualification": "LOCAL_PASSED_CLOUD_SKIPPED",
+  "focused": {
+    "passed": 111,
+    "skipped": 0,
+    "pytest_seconds": 21.37,
+    "exit_code": 0
+  },
+  "full": {
+    "passed": 663,
+    "skipped": 0,
+    "pytest_seconds": 86.91,
+    "exit_code": 0
+  },
+  "test_scope": "Isolated deb330e tree plus ADR0143 coalescing tests;663 full unit/integration tests differ from739 tests on the later development branch. Two existing deprecation warnings per suite.",
+  "source_verified": true,
+  "locked_dependencies_verified": true,
+  "source_identity": {
+    "pass": true,
+    "revision": "dfb11bc8b6907bcaf2b9cde3d7e2f7ddf1724a19",
+    "runtime_modules": [
+      {
+        "path": "src/ticketing/infrastructure/payment_transport.py",
+        "tested_raw_sha256": "7b9be527cfe64c63c07ba52165df857f9b41ec56f19e181f960b6b8a6d35de0d",
+        "normalized_git_sha256": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+        "normalized_match": true
+      },
+      {
+        "path": "src/ticketing/infrastructure/postgres.py",
+        "tested_raw_sha256": "f0d2c12e008d95b50b228411e27b7fed7d0584ad6f521571d1eb5be500908a2d",
+        "normalized_git_sha256": "b11dd08700c476f00304302c9199dfb2017aa6fed81ca2033eb89347fb351f4b",
+        "normalized_match": true
+      },
+      {
+        "path": "src/ticketing/infrastructure/reservations.py",
+        "tested_raw_sha256": "ce5e77a4224917e43b00bc44affc6afac1c1bced342a372bfe3f0b09bead1d75",
+        "normalized_git_sha256": "ae44dffde81c06a9aa4990dd22ddd86f799ee371001db9222abc73aae3dea5c7",
+        "normalized_match": true
+      },
+      {
+        "path": "src/ticketing/infrastructure/redis_reservations.py",
+        "tested_raw_sha256": "66b84d483f858a2dfc176a8faec7f473009093f57077dc615a0ae78022cf7add",
+        "normalized_git_sha256": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+        "normalized_match": true
+      },
+      {
+        "path": "src/ticketing/infrastructure/order_status_cache.py",
+        "tested_raw_sha256": "71b21f79c04626edc4d7c0085649ef10faa1b81b5c67a0b4ac1abc79488dfa13",
+        "normalized_git_sha256": "facb0f9141511ca114fb25df8fe7dbfd534a00fc4b9e4e422dc0b75309403358",
+        "normalized_match": true
+      },
+      {
+        "path": "src/ticketing/application/reservations.py",
+        "tested_raw_sha256": "ff824592158edfe4696396258f16ae46237162eb3d3021d22da436201a460fcc",
+        "normalized_git_sha256": "1093cde6d9d1ea7981505935b7b3f4e4de5f9d8cb251cb1604075fe9dce93749",
+        "normalized_match": true
+      },
+      {
+        "path": "src/ticketing/api.py",
+        "tested_raw_sha256": "432272be88fc3f228d9be16219e5ccf06a56c22aa14feb6199b7ee584352e44c",
+        "normalized_git_sha256": "ed4a9f07085fd9491457271c09f9bbc97822cdea4235ad138a167c9649a8b911",
+        "normalized_match": true
+      },
+      {
+        "path": "src/ticketing/config.py",
+        "tested_raw_sha256": "0e205f50b9384f54d9b4889e6fc97150f822c419181970aea0582c3e8cc1cae8",
+        "normalized_git_sha256": "351051acfbf561a5a217118c8325a8ec85e38ead20756da9e9e6f7b980eb4cc6",
+        "normalized_match": true
+      },
+      {
+        "path": "src/ticketing/workers.py",
+        "tested_raw_sha256": "a344f9b0c03442618b32f90d258d4f2851b8a7f62f60ca6652519707cf154653",
+        "normalized_git_sha256": "c87f75def0e95090252517723dc8fdf1786317a2853d32f634ab351d3d05cb57",
+        "normalized_match": true
+      },
+      {
+        "path": "src/ticketing/observability.py",
+        "tested_raw_sha256": "5d7ba29cc2c2f6b9778e36ee223636664f19411c64c4914db3f63faaaf457339",
+        "normalized_git_sha256": "8cf47f1b830ad761d6efb78cb31f207ccf0aed97fbb118bbb180276eec8ffbfa",
+        "normalized_match": true
+      },
+      {
+        "path": "src/ticketing/infrastructure/cache.py",
+        "tested_raw_sha256": "d68a3d4e46d909ed4625b7f0041473861ebc9025953fb3d13ff4b552246d784c",
+        "normalized_git_sha256": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+        "normalized_match": true
+      },
+      {
+        "path": "src/ticketing/application/ports.py",
+        "tested_raw_sha256": "166e106ae992bbca1d556b6488bf12d38f07badd67996578fe87c6a8f4774689",
+        "normalized_git_sha256": "35ed10885d01c63d981678021b08b24c57a84d76f404d4472ec762f51b7734de",
+        "normalized_match": true
+      },
+      {
+        "path": "src/ticketing/infrastructure/read_coalescer.py",
+        "tested_raw_sha256": "095f2d18a51d554ac49ec575d6088be163901bf8143e8b408b3f160ec909828a",
+        "normalized_git_sha256": "cb706cdb0f326afce6e6a47d996545845d9ced3e43b13793fcc0d574a563b71c",
+        "normalized_match": true
+      }
+    ],
+    "note": "Git archive on Windows exports Python text with CRLF. Native test checked exact exported bytes. Normalized LF bytes match immutable Git source; Python source parsing normalizes line endings. No code edit or test rerun needed."
+  },
+  "runner_image": "sha256:74909203b87a1ae60435edb8fff17bac0762ed8042d0a6219652ca9b4ed28d69",
+  "python": "3.12.14 (main, Sep 19 2026, 01:04:57) [GCC 14.2.0]",
+  "owned_docker_cleanup": true,
+  "cloud_deployed": false,
+  "cloud_load": false,
+  "preparation_failures_without_cloud_load": [
+    "Pinned harness guard rejected LF/CRLF byte mismatch; restored exact historical upload bytes before preflight.",
+    "Native preparation incorrectly normalized binary archive files for identity; repaired raw-byte guard, no tests executed in that attempt.",
+    "Focused test referenced a file absent from deb330e; corrected to baseline recovery tests, zero tests executed in that attempt."
+  ],
+  "offline_report_guard_validation": {
+    "pass": true,
+    "cases": [
+      {
+        "case": "valid_synthetic_fixture",
+        "pass": true
+      },
+      {
+        "case": "reject_wrong_cache_age",
+        "pass": true
+      },
+      {
+        "case": "reject_missing_ticket",
+        "pass": true
+      },
+      {
+        "case": "reject_duplicate_booking",
+        "pass": true
+      },
+      {
+        "case": "reject_undrained_queue",
+        "pass": true
+      },
+      {
+        "case": "reject_wrong_runtime",
+        "pass": true
+      },
+      {
+        "case": "reject_wrong_harness",
+        "pass": true
+      },
+      {
+        "case": "reject_changed_layout",
+        "pass": true
+      }
+    ],
+    "scope": "Offline synthetic reporting checks only; no cloud capacity proof."
+  },
+  "offline_conditional_guard_validation": {
+    "pass": true,
+    "cases": [
+      {
+        "case": "valid_control",
+        "pass": true
+      },
+      {
+        "case": "missing_gate",
+        "pass": true
+      },
+      {
+        "case": "failed_gate",
+        "pass": true
+      },
+      {
+        "case": "nonboolean_gate",
+        "pass": true
+      },
+      {
+        "case": "missing_cleanup",
+        "pass": true
+      },
+      {
+        "case": "key_files_retained",
+        "pass": true
+      },
+      {
+        "case": "changed_budget",
+        "pass": true
+      },
+      {
+        "case": "wrong_revision",
+        "pass": true
+      },
+      {
+        "case": "not_control",
+        "pass": true
+      },
+      {
+        "case": "restoration_failed",
+        "pass": true
+      }
+    ],
+    "scope": "Offline conditional-dispatch guard; no cloud load."
+  },
+  "private_evidence_root": "tmp/adr0144-native-investigation/adr0144-evidence",
+  "limitations": "Native regression tests and synthetic guards are not production throughput proof. Candidate never ran in cloud after failed enabled-cache control."
+}

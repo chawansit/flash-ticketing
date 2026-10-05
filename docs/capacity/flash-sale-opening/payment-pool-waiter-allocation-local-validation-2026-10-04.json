@@ -1,0 +1,93 @@
+{
+  "kind": "explicit_fixed_budget_payment_waiters_local_validation",
+  "decision_record": "0132-explicit-fixed-budget-payment-waiters",
+  "decision_revision": "6c39ef1",
+  "baseline_revision": "f3f511d51105fdf619ac3c44d3600ed2c4a2c410",
+  "previous_partition_revision": "7ba8fca0bc2ea40cd58172a1e79d90bce78600a2",
+  "candidate_budget": {
+    "total_connections": 4,
+    "general_connections": 2,
+    "payment_connections": 2,
+    "total_waiters": 12,
+    "general_waiters": 1,
+    "payment_waiters": 11
+  },
+  "source_verification": {
+    "runtime_modules": 10,
+    "changed_runtime_modules": [
+      "src/ticketing/infrastructure/postgres.py",
+      "src/ticketing/api.py",
+      "src/ticketing/config.py"
+    ],
+    "expected_runtime_source_sha256": {
+      "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+      "src/ticketing/infrastructure/postgres.py": "7b8bf160bd279f3e9d85909460e578442f5847fd0b6dec4608ef82dd40f841fe",
+      "src/ticketing/infrastructure/reservations.py": "ae44dffde81c06a9aa4990dd22ddd86f799ee371001db9222abc73aae3dea5c7",
+      "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+      "src/ticketing/infrastructure/order_status_cache.py": "85cb2678d68885e6c8930dcebb95122d3139d5c19c825f702b8b4ad4ae1e402a",
+      "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+      "src/ticketing/api.py": "33e3fe919dcc73ea78985d16bd6318b8e065f6eb0132bba620efeecc88d7a4fe",
+      "src/ticketing/config.py": "7cc7c428410a73d65ccfb48e1d79d1cb3703b399254c0abde2d7fbdbe5376cf6",
+      "src/ticketing/workers.py": "c87f75def0e95090252517723dc8fdf1786317a2853d32f634ab351d3d05cb57",
+      "src/ticketing/observability.py": "8cf47f1b830ad761d6efb78cb31f207ccf0aed97fbb118bbb180276eec8ffbfa"
+    },
+    "seven_other_modules_unchanged": true,
+    "financial_reservation_and_worker_code_unchanged": true,
+    "transaction_connection_constructor_cursor_and_close_ast_unchanged": true,
+    "api_changed_functions": [
+      "lifespan",
+      "service",
+      "ready"
+    ],
+    "runtime_identical_to_prior_partition_candidate": false
+  },
+  "executed_validation": {
+    "command": ".venv/Scripts/python.exe tmp/run_adr0132_candidate_checks.py",
+    "passed": 636,
+    "seconds": 93.54,
+    "skipped": 0,
+    "new_cases_relative_passing_baseline": 65,
+    "added_cases_relative_adr0131": 22,
+    "warnings": [
+      "Starlette httpx deprecation",
+      "AnyIO BlockingPortal alias deprecation"
+    ],
+    "lint_whitespace_pass": true,
+    "owned_local_services_removed": true,
+    "cloud_access_or_load_started": false
+  },
+  "coverage": [
+    "Six-waiter historical queue rejection vs eleven-waiter same seven-payment burst completion without retry; no financial writes while both connections held; exact payment/callback/consumer replay with seven paid-issued tickets",
+    "Two concurrent critical transactions and signed real HTTP initiation/callback under full general exhaustion with explicit11 waiters",
+    "Eleven financial waiters filled; twelfth rejected; queued calls time out visibly without borrowing; release/replay exact",
+    "General1 waiter filled; next read rejects; financial callback completes; timeout visible",
+    "Eleven financial waiters progress FIFO with one connection held through serial drain; no starvation",
+    "Defaults, invalid explicit budgets fail before resources, purpose/aggregate metrics, readiness, lifecycle, authorization/signatures and before-transport candidate rejection",
+    "All existing reservation-writer fairness/concurrency/replay and financial integration controls retained"
+  ],
+  "orchestration_preflight": {
+    "inline_python_probe_syntax_pass": true,
+    "remote_shell_probe_syntax_pass": true,
+    "compose_mapping": [
+      {
+        "payment_maximum": 0,
+        "payment_maximum_waiting": 0,
+        "api_total_connections": 4,
+        "api_total_waiters": 12,
+        "flag_is_api_only": true
+      },
+      {
+        "payment_maximum": 2,
+        "payment_maximum_waiting": 11,
+        "api_total_connections": 4,
+        "api_total_waiters": 12,
+        "flag_is_api_only": true
+      }
+    ],
+    "cloud_access_or_load_started": false,
+    "pass": true
+  },
+  "cloud_qualification": "NOT_RUN",
+  "scope": "Local concurrency/recovery proof only; no new cloud access/load and no sustained capacity claim.",
+  "private_evidence_root": "tmp/adr0132-capacity-investigation"
+}

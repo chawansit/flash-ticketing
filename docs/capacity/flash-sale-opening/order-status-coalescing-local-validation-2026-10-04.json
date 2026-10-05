@@ -1,0 +1,98 @@
+{
+  "decision": "0143-bounded-order-status-miss-coalescing",
+  "qualification": "PASSED_LOCAL_ONLY",
+  "workspace_base_revision": "1798c0e18e52889fc5e58732e90c8e6282677300",
+  "source_sha256_normalized_lf": {
+    "src/ticketing/application/ports.py": "35ed10885d01c63d981678021b08b24c57a84d76f404d4472ec762f51b7734de",
+    "src/ticketing/application/reservations.py": "1093cde6d9d1ea7981505935b7b3f4e4de5f9d8cb251cb1604075fe9dce93749",
+    "src/ticketing/infrastructure/order_status_cache.py": "facb0f9141511ca114fb25df8fe7dbfd534a00fc4b9e4e422dc0b75309403358",
+    "src/ticketing/infrastructure/read_coalescer.py": "cb706cdb0f326afce6e6a47d996545845d9ced3e43b13793fcc0d574a563b71c",
+    "tests/unit/test_order_status_coalescing.py": "4cc3047636a34270fcf543733f0f517cd007689f31ee24c48ffb02f0cad1ffa7",
+    "tests/unit/test_order_status_cache.py": "76fecc59ecbf81c31a792a8b7e19c281c8abb476611a7d381ca5b683d54e3c59",
+    "tests/integration/test_order_status_cache_integration.py": "249d3b59ba48c98b4007b80166ef1f14988e3bd5b33fc2ed94aff1ee30356358"
+  },
+  "native_source_verified": true,
+  "locked_dependencies_verified": true,
+  "tests": {
+    "windows_focused": {
+      "passed": 43,
+      "seconds": 0.37
+    },
+    "native_linux_focused": {
+      "passed": 121,
+      "pytest_seconds": 26.26,
+      "process_wall_seconds": 27.767410078000466
+    },
+    "native_linux_full_unit_integration": {
+      "passed": 739,
+      "pytest_seconds": 96.31,
+      "process_wall_seconds": 97.93611417299962
+    }
+  },
+  "lint": "PASSED_CHANGED_FILES",
+  "regression_coverage": [
+    "same-actor/order cold-read coalescing and completed-fill race recheck",
+    "actor/order isolation; no authorization-error caching",
+    "entry/per-key/global follower limits and timeout fallback",
+    "leader exception/cancellation cleanup and follower wakeup",
+    "Redis failure/invalid/stale/future-clock/nonextended freshness and earliest deadline",
+    "real PostgreSQL connection released before cache fill",
+    "atomic seat contention, writer replay, payment durability/commit recovery and shared API budget tests"
+  ],
+  "controlled_cold_read_result": {
+    "simultaneous_readers": 8,
+    "authorized_postgresql_reads": 1,
+    "cache_fills": 1,
+    "scope": "Same customer/order within one process; not distinct buyers or distributed cloud traffic."
+  },
+  "limits": {
+    "active_entries_per_adapter": 128,
+    "followers_per_key": 8,
+    "followers_per_adapter": 128,
+    "follower_wait_ms": 100,
+    "default_order_status_cache_ms": 0
+  },
+  "tradeoffs": [
+    "Healthy misses add one Redis recheck.",
+    "Followers temporarily occupy synchronous request threads.",
+    "Distinct orders and cross-process misses are not coalesced.",
+    "Timeout/overflow/outage retain bounded database fallback and may still return503."
+  ],
+  "unchanged": [
+    "Cloud source and settings",
+    "PostgreSQL seat/payment/ticket authority, locking and schema",
+    "Hold/command/payment/advisory freshness TTLs",
+    "Connection/acquisition/simulator budgets",
+    "Kafka/outbox delivery and idempotency",
+    "HTTP polling contract and default-disabled cache"
+  ],
+  "preliminary_failures_retained": {
+    "first_windows_focused": {
+      "passed": 41,
+      "failed": 2,
+      "reason": "Test incorrectly expected direct context-manager __exit__ to re-raise; corrected to actual with-block exception/cancellation behavior."
+    },
+    "local_runner_startup": {
+      "rejected_before_containers_or_tests": true,
+      "reason": "Generated helper indentation error; repaired and syntax-checked before execution."
+    }
+  },
+  "cleanup": {
+    "owned_containers_removed": true,
+    "owned_network_removed": true,
+    "owned_context_removed": true,
+    "preexisting_services_untouched": true,
+    "temporary_cloud_keys_installed": false
+  },
+  "cloud_load_executed": false,
+  "cloud_capacity_proven": false,
+  "production_promotion": false,
+  "private_evidence_root": "tmp/adr0143-native-investigation",
+  "next_comparison_constraints": [
+    "Separate coalescing from activation/age of the existing cache. An enabled-cache control with the same underlying projection/runtime is needed; the latest cloud baseline has cache0.",
+    "Do not bundle the cloud-unqualified seat-projection candidate with this mitigation.",
+    "Hold workload, host size, total pool/acquisition/simulator budgets and harness fixed.",
+    "Retain client deadlines, postTTL payment/ticket equality, zero-double-booking, complete global queues/Kafka, source/cleanup gates. Refund recovery is separately recorded and cannot pass failed ticket qualification."
+  ],
+  "note": "Local correctness evidence only; no higher RPS,300000/hour or real payment/refund-provider proof."
+}

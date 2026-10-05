@@ -1,0 +1,153 @@
+{
+  "kind": "two_host_rate_probe_failed_qualification_and_recovery",
+  "run": "adr0148-rate-f325fd1b84ef",
+  "qualification_pass": false,
+  "paid_capacity_stages_started": 0,
+  "safety_tickets_consumed": 1,
+  "safety": {
+    "pass": true,
+    "wave_requests": 100,
+    "accepted_holds": 1,
+    "wave_statuses": {
+      "409": 99,
+      "202": 1
+    },
+    "one_durable_owner_before_payment": true,
+    "cross_host_hold_replay": true,
+    "cross_host_payment_replay": true,
+    "customer_ticket_confirmed": true
+  },
+  "post_ttl_safety_audit": {
+    "orders": 1,
+    "fulfilled_orders": 1,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 1,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 1,
+    "bookings": 1,
+    "tickets": 1,
+    "payment_callbacks": 1,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 3,
+    "callback_delivery_target": 3,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 1,
+    "expected_paid": 1,
+    "expected_callback_deliveries_per_payment": 3,
+    "pass": true,
+    "hold_deadlines_elapsed": true
+  },
+  "observers": {
+    "pipeline_samples": 41,
+    "pipeline_metrics_errors": 0,
+    "pipeline_database_errors": 0,
+    "same_scheduled_cpu_window": {
+      "both_hosts_cpu_observed": true,
+      "same_offered_measurement_window": true,
+      "aggregate_api_cpu_cores": 0.20884955412041056,
+      "host_cpu_percent": {
+        "primary": 20.721178263077704,
+        "secondary": 1.25250501002004
+      }
+    },
+    "stage_private_cleanup_pass": true
+  },
+  "failures": [
+    "Worker diagnostic collector incorrectly required the API image for consumer/simulator, despite legitimately distinct saved immutable role images.",
+    "Credential cleanup rejected the ADR0148 prefix. Topology was restored but temporary credential files were retained until verified recovery."
+  ],
+  "read_only_source_verification": {
+    "api": {
+      "replicas_verified": 4,
+      "images": [
+        "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e"
+      ],
+      "all12_frozen_source_paths_match": true
+    },
+    "consumer": {
+      "replicas_verified": 1,
+      "images": [
+        "sha256:ce59e827156b470a81b98c2dbc68cb9c69fed03e50ccc2f516ef30b64e0e21fd"
+      ],
+      "all12_frozen_source_paths_match": true
+    },
+    "simulator": {
+      "replicas_verified": 1,
+      "images": [
+        "sha256:22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452"
+      ],
+      "all12_frozen_source_paths_match": true
+    }
+  },
+  "recovery": {
+    "pass": true,
+    "original_dry_run": "adr0148-rate-f325fd1b84ef",
+    "primary_runtime_semantics_restored": true,
+    "primary_api_count": 4,
+    "queues": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "pending_callback_deliveries": 0,
+      "pending_refunds": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "kafka_total_lag": 0,
+      "kafka_members": 1,
+      "pass": true
+    },
+    "generator_idle": true,
+    "secondary_resources_removed": true,
+    "credential_snapshots_removed": true,
+    "primary_removed_files": [
+      "backup.private.json",
+      "restore.compose.json",
+      "live.compose.json"
+    ],
+    "secondary_removed_files": [
+      "compose.json"
+    ],
+    "capacity_stages_started": 0,
+    "safety_tickets_consumed": 1,
+    "original_failed_qualification_retained": true
+  },
+  "corrections": [
+    "Pin exact worker container identity and role-specific original saved image; check all12 frozen source paths before collecting logs.",
+    "Permit only anchored ADR0147-topology/ADR0148-rate names with12 hex digits; retain exact-file and symlink guards.",
+    "Require full runtime/secondary/idle/drain/credential cleanup evidence before dry release."
+  ],
+  "local_validation": {
+    "focused_pytest_passed": 215,
+    "ruff": "passed",
+    "updated_live_dry": "not executed",
+    "paid_performance_probe": "not executed"
+  },
+  "authorization_remaining": {
+    "original_paid_probe_authorized": true,
+    "paid_runs_started": 0,
+    "approved_safety_tickets_max": 2,
+    "safety_tickets_consumed": 1,
+    "safety_tickets_remaining": 1,
+    "additional_safety_ticket_needed_for_requalification_then_paid": 1,
+    "automatic_qualification_repeat": false
+  },
+  "evidence_note": "Original failed qualification remains failed. Recovery proves restoration/cleanup; it does not make the modified adapter dry-qualified or establish84/s performance. No new application source/image, budgets or RDS/DCS settings were deployed.",
+  "adapter_identity": {
+    "scripts/observe_two_host_pipeline.py": "78ef7c634f4a4354f56c461533ea9a4720d6c32cb46561362d12f2d369bcd6d5",
+    "scripts/prepare_two_host_scaling.py": "8bce6b140fac5ba03f469a448503dbd510122e6578a7bc915dba1bd40cd46964",
+    "scripts/observe_two_host_cpu.py": "9057624cfa1796e4e84c21409f45a84fca00cae11fc7e43bd7902074660abad6",
+    "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+    "scripts/run_two_host_paid_comparison.py": "00f9ec7ea953cefeaa22d1088302a13a7936849502e62663bf0793e5fd3b483f",
+    "scripts/qualify_two_host_deployment.py": "5c1b2e8da5fbaee742bf314be88f361845d068a1a068165e0e94e5220a568bc5",
+    "scripts/collect_two_host_inventory.py": "af8e946dd3c08f16bd2c58abb3ede866794c9da6636958310568247edd4237f9",
+    "scripts/run_two_host_rate_probe.py": "431ff30d6d0a981d7319ef8462d29d887c62fe325ad6b60e6e49a6c56d0071f4"
+  },
+  "corrected_source_sha256": {
+    "scripts/run_two_host_rate_probe.py": "e902b130b308e9d02e4ad90dcd4d5f67202bd240485bba37ed84e64014248e25",
+    "scripts/qualify_two_host_deployment.py": "61a777d43878be6d1eb023238cb14159361fc7d92400064ee9b396475d2291dd"
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "decision": "ADR0157",
+  "corrective_decisions": [
+    "ADR0158",
+    "ADR0159"
+  ],
+  "kind": "deduplication_safety_qualification",
+  "pass": true,
+  "run": "adr0151-a6cdb46f8cff",
+  "workspace_revision": "168158c3ee1deea1a0e76beaabec54de1be39e5a",
+  "finished_at_utc": "2026-10-05T13:52:48.889552+00:00",
+  "binding": {
+    "adapter_identity": {
+      "scripts/observe_two_host_pipeline.py": "7b3af97447a7b461d466d285ce90db8c577a59c0cf45e418984e69a4e6e690c9",
+      "scripts/prepare_two_host_scaling.py": "727ddc19e66dcc3780e398cc610c4d0d835ee23809d21ddc492d426d29cf7bc8",
+      "scripts/observe_two_host_cpu.py": "c186aedc7a52e4e671a21caf30af211991f251dd637a02807307769752acda04",
+      "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+      "scripts/run_two_host_paid_comparison.py": "bb2e7409f01fdb8a0054557475c3ee24a42b60a687c2b4207d2658067ff222bf",
+      "scripts/qualify_two_host_deployment.py": "1cda5f0bb34729c2a2ea8a0cb242344c5a1e07a8bf55aa0b29eff71aeb7625fd",
+      "scripts/collect_two_host_inventory.py": "1d6dd249f5b6fbf9691f6f54f23db13a8dcec77261f2e3bda0172cc78baa9136",
+      "scripts/runtime_source_identity.py": "d7a1c8c67ff414ed6280ebda4e6b0a1dfad6f7c9910c0c363f94956d14c04eac",
+      "scripts/probe_two_host_safety.py": "f61f3e718a19c158aa4c4f90a3411160facd9441d8dea9d7e53e20a0fe920bd2",
+      "scripts/run_status_refresh_comparison.py": "8eebd8bd1feea6d81cd56d3117a5b0cd125ac7206912648a71b5c774eb0155d6",
+      "scripts/status_refresh_contract.py": "94d2d0cf1896efaf559c8b74c84c49a021b53ce2270aa1fcbca700818239835b",
+      "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+      "experiment_plan": "8f69e5822135b7e6c87041e28c678ba492478bbbddeaec77775509d870d3f375",
+      "scripts/run_status_refresh_dedup_comparison.py": "692ab7c88e4dfb02fca4fd90e4681f2bd5323b8db7a044b698d1b79cacd8540e",
+      "scripts/status_refresh_dedup_contract.py": "96b26a718d64cb4991a6fa39f03176989d02749ef4bbe840cb0384ce87213736",
+      "scripts/prepare_status_refresh_dedup.py": "84317c4c1e161c6ea3fc109a95485948f9777e8c4de6f28478476bde9a22343d",
+      "scripts/prepare_status_refresh_artifacts.py": "68b952ca37895a3d2365d19ec827f42281b0559f702bbbcb11c5e7b255246b4a",
+      "scripts/status_refresh_image_install.py": "6b949a96793ac185cbc0580d047d9ec94ea3bd266339fab9755a7510c09de8d4",
+      "scripts/stage_status_refresh_images.py": "f9071ce5b9c85166a2a2be5ae89896257756fe77d0a34a0dc8a11fa51761310c",
+      "scripts/stage_status_refresh_dedup_images.py": "2e88db3f91f7ea2471f671f73f3d5478b4d889cd0d0405d272b56c0ed686bca4",
+      "scripts/fetch_status_refresh_parents.py": "b6d3437edcd429c39c6984cab4dcf783e431e3c397b5c1b92d39f75808f98d6c",
+      "artifacts/status-refresh-dedup/manifest.json": "f05993241572e5150726b2feef7a2cd4689a216a460d9135eed6b36d173a299d",
+      "artifacts/status-refresh-dedup/adr0156.patch": "13b5c4ee3387f5bdaabede0bb0921687138659deb180dd39027446c500cbf8b7"
+    },
+    "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+    "artifact_sha256": "32d8d165b5d3b7ac1d20d42986de868751de7ed28057473c6d2d2a907c3da2e2",
+    "source_manifest_sha256": "cb4937dace028ab13ede592119ab8d1493c8ecf7cb449a25f345050c98237917"
+  },
+  "source_manifest_sha256": "cb4937dace028ab13ede592119ab8d1493c8ecf7cb449a25f345050c98237917",
+  "topology": "Two APIs per ECS host;identical ADR0156 images,1000ms cache,event refresh enabled;only consumer dedup0->1.Original machine and total connection budgets preserved.",
+  "arms": {
+    "control": {
+      "pass": true,
+      "pre_safety_source_verified": true,
+      "inventory_marker": {
+        "decision": "ADR0157",
+        "cache_age_ms": 1000,
+        "arm": "control",
+        "api_image_id": "sha256:8876a8f3ab11702088fb8570353a1b66eab697cc1d33333e44be3c66c73261d7",
+        "consumer_event_refresh": "1",
+        "consumer_event_refresh_dedup": "0"
+      },
+      "same_seat_requests": 100,
+      "requests_per_host": [
+        50,
+        50
+      ],
+      "response_counts": {
+        "202": 1,
+        "409": 99
+      },
+      "transport_errors": 0,
+      "accepted_holds": 1,
+      "one_durable_owner_before_payment": true,
+      "hold_replay": true,
+      "payment_replay": true,
+      "other_actor_denied": true,
+      "customer_ticket_confirmed": true,
+      "post_ttl_financial": {
+        "orders": 1,
+        "fulfilled_orders": 1,
+        "expired_orders": 0,
+        "pending_orders": 0,
+        "payment_attempts": 1,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 1,
+        "bookings": 1,
+        "tickets": 1,
+        "payment_callbacks": 1,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 3,
+        "callback_delivery_target": 3,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 1,
+        "expected_paid": 1,
+        "expected_callback_deliveries_per_payment": 3,
+        "pass": true,
+        "hold_deadlines_elapsed": true
+      },
+      "observer_qualification": {
+        "pass": true,
+        "pre_dispatch_qualified": true,
+        "private_cleanup_pass": true,
+        "customers_dispatched": false,
+        "failure_type": null
+      },
+      "restoration": {
+        "restore_pass": true,
+        "primary_runtime_semantics_restored": true,
+        "secondary_resources_removed": true,
+        "generator_idle_after": true,
+        "credential_snapshots_removed": true
+      },
+      "restored_global_queues": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "pending_callback_deliveries": 0,
+        "pending_refunds": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "kafka_total_lag": 0,
+        "kafka_members": 1,
+        "pass": true
+      },
+      "evidence_directory": "tmp/adr0151-a6cdb46f8cff/adr0151-arm-326bd3852855",
+      "state_sha256": "3322ad4422c237ec754ee9dd28261a5b4f760ba293f7c2d85f6e420a920c92cb",
+      "inventory_sha256": "57e0674e729371b5ec58b7404ecd1faae243fd247138654a27841a7274a5fa7f"
+    },
+    "candidate": {
+      "pass": true,
+      "pre_safety_source_verified": true,
+      "inventory_marker": {
+        "decision": "ADR0157",
+        "cache_age_ms": 1000,
+        "arm": "candidate",
+        "api_image_id": "sha256:8876a8f3ab11702088fb8570353a1b66eab697cc1d33333e44be3c66c73261d7",
+        "consumer_event_refresh": "1",
+        "consumer_event_refresh_dedup": "1"
+      },
+      "same_seat_requests": 100,
+      "requests_per_host": [
+        50,
+        50
+      ],
+      "response_counts": {
+        "409": 99,
+        "202": 1
+      },
+      "transport_errors": 0,
+      "accepted_holds": 1,
+      "one_durable_owner_before_payment": true,
+      "hold_replay": true,
+      "payment_replay": true,
+      "other_actor_denied": true,
+      "customer_ticket_confirmed": true,
+      "post_ttl_financial": {
+        "orders": 1,
+        "fulfilled_orders": 1,
+        "expired_orders": 0,
+        "pending_orders": 0,
+        "payment_attempts": 1,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 1,
+        "bookings": 1,
+        "tickets": 1,
+        "payment_callbacks": 1,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 3,
+        "callback_delivery_target": 3,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 1,
+        "expected_paid": 1,
+        "expected_callback_deliveries_per_payment": 3,
+        "pass": true,
+        "hold_deadlines_elapsed": true
+      },
+      "observer_qualification": {
+        "pass": true,
+        "pre_dispatch_qualified": true,
+        "private_cleanup_pass": true,
+        "customers_dispatched": false,
+        "failure_type": null
+      },
+      "restoration": {
+        "restore_pass": true,
+        "primary_runtime_semantics_restored": true,
+        "secondary_resources_removed": true,
+        "generator_idle_after": true,
+        "credential_snapshots_removed": true
+      },
+      "restored_global_queues": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "pending_callback_deliveries": 0,
+        "pending_refunds": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "kafka_total_lag": 0,
+        "kafka_members": 1,
+        "pass": true
+      },
+      "evidence_directory": "tmp/adr0151-a6cdb46f8cff/adr0151-arm-da9135434275",
+      "state_sha256": "b3b686809ef9aa202b942e86884c5e5b9b6f2529158fdd89faae9c48806ded35",
+      "inventory_sha256": "65d93218cd3af9ce6ce0700d2e29b07c08acee25bac681206bdd278ccf9f05f5"
+    }
+  },
+  "total_simulated_paid_issued_tickets": 2,
+  "capacity_stages_started": 0,
+  "performance_measurement_complete": false,
+  "capacity_improvement_measured": false,
+  "hourly_target_qualified": false,
+  "source_report": "tmp/adr0151-a6cdb46f8cff/comparison-summary.json",
+  "source_report_sha256": "c014576b9205ed27cf0ba6bcbf7f90bfbd71b785b46c2a8b6b130f203d50a8b7"
+}

@@ -1,0 +1,95 @@
+{
+  "decision": "ADR0152",
+  "status": "REPRODUCIBLE_SOURCE_AND_OFFLINE_FIXTURE_VERIFIED_REAL_CLOUD_PARENTS_PENDING",
+  "recorded_at_utc": "2026-10-05T06:31:28.383157+00:00",
+  "parent_workspace_revision": "d1ba60df05d29c0a802cc6c49c0c19cdf1fff299",
+  "frozen_application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "source_artifact": "artifacts/status-refresh/manifest.json",
+  "patch_sha256": "4d87db3abffa572587be533b4a86bd059cfe192bfe6264b6098d41a251a2cedb",
+  "source_files_verified": 207,
+  "runtime_modules_verified": 19,
+  "executed_validation": {
+    "local_harness_tests_passed": 385,
+    "offline_docker_integration_tests_passed": 1,
+    "ruff": "passed",
+    "git_diff_check": "passed_before_report_update",
+    "default_source_preparation": "executed_from_frozen_git_and_pinned_patch",
+    "default_comparison_preparation": "executed_against_reproduced_source",
+    "cloud_calls": 0,
+    "customer_dispatches": 0,
+    "real_cloud_candidate_images_built": 0,
+    "synthetic_fixture_images_built": 2,
+    "optional_pytest_cache_warning": "Windows access denied writing node-ID cache; tests executed and passed.",
+    "final_staged_diff_check": "passed"
+  },
+  "synthetic_docker": {
+    "kind": "synthetic_offline_image_qualification",
+    "pass": true,
+    "fixture_parent_image": "sha256:9de448ad99716fb8607ea3dcf8a06627958944b3cd55710447db10086b2eccf7",
+    "candidate_image": "sha256:66da51656abe6de11807593f5311492168816c75d9d14a468767bef63ffe6c5e",
+    "runtime_modules_verified": 19,
+    "installed_record_verified": 19,
+    "inherited_configuration_verified": true,
+    "cloud_deployment_receipt_created": false,
+    "cloud_calls": 0,
+    "evidence_directory": "tmp/adr0152-smoke-9279bdc2777c"
+  },
+  "builder_sha256": {
+    "scripts/prepare_status_refresh_artifacts.py": "68b952ca37895a3d2365d19ec827f42281b0559f702bbbcb11c5e7b255246b4a",
+    "scripts/status_refresh_image_install.py": "6b949a96793ac185cbc0580d047d9ec94ea3bd266339fab9755a7510c09de8d4"
+  },
+  "comparison_adapter_identity": {
+    "scripts/observe_two_host_pipeline.py": "733dac867102e057c0edc9d96de104b964d859d17f8cd1f8ade28ab019934846",
+    "scripts/prepare_two_host_scaling.py": "727ddc19e66dcc3780e398cc610c4d0d835ee23809d21ddc492d426d29cf7bc8",
+    "scripts/observe_two_host_cpu.py": "9057624cfa1796e4e84c21409f45a84fca00cae11fc7e43bd7902074660abad6",
+    "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+    "scripts/run_two_host_paid_comparison.py": "e9b289caee351bec29a31199d094b8ff6546b37c207cb0344a07f066b90452d1",
+    "scripts/qualify_two_host_deployment.py": "1cda5f0bb34729c2a2ea8a0cb242344c5a1e07a8bf55aa0b29eff71aeb7625fd",
+    "scripts/collect_two_host_inventory.py": "5b345464ab18c4a4ad18616dbd44f414a88b7dc0d4b7a79b496810cff7f78ed7",
+    "scripts/runtime_source_identity.py": "d7a1c8c67ff414ed6280ebda4e6b0a1dfad6f7c9910c0c363f94956d14c04eac",
+    "scripts/run_status_refresh_comparison.py": "3f03a2f2dfb27b2875c6f77fb6d585309549433c5d97e61514791c537ddf0266",
+    "scripts/status_refresh_contract.py": "e5eb0164974fa0e443ef65922ca481faf96933fc9f5b02c301b9fd4cfbbbce5f",
+    "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+    "experiment_plan": "c0ecbb4340e10cff1a89103be60a69523fc33c22a2f6cbd742845def10c1a4d1"
+  },
+  "implemented": [
+    "Eight qualified files exported as a reviewed, pinned LF patch; all other exported bytes match the frozen Git baseline.",
+    "Fresh owned Git export no longer depends on the older ignored temporary source tree.",
+    "Bounded archive/patch paths and exact file sets reject symlinks, path escape, duplicates, extra configuration/secrets and source drift.",
+    "Original role-parent map, installed and /app source, bytecode and frozen dependency inputs preflight before image builds.",
+    "Offline source-only image derivation preserves parent layers and full inherited configuration; installed RECORD updated, package caches removed, no dependency installation.",
+    "Shared-parent roles reuse one derived image; no complete deployment receipt after partial or missing-parent failure.",
+    "Comparison runner points to new reproduced source; historical allowances and all financial/queue/latency gates unchanged."
+  ],
+  "attempt_history": [
+    "Initial installer unit fixture exposed Windows RECORD path separators; filtering uses portable as_posix.",
+    "Initial test output-name reuse and CRLF byte expectations were corrected without changing qualified application source.",
+    "Final 385 harness checks and one real offline Docker fixture test passed."
+  ],
+  "limitations": [
+    "The frozen original cloud API parent sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e was checked and is absent from the local Docker daemon.",
+    "Synthetic parent derived from local test image is explicitly rejected as a cloud API parent. No cloud deployment receipt was created.",
+    "Images/tags retained locally for evidence; verification containers use --rm, no cloud services changed.",
+    "No application/native financial suite rerun: candidate source remains byte-identical to ADR0149 qualified overlay; native financial results there are historical.",
+    "Actual candidate transfer/live safety/durability/throughput and 300000 paid issued tickets/hour remain unqualified.",
+    "Fresh repository source preparation requires the pinned frozen Git revision to be available locally."
+  ],
+  "next": [
+    "Obtain original per-role parent identities and exact images; retain their immutable provenance.",
+    "Run explicit offline derivation for real parents, retain complete artifact receipt and transfer exact candidates/parents to required hosts.",
+    "Bind concrete new bounded release scope and execute fresh separate live qualification before any paid comparison."
+  ],
+  "private_evidence_sha256": {
+    "tmp/adr0152-checks/checks.json": "01a2b0d3cfba1f71b09d1662419277fa9e375eed298b724fb4dfdb9299a01209",
+    "tmp/adr0152-checks/pytest.txt": "f0b54db952b912e692f04a93080de55d453f01cbcbb128a9750124a10f7b6556",
+    "tmp/adr0152-checks/ruff.txt": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0",
+    "tmp/adr0152-checks/docker-smoke.txt": "792763121c26b9fbf83f3edc293b2608da6bcc5c5ef2d88e29f6f81594ed4dc2",
+    "tmp/adr0152-checks/comparison-preparation.json": "87afa21a5a1fbf2b0697a02bb5946c53a44003cb5d72fd1b2937b473bd4e6a66",
+    "tmp/adr0152-qualified-artifacts/source-receipt.json": "a563401244b9e41e319ddd9109bb58105cd66e35c51177a681e84e4107b5dea0",
+    "tmp/adr0152-smoke-9279bdc2777c/smoke-summary.json": "d0c90204536a0caee4969a803f7973c146662f4f2f079a3c8ef00553fc3c281d",
+    "tmp/adr0152-smoke-9279bdc2777c/candidate-build/parent-source-proof.json": "b0cd0db22786ace0c2f36837d7983acb781e6261e9dc7686eb10126326ce1847",
+    "tmp/adr0152-smoke-9279bdc2777c/candidate-build/candidate-source-proof.json": "f5668510f6b2e67e5f77273f5028123ab06b53a99458fe55e20c1f651e974673",
+    "tmp/adr0152-smoke-9279bdc2777c/record-proof.json": "e690f38a13b0fa18db8ede570a65f3e0b8db91d7f6c43d296db2b148679157fc",
+    "tmp/adr0152-checks/staged-diff-check.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
