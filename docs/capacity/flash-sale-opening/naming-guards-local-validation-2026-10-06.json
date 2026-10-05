@@ -1,0 +1,25 @@
+{
+  "decision": "ADR0169",
+  "status": "LOCAL_QUALIFIED",
+  "related_unit_tests_passed": 66,
+  "final_focused_tests_passed": 16,
+  "checks": [
+    "Malformed or duplicate ADR filename",
+    "Title/index identifier disagreement",
+    "Misspelled/case-mismatched/missing ADR link",
+    "Unknown decision metadata",
+    "Actual staged snapshot independent of valid worktree",
+    "Actual outgoing revision independent of valid worktree",
+    "Real pre-commit rejects invalid staged fixture and leaves HEAD unchanged",
+    "Real pre-push rejects invalid outgoing fixture and leaves local bare remote empty",
+    "Generated stage owner matches existing ownership validator",
+    "Historical ADR encoding compatibility"
+  ],
+  "repository_checked_documents": 1473,
+  "checks_passed": true,
+  "ruff_passed": true,
+  "cloud_calls": 0,
+  "raw_log": "tmp/adr0169-naming-tests.txt",
+  "raw_log_sha256": "b4a7fa4547ef331d727aaa51ba05b2c8c76786db66f0a51ba21bd2d23e210086",
+  "scope": "Structural naming/reference guards only; no cloud scope reopened; not a prose spelling guarantee"
+}

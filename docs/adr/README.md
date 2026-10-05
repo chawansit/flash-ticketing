@@ -282,3 +282,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0168: Atomic projection source-version index](0168-atomic-projection-source-version-index.md)
 
 ADR0164–0168 update: the matched admission control passed18,000paid-issued journeys; reclamation candidate failed1payment and was notadopted. Local projection index reduced Lua time but worsened read/client latency and remains an unadopted engineering artifact. These documents do not publish the corresponding engineering source or establish300,000tickets/hour capacity.
+
+- [ADR0169: Canonical names and reference gates](0169-canonical-names-and-reference-gates.md) - Local commit/push guards enabled;66related tests passed. CI configuration is committed on the engineering branch and is not included in this documentation-only publication.
