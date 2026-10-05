@@ -10,7 +10,7 @@
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "Measured control restoration passed:original primary4API/runtime semantics;secondary test resources/credential snapshots removed;generator idle;all tracked global queues/Kafka lag0,1 normal consumer.",
+  "last_checked_topology": "Both measured cloud arms restored exact original primary runtime;secondary test resources removed;generator idle;all tracked queues0. No later cloud deployment/load. Local ADR0167/0168Redis/PostgreSQL resources removed.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
   "revision_note": "Frozen cloud application/profile unchanged. ADR0165control18000paid-issued vs candidate17999;reclamation notadopted. ADR0166retention271localtests. ADR0168projection106nativeintegrationtests;isolatedcandidate rejected afterread/clientregression,baseline source restored. No higher load/async/hour qualification.",
@@ -1119,7 +1119,7 @@
     ],
     "scope_closed": true
   },
-  "revision": "9ab75b1834e24ba31e8144d472f07c7fadb7389f",
+  "revision": "977c536374be493d869bacaab1b8fb3317cfab80",
   "latest_experiment": {
     "decision": "ADR0165",
     "run": "adr0151-7acbc3dc2a41",
@@ -1150,5 +1150,12 @@
     "cloud_calls": 0,
     "issue_closed": false,
     "evidence": "docs/capacity/flash-sale-opening/large-projection-contention-comparison-2026-10-06.json"
-  }
+  },
+  "github_documentation_publication": {
+    "branch": "codex/publish-adr-0126-0161",
+    "verified_revision": "96183a7f07722a11c82e0585b009284d1bf8098f",
+    "scope": "ADR0164-0168 and9public evidence/plan files;engineering source notpushed;main unchanged",
+    "main_revision": "878d364acd4e508150dee25c6eb13af6bc72226f"
+  },
+  "default_projection_restored_verified": true
 }
