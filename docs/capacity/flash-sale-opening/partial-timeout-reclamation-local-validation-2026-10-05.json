@@ -1,0 +1,124 @@
+{
+  "date_bangkok": "2026-10-05",
+  "decision": "docs/adr/0162-partial-timeout-slot-reclamation.md",
+  "status": "DEFAULT_OFF_LOCAL_ADMISSION_VALIDATED_CLOUD_UNQUALIFIED_INTERMITTENT_PROJECTION_FAILURE_RETAINED",
+  "pre_change_revision": "de2bf91d6c7a0f793567f6ca99bc758bde813add",
+  "source_sha256": {
+    "src/ticketing/api.py": "c615009e124f87c409f3eae34605617ee40465dbd09a4ef3fa3504553d6efc28",
+    "src/ticketing/config.py": "34bc19762f52da46e0ac12e23d0ee7ed79f6172663e3d032e6ea6481e868bf44",
+    "src/ticketing/http.py": "2711b3810f2f2f94fdeddba682ebeab3536832a4c0269586f9777e111dbe7223",
+    "src/ticketing/infrastructure/postgres.py": "2b7316a1ed5be1cedb6719fd279787c58af60dad632e5f5ae010b4b44a619031",
+    "src/ticketing/observability.py": "3bb9d042ee01469abdd8e2b630ca6f05ee3a318f96991ab9a867d74dc88244d2",
+    "tests/unit/test_partial_timeout_admission.py": "42ebbfbebec249900319e4103e8f1fb5bc814b62497a2a6984ffde282474823b",
+    "tests/integration/test_partial_timeout_reclamation.py": "b341ad282ab068adadbb797a63203c7d144832d07ab19b4a5ec8f67fa24282fe",
+    "tests/integration/test_shared_api_acquisition_budget.py": "df9e7d2e33a45d943641902748eddc1428d17367bfdc1fa1fa4f03b917dbb154",
+    "compose.yaml": "237bb954144a5fb98bc2c0cdff43c38fe171f77307a2d631e563cb240e860339",
+    ".env.example": "0c0d28b1cfc8119b43cd126a47e824875c7ec51ceb665af38df0bd35447fef24"
+  },
+  "local_mechanism": "Real psycopg_pool FIFO handoff prunes four expired positions, leaves one live waiter; baseline retains four timeout slots and rejects another checkout. Candidate conservatively retains one and admits it under the same ceilings.",
+  "attribution_limit": "Local mechanism reproduced; exact cause of prior cloud payment503s remains unproven.",
+  "implementation": {
+    "flag": "API_PARTIAL_TIMEOUT_RECLAIM",
+    "default": "0",
+    "requires": "API_POOL_SHARED_WAITING",
+    "timeout_reconciliation": "min(previous retained for role, public native FIFO length); never subtract live admissions",
+    "diagnostics": "Exact guard reason/count snapshot; adjacent native metrics; fixed role/reason counters and request-correlated failure logs without driver text/SQL/DSNs",
+    "budgets_or_deadlines_increased": false,
+    "automatic_retry_added": false,
+    "schema_change": false
+  },
+  "executed_tests": [
+    {
+      "suite": "Pre-implementation real FIFO baseline",
+      "passed": 1,
+      "failed": 0,
+      "evidence": "tmp/adr0162-checks/baseline-tests.txt"
+    },
+    {
+      "suite": "Focused host admission, reserve, timing, HTTP and partition",
+      "passed": 99,
+      "failed": 0,
+      "evidence": "Executed tool result; included in later full host suite"
+    },
+    {
+      "suite": "Full supported host unit suite",
+      "passed": 1180,
+      "failed": 0,
+      "seconds": 177.03,
+      "evidence": "tmp/adr0162-checks/host-unit-tests.txt"
+    },
+    {
+      "suite": "Native core: all application integration plus six focused unit modules",
+      "passed": 355,
+      "failed": 1,
+      "skipped": 1,
+      "seconds": 80.26,
+      "evidence": "tmp/adr0162-checks/core-tests.txt",
+      "failure": "18,000-seat full projection replay exceeded unchanged Redis100ms socket deadline"
+    },
+    {
+      "suite": "Isolated rerun of exactly the failing18,000-seat projection case",
+      "passed": 1,
+      "failed": 0,
+      "seconds": 0.83,
+      "evidence": "tmp/adr0162-checks/projection-tests.txt",
+      "limit": "Does not erase broader failure or prove performance stability"
+    },
+    {
+      "suite": "Earlier unsupported all-unit/native harness attempt",
+      "passed": 1356,
+      "failed": 59,
+      "errors": 20,
+      "skipped": 1,
+      "evidence": "tmp/adr0162-checks/candidate2-tests.txt",
+      "limit": "Native image lacked Git/frozen harness resources; tmpfs/fixture parent setup limits; later host/core runs use supported contexts. Original failures retained."
+    },
+    {
+      "suite": "Earlier native collection attempt",
+      "collection_errors": 1,
+      "evidence": "tmp/adr0162-checks/candidate-tests.txt",
+      "resolution": "Unit module renamed to avoid duplicate basename"
+    }
+  ],
+  "correctness_coverage": {
+    "real_partial_FIFO_baseline_and_candidate": "Passed in core",
+    "candidate_enabled_mixed_HTTP_financial_replay": "Both7reader/5payer and5reader/7payer cases passed in core",
+    "shared_and_role_budget_conservation_callback_reserve": "Passed focused and host unit checks",
+    "same_seat100_request_one_winner": "tests/integration/test_redis_first_reservations.py passed in core",
+    "financial_commit_response_loss_callback_lease_replay_expiry_refund": "tests/integration/test_payment_commit_recovery.py and test_async_payment_confirmation.py passed in core",
+    "drain_scope": "Local test fixture queues and admission recovery only; no new production-global queue audit or Kafka outage test"
+  },
+  "static_proof": {
+    "financial_transaction_ast_unchanged": true,
+    "protected_authority_files_unchanged": [
+      "src/ticketing/infrastructure/reservations.py",
+      "src/ticketing/application/reservations.py",
+      "src/ticketing/infrastructure/payment_confirmation.py",
+      "src/ticketing/infrastructure/cache.py"
+    ],
+    "changed_file_ruff": "Passed",
+    "git_diff_check": "Passed"
+  },
+  "runtime": {
+    "native_test_image": "sha256:74909203b87a1ae60435edb8fff17bac0762ed8042d0a6219652ca9b4ed28d69",
+    "postgres": "17.6",
+    "redis": "7.4.5",
+    "psycopg_pool": "3.3.1",
+    "psycopg": "3.3.5",
+    "input_source_readonly_and_unchanged": true,
+    "owned_test_resources_removed": true
+  },
+  "cloud": {
+    "requests": 0,
+    "deployment": false,
+    "customer_load_started": false,
+    "capacity_improvement_measured": false,
+    "prior_failed_scope_reopened": false
+  },
+  "unresolved": [
+    "Intermittent18,000-seat projection timeout under combined local workload; standalone pass cannot close stability gate.",
+    "Exact cloud payment503 trigger remains unproven.",
+    "Source/image/profile qualification and fresh cloud scope remain pending;300000 paid-issued tickets/hour unqualified."
+  ],
+  "next": "Qualify pinned admission-only profile with same code/diagnostics/budgets in both arms and only reclamation0->1; then fresh bounded safety/control/candidate comparison. Keep async confirmation off in both arms to isolate this fix; assess async separately after a passing baseline."
+}
