@@ -260,3 +260,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0158: Pre-reservation bounded stage-profile validation](0158-pre-reservation-stage-profile-validation.md)
 
 - [ADR0159: Indexed safety-probe actor audit](0159-indexed-safety-probe-actor-audit.md)
+
+- [ADR0160: Durable asynchronous payment confirmation](0160-durable-asynchronous-payment-confirmation.md) — Proposed receipt/confirmation separation; no implementation or capacity claim.

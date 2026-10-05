@@ -44,8 +44,8 @@
   ],
   "unresolved": "Control callback due-to-claim mean6.77s/backlog525,primaryCPU92.08%,status checks7.97/journey. Root trigger unproven;historical reference has different images.Dedup-on untested;300000tickets/hour unqualified.",
   "next_on_resume": [
-    "Attribute callback delay/CPU regression using retained evidence and exact source/config differences vs last passing reference;no further paid load under failed scope.",
-    "ADR before pattern change;new concrete bounded scope before another measured experiment,retaining all durability/duplicate/queue gates."
+    "Use proposedADR0160 for durable callback receipt and separate confirmation-worker local design/implementation;ADR remains proposed and no load authorized.",
+    "Attribute failed control regression;local receipt/worker crash,replay,expiry,reassigned-seat and queue correctness must pass before a new bounded cloud scope."
   ],
   "authorization": "Approved fixed pair stopped after failed control as required.1measured stage+1additional safety protocol executed;candidate skipped.No automatic replacement,higher load,push or merge.",
   "scope": "One fixed60 journeys/s300s dedup-off/on measured pair:2 measured stages,18000 scheduled journeys per arm,and2 additional simulated safety tickets. Retain completed dry counters1qualification/2safety and all mandatory32gates,post-TTL/global zero-double-booking/full queues/Kafka/restoration. Unchanged images,machines,budgets,1000ms cache,event refresh-on;only consumer dedup0->1. Stop after failed control;no automatic replacement,higher rate,hour-long run,push or merge.",
@@ -895,5 +895,12 @@
       "cloud_safety_qualified": true
     }
   ],
-  "qualified_dedup_runner_revision": "168158c3ee1deea1a0e76beaabec54de1be39e5a"
+  "qualified_dedup_runner_revision": "168158c3ee1deea1a0e76beaabec54de1be39e5a",
+  "proposed_payment_confirmation": {
+    "decision": "docs/adr/0160-durable-asynchronous-payment-confirmation.md",
+    "status": "DESIGN_ONLY_NOT_IMPLEMENTED",
+    "scope": "User proposed asynchronous gateway confirmation;record proposed durable receipt+financial worker boundary. No runtime,migration,cloud load or new measured allowance.",
+    "holds": "Existing TTL/ownership/refund rules unchanged;separate ADR required for payment-pending inventory lease.",
+    "next": "Review/implement default-off receipt and confirmation boundary with local crash/replay/expiry tests;retain regression attribution and all financial/customer-completion gates."
+  }
 }
