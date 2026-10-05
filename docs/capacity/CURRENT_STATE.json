@@ -111,9 +111,15 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "Prepared for authorized publication of ADR0126-0161, ADR0118 update, index and supporting committed material; remote push verification pending. No main merge.",
-    "branch": "codex/redis-failover-recovery",
-    "report": "docs/capacity/flash-sale-opening/adr-publication-2026-10-05.json"
+    "status": "GitHub ADR-only branch uploaded and remote verified;36 new ADRs0126-0161,ADR0118 update,index and77 referenced public evidence documents. Unpublished implementation history remains local;main unchanged.",
+    "authorization": "Direct user request to check unpublished local ADRs and upload important records.",
+    "branch": "codex/publish-adr-0126-0161",
+    "verified_remote_revision": "70a8fd13de858c4e86ccc58826250f896401efb7",
+    "url": "https://github.com/chawansit/flash-ticketing/tree/codex/publish-adr-0126-0161/docs/adr",
+    "report": "docs/capacity/flash-sale-opening/adr-publication-2026-10-05.json",
+    "engineering_branch_pushed": false,
+    "main_merged": false,
+    "scope_adjustment": "Automatic approval review rejected full engineering-branch push as beyond ADR authorization. Separate reviewed docs-only snapshot published successfully."
   },
   "evidence": [
     "docs/capacity/flash-sale-opening/status-refresh-paid-replacement-comparison-2026-10-05.json",
@@ -179,7 +185,7 @@
     "cloud_deployed": false,
     "isolated_cloud_revision_prepared": false
   },
-  "workspace_checkpoint_revision": "fa67e087293f72f4064477278d805a5ab0e7ea8a",
+  "workspace_checkpoint_revision": "1db57b18f60eda3d54ff6ea10ca33db75611a0fc",
   "archived_bounded_controls": [
     {
       "archived_at_utc": "2026-10-05T02:54:16.069405+00:00",
@@ -574,7 +580,7 @@
     }
   ],
   "qualified_runner_revision": "f24ad70e8bc77807f703ca9f10dbc687b5d9f905",
-  "checkpoint_revision_note": "Implementation/checkpoint parent; following documentation commit records executed safety and failed control without changing tested runtime bytes.",
+  "checkpoint_revision_note": "Local documentation publication checkpoint; tested runtime bytes and failed-control scope unchanged. Public ADR-only branch is recorded separately in publication.",
   "local_dispatch_inventory_qualification": {
     "decision": "0155-dispatch-time-inventory-qualification",
     "parent_workspace_revision": "20d02167d34420e94d3c302843a202d64a3c51c6",
