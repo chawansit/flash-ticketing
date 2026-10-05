@@ -190,10 +190,29 @@ def test_embedded_artifact_parent_and_config_verification(monkeypatch, capsys, b
             exec(compile(code, "artifact-proof", "exec"), {})  # noqa: S102
 
 
-def test_all32_gates_retained_with_only_cache_policy_renamed():
+def qualified_gate_evidence():
     record, _old, restore = gate_evidence()
     c = contract()
-    result = runner.stage_gates(record, observed(c), restore, c)
+    data = observed(c)
+    captured = datetime.now(UTC) - timedelta(seconds=600)
+    data["captured_at"] = captured.isoformat()
+    record.update(
+        arm="control",
+        pre_dispatch_qualified=True,
+        customers_dispatched=True,
+        inventory_qualification=c.qualify_inventory(data, now=captured + timedelta(seconds=1)),
+        pre_dispatch_qualified_at_utc=(captured + timedelta(seconds=5)).isoformat(),
+        dispatch_requested_at_utc=(captured + timedelta(seconds=10)).isoformat(),
+        scheduled_offered_start_utc=(captured + timedelta(seconds=40)).isoformat(),
+        offered_start_utc=(captured + timedelta(seconds=40)).isoformat(),
+        offered_end_utc=(captured + timedelta(seconds=340)).isoformat(),
+    )
+    return record, data, restore, c
+
+
+def test_all32_gates_retained_with_only_cache_policy_renamed():
+    record, data, restore, c = qualified_gate_evidence()
+    result = runner.stage_gates(record, data, restore, c)
     original = runner.comparison.gates_for_stage(record, inventory(), restore)
     assert len(result["paid"]) == 22 and set(result["additional"]) == set(EXTRA_GATES)
     assert set(result["paid"]) == (set(original["paid"]) - {"cache_disabled"}) | {"bounded_equal_cache_age"}
@@ -205,8 +224,8 @@ def test_all32_gates_retained_with_only_cache_policy_renamed():
     ]:
         broken = copy.deepcopy(record)
         broken[section][key] = 1 if key == "duplicate_booked_seats" else False
-        assert not runner.stage_gates(broken, observed(c), restore, c)["all_required_gates_pass"]
-    bad = observed(c)
+        assert not runner.stage_gates(broken, data, restore, c)["all_required_gates_pass"]
+    bad = copy.deepcopy(data)
     bad["apis"][0]["settings"]["ORDER_STATUS_CACHE_MS"] = "0"
     assert "bounded_equal_cache_age" in runner.stage_gates(record, bad, restore, c)["failed_gates"]
 
@@ -703,3 +722,103 @@ def test_malformed_qualification_never_releases_paid_load(report):
 def test_malformed_artifact_receipt_fails_before_cloud(receipt):
     with pytest.raises(ValueError):
         policy.StatusRefreshContract(receipt, "control", SOURCES)
+
+
+@pytest.mark.parametrize("context", ["admission", "late-analysis"])
+def test_fresh_dispatch_receipt_survives_long_test_and_final_audit(context):
+    record, data, restore, c = qualified_gate_evidence()
+    captured = datetime.fromisoformat(data["captured_at"])
+    if context == "admission":
+        assert c.validate_inventory_receipt(record, data, final=False, now=captured + timedelta(seconds=10))
+    else:
+        # Old wall-clock final revalidation reproduces the exact live failure.
+        with pytest.raises(ValueError, match="stale"):
+            validate_inventory(data, image_id=c.images["api"], contract=c)
+        assert runner.stage_gates(record, data, restore, c)["all_required_gates_pass"]
+
+
+@pytest.mark.parametrize(
+    "defect",
+    [
+        "missing",
+        "inventory-digest",
+        "source-digest",
+        "image",
+        "arm",
+        "ready-missing",
+        "ready-naive",
+        "future-validation",
+        "validation-before-capture",
+        "launch-before-ready",
+        "delayed-launch",
+        "offered-before-launch",
+        "offered-start-gap",
+        "offered-end-future",
+        "preflight-failed",
+        "not-dispatched",
+        "schema-bool",
+        "unexpected-field",
+        "tampered-settings",
+    ],
+)
+def test_missing_mutated_or_stale_dispatch_evidence_fails_closed(defect):
+    record, data, restore, c = qualified_gate_evidence()
+    receipt = record["inventory_qualification"]
+    captured = datetime.fromisoformat(data["captured_at"])
+    if defect == "missing":
+        record.pop("inventory_qualification")
+    elif defect == "inventory-digest":
+        receipt["inventory_sha256"] = "f" * 64
+    elif defect == "source-digest":
+        receipt["source_manifest_sha256"] = "f" * 64
+    elif defect == "image":
+        receipt["api_image_id"] = policy.IMAGE
+    elif defect == "arm":
+        receipt["arm"] = "candidate"
+    elif defect == "ready-missing":
+        record.pop("pre_dispatch_qualified_at_utc")
+    elif defect == "ready-naive":
+        record["pre_dispatch_qualified_at_utc"] = captured.replace(tzinfo=None).isoformat()
+    elif defect == "future-validation":
+        receipt["validated_at_utc"] = (datetime.now(UTC) + timedelta(seconds=1)).isoformat()
+    elif defect == "validation-before-capture":
+        receipt["validated_at_utc"] = (captured - timedelta(seconds=1)).isoformat()
+    elif defect == "launch-before-ready":
+        record["dispatch_requested_at_utc"] = captured.isoformat()
+    elif defect == "delayed-launch":
+        record["dispatch_requested_at_utc"] = (captured + timedelta(seconds=301)).isoformat()
+        record["scheduled_offered_start_utc"] = (captured + timedelta(seconds=302)).isoformat()
+    elif defect == "offered-before-launch":
+        record["offered_start_utc"] = captured.isoformat()
+    elif defect == "offered-start-gap":
+        record["offered_start_utc"] = (captured + timedelta(seconds=42)).isoformat()
+    elif defect == "offered-end-future":
+        record["offered_end_utc"] = (datetime.now(UTC) + timedelta(seconds=1)).isoformat()
+    elif defect == "preflight-failed":
+        record["pre_dispatch_qualified"] = False
+    elif defect == "not-dispatched":
+        record["customers_dispatched"] = False
+    elif defect == "schema-bool":
+        receipt["schema"] = True
+    elif defect == "unexpected-field":
+        receipt["renewed"] = True
+    elif defect == "tampered-settings":
+        data["apis"][0]["settings"]["ORDER_STATUS_CACHE_MS"] = "3000"
+    result = runner.stage_gates(record, data, restore, c)
+    assert not result["all_required_gates_pass"] and "bounded_equal_cache_age" in result["failed_gates"]
+
+
+def test_old_inventory_cannot_mint_a_fresh_receipt_or_launch_late():
+    record, data, _restore, c = qualified_gate_evidence()
+    with pytest.raises(ValueError, match="stale"):
+        c.qualify_inventory(data)
+    with pytest.raises(ValueError, match="stale at launch"):
+        c.validate_inventory_receipt(record, data, final=False)
+
+
+def test_stale_scheduled_start_is_rejected_before_launch_even_when_request_is_fresh():
+    record, data, _restore, c = qualified_gate_evidence()
+    captured = datetime.fromisoformat(data["captured_at"])
+    record["scheduled_offered_start_utc"] = (captured + timedelta(seconds=301)).isoformat()
+    with pytest.raises(ValueError, match="expired before scheduled dispatch"):
+        c.validate_inventory_receipt(record, data, final=False, now=captured + timedelta(seconds=10))

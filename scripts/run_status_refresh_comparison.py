@@ -11,7 +11,7 @@ from pathlib import Path
 from uuid import uuid4
 
 import run_two_host_paid_comparison as comparison
-from prepare_two_host_scaling import evaluate_gates, validate_inventory
+from prepare_two_host_scaling import evaluate_gates
 from qualify_two_host_deployment import ROOT, run
 from status_refresh_contract import LABEL, PLAN, ROLES, StatusRefreshContract, digest, source_contract
 from summarize_two_host_paid_comparison import compact
@@ -214,9 +214,7 @@ def stage_gates(record, inventory, restored, contract):
     result = comparison.gates_for_stage(record, inventory, restored)
     valid = False
     try:
-        valid = validate_inventory(inventory, image_id=contract.images["api"], contract=contract)[
-            "inventory_contract_pass"
-        ]
+        valid = contract.validate_inventory_receipt(record, inventory, final=True)
     except (ValueError, KeyError, TypeError):
         pass
     result["paid"].pop("cache_disabled")

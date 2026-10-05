@@ -314,6 +314,11 @@ class Stages:
                         raise
                     time.sleep(2)
             (local / "inventory.private.json").write_text(json.dumps(inventory, indent=2))
+            if self.contract is not None:
+                record["inventory_qualification"] = self.contract.qualify_inventory(inventory)
+                (local / "inventory-qualification.private.json").write_text(
+                    json.dumps(record["inventory_qualification"], indent=2) + "\n"
+                )
             record["inventory_contract"] = view
             record["pinned_harness_files"] = len(self.bundle)
             # Verify every frozen helper used inside the API image, including observer/audit.
@@ -446,9 +451,13 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
             if not record["pipeline_startup"]["pass"] or not record["kafka_startup"]["pass"]:
                 raise ValueError("Observer startup gate failed")
             record["pre_dispatch_qualified"] = True
+            if self.contract is not None:
+                record["pre_dispatch_qualified_at_utc"] = datetime.now(UTC).isoformat()
             seconds = 300 if self.execute else 5
             start = time.time() + 30
             start_utc = datetime.fromtimestamp(start, UTC).isoformat()
+            if self.contract is not None:
+                record["scheduled_offered_start_utc"] = start_utc
             for role, rows in [("primary", primary), ("secondary", secondary)]:
                 location = (
                     remote
@@ -487,6 +496,19 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                 job = self.launch(session, role, cid, args, location, jobs, record)
                 record[role + "_cpu_path"] = location + "/cpu.json"
             if self.execute:
+                if self.contract is not None:
+                    record["dispatch_requested_at_utc"] = datetime.now(UTC).isoformat()
+                    self.contract.validate_inventory_receipt(record, inventory, final=False)
+                    admission = {k: record[k] for k in (
+                        "arm", "inventory_qualification", "inventory_contract",
+                        "pre_dispatch_qualified", "pre_dispatch_qualified_at_utc",
+                        "dispatch_requested_at_utc", "scheduled_offered_start_utc",
+                    )}
+                    (local / "dispatch-admission.private.json").write_text(
+                        json.dumps(admission, indent=2) + "\n"
+                    )
+                    session.state.setdefault("dispatch_admissions", {})[arm] = admission
+                    session.checkpoint()  # Persist before reserving or launching any paid customer.
                 self.claim_paid_stage(session, arm)
                 args = [
                     "/root/http-load-venv/bin/python",

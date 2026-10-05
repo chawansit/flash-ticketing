@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-05",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0154_corrected_dry_pair_passed_paid_comparison_requires_separate_scope",
+  "status": "adr0155_dispatch_inventory_fix_local_validated_control_failed_restored",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "Original primaryAPI4/runtime semantics restored after both arms; secondary test resources and credential snapshots removed, generator idle; all DB/Redis queues and Kafka lag0 with one normal consumer.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "current_run": null,
-  "revision_note": "Corrected ADR0151 dry paircb2e26816335 passed off/on on verified immutable images and identical2+2 placement. Each100-way wave produced exactly1 hold,1 confirmed paid/issued simulated ticket; replay/authorization/post-TTL/durability/doubles0/full-drain/source/observer/restoration gates passed.2 safety protocols and0 capacity stages consumed. Old failed scope preserved. Capacity benefit unmeasured.",
+  "revision_note": "Measured control ef88e8fe34b2 completed18000/18000 paid issued/customer-confirmed journeys at60/s300s;0 errors/drops/double bookings;post-TTL durability/full drain/restoration passed. Original aggregate failed only bounded_equal_cache_age due analysis-time inventory expiry;candidate stopped. ADR0155 corrected locally,303 focused harness tests/Ruff passed; no corrected cloud qualification or optimization benefit measured.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -28,16 +28,19 @@
     "ADR0152 reproducible pinned eight-file overlay exported207 files;385 local harness checks/Ruff and1 offline Docker fixture integration passed. Both source roots/import bytecode/full inherited config/19 installed RECORD entries verified. Fixture cannot emit cloud receipt; no customers/cloud calls.",
     "ADR0153 retrieved6 original cloud images (78502912-byte verified archive), removed exact owned remote artifact, and verified unchanged primary container identities. All6 real candidates passed18-module parent/19-module candidate app/installed/import-code/dependency/full config/layer checks;402 harness tests/Ruff passed. No safety/paid customers.",
     "ADR0153 immutable image staging passed both hosts with unchanged runtime identities/exact remote archive cleanup. ADR0151 dry6d045bfad023 stopped after control CPU placement error;100 requests=>1 hold,1 paid/issued confirmed ticket persisted afterTTL,duplicate callbacks/replays passed,duplicates0,all queues/Kafka0. Exact normal runtime/secondary/credential cleanup passed. ADR0154 explicit placement correction passed202 local checks; candidate/cloud performance untested.",
-    "Corrected drycb2e26816335: both off/on arms passed source identity,100-way same-seat1winner,hold/payment replay/other-actor denial,1 paid/issued customer-confirmed simulated ticket each,post-TTL durability,duplicate booking0,full queues/Kafka0,CPU/pipeline observers and exact restoration.2 safety protocols,0 capacity stages; old failed scope remains archived. No capacity improvement claim."
+    "Corrected drycb2e26816335: both off/on arms passed source identity,100-way same-seat1winner,hold/payment replay/other-actor denial,1 paid/issued customer-confirmed simulated ticket each,post-TTL durability,duplicate booking0,full queues/Kafka0,CPU/pipeline observers and exact restoration.2 safety protocols,0 capacity stages; old failed scope remains archived. No capacity improvement claim.",
+    "ADR0151 measured control ef88e8fe34b2:18000 scheduled/dispatched/confirmed,0 customer errors/drops,18000 payments/bookings/tickets,duplicate seats/orders0,post-TTL financial work0,full queues/Kafka0,normal runtime restored.31/32 gates passed; bounded_equal_cache_age failed and candidate was not launched.",
+    "Control worst-shard hold-to-ticket p952183.21ms; primary CPU69.598%,secondary18.512%;36253 status checks=2.014/journey;observed cache hits0/misses36253. This is one control, not an off/on benefit or hourly capacity qualification.",
+    "ADR0155 admission-time inventory receipt fix passed303 focused harness tests (includes earlier190),Ruff and diff checks. Offline original inventory stale at analysis and valid at capture; corrected validator rejects old record lacking receipt. Default preparation made0 cloud calls/customer dispatches. Original gates and ledgers preserved."
   ],
-  "unresolved": "Paid capacity benefit remains unmeasured. A separate concrete paid-pair approval is required; successful dry must match current source/artifact/config/adapters and be no older than3600s before execution.300000 tickets/hour is not qualified.",
+  "unresolved": "Refresh-on benefit remains unmeasured. Changed adapter binding requires fresh bounded qualification; old control remains failed aggregate evidence. No replacement is authorized.",
   "next_on_resume": [
-    "Obtain separate scope approval for matched2+2 off/on paid pair at60 buyer journeys/s for300s each (18000 scheduled each), max2 additional isolated safety tickets; no retries/higher rate/replacement.",
-    "Before dispatch verify exact binding and fresh successful dry age<=3600s. If expired, do not bypass qualification or launch paid; request fresh bounded qualification scope.",
-    "Compare all32 gates, customer errors/drops, cache counters/status polling/DB/CPU, financial durability/zero-double-booking and complete drain/restoration; use results before choosing next bottleneck/rate."
+    "Review/authorize fresh ADR0155 exact-bound dry off/on qualification: one pair,max2 isolated safety tickets,0 capacity stages; existing verified images and identical budgets reused.",
+    "Only after all qualification gates pass, separately authorize replacement matched60 buyer journeys/s300s off/on pair,max2 paid stages and2 additional safety tickets. No automatic replacement or candidate-only continuation.",
+    "Compare customer latency/errors/drops,status reads/cache/DB/CPU/callback backlog,payment durability/zero-double-booking/full queue drain/restoration before selecting a higher rate."
   ],
-  "authorization": "User Continue authorized one corrected dry replacement(max2 simulated safety tickets,0 capacity stages). That pair completed and consumed its scope. No paid comparison, additional replacement, higher rate, GitHub push or main merge is authorized.",
-  "scope": "Completed corrected dry-only off/on safety/source/observer/financial/full-drain/restoration qualification; matched-load proposal is inactive.",
+  "authorization": "User Continue authorized one matched60/s300s pair with2 paid stages/max2 additional safety tickets. Control dispatched,failed aggregate gate,and stopped before candidate;scope cannot be replayed. Local ADR0155 correction and regression checks completed. No further cloud qualification/replacement,higher rate,infra change,push or merge authorized.",
+  "scope": "Completed bounded comparison attempt and local harness correction; retain original failed gates/consumed ledger. Fresh dry qualification and replacement paid pair require separate exact-bound scope.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -98,10 +101,11 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "Corrected ADR0154 dry pair passed; evidence and checkpoint saved locally. No GitHub push/main merge.",
+    "status": "Measured failed-control evidence and ADR0155 local correction/checkpoint saved locally; no GitHub push/main merge.",
     "branch": "codex/redis-failover-recovery"
   },
   "evidence": [
+    "docs/capacity/flash-sale-opening/status-refresh-paid-comparison-2026-10-05.json",
     "docs/capacity/flash-sale-opening/status-refresh-real-image-preparation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/status-refresh-artifact-local-validation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/order-status-event-refresh-runner-local-validation-2026-10-05.json",
@@ -256,16 +260,17 @@
   },
   "local_status_refresh_runner": {
     "decision": "0151-identical-cache-age-committed-status-refresh-comparison",
-    "local_qualification": "PASSED_350_FOCUSED_RUFF",
+    "local_qualification": "ADR0155_PASSED_303_FOCUSED_RUFF",
     "parent_workspace_revision": "1d5ebf586cec9e635311ed1cf1b7de4b6cb80e27",
     "runtime_modules_verified": 19,
-    "cloud_qualified": true,
+    "cloud_qualified": false,
     "images_prepared": true,
     "capacity_improvement_measured": false,
     "report": "docs/capacity/flash-sale-opening/order-status-event-refresh-runner-local-validation-2026-10-05.json",
     "runner_guide": "docs/capacity/flash-sale-opening/order-status-event-refresh-runner.md",
     "local_preparation": "tmp/adr0151-local/reviewed-preparation.json",
-    "latest_local_preparation": "tmp/adr0153-checks/corrected-comparison-preparation.json"
+    "latest_local_preparation": "tmp/adr0155-checks/comparison-preparation.json",
+    "qualification_invalidated_by": "ADR0155 adapter identity change; retain previous passing dry as historical evidence"
   },
   "local_status_refresh_artifacts": {
     "decision": "0152-reproducible-isolated-status-refresh-artifacts",
@@ -290,14 +295,15 @@
     "candidate_images_verified": 6,
     "artifact_receipt": "tmp/adr0153-real-candidate-build/artifact-receipt.json",
     "host_staged": true,
-    "cloud_qualified": true,
+    "cloud_qualified": false,
     "capacity_improvement_measured": false,
     "dry_scope_proposal": "tmp/adr0153-checks/dry-scope-proposal.json",
     "dry_scope_active": false,
     "staging_evidence": "tmp/adr0153-parents-d3f2ec89590b/staging-summary.json",
     "failed_dry_report": "tmp/adr0151-6d045bfad023/comparison-summary.json",
     "corrected_cpu_mapping_cloud_tested": true,
-    "corrected_dry_report": "tmp/adr0151-cb2e26816335/comparison-summary.json"
+    "corrected_dry_report": "tmp/adr0151-cb2e26816335/comparison-summary.json",
+    "qualification_invalidated_by": "ADR0155 harness binding changed; images remain staged/verified and unchanged"
   },
   "bounded_status_refresh": {
     "authorization_id": "adr0151-status-refresh-pair-2026-10-05",
@@ -322,26 +328,37 @@
     },
     "qualification_runs_authorized": 1,
     "qualification_protocols_started": 1,
-    "paid_runs_authorized": 0,
-    "paid_runs_started": 0,
-    "paid_protocols_started": 0,
-    "safety_tickets_authorized": 2,
-    "safety_protocols_started": 2,
+    "paid_runs_authorized": 2,
+    "paid_runs_started": 1,
+    "paid_protocols_started": 1,
+    "safety_tickets_authorized": 4,
+    "safety_protocols_started": 3,
     "active_run": null,
-    "status": "CORRECTED_DRY_PAIR_PASSED_RESTORED_SCOPE_CONSUMED",
-    "scope": "One dry qualification pair with2 isolated safety tickets, no paid capacity stage; mandatory source/payment-replay/post-TTL/queue/restore checks. No automatic replacement.",
-    "release_instance": "d0d8e9513d814bbeb5ddf073a44e8f80",
-    "approved_at_utc": "2026-10-05T07:48:12.346112+00:00",
-    "approval_source": "User Continue after corrected dry replacement was identified as next step; exactly1 replacement dry pair, max2 simulated safety tickets,0 capacity stages; no further automatic replacement.",
+    "status": "FAILED_CONTROL_RESTORED_SCOPE_CONSUMED",
+    "scope": "Matched fixed2+2API refresh-off then refresh-on comparison;60 buyer journeys/s for300s per arm (18000 scheduled per arm), two additional isolated safety tickets; no retry, no higher rate, no replacement or hourly capacity claim. Mandatory financial/post-TTL/zero-double-booking/full-drain/restoration and observation gates.",
+    "release_instance": "f8130ff745ba434c850592398c27e14a",
+    "approved_at_utc": "2026-10-05T08:08:27.489029+00:00",
+    "approval_source": "User Continue after proposed60 buyer journeys/s300s per off/on arm;2 measured paid stages and max2 additional isolated safety tickets. No customer retries, higher rate, replacement, infrastructure changes, GitHub push or merge.",
     "qualification_arms": [
       "control",
       "candidate"
     ],
-    "last_runner_report": "tmp/adr0151-cb2e26816335/comparison-summary.json",
+    "last_runner_report": "tmp/adr0151-ef88e8fe34b2/comparison-summary.json",
     "dry_qualification_report": "tmp/adr0151-cb2e26816335/comparison-summary.json",
-    "replacement_authorized": false
+    "replacement_authorized": false,
+    "paid_protocol_arms": [
+      "control"
+    ],
+    "attempted_paid_arms": [
+      "control"
+    ],
+    "adapter_binding_superseded_by_local_fix": true,
+    "failed_gates": [
+      "bounded_equal_cache_age"
+    ],
+    "comparison_report": "docs/capacity/flash-sale-opening/status-refresh-paid-comparison-2026-10-05.json"
   },
-  "latest_checkpoint_evidence": "docs/capacity/flash-sale-opening/status-refresh-corrected-dry-qualification-2026-10-05.json",
+  "latest_checkpoint_evidence": "docs/capacity/flash-sale-opening/status-refresh-paid-comparison-2026-10-05.json",
   "archived_status_refresh_scopes": [
     {
       "authorization_id": "adr0151-status-refresh-pair-2026-10-05",
@@ -382,8 +399,60 @@
       "last_runner_report": "tmp/adr0151-6d045bfad023/comparison-summary.json",
       "replacement_authorized": false,
       "adapter_binding_superseded_by_local_fix": true
+    },
+    {
+      "authorization_id": "adr0151-status-refresh-pair-2026-10-05",
+      "binding": {
+        "adapter_identity": {
+          "scripts/observe_two_host_pipeline.py": "733dac867102e057c0edc9d96de104b964d859d17f8cd1f8ade28ab019934846",
+          "scripts/prepare_two_host_scaling.py": "727ddc19e66dcc3780e398cc610c4d0d835ee23809d21ddc492d426d29cf7bc8",
+          "scripts/observe_two_host_cpu.py": "c186aedc7a52e4e671a21caf30af211991f251dd637a02807307769752acda04",
+          "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+          "scripts/run_two_host_paid_comparison.py": "a5393f78e97a7b8e53b896e0bc2150937bfbdd4ba5b16f6c246582ca03071e1e",
+          "scripts/qualify_two_host_deployment.py": "1cda5f0bb34729c2a2ea8a0cb242344c5a1e07a8bf55aa0b29eff71aeb7625fd",
+          "scripts/collect_two_host_inventory.py": "5b345464ab18c4a4ad18616dbd44f414a88b7dc0d4b7a79b496810cff7f78ed7",
+          "scripts/runtime_source_identity.py": "d7a1c8c67ff414ed6280ebda4e6b0a1dfad6f7c9910c0c363f94956d14c04eac",
+          "scripts/run_status_refresh_comparison.py": "3f03a2f2dfb27b2875c6f77fb6d585309549433c5d97e61514791c537ddf0266",
+          "scripts/status_refresh_contract.py": "e5eb0164974fa0e443ef65922ca481faf96933fc9f5b02c301b9fd4cfbbbce5f",
+          "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+          "experiment_plan": "fb3d0e4dd468b08dd74c0689a12018c3b0af8f1ec9b2225bd6f37a98e6579cf6"
+        },
+        "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+        "artifact_sha256": "5131aa8213cc768239c513607b1dbaaae645e50bed9510fd20ada4cf51e76c03",
+        "source_manifest_sha256": "81e9af585e8a20a81a2de72a04057faefe773f6f94e66a88b9887fe7617c8a48"
+      },
+      "qualification_runs_authorized": 1,
+      "qualification_protocols_started": 1,
+      "paid_runs_authorized": 0,
+      "paid_runs_started": 0,
+      "paid_protocols_started": 0,
+      "safety_tickets_authorized": 2,
+      "safety_protocols_started": 2,
+      "active_run": null,
+      "status": "CORRECTED_DRY_PAIR_PASSED_RESTORED_SCOPE_CONSUMED",
+      "scope": "One dry qualification pair with2 isolated safety tickets, no paid capacity stage; mandatory source/payment-replay/post-TTL/queue/restore checks. No automatic replacement.",
+      "release_instance": "d0d8e9513d814bbeb5ddf073a44e8f80",
+      "approved_at_utc": "2026-10-05T07:48:12.346112+00:00",
+      "approval_source": "User Continue after corrected dry replacement was identified as next step; exactly1 replacement dry pair, max2 simulated safety tickets,0 capacity stages; no further automatic replacement.",
+      "qualification_arms": [
+        "control",
+        "candidate"
+      ],
+      "last_runner_report": "tmp/adr0151-cb2e26816335/comparison-summary.json",
+      "dry_qualification_report": "tmp/adr0151-cb2e26816335/comparison-summary.json",
+      "replacement_authorized": false
     }
   ],
   "qualified_runner_revision": "fa67e087293f72f4064477278d805a5ab0e7ea8a",
-  "checkpoint_revision_note": "fa67e08 is the runner/source correction used for the executed dry pair; the following documentation checkpoint records results without changing those adapters."
+  "checkpoint_revision_note": "fa67e08 remains the measured runner revision;20d0216 was its preceding documentation checkpoint. Following ADR0155 source correction is locally tested only and invalidates old cloud qualification binding.",
+  "local_dispatch_inventory_qualification": {
+    "decision": "0155-dispatch-time-inventory-qualification",
+    "parent_workspace_revision": "20d02167d34420e94d3c302843a202d64a3c51c6",
+    "local_tests_passed": 303,
+    "ruff_pass": true,
+    "cloud_qualified": false,
+    "report": "docs/capacity/flash-sale-opening/status-refresh-paid-comparison-2026-10-05.json",
+    "preparation": "tmp/adr0155-checks/comparison-preparation.json",
+    "source_or_image_rebuild_required": false
+  }
 }

@@ -5,6 +5,7 @@ import hashlib
 import json
 import re
 import subprocess
+from datetime import UTC, datetime
 
 from prepare_two_host_scaling import API_SETTINGS, BACKGROUND, REVISION
 from qualify_two_host_deployment import IMAGE, ROOT
@@ -81,6 +82,83 @@ class StatusRefreshContract:
             copy.deepcopy(artifact["parent_images"]),
         )
         self.api_settings = {**API_SETTINGS, "ORDER_STATUS_CACHE_MS": "1000"}
+
+    def qualify_inventory(self, inventory, *, now=None):
+        from prepare_two_host_scaling import validate_inventory
+
+        now = now or datetime.now(UTC)
+        validate_inventory(inventory, image_id=self.images["api"], contract=self, now=now)
+        if inventory["arm"] != self.arm:
+            raise ValueError("Qualification arm differs")
+        return {
+            "schema": 1,
+            "arm": self.arm,
+            "api_image_id": self.images["api"],
+            "source_manifest_sha256": self.source_manifest,
+            "inventory_sha256": digest(inventory),
+            "captured_at_utc": inventory["captured_at"],
+            "validated_at_utc": now.isoformat(),
+        }
+
+    def validate_inventory_receipt(self, record, inventory, *, final, now=None):
+        from prepare_two_host_scaling import validate_inventory
+
+        if type(final) is not bool:
+            raise ValueError("Explicit admission or analysis context required")
+        now = now or datetime.now(UTC)
+        receipt = record.get("inventory_qualification")
+        expected = {
+            "schema": 1,
+            "arm": self.arm,
+            "api_image_id": self.images["api"],
+            "source_manifest_sha256": self.source_manifest,
+            "inventory_sha256": digest(inventory),
+            "captured_at_utc": inventory["captured_at"],
+        }
+        if (
+            not isinstance(receipt, dict)
+            or set(receipt) != {*expected, "validated_at_utc"}
+            or any(receipt.get(k) != v for k, v in expected.items())
+            or type(receipt.get("schema")) is not int
+            or inventory["arm"] != self.arm
+            or record.get("arm") != self.arm
+            or record.get("pre_dispatch_qualified") is not True
+            or record.get("inventory_contract", {}).get("inventory_contract_pass") is not True
+        ):
+            raise ValueError("Exact qualified inventory receipt required")
+
+        def timestamp(value):
+            if not isinstance(value, str):
+                raise TypeError("Recorded aware qualification timestamp required")
+            parsed = datetime.fromisoformat(value)
+            if parsed.tzinfo is None:
+                raise ValueError("Recorded aware qualification timestamp required")
+            return parsed
+
+        captured = timestamp(receipt["captured_at_utc"])
+        validated = timestamp(receipt["validated_at_utc"])
+        ready = timestamp(record.get("pre_dispatch_qualified_at_utc"))
+        requested = timestamp(record.get("dispatch_requested_at_utc"))
+        scheduled = timestamp(record.get("scheduled_offered_start_utc"))
+        if not captured <= validated <= ready <= requested <= now or not requested <= scheduled:
+            raise ValueError("Qualification/dispatch chronology differs")
+        if not 0 <= (scheduled - captured).total_seconds() <= 300:
+            raise ValueError("Qualified inventory expired before scheduled dispatch")
+        if final:
+            start = timestamp(record.get("offered_start_utc"))
+            end = timestamp(record.get("offered_end_utc"))
+            if (
+                record.get("customers_dispatched") is not True
+                or not requested <= start < end <= now
+                or not 0 <= (start - captured).total_seconds() <= 300
+                or abs((start - scheduled).total_seconds()) > 1
+                or (end - start).total_seconds() != 300
+            ):
+                raise ValueError("Recorded offered window differs from qualified dispatch")
+        elif not 0 <= (now - captured).total_seconds() <= 300 or scheduled < now:
+            raise ValueError("Qualified inventory stale at launch")
+        view = validate_inventory(inventory, image_id=self.images["api"], contract=self, now=validated)
+        return view["inventory_contract_pass"] is True
 
     @property
     def flag(self):
