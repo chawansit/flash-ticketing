@@ -1,6 +1,6 @@
 {
   "date": "2026-10-05",
-  "status": "DOCS_ONLY_PUBLICATION_PREPARED",
+  "status": "UPLOADED_REMOTE_VERIFIED",
   "repository": "https://github.com/chawansit/flash-ticketing",
   "branch": "codex/publish-adr-0126-0161",
   "base_public_revision": "6a1385bbeb13bc50bbd8aae5378dfd7037fde747",
@@ -129,7 +129,7 @@
     "docs/capacity/flash-sale-opening/two-host-scaling-preparation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/two-host-ssh-idle-qualification-2026-10-05.json"
   ],
-  "history_scope": "One documentation-only commit on the previously published branch base. No unpublished implementation/test/script/artifact commits or CURRENT_STATE history.",
+  "history_scope": "Documentation snapshot plus publication verification record on the previously published branch base. No unpublished implementation/test/script/artifact commits or CURRENT_STATE history.",
   "private_data": "Supplied live credentials absent; private/ECS host addresses redacted from publication copies. Private manifests, raw tmp evidence and untracked attachments excluded.",
   "redactions": [],
   "important_decisions": [
@@ -141,5 +141,7 @@
   ],
   "review_notes": "Accepted, rejected and failed decisions are all retained to preserve the reasoning chain. Stale status/index summaries corrected from executed evidence; two ADR encodings repaired. No load or runtime deployment executed for this publication.",
   "publication_review": "The original full-branch push was rejected by automatic approval review because it exceeded the ADR upload request. This payload contains only reviewed documentation and referenced public evidence.",
-  "main_unchanged": true
+  "main_unchanged": true,
+  "verified_uploaded_document_snapshot": "bbdff25484af21cb7595ed3f95996a66a9600f00",
+  "publication_verification": "GitHub branch head was read and matched the reviewed documentation snapshot; no main or engineering branch update."
 }
