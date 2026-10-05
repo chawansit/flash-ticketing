@@ -145,6 +145,7 @@ def test_secondary_never_adds_database_build_or_workers():
     assert set(data["services"]) == {"api"}
     api = data["services"]["api"]
     assert api["pull_policy"] == "never"
+    assert api["env_file"][0]["format"] == "raw"
     assert "build" not in api and "depends_on" not in api
     assert api["environment"]["DB_POOL_MAX"] == "4"
     assert "${API_PRIVATE_BIND_IP:?" in api["ports"][0]

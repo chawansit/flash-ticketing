@@ -2,42 +2,44 @@
   "updated_date_bangkok": "2026-10-05",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0147_prepared_waiting_second_api_host",
+  "status": "adr0147_secondary_prepared_paid_integration_pending",
   "cloud_load_requires_resume": false,
-  "security_note": "ADR0146 exact temporary keys removed on both hosts; local key files and owned remote scratch removed.",
+  "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "After ADR0146: deb330e source/images/readiness and normal settings restored: API4/postgres/pool3/admission4/waiters3/payment0/sharedfalse/cache0; consumer1/pool12; publisher/maintenance/reconciler1; writer/refresh/expiry0; simulator4/batch; PgBouncer24/reserve0/client160. Generator idle. Pre/post audits retained 18000 paid tickets and global queues/Kafka lag0. No application candidate deployed.",
+  "last_checked_topology": "2026-10-05 live prerequisite checks: three distinct ECS instance UUIDs; matching4vCPU/~7.38GiB API hosts and independent8vCPU generator. Primary normal API4 and shared services unchanged; secondary Docker/image/config prepared,API0. Passive10s both-host CPU smoke and installed-source/parity checks passed. No paid traffic and no new global financial/queue audit.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "current_run": null,
-  "revision_note": "Workspace parent405dada; this checkpoint prepares ADR0147 configs/inventory contracts locally. Cloud source/topology unchanged from the last ADR0146 verification; no remote recheck this turn.",
+  "revision_note": "Workspace parent14533094fac84cf2b77b5f189c0dba5ed02dafc2; ADR0147 host preparation and observer adapters locally validated in this checkpoint. Application/harness revision remains frozen deb330e; paid runner integration not executed.",
   "confirmed": [
-    "ADR0147 local preparation:43tests/Ruff and synthetic primary+secondary Compose/Nginx syntax passed. Exactly four APIs2+2,16 API connections including8payment,onePgBouncer24. Live not executed.",
+    "ADR0147 secondary host prepared: matching pinned Docker dependencies, exact API image,12 installed module hashes, owner-only rendered environment parity; primary topology unchanged,secondaryAPI0.",
+    "ADR0147 observer adapters:83focused tests/Ruff passed; both-host passive10s CPU smoke passed. Full paid/multi-host pipeline execution still pending.",
     "ADR0146 one no-buyer protocol: all seven diagnostic gates passed; observers +0.145297 container core/+3.838426 host percentage points versus bracketed idle, profiler 0.007360 core. Single idle protocol; not under-load cost. Normal settings and key/scratch cleanup verified.",
     "Frozen paid diagnostic: 18000 dispatched/17998 customer confirmations; two status503s (0.011111% journeys), all18000 paid tickets durable, zero double booking, full queues/Kafka0. 21/22 paid gates passed; customer_load still failed.",
     "Saved same-replica counter deltas correlate two status503s with admission rejection and two callback503s with PoolTimeout on another replica. All callbacks eventually delivered; not individual request traces.",
     "91 focused diagnostic tests and Ruff passed after local namespace cleanup correction; corrected script not reexecuted on cloud. ADR0143/0145 application candidates remain cloud-unqualified."
   ],
-  "unresolved": "Additional matching API ECS address/access missing; current paid runner and observers assume four local APIs, so two-host adapters/concurrency/restore must be qualified before load. Paid CPU regression/status admission/callback pool failures and300000tickets/hour remain unresolved.",
+  "unresolved": "Private PgBouncer not yet published; qualified deploy/restore/paid-runner integration and cross-host safety proof pending. Current customer availability failure and300000tickets/hour remain unresolved.",
   "next_on_resume": [
-    "Receive second4vCPU/8GiB API ECS public/private IP and SSH access; verify it is independent of generator.",
-    "Verify immutable image/private env/network and qualify both-host CPU/four-API observers plus bounded deploy/restore adapter.",
-    "Prove cross-host atomic hold/replay, then run matched60buyers/s300s control and candidate with all22+10 gates; retain failures and restore."
+    "Integrate bounded two-host deployment/restore and paid runner using the qualified observer components; do not use legacy runner unchanged.",
+    "Backup/qualify restore, publish shared primary PgBouncer privately, verify fresh matched-budget inventory and cross-host atomic hold/replay/payment safety.",
+    "Then one matched60buyers/s300s control and one2+2 candidate with all22+10 gates, financial audits/drain and verified restoration."
   ],
-  "authorization": "User Continue accepts the proposed matched two-host API comparison. Prepare locally while second host is missing; live execution depends on supplied access and qualified two-host preflight/observation/rollback. No cloud provisioning, CCE/ELB/read-replica purchase or automatic higher-rate stage.",
-  "scope": "ADR0147 local API-only deployment bundle, fixed-budget inventory/gate validation and integration runbook. No paid traffic/cloud mutation.",
+  "authorization": "User supplied new ECS and existing credentials for accepted ADR0147 comparison. Host prerequisites/image/config and read-only bounded checks authorized. Paid traffic requires qualified deployment/observation/concurrency/restoration. No new service purchase/rate escalation/GitHub push/main merge.",
+  "scope": "ADR0147 secondary prerequisite preparation plus local observer adapters and passive cloud smoke; no API topology deployment or paid traffic.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 0,
     "limit": 2,
     "active_run": null,
     "temporary_key_installed": false,
-    "status": "PREPARED_WAITING_SECOND_API_HOST_AND_ADAPTER",
+    "status": "SECONDARY_PREPARED_PAID_ADAPTER_PENDING",
     "local_preparation_report": "docs/capacity/flash-sale-opening/two-host-scaling-preparation-2026-10-05.json",
-    "live_qualification": "NOT_EXECUTED"
+    "live_qualification": "HOST_AND_IDLE_CPU_PREREQUISITES_PASSED_PAID_NOT_EXECUTED",
+    "host_preparation_report": "docs/capacity/flash-sale-opening/two-host-host-preparation-2026-10-05.json"
   },
   "previous_bounded_control": {
     "decision": "0146-observation-overhead",
@@ -72,10 +74,11 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "Local ADR0147 preparation checkpoint; no GitHub push or main merge.",
+    "status": "Local ADR0147 supplied-host checkpoint; no GitHub push/main merge.",
     "branch": "codex/redis-failover-recovery"
   },
   "evidence": [
+    "docs/capacity/flash-sale-opening/two-host-host-preparation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/two-host-scaling-preparation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/two-host-api-comparison.md",
     "docs/adr/0147-fixed-budget-two-host-api-comparison.md",

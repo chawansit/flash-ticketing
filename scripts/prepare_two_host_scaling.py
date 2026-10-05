@@ -229,6 +229,7 @@ def secondary_compose():
                             {
                                 "path": "${SECONDARY_API_ENV_FILE:?Set private baseline API environment file}",
                                 "required": True,
+                                "format": "raw",
                             }
                         ],
                         "environment": API_SETTINGS,

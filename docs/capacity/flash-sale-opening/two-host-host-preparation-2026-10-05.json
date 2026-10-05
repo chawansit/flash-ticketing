@@ -1,0 +1,83 @@
+{
+  "decision": "0147-fixed-budget-two-host-api-comparison",
+  "kind": "host_prerequisite_and_observer_checkpoint",
+  "date_bangkok": "2026-10-05",
+  "workspace_parent_revision": "14533094fac84cf2b77b5f189c0dba5ed02dafc2",
+  "runtime_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "status": "SECONDARY_PREPARED_PAID_RUNNER_INTEGRATION_PENDING",
+  "hosts": {
+    "distinct_instance_identities_verified": true,
+    "identity_provenance": "SHA256 of normalized DMI product UUID; shared OS machine IDs left unchanged",
+    "api_hosts_match": "4vCPU; approximately7.38GiB actual RAM each",
+    "generator": "independent8vCPU ECS"
+  },
+  "secondary_prerequisites": {
+    "matching_engine": "29.1.3",
+    "matching_compose": "2.40.3+ds1-0ubuntu1~24.04.1",
+    "pinned_packages": {
+      "docker.io": "29.1.3-0ubuntu3~24.04.2",
+      "docker-compose-v2": "2.40.3+ds1-0ubuntu1~24.04.1",
+      "containerd": "2.2.1-0ubuntu1~24.04.3",
+      "runc": "1.3.4-0ubuntu1~24.04.1"
+    },
+    "immutable_api_image": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e",
+    "source_modules_verified": 12,
+    "installed_runtime_modules_verified": 12,
+    "primary_api_replicas_installed_sources_verified": 4,
+    "owner_only_environment": true,
+    "rendered_environment_matches_baseline_plus_fixed_overrides": true,
+    "api_containers_started": 0,
+    "owned_image_tar_removed": true,
+    "owned_primary_environment_export_removed": true,
+    "retained": "Docker prerequisites, immutable image and owner-only API config for the authorized comparison"
+  },
+  "network": {
+    "secondary_to_rds_and_dcs_reachable": true,
+    "secondary_to_primary_lb_reachable": true,
+    "secondary_to_primary_pgbouncer": "Connection refused; existing pooler not yet published privately. No public bind or security-group change."
+  },
+  "observer_adapters": {
+    "frozen_pipeline_observer_unchanged": true,
+    "endpoint_only_wrapper_implemented": true,
+    "business_counters_and_process_identity_use_existing_scrape": true,
+    "both_host_cpu_collector_implemented": true,
+    "offered_window_and_replica_distribution_validation_implemented": true,
+    "passive_idle_cpu_smoke": {
+      "seconds": 10,
+      "hosts": 2,
+      "pass": true,
+      "secondary_host_only": true,
+      "actual_offered_window_qualification": false
+    },
+    "actual_process_start_metric_compatibility": true,
+    "live_cross_host_pipeline_observation": "NOT_EXECUTED"
+  },
+  "validation": {
+    "focused_tests_passed": 83,
+    "ruff": "PASSED",
+    "secondary_compose": "PASSED_ON_SECONDARY_WITH_PRIVATE_ENV",
+    "runtime_hash_verification": "PASSED",
+    "normalized_sha256": {
+      "scripts/prepare_two_host_scaling.py": "8bce6b140fac5ba03f469a448503dbd510122e6578a7bc915dba1bd40cd46964",
+      "scripts/observe_two_host_cpu.py": "9057624cfa1796e4e84c21409f45a84fca00cae11fc7e43bd7902074660abad6",
+      "scripts/observe_two_host_pipeline.py": "78ef7c634f4a4354f56c461533ea9a4720d6c32cb46561362d12f2d369bcd6d5"
+    }
+  },
+  "paid_runs_started": 0,
+  "paid_limit": 2,
+  "correctness_or_capacity_qualification": "NOT_EXECUTED; previous failed customer gate remains failed;300000tickets/hour unqualified",
+  "topology": {
+    "primary_api_replicas": 4,
+    "secondary_api_replicas": 0,
+    "primary_lb_and_shared_services_changed": false,
+    "temporary_ssh_keys_installed": false
+  },
+  "remaining": [
+    "Integrate and qualify bounded two-host deployment/restore and paid runner; unchanged legacy runner cannot qualify candidate.",
+    "Publish existing primary PgBouncer privately after backup/restore qualification; verify restricted inter-host ports.",
+    "Obtain fresh matched-budget inventory and prove cross-host100-way atomic hold plus replay/payment duplicate safety.",
+    "Run one matched60buyers/s300s control and one2+2 candidate only after prerequisites pass; retain all22+10 gates, audits/drain and verified restoration."
+  ],
+  "private_evidence_root": "tmp/adr0147-access",
+  "publication": "Local checkpoint only; no GitHub push/main merge; private environment and raw evidence excluded."
+}
