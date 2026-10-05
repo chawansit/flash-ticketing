@@ -1,8 +1,8 @@
 {
-  "updated_date_bangkok": "2026-10-05",
+  "updated_date_bangkok": "2026-10-06",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0162_default_off_local_admission_validated_cloud_unqualified",
+  "status": "adr0163_pinned_local_images_profile_qualified_cloud_runner_pending",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "Measured control restoration passed:original primary4API/runtime semantics;secondary test resources/credential snapshots removed;generator idle;all tracked global queues/Kafka lag0,1 normal consumer.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "ADR0162 local default-off partial timeout reclamation and failure-time admission evidence implemented/committed.1180host unit checks pass;native core355pass1skip1projection timeout;exactprojection rerun1pass. Failed broader runs retained.0cloud calls/deployments/load;capacity unmeasured.",
+  "revision_note": "ADR0163 frozen ADR0160 parent plus five-file admission overlay:213files21modules verified;6immutable images source/import/dependency/config passed;32host profile and272native tests passed;2actual image off/on settings probes passed.Source/authority/transaction parity checked,callback reserve excluded,owned native resources removed.No cloud staging/deployment/customer load;capacity unmeasured.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -42,17 +42,17 @@
     "ADR0159 corrected off/ona6cdb46f8cff passed source/identity,same-seat100requests=>1winner each,hold/payment replay,other-actor denial,1paid/confirmed ticket each,post-TTL1payment1booking1ticket3callback deliveries,no duplicates,fullqueues/Kafka0,observers/exactrestoration.2 safety tickets/0 capacity stages;dedup CPU/RPS benefit still unmeasured.",
     "ADR0157/0159 measuredf550731d5714:29/32gates,18000scheduled14921dispatched14192confirmed,729errors4.886%,3079drops.AfterTTL14907payments/bookings/tickets,14unpaidexpired,duplicates0.Fullqueues/Kafka0,originalruntime restored;candidate skipped,no dedup benefit claim.",
     "ADR0161 safety off/on pair2ac96f81c6db passed and restored. Measured controlbfce7e658e7e18000dispatched17996confirmed,4payment503s0.022222%,0drops; observed duplicate seats/orders0,fullqueues0. Async measured arm skipped,original runtime restored; no capacity-benefit claim.",
-    "ADR0162 real expired-prefix/live-tail FIFO mechanism reproduced;candidate restores conservative headroom under unchanged ceilings.1180host tests passed;nativecore355passed1skip1intermittentprojectiontimeout,standalonererun1passed.Authority/transaction AST unchanged,owned resourcesremoved,0cloud calls."
+    "ADR0162 real expired-prefix/live-tail FIFO mechanism reproduced;candidate restores conservative headroom under unchanged ceilings.1180host tests passed;nativecore355passed1skip1intermittentprojectiontimeout,standalonererun1passed.Authority/transaction AST unchanged,owned resourcesremoved,0cloud calls.",
+    "ADR0163 isolated five-file admission export213files21modules;6immutable images verified.32host profile checks and272native tests passed;2image factor probes.Source/financial authority unchangedrelativefrozenparent,callback reserveexcluded.No cloudcall,deployment orcustomerdispatch."
   ],
-  "unresolved": "Exact cloud payment503 trigger still unproven. Intermittent18,000-seat Redis100ms projection timeout under combined local tests remains unresolved despite standalone pass. Admission-only source/image/profile qualification and fresh cloud scope pending;async benefit and300000paid-issued tickets/hour unqualified.",
+  "unresolved": "Cloud runner/observer integration for exactADR0163 profile and fresh bounded scope pending. Exact prior503cause/capacity gain unproven. Prior engineering-tree18,000-seat projection timeout remains unresolved and excluded from this frozen export;new272passes do not close that gate.300000paid-issued tickets/hour unqualified.",
   "next_on_resume": [
-    "Qualify pinned admission-only artifact/profile;same source,diagnostics,observer and total budgets in both arms;async confirmation off both sides;only API_PARTIAL_TIMEOUT_RECLAIM0->1.",
-    "Document fresh bounded safety and60journeys/s300s control/candidate scope after source/profile qualification;stop on failed control and retain all financial,post-TTL,zero-double-booking and full global queue gates.Closed scopes cannot be replayed.",
-    "Attribute future503s from exact guard rejection snapshots and adjacent native-pool state.Standaloneprojection success does not close the intermittent stability gate.",
-    "Evaluate asynchronous confirmation separately after a passing same-load baseline;higher-rate/hourly capacity remains future qualification."
+    "Integrate exactADR0163 factor/profile into reused bounded runner and observer;pin diagnostics/export/image identities,keep original lock/stop/recovery and allfinancial/post-TTL/queue gates.",
+    "Qualify runner locally:missing/drifted settings,old-scope rejection,both real constructors,bounded gates,cleanup and failure-time diagnostics without retries/budget increases.",
+    "Only after qualification establish fresh bounded safety off/on and60journeys/s300s control/candidate scope;async intake0both,onlyreclamation0->1;stop failedcontrol.Keep84tickets/s and hourly stages as future work."
   ],
-  "authorization": "Latest user continue authorizes failure diagnosis,ADR0162 one default-off local fix,local checks and ongoing important ADR-only publication.No new cloud load/deployment,higher-rate/hourly run,engineering push or merge in this checkpoint.",
-  "scope": "Local ADR0162 qualification and docs-only publication completed;cloud scope ADR0161 remains consumed/closed.Production topology/budgets/financial authority unchanged.",
+  "authorization": "Latest user continue authorizes pinned local source/profile/image preparation and ongoing important ADR-only publication.No new cloud stage/deployment,engineering push,merge or hourly run activated in this checkpoint.",
+  "scope": "ADR0163 local qualification complete and docs-only snapshot published;cloud-capable runner/observer integration remains future work.PriorADR0161consumed scope stays closed.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -113,20 +113,21 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "GitHub ADR-only branch verified throughADR0162;implementation history stays local;main unchanged.",
+    "status": "GitHub docs-only snapshot verified throughADR0163,local validation and off/on plan;implementation remains local;main unchanged.",
     "authorization": "Direct user request to check unpublished local ADRs and upload important records.",
     "branch": "codex/publish-adr-0126-0161",
-    "verified_remote_revision": "85403208c1219820ed9eb21ae4b78990dc9ffe8d",
+    "verified_remote_revision": "36f24d42eed6e8e82cccc418f5b0d0dd0284bd20",
     "url": "https://github.com/chawansit/flash-ticketing/tree/codex/publish-adr-0126-0161/docs/adr",
     "report": "docs/capacity/flash-sale-opening/adr-publication-2026-10-05.json",
     "engineering_branch_pushed": false,
     "main_merged": false,
     "scope_adjustment": "Automatic approval review rejected full engineering-branch push as beyond ADR authorization. Separate reviewed docs-only snapshot published successfully.",
-    "latest_adr": "ADR0162",
-    "latest_evidence": "docs/capacity/flash-sale-opening/partial-timeout-reclamation-local-validation-2026-10-05.json",
-    "latest_receipt": "tmp/adr0162-checks/publication.json"
+    "latest_adr": "ADR0163",
+    "latest_evidence": "docs/capacity/flash-sale-opening/partial-timeout-profile-local-validation-2026-10-06.json",
+    "latest_receipt": "tmp/adr0163-checks/publication.json"
   },
   "evidence": [
+    "docs/capacity/flash-sale-opening/partial-timeout-profile-local-validation-2026-10-06.json",
     "docs/capacity/flash-sale-opening/partial-timeout-reclamation-local-validation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/status-refresh-paid-replacement-comparison-2026-10-05.json",
     "docs/capacity/flash-sale-opening/status-refresh-dispatch-qualification-2026-10-05.json",
@@ -985,15 +986,22 @@
     "scope_closed": true,
     "control_report": "docs/capacity/flash-sale-opening/async-payment-confirmation-measured-control-2026-10-05.json"
   },
-  "local_implementation_revision": "d444cc78e7d29c95d2c1878a40fdd6ba1d6ed569",
+  "local_implementation_revision": "ea2f1c1de39b61997129baa5280cb972ae9ce814",
   "local_admission_candidate": {
     "decision": "docs/adr/0162-partial-timeout-slot-reclamation.md",
     "revision": "d444cc78e7d29c95d2c1878a40fdd6ba1d6ed569",
     "flag": "API_PARTIAL_TIMEOUT_RECLAIM",
     "default": "0",
-    "status": "LOCAL_ADMISSION_CASES_PASSED_BROAD_CORE_FAILURE_RETAINED_CLOUD_UNQUALIFIED",
+    "status": "LOCAL_SOURCE_IMAGES_AND_PROFILE_PASSED_CLOUD_RUNNER_PENDING",
     "evidence": "docs/capacity/flash-sale-opening/partial-timeout-reclamation-local-validation-2026-10-05.json",
     "cloud_calls": 0,
-    "capacity_improvement_measured": false
+    "capacity_improvement_measured": false,
+    "profile_decision": "docs/adr/0163-isolated-partial-timeout-reclamation-profile.md",
+    "profile_revision": "ea2f1c1de39b61997129baa5280cb972ae9ce814",
+    "profile_evidence": "docs/capacity/flash-sale-opening/partial-timeout-profile-local-validation-2026-10-06.json",
+    "profile_plan": "docs/capacity/flash-sale-opening/partial-timeout-comparison-plan-2026-10-06.json",
+    "source_manifest_sha256": "13d78bdf41e7d442f87ee04d1bb4f357d648789adf0e5270a23b06d74c55ccd2",
+    "images_staged_on_cloud": false,
+    "cloud_execution_implemented": false
   }
 }
