@@ -243,15 +243,15 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 
 - [0150 - Import identity and bounded observer recovery](0150-import-identity-and-bounded-observer-recovery.md)
 
-- [0151: Identical-cache-age committed status refresh comparison](0151-identical-cache-age-committed-status-refresh-comparison.md) â€” Images staged; corrected dry pair passed/restored; paid comparison requires separate approval.
+- [0151: Identical-cache-age committed status refresh comparison](0151-identical-cache-age-committed-status-refresh-comparison.md) - Matched 60 journeys/s replacement comparison passed; prior failed attempts retained; higher capacity unqualified.
 
-- [ADR0152: Reproducible isolated status-refresh artifacts](0152-reproducible-isolated-status-refresh-artifacts.md) â€” Real parent/candidate images verified (ADR0153); corrected dry qualification passed (ADR0154).
+- [ADR0152: Reproducible isolated status-refresh artifacts](0152-reproducible-isolated-status-refresh-artifacts.md) - Immutable images verified and used in qualified fixed-load comparison.
 
-- [ADR0153: Owned retrieval of original cloud parent images](0153-owned-cloud-parent-image-retrieval.md) — Artifact retrieval, local derivation and verified image-cache staging; separate dry control failed and restored (ADR0154).
+- [ADR0153: Owned retrieval of original cloud parent images](0153-owned-cloud-parent-image-retrieval.md) - Owned parent retrieval, derivation and immutable staging verified; later deployment results in ADR0154/0155.
 
-- [ADR0154: Explicit CPU observer placement](0154-explicit-cpu-observer-placement.md) — Harness correction qualified by restored off/on dry pair; capacity improvement unmeasured.
+- [ADR0154: Explicit CPU observer placement](0154-explicit-cpu-observer-placement.md) - Corrected dry pair passed and restored; fixed-load results in ADR0155.
 
-- [ADR0155: Dispatch-time inventory qualification](0155-dispatch-time-inventory-qualification.md) — Fix final analysis expiry without relaxing freshness at admission; fresh cloud qualification pending.
+- [ADR0155: Dispatch-time inventory qualification](0155-dispatch-time-inventory-qualification.md) - Fresh qualification and separately authorized matched paid comparison passed; no maximum-capacity claim.
 
 - [ADR0156: Fresh fulfilled snapshot refresh deduplication](0156-fresh-fulfilled-snapshot-refresh-deduplication.md)
 
@@ -261,6 +261,6 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 
 - [ADR0159: Indexed safety-probe actor audit](0159-indexed-safety-probe-actor-audit.md)
 
-- [ADR0160: Durable asynchronous payment confirmation](0160-durable-asynchronous-payment-confirmation.md) — Proposed receipt/confirmation separation; no implementation or capacity claim.
+- [ADR0160: Durable asynchronous payment confirmation](0160-durable-asynchronous-payment-confirmation.md) - Default-off implementation and local/cloud safety validated; asynchronous throughput benefit unmeasured.
 
-- [ADR0161: Isolated asynchronous confirmation qualification and comparison](0161-isolated-asynchronous-confirmation-comparison.md)
+- [ADR0161: Isolated asynchronous confirmation qualification and comparison](0161-isolated-asynchronous-confirmation-comparison.md) - Safety pair passed; measured control failed, candidate skipped and original deployment restored.

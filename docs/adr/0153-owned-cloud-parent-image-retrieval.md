@@ -1,6 +1,6 @@
 # ADR0153: Owned retrieval of original cloud parent images
 
-- Status: Accepted for artifact retrieval, local derivation and owned image-cache staging; dry deployment requires the separate ADR0151 release
+- Status: Accepted; owned retrieval, local derivation and immutable image staging verified. Subsequent deployment outcomes are recorded in ADR0154/0155.
 - Date: 2026-10-05
 
 ## Context

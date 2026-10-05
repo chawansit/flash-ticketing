@@ -1,6 +1,6 @@
 # ADR0158: Validate the bounded stage profile before reserving a cloud run
 
-- Status: Accepted for local harness correction; replacement cloud execution not authorized
+- Status: Accepted; constructor correction locally validated; failed attempt and consumption counters retained.
 - Date: 2026-10-05
 
 ## Context

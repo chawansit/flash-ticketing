@@ -1,6 +1,6 @@
 # ADR0157: Isolated deduplication comparison profile
 
-- Status: Accepted; corrected bounded cloud safety pair qualified; measured comparison pending
+- Status: Accepted; corrected safety pair passed; measured dedup-off control failed and candidate was skipped. Scope consumed; capacity benefit unmeasured.
 - Date: 2026-10-05
 
 ## Context

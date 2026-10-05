@@ -1,4 +1,4 @@
-# 0127 — Phase classification for bounded API stack diagnostics
+# 0127 â€” Phase classification for bounded API stack diagnostics
 
 - **Status:** Accepted on 2026-10-04 for offline implementation and one specifically approved diagnostic at unchanged load.
 - **Related decisions:** Complements ADR0118 and ADR0126. Supersedes no accepted persistence, locking, messaging, idempotency, TTL or scaling decision.

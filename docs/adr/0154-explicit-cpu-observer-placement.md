@@ -1,6 +1,6 @@
 # ADR0154: Separate CPU observer placement from experiment factor
 
-- Status: Accepted; corrected dry pair passed and restored; paid capacity comparison not authorized
+- Status: Accepted; corrected dry pair passed and restored; subsequent fixed-load comparison recorded in ADR0155. No maximum-capacity claim.
 - Date: 2026-10-05
 
 ## Context

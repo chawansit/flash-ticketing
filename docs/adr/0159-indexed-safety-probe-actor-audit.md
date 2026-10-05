@@ -1,6 +1,6 @@
 # ADR0159: Index the safety audit through the probe actors
 
-- Status: Accepted; corrected cloud safety pair passed; measured comparison pending
+- Status: Accepted; corrected safety pair passed; subsequent measured control failed and candidate was skipped. No capacity promotion.
 - Date: 2026-10-05
 
 ## Context

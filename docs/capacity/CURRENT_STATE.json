@@ -111,8 +111,9 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "ADR0160/0161 implementation and executed evidence saved on local branch. No GitHub push or main merge.",
-    "branch": "codex/redis-failover-recovery"
+    "status": "Prepared for authorized publication of ADR0126-0161, ADR0118 update, index and supporting committed material; remote push verification pending. No main merge.",
+    "branch": "codex/redis-failover-recovery",
+    "report": "docs/capacity/flash-sale-opening/adr-publication-2026-10-05.json"
   },
   "evidence": [
     "docs/capacity/flash-sale-opening/status-refresh-paid-replacement-comparison-2026-10-05.json",

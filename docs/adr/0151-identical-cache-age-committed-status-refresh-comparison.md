@@ -1,6 +1,6 @@
 # ADR0151: Identical-cache-age committed status refresh comparison
 
-- Status: Accepted; images staged and corrected dry pair passed/restored; paid comparison requires separate approval
+- Status: Accepted; corrected qualification and separately authorized matched 60 journeys/s replacement comparison passed. Prior failed attempts retained; no higher-load qualification.
 - Date: 2026-10-05
 
 ## Context

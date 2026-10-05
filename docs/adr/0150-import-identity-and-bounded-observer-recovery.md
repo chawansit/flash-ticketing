@@ -1,6 +1,6 @@
 # ADR0150: Import identity and bounded observer recovery
 
-- Status: Accepted; local validation passed, cloud execution/qualification pending
+- Status: Accepted; local validation passed; source/observer qualification exercised by the ADR0155 matched cloud comparison. Maximum capacity remains unqualified.
 - Date: 2026-10-05
 
 ## Context

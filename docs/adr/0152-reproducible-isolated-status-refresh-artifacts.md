@@ -1,6 +1,6 @@
 # ADR0152: Reproducible isolated status-refresh artifacts
 
-- Status: Accepted for local artifact tooling; cloud parent availability and live qualification pending
+- Status: Accepted; reproducible isolated images verified and used in the ADR0155 qualified cloud comparison.
 - Date: 2026-10-05
 
 ## Context

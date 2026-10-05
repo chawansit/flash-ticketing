@@ -1,0 +1,197 @@
+{
+  "date": "2026-10-05",
+  "status": "PREPARED_FOR_PUBLICATION_VERIFICATION_PENDING",
+  "authorization": "Direct user request: check all unpublished local ADRs and upload the important records to GitHub.",
+  "repository": "https://github.com/chawansit/flash-ticketing",
+  "branch": "codex/redis-failover-recovery",
+  "main_merge": false,
+  "comparison_base": "6a1385bbeb13bc50bbd8aae5378dfd7037fde747",
+  "reviewed_local_revision": "a9556d0047e56b2a762eb25dcbef6edfce989bc5",
+  "remote_branches_checked": [
+    "origin/codex/continue-flashticketing-capacity-work",
+    "origin/codex/db-unavailable-diagnostic",
+    "origin/codex/redis-failover-recovery",
+    "origin/codex/redis-writer-restart-evidence",
+    "origin/main",
+    "origin/redis-failover-validation"
+  ],
+  "local_adr_files_including_index": 162,
+  "new_decision_records": 36,
+  "updated_existing_decisions": [
+    118
+  ],
+  "updated_index": true,
+  "new_decision_range": "ADR0126-ADR0161",
+  "selection": "Publish the complete missing decision chain, including rejected and failed experiments, to retain dependencies, evidence, recovery behavior and supersession history.",
+  "key_topics": [
+    "Database reads/locking and fixed-budget payment admission (0128-0134)",
+    "Atomic seat projection and rejected alternatives (0136-0142)",
+    "Status-read coalescing and committed-event refresh (0143-0149,0156)",
+    "Pinned workload/images, observers and fixed-budget two-host comparisons (0146-0159)",
+    "Durable asynchronous payment receipt/confirmation and failed measured control (0160-0161)"
+  ],
+  "records": [
+    {
+      "path": "docs/adr/0118-bounded-external-api-stack-sampling.md",
+      "previous_github_state": "older_content"
+    },
+    {
+      "path": "docs/adr/0126-cache-disabled-same-load-control.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0127-phase-classification-for-api-stack-diagnostics.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0128-native-row-single-statement-order-status-reads.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0129-payment-derived-order-lock-query.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0130-fixed-budget-api-payment-pool-partition.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0131-two-slot-api-payment-pool-allocation.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0132-explicit-fixed-budget-payment-waiters.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0133-shared-bounded-api-acquisition-budget.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0134-local-payment-commit-boundary-recovery-validation.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0135-bounded-single-concert-paid-fixtures.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0136-bounded-bulk-atomic-seat-projection.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0137-native-filesystem-local-paid-generator-qualification.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0138-preencoded-atomic-seat-projection.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0139-framed-preencoded-seat-projection.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0140-native-linux-local-projection-qualification.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0141-fixed-load-cloud-atomic-projection-qualification.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0142-pinned-baseline-reproduction-after-cloud-regression.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0143-bounded-order-status-miss-coalescing.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0144-enabled-cache-isolated-coalescing-comparison.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0145-reserved-payment-callback-admission.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0146-freeze-and-measure-observation-overhead.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0147-fixed-budget-two-host-api-comparison.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0148-bounded-two-host-84-buyer-rate-probe.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0149-committed-event-order-status-refresh.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0150-import-identity-and-bounded-observer-recovery.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0151-identical-cache-age-committed-status-refresh-comparison.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0152-reproducible-isolated-status-refresh-artifacts.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0153-owned-cloud-parent-image-retrieval.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0154-explicit-cpu-observer-placement.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0155-dispatch-time-inventory-qualification.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0156-fresh-fulfilled-snapshot-refresh-deduplication.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0157-isolated-deduplication-comparison-profile.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0158-pre-reservation-stage-profile-validation.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0159-indexed-safety-probe-actor-audit.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0160-durable-asynchronous-payment-confirmation.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/0161-isolated-asynchronous-confirmation-comparison.md",
+      "previous_github_state": "missing"
+    },
+    {
+      "path": "docs/adr/README.md",
+      "previous_github_state": "older_content"
+    }
+  ],
+  "supporting_material": "Existing committed implementation, tests, reproducible artifacts and public evidence accompany the ADRs on the same branch. Private tmp manifests, credentials and untracked attachments are excluded.",
+  "checks": {
+    "all_selected_adr_files_utf8": true,
+    "markdown_local_links_exist": true,
+    "unpushed_blobs_reviewed": 506,
+    "credential_findings": "Development defaults/placeholders/synthetic test fixtures only; no supplied live password or private-key pattern detected.",
+    "runtime_tests": "No new behavioral tests or cloud load executed for documentation publication."
+  },
+  "corrections": "Normalized two ADR files to UTF-8 and repaired unreadable separators; updated stale ADR/index summaries to match their already-recorded executed evidence. Failed gates and previous attempts retained.",
+  "performance_limit": "Async safety passed; measured synchronous control failed four payment initiations (0.022222%). Candidate throughput remains unmeasured;300000tickets/hour unqualified."
+}
