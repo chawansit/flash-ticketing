@@ -72,3 +72,24 @@ The multi-host runner is implemented. It validates fresh live inventory, freezes
 Secondary SSH reset while the runner checked completed CPU jobs. Shared-window CPU evidence was recovered read-only: primary82.299%, aggregate API1.2967cores. Hold HTTP p95 was17.4ms, payment HTTP p9578.6ms, hold-to-ticket p952.212s (worst shard p95, not combined percentiles). Pipeline/Kafka traces were not copied before container teardown and are unavailable; original failed observer/private-cleanup gates remain recorded. Candidate was not started. No capacity improvement or sustained hourly throughput is established.
 
 Follow-up harness corrections configure30-second keepalive on every pinned SSH client and retain raw observer traces in finally before teardown; no remote mutation or customer retry is introduced.155 focused tests and Ruff passed. A[330-second passive SSH idle qualification](two-host-ssh-idle-qualification-2026-10-05.json) passed for all three clients with generator idle and no customer load. This does not qualify a paid run with the corrected harness. A replacement control/candidate pair requires explicit authorization because the original one-control attempt is consumed; do not reset its ledger or relax any gate automatically.
+
+## Completed replacement comparison (2026-10-05)
+
+The user explicitly authorized one replacement pair; the earlier failed attempt and consumed ledger remain archived. Corrected-adapter dry qualification193bc294b81f passed before execution. [Replacement comparison evidence](two-host-paid-replacement-comparison-2026-10-05.json) records run9738b5fd822b. Both arms used the frozen application/generator and identical budgets:60 buyers/s for300s,18000 journeys each, zero customer retries. All32 gates passed per arm.
+
+| Measured result | Four APIs on primary | Two APIs per host |
+| --- | ---: | ---: |
+| Confirmed durable paid tickets |18000|18000|
+| Customer journey errors / drops / double-bookings |0 /0 /0|0 /0 /0|
+| Primary offered-window CPU |83.107%|69.562%|
+| Secondary offered-window CPU |0.191%|17.573%|
+| Aggregate API CPU cores |1.302|1.384|
+| Hold HTTP p95 |17.310ms|11.643ms|
+| Payment HTTP p95 |62.129ms|59.922ms|
+| Hold-to-ticket p95 |2147.031ms|2127.276ms|
+
+Primary CPU fell13.545 percentage points and hold-response p95 improved32.743%; end-to-end p95 improved only0.920%. This is one ordered matched pair, with worst-shard customer p95. Higher throughput and sustained hourly capacity remain unmeasured;300000 tickets/hour requires83.333 paid tickets/s, above the tested60/s. Total API CPU increased about6.27%; more compute improved primary headroom without proving better total efficiency.
+
+The complete observer-lifetime API pool-acquire mean increased2.340 to4.314ms; these means include preparation/audit tail and are not offered-window p95. Internal simulator delivery-error phase calls17/22 and one consumer55P03 per arm were retained despite full payment/ticket completion and empty final queues. Their cause is not established. Zero customer errors must not be reported as zero errors throughout all workers.
+
+Final restoration passed: exact original primary configuration/API4/background placement, secondary APIs removed, generator idle, owned credential snapshots removed, DB/Redis queues and Kafka lag0. No SSH reset interrupted this pair. All capacity authorization is consumed; no further rate or hour stage ran. Next propose a separately authorized bounded rate probe toward83.333+ paid tickets/s, then long steady and flash-opening validation if it passes. No GitHub push or main merge was performed.

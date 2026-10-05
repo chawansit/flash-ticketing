@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-05",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0147_failed_control_checkpoint_replacement_pair_authorization_needed",
+  "status": "adr0147_replacement_matched_pair_passed_restored",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -10,31 +10,32 @@
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "Failed paid controlfinally restored exact primary runtime:API4,original background services,secondaryAPI0;allDB/Redisqueues/Kafkalag0,oneconsumer member,generatoridle.",
+  "last_checked_topology": "Exact original primary runtime restored: API4 and original background services; secondary API0. All DB/Redis queues and Kafka lag0, one normal consumer member, generator idle, owned credential snapshots removed.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "current_run": null,
-  "revision_note": "Integrated runner/recovery code committed at9adee8941bdb0830c0ca636730ae62fc0c61fb63; frozen application/generator remain deb330e. No application code optimization deployed. Failed control/partial recovery retained; replacement pair awaits authorization.",
+  "revision_note": "Frozen application/generator remain deb330e; corrected runner qualified and replacement matched pair passed. Only evidence/documentation changed; no application optimization deployed.",
   "confirmed": [
-    "Multi-host paid runner implemented; final pre-keepalive dryc0dae8f43adc passed both stages,100-way safety/replay/post-TTL,global queues,cleanup and exact restoration. Earlier failed dry runs retained; fixed host/workload/budget comparison remains unqualified.",
-    "Controled20dc431b67:18000dispatched,17999customer confirmations,onepayment503(0.005556%journeys),drops0.17999successful payments/tickets,oneunpaidexpiredorder,doublebookings0,pendingorders0,allqueues/Kafka0. Candidate not started; originalruntime restored and generator idle.",
-    "Secondary SSH reset while checking completed CPU jobs; pipeline/Kafka trace unavailable after teardown. CPU recovered read-only:primary82.299%,API1.2967cores. Original failed gates remain failed; payment503 cause unproven.",
-    "Current harness adds30s SSH keepalive and finally raw-trace retention;155focused tests and Ruff passed. All3SSHclients survived330s passive idle; generatoridle,no customer load. This is not full corrected-harness paid qualification.",
-    "Application/image and78-file generator manifest stay frozen atdeb330e. ADR0143 coalescing and0145 callback-reserve application candidates remain cloud-unqualified and were not deployed in this comparison."
+    "Exact corrected-adapter dry193bc294b81f passed both topology/observer stages,100-way cross-host safety/replay, post-expiry audit, queues and restoration.",
+    "Replacement paid pair9738b5fd822b passed all22 paid plus10 additional gates for each arm. Both arms dispatched18000 and confirmed/durably issued18000 paid tickets; customer errors0, drops0, double-booking0, queues/Kafka lag0.",
+    "Primary offered-window CPU83.107% control versus69.562% candidate; candidate secondary17.573%. Hold HTTP p9517.310ms versus11.643ms; hold-to-ticket p952147.031ms versus2127.276ms.",
+    "Aggregate API CPU1.302 versus1.384 cores; API pool-acquire observer-lifetime mean2.340 versus4.314ms. Compute placement improved primary headroom but not every metric.",
+    "Internal simulator delivery-error phase calls17 control/22 candidate and consumer55P03 count1 each were observed despite zero customer errors and full drain. Their cause remains unproven.",
+    "Original failed controled20dc431b67 remains archived/failed; replacement authorization consumed exactly one control and one candidate. No automatic additional load."
   ],
-  "unresolved": "Matched comparison incomplete. Control full-completion/financial/observer gates failed and one-control attempt consumed; payment503 cause unproven. Keepalive/trace-retention fixes tested locally; passive330s idle passed. Replacement pair needs explicit authorization and exact-adapter dry qualification; no gate relaxation or automatic paid retry.",
+  "unresolved": "Maximum capacity,300000 paid tickets/hour and synchronized flash-opening behavior are unverified. One ordered pair establishes same-load primary headroom and hold-response improvement, not higher throughput. Internal recovered worker errors and prior payment503 cause remain unexplained.",
   "next_on_resume": [
-    "Obtain authorization for one replacement60buyers/s300s control and one2+2 candidate; retain prior consumed attempt and exact-adapter dry qualification.",
-    "Capture per-replica pool/admission/payment/observer traces on the replacement pair while preserving all22+10 gates, durability/zero-double-booking/drain/restore."
+    "Review retained worker error/pool evidence without changing application or budgets.",
+    "Propose a separately authorized bounded two-host rate probe toward83.333+ paid tickets/s, preserving all financial/source/observer/drain gates; only after passing probes consider long steady and flash-opening validation."
   ],
-  "authorization": "User supplied new ECS and existing credentials for accepted ADR0147 comparison. Host prerequisites/image/config and read-only bounded checks authorized. Paid traffic requires qualified deployment/observation/concurrency/restoration. No new service purchase/rate escalation/GitHub push/main merge.",
-  "scope": "Failed original control consumed; no automatic paid retry/candidate progression. Read-only CPU recovery and passive330s SSH liveness qualification authorized; replacement paid pair pending explicit authorization.",
+  "authorization": "User Continue authorized exactly one replacement control and conditional candidate at60 buyers/s300s, unchanged budgets/all gates. Both attempts completed and consumed; previous failed original attempt remains archived.",
+  "scope": "Replacement matched pair complete; no further paid stage authorized. No rate escalation, automatic replacement, GitHub push or main merge.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
-    "paid_runs_started": 1,
+    "paid_runs_started": 2,
     "limit": 2,
     "active_run": null,
     "temporary_key_installed": false,
-    "status": "FAILED_CONTROL_RESTORED_REPLACEMENT_PAIR_AUTHORIZATION_NEEDED",
+    "status": "REPLACEMENT_PAIR_PASSED_RESTORED_AUTHORIZATION_CONSUMED",
     "local_preparation_report": "docs/capacity/flash-sale-opening/two-host-scaling-preparation-2026-10-05.json",
     "live_qualification": "CROSS_HOST_SAFETY_POST_TTL_QUEUES_RESTORE_PASSED",
     "host_preparation_report": "docs/capacity/flash-sale-opening/two-host-host-preparation-2026-10-05.json",
@@ -43,13 +44,17 @@
     "qualification_report": "docs/capacity/flash-sale-opening/two-host-safety-qualification-2026-10-05.json",
     "credential_snapshots_removed": true,
     "dry_integration_protocols_started": 7,
-    "last_runner_report": "tmp/adr0147-topology-ed20dc431b67/integration-summary.json",
-    "dry_qualification_report": "tmp/adr0147-topology-c0dae8f43adc/integration-summary.json",
+    "last_runner_report": "tmp/adr0147-topology-9738b5fd822b/integration-summary.json",
     "attempted_paid_arms": [
-      "control"
+      "control",
+      "candidate"
     ],
-    "comparison_report": "docs/capacity/flash-sale-opening/two-host-paid-comparison-2026-10-05.json",
-    "ssh_idle_qualification": "docs/capacity/flash-sale-opening/two-host-ssh-idle-qualification-2026-10-05.json"
+    "comparison_report": "docs/capacity/flash-sale-opening/two-host-paid-replacement-comparison-2026-10-05.json",
+    "ssh_idle_qualification": "docs/capacity/flash-sale-opening/two-host-ssh-idle-qualification-2026-10-05.json",
+    "authorization_id": "adr0147-replacement-pair-2026-10-05",
+    "authorization": "User Continue after concrete proposal: one replacement control plus one candidate, each60buyers/s300s, unchanged budgets/all gates; no automatic replacement retry.",
+    "dry_qualification_report": "tmp/adr0147-topology-193bc294b81f/integration-summary.json",
+    "all_required_gates_pass": true
   },
   "previous_bounded_control": {
     "decision": "0146-observation-overhead",
@@ -84,10 +89,11 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "Local integrated-runner/failed-control/recovery checkpoint; no GitHub push or main merge.",
+    "status": "Local replacement comparison evidence; no GitHub push or main merge.",
     "branch": "codex/redis-failover-recovery"
   },
   "evidence": [
+    "docs/capacity/flash-sale-opening/two-host-paid-replacement-comparison-2026-10-05.json",
     "docs/capacity/flash-sale-opening/two-host-ssh-idle-qualification-2026-10-05.json",
     "docs/capacity/flash-sale-opening/two-host-paid-comparison-2026-10-05.json",
     "tmp/adr0147-topology-f817c3558bc3/integration-summary.json",
@@ -127,5 +133,34 @@
     "cloud_deployed": false,
     "isolated_cloud_revision_prepared": false
   },
-  "workspace_checkpoint_revision": "9adee8941bdb0830c0ca636730ae62fc0c61fb63"
+  "workspace_checkpoint_revision": "9adee8941bdb0830c0ca636730ae62fc0c61fb63",
+  "archived_bounded_controls": [
+    {
+      "archived_at_utc": "2026-10-05T02:54:16.069405+00:00",
+      "reason": "User Continue authorized one replacement matched pair on 2026-10-05; retain consumed failed original control.",
+      "control": {
+        "decision": "0147-fixed-budget-two-host-api-comparison",
+        "paid_runs_started": 1,
+        "limit": 2,
+        "active_run": null,
+        "temporary_key_installed": false,
+        "status": "FAILED_CONTROL_RESTORED_REPLACEMENT_PAIR_AUTHORIZATION_NEEDED",
+        "local_preparation_report": "docs/capacity/flash-sale-opening/two-host-scaling-preparation-2026-10-05.json",
+        "live_qualification": "CROSS_HOST_SAFETY_POST_TTL_QUEUES_RESTORE_PASSED",
+        "host_preparation_report": "docs/capacity/flash-sale-opening/two-host-host-preparation-2026-10-05.json",
+        "topology_qualification_protocols_started": 2,
+        "last_qualification_run": "adr0147-topology-57b91b69e9dc",
+        "qualification_report": "docs/capacity/flash-sale-opening/two-host-safety-qualification-2026-10-05.json",
+        "credential_snapshots_removed": true,
+        "dry_integration_protocols_started": 7,
+        "last_runner_report": "tmp/adr0147-topology-ed20dc431b67/integration-summary.json",
+        "dry_qualification_report": "tmp/adr0147-topology-c0dae8f43adc/integration-summary.json",
+        "attempted_paid_arms": [
+          "control"
+        ],
+        "comparison_report": "docs/capacity/flash-sale-opening/two-host-paid-comparison-2026-10-05.json",
+        "ssh_idle_qualification": "docs/capacity/flash-sale-opening/two-host-ssh-idle-qualification-2026-10-05.json"
+      }
+    }
+  ]
 }
