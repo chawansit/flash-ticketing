@@ -266,3 +266,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0161: Isolated asynchronous confirmation qualification and comparison](0161-isolated-asynchronous-confirmation-comparison.md) - Safety pair passed; measured control failed, candidate skipped and original deployment restored.
 
 - [ADR0162: Failure-time acquisition evidence and conservative partial timeout reclamation](0162-partial-timeout-slot-reclamation.md) - Local reproduction and opt-in qualification; cloud unqualified.
+
+- [ADR0163: Isolated partial-timeout reclamation source and comparison profile](0163-isolated-partial-timeout-reclamation-profile.md) - Local preparation; cloud unqualified.

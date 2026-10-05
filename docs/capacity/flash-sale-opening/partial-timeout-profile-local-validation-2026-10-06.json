@@ -1,0 +1,132 @@
+{
+  "date_bangkok": "2026-10-06",
+  "decision": "docs/adr/0163-isolated-partial-timeout-reclamation-profile.md",
+  "status": "PINNED_LOCAL_SOURCE_IMAGES_AND_PROFILE_QUALIFIED_CLOUD_RUNNER_PENDING",
+  "engineering_base_revision": "abdbddce07d714f5037223304f410b815cd3fa01",
+  "application_parent_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "qualified_reclamation_revision": "d444cc78e7d29c95d2c1878a40fdd6ba1d6ed569",
+  "source": {
+    "artifact": "artifacts/partial-timeout-reclamation/manifest.json",
+    "patch": "artifacts/partial-timeout-reclamation/adr0163.patch",
+    "file_count": 213,
+    "runtime_module_count": 21,
+    "manifest_sha256": "13d78bdf41e7d442f87ee04d1bb4f357d648789adf0e5270a23b06d74c55ccd2",
+    "patch_sha256": "6950c3f3286f0ce3f4934e16682648ab52bb3ca165bf9992dbdce32a143a2a34",
+    "runtime_source_sha256": {
+      "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/api.py": "62754c889f1a832330930fdc28fa34644a95d810512fc7f7245a202a3859570e",
+      "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+      "src/ticketing/application/ports.py": "3a562c947a28d8a63a257e361707041d41894f6374eba2702078d2bd39f9a98a",
+      "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+      "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+      "src/ticketing/config.py": "6361a281dd86f73dd6fbd79dccdb5ea05a307cbdc14ee2cf76d1c045e90392aa",
+      "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+      "src/ticketing/http.py": "2711b3810f2f2f94fdeddba682ebeab3536832a4c0269586f9777e111dbe7223",
+      "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+      "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+      "src/ticketing/infrastructure/order_status_projector.py": "8e89ce45e57123f5fc1499e5d2bf57752395e57374f50729a975f402cd31ac88",
+      "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+      "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+      "src/ticketing/infrastructure/postgres.py": "329cf2e1e7526a21ae76dbaf2832128518a0be94961537c8c8ea72ef405622a2",
+      "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+      "src/ticketing/infrastructure/reservations.py": "543ab9a9bb15a6b8f10874563a33f1fc450bf43795040280f7c137c6e7f3374d",
+      "src/ticketing/observability.py": "3bb9d042ee01469abdd8e2b630ca6f05ee3a318f96991ab9a867d74dc88244d2",
+      "src/ticketing/workers.py": "42073129f3b3e9735edb468b50f15b274d7d5c7ac8bbda52a6e85c6d6bc752ce"
+    },
+    "financial_transaction_ast_unchanged": true,
+    "qualified_reclamation_and_recording_method_ast_parity": true,
+    "callback_reserve_code_and_wiring_excluded": true,
+    "complete_source_dependency_map_derived_from_immutable_Git_and_pinned_overlays": true
+  },
+  "images": {
+    "immutable_distinct_candidates": 6,
+    "immutable_distinct_parents": 6,
+    "artifact_receipt": {
+      "images": {
+        "api": "sha256:18ddd5d6faee7673eefa39eab39b3579eb66766f474a82768caa58852e31122c",
+        "consumer": "sha256:3b270fa78ff8f238718677f459ae2d869ae7dd57b7bf019af7855fd0700f9483",
+        "publisher": "sha256:8edabce06ffba4b048ae0bf227b307e3e3780bf76541f66b7e57365f772ca937",
+        "simulator": "sha256:271e1a8f91505d06e208c680ee479f38b5acc9641f6089aef61e3d070257a159",
+        "maintenance": "sha256:8dccec500560fcf754483f910f59ed40b6f1ac1ffd3355353276dc518e9f609e",
+        "reconciler": "sha256:2d7a341af33992c1213c2ee84a6de496a168750527d434cc7ad0dbc43c5ad366",
+        "reservation-writer": "sha256:18ddd5d6faee7673eefa39eab39b3579eb66766f474a82768caa58852e31122c",
+        "confirmation": "sha256:271e1a8f91505d06e208c680ee479f38b5acc9641f6089aef61e3d070257a159"
+      },
+      "parent_images": {
+        "api": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e",
+        "consumer": "sha256:ce59e827156b470a81b98c2dbc68cb9c69fed03e50ccc2f516ef30b64e0e21fd",
+        "publisher": "sha256:e575802519ce7b70b42a87f8e92159f42ddac653b8d489b401fe4ad1785a53e2",
+        "simulator": "sha256:22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452",
+        "maintenance": "sha256:51b1e282b277e6b34d5f55442a82912fa406c91e808d71394e7da479b12ad83e",
+        "reconciler": "sha256:57a12dd4be6303ca8dea3daa4bcf2d8201a93976c6df2af51c0f751a9cbcf1a6",
+        "reservation-writer": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e",
+        "confirmation": "sha256:22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452"
+      },
+      "source_manifest_sha256": "13d78bdf41e7d442f87ee04d1bb4f357d648789adf0e5270a23b06d74c55ccd2"
+    },
+    "source_import_dependency_and_inherited_configuration_proofs_passed": true,
+    "preflight_count": 6,
+    "original_parent_layers_retained": true,
+    "cloud_images_staged": false,
+    "candidate_proof_count": 6
+  },
+  "profile": {
+    "plan": "docs/capacity/flash-sale-opening/partial-timeout-comparison-plan-2026-10-06.json",
+    "sole_changed_factor": "API_PARTIAL_TIMEOUT_RECLAIM0->1 on API only",
+    "common": "fixed2+2API,pool4/API,waiters12/API,payment2/API,500ms deadline;synchronous intake,1000ms cache,consumer refresh1,dedup0,poll500ms,simulator10and idle confirmer2connections",
+    "budgets_or_deadlines_increased": false,
+    "customer_retry_added": false,
+    "cloud_runner_implemented": false,
+    "old_ledgers_reopened": false
+  },
+  "executed_checks": {
+    "host_profile_tests": {
+      "passed": 32,
+      "failed": 0,
+      "seconds": 65.26,
+      "evidence": "tmp/adr0163-profile-tests-final.txt",
+      "coverage": "Sole primary/secondary factor,full synthetic inventory validation,source/dependency receipt tampering,parent/image mismatch,unknown overlays/path escape,explicit worker/API settings and fixed budgets",
+      "earlier_run": "30passed59.42s before2full inventory cases were added;32distinct checks total"
+    },
+    "native_exported_application_tests": {
+      "passed": 272,
+      "failed": 0,
+      "seconds": 73.1,
+      "evidence": "tmp/adr0163-checks/native-tests.txt",
+      "scope": "All frozen-source application integration plus4focused unit modules;2ADR0162 integration modules added to isolated test copy",
+      "financial_coverage": "100-way atomic hold,payment/callback and commit-loss replay,expiry/refund,async receipt crash/lease recovery,local queue and native admission recovery",
+      "candidate_enabled_mixed_burst_replay": true,
+      "same_test_image_as_profile_api": true,
+      "source_inputs_readonly_and_unchanged": true,
+      "owned_resources_removed": true
+    },
+    "actual_api_image_off_on_settings_probes": {
+      "passed": 2,
+      "evidence": "tmp/adr0163-checks/image-factor-settings.json"
+    },
+    "changed_file_ruff": "Passed",
+    "git_diff_check": "Passed"
+  },
+  "runtime_dependencies": {
+    "psycopg": "3.3.5",
+    "psycopg-pool": "3.3.1",
+    "redis": "6.4.0",
+    "fastapi": "0.141.1"
+  },
+  "retained_limitations": [
+    "Prior engineering-tree18,000-seat projection intermittent timeout remains unresolved. Its unqualified projection code and test are excluded from the frozen source;272passes do not retest or close that gate.",
+    "Updated control includes common diagnostics;not byte-identical to historical control.",
+    "Exact cause of prior cloud503s and any capacity gain remain unproven.",
+    "Local fixture queue checks are not a new production-global queue/Kafka audit."
+  ],
+  "cloud": {
+    "calls": 0,
+    "deployment": false,
+    "customer_dispatches": 0,
+    "fresh_scope_activated": false,
+    "capacity_improvement_measured": false
+  },
+  "next": "Integrate this exact profile and its diagnostics into the reused bounded runner/observer,qualify locally before opening fresh cloud scope;then one safety off/on pair and60journeys/s300s control/candidate only after safety passes,stop failed control,retain all financial/post-TTL/full-drain gates.84tickets/s and hourly target remain future work."
+}

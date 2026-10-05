@@ -1,0 +1,238 @@
+diff --git a/src/ticketing/api.py b/src/ticketing/api.py
+--- a/src/ticketing/api.py
++++ b/src/ticketing/api.py
+@@ -61,6 +61,7 @@
+     db, payment_db = create_api_databases(
+         settings.database_url, settings.pool_max, settings.pool_wait_ms,
+         settings.pool_max_waiting, settings.api_payment_pool_max, settings.api_pool_shared_waiting,
++        settings.api_partial_timeout_reclaim,
+     )
+     with ExitStack() as resources:
+         resources.callback(db.close)
+@@ -208,6 +209,9 @@
+     else:
+         cause = "OperationalError"
+     request.state.db_failure_type = cause
++    evidence = getattr(exc, "acquisition_failure", None)
++    if evidence is not None:
++        request.state.db_acquisition_failure = evidence
+     DB_UNAVAILABLE.labels(cause).inc()
+     return await business_error(request, Failure("DATABASE_UNAVAILABLE", 503))
+ 
+diff --git a/src/ticketing/config.py b/src/ticketing/config.py
+--- a/src/ticketing/config.py
++++ b/src/ticketing/config.py
+@@ -28,6 +28,7 @@
+     )
+     api_payment_pool_max: int = int(os.getenv("API_PAYMENT_POOL_MAX", "0"))
+     api_pool_shared_waiting: bool = os.getenv("API_POOL_SHARED_WAITING", "0") == "1"
++    api_partial_timeout_reclaim: bool = os.getenv("API_PARTIAL_TIMEOUT_RECLAIM", "0") == "1"
+     pool_wait_ms: int = int(os.getenv("DB_POOL_WAIT_MS", "150"))
+     seatmap_ttl_seconds: int = int(os.getenv("SEATMAP_TTL_SECONDS", "120"))
+     reserve_concurrency: int = int(os.getenv("RESERVE_CONCURRENCY", "12"))
+@@ -70,6 +71,8 @@
+         return self.reserve_concurrency
+ 
+     def validate(self):
++        if self.api_partial_timeout_reclaim and not self.api_pool_shared_waiting:
++            raise RuntimeError("API_PARTIAL_TIMEOUT_RECLAIM requires API_POOL_SHARED_WAITING")
+         if self.environment != "development" and (
+             self.jwt_secret.startswith("local-") or self.webhook_secret.startswith("local-")
+         ):
+diff --git a/src/ticketing/http.py b/src/ticketing/http.py
+--- a/src/ticketing/http.py
++++ b/src/ticketing/http.py
+@@ -129,6 +129,8 @@
+                         'duration_ms': round(elapsed * 1000, 2),
+                         'error_code': request.state.error_code,
+                         'db_failure_type': getattr(request.state, 'db_failure_type', None),
++                        **({'db_acquisition_failure': request.state.db_acquisition_failure}
++                           if hasattr(request.state, 'db_acquisition_failure') else {}),
+                         'connection_key': key_string,
+                         'connection_recreated': connection_recreated,
+                         'connection_age_ms': round(connection_age_ms, 2),
+diff --git a/src/ticketing/observability.py b/src/ticketing/observability.py
+--- a/src/ticketing/observability.py
++++ b/src/ticketing/observability.py
+@@ -133,6 +133,10 @@
+ DB_ROLLBACK_SECONDS = Histogram("ticketing_db_rollback_seconds", "Time spent rolling back API transactions")
+ DB_POOL_SECONDS = Histogram(
+     "ticketing_db_pool_acquire_seconds", "Pool acquisition including failures", ["outcome"]
++)
++DB_ACQUISITION_FAILURES = Counter(
++    "ticketing_db_acquisition_failures_total", "Connection checkout failures by fixed admission reason",
++    ["role", "reason"],
+ )
+ DB_POOL_RETURN_SECONDS = Histogram(
+     "ticketing_db_pool_return_seconds", "Time spent returning a DB connection to the pool"
+diff --git a/src/ticketing/infrastructure/postgres.py b/src/ticketing/infrastructure/postgres.py
+--- a/src/ticketing/infrastructure/postgres.py
++++ b/src/ticketing/infrastructure/postgres.py
+@@ -8,6 +8,7 @@
+ from psycopg_pool import ConnectionPool, PoolTimeout, TooManyRequests
+ 
+ from ticketing.observability import (
++    DB_ACQUISITION_FAILURES,
+     DB_COMMIT_SECONDS,
+     DB_CONNECTION_HOLD_SECONDS,
+     DB_ERRORS,
+@@ -20,6 +21,7 @@
+     DB_ROLLBACK_SECONDS,
+     DB_SECONDS,
+     DB_TRANSACTION_BODY_SECONDS,
++    REQUEST_ID,
+ )
+ 
+ logger = logging.getLogger(__name__)
+@@ -160,6 +162,16 @@
+                 if conn is not None:
+                     DB_POOL_IN_USE.dec()
+                 self.sample_pool()
++        except (PoolTimeout, TooManyRequests) as exc:
++            evidence = getattr(exc, "acquisition_failure", None)
++            if evidence is not None:
++                try:
++                    logger.warning("db_acquisition_failure", extra={"fields": {
++                        "event": "db_acquisition_failure", "request_id": REQUEST_ID.get(), **evidence,
++                    }})
++                except Exception:  # noqa: BLE001, S110 - logs must not mask the original DB failure.
++                    pass
++            raise
+         finally:
+             if outcome == "error":
+                 DB_POOL_SECONDS.labels(outcome).observe(monotonic() - start)
+@@ -198,7 +210,8 @@
+ class SharedAcquisitionBudget:
+     """Bound live checkout attempts and conservatively retained timeout slots."""
+ 
+-    def __init__(self, maximum, limits, pools):
++    def __init__(self, maximum, limits, pools, reclaim_partial_timeouts=False):
++        self.reclaim_partial_timeouts = reclaim_partial_timeouts
+         self.maximum = maximum
+         self.limits = limits
+         self.pools = pools
+@@ -208,20 +221,60 @@
+         self._rejected = {role: 0 for role in limits}
+ 
+     def _refresh(self):
+-        # Timeout positions can remain in the native FIFO. Reuse their slots
+-        # only after its queue is empty; never inspect private queue objects.
++        # Public FIFO length bounds remaining expired positions. Never subtract
++        # active checkouts: they may hold admission but not yet be queued.
+         for role, pool in self.pools.items():
+-            if self._retained[role] and not pool.get_stats().get("requests_waiting", 0):
+-                self._counts[role] -= self._retained[role]
+-                self._retained[role] = 0
++            if self._retained[role]:
++                waiting = pool.get_stats().get("requests_waiting", 0)
++                retained = min(self._retained[role], waiting) if self.reclaim_partial_timeouts else (
++                    self._retained[role] if waiting else 0
++                )
++                self._counts[role] -= self._retained[role] - retained
++                self._retained[role] = retained
+ 
+     def acquire(self, role):
+         with self._lock:
+             self._refresh()
+             if sum(self._counts.values()) >= self.maximum or self._counts[role] >= self.limits[role]:
+                 self._rejected[role] += 1
+-                raise TooManyRequests("API shared acquisition budget exhausted")
++                reason = "global_limit" if sum(self._counts.values()) >= self.maximum else "role_limit"
++                exc = TooManyRequests("API shared acquisition budget exhausted")
++                exc.acquisition_failure = self._failure_snapshot_unlocked(role, reason, "guard_rejection")
++                raise exc
+             self._counts[role] += 1
++
++    def _failure_snapshot_unlocked(self, role, reason, capture):
++        # This runs only on failure. Do not serialize connection info or errors.
++        try:
++            stats = self.pools[role].get_stats()
++            native = {key: stats.get(key, 0) for key in (
++                "pool_size", "pool_available", "requests_waiting", "pool_max"
++            )}
++        except Exception:  # noqa: BLE001 - diagnostic snapshot failure must preserve the driver error.
++            native = None
++        return {
++            "role": role,
++            "reason": reason,
++            "capture": capture,
++            "native_pool": native,
++            "guard": {
++                "maximum": self.maximum,
++                "used": sum(self._counts.values()),
++                "acquiring": sum(self._counts.values()) - sum(self._retained.values()),
++                "retained": sum(self._retained.values()),
++                "counts": dict(self._counts),
++                "retained_by_role": dict(self._retained),
++                "limits": dict(self.limits),
++                "callback_reserved": 0,
++                "partial_timeout_reclaim": self.reclaim_partial_timeouts,
++            },
++        }
++
++
++    def failure_snapshot(self, role, reason):
++        with self._lock:
++            return self._failure_snapshot_unlocked(role, reason, "native_failure_before_release")
++
+ 
+     def release(self, role, timed_out=False):
+         with self._lock:
+@@ -257,15 +310,33 @@
+     def getconn(self, timeout=None):
+         started = monotonic()
+         timeout = self._native.timeout if timeout is None else timeout
+-        self._budget.acquire(self._role)
++        try:
++            self._budget.acquire(self._role)
++        except TooManyRequests as exc:
++            self._record_failure(exc, started)
++            raise
+         timed_out = False
+         try:
+             return self._native.getconn(timeout=timeout - (monotonic() - started))
+-        except PoolTimeout:
+-            timed_out = True
++        except (PoolTimeout, TooManyRequests) as exc:
++            timed_out = isinstance(exc, PoolTimeout)
++            self._record_failure(exc, started)
+             raise
+         finally:
+             self._budget.release(self._role, timed_out)
++
++    def _record_failure(self, exc, started):
++        try:
++            evidence = getattr(exc, "acquisition_failure", None)
++            if evidence is None:
++                reason = "native_timeout" if isinstance(exc, PoolTimeout) else "native_limit"
++                evidence = self._budget.failure_snapshot(self._role, reason)
++            evidence = {**evidence, "elapsed_ms": round((monotonic() - started) * 1000, 3)}
++            exc.acquisition_failure = evidence
++            DB_ACQUISITION_FAILURES.labels(self._role, evidence["reason"]).inc()
++        except Exception:  # noqa: BLE001 - diagnostic failure cannot prevent finally-release.
++            return
++
+ 
+     def putconn(self, conn):
+         try:
+@@ -320,8 +391,10 @@
+     }
+ 
+ 
+-def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum=0, shared_waiting=False):
++def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum=0, shared_waiting=False, reclaim_partial_timeouts=False):
+     """Return general/payment adapters, sharing one pool when disabled."""
++    if reclaim_partial_timeouts and not shared_waiting:
++        raise ValueError("Partial timeout reclamation requires shared acquisition admission")
+     budgets = api_pool_budgets(maximum, maximum_waiting, payment_maximum, shared_waiting)
+     with ExitStack() as resources:
+         general = Postgres(url, wait_ms=wait_ms, **budgets["general"])
+@@ -335,7 +408,7 @@
+             native = {"general": general.pool, "payment": payment.pool}
+             shared = SharedAcquisitionBudget(
+                 maximum if maximum_waiting is None else maximum_waiting,
+-                {role: budget["maximum_waiting"] for role, budget in budgets.items()}, native,
++                {role: budget["maximum_waiting"] for role, budget in budgets.items()}, native, reclaim_partial_timeouts,
+             )
+             general.pool = AcquisitionLimitedPool(general.pool, shared, "general")
+             payment.pool = AcquisitionLimitedPool(payment.pool, shared, "payment")
