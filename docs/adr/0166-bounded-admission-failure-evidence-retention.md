@@ -32,3 +32,7 @@ Executed 271 local regression tests passed in 32.89 seconds, including parser/pr
 ## Relationships
 
 Closes the evidence-retention gap in ADR0164/0165 orchestration. Leaves ADR0162/0163 financial behavior and source/images unchanged. [Measured result](../capacity/flash-sale-opening/partial-timeout-measured-comparison-2026-10-06.json).
+
+## Cloud lifecycle qualification
+
+The separately authorized ADR0170 control on 2026-10-06 completed capture before teardown for all four verified APIs, with complete per-replica counter coverage and zero failure records. All financial, queue-drain and restoration gates passed. No acquisition timeout occurred, so nonzero failure capture and the earlier timeout cause remain unqualified on cloud. [Executed evidence](../capacity/flash-sale-opening/payment-stall-diagnostic-control-2026-10-06.json).

@@ -1,6 +1,6 @@
 # ADR0170: Single-control payment-stall diagnostics
 
-- Status: Accepted for bounded orchestration implementation; cloud qualification pending
+- Status: Accepted; local and bounded cloud control qualification completed
 - Date: 2026-10-06
 
 ## Context
@@ -28,3 +28,9 @@ Reserve counters before ambiguous dispatch. Stop on failed qualification or cont
 ## Validation evidence
 
 Executed 223 local unit tests passed in 29.29 seconds, covering single-arm lifecycle/counters/identity, historical pair behavior, retention and naming. Changed-file Ruff passed. Default preparation made zero cloud calls. [Local validation](../capacity/flash-sale-opening/payment-stall-diagnostics-local-validation-2026-10-06.json). Cloud qualification is pending. Direct user continuation authorizes preparing this bounded scope; qualification and measured execution occur only after local checks and strict preflight. No cloud calls or capacity improvement claimed by this ADR at creation.
+
+## Cloud validation checkpoint
+
+On 2026-10-06, the fresh safety qualification and one measured control completed with exact restoration. The control dispatched 18,000 journeys at 60/s for 300 seconds; all 18,000 became customer-confirmed, paid-and-issued tickets. Customer failures, generator drops and duplicate bookings were zero. Post-TTL financial audit and full queue drain passed. Bounded capture completed for all four APIs with zero observed acquisition-failure counters and zero failure records. This qualifies the capture lifecycle, but does not exercise capture of a real cloud timeout or establish the earlier timeout cause. The scope is consumed; no candidate or higher load started.
+
+Worst-shard payment-to-ticket p95 was 641.92 ms and hold-to-ticket p95 was 1,668.55 ms. Primary CPU averaged 71.12%, secondary 16.96%. These are an unchanged control repeat, not an optimization benefit or hourly capacity qualification. [Executed control evidence](../capacity/flash-sale-opening/payment-stall-diagnostic-control-2026-10-06.json).
