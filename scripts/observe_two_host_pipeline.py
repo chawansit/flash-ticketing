@@ -138,6 +138,54 @@ def verify_confirmation_factor_evidence(inventory):
         raise ValueError("Explicit common polling and isolated API intake factor required")
 
 
+
+def verify_admission_factor_evidence(inventory):
+    marker = inventory.get("status_refresh_contract", {})
+    arm = inventory.get("arm")
+    flag = "1" if arm == "candidate" else "0"
+    if (arm not in {"control", "candidate"} or marker.get("decision") != "ADR0163"
+            or marker.get("factor") != "api_API_PARTIAL_TIMEOUT_RECLAIM"
+            or marker.get("partial_timeout_reclaim") != flag or marker.get("async_intake") != "0"):
+        raise ValueError("Exact partial timeout factor evidence required")
+    # Compatibility view only: reuse the exact common receipt-worker/budget checks.
+    common = copy.deepcopy(inventory)
+    common["arm"] = "control"
+    common["status_refresh_contract"].update(decision="ADR0161", async_confirmation="0")
+    verify_confirmation_factor_evidence(common)
+    for api in inventory.get("apis", []):
+        settings = api.get("settings", {})
+        if any(settings.get(k) != v for k, v in {
+                "API_PARTIAL_TIMEOUT_RECLAIM": flag, "API_CALLBACK_ACQUISITION_RESERVE": "0",
+                "DB_POOL_MAX": "4", "DB_POOL_MAX_WAITING": "12", "DB_POOL_WAIT_MS": "500",
+                "API_PAYMENT_POOL_MAX": "2", "API_POOL_SHARED_WAITING": "1"}.items()):
+            raise ValueError("Exact admission API factor and budgets required")
+    if any(row.get("settings", {}).get("API_PARTIAL_TIMEOUT_RECLAIM") != "0"
+           for row in inventory.get("worker_sources", [])):
+        raise ValueError("Background reclamation must be explicitly disabled")
+
+
+def admission_failure_metrics(payload):
+    if "# TYPE ticketing_db_acquisition_failures_total counter" not in payload:
+        raise ValueError("Admission diagnostic metric family missing")
+    roles = {"general", "payment"}
+    reasons = {"global_limit", "role_limit", "native_timeout", "native_limit"}
+    result = {"acquisition_failure:" + role + ":" + reason: 0.0 for role in roles for reason in reasons}
+    seen = set()
+    for line in payload.splitlines():
+        if not line.startswith("ticketing_db_acquisition_failures_total{"):
+            continue
+        name, raw = line.rsplit(" ", 1)
+        labels = dict(re.findall(r'(\w+)="([^"\\]*)"', name))
+        if set(labels) != {"role", "reason"} or labels["role"] not in roles or labels["reason"] not in reasons:
+            raise ValueError("Unknown admission metric labels")
+        key = "acquisition_failure:" + labels["role"] + ":" + labels["reason"]
+        value = float(raw)
+        if key in seen or not math.isfinite(value) or value < 0:
+            raise ValueError("Invalid or duplicate admission failure counter")
+        seen.add(key); result[key] = value
+    return result
+
+
 def confirmation_startup(row):
     replicas = row.get("confirmation_db_replicas", {})
     if row.get("confirmation_replicas") != 1 or len(replicas) != 1:
@@ -163,13 +211,15 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
         marker = inventory.get("status_refresh_contract", {})
         if (not isinstance(approved_inventory_sha256, str)
                 or not re.fullmatch(r"[0-9a-f]{64}", approved_inventory_sha256)
-                or actual != approved_inventory_sha256 or marker.get("decision") not in {"ADR0151", "ADR0157", "ADR0161"}
+                or actual != approved_inventory_sha256 or marker.get("decision") not in {"ADR0151", "ADR0157", "ADR0161", "ADR0163"}
                 or marker.get("cache_age_ms") != 1000 or marker.get("arm") != inventory.get("arm")
                 or not isinstance(marker.get("api_image_id"), str)
                 or not re.fullmatch(r"sha256:[0-9a-f]{64}", marker["api_image_id"])):
             raise ValueError("Exact host-qualified inventory digest required")
         if marker["decision"] == "ADR0161":
             verify_confirmation_factor_evidence(inventory)
+        if marker["decision"] == "ADR0163":
+            verify_admission_factor_evidence(inventory)
         if marker["decision"] == "ADR0157":
             verify_dedup_factor_evidence(inventory)
         if any(a.get("settings", {}).get("ORDER_STATUS_CACHE_MS") != "1000"
@@ -180,13 +230,13 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
         structural["arm"] = "candidate"
         for api in structural["apis"]:
             api["settings"]["ORDER_STATUS_CACHE_MS"] = "0"
-        if marker["decision"] == "ADR0161":
+        if marker["decision"] in {"ADR0161", "ADR0163"}:
             structural["background"] = copy.deepcopy(BACKGROUND)
             for api in structural["apis"]:
                 api["settings"].pop("PAYMENT_CONFIRMATION_ASYNC")
                 api["settings"].pop("ORDER_STATUS_POLL_MS")
         validate_inventory(structural, image_id=marker["api_image_id"], now=now)
-    if inventory.get("status_refresh_contract", {}).get("decision") == "ADR0161":
+    if inventory.get("status_refresh_contract", {}).get("decision") in {"ADR0161", "ADR0163"}:
         module.METRICS["confirmation"] = ("confirm_one", "http://confirmation:9101/metrics")
         original_parser = module.parse_api_metrics
 
@@ -222,10 +272,12 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
             raise ValueError("Metrics payload exceeds bound")
         payload = raw.decode("utf-8")
         extras = extra_api_metrics(payload)
+        if inventory.get("status_refresh_contract", {}).get("decision") == "ADR0163":
+            extras.update(admission_failure_metrics(payload))
         prior = previous.get(label)
         if prior and (
             extras["process_start_time_seconds"] != prior["process_start_time_seconds"]
-            or any(extras.get(k, -1) < v for k, v in prior.items() if k.startswith(("business_http", "status_cache:")))
+            or any(extras.get(k, -1) < v for k, v in prior.items() if k.startswith(("business_http", "status_cache:", "acquisition_failure:")))
         ):
             raise ValueError("API restart or counter reset")
         previous[label] = extras

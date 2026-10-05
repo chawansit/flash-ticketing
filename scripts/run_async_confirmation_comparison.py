@@ -4,21 +4,24 @@ import importlib.util
 import json
 from uuid import uuid4
 
-import async_confirmation_contract as policy
+import async_confirmation_contract as default_policy
 from qualify_two_host_deployment import ROOT
 
 LEDGER = "bounded_async_confirmation"
 AUTHORIZATION = "adr0161-async-confirmation-pair-2026-10-05"
 
 
-def create_runner():
+def create_runner(*, policy_module=None, ledger=None, authorization=None, decision="ADR0161",
+                  profile_name="async_confirmation", artifact_directory="async-payment-confirmation",
+                  patch_name="adr0160.patch"):
+    policy = policy_module or default_policy
     # Load a private namespace; never mutate the imported historical runner or copy its engine.
     spec = importlib.util.spec_from_file_location(
         "adr0161_private_engine", ROOT / "scripts/run_status_refresh_comparison.py"
     )
     engine = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(engine)
-    engine.PLAN, engine.LEDGER, engine.AUTHORIZATION = policy.PLAN, LEDGER, AUTHORIZATION
+    engine.PLAN, engine.LEDGER, engine.AUTHORIZATION = policy.PLAN, ledger or LEDGER, authorization or AUTHORIZATION
     engine.ROLES = policy.AsyncConfirmationContract.roles
     engine.StatusRefreshContract = policy.AsyncConfirmationContract
     engine.source_contract = policy.source_contract
@@ -31,16 +34,17 @@ def create_runner():
     def identity():
         return {**original_identity(), **{
             "scripts/" + name: engine.comparison.source_sha256((ROOT / "scripts" / name).read_bytes())
-            for name in ("run_async_confirmation_comparison.py", "async_confirmation_contract.py",
-                         "prepare_async_confirmation.py", "prepare_status_refresh_artifacts.py",
-                         "status_refresh_image_install.py", "stage_status_refresh_images.py",
-                         "checkout_journey_probe.py", "fetch_status_refresh_parents.py")},
-            **{"artifacts/async-payment-confirmation/" + name: engine.comparison.source_sha256(
-                (ROOT / "artifacts/async-payment-confirmation" / name).read_bytes())
-               for name in ("manifest.json", "adr0160.patch")}}
+            for name in ("run_" + profile_name + "_comparison.py", profile_name + "_contract.py",
+                         "prepare_" + ("partial_timeout_reclamation" if decision == "ADR0164" else "async_confirmation") + ".py", "prepare_status_refresh_artifacts.py",
+                         "status_refresh_image_install.py", "stage_status_refresh_images.py", "run_async_confirmation_comparison.py",
+                         "checkout_journey_probe.py", "fetch_status_refresh_parents.py",
+                         *( ("partial_timeout_profile.py",) if decision == "ADR0164" else () ))},
+            **{"artifacts/" + artifact_directory + "/" + name: engine.comparison.source_sha256(
+                (ROOT / "artifacts" / artifact_directory / name).read_bytes())
+               for name in ("manifest.json", patch_name)}}
 
     def qualification_matches(report, binding, *, now=None):
-        return (isinstance(report, dict) and report.get("experiment_decision") == "ADR0161"
+        return (isinstance(report, dict) and report.get("experiment_decision") == decision
                 and report.get("factor") == policy.FACTOR
                 and original_matches(report, binding, now=now))
 
@@ -57,8 +61,10 @@ def create_runner():
             raise ValueError("Exact qualified polling helper required before cloud access")
         report = original_protocol(config, artifact, sources, bundle, binding,
                                    execute=execute, qualification=qualification)
-        report.update(experiment_decision="ADR0161", factor=policy.FACTOR,
-                      scope="Fixed2+2API, identical images/cache/refresh/dedup-off/500ms polling and aggregate budgets; only durable callback intake0->1.60journeys/s300s each; no hourly capacity claim.")
+        report.update(experiment_decision=decision, factor=policy.FACTOR,
+                      scope=("Fixed2+2API, identical images/cache/refresh/dedup-off/500ms polling and aggregate budgets; "
+                             + ("only partial timeout reclamation0->1;synchronous intake both arms." if decision == "ADR0164"
+                                else "only durable callback intake0->1.") + "60journeys/s300s each; no hourly capacity claim."))
         path = engine.ROOT / "tmp" / report["run"] / "comparison-summary.json"
         if path.exists():
             path.write_text(json.dumps(report, indent=2) + "\n")
@@ -66,8 +72,8 @@ def create_runner():
 
     def prepare(output):
         result = original_prepare(output)
-        result.update(kind="async_confirmation_runner_preparation", experiment_decision="ADR0161",
-                      factor=policy.FACTOR, ledger=LEDGER, authorization_id=AUTHORIZATION,
+        result.update(kind=profile_name + "_runner_preparation", experiment_decision=decision,
+                      factor=policy.FACTOR, ledger=engine.LEDGER, authorization_id=engine.AUTHORIZATION,
                       status="LOCAL_IMAGES_VERIFIED_FRESH_APPROVAL_AND_DRY_PENDING")
         output.resolve().write_text(json.dumps(result, indent=2) + "\n")
         return result
@@ -99,6 +105,33 @@ def create_runner():
             result.update(confirmation_observed=True, confirmation_backlog_peak=maximum)
         except (OSError, ValueError, KeyError, TypeError) as exc:
             result.update(confirmation_observed=False, confirmation_failure_type=type(exc).__name__)
+        if decision == "ADR0164":
+            try:
+                from observe_two_host_pipeline import admission_failure_metrics
+                keys = set(admission_failure_metrics("# TYPE ticketing_db_acquisition_failures_total counter"))
+                previous = {}
+                first = None
+                for row in rows:
+                    replicas = row.get("api_replicas", {})
+                    if len(replicas) != 4 or (previous and set(replicas) != set(previous)):
+                        raise ValueError("Four admission diagnostic replicas required")
+                    current = {label: {k: metric.get(k) for k in keys} for label, metric in replicas.items()}
+                    for label, metrics in current.items():
+                        if any(type(v) not in {int, float} or not math.isfinite(v) or v < 0 for v in metrics.values()):
+                            raise ValueError("Admission counters missing or invalid")
+                        if previous and any(v < previous[label][k] for k, v in metrics.items()):
+                            raise ValueError("Admission counter reset")
+                    if first is None:
+                        first = current
+                    previous = current
+                if first is None:
+                    raise ValueError("Admission coverage missing")
+                result.update(admission_diagnostics_observed=True,
+                              admission_failure_deltas={k: sum(previous[label][k] - first[label][k] for label in previous)
+                                                        for k in keys},
+                              admission_counter_window="observer lifetime;not exact offered window")
+            except (ValueError, KeyError, TypeError, UnboundLocalError) as exc:
+                result.update(admission_diagnostics_observed=False, admission_failure_type=type(exc).__name__)
         return result
 
     def stage_gates(record, inventory, restored, contract):
@@ -121,6 +154,10 @@ def create_runner():
             result["pass"] = False
             result["gates"]["all_required_gates_pass"] = False
             result["gates"]["failed_gates"].append("confirmation_worker_metrics_coverage")
+        if kwargs.get("execute") and decision == "ADR0164" and (not measured or measured.get("admission_diagnostics_observed") is not True):
+            result["pass"] = False
+            result["gates"]["all_required_gates_pass"] = False
+            result["gates"]["failed_gates"].append("admission_diagnostics_coverage")
         return result
 
     engine.stage_gates, engine.measurements, engine.run_arm = stage_gates, measurements, run_arm
@@ -129,8 +166,10 @@ def create_runner():
     return engine
 
 
-def create_stager():
-    engine = create_runner()
+def create_stager(**options):
+    policy = options.get("policy_module") or default_policy
+    decision = options.get("decision", "ADR0161")
+    engine = create_runner(**options)
     spec = importlib.util.spec_from_file_location(
         "adr0161_private_stager", ROOT / "scripts/stage_status_refresh_images.py"
     )
@@ -154,7 +193,7 @@ def create_stager():
         result = stager.owned_stage(config, artifact, output, password)
         if result.get("pass") is not True or result.get("runtime_identities_unchanged") is not True:
             raise ValueError("Staging success and unchanged runtime proof required")
-        result.update(experiment_decision="ADR0161", factor=policy.FACTOR)
+        result.update(experiment_decision=decision, factor=policy.FACTOR)
         (output / "staging-summary.json").write_text(json.dumps(result, indent=2) + "\n")
         lock.release()
         return result

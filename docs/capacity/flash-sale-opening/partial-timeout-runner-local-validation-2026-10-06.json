@@ -1,0 +1,32 @@
+{
+  "decision": "ADR0164",
+  "status": "LOCAL_QUALIFIED_CLOUD_NOT_STARTED",
+  "regression_tests": {
+    "passed": 244,
+    "duration_seconds": 21.98,
+    "suites": [
+      "partial_timeout_comparison",
+      "async_confirmation_comparison",
+      "status_refresh_comparison",
+      "two_host_paid_runner",
+      "two_host_observers",
+      "refresh_pipeline_observer"
+    ]
+  },
+  "ruff": "passed for changed Python files",
+  "git_diff_check": "passed",
+  "previous_attempt": "One mock signature failure corrected; earlier invocation referenced a nonexistent test file and ran no tests.",
+  "prior_native_profile_tests": 272,
+  "prior_profile_tests": 32,
+  "cloud_staging": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "projection_18000_issue": "unresolved; excluded from frozen comparison source",
+  "factor": "API_PARTIAL_TIMEOUT_RECLAIM 0 to 1; synchronous intake both arms",
+  "bounds": {
+    "journeys_per_second": 60,
+    "seconds_per_arm": 300,
+    "stop_if_control_fails": true
+  },
+  "raw_evidence": "tmp/adr0164-regression-tests-qualified.txt"
+}
