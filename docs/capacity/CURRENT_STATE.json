@@ -2,8 +2,8 @@
   "updated_date_bangkok": "2026-10-05",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0160_local_validated_adr0161_cloud_qualification_pending",
-  "cloud_load_requires_resume": false,
+  "status": "adr0161_control_failed_restored_candidate_skipped_scope_closed",
+  "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -11,9 +11,9 @@
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "last_checked_topology": "Measured control restoration passed:original primary4API/runtime semantics;secondary test resources/credential snapshots removed;generator idle;all tracked global queues/Kafka lag0,1 normal consumer.",
-  "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
+  "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "ADR0157/0159 measuredf550731d5714 dedup-off control only:60journeys/s300s,18000scheduled14921dispatched14192confirmed,729customer errors4.886%,3079drops. AfterTTL14907payments/bookings/tickets,duplicates0;29/32gates. Candidate skipped,fullqueues0,normalruntime restored;no dedup capacity benefit measured.",
+  "revision_note": "ADR0160 default-off async receipt implementation locally validated; ADR0161 off/on safety passed. Measured synchronous60journeys/s300s control17996/18000completed,4payment503s,0drops,observedduplicates0,queues0. Candidate skipped and original deployment restored; capacity benefit unmeasured.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -40,12 +40,14 @@
     "ADR0157 six candidate images staged on both ECS;runtime identities unchanged,remote archives removed,generator idle,0 deployments/dispatches. First dry failed local stage whitelist before SSH. ADR0158 exact-profile and pre-reservation real constructor fix passed245 harness tests,Ruff;failed counters preserved,owned no-cloud lock recovered.0 safety tickets/0 capacity stages executed.",
     "ADR0158 replacement6a6446959501:100-way cross-host hold gave1accepted99conflicts0transport errors;durable-owner auditQueryCanceled3s stopped beforepayment,candidate skipped. Normal runtime/secondary/credentials restored,fullqueues/Kafka0. Read-only original/scoped counts1 each,1.7016s vs0.03183s;no capacity claim. ADR0159 scoped100actor audit+probe hash binding passed7nativePG/287harness tests,Ruff;fresh safety unqualified.",
     "ADR0159 corrected off/ona6cdb46f8cff passed source/identity,same-seat100requests=>1winner each,hold/payment replay,other-actor denial,1paid/confirmed ticket each,post-TTL1payment1booking1ticket3callback deliveries,no duplicates,fullqueues/Kafka0,observers/exactrestoration.2 safety tickets/0 capacity stages;dedup CPU/RPS benefit still unmeasured.",
-    "ADR0157/0159 measuredf550731d5714:29/32gates,18000scheduled14921dispatched14192confirmed,729errors4.886%,3079drops.AfterTTL14907payments/bookings/tickets,14unpaidexpired,duplicates0.Fullqueues/Kafka0,originalruntime restored;candidate skipped,no dedup benefit claim."
+    "ADR0157/0159 measuredf550731d5714:29/32gates,18000scheduled14921dispatched14192confirmed,729errors4.886%,3079drops.AfterTTL14907payments/bookings/tickets,14unpaidexpired,duplicates0.Fullqueues/Kafka0,originalruntime restored;candidate skipped,no dedup benefit claim.",
+    "ADR0161 safety off/on pair2ac96f81c6db passed and restored. Measured controlbfce7e658e7e18000dispatched17996confirmed,4payment503s0.022222%,0drops; observed duplicate seats/orders0,fullqueues0. Async measured arm skipped,original runtime restored; no capacity-benefit claim."
   ],
-  "unresolved": "Cloud qualification and async capacity benefit unmeasured. Prior regression trigger unproven;300000tickets/hour remains unqualified.",
+  "unresolved": "Brief payment-partition DB acquisition/admission failures:four customer payment503s and one recovered callback503 in two adjacent1s samples on one replica. Exact subsecond rejection trigger unproven. Async sustained capacity and300000tickets/hour unqualified.",
   "next_on_resume": [
-    "Stage verified immutable ADR0160 images without changing services.",
-    "Execute one fresh safety off/on pair under ADR0161 ledger;only after all gates pass execute matched60/s300s pair;stop after failed control."
+    "Diagnose brief same-replica payment acquisition/admission failures using pinned evidence; coarse1s snapshots do not prove exact rejection cause.",
+    "Propose a fresh bounded comparison only after addressing the control failure; the consumed failed scope is closed and unused allowance does not permit replacement.",
+    "Preserve financial durability, post-TTL, zero-double-booking and complete global-drain gates; no higher-rate/hourly run or publication is authorized by this checkpoint."
   ],
   "authorization": "User continue with #1-#6 authorizes ADR0160 implementation and ADR0161 bounded safety/control/candidate comparison. No higher-rate/hourly run,push or merge.",
   "scope": "ADR0161:new independent allowance,max1 safety pair(2 simulated tickets),then only after passing qualification1 matched60journeys/s300s off/on pair(max2 measured stages+2 safety tickets). Same machines/images/aggregate budgets;stop after failed control,retain all financial/TTL/queue gates.",
@@ -109,7 +111,7 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "Corrected off/on dedup safety qualification passed/restored;compact report and inactive measured proposal saved locally.No GitHub push/main merge.",
+    "status": "ADR0160/0161 implementation and executed evidence saved on local branch. No GitHub push or main merge.",
     "branch": "codex/redis-failover-recovery"
   },
   "evidence": [
@@ -389,7 +391,7 @@
     "all_required_gates_pass": true,
     "comparison_report": "docs/capacity/flash-sale-opening/status-refresh-paid-replacement-comparison-2026-10-05.json"
   },
-  "latest_checkpoint_evidence": "docs/capacity/flash-sale-opening/order-status-dedup-measured-control-failure-2026-10-05.json",
+  "latest_checkpoint_evidence": "docs/capacity/flash-sale-opening/async-payment-confirmation-measured-control-2026-10-05.json",
   "archived_status_refresh_scopes": [
     {
       "authorization_id": "adr0151-status-refresh-pair-2026-10-05",
@@ -571,7 +573,7 @@
     }
   ],
   "qualified_runner_revision": "f24ad70e8bc77807f703ca9f10dbc687b5d9f905",
-  "checkpoint_revision_note": "Checkpoint parent;following documentation commit records completed control without changing tested runtime bytes.",
+  "checkpoint_revision_note": "Implementation/checkpoint parent; following documentation commit records executed safety and failed control without changing tested runtime bytes.",
   "local_dispatch_inventory_qualification": {
     "decision": "0155-dispatch-time-inventory-qualification",
     "parent_workspace_revision": "20d02167d34420e94d3c302843a202d64a3c51c6",
@@ -645,7 +647,7 @@
     "measured_pair_proposal_sha256": "e9146e05ef1f41505de171de4471338d0989eecd8793376ea32e8993fbc3b235",
     "measurement_authorized": true
   },
-  "checkpoint_revision": "e9af90ceeeed8fb69a7cc91a9dd9d56fa41321d8",
+  "checkpoint_revision": "d30d67dc1a6b8d0ce3551a12ce29efbb6eaed090",
   "bounded_status_refresh_dedup": {
     "status": "CONTROL_MEASURED_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0157-status-refresh-dedup-pair-2026-10-05",
@@ -720,7 +722,7 @@
     "automatic_replacement_authorized": false,
     "performance_measurement_complete": false
   },
-  "last_pause_reason": "User explicitly paused on 2026-10-05 because disk is full. All local preparation commands finished; no active cloud test. Do not build, test, stage images or start load until resumed.",
+  "last_pause_reason": "Automatic stop after failed ADR0161 measured control; original topology restored, queues drained and generator idle. No active test. Further cloud load requires a new bounded authorization.",
   "archived_status_refresh_dedup_scopes": [
     {
       "status": "FAILED_LOCAL_CONSTRUCTOR_NO_CLOUD_SCOPE_CONSUMED",
@@ -898,16 +900,18 @@
   "qualified_dedup_runner_revision": "168158c3ee1deea1a0e76beaabec54de1be39e5a",
   "proposed_payment_confirmation": {
     "decision": "docs/adr/0160-durable-asynchronous-payment-confirmation.md",
-    "status": "DEFAULT_OFF_IMPLEMENTED_LOCAL_VALIDATED_CLOUD_PENDING",
+    "status": "DEFAULT_OFF_IMPLEMENTED_LOCAL_AND_CLOUD_SAFETY_VALIDATED_CAPACITY_UNMEASURED",
     "local_evidence": "docs/capacity/flash-sale-opening/async-payment-confirmation-local-validation-2026-10-05.json",
     "holds": "No TTL extension;existing ownership/refund logic preserved.",
     "native_tests": 739,
     "native_receipt_audit_tests": 2,
     "host_harness_tests": 421,
-    "source_manifest_sha256": "15936b47f1c006655a4354b63b9ce36db10af3c20b2c0894c66397f01fb66290"
+    "source_manifest_sha256": "15936b47f1c006655a4354b63b9ce36db10af3c20b2c0894c66397f01fb66290",
+    "safety_evidence": "docs/capacity/flash-sale-opening/async-payment-confirmation-safety-qualification-2026-10-05.json",
+    "measured_control_evidence": "docs/capacity/flash-sale-opening/async-payment-confirmation-measured-control-2026-10-05.json"
   },
   "bounded_async_confirmation": {
-    "status": "LOCAL_QUALIFIED_STAGING_PENDING",
+    "status": "CONTROL_FAILED_RESTORED_CANDIDATE_SKIPPED_SCOPE_CLOSED",
     "authorization_id": "adr0161-async-confirmation-pair-2026-10-05",
     "binding": {
       "adapter_identity": {
@@ -940,15 +944,33 @@
       "source_manifest_sha256": "15936b47f1c006655a4354b63b9ce36db10af3c20b2c0894c66397f01fb66290"
     },
     "qualification_runs_authorized": 1,
-    "qualification_protocols_started": 0,
+    "qualification_protocols_started": 1,
     "paid_runs_authorized": 2,
-    "paid_runs_started": 0,
-    "paid_protocols_started": 0,
+    "paid_runs_started": 1,
+    "paid_protocols_started": 1,
     "safety_tickets_authorized": 4,
-    "safety_protocols_started": 0,
+    "safety_protocols_started": 3,
     "active_run": null,
     "scope": "ADR0161:new independent allowance,max1 safety pair(2 simulated tickets),then only after passing qualification1 matched60journeys/s300s off/on pair(max2 measured stages+2 safety tickets). Same machines/images/aggregate budgets;stop after failed control,retain all financial/TTL/queue gates.",
     "approval_source": "Direct user continue with #1-#6;ADR0160 step6 controlled same-load comparison;ADR0161 documents exact bounds.",
-    "approved_at_utc": "2026-10-05T15:25:02.307829+00:00"
-  }
+    "approved_at_utc": "2026-10-05T15:25:02.307829+00:00",
+    "staging_report": "tmp/adr0153-parents-5b6db6e7e5ba/staging-summary.json",
+    "qualification_arms": [
+      "control",
+      "candidate"
+    ],
+    "last_runner_report": "tmp/adr0151-bfce7e658e7e/comparison-summary.json",
+    "dry_qualification_report": "tmp/adr0151-2ac96f81c6db/comparison-summary.json",
+    "qualification_report": "docs/capacity/flash-sale-opening/async-payment-confirmation-safety-qualification-2026-10-05.json",
+    "cloud_safety_qualified": true,
+    "paid_protocol_arms": [
+      "control"
+    ],
+    "attempted_paid_arms": [
+      "control"
+    ],
+    "scope_closed": true,
+    "control_report": "docs/capacity/flash-sale-opening/async-payment-confirmation-measured-control-2026-10-05.json"
+  },
+  "local_implementation_revision": "d30d67d"
 }

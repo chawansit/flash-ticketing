@@ -27,10 +27,16 @@ Default limits: 10000 outstanding receipts per provider, 30-second lease, 2 proc
 
 ## Customer status and capacity
 
-`GET /v1/orders/{id}` preserves customer authorization and private/no-store headers. `ORDER_STATUS_POLL_MS` optionally adds `X-Poll-Interval-Ms` and jitter guidance; the paid journey client honors a validated interval with ±20% jitter. Existing committed-event Redis projections and bounded cache freshness remain in place. An acknowledged callback can leave an order pending until confirmation and ticket fulfillment finish.
+`GET /v1/orders/{id}` preserves customer authorization and private/no-store headers. `ORDER_STATUS_POLL_MS` optionally adds `X-Poll-Interval-Ms` and jitter guidance; the paid journey client honors a validated interval with +/-20% jitter. Existing committed-event Redis projections and bounded cache freshness remain in place. An acknowledged callback can leave an order pending until confirmation and ticket fulfillment finish.
 
 Receipt intake uses the existing payment API pool, separated from status-read capacity. The ADR0161 comparison allocates2 worker connections and reduces simulator pool12->10 **in both arms**, retaining simulator8-slot refill, PgBouncer24 and existing API/consumer/writer ceilings. Both arms use500ms polling, refresh-on/cache1000ms and dedup-off. Only asynchronous intake differs.
 
 Metrics expose receipt outcome, processing outcome, receipt/claim/financial duration, receipt age, pending/review count and oldest age. Global audit covers Redis streams, outbox, refresh, simulator callbacks, refunds, Kafka and unresolved receipts/counter consistency. Zero double-booking, post-TTL durability, customer-issued tickets and complete drain remain mandatory.
 
 Local evidence and cloud comparison status are recorded in `docs/capacity/CURRENT_STATE.json`. Preparation and passing local tests are not a production capacity result.
+
+## Latest qualification
+
+On2026-10-05 the default-off implementation passed739native application tests,2native PostgreSQL receipt-audit tests and421focused harness tests. Cloud off/on safety qualification passed, including durable receipt completion, replay, cross-host seat ownership and post-TTL/drain checks.
+
+The matched five-minute control completed17996of18000paid-issued customer journeys; four payment initiations returned503 (0.022222%). No duplicate bookings were observed and all queues drained. The runner skipped the measured asynchronous arm and restored the original deployment. Capacity improvement and300000tickets/hour remain unmeasured. See [measured control report](capacity/flash-sale-opening/async-payment-confirmation-measured-control-2026-10-05.json).

@@ -1,0 +1,225 @@
+{
+  "decision": "ADR0160/ADR0161",
+  "status": "CONTROL_FAILED_RESTORED_CANDIDATE_SKIPPED_SCOPE_CLOSED",
+  "pass": false,
+  "implementation_revision": "d30d67dc1a6b8d0ce3551a12ce29efbb6eaed090",
+  "finished_at_utc": "2026-10-05T15:59:50.864233+00:00",
+  "run": "adr0151-bfce7e658e7e",
+  "source_manifest_sha256": "15936b47f1c006655a4354b63b9ce36db10af3c20b2c0894c66397f01fb66290",
+  "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+  "common_configuration": {
+    "api_placement": "2+2 across two hosts",
+    "machines_and_aggregate_budgets": "unchanged across planned arms",
+    "pgbouncer_server_connections": 24,
+    "confirmation_pool": 2,
+    "confirmation_concurrency": 2,
+    "simulator_pool": 10,
+    "simulator_concurrency": 8,
+    "polling_interval_ms": 500,
+    "polling_jitter_percent": 20,
+    "status_refresh": true,
+    "status_cache_age_ms": 1000,
+    "status_dedup": false
+  },
+  "measured_control_async_intake": false,
+  "candidate_measured": false,
+  "capacity_improvement_measured": false,
+  "customer": {
+    "offered_buyers_per_second": 60,
+    "dispatch_seconds": 300,
+    "scheduled": 18000,
+    "dispatched": 18000,
+    "customer_confirmations_by_deadline": 17996,
+    "generator_drops": 0,
+    "failed_dispatched_journeys": 4,
+    "errors_per_dispatched_journey_percent": 0.022222222222222223,
+    "customer_outcomes": {
+      "fulfilled": 17996,
+      "payment_http_503": 4
+    },
+    "customer_http_attempts_total": 115738
+  },
+  "customer_retries": 0,
+  "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+  "p95_ms": {
+    "hold_http_p95_ms": 17.369056993629783,
+    "durable_p95_ms": 2023.8934269873425,
+    "payment_http_p95_ms": 96.16685900255106,
+    "payment_to_ticket_p95_ms": 1686.8773910100572,
+    "hold_to_ticket_p95_ms": 3032.146953017218
+  },
+  "offered_window_host_cpu_percent": {
+    "primary": 85.01824645967405,
+    "secondary": 19.6572393414943
+  },
+  "aggregate_api_cpu_cores": 1.6552353405913354,
+  "measurements": {
+    "status_checks": 42779,
+    "status_checks_per_dispatched_journey": 2.376611111111111,
+    "consumer_database": {
+      "observed_replicas": 6,
+      "counter_deltas": {
+        "order_cache:event_fill": 36020.0,
+        "process_cpu_seconds_total": 281.29,
+        "pool_acquire:ok": 99860.0,
+        "order_cache:event_fill_raced": 3.0
+      },
+      "duration_mean_ms": {
+        "db_query:INSERT": 2.2850240252938496,
+        "db_pool_acquire:ok": 0.026307148829841812,
+        "db_query:UPDATE": 1.9119101475529932,
+        "db_commit:all": 2.8828185399368578,
+        "db_query:SELECT": 1.9299596111870962,
+        "db_connection_hold:all": 13.678143597795927,
+        "db_query:BEGIN": 3.6038974649185427
+      },
+      "event_loop_lag_current_peak_ms": 0.0,
+      "pool_peaks_per_replica": {
+        "pool_acquiring": 0,
+        "pool_in_use": 1.0,
+        "pool_state:pool_size": 1.0,
+        "pool_state:pool_available": 1.0,
+        "pool_state:requests_waiting": 0,
+        "pool_state:pool_max": 8.0
+      },
+      "counter_reset_detected": false
+    },
+    "callback_backlog": {
+      "max": 103,
+      "last": 0,
+      "delta": 0,
+      "p95": 23
+    },
+    "cache_scope": "Full observer lifetime including completion tail; not offered-window HTTP RPS.",
+    "cache_observed": true,
+    "cache_series_present": true,
+    "cache_outcome_deltas": {
+      "miss": 19399.0,
+      "fill": 19384.0,
+      "hit": 23376.0,
+      "stale": 4.0,
+      "fill_raced": 19.0
+    },
+    "cache_hit_share": 0.5464874342489772,
+    "confirmation_observed": true,
+    "confirmation_backlog_peak": 0
+  },
+  "failed_gates": [
+    "customer_load",
+    "post_ttl_financial",
+    "zero_double_booking"
+  ],
+  "financial_post_ttl": {
+    "orders": 18000,
+    "fulfilled_orders": 17996,
+    "expired_orders": 4,
+    "pending_orders": 0,
+    "payment_attempts": 17996,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 17996,
+    "bookings": 17996,
+    "tickets": 17996,
+    "payment_callbacks": 17996,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 17996,
+    "callback_delivery_target": 17996,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 18000,
+    "expected_paid": 18000,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": false,
+    "hold_deadlines_elapsed": true
+  },
+  "global_queues": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 6,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0
+  },
+  "correctness_interpretation": "No duplicate booked seats or multi-booking orders observed. The aggregate zero_double_booking gate fails closed because the complete expected paid cohort did not finish; this is not evidence of duplicate booking.",
+  "admission_failures": {
+    "run": "adr0151-bfce7e658e7e",
+    "sampling_interval_seconds": 1,
+    "failure_windows": [
+      {
+        "utc": "2026-10-05T15:52:39.553806+00:00",
+        "replica": "api-2",
+        "counter_increases": {
+          "http_503:/v1/orders/{order_id}/payments:POST": 2.0,
+          "db_503:PoolTimeout": 2.0
+        },
+        "observed_pool_in_use": 3.0,
+        "observed_payment_waiters": 3.0,
+        "observed_shared_used": 5.0,
+        "prior_payment_waiters": 3.0,
+        "prior_shared_used": 3.0
+      },
+      {
+        "utc": "2026-10-05T15:52:40.554135+00:00",
+        "replica": "api-2",
+        "counter_increases": {
+          "http_503:/v1/orders/{order_id}/payments:POST": 2.0,
+          "http_503:/v1/webhooks/payments:POST": 1.0,
+          "db_503:PoolTimeout": 1.0,
+          "db_503:TooManyRequests": 2.0
+        },
+        "observed_pool_in_use": 2.0,
+        "observed_payment_waiters": 1.0,
+        "observed_shared_used": 1.0,
+        "prior_payment_waiters": 3.0,
+        "prior_shared_used": 5.0
+      }
+    ],
+    "confirmed": "Five API database-admission failures:three PoolTimeout,two TooManyRequests. Four payment initiation503 and one callback503;no customer status503.",
+    "limitation": "Coarse snapshots cannot prove subsecond occupancy at rejection. Removed candidate API containers have no retained request-level rejection log in this report. No precise root cause or async performance benefit claimed."
+  },
+  "restoration": {
+    "restore_pass": true,
+    "secondary_resources_removed": true,
+    "confirmation_worker_removed_after_drain": true,
+    "primary_runtime_semantics_restored": true,
+    "primary_api_count": 4,
+    "restored_global_queues": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "pending_callback_deliveries": 0,
+      "pending_refunds": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "kafka_total_lag": 0,
+      "kafka_members": 1,
+      "pass": true,
+      "pending_confirmation_receipts": 0,
+      "review_confirmation_receipts": 0,
+      "confirmation_capacity_outstanding": 0,
+      "confirmation_capacity_mismatches": 0
+    },
+    "generator_idle_after": true,
+    "credential_snapshots_removed": true
+  },
+  "schema": "Additive receipt migration009 retained; checksum recorded. All unresolved receipts and capacity counters drained.",
+  "safety_report": "docs/capacity/flash-sale-opening/async-payment-confirmation-safety-qualification-2026-10-05.json",
+  "raw_evidence": {
+    "runner": "tmp/adr0151-bfce7e658e7e/comparison-summary.json",
+    "stage": "tmp/adr0151-bfce7e658e7e/adr0151-arm-c7c68ab5503e/control/stage.private.json",
+    "pipeline": "tmp/adr0151-bfce7e658e7e/adr0151-arm-c7c68ab5503e/control/pipeline.jsonl",
+    "driver": "tmp/adr0151-bfce7e658e7e/adr0151-arm-c7c68ab5503e/state.json",
+    "admission_windows": "tmp/adr0160-checks/control-admission-failure-windows.json"
+  },
+  "limits": "Simulator payments; five-minute60 journeys/s control is not an hourly capacity qualification. Async safety passed, but its sustained capacity benefit is unmeasured. No higher-rate run, replacement experiment, push or merge executed.",
+  "next": "Diagnose the brief same-replica payment admission failures before proposing a new bounded comparison. Exact subsecond rejection trigger remains unproven; do not weaken correctness or drain gates."
+}

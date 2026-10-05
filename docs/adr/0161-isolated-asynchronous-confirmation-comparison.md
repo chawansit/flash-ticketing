@@ -1,6 +1,6 @@
 # ADR0161: Isolated asynchronous confirmation qualification and comparison
 
-- Status: Accepted for local preparation; live qualification pending
+- Status: Accepted; safety qualification passed; measured control failed, restored, candidate skipped and scope closed
 - Date: 2026-10-05
 
 ## Context
@@ -39,4 +39,12 @@ Recorded before profile/export implementation. Workspace focused checks executed
 
 Restoration implementation refinement: first verify drain while confirmation capacity remains, restore all primary APIs to synchronous/default-off intake after removing secondary APIs, then verify drain again and remove the receipt worker. Preserve the worker and ownership on either ambiguous/failed check. This prevents removing receipt processing while asynchronous intake can still acknowledge callbacks.
 
-Executed local evidence:739 native Linux unit/integration tests passed (prior738-pass/1-test read-only setup failure retained);2 native PostgreSQL audit tests passed;421 focused host harness tests passed;Ruff and diff checks passed. Reproducible213-file/21-module source and6 immutable offline images verified;financial transaction AST preserved and unrelated callback reserve excluded. [Local validation](../capacity/flash-sale-opening/async-payment-confirmation-local-validation-2026-10-05.json). Cloud qualification/comparison remain pending.
+Executed local evidence:739 native Linux unit/integration tests passed (prior738-pass/1-test read-only setup failure retained);2 native PostgreSQL audit tests passed;421 focused host harness tests passed;Ruff and diff checks passed. Reproducible213-file/21-module source and6 immutable offline images verified;financial transaction AST preserved and unrelated callback reserve excluded. [Local validation](../capacity/flash-sale-opening/async-payment-confirmation-local-validation-2026-10-05.json). Cloud results are recorded below; no asynchronous capacity improvement has been measured.
+
+## Executed cloud checkpoint: 2026-10-05
+
+Immutable image staging passed without service changes. The fresh off/on safety pair passed cross-host100-request exactly-one-seat-owner, replay, authorization, post-TTL payment/ticket durability and complete global drain checks. Candidate safety produced one completed durable receipt and one paid-issued ticket. Original deployment restored after both arms; additive migration009 retained with checksum recorded. [Safety evidence](../capacity/flash-sale-opening/async-payment-confirmation-safety-qualification-2026-10-05.json).
+
+The subsequent synchronous control offered60journeys/s for300seconds:18000scheduled/dispatched,17996customer-confirmed paid-issued tickets,4payment-initiationHTTP503s (0.022222% of dispatched journeys),0generator drops and no customer retries. No duplicate booked seats or multi-booking orders were observed. The expected18000paid cohort failed, so customer-load, post-TTL-financial and aggregate zero-double-booking gates failed closed; no duplicate booking is implied. All tracked global queues drained, original primary4API/runtime and normal consumer restored, secondary test resources removed and generator idle. The runner skipped the asynchronous measured arm and closed the scope after the failed control. [Measured control evidence](../capacity/flash-sale-opening/async-payment-confirmation-measured-control-2026-10-05.json).
+
+Five API database-admission failures (three PoolTimeout and two TooManyRequests) occurred in two adjacent one-second samples on one replica: four payment-initiation503s and one callback503 recovered by simulator redelivery. Coarse snapshots cannot prove occupancy at the instant of rejection. Exact trigger and asynchronous throughput benefit remain unproven;300000tickets/hour is unqualified. A replacement experiment requires a new explicitly bounded scope; unused allowance does not authorize automatic retry.

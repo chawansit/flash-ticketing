@@ -1,6 +1,6 @@
 {
   "decision": "ADR0160/ADR0161",
-  "status": "LOCAL_VALIDATED_CLOUD_PENDING",
+  "status": "LOCAL_VALIDATED_CLOUD_SAFETY_PASSED_MEASURED_CONTROL_FAILED_RESTORED",
   "native_linux_application_tests": {
     "passed": 739,
     "failed": 0,
@@ -38,7 +38,26 @@
     "confirmation"
   ],
   "artifact_evidence": "tmp/adr0160-offline-images-attempt2/artifact-receipt.json",
-  "cloud_calls": 0,
   "capacity_improvement_measured": false,
-  "validation_limit": "Gateway is simulator; mocked Kafka outage test is not live Kafka failure proof. Operator review resolution and receipt retention tooling remain future scope."
+  "validation_limit": "Gateway is simulator; mocked Kafka outage test is not live Kafka failure proof. Operator review resolution and receipt retention tooling remain future scope.",
+  "compose_validation": {
+    "default_api_async_flag": "0",
+    "confirmation_worker_enabled": "1",
+    "confirmation_concurrency": 2,
+    "default_local_worker_pool": 3,
+    "evidence": "tmp/adr0160-checks/compose-validation.json"
+  },
+  "implementation_revision": "d30d67d",
+  "staging": {
+    "pass": true,
+    "runtime_identities_unchanged": true,
+    "generator_idle": true,
+    "customer_dispatches": 0,
+    "service_deployments": 0,
+    "evidence": "tmp/adr0153-parents-5b6db6e7e5ba/staging-summary.json"
+  },
+  "local_validation_cloud_calls": 0,
+  "cloud_activity": "Immutable staging and off/on safety pair passed. Measured synchronous control failed four payment-initiation503s; asynchronous measured arm skipped; original topology restored.",
+  "cloud_safety_report": "docs/capacity/flash-sale-opening/async-payment-confirmation-safety-qualification-2026-10-05.json",
+  "measured_control_report": "docs/capacity/flash-sale-opening/async-payment-confirmation-measured-control-2026-10-05.json"
 }
