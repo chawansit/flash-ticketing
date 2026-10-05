@@ -1,0 +1,27 @@
+{
+  "decision": "ADR0170",
+  "status": "LOCAL_QUALIFIED_CLOUD_NOT_STARTED",
+  "unit_tests_passed": 223,
+  "duration_seconds": 29.29,
+  "ruff_passed": true,
+  "cloud_calls": 0,
+  "paid_launches": 0,
+  "raw_log": "tmp/adr0170-qualified-tests.txt",
+  "raw_log_sha256": "bd500a1a52775d8bf636d76d9d5ea0b1caa240cebd7b6b950e1cd2e555655ea1",
+  "preserved": [
+    "Frozen ADR0163 source/images and synchronous intake",
+    "Reclaim off and exact existing connection budgets",
+    "Historical ordered off/on pair behavior",
+    "Mandatory financial/post-TTL/zero-double-booking/drain/restoration gates",
+    "ADR0166 per-replica bounded failure retention",
+    "Closed consumed scopes"
+  ],
+  "new_checks": [
+    "Single-control constructor only",
+    "One dry safety then one paid protocol with two total safety tickets",
+    "No candidate, pair allowance or consumed-scope replay",
+    "Fresh matching single-control qualification required",
+    "Restoration failure cannot produce protocol pass",
+    "Canonical owner factory included in source binding"
+  ]
+}
