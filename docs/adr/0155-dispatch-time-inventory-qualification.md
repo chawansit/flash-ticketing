@@ -1,6 +1,6 @@
 # ADR0155: Bind inventory freshness to dispatch time
 
-- Status: Accepted for harness correction; new cloud qualification/replacement is not authorized
+- Status: Accepted; fresh two-ticket dry qualification passed; measured replacement is not authorized
 - Date: 2026-10-05
 
 ## Context
@@ -32,3 +32,7 @@ Experiment qualification only; no production locking, transaction, messaging, id
 ## Validation evidence
 
 The [executed comparison report](../capacity/flash-sale-opening/status-refresh-paid-comparison-2026-10-05.json) records the original failed aggregate result and passing31 other gates. A local diagnostic reproduces `Observation is stale or future dated` at final evaluation and passes the recorded inventory at its capture time. Executed 303 focused harness tests passed across status-refresh comparison, two-host paid runner/observers, artifacts, parent retrieval, image staging and scaling preparation; this includes the earlier190-test subset. Ruff and diff checks passed. Regression cases cover delayed final analysis, missing/tampered receipts, stale scheduled/actual launch, malformed/inverted/future chronology and all32 gate obligations. The corrected validator rejects the retained old control record because it lacks the persisted receipt. Default corrected preparation executed with zero cloud calls/customer dispatches. No corrected cloud run is claimed.
+
+The user separately approved one fresh exact-bound off/on safety qualification pair with at most two simulated isolated tickets and zero paid capacity stages. Prior failed scope is archived intact. This authorizes no automatic replacement or measured comparison. Live results will be recorded after execution.
+
+Fresh dry8148deab5b1c executed on corrected runnerf24ad70 and passed both off/on arms.Each100-way cross-host race yielded1 hold/1 paid issued customer-confirmed ticket;hold/payment replay,other-actor authorization,duplicate callbacks,post-TTL durability,zero double-booking,full queue/Kafka drain,observer checks and exact restoration passed.Two safety protocols and zero capacity stages consumed.Stored qualification receipts match canonical inventory/image/source/arm proofs.See the [fresh qualification report](../capacity/flash-sale-opening/status-refresh-dispatch-qualification-2026-10-05.json).No paid-stage dispatch-admission chronology/full-length final gate or performance improvement was measured;those remain local regression coverage and future separately approved comparison.No previous failed result is rewritten.

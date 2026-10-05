@@ -1,0 +1,238 @@
+{
+  "date_bangkok": "2026-10-05",
+  "decision": "ADR0155 / ADR0151",
+  "qualified_runner_revision": "f24ad70e8bc77807f703ca9f10dbc687b5d9f905",
+  "status": "PASSED_BOTH_ARMS_RESTORED",
+  "scope": {
+    "qualification_pairs_authorized": 1,
+    "safety_tickets_maximum": 2,
+    "paid_capacity_stages_authorized": 0,
+    "automatic_replacement": false
+  },
+  "binding": {
+    "adapter_identity": {
+      "scripts/observe_two_host_pipeline.py": "733dac867102e057c0edc9d96de104b964d859d17f8cd1f8ade28ab019934846",
+      "scripts/prepare_two_host_scaling.py": "727ddc19e66dcc3780e398cc610c4d0d835ee23809d21ddc492d426d29cf7bc8",
+      "scripts/observe_two_host_cpu.py": "c186aedc7a52e4e671a21caf30af211991f251dd637a02807307769752acda04",
+      "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+      "scripts/run_two_host_paid_comparison.py": "3e610e31634d38697bb8911ad9f31798396855b134117bd47fe1732b355ec20e",
+      "scripts/qualify_two_host_deployment.py": "1cda5f0bb34729c2a2ea8a0cb242344c5a1e07a8bf55aa0b29eff71aeb7625fd",
+      "scripts/collect_two_host_inventory.py": "5b345464ab18c4a4ad18616dbd44f414a88b7dc0d4b7a79b496810cff7f78ed7",
+      "scripts/runtime_source_identity.py": "d7a1c8c67ff414ed6280ebda4e6b0a1dfad6f7c9910c0c363f94956d14c04eac",
+      "scripts/run_status_refresh_comparison.py": "8eebd8bd1feea6d81cd56d3117a5b0cd125ac7206912648a71b5c774eb0155d6",
+      "scripts/status_refresh_contract.py": "94d2d0cf1896efaf559c8b74c84c49a021b53ce2270aa1fcbca700818239835b",
+      "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+      "experiment_plan": "fb3d0e4dd468b08dd74c0689a12018c3b0af8f1ec9b2225bd6f37a98e6579cf6"
+    },
+    "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+    "artifact_sha256": "5131aa8213cc768239c513607b1dbaaae645e50bed9510fd20ada4cf51e76c03",
+    "source_manifest_sha256": "81e9af585e8a20a81a2de72a04057faefe773f6f94e66a88b9887fe7617c8a48"
+  },
+  "hourly_target_qualified": false,
+  "capacity_improvement_measured": false,
+  "prior_failed_evidence": "docs/capacity/flash-sale-opening/status-refresh-paid-comparison-2026-10-05.json",
+  "pass": true,
+  "run": "adr0151-8148deab5b1c",
+  "finished_at_utc": "2026-10-05T08:59:50.018954+00:00",
+  "capacity_stages_started": 0,
+  "safety_protocols_started": 2,
+  "qualification": {
+    "control": {
+      "pass": true,
+      "restoration_complete": true,
+      "loaded_sources_verified": true,
+      "safety": {
+        "pass": true,
+        "wave_requests": 100,
+        "requests_per_host": [
+          50,
+          50
+        ],
+        "wave_statuses": {
+          "409": 99,
+          "202": 1
+        },
+        "accepted_holds": 1,
+        "one_durable_owner_before_payment": true,
+        "cross_host_hold_replay": true,
+        "cross_host_payment_replay": true,
+        "other_actor_denied": true,
+        "customer_ticket_confirmed": true
+      },
+      "post_ttl_financial": {
+        "orders": 1,
+        "fulfilled_orders": 1,
+        "expired_orders": 0,
+        "pending_orders": 0,
+        "payment_attempts": 1,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 1,
+        "bookings": 1,
+        "tickets": 1,
+        "payment_callbacks": 1,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 3,
+        "callback_delivery_target": 3,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 1,
+        "expected_paid": 1,
+        "expected_callback_deliveries_per_payment": 3,
+        "pass": true,
+        "hold_deadlines_elapsed": true
+      },
+      "queue_after": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "pending_callback_deliveries": 0,
+        "pending_refunds": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "kafka_total_lag": 0,
+        "kafka_members": 6,
+        "pass": true
+      },
+      "observer_stage_pass": true,
+      "pre_dispatch_qualified": true,
+      "private_cleanup_pass": true,
+      "inventory_qualification_receipt": {
+        "schema": 1,
+        "arm": "control",
+        "api_image_id": "sha256:1787fa893e3debc1a5c6e31c95344d3548621c250f9f73c5b03bbc636c3cd3e6",
+        "source_manifest_sha256": "81e9af585e8a20a81a2de72a04057faefe773f6f94e66a88b9887fe7617c8a48",
+        "inventory_sha256": "5f19f19aca0d34a43ea4948accb0198093c6328b8af89e6248f9b3dd9155cb98",
+        "captured_at_utc": "2026-10-05T08:53:01.224583+00:00",
+        "validated_at_utc": "2026-10-05T08:53:01.247579+00:00"
+      },
+      "inventory_receipt_matches_recorded_validation": true,
+      "capacity_stages_started": 0,
+      "customer_capacity_dispatches": false,
+      "paid_dispatch_admission_path_exercised": false,
+      "restoration": {
+        "restore_pass": true,
+        "primary_runtime_semantics_restored": true,
+        "secondary_resources_removed": true,
+        "generator_idle_after": true,
+        "credential_snapshots_removed": true,
+        "restored_global_queues": {
+          "unpublished_outbox": 0,
+          "pending_refresh": 0,
+          "dead_letters": 0,
+          "pending_callback_deliveries": 0,
+          "pending_refunds": 0,
+          "reservation_stream_entries": 0,
+          "reservation_stream_pending": 0,
+          "kafka_total_lag": 0,
+          "kafka_members": 1,
+          "pass": true
+        }
+      },
+      "failure_type": null,
+      "raw_evidence_directory": "tmp/adr0151-8148deab5b1c/adr0151-arm-329fd643c79e"
+    },
+    "candidate": {
+      "pass": true,
+      "restoration_complete": true,
+      "loaded_sources_verified": true,
+      "safety": {
+        "pass": true,
+        "wave_requests": 100,
+        "requests_per_host": [
+          50,
+          50
+        ],
+        "wave_statuses": {
+          "409": 99,
+          "202": 1
+        },
+        "accepted_holds": 1,
+        "one_durable_owner_before_payment": true,
+        "cross_host_hold_replay": true,
+        "cross_host_payment_replay": true,
+        "other_actor_denied": true,
+        "customer_ticket_confirmed": true
+      },
+      "post_ttl_financial": {
+        "orders": 1,
+        "fulfilled_orders": 1,
+        "expired_orders": 0,
+        "pending_orders": 0,
+        "payment_attempts": 1,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 1,
+        "bookings": 1,
+        "tickets": 1,
+        "payment_callbacks": 1,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 3,
+        "callback_delivery_target": 3,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 1,
+        "expected_paid": 1,
+        "expected_callback_deliveries_per_payment": 3,
+        "pass": true,
+        "hold_deadlines_elapsed": true
+      },
+      "queue_after": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "pending_callback_deliveries": 0,
+        "pending_refunds": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "kafka_total_lag": 0,
+        "kafka_members": 6,
+        "pass": true
+      },
+      "observer_stage_pass": true,
+      "pre_dispatch_qualified": true,
+      "private_cleanup_pass": true,
+      "inventory_qualification_receipt": {
+        "schema": 1,
+        "arm": "candidate",
+        "api_image_id": "sha256:1787fa893e3debc1a5c6e31c95344d3548621c250f9f73c5b03bbc636c3cd3e6",
+        "source_manifest_sha256": "81e9af585e8a20a81a2de72a04057faefe773f6f94e66a88b9887fe7617c8a48",
+        "inventory_sha256": "ef18e8ff9530e3159698cfb072867609b1a0697be34f8d73fd92cacc17078d8d",
+        "captured_at_utc": "2026-10-05T08:58:30.028571+00:00",
+        "validated_at_utc": "2026-10-05T08:58:30.036921+00:00"
+      },
+      "inventory_receipt_matches_recorded_validation": true,
+      "capacity_stages_started": 0,
+      "customer_capacity_dispatches": false,
+      "paid_dispatch_admission_path_exercised": false,
+      "restoration": {
+        "restore_pass": true,
+        "primary_runtime_semantics_restored": true,
+        "secondary_resources_removed": true,
+        "generator_idle_after": true,
+        "credential_snapshots_removed": true,
+        "restored_global_queues": {
+          "unpublished_outbox": 0,
+          "pending_refresh": 0,
+          "dead_letters": 0,
+          "pending_callback_deliveries": 0,
+          "pending_refunds": 0,
+          "reservation_stream_entries": 0,
+          "reservation_stream_pending": 0,
+          "kafka_total_lag": 0,
+          "kafka_members": 1,
+          "pass": true
+        }
+      },
+      "failure_type": null,
+      "raw_evidence_directory": "tmp/adr0151-8148deab5b1c/adr0151-arm-9a05279a04ee"
+    }
+  },
+  "raw_evidence": "tmp\\adr0151-8148deab5b1c\\comparison-summary.json",
+  "limitation": "Dry qualification covers source/placement/safety/durability/observer/restoration and stored inventory receipts. It does not exercise paid-stage dispatch-admission chronology or full-length final freshness; those have executed local regression coverage, not a corrected cloud paid result.",
+  "next_action": "Separate approval for a replacement matched refresh-off/on pair at60 buyer journeys/s300s each,maximum2 measured stages and2 additional isolated safety tickets,no retries/higher rate/automatic replacement. Requires this exact-bound passing dry receipt within3600s.",
+  "future_paid_scope_proposal": "tmp/adr0155-checks/future-paid-pair-scope-proposal.json",
+  "dry_binding_fresh_at_checkpoint": true
+}
