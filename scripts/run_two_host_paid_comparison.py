@@ -238,10 +238,13 @@ def drain(session, cid):
 
 
 class Stages:
-    def __init__(self, execute, bundle, *, rate=60, ledger_key="bounded_control", stage_limit=2):
+    def __init__(self, execute, bundle, *, rate=60, ledger_key="bounded_control", stage_limit=2, contract=None):
         if (type(rate) is not int or type(stage_limit) is not int
-                or (rate, ledger_key, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1))):
+                or (rate, ledger_key, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1))):
             raise ValueError("Unsupported bounded stage contract")
+        if ledger_key == "bounded_status_refresh" and contract is None:
+            raise ValueError("Isolated refresh contract required")
+        self.contract = contract
         self.execute, self.bundle, self.results = execute, bundle, {}
         self.rate, self.ledger_key, self.stage_limit = rate, ledger_key, stage_limit
         self.expected_tickets = rate * 300
@@ -279,6 +282,7 @@ class Stages:
                 try:
                     inventory, view, primary, secondary = observe(
                         session, arm, routes, baseline_env,
+                        contract=self.contract,
                         expected_worker_images={role: saved["model"]["services"][role]["image"]
                                                for role in ("consumer", "reservation-writer", "maintenance", "publisher", "reconciler", "simulator")},
                     )
@@ -397,6 +401,10 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                     ],
                 ),
             ]:
+                if name == "pipeline" and self.contract is not None:
+                    from status_refresh_contract import digest
+
+                    arguments += ["--approved-inventory-sha256", digest(inventory)]
                 job = self.launch(session, "container", cid, arguments, directory, jobs, record, database=True)
                 record[name + "_job"] = job
             # First samples must pass before either CPUs or paid traffic are scheduled.
@@ -467,18 +475,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                 job = self.launch(session, role, cid, args, location, jobs, record)
                 record[role + "_cpu_path"] = location + "/cpu.json"
             if self.execute:
-                if session.state["capacity_stages_started"] >= self.stage_limit:
-                    raise ValueError("Paid stage limit exceeded")
-                session.state["capacity_stages_started"] += 1
-                state_path = ROOT / "docs/capacity/CURRENT_STATE.json"
-                journal = json.loads(state_path.read_text())
-                journal[self.ledger_key]["paid_runs_started"] = session.state["capacity_stages_started"]
-                journal[self.ledger_key]["attempted_paid_arms"] = [*session.state.get("attempted_paid_arms", []), arm]
-                state_path.write_text(json.dumps(journal, indent=2) + "\n")
-                session.state.setdefault("attempted_paid_arms", []).append(arm)
-                session.checkpoint()
-                if session.state["capacity_stages_started"] > self.stage_limit:
-                    raise ValueError("Paid stage limit exceeded")
+                self.claim_paid_stage(session, arm)
                 args = [
                     "/root/http-load-venv/bin/python",
                     gen + "/run_synchronized_paid_generator.py",
@@ -673,6 +670,20 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
             session.checkpoint()
             if cleanup_errors:
                 raise RuntimeError("Owned stage cleanup failed")
+
+    def claim_paid_stage(self, session, arm):
+        if session.state["capacity_stages_started"] >= self.stage_limit:
+            raise ValueError("Paid stage limit exceeded")
+        session.state["capacity_stages_started"] += 1
+        state_path = ROOT / "docs/capacity/CURRENT_STATE.json"
+        journal = json.loads(state_path.read_text())
+        journal[self.ledger_key]["paid_runs_started"] = session.state["capacity_stages_started"]
+        journal[self.ledger_key]["attempted_paid_arms"] = [*session.state.get("attempted_paid_arms", []), arm]
+        state_path.write_text(json.dumps(journal, indent=2) + "\n")
+        session.state.setdefault("attempted_paid_arms", []).append(arm)
+        session.checkpoint()
+        if session.state["capacity_stages_started"] > self.stage_limit:
+            raise ValueError("Paid stage limit exceeded")
 
     def launch(self, session, role, cid, arguments, directory, jobs, record, *, database=False):
         try:

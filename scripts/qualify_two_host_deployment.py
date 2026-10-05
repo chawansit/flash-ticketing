@@ -230,7 +230,7 @@ def cleanup_program(owner, secondary_owner):
     return r"""import json,re
 from pathlib import Path
 owner=Path(OWNER)
-if not owner.is_absolute() or not re.fullmatch(r'(?:adr0147-topology|adr0148-rate)-[0-9a-f]{12}',owner.name) or owner.is_symlink():
+if not owner.is_absolute() or not re.fullmatch(r'(?:adr0147-topology|adr0148-rate|adr0151-arm)-[0-9a-f]{12}',owner.name) or owner.is_symlink():
  raise ValueError('Owned protocol directory required')
 names=NAMES
 for name in names:
@@ -280,13 +280,15 @@ print(json.dumps({'returncode':returncode,'failure_type':failure,'evidence_copie
     )
 
 
-def endpoints(rows, role, address):
+def endpoints(rows, role, address, *, runtime_policy=None):
     result = []
     for row in rows:
         ports = row["NetworkSettings"]["Ports"].get("8000/tcp") or []
         if len(ports) != 1 or ports[0]["HostIp"] != address or not 8101 <= int(ports[0]["HostPort"]) <= 8104:
             raise ValueError("Private API publication differs")
-        if row["Image"] != IMAGE or any(environment(row).get(k) != v for k, v in API_SETTINGS.items()):
+        expected_image = IMAGE if runtime_policy is None else runtime_policy.images["api"]
+        expected_settings = API_SETTINGS if runtime_policy is None else runtime_policy.api_settings
+        if row["Image"] != expected_image or any(environment(row).get(k) != v for k, v in expected_settings.items()):
             raise ValueError("Frozen image or API budgets differ")
         result.append(
             {
@@ -330,7 +332,7 @@ print(json.dumps(result))
 )
 
 
-def run(config, output, *, stage_hook=None):
+def run(config, output, *, stage_hook=None, runtime_policy=None):
     if not sys.stdin.isatty():
         raise ValueError("Protected password terminal required")
     session = Session(config, output, getpass.getpass("ECS password: "))
@@ -339,6 +341,7 @@ def run(config, output, *, stage_hook=None):
     secondary_started = False
     fixture = None
     cid = None
+    owned_directories = set()
     primary = config["primary"]
     owner = primary["repo"] + "/tmp/" + output.name
     restore_path, live_path, routes_path = (
@@ -404,9 +407,13 @@ def run(config, output, *, stage_hook=None):
                 + repr(directory)
                 + ");p.mkdir(mode=0o700);print(json.dumps({'fresh_owned_directory':True}))",
             )
+            owned_directories.add(role)
         session.put("primary", owner + "/backup.private.json", json.dumps(saved), True)
         session.put("primary", restore_path, json.dumps(literal_model(saved["model"])), True)
         model = deployment_model(saved, primary_ip=primary["private_ipv4"], nginx_path=routes_path)
+        if runtime_policy is not None:
+            runtime_policy.pre_mutation(session, saved)
+            model = runtime_policy.primary_model(model)
         original_route = next(
             m["Source"]
             for r in rows
@@ -442,7 +449,7 @@ def run(config, output, *, stage_hook=None):
         )
         session.up("primary", live_path, CANDIDATE_COUNTS, ["api"])
         primary_rows = session.wait("primary", 4)
-        controls = endpoints(primary_rows, "primary", primary["private_ipv4"])
+        controls = endpoints(primary_rows, "primary", primary["private_ipv4"], runtime_policy=runtime_policy)
         session.put("primary", routes_path, nginx_config(controls))
         session.up("primary", live_path, CANDIDATE_COUNTS, ["load-balancer"])
         session.state["four_primary_control_ready"] = True
@@ -465,12 +472,14 @@ def run(config, output, *, stage_hook=None):
                 "protocol": "tcp",
             }
         ]
+        if runtime_policy is not None:
+            secondary_model = runtime_policy.secondary_model(secondary_model)
         session.put("secondary", secondary_path, json.dumps(secondary_model), True)
         secondary_started = True
         session.up("secondary", secondary_path, {"api": 2}, ["api"])
         secondary_rows = session.wait("secondary", 2)
-        routes = endpoints(primary_rows, "primary", primary["private_ipv4"]) + endpoints(
-            secondary_rows, "secondary", config["secondary"]["private_ipv4"]
+        routes = endpoints(primary_rows, "primary", primary["private_ipv4"], runtime_policy=runtime_policy) + endpoints(
+            secondary_rows, "secondary", config["secondary"]["private_ipv4"], runtime_policy=runtime_policy
         )
         session.put("primary", routes_path, nginx_config(routes))
         session.up("primary", live_path, CANDIDATE_COUNTS, ["load-balancer"])
@@ -484,6 +493,9 @@ def run(config, output, *, stage_hook=None):
         )
         session.state["all_four_private_endpoints_ready"] = True
         cid = primary_rows[0]["Id"]
+        if runtime_policy is not None:
+            inventory = runtime_policy.pre_safety(session, routes, saved)
+            (output / "pre-safety-inventory.private.json").write_text(json.dumps(inventory, indent=2) + "\n")
         session.phase("fresh-isolated-safety-fixture")
         container_dir = "/tmp/" + output.name
         program = (
@@ -646,6 +658,12 @@ with psycopg.connect(os.environ['DATABASE_URL'],autocommit=True) as conn:
                         session.call("secondary", cleanup_program(owner, secondary_owner))
                     session.state["credential_snapshots_removed"] = True
             elif not mutated:
+                # No service mutation occurred, but pre-mutation artifact checks may leave private snapshots.
+                if "primary" in owned_directories:
+                    session.call("primary", cleanup_program(owner, None))
+                if "secondary" in owned_directories:
+                    session.call("secondary", cleanup_program(owner, secondary_owner))
+                session.state["credential_snapshots_removed"] = True
                 session.state["restore_pass"] = True
         except Exception as exc:  # noqa: BLE001 - preserve failure and continue teardown
             session.state["restoration_error_type"] = type(exc).__name__
@@ -653,6 +671,7 @@ with psycopg.connect(os.environ['DATABASE_URL'],autocommit=True) as conn:
             session.state.get("qualification_checks_pass")
             and session.state["restore_pass"]
             and not session.state.get("retirement_error_type")
+            and not session.state.get("failure_type")
         )
         session.checkpoint()
         session.close()

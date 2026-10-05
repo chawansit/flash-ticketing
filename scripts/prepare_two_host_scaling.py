@@ -69,8 +69,16 @@ def digest(value):
     return value
 
 
-def validate_inventory(data, *, image_id, now=None):
+def validate_inventory(data, *, image_id, now=None, contract=None):
     """Validate supplied observations, not their authenticity or live qualification."""
+    settings = API_SETTINGS
+    if contract is not None:
+        from status_refresh_contract import StatusRefreshContract
+
+        if not isinstance(contract, StatusRefreshContract) or image_id != contract.images["api"]:
+            raise ValueError("Explicit isolated status refresh contract required")
+        settings = contract.api_settings
+        contract.verify_inventory(data)
     now = now or datetime.now(UTC)
     if data.get("schema") != 1 or data.get("arm") not in {"control", "candidate"}:
         raise ValueError("Unknown inventory schema or arm")
@@ -139,7 +147,7 @@ def validate_inventory(data, *, image_id, now=None):
             or api["source_hashes_match"] is not True
         ):
             raise ValueError("Unpinned runtime image/source")
-        if api["ready"] is not True or api["settings"] != API_SETTINGS:
+        if api["ready"] is not True or api["settings"] != settings:
             raise ValueError("Replica not ready or API budget changed")
         if api["pgbouncer_host_role"] != "primary" or api["pgbouncer_port"] != 5432:
             raise ValueError("Direct-to-RDS or duplicate-pooler route rejected")
@@ -158,7 +166,7 @@ def validate_inventory(data, *, image_id, now=None):
                 )
             )
         )
-    expected = {"primary": 4, "secondary": 0} if data["arm"] == "control" else {"primary": 2, "secondary": 2}
+    expected = ({"primary": 4, "secondary": 0} if data["arm"] == "control" else {"primary": 2, "secondary": 2}) if contract is None else {"primary": 2, "secondary": 2}
     reference = tuple(
         digest(data["baseline_authorities"][k])
         for k in (

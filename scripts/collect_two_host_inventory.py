@@ -61,7 +61,7 @@ print(json.dumps({'machine_id_sha256':hashlib.sha256(uuid.encode()).hexdigest(),
 """
 
 
-def observe(session, arm, routes, baseline_env, *, expected_worker_images):
+def observe(session, arm, routes, baseline_env, *, expected_worker_images, contract=None):
     primary = session.call("primary", INSPECT)
     # Include all secondary resources, not just the expected project's running APIs.
     secondary = session.call(
@@ -85,7 +85,7 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images):
     by_id = {r["Id"]: r for r in [*primary, *secondary]}
     groups = grouped(primary)
     expected_counts = {
-        "api": 4 if arm == "control" else 2,
+        "api": 4 if arm == "control" and contract is None else 2,
         "consumer": 6,
         "reservation-writer": 3,
         "publisher": 1,
@@ -120,6 +120,8 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images):
             ROOT / "docs/capacity/flash-sale-opening/frozen-baseline-cpu-diagnostic-plan-2026-10-05.json"
         ).read_text()
     )["expected_runtime_source_sha256"]
+    if contract is not None:
+        expected = contract.sources
     worker_sources = []
     if set(expected_worker_images) != set(BACKGROUND):
         raise ValueError("Every background role needs a saved immutable image")
@@ -127,7 +129,12 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images):
         for row in groups[role]:
             if row["Image"] != expected_worker_images[role]:
                 raise ValueError("Background role image differs from saved snapshot")
-            worker_sources.append(session.call("primary", container_identity_program(row, role, expected), 50))
+            worker_env = environment(row)
+            if contract is not None:
+                contract.verify_worker_settings(role, worker_env)
+            proof = session.call("primary", container_identity_program(row, role, expected), 50)
+            proof["settings"] = {k: worker_env.get(k, "0") for k in ("ORDER_STATUS_CACHE_MS", "ORDER_STATUS_EVENT_REFRESH")}
+            worker_sources.append(proof)
     observed_apis = []
     for route in routes:
         row = by_id[route["container_id"]]
@@ -144,6 +151,7 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images):
                 "started_at": identity["started_at"],
                 **proof,
                 "settings": {k: env.get(k) for k in API_SETTINGS},
+                "ORDER_STATUS_EVENT_REFRESH": env.get("ORDER_STATUS_EVENT_REFRESH", "0"),
                 "pgbouncer_host_role": "primary",
                 "pgbouncer_port": url.port or 5432,
                 "database_url_host": url.hostname,
@@ -169,5 +177,8 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images):
         "global_queues_zero": queue["pass"],
         "identity_provenance": "Live DMI instance UUID, actual bound addresses and container inspection; authority values are fingerprinted.",
     }
-    view = validate_inventory(inventory, image_id=IMAGE)
+    view = validate_inventory(inventory, image_id=IMAGE if contract is None else contract.images["api"], contract=contract)
+    if contract is not None:
+        inventory["status_refresh_contract"] = {"decision": "ADR0151", "cache_age_ms": 1000,
+                                                "api_image_id": contract.images["api"], "arm": arm}
     return inventory, view, primary, secondary

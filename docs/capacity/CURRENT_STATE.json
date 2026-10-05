@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-05",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0150_import_identity_observer_recovery_local_validation_passed",
+  "status": "adr0151_fixed_factor_runner_local_validation_passed",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "Fresh verified original primaryAPI4/runtime fingerprints restored; secondary test APIs/owned CPU job absent, generator idle, credential snapshots removed; all DB/Redis queues and Kafka lag0 with one normal consumer.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "current_run": null,
-  "revision_note": "ADR0150 local harness270 focused tests/Ruff passed. Frozen cloud not contacted or changed this turn. ADR0151 identical-cache comparison proposed; candidate-aware runner/images and new approved qualification remain pending.",
+  "revision_note": "ADR0151 fixed2+2 off/on runner:350 focused harness tests/Ruff passed and default local preparation executed. Complete19-module isolated source verified; images/export and fresh live qualification pending. Frozen cloud not contacted or changed this turn.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -23,16 +23,17 @@
     "Offered primary CPU81.19%, secondary33.11%; observer-lifetime primary CPU peak99.29%.6 consumer55P03 and24 simulator delivery-error calls recovered; no observed paid-ticket count loss.",
     "Fresh pinned private-hop recovery restored exact primaryAPI4, removed secondary test resources/owned CPU job and credential snapshots; generator idle, global queues/Kafka0. Read-only installed import paths match12 frozen modules on restored4APIs/1consumer/1simulator.",
     "ADR0149 default-disabled committed-event status refresh:155 isolated focused/663 full native tests passed, source/dependencies verified, financial transaction AST unchanged and unrelated local optimizations excluded. No cloud RPS claim.",
-    "ADR0150 passed270 focused local harness checks/Ruff. Pre-dispatch all4APIs/13workers source/import/bytecode and immutable start/image proof implemented; bounded owned-stop recovery and finally summaries qualified synthetically. Retained ADR0148 offline392pipeline/231Kafka summaries preserved failed fields; traffic distribution explicitly fails sampling-gap coverage."
+    "ADR0150 passed270 focused local harness checks/Ruff. Pre-dispatch all4APIs/13workers source/import/bytecode and immutable start/image proof implemented; bounded owned-stop recovery and finally summaries qualified synthetically. Retained ADR0148 offline392pipeline/231Kafka summaries preserved failed fields; traffic distribution explicitly fails sampling-gap coverage.",
+    "ADR0151 local fixed-factor runner passed350 focused harness tests/Ruff; explicit allowance/source/image/cache/budget checks,32 gates, control stopping, per-arm restore and ambiguous replay protection exercised synthetically. Default preparation made0 cloud calls/customer dispatches; capacity unmeasured."
   ],
-  "unresolved": "84 buyers/s and300000 paid tickets/hour remain unqualified. Event refresh adds consumer reads and has no cloud performance measurement. ADR0150 live transport/import qualification and ADR0151 factor runner/images remain pending.",
+  "unresolved": "84 buyers/s and300000 paid issued tickets/hour remain unqualified. Event refresh adds consumer reads and has no cloud performance measurement. Reproducible isolated-source export, candidate images and fresh live import/transport/safety qualification remain pending.",
   "next_on_resume": [
-    "Implement ADR0151 candidate-aware fixed2+2 topology runner with separate allowance ledger and explicit1000ms cache/source contract in both arms.",
-    "Prepare matching per-role isolated candidate images and concrete bounded dry/safety/paid-pair scope; do not reuse consumed ADR0147/0148 approvals or previous adapter qualification.",
-    "After fresh approved qualification, compare refresh off/on at60 buyers/s300s, identical budgets; stop on failed control and retain financial/zero-double-booking/full drain/restore gates. No automatic higher-rate or hour stage."
+    "Reproduce/export isolated ADR0149 source overlay and prepare matching immutable per-role candidate images.",
+    "Prepare concrete bounded artifact/config/adapter approval scope and fresh separate live dry qualification.",
+    "Only after release prerequisites, compare off/on at 60 buyers/s for 300 seconds per arm with unchanged budgets and every financial/queue/latency gate."
   ],
-  "authorization": "User Continue authorized local source/import/recovery preparation and comparison proposal. Prior paid probe and safety tickets consumed; no new cloud test/configuration, GitHub push or merge authorized this checkpoint.",
-  "scope": "ADR0150 local harness implementation/tests and ADR0151 proposed manifest only. No cloud connections, image build, safety/paid dispatch or infrastructure change.",
+  "authorization": "User Continue authorized local ADR0151 runner implementation and checks. Prior paid/safety allowances remain consumed; this checkpoint grants no new cloud test/configuration, GitHub push or main merge.",
+  "scope": "ADR0151 local candidate-aware comparison harness, tests, documentation and preparation receipt only. No cloud connection, image build/transfer, safety/paid dispatch or infrastructure change.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -93,10 +94,11 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "ADR0150 harness validation and ADR0151 proposed comparison saved locally; no GitHub push/main merge.",
+    "status": "ADR0151 runner and local validation saved locally; no GitHub push/main merge.",
     "branch": "codex/redis-failover-recovery"
   },
   "evidence": [
+    "docs/capacity/flash-sale-opening/order-status-event-refresh-runner-local-validation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/import-identity-observer-recovery-local-validation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/order-status-event-refresh-local-validation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/two-host-84-buyer-probe-2026-10-05.json",
@@ -245,5 +247,17 @@
     "cloud_qualified": false,
     "report": "docs/capacity/flash-sale-opening/import-identity-observer-recovery-local-validation-2026-10-05.json",
     "proposed_comparison": "docs/capacity/flash-sale-opening/order-status-event-refresh-comparison-plan-2026-10-05.json"
+  },
+  "local_status_refresh_runner": {
+    "decision": "0151-identical-cache-age-committed-status-refresh-comparison",
+    "local_qualification": "PASSED_350_FOCUSED_RUFF",
+    "parent_workspace_revision": "1d5ebf586cec9e635311ed1cf1b7de4b6cb80e27",
+    "runtime_modules_verified": 19,
+    "cloud_qualified": false,
+    "images_prepared": false,
+    "capacity_improvement_measured": false,
+    "report": "docs/capacity/flash-sale-opening/order-status-event-refresh-runner-local-validation-2026-10-05.json",
+    "runner_guide": "docs/capacity/flash-sale-opening/order-status-event-refresh-runner.md",
+    "local_preparation": "tmp/adr0151-local/reviewed-preparation.json"
   }
 }

@@ -1,6 +1,7 @@
 """Wrap the unchanged paid observer with four verified private API endpoints."""
 
 import argparse
+import copy
 import hashlib
 import importlib.util
 import json
@@ -35,7 +36,7 @@ def extra_api_metrics(payload):
         if not line or line.startswith("#"):
             continue
         match = re.fullmatch(
-            r"(process_start_time_seconds|ticketing_http_requests_total)(?:\{(.*)\})? ([^ ]+)", line
+            r"(process_start_time_seconds|ticketing_http_requests_total|ticketing_order_status_cache_total)(?:\{(.*)\})? ([^ ]+)", line
         )
         if not match:
             continue
@@ -49,6 +50,15 @@ def extra_api_metrics(payload):
             result[name] = value
             continue
         labels = dict(re.findall(r'(\w+)="([^"\\]*)"', label_text or ""))
+        if name == "ticketing_order_status_cache_total":
+            outcome = labels.get("outcome", "")
+            if not re.fullmatch(r"[a-z_]{1,40}", outcome):
+                raise ValueError("Unbounded order cache outcome")
+            key = "status_cache:" + outcome
+            if key in result or len(result) >= 256:
+                raise ValueError("Duplicate or excessive order cache series")
+            result[key] = value
+            continue
         route, method, status = (labels.get(k, "") for k in ("route", "method", "status"))
         if (
             route.startswith("/v1/")
@@ -69,8 +79,28 @@ def extra_api_metrics(payload):
     return result
 
 
-def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen):
-    validate_inventory(inventory, image_id=image_id, now=now)
+def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, approved_inventory_sha256=None):
+    if approved_inventory_sha256 is None:
+        validate_inventory(inventory, image_id=image_id, now=now)
+    else:
+        actual = hashlib.sha256(json.dumps(inventory, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        marker = inventory.get("status_refresh_contract", {})
+        if (not isinstance(approved_inventory_sha256, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", approved_inventory_sha256)
+                or actual != approved_inventory_sha256 or marker.get("decision") != "ADR0151"
+                or marker.get("cache_age_ms") != 1000 or marker.get("arm") != inventory.get("arm")
+                or not isinstance(marker.get("api_image_id"), str)
+                or not re.fullmatch(r"sha256:[0-9a-f]{64}", marker["api_image_id"])):
+            raise ValueError("Exact host-qualified inventory digest required")
+        if any(a.get("settings", {}).get("ORDER_STATUS_CACHE_MS") != "1000"
+               or a.get("ORDER_STATUS_EVENT_REFRESH", "0") != "0" for a in inventory["apis"]):
+            raise ValueError("Explicit equal cache age and consumer-only factor required")
+        # Only adapt historical assertions for structural validation; retain original evidence.
+        structural = copy.deepcopy(inventory)
+        structural["arm"] = "candidate"
+        for api in structural["apis"]:
+            api["settings"]["ORDER_STATUS_CACHE_MS"] = "0"
+        validate_inventory(structural, image_id=marker["api_image_id"], now=now)
     entries = sorted(inventory["apis"], key=lambda a: (a["host_role"], a["container_id"]))
     endpoints = {f"{a['host_role']}:{a['container_id']}": a for a in entries}
     original_discovery = module.api_replicas
@@ -92,7 +122,7 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen):
         prior = previous.get(label)
         if prior and (
             extras["process_start_time_seconds"] != prior["process_start_time_seconds"]
-            or any(extras.get(k, -1) < v for k, v in prior.items() if k.startswith("business_http"))
+            or any(extras.get(k, -1) < v for k, v in prior.items() if k.startswith(("business_http", "status_cache:")))
         ):
             raise ValueError("API restart or counter reset")
         previous[label] = extras
@@ -175,10 +205,11 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, add_help=False)
     parser.add_argument("--inventory", type=Path, required=True)
     parser.add_argument("--frozen-observer", type=Path, required=True)
+    parser.add_argument("--approved-inventory-sha256")
     args, remaining = parser.parse_known_args(argv)
     inventory = json.loads(args.inventory.read_text())
     frozen = load_frozen(args.frozen_observer)
-    install_adapter(frozen, inventory, image_id=FROZEN_IMAGE_ID)
+    install_adapter(frozen, inventory, image_id=FROZEN_IMAGE_ID, approved_inventory_sha256=args.approved_inventory_sha256)
     sys.argv = [str(args.frozen_observer), *remaining]
     frozen.main()
 

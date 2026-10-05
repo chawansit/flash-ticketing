@@ -243,4 +243,4 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 
 - [0150 - Import identity and bounded observer recovery](0150-import-identity-and-bounded-observer-recovery.md)
 
-- [0151: Identical-cache-age committed status refresh comparison](0151-identical-cache-age-committed-status-refresh-comparison.md) — Proposed; local manifest prepared, no cloud execution.
+- [0151: Identical-cache-age committed status refresh comparison](0151-identical-cache-age-committed-status-refresh-comparison.md) — Local runner implemented; image/live qualification pending, no cloud execution.
