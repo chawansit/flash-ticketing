@@ -259,16 +259,18 @@ def cpu_spec(arm, role, rows, inventory, *, fixed_two_host=False):
 class Stages:
     def __init__(self, execute, bundle, *, rate=60, ledger_key="bounded_control", stage_limit=2, contract=None):
         if (type(rate) is not int or type(stage_limit) is not int
-                or (rate, ledger_key, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1), (60, "bounded_async_confirmation", 1), (60, "bounded_partial_timeout_reclamation", 1), (60, "bounded_partial_timeout_reclamation_v2", 1))):
+                or (rate, ledger_key, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1), (60, "bounded_async_confirmation", 1), (60, "bounded_partial_timeout_reclamation", 1), (60, "bounded_partial_timeout_reclamation_v2", 1), (60, "bounded_payment_stall_diagnostics", 1))):
             raise ValueError("Unsupported bounded stage contract")
-        if ledger_key in {"bounded_status_refresh", "bounded_status_refresh_dedup", "bounded_async_confirmation", "bounded_partial_timeout_reclamation", "bounded_partial_timeout_reclamation_v2"} and contract is None:
+        if ledger_key in {"bounded_status_refresh", "bounded_status_refresh_dedup", "bounded_async_confirmation", "bounded_partial_timeout_reclamation", "bounded_partial_timeout_reclamation_v2", "bounded_payment_stall_diagnostics"} and contract is None:
             raise ValueError("Isolated refresh contract required")
         if ledger_key == "bounded_async_confirmation" and (
                 not hasattr(contract, "inventory_marker") or contract.inventory_marker().get("decision") != "ADR0161"):
             raise ValueError("Exact durable confirmation contract required")
-        if ledger_key in {"bounded_partial_timeout_reclamation", "bounded_partial_timeout_reclamation_v2"} and (
+        if ledger_key in {"bounded_partial_timeout_reclamation", "bounded_partial_timeout_reclamation_v2", "bounded_payment_stall_diagnostics"} and (
                 not hasattr(contract, "inventory_marker") or contract.inventory_marker().get("decision") != "ADR0163"):
             raise ValueError("Exact partial timeout reclamation contract required")
+        if ledger_key == "bounded_payment_stall_diagnostics" and getattr(contract, "arm", None) != "control":
+            raise ValueError("Diagnostic scope must use unchanged control")
         self.contract = contract
         self.execute, self.bundle, self.results = execute, bundle, {}
         self.rate, self.ledger_key, self.stage_limit = rate, ledger_key, stage_limit

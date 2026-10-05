@@ -280,3 +280,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0168: Atomic projection source-version index](0168-atomic-projection-source-version-index.md)
 
 - [ADR0169: Canonical names and reference gates](0169-canonical-names-and-reference-gates.md)
+
+- [ADR0170: Single-control payment-stall diagnostics](0170-single-control-payment-stall-diagnostics.md)

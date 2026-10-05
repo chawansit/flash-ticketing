@@ -20,6 +20,7 @@ STATE = ROOT / "docs/capacity/CURRENT_STATE.json"
 LOCK = ROOT / "tmp/adr0151-run.lock"
 LEDGER = "bounded_status_refresh"
 AUTHORIZATION = "adr0151-status-refresh-pair-2026-10-05"
+ARMS = ("control", "candidate")
 
 
 def identity():
@@ -91,14 +92,14 @@ def qualification_matches(report, binding, *, now=None):
         return False
     return (
         fresh
-        and report.get("kind") == "status_refresh_dry_pair"
+        and report.get("kind") == ("status_refresh_dry_control" if len(ARMS) == 1 else "status_refresh_dry_pair")
         and report.get("pass") is True
         and report.get("binding") == binding
         and type(report.get("capacity_stages_started")) is int
         and report["capacity_stages_started"] == 0
         and type(report.get("safety_protocols_started")) is int
-        and report["safety_protocols_started"] == 2
-        and set(report.get("arms", {})) == {"control", "candidate"}
+        and report["safety_protocols_started"] == len(ARMS)
+        and set(report.get("arms", {})) == set(ARMS)
         and all(
             arm.get("pass") is True
             and arm.get("restoration_complete") is True
@@ -127,7 +128,8 @@ def validate_release(state, binding, *, execute, qualification=None):
         raise ValueError("New exact artifact/configuration/adapter approval required")
     numbers = {"qualification_runs_authorized": 1}
     allowances = (ledger.get("paid_runs_authorized"), ledger.get("safety_tickets_authorized"))
-    allowed = {(2, 4)} if execute else {(0, 2), (2, 4)}
+    count = len(ARMS)
+    allowed = {(count, 2 * count)} if execute else {(0, count), (count, 2 * count)}
     if (
         any(type(ledger.get(k)) is not int for k in ("paid_runs_authorized", "safety_tickets_authorized"))
         or allowances not in allowed
@@ -147,7 +149,7 @@ def validate_release(state, binding, *, execute, qualification=None):
     if execute:
         if (
             ledger["qualification_protocols_started"] != 1
-            or ledger["safety_protocols_started"] != 2
+            or ledger["safety_protocols_started"] != len(ARMS)
             or not qualification_matches(qualification or {}, binding)
         ):
             raise ValueError("Fresh matching restored dry pair required; no automatic qualification")
@@ -163,7 +165,7 @@ def reserve_arm(run_id, arm, *, execute):
     if ledger["safety_protocols_started"] >= ledger["safety_tickets_authorized"]:
         raise ValueError("Safety allowance exhausted")
     attempted = ledger.setdefault("paid_protocol_arms" if execute else "qualification_arms", [])
-    if arm != ("control" if not attempted else "candidate") or len(attempted) >= 2:
+    if len(attempted) >= len(ARMS) or arm != ARMS[len(attempted)]:
         raise ValueError("Ordered off/on pair only; no replay")
     if execute:
         if ledger["paid_protocols_started"] >= ledger["paid_runs_authorized"]:
@@ -198,7 +200,7 @@ class RefreshStages(comparison.Stages):
             or arm != self.contract.arm
             or arm in claimed
             or session.state["capacity_stages_started"] != 0
-            or ledger["paid_runs_started"] >= 2
+            or ledger["paid_runs_started"] >= len(ARMS)
             or arm not in ledger.get("paid_protocol_arms", [])
         ):
             raise ValueError("Fresh reserved paid launch required")
@@ -366,8 +368,8 @@ def protocol(config, artifact, sources, bundle, binding, *, execute, qualificati
         if not execute:
             state[LEDGER]["qualification_protocols_started"] += 1
         write_state(state, run_id)
-        print(json.dumps({"phase": "bounded-pair-started", "execute": execute, "run": run_id}), flush=True)
-        for arm in ("control", "candidate"):
+        print(json.dumps({"phase": "bounded-" + ("control" if len(ARMS) == 1 else "pair") + "-started", "execute": execute, "run": run_id}), flush=True)
+        for arm in ARMS:
             directory = output / ("adr0151-arm-" + uuid4().hex[:12])
             directory.mkdir(mode=0o700)
             arms[arm] = run_arm(config, artifact, sources, bundle, arm, run_id, directory, execute=execute)
@@ -382,7 +384,8 @@ def protocol(config, artifact, sources, bundle, binding, *, execute, qualificati
     )
     passed = (
         original_error is None
-        and set(arms) == {"control", "candidate"}
+        and restored
+        and set(arms) == set(ARMS)
         and all(a["pass"] is True for a in arms.values())
     )
     final_ledger = json.loads(STATE.read_text())[LEDGER]
@@ -397,7 +400,7 @@ def protocol(config, artifact, sources, bundle, binding, *, execute, qualificati
     )
     report = {
         "performance_measurement_complete": performance_complete,
-        "kind": "status_refresh_paid_pair" if execute else "status_refresh_dry_pair",
+        "kind": ("status_refresh_paid_" if execute else "status_refresh_dry_") + ("control" if len(ARMS) == 1 else "pair"),
         "pass": passed,
         "run": run_id,
         "binding": binding,
@@ -429,7 +432,7 @@ def protocol(config, artifact, sources, bundle, binding, *, execute, qualificati
     print(
         json.dumps(
             {
-                "phase": "bounded-pair-finished",
+                "phase": "bounded-" + ("control" if len(ARMS) == 1 else "pair") + "-finished",
                 "pass": passed,
                 "run": run_id,
                 "recovery_required": not restored,
@@ -461,8 +464,8 @@ def prepare(output):
         "safety_tickets_per_protocol": 1,
         "approval_scope": {
             "qualification_runs_authorized": 1,
-            "paid_runs_authorized": 2,
-            "safety_tickets_authorized": 4,
+            "paid_runs_authorized": len(ARMS),
+            "safety_tickets_authorized": 2 * len(ARMS),
         },
         "commands": "prepare(default) performs no SSH; qualify and execute are separate approved invocations",
     }
