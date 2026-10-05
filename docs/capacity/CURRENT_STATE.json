@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-05",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0151_fixed_factor_runner_local_validation_passed",
+  "status": "adr0152_reproducible_source_offline_image_fixture_validation_passed",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "Fresh verified original primaryAPI4/runtime fingerprints restored; secondary test APIs/owned CPU job absent, generator idle, credential snapshots removed; all DB/Redis queues and Kafka lag0 with one normal consumer.",
   "schema_state": "Valid payment_attempts_dispatch_due and bookings_order_id indexes retained. Service settings/cache restored. Online builds do not record schema_migrations007/008 checksums; normal IF NOT EXISTS migrations can do so later.",
   "current_run": null,
-  "revision_note": "ADR0151 fixed2+2 off/on runner:350 focused harness tests/Ruff passed and default local preparation executed. Complete19-module isolated source verified; images/export and fresh live qualification pending. Frozen cloud not contacted or changed this turn.",
+  "revision_note": "ADR0152 exports207 frozen/qualified files and19 runtime modules;385 harness checks/Ruff and1 real offline Docker fixture test passed. Source-only build tooling implemented; exact cloud API parent absent locally, real role candidates/live qualification pending. Cloud not contacted.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -24,16 +24,17 @@
     "Fresh pinned private-hop recovery restored exact primaryAPI4, removed secondary test resources/owned CPU job and credential snapshots; generator idle, global queues/Kafka0. Read-only installed import paths match12 frozen modules on restored4APIs/1consumer/1simulator.",
     "ADR0149 default-disabled committed-event status refresh:155 isolated focused/663 full native tests passed, source/dependencies verified, financial transaction AST unchanged and unrelated local optimizations excluded. No cloud RPS claim.",
     "ADR0150 passed270 focused local harness checks/Ruff. Pre-dispatch all4APIs/13workers source/import/bytecode and immutable start/image proof implemented; bounded owned-stop recovery and finally summaries qualified synthetically. Retained ADR0148 offline392pipeline/231Kafka summaries preserved failed fields; traffic distribution explicitly fails sampling-gap coverage.",
-    "ADR0151 local fixed-factor runner passed350 focused harness tests/Ruff; explicit allowance/source/image/cache/budget checks,32 gates, control stopping, per-arm restore and ambiguous replay protection exercised synthetically. Default preparation made0 cloud calls/customer dispatches; capacity unmeasured."
+    "ADR0151 local fixed-factor runner passed350 focused harness tests/Ruff; explicit allowance/source/image/cache/budget checks,32 gates, control stopping, per-arm restore and ambiguous replay protection exercised synthetically. Default preparation made0 cloud calls/customer dispatches; capacity unmeasured.",
+    "ADR0152 reproducible pinned eight-file overlay exported207 files;385 local harness checks/Ruff and1 offline Docker fixture integration passed. Both source roots/import bytecode/full inherited config/19 installed RECORD entries verified. Fixture cannot emit cloud receipt; no customers/cloud calls."
   ],
-  "unresolved": "84 buyers/s and300000 paid issued tickets/hour remain unqualified. Event refresh adds consumer reads and has no cloud performance measurement. Reproducible isolated-source export, candidate images and fresh live import/transport/safety qualification remain pending.",
+  "unresolved": "Original immutable cloud role parents must be obtained before real image derivation. Candidate images/live qualification and event-refresh capacity improvement remain unmeasured;84 buyers/s and300000 paid issued tickets/hour unqualified.",
   "next_on_resume": [
-    "Reproduce/export isolated ADR0149 source overlay and prepare matching immutable per-role candidate images.",
-    "Prepare concrete bounded artifact/config/adapter approval scope and fresh separate live dry qualification.",
-    "Only after release prerequisites, compare off/on at 60 buyers/s for 300 seconds per arm with unchanged budgets and every financial/queue/latency gate."
+    "Obtain original per-role parent identities and exact images; retain their immutable provenance.",
+    "Run explicit offline derivation for real parents, retain complete artifact receipt and transfer exact candidates/parents to required hosts.",
+    "Bind concrete new bounded release scope and execute fresh separate live qualification before any paid comparison."
   ],
-  "authorization": "User Continue authorized local ADR0151 runner implementation and checks. Prior paid/safety allowances remain consumed; this checkpoint grants no new cloud test/configuration, GitHub push or main merge.",
-  "scope": "ADR0151 local candidate-aware comparison harness, tests, documentation and preparation receipt only. No cloud connection, image build/transfer, safety/paid dispatch or infrastructure change.",
+  "authorization": "User Continue authorized reproducible local artifact preparation/build tooling and offline fixture checks. Previous paid/safety allowances remain consumed; no new cloud load/configuration, GitHub push or merge approved this checkpoint.",
+  "scope": "ADR0152 pinned source patch/export, offline image tooling, unit/harness checks and synthetic local Docker images only. No cloud connection, transfer, deployment or customer dispatch.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -94,10 +95,11 @@
     "note": "Historical passing result; did not reproduce under current conditions."
   },
   "publication": {
-    "status": "ADR0151 runner and local validation saved locally; no GitHub push/main merge.",
+    "status": "ADR0152 artifact tooling/source overlay and local validation saved locally; no GitHub push/main merge.",
     "branch": "codex/redis-failover-recovery"
   },
   "evidence": [
+    "docs/capacity/flash-sale-opening/status-refresh-artifact-local-validation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/order-status-event-refresh-runner-local-validation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/import-identity-observer-recovery-local-validation-2026-10-05.json",
     "docs/capacity/flash-sale-opening/order-status-event-refresh-local-validation-2026-10-05.json",
@@ -239,7 +241,7 @@
     "cloud_deployed": false,
     "capacity_improvement_measured": false,
     "report": "docs/capacity/flash-sale-opening/order-status-event-refresh-local-validation-2026-10-05.json",
-    "source_directory": "tmp/adr0149-isolated-source"
+    "source_directory": "tmp/adr0152-qualified-artifacts/source"
   },
   "local_harness_recovery": {
     "decision": "0150-import-identity-and-bounded-observer-recovery",
@@ -259,5 +261,20 @@
     "report": "docs/capacity/flash-sale-opening/order-status-event-refresh-runner-local-validation-2026-10-05.json",
     "runner_guide": "docs/capacity/flash-sale-opening/order-status-event-refresh-runner.md",
     "local_preparation": "tmp/adr0151-local/reviewed-preparation.json"
+  },
+  "local_status_refresh_artifacts": {
+    "decision": "0152-reproducible-isolated-status-refresh-artifacts",
+    "parent_workspace_revision": "d1ba60df05d29c0a802cc6c49c0c19cdf1fff299",
+    "local_qualification": "PASSED_385_HARNESS_1_OFFLINE_DOCKER_RUFF",
+    "source_files_verified": 207,
+    "runtime_modules_verified": 19,
+    "cloud_parent_available_locally": false,
+    "real_cloud_images_built": 0,
+    "synthetic_local_images_built": 2,
+    "cloud_qualified": false,
+    "report": "docs/capacity/flash-sale-opening/status-refresh-artifact-local-validation-2026-10-05.json",
+    "source_artifact": "artifacts/status-refresh/manifest.json",
+    "source_directory": "tmp/adr0152-qualified-artifacts/source",
+    "preparation_receipt": "tmp/adr0152-checks/comparison-preparation.json"
   }
 }

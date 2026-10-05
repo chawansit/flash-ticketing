@@ -7,12 +7,25 @@ ADR0151 compares event refresh off/on with two APIs per host, a 1000 ms advisory
 From the repository root with its Python environment and Git available:
 
 ```powershell
+.venv/Scripts/python.exe scripts/prepare_status_refresh_artifacts.py --output tmp/adr0152-qualified-artifacts
 .venv/Scripts/python.exe scripts/run_status_refresh_comparison.py --output tmp/status-refresh-preparation.json
 ```
 
-Use a fresh output filename. This command verifies the complete 19-module isolated source tree and creates a receipt template; it does not connect to cloud services, modify approval state, build images or dispatch customers. The existing `tmp/adr0149-isolated-source` is currently required; reproducing/exporting that isolated tree for a fresh clone and preparing images is the next step. The runner deliberately rejects missing or changed source rather than copying unrelated current-branch optimizations.
+Use a fresh output filename. This command verifies the complete 19-module isolated source tree and creates a receipt template; it does not connect to cloud services, modify approval state, build images or dispatch customers. ADR0152 now recreates `tmp/adr0152-qualified-artifacts/source` from the frozen Git revision and the pinned eight-file patch. It verifies all 207 exported files, including the 19 runtime modules, without reading the older temporary candidate. The runner deliberately rejects missing or changed source rather than copying unrelated current-branch optimizations.
 
 The actual artifact receipt must contain exactly `images`, `parent_images` and `source_manifest_sha256`. Each image/parent map needs API plus consumer, writer, maintenance, publisher, reconciler and simulator roles. Use immutable image IDs. All images must preserve their recorded parent layers and inherited Env/Cmd/Entrypoint/User/WorkingDir, with the required source-manifest label. Verify both `/app` and installed import sources; retained cached code must match the source. No image build/pull/export is performed by this runner.
+
+## Offline image build
+
+The exact immutable original role images must already be present in the local Docker daemon. Supply a JSON object mapping API, consumer, reservation-writer, maintenance, publisher, reconciler and simulator to their original immutable IDs. The API parent must be the frozen cloud image; a local test parent is rejected.
+
+```powershell
+.venv/Scripts/python.exe scripts/prepare_status_refresh_artifacts.py --output tmp/status-refresh-image-build --build --parents tmp/original-role-parents.json
+```
+
+Use a fresh output directory. The command preflights every parent before building any candidate, preserves dependency inputs and runtime configuration, copies qualified bytes into both source roots, updates installed package records and checks imports/bytecode. Builds and verification containers use no network; it does not pull, transfer, deploy or dispatch customers. A complete successful build writes `artifact-receipt.json` for the comparison runner. Partial failures retain logs and never emit a deployment receipt. Local tags and images are retained; no automatic pruning is performed.
+
+The real frozen API parent is currently absent locally. A separately labeled Docker fixture validated these mechanics but cannot qualify cloud provenance or performance.
 
 ## Cloud release
 

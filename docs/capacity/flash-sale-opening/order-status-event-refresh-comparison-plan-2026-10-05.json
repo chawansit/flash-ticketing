@@ -4,7 +4,7 @@
   "recorded_at_utc": "2026-10-05T05:12:27.996282+00:00",
   "cloud_execution_performed": false,
   "base_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "isolated_source_directory": "tmp/adr0149-isolated-source",
+  "isolated_source_directory": "tmp/adr0152-qualified-artifacts/source",
   "isolated_source_manifest_verified_locally": true,
   "expected_runtime_source_sha256": {
     "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
@@ -89,7 +89,7 @@
     "API host CPU and all four replica traffic distribution"
   ],
   "prerequisites_remaining": [
-    "prepare reproducible isolated-source export and immutable per-role candidate images; preserve inherited image runtime configuration and apply the full source-manifest label",
+    "obtain the exact original per-role cloud parent images locally and derive immutable candidates with the validated offline ADR0152 tooling; source export is now reproducible",
     "load exact candidate API image and frozen parent on secondary, and each per-role candidate/parent on primary; retain artifact receipt outside Git",
     "bind a new explicit dry-only or dry-plus-paid allowance to exact config/artifact/adapter identity; previous approvals are consumed",
     "run separately approved dry pair with two isolated safety tickets, all source/observer/post-TTL/queue/restore checks; paid pair only by separate explicit invocation after matching fresh dry success"
@@ -110,5 +110,7 @@
     },
     "automatic_qualification_then_paid": false,
     "per_arm_exact_original_restoration": true
-  }
+  },
+  "reproducible_source_artifact": "artifacts/status-refresh/manifest.json",
+  "reproducible_source_preparation_script": "scripts/prepare_status_refresh_artifacts.py"
 }
