@@ -1,0 +1,85 @@
+{
+  "decision": "ADR0158",
+  "experiment_decision": "ADR0157",
+  "workspace_parent_revision": "decd043e48e18483e0f073014c0c89c6c995e6a4",
+  "recorded_at_utc": "2026-10-05T13:13:19.308833+00:00",
+  "image_staging": {
+    "pass": true,
+    "candidate_images": 6,
+    "roles": 7,
+    "hosts": 2,
+    "runtime_identities_unchanged": true,
+    "generator_idle": true,
+    "remote_archives_removed": true,
+    "customer_dispatches": 0,
+    "service_deployments": 0,
+    "evidence": "tmp/adr0153-parents-9751b27d7658/staging-summary.json",
+    "sha256": "d6f8f48a9b55f1e5bdf5884e390dd559acd450567383966678ba7f85cd565b17"
+  },
+  "failed_attempt": {
+    "run": "adr0151-9cfc63e2bc5b",
+    "pass": false,
+    "phase": "local stage construction before cloud driver",
+    "cause": "Shared Stages exact whitelist omitted bounded_status_refresh_dedup. Mocked protocol coverage did not exercise the real constructor.",
+    "exception": "Unsupported bounded stage contract",
+    "cloud_session_started": false,
+    "remote_mutations": 0,
+    "customer_dispatches": 0,
+    "paid_issued_tickets": 0,
+    "capacity_stages_started": 0,
+    "safety_protocol_reservations": 1,
+    "qualification_attempt_consumed": true,
+    "original_report_preserved": true,
+    "evidence": "tmp/adr0151-9cfc63e2bc5b/comparison-summary.json",
+    "sha256": "fad5b37510bc8b112d1263dbfa03d0d09673760993951da2df8fd70bbee8dd4a",
+    "correctness_gate_result": null,
+    "durability_gate_result": null,
+    "queue_gate_result": null
+  },
+  "recovery": {
+    "exact_owned_lock_released": true,
+    "original_process_exited": true,
+    "arm_directory_empty": true,
+    "ledger_counters_preserved": true,
+    "remote_restoration_required": false,
+    "evidence": "tmp/adr0158-checks/no-cloud-recovery.json",
+    "sha256": "63df9ad565b30d9131a9c75f6765cdd14f05eab058acfb8c924897bbac2c4d7a"
+  },
+  "correction": {
+    "exact_tuple_added": [
+      60,
+      "bounded_status_refresh_dedup",
+      1
+    ],
+    "isolated_contract_required": true,
+    "real_both_arm_constructors_checked_before_reservation": true,
+    "application_runtime_unchanged": true,
+    "source_manifest_sha256": "cb4937dace028ab13ede592119ab8d1493c8ecf7cb449a25f345050c98237917",
+    "images_rebuilt": 0,
+    "all_financial_and_queue_gates_retained": true
+  },
+  "validation": {
+    "pre_fix_real_constructor_cases_failed": 4,
+    "post_fix_targeted_tests_passed": 245,
+    "post_fix_tests_failed": 0,
+    "ruff_pass": true,
+    "diff_check_pass": true,
+    "test_log": "tmp/adr0158-checks/tests.txt",
+    "test_log_sha256": "bfb647c7f017c5875be7089e6c1e9ef099b7c92a5ccd6d07c6b27cdb535adb82",
+    "native_application_tests_repeated": false,
+    "reason": "Only harness profile construction and pre-reservation validation changed;19 pinned runtime modules unchanged."
+  },
+  "next_proposal": {
+    "path": "tmp/adr0158-checks/replacement-safety-proposal.json",
+    "sha256": "a9de96dcf65fb87275fb0a71d44c7e25e154fa6b063e73510e5d5bdd5788a63e",
+    "authorized": false,
+    "max_safety_tickets": 2,
+    "capacity_stages": 0,
+    "automatic_replacement": false,
+    "requires_fresh_exact_binding": true
+  },
+  "performance_measurement_complete": false,
+  "cloud_safety_qualified": false,
+  "capacity_improvement_measured": false,
+  "hourly_target_qualified": false
+}

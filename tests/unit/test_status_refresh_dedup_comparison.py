@@ -180,7 +180,8 @@ def test_scoped_protocol_orders_stops_and_preserves_ambiguous_consumption(tmp_pa
                 "pre_safety_source_pass": True, "capacity_stages_started": 0}
 
     monkeypatch.setattr(engine, "run_arm", arm)
-    report = engine.protocol({}, {}, {}, {}, binding, execute=False)
+    data = policy.plan()
+    report = engine.protocol({}, data["artifact_receipt"], data["expected_runtime_source_sha256"], {}, binding, execute=False)
     assert report["experiment_decision"] == "ADR0157" and report["factor"] == policy.FACTOR
     assert calls == (["control"] if failed == "control" else ["control", "candidate"])
     persisted = json.loads(engine.STATE.read_text())
@@ -288,3 +289,56 @@ def test_staging_lock_releases_only_after_runtime_preserving_success(tmp_path, m
         with pytest.raises((ValueError, RuntimeError)):
             stager.stage({}, policy.plan()["artifact_receipt"], tmp_path, None)
         assert len(locks) == 1 and not locks[0].released
+
+
+@pytest.mark.parametrize("arm", ["control", "candidate"])
+@pytest.mark.parametrize("execute", [False, True])
+def test_real_profile_stage_constructor_keeps_exact_dedup_budget(arm, execute):
+    engine = profile.create_runner()
+    c = contract(arm)
+    stage = engine.RefreshStages(execute, {}, c, "adr0151-" + "a" * 12)
+    assert stage.ledger_key == profile.LEDGER
+    assert stage.rate == 60 and stage.stage_limit == 1 and stage.expected_tickets == 18000
+    assert stage.contract is c and stage.execute is execute
+
+
+@pytest.mark.parametrize("rate,ledger,limit,c", [
+    (60, profile.LEDGER, 1, None),
+    (84, profile.LEDGER, 1, object()),
+    (60, profile.LEDGER, 2, object()),
+    (60, "unbounded_new_ledger", 1, object()),
+    (True, profile.LEDGER, 1, object()),
+    (60, profile.LEDGER, True, object()),
+])
+def test_dedup_stage_whitelist_rejects_unbounded_or_missing_contract(rate, ledger, limit, c):
+    with pytest.raises(ValueError):
+        original.comparison.Stages(False, {}, rate=rate, ledger_key=ledger, stage_limit=limit, contract=c)
+
+
+@pytest.mark.parametrize("failed_arm", ["control", "candidate"])
+def test_real_constructor_preflight_failure_cannot_reserve_or_connect(tmp_path, monkeypatch, failed_arm):
+    engine = profile.create_runner()
+    engine.ROOT, engine.STATE = tmp_path, tmp_path / "state.json"
+    (tmp_path / "tmp").mkdir()
+    engine.LOCK = tmp_path / "tmp/run.lock"
+    binding = {"test": "binding"}
+    engine.STATE.write_text(json.dumps(new_state(binding)))
+    before = engine.STATE.read_bytes()
+    real_stages = engine.RefreshStages
+    seen = []
+
+    def checked(execute, bundle, c, run_id):
+        seen.append(c.arm)
+        if c.arm == failed_arm:
+            raise ValueError("synthetic constructor incompatibility")
+        return real_stages(execute, bundle, c, run_id)
+
+    monkeypatch.setattr(engine, "RefreshStages", checked)
+    monkeypatch.setattr(engine, "binding_for", lambda *_a: binding)
+    monkeypatch.setattr(engine, "run_arm", lambda *_a, **_k: pytest.fail("No reservation/cloud allowed"))
+    data = policy.plan()
+    with pytest.raises(ValueError, match="synthetic constructor incompatibility"):
+        engine.protocol({}, data["artifact_receipt"], data["expected_runtime_source_sha256"], {}, binding, execute=False)
+    assert seen == (["control"] if failed_arm == "control" else ["control", "candidate"])
+    assert engine.STATE.read_bytes() == before and not engine.LOCK.exists()
+    assert not list((tmp_path / "tmp").iterdir())

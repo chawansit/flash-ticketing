@@ -41,8 +41,13 @@ def create_runner():
                 and report.get("factor") == policy.FACTOR
                 and original_matches(report, binding, now=now))
 
-    def protocol(*args, **kwargs):
-        report = original_protocol(*args, **kwargs)
+    def protocol(config, artifact, sources, bundle, binding, *, execute, qualification=None):
+        # Exercise both real constructor boundaries before a lock, reservation or cloud call.
+        for arm in ("control", "candidate"):
+            contract = engine.StatusRefreshContract(artifact, arm, sources)
+            engine.RefreshStages(execute, bundle, contract, "adr0151-" + uuid4().hex[:12])
+        report = original_protocol(config, artifact, sources, bundle, binding,
+                                   execute=execute, qualification=qualification)
         report.update(experiment_decision="ADR0157", factor=policy.FACTOR,
                       scope="Fixed2+2API, same images/1000ms cache/refresh-on/budgets; only consumer dedup0->1.60buyers/s300s each if authorized; no hourly capacity claim.")
         path = engine.ROOT / "tmp" / report["run"] / "comparison-summary.json"

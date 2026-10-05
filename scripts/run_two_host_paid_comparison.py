@@ -259,9 +259,9 @@ def cpu_spec(arm, role, rows, inventory, *, fixed_two_host=False):
 class Stages:
     def __init__(self, execute, bundle, *, rate=60, ledger_key="bounded_control", stage_limit=2, contract=None):
         if (type(rate) is not int or type(stage_limit) is not int
-                or (rate, ledger_key, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1))):
+                or (rate, ledger_key, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1))):
             raise ValueError("Unsupported bounded stage contract")
-        if ledger_key == "bounded_status_refresh" and contract is None:
+        if ledger_key in {"bounded_status_refresh", "bounded_status_refresh_dedup"} and contract is None:
             raise ValueError("Isolated refresh contract required")
         self.contract = contract
         self.execute, self.bundle, self.results = execute, bundle, {}
