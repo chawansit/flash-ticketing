@@ -1119,7 +1119,7 @@
     ],
     "scope_closed": true
   },
-  "revision": "977c536374be493d869bacaab1b8fb3317cfab80",
+  "revision": "3c8ee133bb90741fcfc63ec67f8a0b6a5506a77e",
   "latest_experiment": {
     "decision": "ADR0165",
     "run": "adr0151-7acbc3dc2a41",
@@ -1153,8 +1153,8 @@
   },
   "github_documentation_publication": {
     "branch": "codex/publish-adr-0126-0161",
-    "verified_revision": "96183a7f07722a11c82e0585b009284d1bf8098f",
-    "scope": "ADR0164-0168 and9public evidence/plan files;engineering source notpushed;main unchanged",
+    "verified_revision": "502ec91736c880a0d0d8a0e6031e450030df2ea8",
+    "scope": "ADR0164-0169 and linked public evidence;documentation-only;engineering source not pushed;main unchanged",
     "main_revision": "878d364acd4e508150dee25c6eb13af6bc72226f"
   },
   "default_projection_restored_verified": true,
@@ -1165,6 +1165,9 @@
     "focused_final_tests_passed": 16,
     "cloud_calls": 0,
     "evidence": "docs/capacity/flash-sale-opening/naming-guards-local-validation-2026-10-06.json",
-    "guard_scope": "Canonical stage-owner factory; ADR/reference gate in staged/outgoing hooks and CI. Structural checks do not guarantee prose spelling."
+    "guard_scope": "Canonical stage-owner factory; ADR/reference gate in staged/outgoing hooks and CI. Structural checks do not guarantee prose spelling.",
+    "local_hooks_enabled": true,
+    "ci_configuration": "Committed locally on engineering branch;not yet published to GitHub CI",
+    "published_decision": true
   }
 }
