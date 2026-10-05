@@ -1,0 +1,122 @@
+{
+  "decision": "ADR0147",
+  "date_bangkok": "2026-10-05",
+  "run_id": "adr0147-topology-57b91b69e9dc",
+  "application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "frozen_application_image": true,
+  "qualification_pass": true,
+  "capacity_stages_started": 0,
+  "scope": "Bounded safety/deployment/restore qualification; not throughput sizing.",
+  "topology": {
+    "control_api_placement": [
+      4,
+      0
+    ],
+    "candidate_api_placement": [
+      2,
+      2
+    ],
+    "private_endpoint_readiness_pass": true,
+    "shared_pgbouncer_server_budget": 24,
+    "aggregate_api_connections": 16,
+    "payment_partition_connections_included": 8,
+    "background_consumer_processes": 6,
+    "reservation_writer_processes": 3,
+    "writer_batch_size": 4
+  },
+  "safety": {
+    "wave_requests": 100,
+    "requests_per_host": [
+      50,
+      50
+    ],
+    "wave_statuses": {
+      "409": 99,
+      "202": 1
+    },
+    "accepted_holds": 1,
+    "one_durable_owner_before_payment": true,
+    "cross_host_hold_replay": true,
+    "cross_host_payment_replay": true,
+    "other_actor_denied": true,
+    "customer_ticket_confirmed": true
+  },
+  "post_ttl_financial": {
+    "orders": 1,
+    "fulfilled_orders": 1,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 1,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 1,
+    "bookings": 1,
+    "tickets": 1,
+    "payment_callbacks": 1,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 3,
+    "callback_delivery_target": 3,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 1,
+    "expected_paid": 1,
+    "expected_callback_deliveries_per_payment": 3,
+    "pass": true,
+    "hold_deadlines_elapsed": true
+  },
+  "candidate_global_queues": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 6,
+    "pass": true
+  },
+  "restoration": {
+    "runtime_fingerprints_match": true,
+    "primary_apis": 4,
+    "secondary_resources_removed": true,
+    "isolated_show_retired": true,
+    "global_queues": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "pending_callback_deliveries": 0,
+      "pending_refunds": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "kafka_total_lag": 0,
+      "kafka_members": 1,
+      "pass": true
+    },
+    "run_credential_snapshots_removed": true,
+    "secondary_preparation_environment_retained_owner_only": true
+  },
+  "harness_fixes": {
+    "restore_missing_role_explicit_zero": true,
+    "probe_owner_root_mode_before_correction": "0600",
+    "api_user_could_read_probe_before_correction": false,
+    "api_user_ownership_corrected": true,
+    "persistent_phase_wave_and_failure_evidence": true,
+    "probe_evidence_copied_before_teardown": true,
+    "original_failed_protocol": "adr0147-topology-6276813bcb72",
+    "original_failure_root_stderr_not_retained": true
+  },
+  "local_validation": {
+    "focused_tests_passed": 118,
+    "ruff_passed": true
+  },
+  "operational_source_sha256": {
+    "scripts/two_host_topology.py": "24a862abaaeef268353e718939eec1623448b6aec0447864a10d4a4590b26e10",
+    "scripts/probe_two_host_safety.py": "b1ff619d32acb0645297b013d27ba4678a55e573c3a9b2800fd61d821211a038",
+    "scripts/qualify_two_host_deployment.py": "6a15ebc7844b13c1da6f95687f05db68d09ac3973efe518a419d928e06ec6a19"
+  },
+  "private_evidence_directory": "tmp/adr0147-topology-57b91b69e9dc",
+  "next": "Integrate qualified deployment with fresh observed inventory, frozen paid harness and both-host/all-replica observers; then one matched control and candidate, preserving all22+10 gates.",
+  "production_goal_300000_tickets_per_hour_qualified": false
+}

@@ -1,0 +1,36 @@
+{
+  "decision": "ADR0147",
+  "run_id": "adr0147-topology-6276813bcb72",
+  "capacity_stages_started": 0,
+  "qualification_pass": false,
+  "failure_phase": "100-way-cross-host-safety-probe",
+  "probe_root_cause": "Not retained by original nested subprocess wrapper; no concurrency pass claimed.",
+  "automatic_restore_pass": false,
+  "restore_defect": "Absent reservation-writer count defaulted to one instead of zero.",
+  "targeted_recovery_pass": true,
+  "original_role_counts_restored": true,
+  "global_queues": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true
+  },
+  "isolated_fixture": {
+    "orders": 0,
+    "payments": 0,
+    "tickets": 0,
+    "active_fixture_holds": 0,
+    "safety_idempotency_records": 0
+  },
+  "private_evidence_directory": "tmp/adr0147-topology-6276813bcb72",
+  "local_validation": {
+    "focused_tests_passed": 116,
+    "ruff_passed": true
+  }
+}
