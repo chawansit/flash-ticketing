@@ -160,7 +160,7 @@ def cleanup_program(owner, secondary_owner):
     return r"""import json,re
 from pathlib import Path
 owner=Path(OWNER)
-if not owner.is_absolute() or not re.fullmatch(r'adr0147-topology-[0-9a-f]{12}',owner.name) or owner.is_symlink():
+if not owner.is_absolute() or not re.fullmatch(r'(?:adr0147-topology|adr0148-rate)-[0-9a-f]{12}',owner.name) or owner.is_symlink():
  raise ValueError('Owned protocol directory required')
 names=NAMES
 for name in names:

@@ -10,6 +10,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 import run_two_host_paid_comparison as comparison
 import run_two_host_rate_probe as probe
+from qualify_two_host_deployment import IMAGE
 
 
 @pytest.fixture
@@ -116,7 +117,7 @@ def test_invalid_financial_expectation_rejected(value):
         comparison.financial_audit_program([], value)
 
 
-@pytest.mark.parametrize("case", ["changed-image", "changed-service", "missing-consumer", "command-failure", "invalid-id"])
+@pytest.mark.parametrize("case", ["changed-image", "changed-service", "missing-consumer", "command-failure", "invalid-id", "changed-source"])
 def test_worker_log_collection_rejects_changed_identity_or_missing_coverage(tmp_path, monkeypatch, case):
     rows = [{"id": f"{i:064x}", "role": "consumer" if i < 6 else "simulator"} for i in range(7)]
     if case == "missing-consumer":
@@ -126,32 +127,38 @@ def test_worker_log_collection_rejects_changed_identity_or_missing_coverage(tmp_
     spec = tmp_path / "spec.json"
     spec.write_text(json.dumps({"containers": rows}))
     def inspect(args, **kwargs):
+        if args[1] == "exec":
+            return json.dumps({"source_match": case != "changed-source"})
         cid = args[-1]
         role = next(r["role"] for r in rows if r["id"] == cid)
-        return json.dumps([{"Id": cid, "Image": "changed" if case == "changed-image" else probe.IMAGE,
+        return json.dumps([{"Id": cid, "Image": "changed" if case == "changed-image" else IMAGE,
                             "Config": {"Labels": {"com.docker.compose.service": "api" if case == "changed-service" else role}}}])
     monkeypatch.setattr(subprocess, "check_output", inspect)
     monkeypatch.setattr(subprocess, "run", lambda *_args, **_kwargs: SimpleNamespace(returncode=int(case == "command-failure"), stdout=b"", stderr=b""))
     with pytest.raises(ValueError):
-        exec(compile(probe.worker_logs_program(str(spec), "2026-10-05T00:00:00+00:00"), "logs", "exec"), {})  # noqa: S102
+        exec(compile(probe.worker_logs_program(str(spec), "2026-10-05T00:00:00+00:00", {"consumer": IMAGE, "simulator": IMAGE}), "logs", "exec"), {})  # noqa: S102
 
 
-def test_worker_log_collection_is_time_scoped_bounded_and_read_only(tmp_path, monkeypatch, capsys):
+@pytest.mark.parametrize("distinct_images", [False, True])
+def test_worker_log_collection_is_time_scoped_bounded_and_read_only(tmp_path, monkeypatch, capsys, distinct_images):
+    images = {"consumer": "sha256:" + "1" * 64, "simulator": "sha256:" + "2" * 64} if distinct_images else {"consumer": IMAGE, "simulator": IMAGE}
     rows = [{"id": f"{i:064x}", "role": "consumer" if i < 6 else "simulator"} for i in range(7)]
     spec = tmp_path / "spec.json"
     spec.write_text(json.dumps({"containers": rows}))
     calls = []
     def inspect(args, **kwargs):
+        if args[1] == "exec":
+            return json.dumps({"source_match": True})
         cid = args[-1]
         role = next(r["role"] for r in rows if r["id"] == cid)
-        return json.dumps([{"Id": cid, "Image": probe.IMAGE, "Config": {"Labels": {"com.docker.compose.service": role}}}])
+        return json.dumps([{"Id": cid, "Image": images[role], "Config": {"Labels": {"com.docker.compose.service": role}}}])
     def logs(args, **kwargs):
         calls.append(args)
         assert args[0:2] == ["docker", "logs"] and "--since" in args and args[args.index("--tail") + 1] == "200"
         return SimpleNamespace(returncode=0, stdout=b"x" * 20000, stderr=b"HTTP Error 503")
     monkeypatch.setattr(subprocess, "check_output", inspect)
     monkeypatch.setattr(subprocess, "run", logs)
-    exec(compile(probe.worker_logs_program(str(spec), "2026-10-05T00:00:00+00:00"), "logs", "exec"), {})  # noqa: S102
+    exec(compile(probe.worker_logs_program(str(spec), "2026-10-05T00:00:00+00:00", images), "logs", "exec"), {})  # noqa: S102
     result = json.loads(capsys.readouterr().out)
     assert len(calls) == len(result["logs"]) == 7
     assert all(len(row["text"]) == 16384 and row["tail_truncated"] for row in result["logs"])
@@ -223,7 +230,7 @@ def test_missing_logs_after_success_fail_stage_before_restoration(monkeypatch, t
     session = SimpleNamespace(call=unavailable, state={}, checkpoint=lambda: None)
     stage = probe.ProbeStages(False, {})
     with pytest.raises(ValueError, match="evidence missing"):
-        stage(session, "candidate", None, None, "/owned", tmp_path)
+        stage(session, "candidate", None, {"model": {"services": {role: {"image": IMAGE} for role in ("consumer", "simulator")}}}, "/owned", tmp_path)
     assert record["pass"] is False and record["worker_error_evidence"]["pass"] is False
     assert json.loads((tmp_path / "candidate/stage.private.json").read_text())["pass"] is False
 
@@ -254,3 +261,22 @@ def test_prepared84_rate_has_disjoint_sufficient_frozen_shards(frozen_coordinato
     insufficient = {**manifest, "show_ids": manifest["show_ids"][:-1]}
     with pytest.raises(ValueError, match="insufficient distinct seats"):
         frozen_coordinator.split_manifest(insufficient, 2, 12600)
+
+
+@pytest.mark.parametrize("field", ["restore_pass", "primary_runtime_semantics_restored",
+                                    "secondary_resources_removed", "generator_idle_after",
+                                    "credential_snapshots_removed", "restored_global_queues"])
+def test_dry_release_requires_actual_full_restore_and_secret_cleanup(field):
+    result = {"restore_pass": True, "primary_runtime_semantics_restored": True,
+              "secondary_resources_removed": True, "generator_idle_after": True,
+              "credential_snapshots_removed": True, "restored_global_queues": {"pass": True}}
+    assert probe.restoration_complete(result)
+    result.pop(field)
+    assert not probe.restoration_complete(result)
+
+
+@pytest.mark.parametrize("images", [{}, {"consumer": IMAGE},
+                                     {"consumer": "floating:latest", "simulator": IMAGE}])
+def test_worker_diagnostics_require_saved_immutable_role_images(images):
+    with pytest.raises(ValueError, match="Immutable"):
+        probe.worker_logs_program("/owned/spec", "2026-10-05T00:00:00Z", images)

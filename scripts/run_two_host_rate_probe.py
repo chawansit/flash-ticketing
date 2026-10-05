@@ -9,7 +9,7 @@ from pathlib import Path
 from uuid import uuid4
 
 import run_two_host_paid_comparison as comparison
-from qualify_two_host_deployment import IMAGE, ROOT, run
+from qualify_two_host_deployment import ROOT, run
 from summarize_two_host_paid_comparison import compact
 
 LEDGER = "bounded_rate_probe"
@@ -41,25 +41,37 @@ def validate_release(state, baseline, *, execute):
         raise ValueError("Explicit one paid probe authorization required")
 
 
-def worker_logs_program(spec_path, since):
-    """Read only the exact simulator/consumer IDs from this run's owned CPU spec."""
+def worker_logs_program(spec_path, since, expected_images):
+    """Pin exact observed worker IDs, saved role images and frozen source independently."""
+    if set(expected_images) != {"consumer", "simulator"} or any(
+        not re.fullmatch(r"sha256:[0-9a-f]{64}", value) for value in expected_images.values()
+    ):
+        raise ValueError("Immutable saved worker images required")
+    expected_source = json.loads(comparison.PLAN.read_text())["expected_runtime_source_sha256"]
+    source_check = (
+        "import hashlib,json;from pathlib import Path;expected=" + repr(expected_source)
+        + ";actual={k:hashlib.sha256((Path('/app')/k).read_bytes().replace(bytes([13,10]),bytes([10]))).hexdigest() for k in expected};print(json.dumps({'source_match':actual==expected}))"
+    )
     return r"""import json,re,subprocess
 from pathlib import Path
 spec=json.loads(Path(SPEC).read_text())
+images=IMAGES
 logs=[]
 for row in spec['containers']:
  if row['role'] not in {'consumer','simulator'}:continue
  cid=row['id']
  if not re.fullmatch('[0-9a-f]{64}',cid):raise ValueError('Invalid diagnostic container identity')
  current=json.loads(subprocess.check_output(['docker','inspect',cid],text=True,timeout=10))[0]
- if current['Id']!=cid or current['Image']!=IMAGE or current['Config']['Labels']['com.docker.compose.service']!=row['role']:raise ValueError('Diagnostic container/source changed')
+ if current['Id']!=cid or current['Image']!=images[row['role']] or current['Config']['Labels']['com.docker.compose.service']!=row['role']:raise ValueError('Diagnostic container/source changed')
+ proof=json.loads(subprocess.check_output(['docker','exec',cid,'python','-c',SOURCE_CHECK],text=True,timeout=12))
+ if proof.get('source_match') is not True:raise ValueError('Diagnostic worker frozen source differs')
  result=subprocess.run(['docker','logs','--since',SINCE,'--tail','200',cid],capture_output=True,timeout=12)
  if result.returncode:raise ValueError('Diagnostic log unavailable')
  raw=result.stdout+result.stderr
- logs.append({'role':row['role'],'container_id':cid,'tail_truncated':len(raw)>16384,'text':raw[-16384:].decode(errors='replace')})
+ logs.append({'role':row['role'],'container_id':cid,'image':current['Image'],'source_match':True,'tail_truncated':len(raw)>16384,'text':raw[-16384:].decode(errors='replace')})
 if sum(row['role']=='consumer' for row in logs)!=6 or sum(row['role']=='simulator' for row in logs)!=1:raise ValueError('Diagnostic worker coverage differs')
 print(json.dumps({'logs':logs}))
-""".replace("SPEC", repr(spec_path)).replace("SINCE", repr(since)).replace("IMAGE", repr(IMAGE))
+""".replace("SPEC", repr(spec_path)).replace("SINCE", repr(since)).replace("IMAGES", repr(expected_images)).replace("SOURCE_CHECK", repr(source_check))
 
 
 def diagnostic_summary(logs):
@@ -93,7 +105,7 @@ class ProbeStages(comparison.Stages):
             record = self.results.get(arm, {})
             local = output / arm
             try:
-                captured = session.call("primary", worker_logs_program(owner + "/candidate/cpu-spec.json", since), 130)
+                captured = session.call("primary", worker_logs_program(owner + "/candidate/cpu-spec.json", since, {role: saved["model"]["services"][role]["image"] for role in ("consumer", "simulator")}), 130)
                 metadata = []
                 for item in captured["logs"]:
                     path = local / (item["role"] + "-" + item["container_id"][:12] + ".private.log")
@@ -124,6 +136,12 @@ def qualification_matches(report, expected_identity):
             and report.get("worker_error_evidence_pass") is True)
 
 
+def restoration_complete(result):
+    return all(result.get(key) is True for key in (
+        "restore_pass", "primary_runtime_semantics_restored", "secondary_resources_removed",
+        "generator_idle_after", "credential_snapshots_removed")) and result.get("restored_global_queues", {}).get("pass") is True
+
+
 def protocol(config, bundle, *, execute):
     path = ROOT / "docs/capacity/CURRENT_STATE.json"
     state = json.loads(path.read_text())
@@ -151,7 +169,7 @@ def protocol(config, bundle, *, execute):
     passed = (result.get("pass") is True and result.get("restore_pass") is True
               and set(stages.results) == {"candidate"} and stage.get("pass") is True
               and stage.get("pre_dispatch_qualified") is True and stage.get("private_cleanup_pass") is True
-              and diagnostic_pass and result.get("capacity_stages_started") == (1 if execute else 0)
+              and restoration_complete(result) and diagnostic_pass and result.get("capacity_stages_started") == (1 if execute else 0)
               and (not execute or gates.get("all_required_gates_pass") is True))
     report = {"kind": "two_host_84_buyer_probe" if execute else "two_host_84_buyer_probe_dry",
               "run": output.name, "pass": passed, "restore_pass": result.get("restore_pass"),

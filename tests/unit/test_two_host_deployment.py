@@ -381,8 +381,9 @@ def test_probe_main_keeps_failure_checkpoint(monkeypatch, tmp_path):
     assert "JWT_SECRET" not in output.read_text()
 
 
-def test_cleanup_removes_only_owned_snapshot_files(tmp_path):
-    owner = tmp_path / "adr0147-topology-012345abcdef"
+@pytest.mark.parametrize("prefix", ["adr0147-topology", "adr0148-rate"])
+def test_cleanup_removes_only_owned_snapshot_files(tmp_path, prefix):
+    owner = tmp_path / (prefix + "-012345abcdef")
     owner.mkdir()
     for name in (
         "backup.private.json",
