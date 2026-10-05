@@ -1,0 +1,49 @@
+{
+  "decision": "ADR0164",
+  "run": "adr0151-6cf227629f33",
+  "status": "CONTROL_SAFETY_OBSERVER_FAILED_RESTORED_SCOPE_CLOSED",
+  "staging_pass": true,
+  "paid_capacity_stages_started": 0,
+  "comparison_candidate_started": false,
+  "performance_improvement_measured": false,
+  "safety": {
+    "requests": 100,
+    "winners": 1,
+    "pass": true
+  },
+  "post_ttl": {
+    "pass": true,
+    "hold_deadlines_elapsed": true,
+    "succeeded_payments": 1,
+    "bookings": 1,
+    "tickets": 1,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0
+  },
+  "restored_global_queues": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0
+  },
+  "restoration_complete": true,
+  "failure": {
+    "reported_type": "TimeoutError",
+    "actual_cause": "Pipeline observer exact historical settings equality rejected the additional admission profile keys before dispatch",
+    "phase": "observer startup",
+    "backend_capacity_failure_proven": false
+  },
+  "correction": "ADR0165 verifies full extended settings before projecting a copy to historical keys",
+  "raw_evidence_directory": "tmp/adr0151-6cf227629f33/adr0151-arm-32fb0b9397b9",
+  "separate_projection_18000_issue": "unresolved"
+}
