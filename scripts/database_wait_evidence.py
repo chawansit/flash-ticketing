@@ -23,6 +23,10 @@ CAPABILITY_SQL = """SELECT json_build_object(
 ACTIVITY_SQL = """SELECT json_build_object(
  'utc',clock_timestamp(),
  'restricted_sessions',count(*) FILTER (WHERE state IS NULL),
+ 'restricted_backends',coalesce((SELECT json_agg(b) FROM (
+   SELECT backend_type,usename=current_user AS own_role,count(*) AS count
+   FROM pg_stat_activity WHERE datname=current_database() AND pid<>pg_backend_pid() AND state IS NULL
+   GROUP BY backend_type,usename=current_user ORDER BY backend_type LIMIT 16) b),'[]'::json),
  'active',count(*) FILTER (WHERE state='active'),
  'idle_in_transaction',count(*) FILTER (WHERE state LIKE 'idle in transaction%'),
  'waits',coalesce((SELECT json_agg(w) FROM (
@@ -101,19 +105,59 @@ def sanitize(activity, stats):
     return result
 
 
+def failure_context(activity):
+    """Retain only bounded category counts; do not export error text or identities."""
+    result = {}
+    for key in ("restricted_sessions", "active", "idle_in_transaction"):
+        try:
+            result[key] = number(activity[key])
+        except (ValueError, KeyError, TypeError):
+            pass
+    groups = activity.get("restricted_backends", [])
+    if isinstance(groups, list) and len(groups) <= 16:
+        safe = []
+        for group in groups:
+            if (not isinstance(group, dict) or not isinstance(group.get("backend_type"), str)
+                    or not re.fullmatch(r"[A-Za-z_ ]{1,64}", group["backend_type"])
+                    or group.get("own_role") is not None and type(group["own_role"]) is not bool):
+                continue
+            try:
+                safe.append({"backend_type": group["backend_type"], "own_role": group.get("own_role"),
+                             "count": number(group["count"])})
+            except (ValueError, KeyError, TypeError):
+                pass
+        result["restricted_backends"] = safe
+    return result
+
+
 class Collector:
     def __init__(self):
         self.capability = None
 
     def collect(self, conn):
         started = time.monotonic()
+        phase, activity = "capabilities", None
         try:
             if self.capability is None:
                 self.capability = capabilities(conn)
-            result = sanitize(bounded_query(conn, ACTIVITY_SQL), bounded_query(conn, STATS_SQL))
+            phase = "activity"
+            activity = bounded_query(conn, ACTIVITY_SQL)
+            phase = "statistics"
+            stats = bounded_query(conn, STATS_SQL)
+            phase = "validation"
+            result = sanitize(activity, stats)
             result.update(complete=True, capabilities=self.capability)
         except Exception as exc:  # noqa: BLE001 - classify only; never export DB error text
-            result = {"complete": False, "error_type": type(exc).__name__}
+            result = {"complete": False, "error_type": type(exc).__name__, "error_phase": phase}
+            codes = {"Full bounded activity visibility required": "activity_visibility_or_bound",
+                     "Catalog wait labels required": "wait_label",
+                     "Required statistics counter absent": "missing_counter",
+                     "Finite nonnegative diagnostic value required": "invalid_counter",
+                     "Aware database timestamp required": "timestamp",
+                     "Explicit timing availability required": "timing_availability"}
+            result["error_code"] = codes.get(str(exc), "unclassified")
+            if phase == "validation" and isinstance(activity, dict):
+                result["failure_context"] = failure_context(activity)
         result["collection_ms"] = (time.monotonic() - started) * 1000
         if result["collection_ms"] > MAX_OVERHEAD_MS:
             result.update(complete=False, overhead_budget_exceeded=True)

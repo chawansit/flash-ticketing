@@ -1,7 +1,7 @@
 # ADR0173: Bounded database wait and WAL diagnostics
 
 ## Status
-Accepted under ADR0172. Locally qualified; managed PostgreSQL read-only capability check passed. Paid control pending.
+Accepted under ADR0172. Locally qualified; managed PostgreSQL read-only capability check passed. Paid control executed; financial/customer gates passed, diagnostic completeness failed.
 
 ## Context
 ADR0171 completed 18,000 paid-and-issued tickets at 60 journeys/s for 300 seconds, with complete financial reconciliation and queue drain. Its longest commits finished together across four APIs on two hosts. A shared downstream stall is plausible, but neither sparse PgBouncer samples nor low aggregate RDS utilization prove the cause. The 84/s target remains unqualified.
@@ -28,6 +28,13 @@ No application persistence, locking, payment idempotency, hold TTL, messaging se
 Diagnostic errors must not hide customer or correctness failures. Missing coverage prevents a diagnostic pass; teardown still collects retained traces, audits payment durability and zero double-booking, drains all queues and restores the original topology. Consume failed scope identities and use a new reservation for any rerun. Preserve explicit pauses and unresolved recovery blockers.
 
 ## Validation evidence
-Executed: 297 focused tests passed in 51.59 seconds across nine suites, including query privacy/bounds, unsupported capabilities, reset handling, collector integration, unchanged profile contracts, standing authorization, transport recovery and cleanup. Ruff passed; canonical naming passed for 1,488 documents. Read-only RDS check: PostgreSQL 17.11, complete activity visibility, WAL and checkpointer views available; track_wal_io_timing disabled and track_io_timing enabled. Collector wall time 13.89–31.08 ms in two preflight samples. One unchanged cloud control remains pending. No capacity improvement claimed.
+Executed: 297 focused tests passed in 51.59 seconds across nine suites, including query privacy/bounds, unsupported capabilities, reset handling, collector integration, unchanged profile contracts, standing authorization, transport recovery and cleanup. Ruff passed; canonical naming passed for 1,488 documents. Read-only RDS check: PostgreSQL 17.11, complete activity visibility, WAL and checkpointer views available; track_wal_io_timing disabled and track_io_timing enabled. Collector wall time 13.89Ã¢â‚¬â€œ31.08 ms in two preflight samples. One unchanged cloud control remains pending. No capacity improvement claimed.
 
 References: [PostgreSQL statistics](https://www.postgresql.org/docs/17/monitoring-stats.html) and [statistics settings](https://www.postgresql.org/docs/17/runtime-config-statistics.html).
+
+### Executed control and diagnostic follow-up
+The fresh standing reservation completed safety qualification and one paid control with exact restoration. All 18,000 customers obtained unique paid-and-issued tickets, no drops or customer failures, and complete queues. Only database_wait_evidence_complete failed: 10 of 478 samples returned ValueError. Valid samples showed WALWrite wait peaks of 20 sessions and WalSync waits near shared slow commits; WAL timing remained disabled. This is evidence of WAL-related contention, not a complete causal attribution or a capacity improvement.
+
+A subsequent 65-second read-only visibility check found no hidden sessions and did not reproduce the errors. The account lacks pg_read_all_stats membership. The specific validation cause is unresolved. Add allowlisted failure codes/phases and bounded backend category counts while retaining the strict visibility gate. Do not exclude hidden sessions or declare the issue fixed without evidence. Preserve the original failed result and consume its reservation; any paid rerun needs a fresh identity and safety qualification.
+
+Executed follow-up validation: 111 targeted tests passed in 18.55 seconds; Ruff passed. The expanded SQL passed two read-only managed PostgreSQL samples (20.96 ms and 13.67 ms). This validates query compatibility, not reproduction of the load-dependent failure or a paid-load pass for the classifier. See [the control report](../capacity/flash-sale-opening/database-wait-diagnostic-control-2026-10-06.json).

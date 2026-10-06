@@ -1,0 +1,306 @@
+{
+  "decision": "ADR0173",
+  "kind": "unchanged_database_wait_diagnostic_control",
+  "run": "adr0151-676175e0d5d3",
+  "pass": false,
+  "finished_at_utc": "2026-10-06T02:31:14.201381+00:00",
+  "application_change": false,
+  "execution_harness_revision": "4130252f306aa5027704b99a4e09d2d936d4c95e",
+  "qualification": {
+    "run": "adr0151-a669bb8b0bcb",
+    "pass": true
+  },
+  "capacity_stages_started": 1,
+  "stage": {
+    "stage_pass": true,
+    "customer_pass": true,
+    "offered_buyers_per_second": 60,
+    "dispatch_seconds": 300,
+    "scheduled": 18000,
+    "dispatched": 18000,
+    "customer_confirmations_by_deadline": 18000,
+    "generator_drops": 0,
+    "failed_dispatched_journeys": 0,
+    "errors_per_dispatched_journey_percent": 0.0,
+    "customer_outcomes": {
+      "fulfilled": 18000
+    },
+    "customer_http_attempts_total": 110270,
+    "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+    "p95_ms": {
+      "hold_http_p95_ms": 11.512530967593193,
+      "durable_p95_ms": 1028.3433209988289,
+      "payment_http_p95_ms": 66.94094301201403,
+      "payment_to_ticket_p95_ms": 925.0249619944952,
+      "hold_to_ticket_p95_ms": 2223.4967969707213
+    },
+    "host_cpu_percent": {
+      "primary": 71.38202855693766,
+      "secondary": 17.61325333692868
+    },
+    "aggregate_api_cpu_cores": 1.3885402365142059,
+    "financial": {
+      "orders": 18000,
+      "fulfilled_orders": 18000,
+      "expired_orders": 0,
+      "pending_orders": 0,
+      "payment_attempts": 18000,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 18000,
+      "bookings": 18000,
+      "tickets": 18000,
+      "payment_callbacks": 18000,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 18000,
+      "callback_delivery_target": 18000,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 18000,
+      "expected_paid": 18000,
+      "expected_callback_deliveries_per_payment": 1,
+      "pass": true,
+      "hold_deadlines_elapsed": true
+    },
+    "global_queues": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "pending_callback_deliveries": 0,
+      "pending_refunds": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "kafka_total_lag": 0,
+      "kafka_members": 6,
+      "pass": true,
+      "pending_confirmation_receipts": 0,
+      "review_confirmation_receipts": 0,
+      "confirmation_capacity_outstanding": 0,
+      "confirmation_capacity_mismatches": 0
+    },
+    "all_four_replicas_observed": true,
+    "request_shares": [
+      0.23055204579843075,
+      0.2306378398614816,
+      0.2616094966228337,
+      0.27720061771725396
+    ],
+    "private_cleanup_pass": true,
+    "failure_type": null
+  },
+  "restoration_complete": true,
+  "failed_gates": [
+    "database_wait_evidence_complete"
+  ],
+  "issued_during_sampled_offered_window": {
+    "first_sample_utc": "2026-10-06T02:20:42.276779+00:00",
+    "last_sample_utc": "2026-10-06T02:25:41.354933+00:00",
+    "issued_ticket_delta": 17877,
+    "sampled_seconds": 299.07815408706665,
+    "issued_tickets_per_second": 59.773673722741066,
+    "scope": "Samples strictly inside the offered interval; final cohort completion includes bounded tail. Not one-hour qualification."
+  },
+  "target_distance": {
+    "target_paid_issued_tickets_per_second": 84,
+    "observed_sampled_issued_rate": 59.773673722741066,
+    "percent_of_target": 71.15913538421556,
+    "additional_tickets_per_second": 24.226326277258934,
+    "required_increase_percent": 40.53009421778597,
+    "hourly_qualification_passed": false
+  },
+  "database_wait_capture": {
+    "decision": "ADR0173",
+    "complete": false,
+    "rows": 478,
+    "error_counts": {
+      "ValueError": 10
+    },
+    "counter_continuity": false,
+    "max_collection_ms": 30.201021989341825,
+    "wal_timing_available_throughout": false,
+    "counter_deltas": null,
+    "observed_active_wait_peaks": {
+      "Client:ClientRead": 5,
+      "None:None": 3,
+      "IO:WalSync": 2,
+      "LWLock:WALWrite": 20,
+      "IO:DataFileRead": 1,
+      "Lock:transactionid": 2
+    },
+    "scope": "Observer lifetime, cluster WAL/checkpoints and current-database activity; one-second snapshots may miss brief waits. Correlation does not prove causality."
+  },
+  "slow_phase_summary": {
+    "commit": {
+      "records": 81,
+      "max_logged_duration_ms": 392.633
+    },
+    "pool_return": {
+      "records": 0,
+      "max_logged_duration_ms": null
+    }
+  },
+  "acquisition_failure_records": 0,
+  "largest_slow_commits": [
+    {
+      "host_role": "primary",
+      "time": "2026-10-06T02:22:39.961396+00:00",
+      "duration_ms": 392.633
+    },
+    {
+      "host_role": "primary",
+      "time": "2026-10-06T02:22:39.959274+00:00",
+      "duration_ms": 375.205
+    },
+    {
+      "host_role": "secondary",
+      "time": "2026-10-06T02:22:39.959693+00:00",
+      "duration_ms": 368.152
+    },
+    {
+      "host_role": "primary",
+      "time": "2026-10-06T02:22:39.961286+00:00",
+      "duration_ms": 367.507
+    },
+    {
+      "host_role": "secondary",
+      "time": "2026-10-06T02:22:39.960573+00:00",
+      "duration_ms": 355.412
+    },
+    {
+      "host_role": "primary",
+      "time": "2026-10-06T02:22:39.961021+00:00",
+      "duration_ms": 336.152
+    }
+  ],
+  "database_samples_near_longest_commit": [
+    {
+      "statistics_utc": "2026-10-06T09:22:38.611296+07:00",
+      "offset_seconds": -1.350100040435791,
+      "waits": [
+        {
+          "type": "IO",
+          "event": "WalSync",
+          "count": 1
+        },
+        {
+          "type": "LWLock",
+          "event": "WALWrite",
+          "count": 11
+        }
+      ],
+      "wal_buffers_full": 34904,
+      "checkpoint_num_timed": 1202,
+      "checkpoint_num_requested": 28
+    },
+    {
+      "statistics_utc": "2026-10-06T09:22:39.5855+07:00",
+      "offset_seconds": -0.37589597702026367,
+      "waits": [
+        {
+          "type": "Client",
+          "event": "ClientRead",
+          "count": 1
+        },
+        {
+          "type": "IO",
+          "event": "WalSync",
+          "count": 1
+        },
+        {
+          "type": "LWLock",
+          "event": "WALWrite",
+          "count": 10
+        }
+      ],
+      "wal_buffers_full": 34904,
+      "checkpoint_num_timed": 1202,
+      "checkpoint_num_requested": 28
+    },
+    {
+      "statistics_utc": "2026-10-06T09:22:40.613735+07:00",
+      "offset_seconds": 0.652338981628418,
+      "waits": [
+        {
+          "type": "Client",
+          "event": "ClientRead",
+          "count": 1
+        },
+        {
+          "type": "IO",
+          "event": "WalSync",
+          "count": 1
+        },
+        {
+          "type": "LWLock",
+          "event": "WALWrite",
+          "count": 9
+        }
+      ],
+      "wal_buffers_full": 34904,
+      "checkpoint_num_timed": 1202,
+      "checkpoint_num_requested": 28
+    },
+    {
+      "statistics_utc": "2026-10-06T09:22:41.65955+07:00",
+      "offset_seconds": 1.6981539726257324,
+      "waits": [
+        {
+          "type": "IO",
+          "event": "WalSync",
+          "count": 1
+        },
+        {
+          "type": "LWLock",
+          "event": "WALWrite",
+          "count": 20
+        }
+      ],
+      "wal_buffers_full": 34904,
+      "checkpoint_num_timed": 1202,
+      "checkpoint_num_requested": 28
+    }
+  ],
+  "baseline": {
+    "decision": "ADR0171",
+    "run": "adr0151-d7e8f730fc58",
+    "evidence": "docs/capacity/flash-sale-opening/slow-database-diagnostic-control-2026-10-06.json",
+    "paid_issued": 18000,
+    "customer_error_percent": 0.0,
+    "hold_to_ticket_p95_ms": 1709.1139850090258,
+    "host_cpu_percent": {
+      "primary": 71.30343135561007,
+      "secondary": 17.46932657409201
+    }
+  },
+  "interpretation": [
+    "Customer, financial, queue and restoration gates passed; the overall diagnostic experiment failed only database_wait_evidence_complete.",
+    "Valid samples observed WALWrite contention up to 20 sessions and WalSync waits near simultaneous slow commits. WAL timing collection is disabled, so causal WAL service-time attribution remains incomplete.",
+    "Ten of 478 samples failed validation; no counter decreases or reset-epoch changes were found across the 468 valid samples. The coverage gate remains failed.",
+    "No capacity improvement or production/hourly qualification claimed. Customer latency varies and hold-to-ticket p95 was worse than the baseline."
+  ],
+  "read_only_follow_up": {
+    "duration_seconds": 65,
+    "can_read_all_stats": false,
+    "hidden_sessions_observed": false,
+    "failure_reproduced": false,
+    "conclusion": "Exact validation failure unresolved. Added bounded error phase/code and backend-category counts; strict visibility gate unchanged.",
+    "failure_classifier_local_tests_passed": 111,
+    "expanded_sql_read_only_preflight_pass": true,
+    "expanded_sql_collector_wall_ms": [
+      20.955306,
+      13.672923
+    ],
+    "classifier_paid_load_tested": false
+  },
+  "standing_reservation": {
+    "ledger": "bounded_database_wait_diagnostics__fd665dd38c65",
+    "status": "FAILED_RESTORED",
+    "actual_elapsed_seconds": 1262.469
+  },
+  "raw_evidence_directory": "tmp/adr0151-676175e0d5d3/adr0151-arm-0bbc0c012571/control",
+  "next_action": "Verify the failure classifier, then use a new standing reservation and safety qualification for an unchanged control if needed to reproduce the missing samples. Attribute the WAL-related contention before one isolated correction; do not raise load yet.",
+  "executed_plan_evidence": "tmp/adr0151-676175e0d5d3/executed-experiment-plan.json",
+  "executed_plan_canonical_json_sha256": "c06c4f36074bf75395d2b921479526e49b4b56781a723fd6f40ed5000c626db2",
+  "executed_plan_file_sha256": "43a9ea3d40eada60ed441f419a6bb381799c1cf5e84c2b6dc9043f38b1045277"
+}

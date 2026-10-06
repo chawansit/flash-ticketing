@@ -2,5 +2,29 @@
   "schema_version": 1,
   "envelope_id": "standing-work-envelope-2026-10-06",
   "human_pause": false,
-  "experiments": []
+  "experiments": [
+    {
+      "ledger": "bounded_database_wait_diagnostics__fd665dd38c65",
+      "authorization_id": "work-envelope-fd665dd38c65",
+      "envelope_sha256": "aa88f94c5d0785edc56d6cbf4441c3a96c126e2011139e9fd0130a9b63d4d3b3",
+      "binding_sha256": "7a7a81c0a9ee0f57be9da1b4b22ae98f6dd8b7c2b72c26985c7fce1758b28138",
+      "plan_sha256": "c06c4f36074bf75395d2b921479526e49b4b56781a723fd6f40ed5000c626db2",
+      "profile": "database_wait_control",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1262.4690000000046,
+      "started_at_utc": "2026-10-06T02:10:11.660615+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-a669bb8b0bcb",
+          "pass": true
+        },
+        {
+          "run": "adr0151-676175e0d5d3",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-06T02:31:14.265212+00:00"
+    }
+  ]
 }

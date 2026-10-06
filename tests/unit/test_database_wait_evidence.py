@@ -187,3 +187,29 @@ def test_preflight_compiles_and_closes_transient_connection():
     program = evidence.preflight_program()
     compile(program, "preflight", "exec")
     assert "connect_timeout=5" in program and "assert all(r['complete']" in program
+
+
+def test_failure_classifier_retains_counts_without_weakening_visibility_gate():
+    conn = Connection()
+    original = conn.execute
+    def hidden(sql):
+        result = original(sql)
+        if sql == evidence.ACTIVITY_SQL:
+            data = result.fetchone()[0]
+            data.update(restricted_sessions=1, restricted_backends=[
+                {"backend_type": "parallel worker", "own_role": True, "count": 1, "query": "secret"}])
+            return SimpleNamespace(fetchone=lambda: [data])
+        return result
+    conn.execute = hidden
+    result = evidence.Collector().collect(conn)
+    assert result["complete"] is False
+    assert result["error_phase"] == "validation" and result["error_code"] == "activity_visibility_or_bound"
+    assert result["failure_context"]["restricted_backends"] == [
+        {"backend_type": "parallel worker", "own_role": True, "count": 1}]
+    assert "secret" not in json.dumps(result)
+
+
+def test_failure_context_rejects_arbitrary_fields_labels_and_bounds():
+    assert evidence.failure_context({"restricted_backends": [
+        {"backend_type": "secret:password", "own_role": True, "count": 1}]}) == {"restricted_backends": []}
+    assert evidence.failure_context({"restricted_backends": [{}] * 17}) == {}

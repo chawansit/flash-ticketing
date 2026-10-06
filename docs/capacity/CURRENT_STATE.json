@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0173_local_qualified_managed_capabilities_passed_control_pending",
+  "status": "adr0173_control_customer_financial_pass_diagnostic_coverage_failed_restored",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -10,10 +10,10 @@
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "ADR0171 exact original primary runtime restored: four primary APIs; secondary test resources removed; generator idle; full queues and Kafka lag zero. Measured topology was two APIs per host.",
+  "last_checked_topology": "ADR0173 original primary runtime restored: four primary APIs; secondary test resources removed; full financial/confirmation queues and Kafka lag zero; generator idle. Measured topology was two APIs per host.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "Revision is the parent checkpoint of the ADR0173 implementation; cloud paid control has not started at this checkpoint.",
+  "revision_note": "ADR0173 cloud control ran from this implementation revision. Subsequent failure-classification improvement is locally tested; its performance has not been measured.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -1062,7 +1062,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Fresh ADR0172 standing reservation: ADR0173 safety qualification then unchanged 60 journeys/s for 300s only on safety pass. Preserve all financial, queue and restoration gates; attribute shared commit stall before any higher load.",
+  "next_action": "Verify the failure classifier, then use a new standing reservation and safety qualification for an unchanged control if needed to reproduce the missing samples. Attribute the WAL-related contention before one isolated correction; do not raise load yet.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1125,7 +1125,7 @@
     ],
     "scope_closed": true
   },
-  "revision": "b857aaa2b4c77e6001a5ad7e0fe15f66f62738cc",
+  "revision": "4130252f306aa5027704b99a4e09d2d936d4c95e",
   "latest_experiment": {
     "decision": "ADR0171",
     "run": "adr0151-d7e8f730fc58",
@@ -1333,7 +1333,12 @@
       "cloud_calls": 0
     },
     "time_policy": "No cumulative cap; every experiment bounded, tracked and as effectively short as possible. Choose and record the shortest sufficient predeclared window; preserve matched comparisons and mandatory correctness windows.",
-    "time_policy_amended_date_bangkok": "2026-10-06"
+    "time_policy_amended_date_bangkok": "2026-10-06",
+    "last_experiment": {
+      "ledger": "bounded_database_wait_diagnostics__fd665dd38c65",
+      "status": "FAILED_RESTORED",
+      "actual_elapsed_seconds": 1262.469
+    }
   },
   "database_wait_diagnostics": {
     "decision": "ADR0173",
@@ -1343,7 +1348,86 @@
     "tests_passed": 297,
     "rds_capabilities_pass": true,
     "wal_timing_enabled": false,
-    "cloud_paid_load_started": false,
-    "capacity_improvement_measured": false
-  }
+    "cloud_paid_load_started": true,
+    "capacity_improvement_measured": false,
+    "evidence": "docs/capacity/flash-sale-opening/database-wait-diagnostic-control-2026-10-06.json",
+    "run": "adr0151-676175e0d5d3",
+    "overall_pass": false,
+    "customer_financial_queue_pass": true,
+    "restoration_complete": true,
+    "failed_gate": "database_wait_evidence_complete",
+    "invalid_samples": 10,
+    "valid_samples": 468,
+    "sampled_paid_issued_rate": 59.773673722741066,
+    "wait_peak_walwrite": 20,
+    "failure_classifier_implemented": true,
+    "failure_classifier_local_tests": 111,
+    "failure_classifier_cloud_paid_tested": false,
+    "failure_classifier_rds_read_only_preflight_pass": true
+  },
+  "bounded_database_wait_diagnostics__fd665dd38c65": {
+    "authorization_id": "work-envelope-fd665dd38c65",
+    "binding": {
+      "adapter_identity": {
+        "scripts/observe_two_host_pipeline.py": "7455e421a20c9e70efdc69abf72d4adebe6a95df49f69881ea3104d70c657166",
+        "scripts/database_wait_evidence.py": "891db9f395d528c4dbe568db31401b89e544d5a239daed1ea97b78e8f58ddf25",
+        "scripts/prepare_two_host_scaling.py": "2837924087e960a2048804bb2e345e8f621c479282ad46ac5b3641a104d21b39",
+        "scripts/observe_two_host_cpu.py": "f38dc5ded7103ab70e2ab5dcaed79dd72528259390432967b5d600befc9e23e1",
+        "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+        "scripts/run_two_host_paid_comparison.py": "061329b60a98b2e97a1cdb5bf07bbb5f8be3cd3e2865274127973069bc5497bb",
+        "scripts/qualify_two_host_deployment.py": "eaa35abff6b29dec2fd23abdd50fc7127901cc3dc4fa5c7e3ea1fa0bf551ab4a",
+        "scripts/collect_two_host_inventory.py": "8a889fba8f39c0205671d05b77fe239f795465506fdea0f6a8ead4d88ce387c1",
+        "scripts/runtime_source_identity.py": "5dd0db433abf10e79a3bf1c21ca29d28e85137e7f3e1483e9e96df35462ead80",
+        "scripts/probe_two_host_safety.py": "f61f3e718a19c158aa4c4f90a3411160facd9441d8dea9d7e53e20a0fe920bd2",
+        "scripts/run_status_refresh_comparison.py": "7c5e34e4dbb2311c4bf12c4224684bec20f3ec6b3522332f1b8cd72d2a7dbad6",
+        "scripts/status_refresh_contract.py": "98941571768e1a3984318dc22762bccc1713278f84f7acde11b61f8568932f27",
+        "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+        "scripts/work_envelope.py": "ffb982b40a4bb13a283e246a0264efce3c996766d19fb4435ba7291ee9fd8b42",
+        "scripts/run_work_envelope.py": "cc6b570c57ff1cda661b23025a12cda1b87cbfb222b80fbefed47e23f39a83b5",
+        "experiment_plan": "c06c4f36074bf75395d2b921479526e49b4b56781a723fd6f40ed5000c626db2",
+        "scripts/run_database_wait_diagnostics.py": "82b7b3999cb3f8f7042db847a5e5b24ed9f3830391e715164cd4f6ac35915e98",
+        "scripts/database_wait_contract.py": "16db38485ae47ed8f581a496282889603600dedad92bd2b989e387d0b0e1cba0",
+        "scripts/prepare_partial_timeout_reclamation.py": "0573f2a7f94177567ce58a5b9b43aee6a6bede552e1530fcb72e70b8d8b1a076",
+        "scripts/prepare_status_refresh_artifacts.py": "dd06c8574b63061dcecf69d2da9f9d0c0fa82b4df36a6c57f0c35099d9431467",
+        "scripts/status_refresh_image_install.py": "9a20736841a226feb599850b51493cf9383df89b4d8d5506a8cc4de9f9198752",
+        "scripts/stage_status_refresh_images.py": "f0150b07056e20a70bf6aef482c254f929a35d0437a81b2df0cf7b06a7b4daf7",
+        "scripts/run_async_confirmation_comparison.py": "28c849cefb0797ef32a33f92a97e816ebd81449841ef09bb84d51032cafbf64a",
+        "scripts/checkout_journey_probe.py": "10b14c979133188d42aaba5a9a91ab599101922e2d284e85dbe6c03244e3a5bc",
+        "scripts/fetch_status_refresh_parents.py": "b79f31039d1fceedcd9d51a64be5fecc24beb8212078dad64d36f134a95da26d",
+        "scripts/admission_failure_evidence.py": "0a4d3be45c7f9b9021918391a14848a0f8f9a4eb9ffdc99482a8ad8958eb7be5",
+        "scripts/slow_database_evidence.py": "f369fef593a2fb65d99faecd57ed6ebccd3012a67f513790a0cfbfb955c2c5d6",
+        "scripts/partial_timeout_profile.py": "2c75b4b42e25c106384f87ba566b4caa58c758b6d055d27688d1f811358be519",
+        "artifacts/partial-timeout-reclamation/manifest.json": "5fb51d138dce9b04d1c40506e861b20350d08da421a7832392f4f0c48ea9c0fa",
+        "artifacts/partial-timeout-reclamation/adr0163.patch": "6950c3f3286f0ce3f4934e16682648ab52bb3ca165bf9992dbdce32a143a2a34"
+      },
+      "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+      "artifact_sha256": "3c045c15719fedeea69df0ab5bfd274e53d8989f2e9de113a3457d72c5c03b6d",
+      "source_manifest_sha256": "13d78bdf41e7d442f87ee04d1bb4f357d648789adf0e5270a23b06d74c55ccd2"
+    },
+    "standing_envelope": {
+      "ledger": "bounded_database_wait_diagnostics__fd665dd38c65",
+      "envelope_sha256": "aa88f94c5d0785edc56d6cbf4441c3a96c126e2011139e9fd0130a9b63d4d3b3"
+    },
+    "qualification_runs_authorized": 1,
+    "paid_runs_authorized": 1,
+    "safety_tickets_authorized": 2,
+    "qualification_protocols_started": 1,
+    "paid_runs_started": 1,
+    "paid_protocols_started": 1,
+    "safety_protocols_started": 2,
+    "active_run": null,
+    "scope": "Fresh ADR0173 control under ADR0172 standing boundaries; no replay or higher load",
+    "qualification_arms": [
+      "control"
+    ],
+    "last_runner_report": "tmp/adr0151-676175e0d5d3/comparison-summary.json",
+    "dry_qualification_report": "tmp/adr0151-a669bb8b0bcb/comparison-summary.json",
+    "paid_protocol_arms": [
+      "control"
+    ],
+    "attempted_paid_arms": [
+      "control"
+    ]
+  },
+  "unresolved_issue": "Ten database diagnostic samples failed validation under paid load; idle read-only check did not reproduce the cause. Valid snapshots show WALWrite/WalSync waits near shared slow commits, but WAL timing is disabled and causal attribution is incomplete. 84/s, hourly 300k, projection correction and async confirmation capacity benefit remain unqualified."
 }

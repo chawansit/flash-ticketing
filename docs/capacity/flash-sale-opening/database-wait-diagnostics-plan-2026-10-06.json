@@ -195,5 +195,5 @@
     }
   },
   "scope": "One fresh safety qualification then one unchanged 60 journeys/s, 300s control with bounded read-only wait/WAL capture. No new resources, connection budget, higher load or replay.",
-  "status": "LOCALLY_QUALIFIED_FRESH_STANDING_RESERVATION_REQUIRED"
+  "status": "FRESH_CONTROL_EXECUTED_DIAGNOSTIC_GATE_FAILED_RESULTS_RECORDED_SEPARATELY"
 }
