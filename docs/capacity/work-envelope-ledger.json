@@ -216,5 +216,12 @@
       "receipt_path": "docs/capacity/flash-sale-opening/pre-dispatch-abort-recovery-2026-10-06.json",
       "receipt_sha256": "a18ada0433328f49616fc1f44953cb899a5cf36809dd17cb7f39a7fdb45d9895"
     }
+  },
+  "historical_exceptions": {
+    "bounded_diagnostic_placement__9647f50ed259": {
+      "entry_sha256": "a55723b9869fb7e8f0fb968a3b32b3e28d0ec0ff61cfd0297c1ab80d49dc9bc0",
+      "receipt_path": "docs/capacity/flash-sale-opening/historical-paid-fixture-exception-2026-10-06.json",
+      "receipt_sha256": "4d749265b84fcea2caa4f1039dbb07525a87d6878164191d846952f3e1c11488"
+    }
   }
 }

@@ -1,0 +1,63 @@
+{
+  "decision": "ADR0190",
+  "kind": "human_accepted_historical_uncertainty",
+  "ledger": "bounded_diagnostic_placement__9647f50ed259",
+  "binding_sha256": "49dea775d29ddfb86f863db5de68d0e5e30850acfef2028e6e3ace160946ad01",
+  "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+  "approval": {
+    "source": "direct_human_message",
+    "date_bangkok": "2026-10-06",
+    "instruction": "yes but if there is not information. You can ignore it and proceed test again.",
+    "unreconciled_historical_information_accepted": true
+  },
+  "recorded_at_utc": "2026-10-06T15:45:33.026637+00:00",
+  "historical_financial_reconciliation_verified": false,
+  "original_result_pass": false,
+  "old_scope_replay_allowed": false,
+  "future_correctness_gates_unchanged": true,
+  "gates": {
+    "retained_runtime_restoration": true,
+    "retained_credential_cleanup": true,
+    "fresh_runtime_unchanged": true,
+    "fresh_primary_four": true,
+    "fresh_secondary_empty": true,
+    "fresh_generator_idle": true,
+    "fresh_credentials_absent": true,
+    "fresh_global_queues_zero": true
+  },
+  "retained_artifact_sha256": {
+    "tmp/adr0151-647e2505c995/comparison-summary.json": "79ebc05d6b97cfbc57dd9852b5d6f957e89ffffc532ddfcb62f40e9c45b45df6",
+    "tmp/adr0151-647e2505c995/adr0151-arm-d5ef03846c60/state.json": "fde702d1b8bd71fd72fc2b7f265a8768ad55e812f40797336fa28b1259c83412",
+    "tmp/adr0151-647e2505c995/adr0151-arm-d5ef03846c60/control/stage.private.json": "3ecfb4ba2df95625a3eab2640026ccd7e0e3688f931ab6922346f70d721f3934",
+    "tmp/adr0151-647e2505c995/adr0151-arm-b0dcedbec185/state.json": "673bd01986b3bf62bbac6d332a7e8a0d578c6a909093cbd1e9a12c9a1428bfc4",
+    "tmp/adr0151-647e2505c995/adr0151-arm-b0dcedbec185/candidate/stage.private.json": "242ba718c2cdba91c3cdbe8954f7241793a50022e0546caf5a5173e5b7887b46"
+  },
+  "fresh_observation": {
+    "ledger": "bounded_diagnostic_placement__9647f50ed259",
+    "binding_sha256": "49dea775d29ddfb86f863db5de68d0e5e30850acfef2028e6e3ace160946ad01",
+    "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+    "primary_four": true,
+    "secondary_empty": true,
+    "generator_idle": true,
+    "credentials_absent": true,
+    "queues": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "pending_callback_deliveries": 0,
+      "pending_refunds": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "kafka_total_lag": 0,
+      "kafka_members": 1,
+      "pass": true,
+      "pending_confirmation_receipts": 0,
+      "review_confirmation_receipts": 0,
+      "confirmation_capacity_outstanding": 0,
+      "confirmation_capacity_mismatches": 0
+    },
+    "runtime_unchanged": true,
+    "captured_at_utc": "2026-10-06T15:45:32.919503+00:00",
+    "actual_elapsed_seconds": 24.219
+  }
+}

@@ -35,6 +35,7 @@ def identity():
                 "two_host_topology.py",
                 "work_envelope.py",
                 "pre_dispatch_abort_recovery.py",
+                "historical_recovery_exception.py",
                 "run_work_envelope.py",
             )
         },
