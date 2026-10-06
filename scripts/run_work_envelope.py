@@ -128,6 +128,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--execute", action="store_true")
+    modes.add_argument("--worker-preflight", action="store_true")
     modes.add_argument("--pause", action="store_true")
     modes.add_argument("--resume", action="store_true")
     modes.add_argument("--check-publication", metavar="BRANCH")
@@ -138,7 +139,19 @@ def main():
     parser.add_argument("--artifact", type=Path)
     parser.add_argument("--diagnostic-target", type=Path)
     parser.add_argument("--ssh-runtime", type=Path)
+    parser.add_argument("--worker-inputs", type=Path)
+    parser.add_argument("--worker-evidence", type=Path)
+    parser.add_argument("--worker-scope")
     args = parser.parse_args()
+    if args.worker_preflight:
+        from worker_separation_preload import from_files
+        report = from_files(args.worker_inputs, args.worker_evidence, scope_key=args.worker_scope)
+        print(json.dumps(report, indent=2))
+        if not report["ready_for_load"]:
+            raise SystemExit(1)
+        return
+    if any(v is not None for v in (args.worker_inputs, args.worker_evidence, args.worker_scope)):
+        parser.error("Worker evidence is restricted to --worker-preflight; this does not enable execution")
     if args.check_publication:
         allowed = policy.publication_allowed(args.check_publication,
                                              reviewed=args.reviewed, sanitized=args.sanitized)

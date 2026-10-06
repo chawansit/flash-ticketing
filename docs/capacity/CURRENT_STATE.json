@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "worker_lifecycle_locally_qualified_live_runner_pending_recovery_required",
+  "status": "worker_staging_and_preload_locally_qualified_live_adapter_pending_recovery_required",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "Original four primary APIs restored; secondary test resources absent; generator idle; fresh read-only20.984s routing check verified unchanged runtime and global queues0.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "ADR0186 local handover qualification follows base 2c5572b; Git HEAD identifies the published harness. Live images, original failed gates and consumed scopes remain unchanged.",
+  "revision_note": "ADR0187 local worker staging and pre-load qualification follows base 8085768; Git HEAD identifies the published harness. Live images, original failed gates and consumed scopes remain unchanged.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -60,7 +60,8 @@
     "ADR0181 final local runner qualification: 27 passes in 28.22s; helper29.046s. Protected target, source/CA identity, partial transfer and interruption cleanup, financial/visibility/drain gate failures covered; historical combined suite151 passes with corrected Windows path failure.",
     "ADR0181 safety pair passed. Measured control was stopped by an exact inventory fingerprint mismatch before paid dispatch; full diagnostic preflight and two complete samples passed. Receipt order corrected; 100 local checks plus28 focused parser/recovery checks executed. Strict read-only abort recovery passed eleven gates and preserves original failed scope/gates. No placement or capacity result.",
     "ADR0181 replacement safety 89c90d2cb80b passed. Measured 647e2505c995: control passed all required gates with 18,000 confirmed/paid/issued and zero errors/drops/duplicates. Candidate: 15,030 confirmed, 24 errors (0.159426% of 15,054 dispatched), 2,946 drops, hold-to-ticket p95 11,046 ms. Post-TTL: 15,039 payments/bookings/tickets, 15 unpaid expired orders, duplicates zero, queues zero, restoration/private cleanup passed. Candidate rejected; no capacity gain.",
-    "Fresh read-only routing check (20.984s) verified simulator targets the primary Docker API service. Unchanged routing implies primary callback pool capacity falls from four to two at 1+3 placement despite equal total budgets. Polling/CPU amplification observed. ADR0183 log-input ceiling raised from 32 to 64 MiB: initial suite 84 passed/one stale assertion failed; corrected affected suite 20 passed; Ruff passed. No cloud retest."
+    "Fresh read-only routing check (20.984s) verified simulator targets the primary Docker API service. Unchanged routing implies primary callback pool capacity falls from four to two at 1+3 placement despite equal total budgets. Polling/CPU amplification observed. ADR0183 log-input ceiling raised from 32 to 64 MiB: initial suite 84 passed/one stale assertion failed; corrected affected suite 20 passed; Ruff passed. No cloud retest.",
+    "ADR0187:282 affected local tests/Ruff passed; native isolated Docker package verified7 worker roles/6 immutable images and79,484,928-byte archive, proof containers0. OCI index/config identity mismatch caught and corrected with failed evidence retained. Read-only pre-load report blocks unresolved recovery/unregistered profile/missing scope/evidence;0 cloud calls, no capacity result."
   ],
   "unresolved": "1+3 failed: 24 customer errors, 2,946 drops, 16.14 status checks/journey and payment-pool saturation. Primary-only callback routing reduces reachable callback pool capacity from four to two in the candidate. Standing ledger remains RECOVERY_REQUIRED despite completed owned restoration; strict paid-run recovery verification is needed before more load. 84/s, the single-show 18,000-seat projection, flash opening and hourly qualification remain unqualified.",
   "next_on_resume": [
@@ -1082,7 +1083,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Implement owned immutable worker image staging and the registered guarded live lifecycle adapter, integrating host-aware observers and the complete pre-load report. Strict historical paid-fixture recovery remains unresolved; no cloud load or consumed-scope replay.",
+  "next_action": "Implement and locally qualify the registered guarded live worker lifecycle adapter with host-aware observation, bound receipt collection and complete financial/restoration gates. Historical paid-fixture recovery remains unresolved and blocks all cloud mutations/load; never replay consumed scopes.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1781,7 +1782,11 @@
     "worker_observer_accounting_note": "Recorded broad helper includes its pytest runtime; final metrics duration is pytest-reported. Earlier focused test runs overlap and were not separately wall-clock timed. No registered cloud experiment or spending change.",
     "local_worker_lifecycle_pytest_seconds_this_checkpoint": 47.31,
     "local_worker_lifecycle_compose_seconds_this_checkpoint": 0.687,
-    "worker_lifecycle_accounting_note": "Sum of four executed pytest-reported durations, including the initial failed suite; Compose separately measured. Editing, review and other check wall time not separately measured. Cloud journal, spending and cumulative cloud accounting unchanged."
+    "worker_lifecycle_accounting_note": "Sum of four executed pytest-reported durations, including the initial failed suite; Compose separately measured. Editing, review and other check wall time not separately measured. Cloud journal, spending and cumulative cloud accounting unchanged.",
+    "local_worker_staging_pytest_seconds_this_checkpoint": 63.34,
+    "local_worker_staging_native_package_seconds_this_checkpoint": 44.656,
+    "local_worker_preflight_seconds_this_checkpoint": 1.094,
+    "worker_staging_accounting_note": "Recorded pytest durations include repeated qualification after new edits. Native totals include the retained failed OCI-format attempt. Editing, review and other checks were not separately timed; cloud journal unchanged."
   },
   "bounded_application_role_rebalance__3ae1fd15417b": {
     "authorization_id": "work-envelope-3ae1fd15417b",
@@ -1992,7 +1997,7 @@
     ]
   },
   "worker_separation_preparation": {
-    "status": "worker_lifecycle_locally_qualified_live_runner_pending_recovery_required",
+    "status": "worker_staging_and_preload_locally_qualified_live_adapter_pending_recovery_required",
     "implemented": [
       "Pure fixed-factor worker placement models with immutable images and unchanged logical pool totals",
       "Common private Kafka listener and four-API callback ingress configuration",
@@ -2002,13 +2007,16 @@
       "Exclusive flushed action journal and no replay after ambiguous outcomes",
       "Worker absence required before broker reconfiguration, destination starts and restoration",
       "Independent mandatory post-TTL payment, ticket, double-booking and full queue cleanup checks",
-      "Failed local control stops simulated candidate progression"
+      "Failed local control stops simulated candidate progression",
+      "Immutable seven-role staging contract bound to exact sources, image defaults, stable metadata and archive receipt",
+      "Bounded classic Docker and OCI archive digest validation, including pinned attestations",
+      "Durable staging intents and receipts; guarded transfers; exact sealed cleanup; uncertain outcomes retain recovery ownership",
+      "Ten-category read-only pre-load report integrated into bounded runner; missing or stale evidence fails closed"
     ],
     "not_implemented": [
-      "Owned secondary worker image transfer and private file sealing",
-      "Registered guarded live lifecycle adapter and full observer integration",
-      "Exact historical paid-fixture recovery verification",
-      "Complete pre-load report and live qualification before fresh registered cloud comparison"
+      "Registered guarded live worker lifecycle adapter and complete observer/audit integration",
+      "Live receipt collection, handover, restoration and staging qualification",
+      "Exact historical paid-fixture ownership and recovery verification before any fresh cloud load"
     ],
     "cloud_deployment_started": false,
     "cloud_load_started": false,
@@ -2016,6 +2024,10 @@
     "host_aware_observers_locally_tested": true,
     "local_lifecycle_qualified": true,
     "live_lifecycle_qualified": false,
-    "latest_evidence": "docs/capacity/flash-sale-opening/background-service-separation-lifecycle-2026-10-06.json"
+    "latest_evidence": "docs/capacity/flash-sale-opening/background-service-separation-staging-2026-10-06.json",
+    "local_staging_qualified": true,
+    "local_preload_report_qualified": true,
+    "live_staging_qualified": false,
+    "worker_profile_registered": false
   }
 }

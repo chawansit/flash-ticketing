@@ -1,0 +1,119 @@
+{
+  "schema": 1,
+  "decision": "ADR0187",
+  "placement_decision": "ADR0184",
+  "base_revision": "8085768399a20510141eeb6507e3ea9aa6d66f88",
+  "status": "local_staging_and_preload_qualified_live_adapter_pending",
+  "implemented": [
+    "Immutable seven-role staging contract bound to exact sources, image defaults, stable metadata and archive receipt",
+    "Bounded classic Docker and OCI archive digest validation, including pinned attestations",
+    "Durable staging intents and receipts; guarded transfers; exact sealed cleanup; uncertain outcomes retain recovery ownership",
+    "Ten-category read-only pre-load report integrated into bounded runner; missing or stale evidence fails closed"
+  ],
+  "remaining": [
+    "Registered guarded live worker lifecycle adapter and complete observer/audit integration",
+    "Live receipt collection, handover, restoration and staging qualification",
+    "Exact historical paid-fixture ownership and recovery verification before any fresh cloud load"
+  ],
+  "validation": {
+    "final_affected_suite": {
+      "passed": 282,
+      "pytest_seconds": 19.35,
+      "cache_provider_disabled": true
+    },
+    "archive_focused_after_oci_correction": {
+      "passed": 81,
+      "pytest_seconds": 2.18,
+      "warning": "Pytest cache write denied; tests passed; final suite disabled the optional cache provider"
+    },
+    "preceding_affected_suite": {
+      "passed": 238,
+      "pytest_seconds": 18.54
+    },
+    "native_local_attempts": [
+      {
+        "evidence_directory": "tmp/adr0153-parents-39d9f22ab1ea",
+        "pass": true,
+        "decision": "ADR0187",
+        "scope": "Synthetic topology with real recorded worker images; local isolated proof and archive only",
+        "worker_roles": 7,
+        "distinct_images": 6,
+        "archive_bytes": 79484928,
+        "archive_sha256": "20255fb91d25f1d78e26ceef15fd86dcc27beb0273db5886827cdc170e0078d5",
+        "contract_sha256": "7fa47847663d1a3a30a207085ebc2d4c70c680e383bb4765aad08dc47ffaccf6",
+        "cloud_calls": 0,
+        "service_deployments": 0,
+        "customer_dispatches": 0,
+        "elapsed_seconds": 16.359
+      },
+      {
+        "evidence_directory": "tmp/adr0153-parents-7d947c14f7b6",
+        "pass": false,
+        "decision": "ADR0187",
+        "failure_type": "ValueError",
+        "cloud_calls": 0,
+        "elapsed_seconds": 14.391
+      },
+      {
+        "evidence_directory": "tmp/adr0153-parents-197569cf040c",
+        "pass": true,
+        "decision": "ADR0187",
+        "scope": "Synthetic topology with real recorded worker images; local isolated proof and archive only",
+        "worker_roles": 7,
+        "distinct_images": 6,
+        "archive_bytes": 79484928,
+        "archive_sha256": "20255fb91d25f1d78e26ceef15fd86dcc27beb0273db5886827cdc170e0078d5",
+        "contract_sha256": "7fa47847663d1a3a30a207085ebc2d4c70c680e383bb4765aad08dc47ffaccf6",
+        "cloud_calls": 0,
+        "service_deployments": 0,
+        "customer_dispatches": 0,
+        "elapsed_seconds": 13.906
+      }
+    ],
+    "native_format_finding": "Initial config-only identity check rejected Docker OCI index IDs. Bounded descriptor-graph validation corrected the assumption; failed attempt retained.",
+    "proof_cleanup": {
+      "proof_containers_remaining": 0,
+      "pass": true,
+      "cloud_calls": 0
+    },
+    "real_runner_preflight": {
+      "status": "BLOCKED",
+      "exit_code": 1,
+      "blockers": [
+        "unresolved_recovery",
+        "profile_not_registered",
+        "fresh_bound_scope_missing"
+      ],
+      "repository_naming": {
+        "status": "PASS",
+        "error_count": 0
+      },
+      "unknown_evidence_categories": 8,
+      "elapsed_seconds": 1.094,
+      "load_authorized": false
+    },
+    "ruff_pass": true
+  },
+  "source_sha256": {
+    "scripts/worker_separation_staging.py": "09129136d05694273d12b4f2b66c3d609d9fd629ec43fb30d0cb90b5169efafb",
+    "scripts/worker_separation_preload.py": "ad26c571504f90d80b8643fa0860dc0316f02d05cb27012ac79863a9241c3072",
+    "scripts/run_work_envelope.py": "50f832e3a50f3c5b6ec2900a3c062a2330e29528c2ee39a7b683cd8231b30b87",
+    "scripts/stage_status_refresh_images.py": "f6356e1b02f68a0b991ad8d72f1e5c63088c04f580dfd46a46d9cfa04f68d9b5",
+    "tests/unit/test_worker_separation_staging.py": "1a146941229c670033699e99c448a9e247182f76e1b71cd94a05c7e7cafb08a3"
+  },
+  "accounting": {
+    "recorded_local_pytest_seconds": 63.34,
+    "recorded_native_package_seconds": 44.656,
+    "recorded_preflight_seconds": 1.094,
+    "note": "Recorded pytest durations include repeated qualification after new edits. Native totals include the retained failed OCI-format attempt. Editing, review and other checks were not separately timed; cloud journal unchanged."
+  },
+  "cloud_calls": 0,
+  "cloud_deployment_started": false,
+  "cloud_load_started": false,
+  "customer_dispatches": 0,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "customer_gates_changed": false,
+  "new_infrastructure_spend": 0,
+  "experiment_ledger_sha256_unchanged": "de5566c1c85625ea9fe97aff9407ef29e6f7fde7466b6a5012112f76546d3692"
+}

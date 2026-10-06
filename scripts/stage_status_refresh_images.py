@@ -108,10 +108,12 @@ print(json.dumps({'loaded_images':IMAGES}))
     )
 
 
-def upload(session, role, owner, path, size, digest):
+def upload(session, role, owner, path, size, digest, *, action_guard=None):
     validate_owner(owner)
     if path.is_symlink() or path.stat().st_size != size or not 0 < size <= MAX_ARCHIVE:
         raise ValueError("Exact local archive required")
+    if action_guard is not None:
+        action_guard.check(240)
     start, progress, sent, computed = time.monotonic(), time.monotonic(), 0, hashlib.sha256()
     sftp = session.clients[role].open_sftp()
     try:
@@ -121,6 +123,8 @@ def upload(session, role, owner, path, size, digest):
             sftp.chmod(remote, 0o600)
             destination.set_pipelined(True)
             for block in iter(lambda: source.read(1024**2), b""):
+                if action_guard is not None:
+                    action_guard.check(60)
                 sent += len(block)
                 if sent > size or time.monotonic() - start > 240:
                     raise ValueError("Transfer size/time budget exceeded")

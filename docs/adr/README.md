@@ -314,3 +314,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0185: Durable pre-dispatch fixture identity](0185-durable-pre-dispatch-fixture-identity.md)
 
 - [ADR0186: Journaled worker handover qualification](0186-journaled-worker-handover-qualification.md)
+
+- [ADR0187: Bound worker image staging and pre-load gates](0187-bound-worker-image-staging-and-preload-gates.md)
