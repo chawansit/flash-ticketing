@@ -185,6 +185,29 @@
         }
       ],
       "finished_at_utc": "2026-10-06T09:26:18.441698+00:00"
+    },
+    {
+      "ledger": "bounded_diagnostic_placement__9647f50ed259",
+      "authorization_id": "work-envelope-9647f50ed259",
+      "envelope_sha256": "7532a85e603674f28d77d6ef1dfa049beb66343059f8ba0a0aa675edf82016d1",
+      "binding_sha256": "49dea775d29ddfb86f863db5de68d0e5e30850acfef2028e6e3ace160946ad01",
+      "plan_sha256": "ccbeed79cabbad26929110249e34ed1a235abadff1754c89e595217be415663a",
+      "profile": "diagnostic_placement",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 2482.1719999999914,
+      "started_at_utc": "2026-10-06T09:44:35.073868+00:00",
+      "status": "RECOVERY_REQUIRED",
+      "reports": [
+        {
+          "run": "adr0151-89c90d2cb80b",
+          "pass": true
+        },
+        {
+          "run": "adr0151-647e2505c995",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-06T10:25:57.370045+00:00"
     }
   ],
   "verified_aborts": {

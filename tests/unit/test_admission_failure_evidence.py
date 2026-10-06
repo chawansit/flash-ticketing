@@ -55,7 +55,7 @@ def test_remote_program_is_compilable_and_contains_fixed_bounds():
     program = evidence.program(apis(), "2026-10-06T00:00:00+00:00")
     compile(program, "remote-diagnostics", "exec")
     assert "docker" in program and "logs" in program and "inspect" in program
-    assert "MAX_BYTES=33554432" in program and "MAX_RECORDS=128" in program
+    assert "MAX_BYTES=67108864" in program and "MAX_RECORDS=128" in program
     assert "process.kill()" in program and "identities() != expected" in program
 
 
@@ -146,3 +146,42 @@ def test_other_replica_records_cannot_hide_missing_snapshot(tmp_path):
         row["api_replicas"]["other"] = {key: 0 for key in row["api_replicas"]["api"]}
     path.write_text("\n".join(json.dumps(row) for row in rows) + "\n")
     assert not evidence.counter_coverage({"api": [], "other": [failure()]}, path)
+
+
+def test_failure_after_old_byte_ceiling_is_retained_without_raw_logs(monkeypatch):
+    import itertools
+    import os
+    import select
+    import subprocess
+
+    api = apis()[0]
+    identity = [{"Id": api["container_id"], "Image": api["image_id"],
+                 "State": {"Running": True, "StartedAt": api["started_at"]},
+                 "Config": {"Labels": {"com.docker.compose.service": "api",
+                                       "com.docker.compose.project": "flash-ticketing"}}}]
+    monkeypatch.setattr(subprocess, "check_output", lambda *args, **kwargs: json.dumps(identity).encode())
+    unrelated = b"2026-10-06T01:00:00Z unrelated private-content-must-not-be-retained\n"
+    chunk = unrelated * (65536 // len(unrelated))
+    count = (32 * 2**20) // len(chunk) + 2
+    record = ("2026-10-06T01:00:00Z " + json.dumps(failure()) + "\n").encode()
+    stream = itertools.chain(itertools.repeat(chunk, count), (record, b""))
+
+    class Process:
+        stdout = SimpleNamespace(fileno=lambda: 99, close=lambda: None)
+        def __init__(self, *args, **kwargs): pass
+        def wait(self, **kwargs): return 0
+        def poll(self): return 0
+
+    monkeypatch.setattr(subprocess, "Popen", Process)
+    monkeypatch.setattr(select, "select", lambda *args: ([1], [], []))
+    monkeypatch.setattr(os, "read", lambda *args: next(stream))
+    proof = evidence.remote_collect([api], "2026-10-06T00:00:00+00:00")
+    captured = proof["apis"][0]
+    assert proof["complete"] is True
+    assert 32 * 2**20 < captured["input_bytes"] < 64 * 2**20
+    assert captured["records"] == [evidence.sanitize(failure())]
+    assert "private-content" not in json.dumps(proof)
+    program = evidence.program([api], "2026-10-06T00:00:00+00:00", expected_api_count=1)
+    assert "MAX_BYTES=67108864" in program
+    assert "MAX_LINE=16384" in program and "MAX_RECORDS=128" in program
+    assert "remaining = 10 -" in program

@@ -306,3 +306,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0181: Bounded diagnostic placement comparison](0181-bounded-diagnostic-placement-comparison.md)
 
 - [ADR0182: Verified pre-dispatch abort recovery](0182-verified-pre-dispatch-abort-recovery.md)
+
+- [ADR0183: Bounded diagnostic log headroom](0183-bounded-diagnostic-log-headroom.md)

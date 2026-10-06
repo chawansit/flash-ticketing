@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROLES = ("general", "payment")
 REASONS = ("global_limit", "role_limit", "native_timeout", "native_limit")
-MAX_BYTES = 32 * 2**20
+MAX_BYTES = 64 * 2**20  # ADR0183: input scan only; line, records and deadline remain bounded.
 MAX_LINE = 16384
 MAX_RECORDS = 128
 
