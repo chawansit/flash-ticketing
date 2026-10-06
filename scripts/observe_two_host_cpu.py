@@ -37,6 +37,10 @@ def placement(spec):
     if arm not in {"control", "candidate"}:
         raise ValueError("Unknown logical CPU arm")
     value = spec.get("placement", "four-primary" if arm == "control" else "two-plus-two")
+    if value == "worker-separation":
+        if spec.get("decision") != "ADR0184" or not re.fullmatch(r"[0-9a-f]{64}", spec.get("inventory_sha256", "")):
+            raise ValueError("Explicit worker-placement inventory binding required")
+        return value
     if value not in {"four-primary", "two-plus-two", "one-plus-three"} or (value == "four-primary" and arm != "control") or (value == "one-plus-three" and arm != "candidate"):
         raise ValueError("Unknown or incompatible CPU placement")
     return value
@@ -50,7 +54,7 @@ def validate_spec(spec):
     physical = placement(spec)
     rows = spec.get("containers", [])
     if not isinstance(rows, list) or (
-        not rows and not (physical == "four-primary" and spec["host_role"] == "secondary")
+        not rows and not (spec["host_role"] == "secondary" and (physical == "four-primary" or (physical == "worker-separation" and spec["arm"] == "control")))
     ):
         raise ValueError("Observed containers required")
     ids = set()
@@ -59,9 +63,24 @@ def validate_spec(spec):
             raise ValueError("Distinct full container IDs required")
         if entry.get("role") not in {"api", *BACKGROUND_ROLES}:
             raise ValueError("Unexpected container role")
-        if spec["host_role"] == "secondary" and entry["role"] != "api":
+        if spec["host_role"] == "secondary" and entry["role"] != "api" and physical != "worker-separation":
             raise ValueError("Secondary must be API-only")
         ids.add(entry["id"])
+    if physical == "worker-separation":
+        from collections import Counter
+
+        from worker_separation_topology import INFRA, PROJECT, WORKERS
+        expected = ({"primary": {**INFRA, **WORKERS}, "secondary": {}} if spec["arm"] == "control"
+                    else {"primary": INFRA, "secondary": WORKERS})[spec["host_role"]]
+        if dict(Counter(r["role"] for r in rows)) != expected:
+            raise ValueError("Exact host-aware CPU role counts required")
+        for entry in rows:
+            project = "flash-ticketing" if spec["host_role"] == "primary" else PROJECT
+            if (not re.fullmatch(r"sha256:[0-9a-f]{64}", entry.get("image_id", ""))
+                    or entry.get("project") != project or not isinstance(entry.get("started_at"), str)):
+                raise ValueError("Full worker-placement CPU identity required")
+            timestamp(entry["started_at"])
+        return rows
     count = sum(entry["role"] == "api" for entry in rows)
     expected = ({"primary": 4, "secondary": 0} if physical == "four-primary" else
                 {"primary": 1, "secondary": 3} if physical == "one-plus-three" else
@@ -92,6 +111,10 @@ def inspect_containers(entries):
             or row["Config"]["Labels"].get("com.docker.compose.service") != entry["role"]
         ):
             raise ValueError("Observed container disappeared or changed role")
+        if any(key in entry for key in ("image_id", "started_at", "project")) and (
+                row["Image"] != entry.get("image_id") or row["State"]["StartedAt"] != entry.get("started_at")
+                or row["Config"]["Labels"].get("com.docker.compose.project") != entry.get("project")):
+            raise ValueError("CPU container image/start/project changed")
         pid = row["State"]["Pid"]
         if type(pid) is not int or pid <= 0:
             raise ValueError("Invalid container PID")
@@ -102,6 +125,7 @@ def inspect_containers(entries):
             raise ValueError("Missing unified cgroup")
         result[entry["id"]] = {
             "role": entry["role"],
+            **{k: entry[k] for k in ("image_id", "started_at", "project") if k in entry},
             "pid": pid,
             "process_start_ticks": proc_identity(pid),
             "path": path,
@@ -155,6 +179,7 @@ def collect(spec, start_at, *, seconds=300, interval=5):
         "host_role": spec["host_role"],
         "arm": spec["arm"],
         "placement": placement(spec),
+        **{k: spec[k] for k in ("decision", "inventory_sha256") if k in spec},
         "instance_uuid_sha256": actual,
         "requested_start_utc": start.isoformat(),
         "seconds": seconds,
@@ -183,6 +208,7 @@ def summarize(data):
         "instance_uuid_sha256": data["instance_uuid_sha256"],
         "containers": data["containers"],
         **({"placement": data["placement"]} if "placement" in data else {}),
+        **{k: data[k] for k in ("decision", "inventory_sha256") if k in data},
     }
     entries = validate_spec(spec)
     ids = {entry["id"] for entry in entries}
@@ -228,6 +254,7 @@ def summarize(data):
         "host_role": data["host_role"],
         "arm": data["arm"],
         "placement": placement(spec),
+        **{k: spec[k] for k in ("decision", "inventory_sha256") if k in spec},
         "instance_uuid_sha256": data["instance_uuid_sha256"],
         "start_utc": first["utc"],
         "end_utc": last["utc"],
@@ -244,6 +271,7 @@ def compare_windows(primary, secondary, *, offered_start_utc, offered_end_utc):
         or secondary["host_role"] != "secondary"
         or primary["arm"] != secondary["arm"]
         or placement(primary) != placement(secondary)
+        or (placement(primary) == "worker-separation" and primary["inventory_sha256"] != secondary["inventory_sha256"])
         or primary["instance_uuid_sha256"] == secondary["instance_uuid_sha256"]
     ):
         raise ValueError("Distinct matched host roles required")

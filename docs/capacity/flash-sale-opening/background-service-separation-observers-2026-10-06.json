@@ -1,0 +1,52 @@
+{
+  "decision": "ADR0184",
+  "status": "host_aware_observers_locally_tested_live_runner_pending_recovery_required",
+  "base_harness_revision": "22d45c54740ec5eb285f856daeb7068e4c1d4712",
+  "implemented": [
+    "Read-only inventory verifies all 21 containers across the exact planned hosts, including commands, environments, immutable images, private endpoints and Kafka volume identity.",
+    "Host-specific source/import/readiness proofs and metric process-start identity for four APIs and fourteen background workers.",
+    "Explicit ADR0184 CPU placement with exact role counts, image/start/project identity and matched inventory hash on both hosts.",
+    "Sealed endpoint discovery preserves frozen financial sample and worker parsing; payload/series bounds and sticky failures on restart, reset, missing diagnostics and invalid confirmation metrics."
+  ],
+  "tests": {
+    "broad": {
+      "passed": 298,
+      "pytest_seconds": 146.14,
+      "helper_elapsed_seconds": 146.688
+    },
+    "after_confirmation_gauge_correction": {
+      "passed": 81,
+      "pytest_seconds": 0.62
+    },
+    "focused_final_observer_tests": 31,
+    "ruff_pass": true
+  },
+  "initial_test_failures_corrected": [
+    "Windows pytest case ID generated from a 4-MiB payload was too large; bounded explicit test IDs added.",
+    "API-only admission metric validation was incorrectly applied to workers; moved to exact API endpoints while retaining strict API validation."
+  ],
+  "retained_identity_scan": {
+    "run": "adr0151-647e2505c995",
+    "scanned_files": 22,
+    "scanned_bytes": 73541853,
+    "identity_field_matches": 0,
+    "actual_elapsed_seconds": 0.344
+  },
+  "recovery": "No exact fixture identities found in the retained failed-run JSON/log evidence. Do not infer ownership from database titles or timestamps. Consumed ledger and failed gates remain unchanged.",
+  "remaining": [
+    "Owned image staging for secondary workers",
+    "Kafka listener and worker handover/restoration lifecycle",
+    "Live integration and qualification of observers with the bounded runner",
+    "Registered profile and fresh scope after strict recovery verification"
+  ],
+  "cloud_deployment_started": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "correctness_and_customer_gates_changed": false,
+  "new_infrastructure_spend": 0,
+  "source_sha256": {
+    "scripts/worker_separation_inventory.py": "045ae35899069c7acf6ea279c4a806cc97abae83267ff1bd7bd2d8814059198a",
+    "scripts/worker_separation_pipeline.py": "e8178938b05e3a57de083561b13a29a9940f1c0737445708c785e521b23f7615",
+    "scripts/observe_two_host_cpu.py": "461bd4dcfe8d3951c4e9aede8c1910d24c6be9d4f7d5d8f10de5530eebb25c57"
+  }
+}

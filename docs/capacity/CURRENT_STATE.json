@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0184_offline_worker_split_tested_adr0185_fixture_identity_retention_tested_recovery_required",
+  "status": "host_aware_observers_locally_tested_live_runner_pending_recovery_required",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "Original four primary APIs restored; secondary test resources absent; generator idle; fresh read-only20.984s routing check verified unchanged runtime and global queues0.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "ADR0184/ADR0185 preparation and local tests follow base 94004e9; Git HEAD identifies the published harness. Application images and consumed scopes unchanged.",
+  "revision_note": "ADR0184 host-aware observer implementation follows base 22d45c5; Git HEAD identifies the published harness. Live images and consumed scopes unchanged.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -431,7 +431,7 @@
     "all_required_gates_pass": true,
     "comparison_report": "docs/capacity/flash-sale-opening/status-refresh-paid-replacement-comparison-2026-10-05.json"
   },
-  "latest_checkpoint_evidence": "docs/capacity/flash-sale-opening/background-service-separation-preparation-2026-10-06.json",
+  "latest_checkpoint_evidence": "docs/capacity/flash-sale-opening/background-service-separation-observers-2026-10-06.json",
   "archived_status_refresh_scopes": [
     {
       "authorization_id": "adr0151-status-refresh-pair-2026-10-05",
@@ -1082,7 +1082,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Complete host-aware runner and restoration tests independently; resolve strict historical paid-run recovery without ownership inference, then register and reserve a fresh qualified comparison.",
+  "next_action": "Implement owned secondary worker image staging and Kafka/worker handover with exact restoration. Integrate locally tested host-aware observers into a separately qualified bounded profile. Strict historical paid-fixture recovery remains unresolved; no load or consumed-scope replay.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1774,7 +1774,11 @@
     "local_diagnostic_capture_test_seconds_this_checkpoint": 167.97,
     "read_only_worker_separation_recovery_seconds_this_checkpoint": 35.609,
     "local_worker_separation_recorded_check_seconds_this_checkpoint": 44.8,
-    "worker_separation_accounting_note": "Measured read-only helper durations include the failed exact-error classifier; local check durations include the initial focused suite, affected-suite helper, final affected test rerun and Compose check. No registered cloud experiment added; existing journal accounting unchanged. Editing and review time not separately measured."
+    "worker_separation_accounting_note": "Measured read-only helper durations include the failed exact-error classifier; local check durations include the initial focused suite, affected-suite helper, final affected test rerun and Compose check. No registered cloud experiment added; existing journal accounting unchanged. Editing and review time not separately measured.",
+    "local_worker_observer_broad_helper_seconds_this_checkpoint": 146.688,
+    "local_worker_observer_final_metrics_pytest_seconds_this_checkpoint": 0.62,
+    "local_retained_identity_scan_seconds_this_checkpoint": 0.344,
+    "worker_observer_accounting_note": "Recorded broad helper includes its pytest runtime; final metrics duration is pytest-reported. Earlier focused test runs overlap and were not separately wall-clock timed. No registered cloud experiment or spending change."
   },
   "bounded_application_role_rebalance__3ae1fd15417b": {
     "authorization_id": "work-envelope-3ae1fd15417b",
@@ -1985,21 +1989,21 @@
     ]
   },
   "worker_separation_preparation": {
-    "status": "offline_preparation_tested_live_runner_pending_recovery_required",
+    "status": "host_aware_observers_locally_tested_live_runner_pending_recovery_required",
     "implemented": [
       "Pure fixed-factor worker placement models with immutable images and unchanged logical pool totals",
       "Common private Kafka listener and four-API callback ingress configuration",
       "Exclusive pre-dispatch fixture identity receipt and stage hash binding; write failure stops before token minting and retains retirement ownership"
     ],
     "not_implemented": [
-      "Live worker separation lifecycle",
-      "Host-aware inventory/CPU/pipeline adapters",
-      "Verified secondary worker image staging",
-      "Registered worker separation load profile",
-      "Strict completed-paid-failure recovery classification"
+      "Owned image staging for secondary workers",
+      "Kafka listener and worker handover/restoration lifecycle",
+      "Live integration and qualification of observers with the bounded runner",
+      "Registered profile and fresh scope after strict recovery verification"
     ],
     "cloud_deployment_started": false,
     "cloud_load_started": false,
-    "capacity_improvement_measured": false
+    "capacity_improvement_measured": false,
+    "host_aware_observers_locally_tested": true
   }
 }
