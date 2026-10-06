@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0174_api_placement_locally_qualified_comparison_pending",
+  "status": "adr0174_control_diagnostics_failed_candidate_skipped_restored",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -10,10 +10,10 @@
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "ADR0173 original primary runtime restored: four primary APIs; secondary test resources removed; full financial/confirmation queues and Kafka lag zero; generator idle. Measured topology was two APIs per host.",
+  "last_checked_topology": "ADR0174 original primary runtime restored: four primary APIs, secondary test resources removed, generator idle, full financial/confirmation queues and Kafka lag zero. Safety tested both 2+2 and 1+3; only 2+2 received paid load.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "ADR0173 cloud control ran from this implementation revision. Subsequent failure-classification improvement is locally tested; its performance has not been measured.",
+  "revision_note": "Cloud ADR0174 ran at b508ba2. Subsequent runner corrections passed 201 local checks; no cloud revalidation or paid candidate measurement.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -45,16 +45,17 @@
     "ADR0162 real expired-prefix/live-tail FIFO mechanism reproduced;candidate restores conservative headroom under unchanged ceilings.1180host tests passed;nativecore355passed1skip1intermittentprojectiontimeout,standalonererun1passed.Authority/transaction AST unchanged,owned resourcesremoved,0cloud calls.",
     "ADR0163 isolated five-file admission export213files21modules;6immutable images verified.32host profile checks and272native tests passed;2image factor probes.Source/financial authority unchangedrelativefrozenparent,callback reserveexcluded.No cloudcall,deployment orcustomerdispatch.",
     "ADR0170 unchanged 60 journeys/s 300s control passed:18,000 paid-and-issued customer-confirmed tickets;0 errors/drops/duplicates;post-TTL/full queues passed;exact restoration and generator idle. Four-API failure capture complete;0 acquisition failure counters/records. Earlier intermittent timeout not reproduced;no capacity improvement claimed.",
-    "ADR0171 control passed:18,000 dispatched/customer-confirmed paid-issued tickets;0 customer failures/drops/duplicates;all queues drained;exact restoration. Captured48 slow commits(max407.95ms) across both hosts and2 callback HTTP503/payment role-limit rejections. Complete failure context;retained guard occupancy0;native timeout0. Shared stall origin unproven;no optimization or capacity gain claimed."
+    "ADR0171 control passed:18,000 dispatched/customer-confirmed paid-issued tickets;0 customer failures/drops/duplicates;all queues drained;exact restoration. Captured48 slow commits(max407.95ms) across both hosts and2 callback HTTP503/payment role-limit rejections. Complete failure context;retained guard occupancy0;native timeout0. Shared stall origin unproven;no optimization or capacity gain claimed.",
+    "ADR0174 safety c0536c9a9740 passed 2+2 and 1+3, including exact restoration. Paid control196061bb2077:18000 dispatched/confirmed/paid/issued,0 customer errors/drops/payment loss/doubles,post-TTL and full queues0. Four diagnostic gates failed; paid candidate skipped. PrimaryCPU70.859%,secondary17.367%,hold-to-ticket worst-shard p951696.22ms. No rebalance capacity benefit measured."
   ],
-  "unresolved": "Longest commits completed together across both API hosts; shared downstream stall cause is unproven. Payment admission rejected two callbacks at role limit10; all customer journeys and payments/tickets completed. Earlier native-pool timeout not reproduced. Reclamation remains off; projection, asynchronous confirmation benefit,84 tickets/s and hourly opening qualification remain unresolved.",
+  "unresolved": "Six load-time activity visibility failures remain unexplained; role lacks full statistics usage and grant authority. Runner admission and slow-log omissions corrected locally. Rebalance gain, shared WAL cause, projection, asynchronous confirmation benefit, 84 tickets/s and hourly flash-sale qualification remain unresolved.",
   "next_on_resume": [
-    "Use standing envelope for independent routine work; do not request per-experiment approval within its boundaries.",
-    "Create the next ADR for bounded database-side wait/WAL diagnostics and qualify the new profile locally before registering it.",
-    "Preserve current controls, financial integrity, complete queue drain and exact restoration; no higher load before evidence."
+    "Diagnose full database activity visibility without relaxing gates; use preserved six failure samples and the idle privilege probe.",
+    "Qualify corrected ADR0174 runner under a fresh append-only standing scope; failed control stops candidate.",
+    "Compare paid customer outcomes, CPU, latency, database waits and complete drain at unchanged load/budgets before adoption or higher load."
   ],
   "authorization": "Standing work envelope: existing resources only, zero new infrastructure spend, no cumulative time cap, experiments as effectively short as possible, exact current profile gates. Reviewed code/evidence to codex branches; main merge requires approval. No unattended schedule.",
-  "scope": "ADR0174 placement-only implementation and local qualification; existing resources, no new spending; main requires approval. No cloud action in this checkpoint.",
+  "scope": "ADR0174 existing-resource comparison executed under standing envelope; safety pair passed, one 60/s300s control completed but failed diagnostics, candidate skipped, exact runtime restored. Corrective code locally tested; reviewed code/evidence may be pushed to codex branch; main requires approval.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -1062,7 +1063,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Run registered api_placement_rebalance through the standing envelope: unchanged 2+2 control then 1+3 candidate, same 60 journeys/s300s, diagnostics and financial gates. Failed control stops candidate.",
+  "next_action": "Resolve or classify load-time activity visibility without weakening gates; validate corrected runner under a fresh scope, then compare 2+2 against 1+3 at unchanged load and budgets.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1435,12 +1436,145 @@
     "profile": "api_placement_rebalance",
     "implemented": true,
     "locally_tested": true,
-    "cloud_measured": false,
+    "cloud_measured": true,
     "production_qualified": false,
     "evidence": [
+      "docs/capacity/flash-sale-opening/api-placement-rebalance-control-2026-10-06.json",
       "docs/capacity/api-placement-validation-2026-10-06.json",
       "docs/capacity/flash-sale-opening/api-placement-rebalance-plan-2026-10-06.json"
     ],
-    "remaining": "Fresh control must pass complete diagnostics before candidate. Shared WAL cause and 84 tickets/s remain unqualified."
+    "remaining": "Resolve or classify load-time activity visibility without weakening gates; validate corrected runner under a fresh scope, then compare 2+2 against 1+3 at unchanged load and budgets.",
+    "paid_control_measured": true,
+    "paid_candidate_measured": false,
+    "capacity_improvement_measured": false,
+    "safety_pair_pass": true,
+    "comparison_pass": false,
+    "corrective_runner_locally_tested": true,
+    "corrective_runner_cloud_tested": false
+  },
+  "bounded_api_placement_rebalance__918f6674905d": {
+    "authorization_id": "work-envelope-918f6674905d",
+    "binding": {
+      "adapter_identity": {
+        "scripts/observe_two_host_pipeline.py": "c53698b8857709ce8d60e64f43611dccb33d68c6cd095931cc04aeb671509cd0",
+        "scripts/database_wait_evidence.py": "4d8837206b7f187861755651c5065bd5b5d8ace0ab1e3b9c617dadfc330c2d0e",
+        "scripts/prepare_two_host_scaling.py": "665d0fce891da917b0d7a96c4404ae9269a9b543a79f9e02f1d59d6e6760746a",
+        "scripts/observe_two_host_cpu.py": "a3b5771aafaf10c1ab2b29177af7c9b8450494194c9bd63f5d95047f30282e5d",
+        "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+        "scripts/run_two_host_paid_comparison.py": "0c0a7311900c3ab9d37c54e6c9746dbdaf516261ff13edff45337cb0fe5fdcb7",
+        "scripts/qualify_two_host_deployment.py": "3108eff4468970c4d9ddf408e0fc474c007d5de8a454da408c113da5e8c46af2",
+        "scripts/collect_two_host_inventory.py": "55738cd1d39e550f8addd6d763868fe4b6d3be0100959489f62362b81f6819e2",
+        "scripts/runtime_source_identity.py": "5dd0db433abf10e79a3bf1c21ca29d28e85137e7f3e1483e9e96df35462ead80",
+        "scripts/probe_two_host_safety.py": "f61f3e718a19c158aa4c4f90a3411160facd9441d8dea9d7e53e20a0fe920bd2",
+        "scripts/run_status_refresh_comparison.py": "7c5e34e4dbb2311c4bf12c4224684bec20f3ec6b3522332f1b8cd72d2a7dbad6",
+        "scripts/status_refresh_contract.py": "98941571768e1a3984318dc22762bccc1713278f84f7acde11b61f8568932f27",
+        "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+        "scripts/work_envelope.py": "d7c38a591bf1f622bfc6e58db39ff53bc9aa9bbbeebdc49755272444a950d75b",
+        "scripts/run_work_envelope.py": "f24c6a64048552ebca556e88db1bc25f0c5aa0f59772b8ab5d111487da11e5fe",
+        "experiment_plan": "8e10638f1bda5d83d067a1d54414d2ee6800488194528fa1e71a83d866eafe7a",
+        "scripts/run_api_placement_comparison.py": "8f2b9e65b54742d37df8fcf97874796135e5aa0208a0151c59d231423d286f03",
+        "scripts/api_placement_contract.py": "eecfe4bc26021b7bd7c60b8f7c3069de0d989e1a07467431dc8cc93a6362daa3",
+        "scripts/prepare_partial_timeout_reclamation.py": "0573f2a7f94177567ce58a5b9b43aee6a6bede552e1530fcb72e70b8d8b1a076",
+        "scripts/prepare_status_refresh_artifacts.py": "dd06c8574b63061dcecf69d2da9f9d0c0fa82b4df36a6c57f0c35099d9431467",
+        "scripts/status_refresh_image_install.py": "9a20736841a226feb599850b51493cf9383df89b4d8d5506a8cc4de9f9198752",
+        "scripts/stage_status_refresh_images.py": "f0150b07056e20a70bf6aef482c254f929a35d0437a81b2df0cf7b06a7b4daf7",
+        "scripts/run_async_confirmation_comparison.py": "214611e04bc0a919e2615cc8ce22cc8e892f62b3358bf81c5a0c343ca812703b",
+        "scripts/checkout_journey_probe.py": "10b14c979133188d42aaba5a9a91ab599101922e2d284e85dbe6c03244e3a5bc",
+        "scripts/fetch_status_refresh_parents.py": "b79f31039d1fceedcd9d51a64be5fecc24beb8212078dad64d36f134a95da26d",
+        "scripts/admission_failure_evidence.py": "0a4d3be45c7f9b9021918391a14848a0f8f9a4eb9ffdc99482a8ad8958eb7be5",
+        "scripts/slow_database_evidence.py": "f369fef593a2fb65d99faecd57ed6ebccd3012a67f513790a0cfbfb955c2c5d6",
+        "scripts/partial_timeout_profile.py": "2c75b4b42e25c106384f87ba566b4caa58c758b6d055d27688d1f811358be519",
+        "artifacts/partial-timeout-reclamation/manifest.json": "5fb51d138dce9b04d1c40506e861b20350d08da421a7832392f4f0c48ea9c0fa",
+        "artifacts/partial-timeout-reclamation/adr0163.patch": "6950c3f3286f0ce3f4934e16682648ab52bb3ca165bf9992dbdce32a143a2a34"
+      },
+      "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+      "artifact_sha256": "3c045c15719fedeea69df0ab5bfd274e53d8989f2e9de113a3457d72c5c03b6d",
+      "source_manifest_sha256": "13d78bdf41e7d442f87ee04d1bb4f357d648789adf0e5270a23b06d74c55ccd2"
+    },
+    "standing_envelope": {
+      "ledger": "bounded_api_placement_rebalance__918f6674905d",
+      "envelope_sha256": "062b1c72cc14f908b263a4bf83cf131b79f109f793823d2cf49884beed651187"
+    },
+    "qualification_runs_authorized": 1,
+    "paid_runs_authorized": 2,
+    "safety_tickets_authorized": 4,
+    "qualification_protocols_started": 1,
+    "paid_runs_started": 0,
+    "paid_protocols_started": 0,
+    "safety_protocols_started": 1,
+    "active_run": null,
+    "scope": "Fresh ADR0174 experiment under ADR0172 standing boundaries; no replay or higher load",
+    "qualification_arms": [
+      "control"
+    ],
+    "last_runner_report": "tmp/adr0151-8d79ebd25391/comparison-summary.json",
+    "recovery_required": false,
+    "status": "FAILED_BEFORE_DEPLOYMENT_RECOVERY_VERIFIED",
+    "recovery_evidence": "tmp/adr0174-recovery-evidence/recovery-summary.json"
+  },
+  "bounded_api_placement_rebalance__9673f15b872a": {
+    "authorization_id": "work-envelope-9673f15b872a",
+    "binding": {
+      "adapter_identity": {
+        "scripts/observe_two_host_pipeline.py": "c53698b8857709ce8d60e64f43611dccb33d68c6cd095931cc04aeb671509cd0",
+        "scripts/database_wait_evidence.py": "4d8837206b7f187861755651c5065bd5b5d8ace0ab1e3b9c617dadfc330c2d0e",
+        "scripts/prepare_two_host_scaling.py": "665d0fce891da917b0d7a96c4404ae9269a9b543a79f9e02f1d59d6e6760746a",
+        "scripts/observe_two_host_cpu.py": "a3b5771aafaf10c1ab2b29177af7c9b8450494194c9bd63f5d95047f30282e5d",
+        "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+        "scripts/run_two_host_paid_comparison.py": "0c0a7311900c3ab9d37c54e6c9746dbdaf516261ff13edff45337cb0fe5fdcb7",
+        "scripts/qualify_two_host_deployment.py": "3108eff4468970c4d9ddf408e0fc474c007d5de8a454da408c113da5e8c46af2",
+        "scripts/collect_two_host_inventory.py": "55738cd1d39e550f8addd6d763868fe4b6d3be0100959489f62362b81f6819e2",
+        "scripts/runtime_source_identity.py": "5dd0db433abf10e79a3bf1c21ca29d28e85137e7f3e1483e9e96df35462ead80",
+        "scripts/probe_two_host_safety.py": "f61f3e718a19c158aa4c4f90a3411160facd9441d8dea9d7e53e20a0fe920bd2",
+        "scripts/run_status_refresh_comparison.py": "7c5e34e4dbb2311c4bf12c4224684bec20f3ec6b3522332f1b8cd72d2a7dbad6",
+        "scripts/status_refresh_contract.py": "98941571768e1a3984318dc22762bccc1713278f84f7acde11b61f8568932f27",
+        "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+        "scripts/work_envelope.py": "d7c38a591bf1f622bfc6e58db39ff53bc9aa9bbbeebdc49755272444a950d75b",
+        "scripts/run_work_envelope.py": "f24c6a64048552ebca556e88db1bc25f0c5aa0f59772b8ab5d111487da11e5fe",
+        "experiment_plan": "8e10638f1bda5d83d067a1d54414d2ee6800488194528fa1e71a83d866eafe7a",
+        "scripts/run_api_placement_comparison.py": "8f2b9e65b54742d37df8fcf97874796135e5aa0208a0151c59d231423d286f03",
+        "scripts/api_placement_contract.py": "eecfe4bc26021b7bd7c60b8f7c3069de0d989e1a07467431dc8cc93a6362daa3",
+        "scripts/prepare_partial_timeout_reclamation.py": "0573f2a7f94177567ce58a5b9b43aee6a6bede552e1530fcb72e70b8d8b1a076",
+        "scripts/prepare_status_refresh_artifacts.py": "dd06c8574b63061dcecf69d2da9f9d0c0fa82b4df36a6c57f0c35099d9431467",
+        "scripts/status_refresh_image_install.py": "9a20736841a226feb599850b51493cf9383df89b4d8d5506a8cc4de9f9198752",
+        "scripts/stage_status_refresh_images.py": "f0150b07056e20a70bf6aef482c254f929a35d0437a81b2df0cf7b06a7b4daf7",
+        "scripts/run_async_confirmation_comparison.py": "214611e04bc0a919e2615cc8ce22cc8e892f62b3358bf81c5a0c343ca812703b",
+        "scripts/checkout_journey_probe.py": "10b14c979133188d42aaba5a9a91ab599101922e2d284e85dbe6c03244e3a5bc",
+        "scripts/fetch_status_refresh_parents.py": "b79f31039d1fceedcd9d51a64be5fecc24beb8212078dad64d36f134a95da26d",
+        "scripts/admission_failure_evidence.py": "0a4d3be45c7f9b9021918391a14848a0f8f9a4eb9ffdc99482a8ad8958eb7be5",
+        "scripts/slow_database_evidence.py": "f369fef593a2fb65d99faecd57ed6ebccd3012a67f513790a0cfbfb955c2c5d6",
+        "scripts/partial_timeout_profile.py": "2c75b4b42e25c106384f87ba566b4caa58c758b6d055d27688d1f811358be519",
+        "artifacts/partial-timeout-reclamation/manifest.json": "5fb51d138dce9b04d1c40506e861b20350d08da421a7832392f4f0c48ea9c0fa",
+        "artifacts/partial-timeout-reclamation/adr0163.patch": "6950c3f3286f0ce3f4934e16682648ab52bb3ca165bf9992dbdce32a143a2a34"
+      },
+      "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+      "artifact_sha256": "3c045c15719fedeea69df0ab5bfd274e53d8989f2e9de113a3457d72c5c03b6d",
+      "source_manifest_sha256": "13d78bdf41e7d442f87ee04d1bb4f357d648789adf0e5270a23b06d74c55ccd2"
+    },
+    "standing_envelope": {
+      "ledger": "bounded_api_placement_rebalance__9673f15b872a",
+      "envelope_sha256": "062b1c72cc14f908b263a4bf83cf131b79f109f793823d2cf49884beed651187"
+    },
+    "qualification_runs_authorized": 1,
+    "paid_runs_authorized": 2,
+    "safety_tickets_authorized": 4,
+    "qualification_protocols_started": 1,
+    "paid_runs_started": 1,
+    "paid_protocols_started": 1,
+    "safety_protocols_started": 3,
+    "active_run": null,
+    "scope": "Fresh ADR0174 experiment under ADR0172 standing boundaries; no replay or higher load",
+    "qualification_arms": [
+      "control",
+      "candidate"
+    ],
+    "last_runner_report": "tmp/adr0151-196061bb2077/comparison-summary.json",
+    "dry_qualification_report": "tmp/adr0151-c0536c9a9740/comparison-summary.json",
+    "paid_protocol_arms": [
+      "control"
+    ],
+    "attempted_paid_arms": [
+      "control"
+    ]
   }
 }

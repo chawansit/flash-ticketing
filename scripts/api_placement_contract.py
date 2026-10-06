@@ -53,6 +53,12 @@ class ApiPlacementContract(frozen.AdmissionReclaimContract):
     def cpu_placement(self):
         return "two-plus-two" if self.arm == "control" else "one-plus-three"
 
+    def verify_pipeline_startup(self, row):
+        from observe_two_host_pipeline import admission_startup
+
+        super().verify_pipeline_startup(row)
+        admission_startup(row)
+
     def inventory_marker(self):
         return {"decision": "ADR0174", "arm": self.arm, "factor": FACTOR,
                 "api_counts": self.measured_api_counts, "partial_timeout_reclaim": "0", "async_intake": "0",

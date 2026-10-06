@@ -210,6 +210,17 @@ def admission_failure_metrics(payload):
     return result
 
 
+def admission_startup(row):
+    """Reject missing four-replica acquisition counters before customer dispatch."""
+    keys = set(admission_failure_metrics("# TYPE ticketing_db_acquisition_failures_total counter"))
+    replicas = row.get("api_replicas", {})
+    if not isinstance(replicas, dict) or len(replicas) != 4 or row.get("api_metrics_error"):
+        raise ValueError("Complete four-replica admission startup required")
+    for values in replicas.values():
+        if any(type(values.get(k)) not in {int, float} or not math.isfinite(values[k]) or values[k] < 0 for k in keys):
+            raise ValueError("Complete admission counters required before dispatch")
+
+
 def confirmation_startup(row):
     replicas = row.get("confirmation_db_replicas", {})
     if row.get("confirmation_replicas") != 1 or len(replicas) != 1:
@@ -301,7 +312,7 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
             raise ValueError("Metrics payload exceeds bound")
         payload = raw.decode("utf-8")
         extras = extra_api_metrics(payload)
-        if inventory.get("status_refresh_contract", {}).get("decision") == "ADR0163":
+        if inventory.get("status_refresh_contract", {}).get("decision") in {"ADR0163", "ADR0174"}:
             extras.update(admission_failure_metrics(payload))
         prior = previous.get(label)
         if prior and (

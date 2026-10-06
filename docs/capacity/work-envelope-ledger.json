@@ -25,6 +25,62 @@
         }
       ],
       "finished_at_utc": "2026-10-06T02:31:14.265212+00:00"
+    },
+    {
+      "ledger": "bounded_api_placement_rebalance__918f6674905d",
+      "authorization_id": "work-envelope-918f6674905d",
+      "envelope_sha256": "062b1c72cc14f908b263a4bf83cf131b79f109f793823d2cf49884beed651187",
+      "binding_sha256": "77c2b6130966ccd9c78be0615c9dd41177fd796e6d04edbfe88c31ab17ae9d7c",
+      "plan_sha256": "8e10638f1bda5d83d067a1d54414d2ee6800488194528fa1e71a83d866eafe7a",
+      "profile": "api_placement_rebalance",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 10.046999999998661,
+      "started_at_utc": "2026-10-06T03:36:33.105240+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-8d79ebd25391",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-06T03:36:43.233408+00:00",
+      "original_terminal_status": "RECOVERY_REQUIRED",
+      "recovery_verification": {
+        "run": "adr0151-8d79ebd25391",
+        "ledger": "bounded_api_placement_rebalance__918f6674905d",
+        "pass": true,
+        "no_remote_phase_started": true,
+        "primary_original_topology_verified": true,
+        "secondary_empty": true,
+        "generator_idle": true,
+        "full_global_queues_and_receipts_zero": true,
+        "kafka_members": 1,
+        "no_scope_replay": true,
+        "read_only_verification_seconds": 3.9689999999973224
+      }
+    },
+    {
+      "ledger": "bounded_api_placement_rebalance__9673f15b872a",
+      "authorization_id": "work-envelope-9673f15b872a",
+      "envelope_sha256": "062b1c72cc14f908b263a4bf83cf131b79f109f793823d2cf49884beed651187",
+      "binding_sha256": "77c2b6130966ccd9c78be0615c9dd41177fd796e6d04edbfe88c31ab17ae9d7c",
+      "plan_sha256": "8e10638f1bda5d83d067a1d54414d2ee6800488194528fa1e71a83d866eafe7a",
+      "profile": "api_placement_rebalance",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1534.9850000000006,
+      "started_at_utc": "2026-10-06T03:46:19.814829+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-c0536c9a9740",
+          "pass": true
+        },
+        {
+          "run": "adr0151-196061bb2077",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-06T04:11:54.880718+00:00"
     }
   ]
 }

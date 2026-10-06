@@ -202,9 +202,10 @@ def test_context_failure_still_retains_available_allowlisted_logs(tmp_path):
 def test_hook_selects_diagnostics_only_for_new_ledger_before_cleanup():
     source = Path("scripts/run_two_host_paid_comparison.py").read_text()
     final = source[source.index("            cleanup_errors = []"):]
-    assert 'base_ledger(self.ledger_key) in {"bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics"}' in final
-    assert final.index("collect_slow(session, inventory, local)") < final.index("self.stop(session, role, cid, job)")
-    assert final.index("collect_slow(session, inventory, local)") < final.index('("financial", lambda:')
+    hook = "record.update(collect_profile_failure_evidence(session, inventory, local, base_ledger(self.ledger_key)))"
+    assert hook in final
+    assert final.index(hook) < final.index("self.stop(session, role, cid, job)")
+    assert final.index(hook) < final.index('("financial", lambda:')
     assert 'record["pass"] = False' in final
 
 

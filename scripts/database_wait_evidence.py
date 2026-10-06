@@ -117,12 +117,15 @@ def failure_context(activity):
     if isinstance(groups, list) and len(groups) <= 16:
         safe = []
         for group in groups:
-            if (not isinstance(group, dict) or not isinstance(group.get("backend_type"), str)
-                    or not re.fullmatch(r"[A-Za-z_ ]{1,64}", group["backend_type"])
+            if not isinstance(group, dict):
+                continue
+            label = group.get("backend_type")
+            label = "unavailable" if label is None else label
+            if (not isinstance(label, str) or not re.fullmatch(r"[A-Za-z_ ]{1,64}", label)
                     or group.get("own_role") is not None and type(group["own_role"]) is not bool):
                 continue
             try:
-                safe.append({"backend_type": group["backend_type"], "own_role": group.get("own_role"),
+                safe.append({"backend_type": label, "own_role": group.get("own_role"),
                              "count": number(group["count"])})
             except (ValueError, KeyError, TypeError):
                 pass

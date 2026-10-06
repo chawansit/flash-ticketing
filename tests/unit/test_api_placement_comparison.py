@@ -161,3 +161,40 @@ def test_full_installed_observer_keeps_real_routes_and_confirmation_metrics(arm)
     bad = copy.deepcopy(data); bad["apis"][0]["settings"]["DB_POOL_MAX"] = "8"
     with pytest.raises(ValueError):
         pipeline.install_adapter(frozen, bad, image_id=c.images["api"], approved_inventory_sha256=digest(bad))
+
+
+@pytest.mark.parametrize("arm", ["control", "candidate"])
+def test_actual_scrape_includes_all_admission_counters_and_rejects_missing_family(arm):
+    import io
+
+    from status_refresh_contract import digest
+    from test_two_host_observers import payload
+    c, data = observed(arm)
+    frozen = pipeline.load_frozen(Path("scripts/observe_paid_pipeline.py"))
+    body = payload() + "# TYPE ticketing_db_acquisition_failures_total counter\n"
+    pipeline.install_adapter(frozen, data, image_id=c.images["api"], approved_inventory_sha256=digest(data),
+                             fetch=lambda *a, **k: io.BytesIO(body.encode()))
+    rows = {label: frozen.api_metrics(label) for label in frozen.api_replicas()}
+    pipeline.admission_startup({"api_replicas": rows})
+    assert all(len([k for k in v if k.startswith("acquisition_failure:")]) == 8 for v in rows.values())
+    rows[next(iter(rows))].pop("acquisition_failure:payment:native_timeout")
+    with pytest.raises(ValueError):
+        pipeline.admission_startup({"api_replicas": rows})
+    bad = pipeline.load_frozen(Path("scripts/observe_paid_pipeline.py"))
+    pipeline.install_adapter(bad, data, image_id=c.images["api"], approved_inventory_sha256=digest(data),
+                             fetch=lambda *a, **k: io.BytesIO(payload().encode()))
+    with pytest.raises(ValueError):
+        bad.api_metrics(bad.api_replicas()[0])
+
+
+def test_placement_collects_slow_phase_and_failure_evidence(monkeypatch, tmp_path):
+    import slow_database_evidence
+    seen = []
+    def capture(session, data, output):
+        seen.append((session, data, output))
+        return {"complete": True, "failure_count": 2, "counter_coverage": True}
+    monkeypatch.setattr(slow_database_evidence, "collect", capture)
+    value = paid.collect_profile_failure_evidence("session", {"apis": []}, tmp_path, runner.LEDGER)
+    assert seen == [("session", {"apis": []}, tmp_path)]
+    assert value["slow_database_capture"]["complete"]
+    assert value["admission_failure_capture"]["record_count"] == 2

@@ -238,6 +238,20 @@ def drain(session, cid, audit_program=GLOBAL_AUDIT):
         time.sleep(2)
 
 
+def collect_profile_failure_evidence(session, inventory, local, profile_ledger):
+    """Collect declared phase evidence, including the placement-only profile."""
+    if profile_ledger in {"bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"}:
+        from slow_database_evidence import collect
+
+        capture = collect(session, inventory, local)
+        return {"slow_database_capture": capture, "admission_failure_capture": {
+            "decision": "ADR0166", "complete": capture["complete"],
+            "record_count": capture["failure_count"], "counter_coverage": capture["counter_coverage"]}}
+    from admission_failure_evidence import collect
+
+    return {"admission_failure_capture": collect(session, inventory, local)}
+
+
 def cpu_spec(arm, role, rows, inventory, *, fixed_two_host=False, placement=None):
     if type(fixed_two_host) is not bool:
         raise ValueError("Explicit CPU placement policy required")
@@ -671,22 +685,12 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                     record["database_wait_capture"] = summarize_database_wait(local / "pipeline.jsonl")
                 except Exception as exc:  # noqa: BLE001 - preserve cleanup and fail diagnostic gate
                     record["database_wait_capture"] = {"complete": False, "error_type": type(exc).__name__}
-            if (self.contract is not None and self.contract.inventory_marker().get("decision") == "ADR0163"
+            if (self.contract is not None and self.contract.inventory_marker().get("decision") in {"ADR0163", "ADR0174"}
                     and "inventory" in locals()):
                 try:
-                    from admission_failure_evidence import collect
                     from work_envelope import base_ledger
 
-                    if base_ledger(self.ledger_key) in {"bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"}:
-                        from slow_database_evidence import collect as collect_slow
-
-                        capture = collect_slow(session, inventory, local)
-                        record["slow_database_capture"] = capture
-                        record["admission_failure_capture"] = {"decision": "ADR0166", "complete": capture["complete"],
-                                                               "record_count": capture["failure_count"],
-                                                               "counter_coverage": capture["counter_coverage"]}
-                    else:
-                        record["admission_failure_capture"] = collect(session, inventory, local)
+                    record.update(collect_profile_failure_evidence(session, inventory, local, base_ledger(self.ledger_key)))
                     if record["admission_failure_capture"]["complete"] is not True:
                         record["pass"] = False
                 except Exception as exc:  # noqa: BLE001 - retain failed diagnostics; always continue financial cleanup.

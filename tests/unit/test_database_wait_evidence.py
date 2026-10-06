@@ -213,3 +213,13 @@ def test_failure_context_rejects_arbitrary_fields_labels_and_bounds():
     assert evidence.failure_context({"restricted_backends": [
         {"backend_type": "secret:password", "own_role": True, "count": 1}]}) == {"restricted_backends": []}
     assert evidence.failure_context({"restricted_backends": [{}] * 17}) == {}
+
+
+def test_unavailable_backend_type_is_retained_without_weakening_visibility():
+    group = {"backend_type": None, "own_role": False, "count": 1, "usename": "secret"}
+    result = evidence.failure_context({"restricted_sessions": 1, "restricted_backends": [group]})
+    assert result["restricted_backends"] == [{"backend_type": "unavailable", "own_role": False, "count": 1}]
+    activity, stats = records(); activity["restricted_sessions"] = 1
+    with pytest.raises(ValueError, match="visibility"):
+        evidence.sanitize(activity, stats)
+    assert "secret" not in json.dumps(result)
