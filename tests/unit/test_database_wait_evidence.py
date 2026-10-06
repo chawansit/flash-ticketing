@@ -55,7 +55,8 @@ class Connection:
             raise self.failure
         if sql == evidence.CAPABILITY_SQL:
             result = {"server_version_num": 170011, "wal_view": True, "checkpointer_view": True,
-                      "track_activities": True, "track_wal_io_timing": False, "track_io_timing": True}
+                      "track_activities": True, "full_statistics_visibility": True,
+                      "track_wal_io_timing": False, "track_io_timing": True}
         else:
             result = records()[0 if sql == evidence.ACTIVITY_SQL else 1]
         return SimpleNamespace(fetchone=lambda: [result])
@@ -223,3 +224,23 @@ def test_unavailable_backend_type_is_retained_without_weakening_visibility():
     with pytest.raises(ValueError, match="visibility"):
         evidence.sanitize(activity, stats)
     assert "secret" not in json.dumps(result)
+
+
+@pytest.mark.parametrize("privilege", [False, None, 1, "true"])
+def test_missing_effective_statistics_privilege_stops_before_activity(privilege):
+    conn = Connection()
+    original = conn.execute
+    def restricted(sql):
+        result = original(sql)
+        if sql == evidence.CAPABILITY_SQL:
+            value = result.fetchone()[0]
+            value["full_statistics_visibility"] = privilege
+            return SimpleNamespace(fetchone=lambda: [value])
+        return result
+    conn.execute = restricted
+    result = evidence.Collector().collect(conn)
+    assert result["complete"] is False
+    assert result["error_phase"] == "capabilities"
+    assert result["error_code"] == "statistics_privilege_missing"
+    assert evidence.ACTIVITY_SQL not in conn.commands and evidence.STATS_SQL not in conn.commands
+    assert conn.closed_transactions == 1

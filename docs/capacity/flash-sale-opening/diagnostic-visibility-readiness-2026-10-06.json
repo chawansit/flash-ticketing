@@ -1,0 +1,38 @@
+{
+  "decision": "ADR0175",
+  "implemented": true,
+  "locally_tested": true,
+  "cloud_tested": false,
+  "production_qualified": false,
+  "capacity_improvement_measured": false,
+  "findings": [
+    "Real local PostgreSQL reproduced hidden foreign-role activity, unavailable backend type and own_role=false.",
+    "Statistics access restored complete diagnostics; revocation after collector initialization still caused runtime visibility failure.",
+    "This validates the privilege mechanism, not the identity or cause of the six preserved RDS failures."
+  ],
+  "change": "Existing capability preflight now requires effective pg_read_all_stats usage before paid fixture creation and reports statistics_privilege_missing. Full runtime visibility and all customer/financial/queue gates remain unchanged.",
+  "checks": {
+    "focused_tests_passed": 142,
+    "focused_seconds": 56.51,
+    "real_postgresql_integration_tests_passed": 1,
+    "integration_seconds": 0.12,
+    "database_image": "sha256:00bc86618629af00d2937fdc5a5d63db3ff8450acf52f0636ec813c7f4902929",
+    "ruff": "PASS",
+    "owned_resources_removed": true
+  },
+  "cloud": {
+    "calls_this_checkpoint": 0,
+    "new_experiments": 0,
+    "permission_changes": 0,
+    "deployment_changes": 0,
+    "cumulative_actual_experiment_seconds_unchanged": 2807.501000000004,
+    "last_verified_visibility_evidence": "docs/capacity/flash-sale-opening/api-placement-rebalance-control-2026-10-06.json"
+  },
+  "remaining": "The last checked observer account lacks effective statistics access and grant admin option. A Huawei-supported monitoring permission remedy requires administrator involvement. No provider capability or production-session identity is assumed.",
+  "next_action": "Resolve monitoring access; otherwise seek an explicit diagnostic-scope decision. After a supported remedy, qualify the corrected registered profile and compare placements with a fresh scope at unchanged load and budgets.",
+  "raw_evidence": [
+    "tmp/adr0174-local-visibility-tests.txt",
+    "tmp/adr0174-local-visibility-result.json",
+    "tmp/adr0175-follow-up-tests.txt"
+  ]
+}

@@ -290,3 +290,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0173: Bounded database wait and WAL diagnostics](0173-bounded-database-wait-and-wal-diagnostics.md)
 
 - [ADR0174: Fixed-budget API placement rebalance](0174-fixed-budget-api-placement-rebalance.md)
+
+- [ADR0175: Diagnostic visibility readiness](0175-diagnostic-visibility-readiness.md)

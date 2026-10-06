@@ -1,4 +1,4 @@
-"""ADR0173 bounded, read-only diagnostics using the existing observer connection."""
+"""ADR0173 diagnostics; ADR0175 privilege readiness on the existing connection."""
 import json
 import math
 import re
@@ -18,6 +18,7 @@ CAPABILITY_SQL = """SELECT json_build_object(
   'wal_view',to_regclass('pg_catalog.pg_stat_wal') IS NOT NULL,
   'checkpointer_view',to_regclass('pg_catalog.pg_stat_checkpointer') IS NOT NULL,
   'track_activities',current_setting('track_activities')='on',
+  'full_statistics_visibility',pg_has_role(current_user,'pg_read_all_stats','USAGE'),
   'track_wal_io_timing',current_setting('track_wal_io_timing')='on',
   'track_io_timing',current_setting('track_io_timing')='on')"""
 ACTIVITY_SQL = """SELECT json_build_object(
@@ -59,6 +60,8 @@ def capabilities(conn):
             or any(result.get(k) is not True for k in ("wal_view", "checkpointer_view", "track_activities"))
             or any(type(result.get(k)) is not bool for k in ("track_wal_io_timing", "track_io_timing"))):
         raise ValueError("PostgreSQL 17/18 diagnostic views and activity collection required")
+    if result.get("full_statistics_visibility") is not True:
+        raise ValueError("Full statistics visibility privilege required")
     return result
 
 
@@ -152,7 +155,8 @@ class Collector:
             result.update(complete=True, capabilities=self.capability)
         except Exception as exc:  # noqa: BLE001 - classify only; never export DB error text
             result = {"complete": False, "error_type": type(exc).__name__, "error_phase": phase}
-            codes = {"Full bounded activity visibility required": "activity_visibility_or_bound",
+            codes = {"Full statistics visibility privilege required": "statistics_privilege_missing",
+                     "Full bounded activity visibility required": "activity_visibility_or_bound",
                      "Catalog wait labels required": "wait_label",
                      "Required statistics counter absent": "missing_counter",
                      "Finite nonnegative diagnostic value required": "invalid_counter",
