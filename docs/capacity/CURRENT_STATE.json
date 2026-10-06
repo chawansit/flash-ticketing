@@ -13,7 +13,7 @@
   "last_checked_topology": "ADR0171 exact original primary runtime restored: four primary APIs; secondary test resources removed; generator idle; full queues and Kafka lag zero. Measured topology was two APIs per host.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "ADR0172 controller and policy locally qualified; no cloud mutation or load this turn. Frozen backend/generator and all historical execution identities remain unchanged. Existing engineering history is being published on the approved codex branch; main merge requires approval.",
+  "revision_note": "Revision identifies the implemented/tested ADR0172 source commit; this final checkpoint changes metadata only. Code/evidence publication verified on codex/standing-work-envelope; main unchanged. No cloud execution this turn; frozen backend/generator and historical ledgers remain unchanged.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -1125,7 +1125,7 @@
     ],
     "scope_closed": true
   },
-  "revision": "55a3f92f6f0673d405521c3c0434849cbf71cebb",
+  "revision": "99af63e3c36c439681671e5362d72205a7b2d4b0",
   "latest_experiment": {
     "decision": "ADR0171",
     "run": "adr0151-d7e8f730fc58",
@@ -1320,6 +1320,17 @@
     "authorization": "User approved standing boundaries; existing resources only, time as required, current profile gates, reviewed code and evidence to codex branch; main merge requires approval.",
     "cloud_experiments_started": 0,
     "validation": "docs/capacity/work-envelope-validation-2026-10-06.json",
-    "runbook": "docs/capacity/work-envelope.md"
+    "runbook": "docs/capacity/work-envelope.md",
+    "implementation_revision": "99af63e3c36c439681671e5362d72205a7b2d4b0",
+    "publication": {
+      "decision": "ADR0172",
+      "branch": "codex/standing-work-envelope",
+      "verified_implementation_revision": "99af63e3c36c439681671e5362d72205a7b2d4b0",
+      "verified_at_utc": "2026-10-06T01:43:37.475131+00:00",
+      "code_and_evidence_published": true,
+      "main_revision": "878d364acd4e508150dee25c6eb13af6bc72226f",
+      "main_merged": false,
+      "cloud_calls": 0
+    }
   }
 }
