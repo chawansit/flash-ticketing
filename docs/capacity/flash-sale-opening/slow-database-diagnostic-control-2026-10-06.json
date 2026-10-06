@@ -1,0 +1,1316 @@
+{
+  "decision": "ADR0171",
+  "kind": "slow_database_paid_control",
+  "run": "adr0151-d7e8f730fc58",
+  "pass": true,
+  "finished_at_utc": "2026-10-06T01:02:15.696382+00:00",
+  "finished_at_bangkok": "2026-10-06T08:02:15.696382+07:00",
+  "application_change": false,
+  "profile": "Unchanged frozen ADR0163 synchronous control; same 2+2 APIs and connection budgets; reclamation disabled.",
+  "capacity_stages_started": 1,
+  "stage": {
+    "stage_pass": true,
+    "customer_pass": true,
+    "offered_buyers_per_second": 60,
+    "dispatch_seconds": 300,
+    "scheduled": 18000,
+    "dispatched": 18000,
+    "customer_confirmations_by_deadline": 18000,
+    "generator_drops": 0,
+    "failed_dispatched_journeys": 0,
+    "errors_per_dispatched_journey_percent": 0.0,
+    "customer_outcomes": {
+      "fulfilled": 18000
+    },
+    "customer_http_attempts_total": 109356,
+    "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+    "p95_ms": {
+      "hold_http_p95_ms": 11.812356009613723,
+      "durable_p95_ms": 1027.593465987593,
+      "payment_http_p95_ms": 60.77609598287381,
+      "payment_to_ticket_p95_ms": 654.4814489898272,
+      "hold_to_ticket_p95_ms": 1709.1139850090258
+    },
+    "host_cpu_percent": {
+      "primary": 71.30343135561007,
+      "secondary": 17.46932657409201
+    },
+    "aggregate_api_cpu_cores": 1.3841085019991737,
+    "financial": {
+      "orders": 18000,
+      "fulfilled_orders": 18000,
+      "expired_orders": 0,
+      "pending_orders": 0,
+      "payment_attempts": 18000,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 18000,
+      "bookings": 18000,
+      "tickets": 18000,
+      "payment_callbacks": 18000,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 18000,
+      "callback_delivery_target": 18000,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 18000,
+      "expected_paid": 18000,
+      "expected_callback_deliveries_per_payment": 1,
+      "pass": true,
+      "hold_deadlines_elapsed": true
+    },
+    "global_queues": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "pending_callback_deliveries": 0,
+      "pending_refunds": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "kafka_total_lag": 0,
+      "kafka_members": 6,
+      "pass": true,
+      "pending_confirmation_receipts": 0,
+      "review_confirmation_receipts": 0,
+      "confirmation_capacity_outstanding": 0,
+      "confirmation_capacity_mismatches": 0
+    },
+    "all_four_replicas_observed": true,
+    "request_shares": [
+      0.23023763526991156,
+      0.23045752249917542,
+      0.2626160297790133,
+      0.2766888124518997
+    ],
+    "private_cleanup_pass": true,
+    "failure_type": null
+  },
+  "restoration_complete": true,
+  "failed_gates": [],
+  "measurements": {
+    "status_checks": 37076,
+    "status_checks_per_dispatched_journey": 2.0597777777777777,
+    "consumer_database": {
+      "observed_replicas": 6,
+      "counter_deltas": {
+        "order_cache:event_fill": 36003.0,
+        "pool_acquire:ok": 101458.0,
+        "process_cpu_seconds_total": 221.29,
+        "order_cache:event_fill_raced": 1.0
+      },
+      "duration_mean_ms": {
+        "db_pool_acquire:ok": 0.014866004105432793,
+        "db_commit:all": 2.5177440404439304,
+        "db_query:BEGIN": 2.812595886575016,
+        "db_connection_hold:all": 10.956147882065308,
+        "db_query:INSERT": 1.8249937251796118,
+        "db_query:SELECT": 1.5346413695703647,
+        "db_query:UPDATE": 1.5455375866909487
+      },
+      "event_loop_lag_current_peak_ms": 0.0,
+      "pool_peaks_per_replica": {
+        "pool_acquiring": 0,
+        "pool_in_use": 1.0,
+        "pool_state:pool_size": 1.0,
+        "pool_state:pool_available": 1.0,
+        "pool_state:requests_waiting": 0,
+        "pool_state:pool_max": 8.0
+      },
+      "counter_reset_detected": false
+    },
+    "callback_backlog": {
+      "max": 48,
+      "last": 0,
+      "delta": 0,
+      "p95": 10
+    },
+    "cache_scope": "Full observer lifetime including completion tail; not offered-window HTTP RPS.",
+    "cache_observed": true,
+    "cache_series_present": true,
+    "cache_outcome_deltas": {
+      "miss": 18253.0,
+      "fill": 18250.0,
+      "hit": 18822.0,
+      "stale": 1.0,
+      "fill_raced": 4.0
+    },
+    "cache_hit_share": 0.5076736345246122,
+    "confirmation_observed": true,
+    "confirmation_backlog_peak": 0,
+    "admission_diagnostics_observed": true,
+    "admission_failure_deltas": {
+      "acquisition_failure:payment:role_limit": 2.0,
+      "acquisition_failure:general:role_limit": 0.0,
+      "acquisition_failure:payment:native_timeout": 0.0,
+      "acquisition_failure:general:global_limit": 0.0,
+      "acquisition_failure:general:native_timeout": 0.0,
+      "acquisition_failure:payment:global_limit": 0.0,
+      "acquisition_failure:payment:native_limit": 0.0,
+      "acquisition_failure:general:native_limit": 0.0
+    },
+    "admission_counter_window": "observer lifetime;not exact offered window",
+    "slow_database_capture": {
+      "decision": "ADR0171",
+      "complete": true,
+      "counter_coverage": true,
+      "failure_context_complete": true,
+      "failure_count": 2,
+      "slow_phase_count": 48,
+      "uncorrelated_slow_records": 0,
+      "scope": "Existing API phase logs; replica/time adjacency and interval means, not request correlation or causal proof."
+    }
+  },
+  "api_database": {
+    "observed_replicas": 4,
+    "counter_deltas": {
+      "order_cache:stale": 1.0,
+      "order_cache:fill": 18250.0,
+      "pool_acquire:error": 2.0,
+      "order_cache:hit": 18822.0,
+      "process_cpu_seconds_total": 333.87,
+      "db_503:TooManyRequests": 2.0,
+      "pool_acquire:ok": 54973.0,
+      "http_503:/v1/webhooks/payments:POST": 2.0,
+      "order_cache:miss": 18253.0,
+      "order_cache:fill_raced": 4.0
+    },
+    "duration_mean_ms": {
+      "db_pool_acquire:error": 0.21956951241008937,
+      "db_pool_acquire:ok": 5.2300812488043515,
+      "db_query:BEGIN": 3.0244231166479763,
+      "event_loop_lag:all": 0.5982314091649085,
+      "db_query:INSERT": 1.7144611389568902,
+      "db_query:SELECT": 1.6447530760541897,
+      "db_query:UPDATE": 1.6827514134544699,
+      "db_commit:all": 2.9210374945199185,
+      "db_connection_hold:all": 20.217999143831268
+    },
+    "event_loop_lag_current_peak_ms": 20.69570400635712,
+    "pool_peaks_per_replica": {
+      "pool_acquiring": 6.0,
+      "pool_in_use": 3.0,
+      "pool_state:pool_size": 4.0,
+      "pool_state:general_pool_size": 2.0,
+      "pool_state:payment_pool_size": 2.0,
+      "pool_state:pool_available": 4.0,
+      "pool_state:general_pool_available": 2.0,
+      "pool_state:payment_pool_available": 2.0,
+      "pool_state:requests_waiting": 5.0,
+      "pool_state:general_requests_waiting": 0,
+      "pool_state:payment_requests_waiting": 5.0,
+      "pool_state:pool_max": 4.0,
+      "pool_state:general_pool_max": 2.0,
+      "pool_state:payment_pool_max": 2.0,
+      "pool_state:pool_max_waiting": 12.0,
+      "pool_state:shared_acquisition_limit": 12.0,
+      "pool_state:shared_acquisition_used": 5.0,
+      "pool_state:shared_acquisition_acquiring": 5.0,
+      "pool_state:shared_acquisition_retained": 0,
+      "pool_state:general_max_waiting": 10.0,
+      "pool_state:payment_max_waiting": 10.0
+    },
+    "counter_reset_detected": false
+  },
+  "sampled_db_lock_waiters": {
+    "max": 2,
+    "last": 0,
+    "delta": 0,
+    "p95": 0
+  },
+  "diagnostics": {
+    "complete": true,
+    "counter_coverage": true,
+    "failure_context_complete": true,
+    "failure_count": 2,
+    "slow_phase_count": 48,
+    "uncorrelated_slow_records": 0,
+    "scope": "Existing API phase logs; replica/time adjacency and interval means, not request correlation or causal proof."
+  },
+  "slow_phase_summary": {
+    "commit": {
+      "records": 48,
+      "max_logged_duration_ms": 407.95
+    },
+    "pool_return": {
+      "records": 0,
+      "max_logged_duration_ms": null
+    }
+  },
+  "slow_phase_outcomes": {
+    "commit:ok": 48
+  },
+  "failure_temporal_context": [
+    {
+      "replica": "primary-api-2",
+      "record": {
+        "time": "2026-10-06T00:52:42.969685+00:00",
+        "event": "db_acquisition_failure",
+        "role": "payment",
+        "reason": "role_limit",
+        "capture": "guard_rejection",
+        "elapsed_ms": 0.042,
+        "native_pool": {
+          "pool_size": 2,
+          "pool_available": 0,
+          "requests_waiting": 10,
+          "pool_max": 2
+        },
+        "guard": {
+          "maximum": 12,
+          "used": 10,
+          "acquiring": 10,
+          "retained": 0,
+          "callback_reserved": 0,
+          "partial_timeout_reclaim": false,
+          "counts": {
+            "general": 0,
+            "payment": 10
+          },
+          "retained_by_role": {
+            "general": 0,
+            "payment": 0
+          },
+          "limits": {
+            "general": 10,
+            "payment": 10
+          }
+        }
+      },
+      "context_bracketed": true,
+      "nearby_samples": [
+        {
+          "utc": "2026-10-06T00:52:41.541491+00:00",
+          "offset_seconds": -1.4281940460205078,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 3.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 3.0,
+            "pool_state:shared_acquisition_used": 3.0,
+            "pool_state:shared_acquisition_acquiring": 3.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 62.516848252959214,
+            "db_commit:all": 12.97224887265739,
+            "db_connection_hold:all": 36.98812007364309
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:42.541568+00:00",
+          "offset_seconds": -0.428117036819458,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 3.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 3.0,
+            "pool_state:shared_acquisition_used": 3.0,
+            "pool_state:shared_acquisition_acquiring": 3.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 130.46117790072458,
+            "db_commit:all": 28.519037349906284,
+            "db_connection_hold:all": 50.3135476494208
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:43.541644+00:00",
+          "offset_seconds": 0.5719590187072754,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 2.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 2.0,
+            "pool_state:shared_acquisition_used": 2.0,
+            "pool_state:shared_acquisition_acquiring": 2.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 44.67737297497254,
+            "db_commit:all": 6.783939923338181,
+            "db_connection_hold:all": 29.711262246611977
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:44.541892+00:00",
+          "offset_seconds": 1.572206974029541,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 4.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 4.0,
+            "pool_state:shared_acquisition_used": 4.0,
+            "pool_state:shared_acquisition_acquiring": 4.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 84.16537377012322,
+            "db_commit:all": 18.25138740638398,
+            "db_connection_hold:all": 46.496010047452394
+          }
+        }
+      ]
+    },
+    {
+      "replica": "primary-api-2",
+      "record": {
+        "time": "2026-10-06T00:52:42.983374+00:00",
+        "event": "db_acquisition_failure",
+        "role": "payment",
+        "reason": "role_limit",
+        "capture": "guard_rejection",
+        "elapsed_ms": 0.029,
+        "native_pool": {
+          "pool_size": 2,
+          "pool_available": 0,
+          "requests_waiting": 10,
+          "pool_max": 2
+        },
+        "guard": {
+          "maximum": 12,
+          "used": 10,
+          "acquiring": 10,
+          "retained": 0,
+          "callback_reserved": 0,
+          "partial_timeout_reclaim": false,
+          "counts": {
+            "general": 0,
+            "payment": 10
+          },
+          "retained_by_role": {
+            "general": 0,
+            "payment": 0
+          },
+          "limits": {
+            "general": 10,
+            "payment": 10
+          }
+        }
+      },
+      "context_bracketed": true,
+      "nearby_samples": [
+        {
+          "utc": "2026-10-06T00:52:41.541491+00:00",
+          "offset_seconds": -1.4418830871582031,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 3.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 3.0,
+            "pool_state:shared_acquisition_used": 3.0,
+            "pool_state:shared_acquisition_acquiring": 3.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 62.516848252959214,
+            "db_commit:all": 12.97224887265739,
+            "db_connection_hold:all": 36.98812007364309
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:42.541568+00:00",
+          "offset_seconds": -0.4418060779571533,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 3.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 3.0,
+            "pool_state:shared_acquisition_used": 3.0,
+            "pool_state:shared_acquisition_acquiring": 3.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 130.46117790072458,
+            "db_commit:all": 28.519037349906284,
+            "db_connection_hold:all": 50.3135476494208
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:43.541644+00:00",
+          "offset_seconds": 0.5582699775695801,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 2.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 2.0,
+            "pool_state:shared_acquisition_used": 2.0,
+            "pool_state:shared_acquisition_acquiring": 2.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 44.67737297497254,
+            "db_commit:all": 6.783939923338181,
+            "db_connection_hold:all": 29.711262246611977
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:44.541892+00:00",
+          "offset_seconds": 1.5585179328918457,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 4.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 4.0,
+            "pool_state:shared_acquisition_used": 4.0,
+            "pool_state:shared_acquisition_acquiring": 4.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 84.16537377012322,
+            "db_commit:all": 18.25138740638398,
+            "db_connection_hold:all": 46.496010047452394
+          }
+        }
+      ]
+    }
+  ],
+  "largest_slow_phase_context": [
+    {
+      "replica": "secondary-api-1",
+      "record": {
+        "event": "slow_db_phase",
+        "time": "2026-10-06T00:52:42.875050+00:00",
+        "phase": "commit",
+        "outcome": "ok",
+        "duration_ms": 407.95
+      },
+      "context_bracketed": true,
+      "nearby_samples": [
+        {
+          "utc": "2026-10-06T00:52:41.541491+00:00",
+          "offset_seconds": -1.3335590362548828,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 0.0,
+            "pool_state:payment_pool_available": 2.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 1.4370328276917073,
+            "db_commit:all": 12.413318885124422,
+            "db_connection_hold:all": 24.089385714614764
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:42.541568+00:00",
+          "offset_seconds": -0.333482027053833,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 1.0,
+            "pool_state:payment_pool_available": 1.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 31.007864000122552,
+            "db_commit:all": 28.393798973018026,
+            "db_connection_hold:all": 40.15870516131808
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:43.541644+00:00",
+          "offset_seconds": 0.6665940284729004,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 0.035210999684702406,
+            "db_commit:all": 5.134552622031471,
+            "db_connection_hold:all": 16.819637837092944
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:44.541892+00:00",
+          "offset_seconds": 1.666841983795166,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 0.0,
+            "pool_state:payment_pool_available": 2.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 5.614434500206368,
+            "db_commit:all": 14.733284980099162,
+            "db_connection_hold:all": 27.232908848141644
+          }
+        }
+      ]
+    },
+    {
+      "replica": "primary-api-2",
+      "record": {
+        "event": "slow_db_phase",
+        "time": "2026-10-06T00:52:42.876651+00:00",
+        "phase": "commit",
+        "outcome": "ok",
+        "duration_ms": 404.89
+      },
+      "context_bracketed": true,
+      "nearby_samples": [
+        {
+          "utc": "2026-10-06T00:52:41.541491+00:00",
+          "offset_seconds": -1.3351600170135498,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 3.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 3.0,
+            "pool_state:shared_acquisition_used": 3.0,
+            "pool_state:shared_acquisition_acquiring": 3.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 62.516848252959214,
+            "db_commit:all": 12.97224887265739,
+            "db_connection_hold:all": 36.98812007364309
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:42.541568+00:00",
+          "offset_seconds": -0.3350830078125,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 3.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 3.0,
+            "pool_state:shared_acquisition_used": 3.0,
+            "pool_state:shared_acquisition_acquiring": 3.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 130.46117790072458,
+            "db_commit:all": 28.519037349906284,
+            "db_connection_hold:all": 50.3135476494208
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:43.541644+00:00",
+          "offset_seconds": 0.6649930477142334,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 2.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 2.0,
+            "pool_state:shared_acquisition_used": 2.0,
+            "pool_state:shared_acquisition_acquiring": 2.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 44.67737297497254,
+            "db_commit:all": 6.783939923338181,
+            "db_connection_hold:all": 29.711262246611977
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:44.541892+00:00",
+          "offset_seconds": 1.665241003036499,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 4.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 4.0,
+            "pool_state:shared_acquisition_used": 4.0,
+            "pool_state:shared_acquisition_acquiring": 4.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 84.16537377012322,
+            "db_commit:all": 18.25138740638398,
+            "db_connection_hold:all": 46.496010047452394
+          }
+        }
+      ]
+    },
+    {
+      "replica": "primary-api-1",
+      "record": {
+        "event": "slow_db_phase",
+        "time": "2026-10-06T00:52:42.874679+00:00",
+        "phase": "commit",
+        "outcome": "ok",
+        "duration_ms": 404.489
+      },
+      "context_bracketed": true,
+      "nearby_samples": [
+        {
+          "utc": "2026-10-06T00:52:41.541491+00:00",
+          "offset_seconds": -1.3331880569458008,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 6.231883110120651,
+            "db_commit:all": 11.849890229125279,
+            "db_connection_hold:all": 31.96046709353192
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:42.541568+00:00",
+          "offset_seconds": -0.333111047744751,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 1.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 46.51465078851013,
+            "db_commit:all": 26.881247932134674,
+            "db_connection_hold:all": 43.628792420603595
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:43.541644+00:00",
+          "offset_seconds": 0.6669650077819824,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 1.3861191687353243,
+            "db_commit:all": 6.292444200684818,
+            "db_connection_hold:all": 24.272296028749015
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:44.541892+00:00",
+          "offset_seconds": 1.667212963104248,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 1.0,
+            "pool_state:payment_pool_available": 1.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 10.927793268430312,
+            "db_commit:all": 14.811123683007041,
+            "db_connection_hold:all": 36.72333342113058
+          }
+        }
+      ]
+    },
+    {
+      "replica": "primary-api-1",
+      "record": {
+        "event": "slow_db_phase",
+        "time": "2026-10-06T00:52:42.872785+00:00",
+        "phase": "commit",
+        "outcome": "ok",
+        "duration_ms": 393.095
+      },
+      "context_bracketed": true,
+      "nearby_samples": [
+        {
+          "utc": "2026-10-06T00:52:41.541491+00:00",
+          "offset_seconds": -1.331294059753418,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 6.231883110120651,
+            "db_commit:all": 11.849890229125279,
+            "db_connection_hold:all": 31.96046709353192
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:42.541568+00:00",
+          "offset_seconds": -0.33121705055236816,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 1.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 46.51465078851013,
+            "db_commit:all": 26.881247932134674,
+            "db_connection_hold:all": 43.628792420603595
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:43.541644+00:00",
+          "offset_seconds": 0.6688590049743652,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 1.3861191687353243,
+            "db_commit:all": 6.292444200684818,
+            "db_connection_hold:all": 24.272296028749015
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:44.541892+00:00",
+          "offset_seconds": 1.6691069602966309,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 1.0,
+            "pool_state:payment_pool_available": 1.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 10.927793268430312,
+            "db_commit:all": 14.811123683007041,
+            "db_connection_hold:all": 36.72333342113058
+          }
+        }
+      ]
+    },
+    {
+      "replica": "primary-api-2",
+      "record": {
+        "event": "slow_db_phase",
+        "time": "2026-10-06T00:52:42.873145+00:00",
+        "phase": "commit",
+        "outcome": "ok",
+        "duration_ms": 392.02
+      },
+      "context_bracketed": true,
+      "nearby_samples": [
+        {
+          "utc": "2026-10-06T00:52:41.541491+00:00",
+          "offset_seconds": -1.3316540718078613,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 3.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 3.0,
+            "pool_state:shared_acquisition_used": 3.0,
+            "pool_state:shared_acquisition_acquiring": 3.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 62.516848252959214,
+            "db_commit:all": 12.97224887265739,
+            "db_connection_hold:all": 36.98812007364309
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:42.541568+00:00",
+          "offset_seconds": -0.3315770626068115,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 3.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 3.0,
+            "pool_state:shared_acquisition_used": 3.0,
+            "pool_state:shared_acquisition_acquiring": 3.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 130.46117790072458,
+            "db_commit:all": 28.519037349906284,
+            "db_connection_hold:all": 50.3135476494208
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:43.541644+00:00",
+          "offset_seconds": 0.6684989929199219,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 2.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 2.0,
+            "pool_state:shared_acquisition_used": 2.0,
+            "pool_state:shared_acquisition_acquiring": 2.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 44.67737297497254,
+            "db_commit:all": 6.783939923338181,
+            "db_connection_hold:all": 29.711262246611977
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:44.541892+00:00",
+          "offset_seconds": 1.6687469482421875,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 4.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 4.0,
+            "pool_state:shared_acquisition_used": 4.0,
+            "pool_state:shared_acquisition_acquiring": 4.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 84.16537377012322,
+            "db_commit:all": 18.25138740638398,
+            "db_connection_hold:all": 46.496010047452394
+          }
+        }
+      ]
+    },
+    {
+      "replica": "secondary-api-2",
+      "record": {
+        "event": "slow_db_phase",
+        "time": "2026-10-06T00:52:42.873382+00:00",
+        "phase": "commit",
+        "outcome": "ok",
+        "duration_ms": 370.072
+      },
+      "context_bracketed": true,
+      "nearby_samples": [
+        {
+          "utc": "2026-10-06T00:52:41.541491+00:00",
+          "offset_seconds": -1.3318910598754883,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 1.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 0.1639244005283607,
+            "db_commit:all": 6.498563818626501,
+            "db_connection_hold:all": 18.20879542466366
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:42.541568+00:00",
+          "offset_seconds": -0.3318140506744385,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 1.0,
+            "pool_state:payment_pool_available": 1.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 26.027848599025877,
+            "db_commit:all": 22.008701195338052,
+            "db_connection_hold:all": 32.66708034947363
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:43.541644+00:00",
+          "offset_seconds": 0.6682620048522949,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 0.032305694334447764,
+            "db_commit:all": 5.902892261617939,
+            "db_connection_hold:all": 18.28070652539425
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:44.541892+00:00",
+          "offset_seconds": 1.6685099601745605,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 0.0,
+            "pool_state:payment_pool_available": 2.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 6.767421078585161,
+            "db_commit:all": 12.644050039080815,
+            "db_connection_hold:all": 24.426498547809217
+          }
+        }
+      ]
+    },
+    {
+      "replica": "secondary-api-2",
+      "record": {
+        "event": "slow_db_phase",
+        "time": "2026-10-06T00:52:42.880138+00:00",
+        "phase": "commit",
+        "outcome": "ok",
+        "duration_ms": 303.627
+      },
+      "context_bracketed": true,
+      "nearby_samples": [
+        {
+          "utc": "2026-10-06T00:52:41.541491+00:00",
+          "offset_seconds": -1.3386468887329102,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 1.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 0.1639244005283607,
+            "db_commit:all": 6.498563818626501,
+            "db_connection_hold:all": 18.20879542466366
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:42.541568+00:00",
+          "offset_seconds": -0.33856987953186035,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 1.0,
+            "pool_state:payment_pool_available": 1.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 26.027848599025877,
+            "db_commit:all": 22.008701195338052,
+            "db_connection_hold:all": 32.66708034947363
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:43.541644+00:00",
+          "offset_seconds": 0.661506175994873,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 0.032305694334447764,
+            "db_commit:all": 5.902892261617939,
+            "db_connection_hold:all": 18.28070652539425
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:44.541892+00:00",
+          "offset_seconds": 1.6617541313171387,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 0.0,
+            "pool_state:payment_pool_available": 2.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 6.767421078585161,
+            "db_commit:all": 12.644050039080815,
+            "db_connection_hold:all": 24.426498547809217
+          }
+        }
+      ]
+    },
+    {
+      "replica": "secondary-api-1",
+      "record": {
+        "event": "slow_db_phase",
+        "time": "2026-10-06T00:52:42.880811+00:00",
+        "phase": "commit",
+        "outcome": "ok",
+        "duration_ms": 303.544
+      },
+      "context_bracketed": true,
+      "nearby_samples": [
+        {
+          "utc": "2026-10-06T00:52:41.541491+00:00",
+          "offset_seconds": -1.3393199443817139,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 0.0,
+            "pool_state:payment_pool_available": 2.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 1.4370328276917073,
+            "db_commit:all": 12.413318885124422,
+            "db_connection_hold:all": 24.089385714614764
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:42.541568+00:00",
+          "offset_seconds": -0.33924293518066406,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 1.0,
+            "pool_state:payment_pool_available": 1.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 31.007864000122552,
+            "db_commit:all": 28.393798973018026,
+            "db_connection_hold:all": 40.15870516131808
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:43.541644+00:00",
+          "offset_seconds": 0.6608331203460693,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 2.0,
+            "pool_state:payment_pool_available": 0.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 0.035210999684702406,
+            "db_commit:all": 5.134552622031471,
+            "db_connection_hold:all": 16.819637837092944
+          }
+        },
+        {
+          "utc": "2026-10-06T00:52:44.541892+00:00",
+          "offset_seconds": 1.661081075668335,
+          "db_lock_waiters": 0,
+          "pool": {
+            "pool_acquiring": 0.0,
+            "pool_in_use": 0.0,
+            "pool_state:payment_pool_available": 2.0,
+            "pool_state:payment_requests_waiting": 0.0,
+            "pool_state:shared_acquisition_used": 0.0,
+            "pool_state:shared_acquisition_acquiring": 0.0,
+            "pool_state:shared_acquisition_retained": 0.0
+          },
+          "interval_mean_ms": {
+            "db_pool_acquire:ok": 5.614434500206368,
+            "db_commit:all": 14.733284980099162,
+            "db_connection_hold:all": 27.232908848141644
+          }
+        }
+      ]
+    }
+  ],
+  "baseline": {
+    "decision": "ADR0170",
+    "run": "adr0151-3f6e2d8a0021",
+    "same_rate_and_budgets": true,
+    "stage": {
+      "stage_pass": true,
+      "customer_pass": true,
+      "offered_buyers_per_second": 60,
+      "dispatch_seconds": 300,
+      "scheduled": 18000,
+      "dispatched": 18000,
+      "customer_confirmations_by_deadline": 18000,
+      "generator_drops": 0,
+      "failed_dispatched_journeys": 0,
+      "errors_per_dispatched_journey_percent": 0.0,
+      "customer_outcomes": {
+        "fulfilled": 18000
+      },
+      "customer_http_attempts_total": 108998,
+      "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+      "p95_ms": {
+        "hold_http_p95_ms": 11.716070992406458,
+        "durable_p95_ms": 1026.1716959939804,
+        "payment_http_p95_ms": 52.59104399010539,
+        "payment_to_ticket_p95_ms": 641.9205950223841,
+        "hold_to_ticket_p95_ms": 1668.5508269874845
+      },
+      "host_cpu_percent": {
+        "primary": 71.12163428070507,
+        "secondary": 16.961971890431773
+      },
+      "aggregate_api_cpu_cores": 1.367879284882652,
+      "financial": {
+        "orders": 18000,
+        "fulfilled_orders": 18000,
+        "expired_orders": 0,
+        "pending_orders": 0,
+        "payment_attempts": 18000,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 18000,
+        "bookings": 18000,
+        "tickets": 18000,
+        "payment_callbacks": 18000,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 18000,
+        "callback_delivery_target": 18000,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 18000,
+        "expected_paid": 18000,
+        "expected_callback_deliveries_per_payment": 1,
+        "pass": true,
+        "hold_deadlines_elapsed": true
+      },
+      "global_queues": {
+        "unpublished_outbox": 0,
+        "pending_refresh": 0,
+        "dead_letters": 0,
+        "pending_callback_deliveries": 0,
+        "pending_refunds": 0,
+        "reservation_stream_entries": 0,
+        "reservation_stream_pending": 0,
+        "kafka_total_lag": 0,
+        "kafka_members": 6,
+        "pass": true,
+        "pending_confirmation_receipts": 0,
+        "review_confirmation_receipts": 0,
+        "confirmation_capacity_outstanding": 0,
+        "confirmation_capacity_mismatches": 0
+      },
+      "all_four_replicas_observed": true,
+      "request_shares": [
+        0.22769204105909138,
+        0.2290942893830895,
+        0.26878264363198073,
+        0.2744310259258384
+      ],
+      "private_cleanup_pass": true,
+      "failure_type": null
+    }
+  },
+  "interpretation": {
+    "capacity_improvement_demonstrated": false,
+    "intermittent_timeout_cause_resolved": false,
+    "latency_scope": "Worst shard p95, not combined percentiles.",
+    "counter_scope": "Observer lifetime including completion tail.",
+    "slow_log_scope": "Only existing API phases at least 100ms; no request IDs, no full latency distribution, no background phase logs.",
+    "temporal_scope": "Same-replica nearby samples and interval means; adjacency does not establish causality.",
+    "hourly_scope": "No 84/s, opening burst or one-hour 300000-ticket qualification.",
+    "callback_http_503": 2,
+    "customer_errors_percent": 0,
+    "native_pool_timeouts": 0,
+    "payment_role_limit_rejections": 2,
+    "callback_recovery": "All 18000 payment callbacks, payments and tickets ultimately completed; callback 503s were not failed customer journeys.",
+    "commit_window_utc": "2026-10-06T00:52:42.872785+00:00 to 2026-10-06T00:52:42.880811+00:00",
+    "commit_window_bangkok": "2026-10-06 07:52:42.872785 to 07:52:42.880811 UTC+07:00",
+    "shared_stall_hypothesis": "Longest commits completed within about 8ms across all four APIs on both hosts. A common downstream stall is a hypothesis; RDS wait, WAL/replication, network and proxy causes are not distinguished.",
+    "pool_return_scope": "No pool-return phase at or above100ms was captured. This does not prove all returns were instantaneous.",
+    "historical_timeout_scope": "Earlier native-pool timeouts were not reproduced in this run. Captured failures are payment-role admission rejections with retained0, used10/maximum12 and payment limit10."
+  },
+  "raw_evidence_directory": "tmp/adr0151-d7e8f730fc58",
+  "adjacent_proxy_samples": [
+    {
+      "utc": "2026-10-06T00:52:42.541568+00:00",
+      "client_waiting": 0,
+      "server_active": 22,
+      "server_idle": 2,
+      "maxwait_seconds": 0
+    },
+    {
+      "utc": "2026-10-06T00:52:43.541644+00:00",
+      "client_waiting": 0,
+      "server_active": 17,
+      "server_idle": 7,
+      "maxwait_seconds": 0
+    }
+  ],
+  "next_action": "Collect bounded database-side wait events and WAL/commit timing alongside existing proxy, CPU and phase evidence to distinguish the shared stall before changing pools, deadlines, persistence or increasing load.",
+  "execution_harness_revision": "75a3118a030e1dfa209e874a84908ee545d8e375",
+  "executed_plan_file_sha256": "24636d46b7b354af36f40153c3b3ece40cbe23c2106d526d5c511011c8068d79",
+  "executed_plan_canonical_json_sha256": "42436b0219a47ea9acfba1c19757bd6143a99e2063f0d8901421dc3fd389c154",
+  "executed_plan_evidence": "tmp/adr0151-d7e8f730fc58/executed-experiment-plan.json",
+  "metadata_note": "Exact executed plan and canonical JSON binding preserved. Future plan normalized after restoration and locally requalified; no replay."
+}

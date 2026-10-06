@@ -1,6 +1,6 @@
 # ADR0171: Bounded slow database phase diagnostics
 
-- Status: Accepted for implementation and local qualification; cloud execution pending
+- Status: Accepted; bounded cloud control and nonzero diagnostic collection qualified
 - Date: 2026-10-06
 
 ## Context
@@ -30,3 +30,15 @@ Reserve fresh counters before dispatch. Stop failed qualification/control; retai
 ## Validation evidence
 
 Executed 253 local regression tests passed in 31.13 seconds, including malformed relevant records, independent class bounds, privacy filtering, real generated parser execution, replica/time/process/counter continuity, temporal bracketing, retained partial evidence, control-only identity and historical runners. A malformed non-object slow event initially escaped filtering; the path was corrected before the passing run. Changed-file Ruff and repository naming checks passed. Default preparation made zero cloud calls/customer dispatches. All 478 rows of the ADR0170 cloud observer trace were validated offline. [Local validation](../capacity/flash-sale-opening/slow-database-diagnostics-local-validation-2026-10-06.json). Cloud execution is pending; ADR0170 remains the latest measured control.
+
+## Executed cloud checkpoint
+
+Fresh safety qualification and one unchanged 60 journeys/s, 300 s control passed, with exact restoration and generator idle. All 18,000 dispatched journeys became customer-confirmed, paid-and-issued tickets; customer failures, drops and duplicate bookings were zero. Post-TTL durability and full queues passed. Complete evidence retained two payment-role admission rejections and 48 slow commits (maximum 407.95 ms), with bracketing temporal context for all records. No slow pool-return event at or above 100 ms was captured. Two callback HTTP 503s occurred; all callbacks and paid tickets ultimately completed. Native-pool timeout counters were zero.
+
+The longest commits finished within about eight milliseconds across all four APIs on both hosts. That supports investigating a shared downstream stall, without identifying RDS WAL, replication, proxy or network as its cause. Adjacent proxy samples showed zero waiting clients; sparse samples do not exclude short waits. No application optimization or higher capacity was demonstrated. [Executed control](../capacity/flash-sale-opening/slow-database-diagnostic-control-2026-10-06.json).
+
+## Configuration metadata discipline
+
+After closing the measured scope, normalize the diagnostic plan to its exact control-only schema and validate every role setting against the frozen control. Inherited unused candidate and earlier observer-status metadata are not runtime instructions and must not appear in future diagnostic plans. Preserve the exact executed plan and binding in the owned evidence directory and Git revision; this metadata guard requires local validation and does not rewrite or replay the completed experiment.
+
+The post-run metadata guard passed 256 local regression tests in 54.38 seconds and changed-file Ruff. The exact as-executed plan remains in each owned run directory; its file SHA-256 and canonical JSON binding digest are recorded separately in the cloud report. No cloud replay followed the metadata correction.

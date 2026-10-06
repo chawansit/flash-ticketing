@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0171_slow_database_diagnostics_local_qualified",
+  "status": "adr0171_passed_shared_commit_stall_captured_restored",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -10,7 +10,7 @@
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "ADR0170 exact original primary runtime restored; secondary test resources removed; generator idle; full queues and Kafka lag zero. Measured topology was 2+2 APIs; restored topology is four primary APIs.",
+  "last_checked_topology": "ADR0171 exact original primary runtime restored: four primary APIs; secondary test resources removed; generator idle; full queues and Kafka lag zero. Measured topology was two APIs per host.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
   "revision_note": "Frozen cloud application/profile unchanged. ADR0165control18000paid-issued vs candidate17999;reclamation notadopted. ADR0166retention271localtests. ADR0168projection106nativeintegrationtests;isolatedcandidate rejected afterread/clientregression,baseline source restored. No higher load/async/hour qualification.",
@@ -44,16 +44,17 @@
     "ADR0161 safety off/on pair2ac96f81c6db passed and restored. Measured controlbfce7e658e7e18000dispatched17996confirmed,4payment503s0.022222%,0drops; observed duplicate seats/orders0,fullqueues0. Async measured arm skipped,original runtime restored; no capacity-benefit claim.",
     "ADR0162 real expired-prefix/live-tail FIFO mechanism reproduced;candidate restores conservative headroom under unchanged ceilings.1180host tests passed;nativecore355passed1skip1intermittentprojectiontimeout,standalonererun1passed.Authority/transaction AST unchanged,owned resourcesremoved,0cloud calls.",
     "ADR0163 isolated five-file admission export213files21modules;6immutable images verified.32host profile checks and272native tests passed;2image factor probes.Source/financial authority unchangedrelativefrozenparent,callback reserveexcluded.No cloudcall,deployment orcustomerdispatch.",
-    "ADR0170 unchanged 60 journeys/s 300s control passed:18,000 paid-and-issued customer-confirmed tickets;0 errors/drops/duplicates;post-TTL/full queues passed;exact restoration and generator idle. Four-API failure capture complete;0 acquisition failure counters/records. Earlier intermittent timeout not reproduced;no capacity improvement claimed."
+    "ADR0170 unchanged 60 journeys/s 300s control passed:18,000 paid-and-issued customer-confirmed tickets;0 errors/drops/duplicates;post-TTL/full queues passed;exact restoration and generator idle. Four-API failure capture complete;0 acquisition failure counters/records. Earlier intermittent timeout not reproduced;no capacity improvement claimed.",
+    "ADR0171 control passed:18,000 dispatched/customer-confirmed paid-issued tickets;0 customer failures/drops/duplicates;all queues drained;exact restoration. Captured48 slow commits(max407.95ms) across both hosts and2 callback HTTP503/payment role-limit rejections. Complete failure context;retained guard occupancy0;native timeout0. Shared stall origin unproven;no optimization or capacity gain claimed."
   ],
-  "unresolved": "Earlier payment-pool timeout was not reproduced. Capture lifecycle is cloud-qualified; nonzero failure capture and commit-tail origin remain unproven. Reclamation remains off. The 18,000-seat projection, asynchronous confirmation benefit, 84 tickets/s, opening burst and 300,000 tickets/hour remain unqualified.",
+  "unresolved": "Longest commits completed together across both API hosts; shared downstream stall cause is unproven. Payment admission rejected two callbacks at role limit10; all customer journeys and payments/tickets completed. Earlier native-pool timeout not reproduced. Reclamation remains off; projection, asynchronous confirmation benefit,84 tickets/s and hourly opening qualification remain unresolved.",
   "next_on_resume": [
-    "Create an ADR for bounded slow database phases and connection-wait diagnostics; reuse the qualified control runner and immutable profile.",
-    "Locally qualify diagnostic privacy, bounds, correlation, counter coverage, identity and failure cleanup before any fresh cloud scope.",
-    "Use measured evidence to select one correction; keep budgets and workload fixed for comparison. Do not replay consumed scopes."
+    "Design bounded database-side wait sampling alongside existing proxy/CPU/phase diagnostics; verify supported views and timing availability without changing RDS settings.",
+    "Qualify sampling bounds, privacy, observer connection budget, source identity and failure cleanup locally under ADR0172.",
+    "Only after local qualification create one fresh control scope. Preserve executed ADR0171 plan/binding and all consumed scopes."
   ],
-  "authorization": "Direct user Continue after evidence-led plan and checkpoint; unchanged machines,60journeys/s300s single control under ADR0170,one fresh safety qualification then only if all gates pass one measured control. No higher load,candidate,unattended schedule or paid infrastructure change.",
-  "scope": "ADR0170:one control-only safety protocol(max1ticket),then one60journeys/s300s control stage plus1safety ticket. Stop any failure;retain bounded snapshots,full financial/postTTL/fullqueues/restoration. No replacement/replay.",
+  "authorization": "Direct user Continue after evidence-led plan and checkpoint; unchanged machines,60journeys/s300s single control under ADR0171,one fresh safety qualification then only if all gates pass one measured control. No higher load,candidate,unattended schedule or paid infrastructure change.",
+  "scope": "One completed control-only safety qualification, then one completed 60 journeys/s,300s control with one safety ticket. No candidate,higher load or replay.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -175,7 +176,9 @@
     "tmp/adr0151-a6cdb46f8cff/comparison-summary.json",
     "tmp/adr0159-checks/measured-pair-proposal.json",
     "tmp/adr0151-3f6e2d8a0021/comparison-summary.json",
-    "docs/capacity/flash-sale-opening/payment-stall-diagnostic-control-2026-10-06.json"
+    "docs/capacity/flash-sale-opening/payment-stall-diagnostic-control-2026-10-06.json",
+    "docs/capacity/flash-sale-opening/slow-database-diagnostic-control-2026-10-06.json",
+    "tmp/adr0151-d7e8f730fc58/comparison-summary.json"
   ],
   "isolated_coalescing_candidate": {
     "revision": "dfb11bc8b6907bcaf2b9cde3d7e2f7ddf1724a19",
@@ -1059,7 +1062,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Activate a fresh ADR0171 unchanged single-control diagnostic scope: one safety qualification, then only if passed one 60 journeys/s 300s control. Retain bounded slow phases/acquisition failures/temporal pool context and all financial/drain/restoration gates. Do not replay earlier scopes.",
+  "next_action": "Create ADR0172 and locally qualify bounded database-side wait-event/WAL evidence to distinguish the shared commit stall, using existing observer budgets and preserving redaction, temporal identity, full financial/drain/restoration. No pool, deadline, persistence or load increase before evidence.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1122,10 +1125,10 @@
     ],
     "scope_closed": true
   },
-  "revision": "208204af8552c5388e545003fa3597359b9c2d1b",
+  "revision": "75a3118a030e1dfa209e874a84908ee545d8e375",
   "latest_experiment": {
-    "decision": "ADR0170",
-    "run": "adr0151-3f6e2d8a0021",
+    "decision": "ADR0171",
+    "run": "adr0151-d7e8f730fc58",
     "rate_journeys_s": 60,
     "seconds": 300,
     "dispatched": 18000,
@@ -1133,20 +1136,24 @@
     "customer_errors_percent": 0,
     "generator_drops": 0,
     "observed_duplicates": 0,
+    "callback_http_503": 2,
+    "payment_role_limit_rejections": 2,
+    "native_pool_timeouts": 0,
+    "slow_commit_records": 48,
+    "max_commit_ms": 407.95,
+    "slow_pool_return_records": 0,
+    "complete_diagnostics": true,
     "all_queues_drained": true,
     "restored": true,
-    "failure_capture_complete": true,
-    "failure_records": 0,
-    "timeout_cause_resolved": false,
+    "root_cause_proven": false,
     "capacity_improvement_demonstrated": false,
-    "evidence": "docs/capacity/flash-sale-opening/payment-stall-diagnostic-control-2026-10-06.json"
+    "evidence": "docs/capacity/flash-sale-opening/slow-database-diagnostic-control-2026-10-06.json"
   },
-  "cloud_load_pause_reason": "ADR0170 bounded scope is fully consumed and closed after verified restoration. No user pause; further cloud execution needs a fresh bounded scope, not replay.",
+  "cloud_load_pause_reason": "ADR0171 bounded scope consumed and closed after verified restoration; no explicit user pause. Further cloud execution requires a fresh bound scope, not replay.",
   "latest_local_validation": {
     "decision": "ADR0171",
-    "tests_passed": 253,
-    "seconds": 31.13,
-    "cloud_calls": 0,
+    "pre_cloud_tests_passed": 253,
+    "post_run_schema_tests_passed": 256,
     "evidence": "docs/capacity/flash-sale-opening/slow-database-diagnostics-local-validation-2026-10-06.json"
   },
   "latest_projection": {
@@ -1237,6 +1244,69 @@
       "control"
     ],
     "closed_at_utc": "2026-10-05T23:13:19.941325+00:00",
+    "restoration_complete": true,
+    "pass": true
+  },
+  "bounded_slow_database_diagnostics": {
+    "status": "CONSUMED_PASSED_RESTORED",
+    "authorization_id": "adr0171-slow-database-control-2026-10-06",
+    "binding": {
+      "adapter_identity": {
+        "scripts/observe_two_host_pipeline.py": "25570835596fe9322863c229900f1aee5bab3de14224f46725a35e64fccd80e4",
+        "scripts/prepare_two_host_scaling.py": "2837924087e960a2048804bb2e345e8f621c479282ad46ac5b3641a104d21b39",
+        "scripts/observe_two_host_cpu.py": "f38dc5ded7103ab70e2ab5dcaed79dd72528259390432967b5d600befc9e23e1",
+        "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+        "scripts/run_two_host_paid_comparison.py": "2895abf3e5217b4e5d743bbce8e626e360b8507a2b3fa5ecfb649267de7297ff",
+        "scripts/qualify_two_host_deployment.py": "946266d17a917422a302f7280a0a73cb1f1fcdca5f0ac57814e175dd8bc83f27",
+        "scripts/collect_two_host_inventory.py": "8a889fba8f39c0205671d05b77fe239f795465506fdea0f6a8ead4d88ce387c1",
+        "scripts/runtime_source_identity.py": "5dd0db433abf10e79a3bf1c21ca29d28e85137e7f3e1483e9e96df35462ead80",
+        "scripts/probe_two_host_safety.py": "f61f3e718a19c158aa4c4f90a3411160facd9441d8dea9d7e53e20a0fe920bd2",
+        "scripts/run_status_refresh_comparison.py": "ee88f19de9082492e1020bc53a4d9a47704ad4deb416dad8509d7449a45bfda2",
+        "scripts/status_refresh_contract.py": "98941571768e1a3984318dc22762bccc1713278f84f7acde11b61f8568932f27",
+        "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+        "experiment_plan": "42436b0219a47ea9acfba1c19757bd6143a99e2063f0d8901421dc3fd389c154",
+        "scripts/run_slow_database_diagnostics.py": "452e8b3d12735cfb22ffbd06d785063e3d491407b93894bc6cca7640c5592995",
+        "scripts/slow_database_contract.py": "0abe3980431e9f29fff787ad29aa647554ce40f9fb8b86a9d42e8f04b5e0aa58",
+        "scripts/prepare_partial_timeout_reclamation.py": "0573f2a7f94177567ce58a5b9b43aee6a6bede552e1530fcb72e70b8d8b1a076",
+        "scripts/prepare_status_refresh_artifacts.py": "dd06c8574b63061dcecf69d2da9f9d0c0fa82b4df36a6c57f0c35099d9431467",
+        "scripts/status_refresh_image_install.py": "9a20736841a226feb599850b51493cf9383df89b4d8d5506a8cc4de9f9198752",
+        "scripts/stage_status_refresh_images.py": "f0150b07056e20a70bf6aef482c254f929a35d0437a81b2df0cf7b06a7b4daf7",
+        "scripts/run_async_confirmation_comparison.py": "5a8bf3af489cbd0b204f636957df1b10df9843e4b788ec56c0db6df3998b1f1d",
+        "scripts/checkout_journey_probe.py": "10b14c979133188d42aaba5a9a91ab599101922e2d284e85dbe6c03244e3a5bc",
+        "scripts/fetch_status_refresh_parents.py": "b79f31039d1fceedcd9d51a64be5fecc24beb8212078dad64d36f134a95da26d",
+        "scripts/admission_failure_evidence.py": "0a4d3be45c7f9b9021918391a14848a0f8f9a4eb9ffdc99482a8ad8958eb7be5",
+        "scripts/slow_database_evidence.py": "f369fef593a2fb65d99faecd57ed6ebccd3012a67f513790a0cfbfb955c2c5d6",
+        "scripts/partial_timeout_profile.py": "2c75b4b42e25c106384f87ba566b4caa58c758b6d055d27688d1f811358be519",
+        "artifacts/partial-timeout-reclamation/manifest.json": "5fb51d138dce9b04d1c40506e861b20350d08da421a7832392f4f0c48ea9c0fa",
+        "artifacts/partial-timeout-reclamation/adr0163.patch": "6950c3f3286f0ce3f4934e16682648ab52bb3ca165bf9992dbdce32a143a2a34"
+      },
+      "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+      "artifact_sha256": "3c045c15719fedeea69df0ab5bfd274e53d8989f2e9de113a3457d72c5c03b6d",
+      "source_manifest_sha256": "13d78bdf41e7d442f87ee04d1bb4f357d648789adf0e5270a23b06d74c55ccd2"
+    },
+    "qualification_runs_authorized": 1,
+    "qualification_protocols_started": 1,
+    "paid_runs_authorized": 1,
+    "paid_runs_started": 1,
+    "paid_protocols_started": 1,
+    "safety_tickets_authorized": 2,
+    "safety_protocols_started": 2,
+    "active_run": null,
+    "scope": "One completed control-only safety qualification, then one completed 60 journeys/s,300s control with one safety ticket. No candidate,higher load or replay.",
+    "approval_source": "Direct user continuation within existing machine/load bounds and six-step evidence-led plan. ADR0171 fresh control-only allowance.",
+    "prior_scope_reopened": false,
+    "qualification_arms": [
+      "control"
+    ],
+    "last_runner_report": "tmp/adr0151-d7e8f730fc58/comparison-summary.json",
+    "dry_qualification_report": "tmp/adr0151-ffa92d04610f/comparison-summary.json",
+    "paid_protocol_arms": [
+      "control"
+    ],
+    "attempted_paid_arms": [
+      "control"
+    ],
+    "closed_at_utc": "2026-10-06T01:02:15.696382+00:00",
     "restoration_complete": true,
     "pass": true
   }

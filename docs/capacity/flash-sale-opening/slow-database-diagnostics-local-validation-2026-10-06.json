@@ -14,5 +14,12 @@
   "customer_dispatches": 0,
   "runtime_application_changed": false,
   "capacity_improvement_measured": false,
-  "scope": "Existing phase logs, bounded temporal context and new control-only ledger. No cloud run yet."
+  "scope": "Existing phase logs, bounded temporal context and new control-only ledger. No cloud run yet.",
+  "post_run_schema_qualification": {
+    "tests_passed": 256,
+    "seconds": 54.38,
+    "raw_evidence": "tmp/adr0171-schema-qualified-tests.txt",
+    "ruff_passed": true,
+    "scope": "Strict control-only role metadata and unknown/candidate-setting rejection. Application images/settings unchanged. Exact executed plan retained; no cloud rerun."
+  }
 }

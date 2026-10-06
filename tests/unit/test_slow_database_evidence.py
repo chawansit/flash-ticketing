@@ -214,3 +214,13 @@ def test_old_consumed_scope_does_not_authorize_new_ledger():
     binding = {"test": "exact"}
     old["cloud_load_requires_resume"] = False
     with pytest.raises(ValueError): engine.validate_release(old, binding, execute=False)
+
+
+@pytest.mark.parametrize("drift", ["unused_candidate", "unknown_metadata", "wrong_control_setting"])
+def test_plan_rejects_unused_or_drifted_metadata(monkeypatch, tmp_path, drift):
+    data = policy.plan()
+    if drift == "unused_candidate": data["arm_settings"]["candidate"] = data["arm_settings"]["control"]
+    elif drift == "unknown_metadata": data["previous_failed_protocol"] = "old"
+    else: data["arm_settings"]["control"]["api"]["API_PARTIAL_TIMEOUT_RECLAIM"] = "1"
+    path = tmp_path / "plan.json";path.write_text(json.dumps(data));monkeypatch.setattr(policy, "PLAN", path)
+    with pytest.raises(ValueError): policy.plan()
