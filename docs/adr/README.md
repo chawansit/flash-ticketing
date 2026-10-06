@@ -286,3 +286,5 @@ ADR0164–0168 update: the matched admission control passed18,000paid-issued jou
 - [ADR0169: Canonical names and reference gates](0169-canonical-names-and-reference-gates.md) - Local commit/push guards enabled;66related tests passed. CI configuration is committed on the engineering branch and is not included in this documentation-only publication.
 
 - [ADR0170: Single-control payment-stall diagnostics](0170-single-control-payment-stall-diagnostics.md) - 223 local checks passed; one control safety qualification and one bounded diagnostic stage. No candidate or higher-load allowance.
+
+- [ADR0171: Bounded slow database phase diagnostics](0171-bounded-slow-database-phase-diagnostics.md)

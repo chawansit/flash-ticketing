@@ -1,0 +1,25 @@
+{
+  "decision": "ADR0171",
+  "status": "LOCAL_QUALIFIED_CLOUD_PENDING",
+  "tests": {
+    "command": "pytest tests/unit/test_slow_database_evidence.py tests/unit/test_payment_stall_diagnostics.py tests/unit/test_status_refresh_comparison.py tests/unit/test_async_confirmation_comparison.py tests/unit/test_partial_timeout_comparison.py tests/unit/test_admission_failure_evidence.py tests/unit/test_repository_names.py -q",
+    "passed": 253,
+    "seconds": 31.13,
+    "raw_evidence": "tmp/adr0171-qualified-tests.txt"
+  },
+  "ruff_passed": true,
+  "naming_check_passed": true,
+  "historical_cloud_trace_rows_validated_offline": 478,
+  "local_preparation_cloud_calls": 0,
+  "customer_dispatches": 0,
+  "runtime_application_changed": false,
+  "capacity_improvement_measured": false,
+  "scope": "Existing phase logs, bounded temporal context and new control-only ledger. No cloud run yet.",
+  "post_run_schema_qualification": {
+    "tests_passed": 256,
+    "seconds": 54.38,
+    "raw_evidence": "tmp/adr0171-schema-qualified-tests.txt",
+    "ruff_passed": true,
+    "scope": "Strict control-only role metadata and unknown/candidate-setting rejection. Application images/settings unchanged. Exact executed plan retained; no cloud rerun."
+  }
+}
