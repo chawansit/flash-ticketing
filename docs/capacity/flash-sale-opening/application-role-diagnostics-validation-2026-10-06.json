@@ -1,0 +1,56 @@
+{
+  "decision": "ADR0176",
+  "status": "DESIGN_AND_COLLECTOR_LOCALLY_QUALIFIED_NOT_REGISTERED",
+  "implemented_component": "Application-role collector, private configuration role-binding validator and explicitly scoped summary.",
+  "locally_tested": true,
+  "cloud_runner_integrated": false,
+  "cloud_tested": false,
+  "production_qualified": false,
+  "capacity_improvement_measured": false,
+  "source_sha256": "f7ee10c7ac156c9747eea9015efc84ef78a9f6b3998644e61353248d64b5cf86",
+  "scope_contract": {
+    "application_role_coverage_required": true,
+    "api_replicas": 4,
+    "total_database_application_replicas": 18,
+    "reject_hidden_application": true,
+    "reject_unknown_role": true,
+    "masked_foreign_sessions_reported": true,
+    "global_visibility_reported_separately": true,
+    "historical_complete_gate_unchanged": true,
+    "new_gate": "application_database_wait_evidence_complete",
+    "cluster_statistics": "WAL/checkpoint/database counters remain aggregate; timing availability is explicit."
+  },
+  "checks": {
+    "broader_tests": {
+      "passed": 138,
+      "seconds": 54.71,
+      "raw_evidence": "tmp/adr0176-final-tests.txt"
+    },
+    "final_catalog_tests": {
+      "passed": 33,
+      "seconds": 0.9,
+      "raw_evidence": "tmp/adr0176-catalog-tests.txt"
+    },
+    "real_postgresql": {
+      "passed": 1,
+      "seconds": 0.18,
+      "image": "sha256:00bc86618629af00d2937fdc5a5d63db3ff8450acf52f0636ec813c7f4902929",
+      "raw_evidence": "tmp/adr0176-visibility-z40nij0g/integration-tests.txt",
+      "closure": "tmp/adr0176-visibility-z40nij0g/result.json",
+      "owned_resources_removed": true,
+      "actual_helper_elapsed_seconds": 3.5789999999979045,
+      "scope": "Real own/foreign PostgreSQL sessions;18-replica policy binding is synthetic locally and has not been proven on cloud."
+    },
+    "ruff": "PASS"
+  },
+  "evidence_retention": "Native qualification now uses a fresh directory per invocation. Earlier fixed local native paths were reused by later checks; earlier published test counts remain historical facts, not newly recoverable original raw logs. One fresh helper attempt failed only while writing its result after cleanup; the failed wrapper closure was retained, then corrected and rerun under a new identity.",
+  "cloud": {
+    "calls": 0,
+    "new_experiments": 0,
+    "permission_changes": 0,
+    "deployment_changes": 0,
+    "cumulative_actual_experiment_seconds_unchanged": 2807.501000000004
+  },
+  "remaining": "Not integrated with live inventory, role preflight, source-transfer binding or a registered experiment. The six RDS sessions remain unidentified and WAL cause unproven.",
+  "next_action": "Integrate and locally qualify explicit application-role scope in the bounded runner, preserving separate global visibility. Prove all live role bindings before a fresh 2+2 versus 1+3 comparison at unchanged load. No higher load or capacity claim."
+}

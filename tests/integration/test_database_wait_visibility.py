@@ -10,6 +10,7 @@ from psycopg import sql
 from psycopg.conninfo import conninfo_to_dict, make_conninfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
+import application_database_wait_evidence as scoped
 from database_wait_evidence import ACTIVITY_SQL, Collector, bounded_query, failure_context
 
 pytestmark = pytest.mark.integration
@@ -41,6 +42,18 @@ def test_foreign_session_is_hidden_until_statistics_privilege_granted():
                     assert hidden["error_phase"] == "capabilities"
                     assert hidden["error_code"] == "statistics_privilege_missing"
                     assert any(g["backend_type"] == "unavailable" and g["own_role"] is False for g in groups)
+                    # Replica policy is synthetic here; private container role binding is tested separately.
+                    proof = scoped.RoleCoverage(scoped.role_digest(observer_role, "postgres"),
+                                                tuple(sorted(scoped.EXPECTED_REPLICAS.items())))
+                    with psycopg.connect(make_conninfo(url, user=observer_role), autocommit=True) as own:
+                        own.execute("SELECT 1")
+                        scoped_value = scoped.Collector(proof).collect(observer)
+                    assert scoped_value["application_visibility_complete"]
+                    assert scoped_value["application_sessions"] >= 1
+                    assert scoped_value["restricted_foreign_sessions"] >= 1
+                    assert not scoped_value["full_database_visibility_complete"]
+                    assert "complete" not in scoped_value
+                    assert observer_role not in str(scoped_value) and foreign_role not in str(scoped_value)
                     assert observer_role not in str(hidden) and foreign_role not in str(hidden)
                     admin.execute(sql.SQL("GRANT pg_read_all_stats TO {}").format(sql.Identifier(observer_role)))
                     collector = Collector()

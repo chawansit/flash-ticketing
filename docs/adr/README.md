@@ -292,3 +292,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0174: Fixed-budget API placement rebalance](0174-fixed-budget-api-placement-rebalance.md)
 
 - [ADR0175: Diagnostic visibility readiness](0175-diagnostic-visibility-readiness.md)
+
+- [ADR0176: Application-role database diagnostics](0176-application-role-database-diagnostics.md)

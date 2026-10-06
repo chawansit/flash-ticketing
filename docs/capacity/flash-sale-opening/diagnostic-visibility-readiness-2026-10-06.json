@@ -34,5 +34,6 @@
     "tmp/adr0174-local-visibility-tests.txt",
     "tmp/adr0174-local-visibility-result.json",
     "tmp/adr0175-follow-up-tests.txt"
-  ]
+  ],
+  "raw_evidence_retention_note": "Fixed local native test/result paths were reused during later ADR0176 checks. Original executed counts remain as published; those original raw native files are no longer independently recoverable. ADR0176 final native proof has a fresh evidence directory."
 }

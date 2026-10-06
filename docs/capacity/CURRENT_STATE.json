@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0175_visibility_readiness_locally_qualified_monitoring_access_required",
+  "status": "adr0176_application_role_collector_locally_qualified_not_registered",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "ADR0174 original primary runtime restored: four primary APIs, secondary test resources removed, generator idle, full financial/confirmation queues and Kafka lag zero. Safety tested both 2+2 and 1+3; only 2+2 received paid load.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "ADR0174 cloud control executed at b508ba2; runner omissions corrected and published at7914584. ADR0175 visibility readiness is locally tested only; backend deployment/source unchanged.",
+  "revision_note": "ADR0174 cloud control ran at b508ba2; readiness fix published at d6b3e91. ADR0176 is a separate locally qualified component, not installed in cloud or registered; backend deployment unchanged.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -47,16 +47,17 @@
     "ADR0170 unchanged 60 journeys/s 300s control passed:18,000 paid-and-issued customer-confirmed tickets;0 errors/drops/duplicates;post-TTL/full queues passed;exact restoration and generator idle. Four-API failure capture complete;0 acquisition failure counters/records. Earlier intermittent timeout not reproduced;no capacity improvement claimed.",
     "ADR0171 control passed:18,000 dispatched/customer-confirmed paid-issued tickets;0 customer failures/drops/duplicates;all queues drained;exact restoration. Captured48 slow commits(max407.95ms) across both hosts and2 callback HTTP503/payment role-limit rejections. Complete failure context;retained guard occupancy0;native timeout0. Shared stall origin unproven;no optimization or capacity gain claimed.",
     "ADR0174 safety c0536c9a9740 passed 2+2 and 1+3, including exact restoration. Paid control196061bb2077:18000 dispatched/confirmed/paid/issued,0 customer errors/drops/payment loss/doubles,post-TTL and full queues0. Four diagnostic gates failed; paid candidate skipped. PrimaryCPU70.859%,secondary17.367%,hold-to-ticket worst-shard p951696.22ms. No rebalance capacity benefit measured.",
-    "ADR0175 fail-fast visibility readiness implemented.142 focused tests passed56.51s;1 real local PostgreSQL integration passed0.12s. Grant/revoke and cached-collector revocation verified. Owned resources removed;0cloud calls, no monitoring grant or capacity improvement claim."
+    "ADR0175 fail-fast visibility readiness implemented.142 focused tests passed56.51s;1 real local PostgreSQL integration passed0.12s. Grant/revoke and cached-collector revocation verified. Owned resources removed;0cloud calls, no monitoring grant or capacity improvement claim.",
+    "ADR0176 separate application-role diagnostics locally qualified: 138 broader tests in 54.71s, 33 final scoped tests in 0.90s and one real PostgreSQL test in 0.18s. Foreign masking is explicit; hidden own-role or unknown identity fails. No historical generic complete alias. Owned resources removed; zero cloud calls; not registered or capacity-qualified."
   ],
-  "unresolved": "Last verified observer role lacks full statistics access and grant admin option. Local PostgreSQL reproduces permission-restricted activity; identity/cause of six RDS samples remains unconfirmed. Need a provider-supported access remedy or explicit diagnostic-scope decision before another paid comparison. Rebalance gain, WAL attribution and84 tickets/s remain unresolved.",
+  "unresolved": "Scoped component is locally qualified but needs registered runner integration and live 18-replica role binding before load. No six-session RDS identity, WAL root cause or rebalance benefit proven; 84 tickets/s and hourly flash-sale qualification remain unresolved.",
   "next_on_resume": [
-    "Resolve supported monitoring access or obtain explicit diagnostic-scope decision; no blind paid rerun with known missing privilege.",
-    "Use a fresh registered standing scope after the remedy; requalify corrected observer and preserve all safety, durability and drain gates.",
-    "Complete unchanged-load 2+2 versus1+3 comparison before adoption, ELB or higher load."
+    "Integrate the explicitly scoped collector, source pinning and 18-replica role binding into the bounded runner; retain separate global visibility and all original financial/customer gates.",
+    "Qualify the complete registration locally before a fresh matched 2+2 versus 1+3 comparison; no old scope replay.",
+    "Use measured successful paid tickets, latency, errors, CPU, waits and complete drain to decide adoption or higher load."
   ],
   "authorization": "Standing work envelope: existing resources only, zero new infrastructure spend, no cumulative time cap, experiments as effectively short as possible, exact current profile gates. Reviewed code/evidence to codex branches; main merge requires approval. No unattended schedule.",
-  "scope": "ADR0175 local implementation, regression tests and read-only documentation research under the standing envelope. Zero cloud calls, deployments, role grants, new resources or new paid scope; original restored runtime retained. Monitoring permission changes require administrator involvement.",
+  "scope": "User Approved interpreted as approval of the narrower diagnostic design alternative. ADR0176 component implemented and locally qualified under the standing envelope; no cloud changes or new paid experiment. Runtime correctness/customer gates and historical full-database profiles remain unchanged.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -1064,7 +1065,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Resolve monitoring access; otherwise seek an explicit diagnostic-scope decision. After a supported remedy, qualify the corrected registered profile and compare placements with a fresh scope at unchanged load and budgets.",
+  "next_action": "Integrate and locally qualify explicit application-role scope in the bounded runner, preserving separate global visibility. Prove all live role bindings before a fresh 2+2 versus 1+3 comparison at unchanged load. No higher load or capacity claim.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1585,6 +1586,17 @@
     "cloud_tested": false,
     "production_qualified": false,
     "evidence": "docs/capacity/flash-sale-opening/diagnostic-visibility-readiness-2026-10-06.json",
-    "permission_exception_pending": true
+    "permission_exception_pending": false,
+    "resolution": "User approved designing the narrower diagnostic alternative; existing full-database profiles still require statistics privileges."
+  },
+  "application_role_diagnostics": {
+    "decision": "ADR0176",
+    "component_implemented": true,
+    "locally_tested": true,
+    "cloud_runner_integrated": false,
+    "cloud_tested": false,
+    "production_qualified": false,
+    "evidence": "docs/capacity/flash-sale-opening/application-role-diagnostics-validation-2026-10-06.json",
+    "remaining": "Not integrated with live inventory, role preflight, source-transfer binding or a registered experiment. The six RDS sessions remain unidentified and WAL cause unproven."
   }
 }
