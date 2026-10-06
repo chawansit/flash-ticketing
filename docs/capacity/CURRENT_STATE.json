@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "host_aware_observers_locally_tested_live_runner_pending_recovery_required",
+  "status": "worker_lifecycle_locally_qualified_live_runner_pending_recovery_required",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "Original four primary APIs restored; secondary test resources absent; generator idle; fresh read-only20.984s routing check verified unchanged runtime and global queues0.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "ADR0184 host-aware observer implementation follows base 22d45c5; Git HEAD identifies the published harness. Live images and consumed scopes unchanged.",
+  "revision_note": "ADR0186 local handover qualification follows base 2c5572b; Git HEAD identifies the published harness. Live images, original failed gates and consumed scopes remain unchanged.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -1082,7 +1082,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Implement owned secondary worker image staging and Kafka/worker handover with exact restoration. Integrate locally tested host-aware observers into a separately qualified bounded profile. Strict historical paid-fixture recovery remains unresolved; no load or consumed-scope replay.",
+  "next_action": "Implement owned immutable worker image staging and the registered guarded live lifecycle adapter, integrating host-aware observers and the complete pre-load report. Strict historical paid-fixture recovery remains unresolved; no cloud load or consumed-scope replay.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1444,7 +1444,7 @@
       "control"
     ]
   },
-  "unresolved_issue": "Paid-run recovery remains RECOVERY_REQUIRED: exact owned fixture identities were not retained outside removed containers. No scope replay or gate reclassification. Worker split is offline preparation only; host-aware live runner and qualification pending.",
+  "unresolved_issue": "Paid-run recovery remains RECOVERY_REQUIRED: exact owned fixture identities were not retained outside removed containers. No scope replay or gate reclassification. Worker handover is locally qualified with simulated adapters only; live staging, runner integration and qualification remain pending.",
   "api_placement_rebalance": {
     "decision": "ADR0174",
     "profile": "api_placement_rebalance",
@@ -1778,7 +1778,10 @@
     "local_worker_observer_broad_helper_seconds_this_checkpoint": 146.688,
     "local_worker_observer_final_metrics_pytest_seconds_this_checkpoint": 0.62,
     "local_retained_identity_scan_seconds_this_checkpoint": 0.344,
-    "worker_observer_accounting_note": "Recorded broad helper includes its pytest runtime; final metrics duration is pytest-reported. Earlier focused test runs overlap and were not separately wall-clock timed. No registered cloud experiment or spending change."
+    "worker_observer_accounting_note": "Recorded broad helper includes its pytest runtime; final metrics duration is pytest-reported. Earlier focused test runs overlap and were not separately wall-clock timed. No registered cloud experiment or spending change.",
+    "local_worker_lifecycle_pytest_seconds_this_checkpoint": 47.31,
+    "local_worker_lifecycle_compose_seconds_this_checkpoint": 0.687,
+    "worker_lifecycle_accounting_note": "Sum of four executed pytest-reported durations, including the initial failed suite; Compose separately measured. Editing, review and other check wall time not separately measured. Cloud journal, spending and cumulative cloud accounting unchanged."
   },
   "bounded_application_role_rebalance__3ae1fd15417b": {
     "authorization_id": "work-envelope-3ae1fd15417b",
@@ -1989,21 +1992,30 @@
     ]
   },
   "worker_separation_preparation": {
-    "status": "host_aware_observers_locally_tested_live_runner_pending_recovery_required",
+    "status": "worker_lifecycle_locally_qualified_live_runner_pending_recovery_required",
     "implemented": [
       "Pure fixed-factor worker placement models with immutable images and unchanged logical pool totals",
       "Common private Kafka listener and four-API callback ingress configuration",
-      "Exclusive pre-dispatch fixture identity receipt and stage hash binding; write failure stops before token minting and retains retirement ownership"
+      "Exclusive pre-dispatch fixture identity receipt and stage hash binding; write failure stops before token minting and retains retirement ownership",
+      "Explicit immutable-image environment, command and entrypoint defaults",
+      "Original runtime snapshot including exact existing external Kafka named volume and bind-file hashes",
+      "Exclusive flushed action journal and no replay after ambiguous outcomes",
+      "Worker absence required before broker reconfiguration, destination starts and restoration",
+      "Independent mandatory post-TTL payment, ticket, double-booking and full queue cleanup checks",
+      "Failed local control stops simulated candidate progression"
     ],
     "not_implemented": [
-      "Owned image staging for secondary workers",
-      "Kafka listener and worker handover/restoration lifecycle",
-      "Live integration and qualification of observers with the bounded runner",
-      "Registered profile and fresh scope after strict recovery verification"
+      "Owned secondary worker image transfer and private file sealing",
+      "Registered guarded live lifecycle adapter and full observer integration",
+      "Exact historical paid-fixture recovery verification",
+      "Complete pre-load report and live qualification before fresh registered cloud comparison"
     ],
     "cloud_deployment_started": false,
     "cloud_load_started": false,
     "capacity_improvement_measured": false,
-    "host_aware_observers_locally_tested": true
+    "host_aware_observers_locally_tested": true,
+    "local_lifecycle_qualified": true,
+    "live_lifecycle_qualified": false,
+    "latest_evidence": "docs/capacity/flash-sale-opening/background-service-separation-lifecycle-2026-10-06.json"
   }
 }

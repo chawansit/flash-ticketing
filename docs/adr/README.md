@@ -312,3 +312,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0184: Existing ECS background service separation](0184-existing-ecs-background-service-separation.md)
 
 - [ADR0185: Durable pre-dispatch fixture identity](0185-durable-pre-dispatch-fixture-identity.md)
+
+- [ADR0186: Journaled worker handover qualification](0186-journaled-worker-handover-qualification.md)

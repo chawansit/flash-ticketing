@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "decision": "ADR0186",
+  "placement_decision": "ADR0184",
+  "base_revision": "2c5572bc238bec758abb55bd0e0c0a5b02a45385",
+  "status": "local_qualification_only_live_adapter_pending",
+  "implemented": [
+    "Explicit immutable-image environment, command and entrypoint defaults",
+    "Original runtime snapshot including exact existing external Kafka named volume and bind-file hashes",
+    "Exclusive flushed action journal and no replay after ambiguous outcomes",
+    "Worker absence required before broker reconfiguration, destination starts and restoration",
+    "Independent mandatory post-TTL payment, ticket, double-booking and full queue cleanup checks",
+    "Failed local control stops simulated candidate progression"
+  ],
+  "remaining": [
+    "Owned secondary worker image transfer and private file sealing",
+    "Registered guarded live lifecycle adapter and full observer integration",
+    "Exact historical paid-fixture recovery verification",
+    "Complete pre-load report and live qualification before fresh registered cloud comparison"
+  ],
+  "validation": {
+    "initial_fault_suite": {
+      "passed": 63,
+      "failed": 1,
+      "pytest_seconds": 12.64,
+      "finding": "Stop-worker acknowledgement omitted from final safety gate; corrected before publication"
+    },
+    "affected_after_fix": {
+      "passed": 165,
+      "pytest_seconds": 11.16
+    },
+    "focused_after_mount_and_pair_checks": {
+      "passed": 69,
+      "pytest_seconds": 11.64
+    },
+    "final_affected_suite": {
+      "passed": 221,
+      "pytest_seconds": 11.87
+    },
+    "ruff_pass": true,
+    "naming_pass": true,
+    "compose": {
+      "passed": 4,
+      "elapsed_seconds": 0.687,
+      "containers_started": 0,
+      "models": [
+        "restore",
+        "control",
+        "candidate-primary",
+        "candidate-secondary"
+      ],
+      "evidence": "tmp/adr0153-parents-9050ab93ca57/compose-validation.json"
+    }
+  },
+  "source_sha256": {
+    "scripts/worker_separation_snapshot.py": "d0fdebcc21d65a103c2f0d26ddf36ab6bb663f7c46d3cd735459c41988837fa7",
+    "scripts/worker_separation_lifecycle.py": "160849ad2040d04f8a7ee707be9a2155f098070675e0bed2cf1c13c77642756d",
+    "tests/unit/test_worker_separation_lifecycle.py": "35994194e22bb6c80043e2ba13e92be193e75135c5d1e2d4ad7ff09a1e9ba8b0"
+  },
+  "cloud_calls": 0,
+  "cloud_deployment_started": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "customer_gates_changed": false,
+  "new_infrastructure_spend": 0,
+  "experiment_ledger_sha256_unchanged": "de5566c1c85625ea9fe97aff9407ef29e6f7fde7466b6a5012112f76546d3692"
+}
