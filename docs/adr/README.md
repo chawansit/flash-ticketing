@@ -316,3 +316,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0186: Journaled worker handover qualification](0186-journaled-worker-handover-qualification.md)
 
 - [ADR0187: Bound worker image staging and pre-load gates](0187-bound-worker-image-staging-and-preload-gates.md)
+
+- [ADR0188: Guarded worker runtime primitives](0188-guarded-worker-runtime-primitives.md)

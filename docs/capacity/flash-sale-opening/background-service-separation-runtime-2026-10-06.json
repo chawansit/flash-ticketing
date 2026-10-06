@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "decision": "ADR0188",
+  "placement_decision": "ADR0184",
+  "base_revision": "c6f7b5566e6ff0055aeafce196e4ce4543de3586",
+  "status": "partial_runtime_adapter_locally_qualified_full_lifecycle_pending",
+  "implemented": [
+    "Transport-bound original runtime, Kafka volume, bind-file and generator-idle verification",
+    "Exact immutable-ID original worker stop with per-target role, start and semantic checks and a shared remote deadline",
+    "Independent two-host worker-absence verification, rejecting stopped, foreign and overlapping resources",
+    "Fresh drain evidence bound to the complete scope and selected arm, rechecked immediately before removal",
+    "Exclusive flushed intents, stop-target receipts and acknowledgements; failures block forward progression and replay"
+  ],
+  "remaining": [
+    "Owned configuration installation, common infrastructure changes, destination starts and exact original restoration",
+    "Full lifecycle/audit/observer integration, private live receipt collection and registered guarded profile qualification",
+    "Exact historical paid-fixture ownership and recovery verification before fresh cloud mutations or load"
+  ],
+  "validation": {
+    "final_affected_suite": {
+      "passed": 327,
+      "pytest_seconds": 27.23,
+      "cache_provider_disabled": true
+    },
+    "initial_fault_suite": {
+      "passed": 25,
+      "failed": 7,
+      "pytest_seconds": 6.63,
+      "finding": "Simulated Docker transport lacked DEVNULL/PIPE constants; fixture corrected"
+    },
+    "subsequent_executed_suites": [
+      {
+        "passed": 33,
+        "pytest_seconds": 6.8
+      },
+      {
+        "passed": 321,
+        "pytest_seconds": 26.79
+      },
+      {
+        "passed": 323,
+        "pytest_seconds": 24.93
+      },
+      {
+        "passed": 42,
+        "pytest_seconds": 6.91
+      },
+      {
+        "passed": 324,
+        "pytest_seconds": 25.72
+      }
+    ],
+    "fault_coverage": [
+      "role/ID/start/settings/volume/file drift",
+      "partial stop and lost acknowledgement",
+      "expired shared remote deadline",
+      "pause/session-guard/binding drift",
+      "stale or cross-arm/cross-scope drain receipts",
+      "pending intent and acknowledgement write failure",
+      "stopped or foreign worker overlap",
+      "missing drain provider",
+      "unsupported restoration and dispatch actions"
+    ],
+    "transport": "Generated remote programs executed against simulated Docker/POSIX surfaces only; no SSH transport opened",
+    "ruff_pass": true,
+    "naming_pass": true,
+    "real_runner_preflight": {
+      "evidence": "tmp/adr0153-parents-318e4d53fb98/preflight.json",
+      "status": "BLOCKED",
+      "exit_code": 1,
+      "blockers": [
+        "unresolved_recovery",
+        "profile_not_registered",
+        "fresh_bound_scope_missing"
+      ],
+      "naming": {
+        "status": "PASS",
+        "error_count": 0
+      },
+      "cloud_calls": 0,
+      "load_authorized": false,
+      "elapsed_seconds": 1.219
+    }
+  },
+  "source_sha256": {
+    "scripts/worker_separation_runtime.py": "b60eaeae0599225b5804a5c10d5ed7b44035bd259db791cef55ac52251dab41a",
+    "tests/unit/test_worker_separation_runtime.py": "2ed5a8e5205e9762ab7841da10dfed6a496146908e9927e2ac5a2a2255ee6b47"
+  },
+  "accounting": {
+    "recorded_local_pytest_seconds": 125.01,
+    "recorded_read_only_local_preflight_seconds": 1.219,
+    "note": "Sum of executed pytest durations, including initial failed fixtures and repeated qualification after corrections. Editing/review and other checks were not separately timed; cloud accounting unchanged."
+  },
+  "worker_profile_registered": false,
+  "full_live_adapter_implemented": false,
+  "live_qualified": false,
+  "cloud_calls": 0,
+  "cloud_deployment_started": false,
+  "cloud_load_started": false,
+  "customer_dispatches": 0,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "customer_gates_changed": false,
+  "new_infrastructure_spend": 0,
+  "experiment_ledger_sha256_unchanged": "de5566c1c85625ea9fe97aff9407ef29e6f7fde7466b6a5012112f76546d3692"
+}
