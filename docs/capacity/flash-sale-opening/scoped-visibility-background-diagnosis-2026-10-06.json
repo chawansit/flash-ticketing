@@ -1,0 +1,374 @@
+{
+  "decision": "ADR0179",
+  "harness_revision": "12af6433f260edeb7c35bd032547c79b01b7791f",
+  "status": "FAILED_CONTROL_RESTORED_VISIBILITY_GAP_ATTRIBUTED",
+  "experiment": {
+    "ledger": "bounded_application_role_rebalance__3ae1fd15417b",
+    "authorization_id": "work-envelope-3ae1fd15417b",
+    "envelope_sha256": "f76d7543d70870188e5815c26b821eea6893e9054d6b8691b532adb90610db19",
+    "binding_sha256": "28ae29365262ad315c1654b551b04e5d29d056efb2d2a03f0074673f9ab7ded8",
+    "plan_sha256": "23a69a30046664ee2b0d49f5607d26fa678fbfebfa4528412a69ab0441a5ba2f",
+    "profile": "application_role_rebalance",
+    "reserved_seconds": 3600,
+    "actual_elapsed_seconds": 1563.5,
+    "started_at_utc": "2026-10-06T07:17:46.498730+00:00",
+    "status": "FAILED_RESTORED",
+    "reports": [
+      {
+        "run": "adr0151-19e4281e9806",
+        "pass": true
+      },
+      {
+        "run": "adr0151-9d5fb721cd4f",
+        "pass": false
+      }
+    ],
+    "finished_at_utc": "2026-10-06T07:43:50.061468+00:00"
+  },
+  "dry_qualification": {
+    "run": "adr0151-19e4281e9806",
+    "pass": true,
+    "both_layouts_passed": true,
+    "capacity_stages_started": 0
+  },
+  "measured_comparison": {
+    "run": "adr0151-9d5fb721cd4f",
+    "pass": false,
+    "candidate_started": false,
+    "control": {
+      "pass": false,
+      "restoration_complete": true,
+      "gates": {
+        "paid": {
+          "customer_load": true,
+          "post_ttl_financial": true,
+          "zero_double_booking": true,
+          "full_keyspace_queue_drain": true,
+          "kafka_drain": true,
+          "pipeline_observer": true,
+          "kafka_observer": true,
+          "cpu_sampler": true,
+          "source_and_restored_configuration_pass": true,
+          "generator_idle_pass": true,
+          "private_cleanup_pass": true,
+          "hold_deadlines_elapsed": true,
+          "pipeline_observer_source": true,
+          "candidate_source_identity": true,
+          "only_expected_runtime_modules_changed": true,
+          "payment_partition_active": true,
+          "fixed_connection_and_waiter_budget": true,
+          "payment_partition_restored": true,
+          "financial_logic_unchanged": true,
+          "baseline_runtime_deployed": true,
+          "pinned_harness_identity": true,
+          "bounded_equal_cache_age": true
+        },
+        "additional": {
+          "distinct_api_and_generator_machines": true,
+          "fixed_aggregate_budgets": true,
+          "all_four_replicas_observed": true,
+          "both_hosts_cpu_observed": true,
+          "same_offered_measurement_window": true,
+          "per_replica_traffic_distribution": true,
+          "cross_host_one_seat_one_owner": true,
+          "cross_host_idempotent_replay": true,
+          "secondary_resources_removed": true,
+          "primary_lb_and_four_apis_restored": true
+        },
+        "all_required_gates_pass": false,
+        "failed_gates": [
+          "application_database_wait_evidence_complete"
+        ],
+        "scope": "Gate-map evaluation only; live evidence must be collected by a qualified runner.",
+        "confirmation": {
+          "durable_confirmation_receipts_complete": true,
+          "durable_confirmation_global_drain": true,
+          "admission_failure_evidence_complete": true,
+          "slow_database_evidence_complete": true,
+          "application_database_wait_evidence_complete": false
+        }
+      },
+      "stage": {
+        "stage_pass": true,
+        "customer_pass": true,
+        "offered_buyers_per_second": 60,
+        "dispatch_seconds": 300,
+        "scheduled": 18000,
+        "dispatched": 18000,
+        "customer_confirmations_by_deadline": 18000,
+        "generator_drops": 0,
+        "failed_dispatched_journeys": 0,
+        "errors_per_dispatched_journey_percent": 0.0,
+        "customer_outcomes": {
+          "fulfilled": 18000
+        },
+        "customer_http_attempts_total": 110244,
+        "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+        "p95_ms": {
+          "hold_http_p95_ms": 12.089066964108497,
+          "durable_p95_ms": 1028.7562339799479,
+          "payment_http_p95_ms": 72.16550997691229,
+          "payment_to_ticket_p95_ms": 1035.2209060220048,
+          "hold_to_ticket_p95_ms": 2164.430088014342
+        },
+        "host_cpu_percent": {
+          "primary": 70.1853966836406,
+          "secondary": 17.69695433616356
+        },
+        "aggregate_api_cpu_cores": 1.3945737538386984,
+        "financial": {
+          "orders": 18000,
+          "fulfilled_orders": 18000,
+          "expired_orders": 0,
+          "pending_orders": 0,
+          "payment_attempts": 18000,
+          "pending_payment_attempts": 0,
+          "succeeded_payments": 18000,
+          "bookings": 18000,
+          "tickets": 18000,
+          "payment_callbacks": 18000,
+          "incomplete_callback_deliveries": 0,
+          "callback_delivery_attempts": 18000,
+          "callback_delivery_target": 18000,
+          "duplicate_booked_seats": 0,
+          "multi_booking_orders": 0,
+          "unpublished_outbox": 0,
+          "dead_letters": 0,
+          "expected": 18000,
+          "expected_paid": 18000,
+          "expected_callback_deliveries_per_payment": 1,
+          "pass": true,
+          "hold_deadlines_elapsed": true
+        },
+        "global_queues": {
+          "unpublished_outbox": 0,
+          "pending_refresh": 0,
+          "dead_letters": 0,
+          "pending_callback_deliveries": 0,
+          "pending_refunds": 0,
+          "reservation_stream_entries": 0,
+          "reservation_stream_pending": 0,
+          "kafka_total_lag": 0,
+          "kafka_members": 6,
+          "pass": true,
+          "pending_confirmation_receipts": 0,
+          "review_confirmation_receipts": 0,
+          "confirmation_capacity_outstanding": 0,
+          "confirmation_capacity_mismatches": 0
+        },
+        "all_four_replicas_observed": true,
+        "request_shares": [
+          0.23252314002542088,
+          0.23370840838733323,
+          0.26421347307023496,
+          0.26955497851701093
+        ],
+        "private_cleanup_pass": true,
+        "failure_type": null
+      },
+      "measurements": {
+        "status_checks": 37887,
+        "status_checks_per_dispatched_journey": 2.104833333333333,
+        "consumer_database": {
+          "observed_replicas": 6,
+          "counter_deltas": {
+            "process_cpu_seconds_total": 216.88,
+            "order_cache:event_fill": 36004.0,
+            "pool_acquire:ok": 101105.0
+          },
+          "duration_mean_ms": {
+            "db_pool_acquire:ok": 0.015051984678633144,
+            "db_connection_hold:all": 11.833503963076065,
+            "db_query:BEGIN": 2.944988472160409,
+            "db_query:INSERT": 1.9301363997153622,
+            "db_query:SELECT": 1.6065834511896502,
+            "db_query:UPDATE": 1.6217619462501414,
+            "db_commit:all": 2.973682204685934
+          },
+          "event_loop_lag_current_peak_ms": 0.0,
+          "pool_peaks_per_replica": {
+            "pool_acquiring": 0,
+            "pool_in_use": 1.0,
+            "pool_state:pool_size": 1.0,
+            "pool_state:pool_available": 1.0,
+            "pool_state:requests_waiting": 0,
+            "pool_state:pool_max": 8.0
+          },
+          "counter_reset_detected": false
+        },
+        "callback_backlog": {
+          "max": 56,
+          "last": 0,
+          "delta": 0,
+          "p95": 16
+        },
+        "cache_scope": "Full observer lifetime including completion tail; not offered-window HTTP RPS.",
+        "cache_observed": true,
+        "cache_series_present": true,
+        "cache_outcome_deltas": {
+          "miss": 18287.0,
+          "fill": 18281.0,
+          "hit": 19597.0,
+          "fill_raced": 9.0,
+          "stale": 3.0
+        },
+        "cache_hit_share": 0.5172896209481576,
+        "confirmation_observed": true,
+        "confirmation_backlog_peak": 0,
+        "admission_diagnostics_observed": true,
+        "admission_failure_deltas": {
+          "acquisition_failure:general:role_limit": 0.0,
+          "acquisition_failure:payment:global_limit": 0.0,
+          "acquisition_failure:payment:role_limit": 0.0,
+          "acquisition_failure:payment:native_timeout": 0.0,
+          "acquisition_failure:general:native_limit": 0.0,
+          "acquisition_failure:payment:native_limit": 0.0,
+          "acquisition_failure:general:global_limit": 0.0,
+          "acquisition_failure:general:native_timeout": 0.0
+        },
+        "admission_counter_window": "observer lifetime;not exact offered window",
+        "slow_database_capture": {
+          "decision": "ADR0171",
+          "complete": true,
+          "counter_coverage": true,
+          "failure_context_complete": true,
+          "failure_count": 0,
+          "slow_phase_count": 65,
+          "uncorrelated_slow_records": 0,
+          "scope": "Existing API phase logs; replica/time adjacency and interval means, not request correlation or causal proof."
+        },
+        "application_database_wait_capture": {
+          "decision": "ADR0176",
+          "diagnostic_scope": "application_role",
+          "application_database_wait_evidence_complete": false,
+          "full_database_visibility_complete": false,
+          "role_identity_sha256": "a321c0468ad2b28d710ea856238cfdbd7f2fa315d8d4730b0aeb5831d04ce394",
+          "bound_replicas": {
+            "api": 4,
+            "confirmation": 1,
+            "consumer": 6,
+            "maintenance": 1,
+            "publisher": 1,
+            "reconciler": 1,
+            "reservation-writer": 3,
+            "simulator": 1
+          },
+          "rows": 472,
+          "error_counts": {
+            "MissingOrInvalidScope": 41
+          },
+          "counter_continuity": false,
+          "collector_failure_categories": {
+            "validation:application_visibility_missing": 41
+          },
+          "failure_context_samples": 41,
+          "incomplete_failure_context_samples": 0,
+          "failure_context_peaks": {
+            "partition_counts": {
+              "sessions_total": 24,
+              "application_sessions": 23,
+              "foreign_sessions": 0,
+              "unknown_sessions": 1,
+              "restricted_application_sessions": 0,
+              "restricted_foreign_sessions": 0,
+              "active": 23,
+              "idle_in_transaction": 15
+            },
+            "backend_groups": {
+              "unavailable:unknown:hidden": 1
+            }
+          },
+          "max_collection_ms": 35.4921649559401,
+          "masked_foreign_sample_count": 0,
+          "masked_foreign_sessions_peak": 0,
+          "wal_timing_available_throughout": false,
+          "counter_deltas": null,
+          "application_active_wait_peaks": {
+            "Client:ClientRead": 3,
+            "None:None": 4,
+            "IO:WalSync": 1,
+            "LWLock:WALWrite": 15,
+            "Timeout:SpinDelay": 1,
+            "IO:DataFileRead": 1,
+            "Lock:transactionid": 1,
+            "IO:DataFileExtend": 1,
+            "IPC:ProcarrayGroupUpdate": 1,
+            "IO:WalInitSync": 1
+          },
+          "scope": "Application-role activity only; WAL/checkpoint/database counters remain aggregate. Foreign invisibility is explicit; causality and global activity completeness are not inferred."
+        }
+      }
+    }
+  },
+  "failure_attribution": {
+    "failed_samples": 41,
+    "first_sample": {
+      "utc": "2026-10-06T07:34:25.407628+00:00",
+      "collection_ms": 14.196555013768375,
+      "failure_context": {
+        "sessions_total": 24,
+        "application_sessions": 23,
+        "foreign_sessions": 0,
+        "unknown_sessions": 1,
+        "restricted_application_sessions": 0,
+        "restricted_foreign_sessions": 0,
+        "active": 3,
+        "idle_in_transaction": 12,
+        "backend_groups": [
+          {
+            "backend_type": "unavailable",
+            "own_role": null,
+            "state_hidden": true,
+            "count": 1
+          }
+        ],
+        "backend_groups_complete": true
+      }
+    },
+    "last_sample": {
+      "utc": "2026-10-06T07:37:28.091013+00:00",
+      "collection_ms": 13.238793995697051,
+      "failure_context": {
+        "sessions_total": 24,
+        "application_sessions": 23,
+        "foreign_sessions": 0,
+        "unknown_sessions": 1,
+        "restricted_application_sessions": 0,
+        "restricted_foreign_sessions": 0,
+        "active": 10,
+        "idle_in_transaction": 3,
+        "backend_groups": [
+          {
+            "backend_type": "unavailable",
+            "own_role": null,
+            "state_hidden": true,
+            "count": 1
+          }
+        ],
+        "backend_groups_complete": true
+      }
+    },
+    "all_context_complete": true,
+    "all_unknown_single_hidden_backend": true,
+    "cloud_backend_identity_established": false,
+    "cloud_wal_cause_established": false
+  },
+  "local_reproduction": {
+    "tests_passed": 2,
+    "pytest_seconds": 1.58,
+    "helper_seconds": 6.875,
+    "cloud_calls": 0,
+    "postgres_image": "sha256:00bc86618629af00d2937fdc5a5d63db3ff8450acf52f0636ec813c7f4902929",
+    "owned_resources_removed": true,
+    "test": "tests/integration/test_database_wait_background_visibility.py",
+    "confirmed": "Real autovacuum worker produces the null-role/hidden-backend signature without statistics access. Grant reveals its backend type and lets the full-visibility collector pass. Current scoped collector still rejects its null role; no gate or policy was changed.",
+    "limitation": "Local mechanism reproduction does not identify the managed cloud session."
+  },
+  "sources": [
+    "https://www.postgresql.org/docs/17/monitoring-stats.html",
+    "https://github.com/postgres/postgres/blob/REL_17_STABLE/src/backend/utils/adt/pgstatfuncs.c"
+  ],
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "next_action": "Resolve provider-supported effective statistics access and qualify the existing full-visibility fixed-budget profile before another comparison. A grant alone does not fix this scoped null-role policy. Do not repeat unchanged paid controls, ignore unknown rows, reclassify the hidden cloud backend as autovacuum, or reopen consumed scopes. Monitoring permission changes need administrator/user involvement; no grant was made."
+}
