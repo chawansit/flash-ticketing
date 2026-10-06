@@ -1,0 +1,80 @@
+{
+  "decisions": [
+    "ADR0184",
+    "ADR0185"
+  ],
+  "status": "offline_preparation_tested_live_runner_pending_recovery_required",
+  "base_harness_revision": "94004e9cc0926be7685c4d4fa9905cf9156b8801",
+  "implemented": [
+    "Pure fixed-factor worker placement models with immutable images and unchanged logical pool totals",
+    "Common private Kafka listener and four-API callback ingress configuration",
+    "Exclusive pre-dispatch fixture identity receipt and stage hash binding; write failure stops before token minting and retains retirement ownership"
+  ],
+  "tests": {
+    "affected_suite": {
+      "passed": 337,
+      "pytest_seconds": 41.52,
+      "helper_elapsed_seconds": 42.125
+    },
+    "after_test_style_edit": {
+      "passed": 20,
+      "pytest_seconds": 0.37
+    },
+    "initial_focused_suite": {
+      "passed": 46,
+      "pytest_seconds": 1.79,
+      "warning": "Pytest cache directory was not writable; subsequent runs disabled cache."
+    },
+    "ruff_pass": true,
+    "synthetic_compose": {
+      "checks": 3,
+      "pass": true,
+      "elapsed_seconds": 0.515,
+      "containers_started": 0
+    }
+  },
+  "read_only_recovery_observation": {
+    "successful_probe_elapsed_seconds": 21.765,
+    "failed_probe_elapsed_seconds": 13.844,
+    "failed_probe_reason": "Docker returned lowercase missing-object text; original probe rejected the unclassified response. Replacement retained exact bounded messages without classifying recovery.",
+    "exact_previous_primary_test_containers_missing": 3,
+    "primary_four_original_images": true,
+    "secondary_empty": true,
+    "generator_idle": true,
+    "global_queues_zero": true,
+    "runtime_unchanged": true,
+    "captured_at_utc": "2026-10-06T10:58:19.352421+00:00"
+  },
+  "comparison_design": {
+    "api_counts_both_arms": {
+      "primary": 4,
+      "secondary": 0
+    },
+    "background_control_host": "primary",
+    "background_candidate_host": "secondary",
+    "kafka_and_pgbouncer_host_both_arms": "primary",
+    "historical_2_plus_2_result": "Reference only; fresh matched four-primary control must pass.",
+    "new_infrastructure_spend": 0
+  },
+  "not_implemented": [
+    "Live worker separation lifecycle",
+    "Host-aware inventory/CPU/pipeline adapters",
+    "Verified secondary worker image staging",
+    "Registered worker separation load profile",
+    "Strict completed-paid-failure recovery classification"
+  ],
+  "unresolved": [
+    "The earlier paid fixture identities were not retained outside removed containers; restored runtime and zero queues do not prove scoped per-entity reconciliation. Keep RECOVERY_REQUIRED and consumed reservations unchanged.",
+    "Private broker and callback connectivity/distribution need live qualification.",
+    "No measured capacity improvement, 84 tickets/s or hourly qualification."
+  ],
+  "cloud_deployment_started": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "next_action": "Complete host-aware runner and restoration tests independently; resolve strict historical paid-run recovery without ownership inference, then register and reserve a fresh qualified comparison.",
+  "source_sha256": {
+    "scripts/worker_separation_topology.py": "8929f200867d25bd28e1599a88d0e6421c96661ee261672ee9a67de9901a8702",
+    "scripts/fixture_identity_evidence.py": "55aa53fffbab7f1dfcb2c7aa9bea4f9b2741c1a932e67c0324b3157aa1509f08",
+    "scripts/run_two_host_paid_comparison.py": "1b01f6a35c46aa5bb43660efcdbf1c7fbf3499cc1ccaa1e2812c950879f10ac6"
+  }
+}

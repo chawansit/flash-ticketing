@@ -11,6 +11,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from collect_two_host_inventory import observe
+from fixture_identity_evidence import retain_fixture_identity
 from kafka_lag_observe import source_sha256
 from observe_paid_pipeline import kafka_startup_view, pipeline_startup_view
 from observe_two_host_cpu import compare_windows, validate_spec
@@ -203,7 +204,7 @@ def retain_observer_summaries(local, record, inventory=None):
 
 
 def adapter_identity():
-    paths = [*ADAPTERS, "run_two_host_paid_comparison.py", "qualify_two_host_deployment.py", "collect_two_host_inventory.py", "runtime_source_identity.py", "probe_two_host_safety.py"]
+    paths = [*ADAPTERS, "fixture_identity_evidence.py", "run_two_host_paid_comparison.py", "qualify_two_host_deployment.py", "collect_two_host_inventory.py", "runtime_source_identity.py", "probe_two_host_safety.py"]
     return {"scripts/" + name: source_sha256((ROOT / "scripts" / name).read_bytes()) for name in paths}
 
 
@@ -398,6 +399,7 @@ class Stages:
             )
             fixture = session.api(cid, fixture_program, 115)
             event_ids = fixture["show_ids"]
+            retain_fixture_identity(local, record, fixture, self.rate if self.execute else 1)
             origin = "http://" + session.config["primary"]["private_ipv4"] + ":8000"
             # Mint only expiring viewer tokens on the API. Never send the signing key.
             mint = (
