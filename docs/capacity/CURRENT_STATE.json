@@ -2,18 +2,18 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0180_observer_connection_locally_qualified_runner_integration_pending",
-  "cloud_load_requires_resume": true,
+  "status": "adr0181_runner_locally_qualified_fresh_cloud_comparison_pending",
+  "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_application_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "Three bounded read-only probes verified unchanged primary runtime identities and idle generator. Last registered cloud workflow remains 3ae1fd15417b FAILED_RESTORED; no new deployment, grant, cloud load or reservation.",
+  "last_checked_topology": "Read-only target probe verified unchanged primary runtime identities and idle generator; no deployment, grant or load since last FAILED_RESTORED scope.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "Existing application role lacks statistics visibility; supplied RDS root already has effective visibility over verified TLS. ADR0180 observer connection and tests are committed with this checkpoint; use Git HEAD for harness revision. Frozen application runtime unchanged.",
+  "revision_note": "ADR0181 complete runner locally qualified and registered; use Git HEAD for harness revision. Frozen application runtime unchanged. Existing root monitoring connection only; no grant or extra connection.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -56,7 +56,8 @@
     "Fresh ADR0179 workflow 3ae1fd15417b: dry 19e4281e9806 both placements passed; measured 9d5fb721cd4f control 18,000 scheduled/dispatched/confirmed paid-issued at 60/s for 300s, zero errors/drops/loss/doubles, post-TTL/full queues/exact restoration passed. Only scoped diagnostics failed: 41/472 samples, complete safe contexts, one unknown-role/hidden-backend each; candidate skipped.",
     "Two real local PostgreSQL visibility tests passed in 1.58s; helper 6.875s removed owned resources, zero cloud calls. Autovacuum reproduced null-role/hidden-backend signature; statistics grant revealed worker and passed full collector but scoped null-role gate stayed failed. Cloud actor identity unproven; no policy/permissions changed.",
     "Application connection is not RDS root and lacks full statistics visibility/admin grant options. Supplied RDS root has effective statistics visibility, TLS1.3 and zero currently restricted sessions. Three read-only probes took42.639s total; runtimes unchanged, generator idle, zero grants/deployments/load. Temporary administrator CA removed.",
-    "ADR0180 read-only diagnostic connection component and opt-in observer binding locally qualified:77 final host/POSIX checks passed1.29s,including14 unsafe file cases;1 real PostgreSQL TLS test passed0.17s. Full statistics reads succeeded, wrong CA and writes rejected; native resources/key removed. Whole bounded-runner credential staging/cleanup/source registration remains future scope;no capacity benefit measured."
+    "ADR0180 read-only diagnostic connection component and opt-in observer binding locally qualified:77 final host/POSIX checks passed1.29s,including14 unsafe file cases;1 real PostgreSQL TLS test passed0.17s. Full statistics reads succeeded, wrong CA and writes rejected; native resources/key removed. Whole bounded-runner credential staging/cleanup/source registration remains future scope;no capacity benefit measured.",
+    "ADR0181 final local runner qualification: 27 passes in 28.22s; helper29.046s. Protected target, source/CA identity, partial transfer and interruption cleanup, financial/visibility/drain gate failures covered; historical combined suite151 passes with corrected Windows path failure."
   ],
   "unresolved": "ADR0180 observer component is locally qualified, but protected credential staging, source binding, startup proof, mandatory cleanup and full bounded-runner qualification are unfinished. Root monitoring capability is available; no permission grant is needed. Cloud hidden backend identity, placement improvement,84 tickets/s,hourly qualification and WAL cause remain unproven.",
   "next_on_resume": [
@@ -1078,7 +1079,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Integrate and locally qualify ADR0180 in the bounded runner before any cloud reservation or load. Existing supplied root access resolves the capability blocker; no new role, grant or resource is required. Keep frozen application images, identical workload/budgets, all customer/correctness/queue/restoration gates, and original failed evidence.",
+  "next_action": "Run fresh registered diagnostic_placement qualification then matched 2+2 versus 1+3, 60 journeys/s for 300 seconds each. Failed control stops candidate; preserve financial, post-TTL, queue, visibility and credential-cleanup gates. Only follow evidence toward 84/s and hourly qualification.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1166,12 +1167,7 @@
     "evidence": "docs/capacity/flash-sale-opening/slow-database-diagnostic-control-2026-10-06.json"
   },
   "cloud_load_pause_reason": "Legacy scopes remain exhausted and cannot be replayed. This is not a human pause. Fresh standing-envelope reservations may execute through the qualified runner.",
-  "latest_local_validation": {
-    "decision": "ADR0171",
-    "pre_cloud_tests_passed": 253,
-    "post_run_schema_tests_passed": 256,
-    "evidence": "docs/capacity/flash-sale-opening/slow-database-diagnostics-local-validation-2026-10-06.json"
-  },
+  "latest_local_validation": "docs/capacity/flash-sale-opening/diagnostic-placement-runner-validation-2026-10-06.json",
   "latest_projection": {
     "decision": "ADR0168",
     "implemented_candidate": "artifacts/projection-source-index/adr0168.patch",
@@ -1327,7 +1323,7 @@
     "pass": true
   },
   "human_pause": false,
-  "cloud_load_stop_kind": "runner_integration_pending",
+  "cloud_load_stop_kind": "scope_exhausted",
   "standing_work_envelope": {
     "decision": "ADR0172",
     "policy": "docs/capacity/work-envelope.json",
@@ -1767,8 +1763,8 @@
     "cumulative_time_cap": null,
     "new_infrastructure_spend": 0,
     "local_diagnostic_seconds_this_checkpoint": 6.875,
-    "read_only_capability_probe_seconds_this_checkpoint": 42.639,
-    "local_qualified_helper_seconds_this_checkpoint": 6.563
+    "read_only_capability_probe_seconds_this_checkpoint": 14.594,
+    "local_qualified_helper_seconds_this_checkpoint": 29.046
   },
   "bounded_application_role_rebalance__3ae1fd15417b": {
     "authorization_id": "work-envelope-3ae1fd15417b",

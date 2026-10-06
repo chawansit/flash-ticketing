@@ -1,5 +1,6 @@
 """ADR0172: local status by default; one qualified fresh experiment when executed."""
 import argparse
+import getpass
 import json
 import sys
 import time
@@ -22,8 +23,11 @@ def status():
             "existing_service_charges_continue": True}
 
 
-def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROFILE):
-    if profile_name == "application_role_rebalance":
+def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROFILE, diagnostic_target=None):
+    if profile_name == "diagnostic_placement":
+        import diagnostic_placement_contract as contract_policy
+        import run_diagnostic_placement_comparison as profile
+    elif profile_name == "application_role_rebalance":
         import application_role_rebalance_contract as contract_policy
         import run_application_role_rebalance_comparison as profile
     elif profile_name == "api_placement_rebalance":
@@ -40,6 +44,14 @@ def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROF
     from run_status_refresh_comparison import RunLock
 
     engine = profile.create_runner()
+    if profile_name == "diagnostic_placement":
+        from diagnostic_runner_connection import validate_target
+        if diagnostic_target is None or not sys.stdin.isatty():
+            raise ValueError("Protected target file and credential terminal required")
+        target = validate_target(policy.read(diagnostic_target))
+        engine.configure_diagnostic_target(target)
+    elif diagnostic_target is not None:
+        raise ValueError("Diagnostic target is restricted to its registered profile")
     sources = engine.source_contract()
     plan = contract_policy.plan()
     artifact = policy.read(artifact_path) if artifact_path is not None else plan["artifact_receipt"]
@@ -66,6 +78,8 @@ def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROF
     sys.path.insert(0, str(ssh_runtime.resolve()))
     reports, started = [], time.monotonic()
     try:
+        if profile_name == "diagnostic_placement":
+            engine.configure_diagnostic(target, getpass.getpass("Diagnostic administrator password: "))
         bundle = engine.comparison.frozen_bundle()
         guard.check()
         qualification = engine.protocol(config, artifact, sources, bundle, binding, execute=False)
@@ -75,6 +89,8 @@ def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROF
             reports.append(engine.protocol(config, artifact, sources, bundle, binding,
                                            execute=True, qualification=qualification))
     finally:
+        if hasattr(engine, "clear_diagnostic"):
+            engine.clear_diagnostic()
         receipt = guard.finish(reports, time.monotonic() - started)
         print(json.dumps({"phase": "standing-experiment-finished", **receipt}), flush=True)
     return receipt
@@ -120,6 +136,7 @@ def main():
     parser.add_argument("--profile", choices=list(policy.PROFILES), default=policy.PROFILE)
     parser.add_argument("--config", type=Path)
     parser.add_argument("--artifact", type=Path)
+    parser.add_argument("--diagnostic-target", type=Path)
     parser.add_argument("--ssh-runtime", type=Path)
     args = parser.parse_args()
     if args.check_publication:
@@ -134,7 +151,7 @@ def main():
     elif args.execute:
         if any(v is None for v in (args.config, args.ssh_runtime)):
             parser.error("Execution needs protected configuration and SSH runtime; default artifact is the exact profile receipt")
-        result = execute(args.config, args.artifact, args.ssh_runtime, profile_name=args.profile)
+        result = execute(args.config, args.artifact, args.ssh_runtime, profile_name=args.profile, diagnostic_target=args.diagnostic_target)
         if result["status"] != "PASSED_RESTORED":
             raise SystemExit(1)
         return

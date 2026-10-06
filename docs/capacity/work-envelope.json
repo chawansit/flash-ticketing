@@ -36,7 +36,8 @@
     "slow_database_control",
     "database_wait_control",
     "api_placement_rebalance",
-    "application_role_rebalance"
+    "application_role_rebalance",
+    "diagnostic_placement"
   ],
   "escalate": [
     "new spending or infrastructure action",

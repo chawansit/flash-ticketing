@@ -1,0 +1,50 @@
+{
+  "decision": "ADR0181",
+  "diagnostic_connection_decision": "ADR0180",
+  "implemented": true,
+  "locally_qualified": true,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "final_local_checks": {
+    "passed": 27,
+    "pytest_seconds": 28.22,
+    "helper_seconds": 29.046,
+    "cloud_calls": 0,
+    "native_partial_states": 4,
+    "native_unsafe_cleanup_states": 3,
+    "native_unsafe_bundle_states": 14
+  },
+  "earlier_combined_suite": {
+    "passed": 151,
+    "failed": 1,
+    "pytest_seconds": 159.68,
+    "failure": "Windows host attempted POSIX absolute-path validation; corrected by performing owned specification validation in the remote preflight. Affected tests rerun successfully."
+  },
+  "retained_local_failures": [
+    "Initial style findings corrected.",
+    "Native cleanup test quoting failure corrected; owned container removed and affected test rerun."
+  ],
+  "read_only_target_probe": {
+    "runtime_identities_unchanged": true,
+    "generator_idle": true,
+    "deployment_changes": 0,
+    "permission_changes": 0,
+    "cloud_load_started": false,
+    "actual_elapsed_seconds": 14.594
+  },
+  "qualified_boundaries": [
+    "Exact password-free target descriptor bound into fresh reservation.",
+    "No target mutation within an engine.",
+    "Password only requested after offline checks and reservation; in-memory context cleared in mandatory finalization.",
+    "Source-pinned helper readback before staging credentials.",
+    "Existing mounted CA exact SHA, owner-only bounded files, same database, verified TLS and read-only full statistics connection.",
+    "Existing observer data connection replaced; PgBouncer administrative call unchanged.",
+    "Partial staging and interruptions attempt both owned cleanup sites; uncertainty fails closed.",
+    "Current frozen customer/payment/zero-double-booking/queue/restoration gates retained."
+  ],
+  "remaining": [
+    "Fresh matched cloud qualification and 60/s comparison pending.",
+    "84 paid-and-issued/s and hourly 300000 unique tickets unqualified.",
+    "18,000-seat projection under contention remains unresolved."
+  ]
+}

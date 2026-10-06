@@ -240,7 +240,7 @@ def drain(session, cid, audit_program=GLOBAL_AUDIT):
 
 def collect_profile_failure_evidence(session, inventory, local, profile_ledger):
     """Collect declared phase evidence, including the placement-only profile."""
-    if profile_ledger in {"bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics", "bounded_api_placement_rebalance", "bounded_application_role_rebalance"}:
+    if profile_ledger in {"bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics", "bounded_api_placement_rebalance", "bounded_application_role_rebalance", "bounded_diagnostic_placement"}:
         from slow_database_evidence import collect
 
         capture = collect(session, inventory, local)
@@ -279,7 +279,7 @@ class Stages:
 
         profile_ledger = base_ledger(ledger_key)
         if (type(rate) is not int or type(stage_limit) is not int
-                or (rate, profile_ledger, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1), (60, "bounded_async_confirmation", 1), (60, "bounded_partial_timeout_reclamation", 1), (60, "bounded_partial_timeout_reclamation_v2", 1), (60, "bounded_payment_stall_diagnostics", 1), (60, "bounded_slow_database_diagnostics", 1), (60, "bounded_database_wait_diagnostics", 1), (60, "bounded_api_placement_rebalance", 1), (60, "bounded_application_role_rebalance", 1))):
+                or (rate, profile_ledger, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1), (60, "bounded_async_confirmation", 1), (60, "bounded_partial_timeout_reclamation", 1), (60, "bounded_partial_timeout_reclamation_v2", 1), (60, "bounded_payment_stall_diagnostics", 1), (60, "bounded_slow_database_diagnostics", 1), (60, "bounded_database_wait_diagnostics", 1), (60, "bounded_api_placement_rebalance", 1), (60, "bounded_application_role_rebalance", 1), (60, "bounded_diagnostic_placement", 1))):
             raise ValueError("Unsupported bounded stage contract")
         if profile_ledger in {"bounded_status_refresh", "bounded_status_refresh_dedup", "bounded_async_confirmation", "bounded_partial_timeout_reclamation", "bounded_partial_timeout_reclamation_v2", "bounded_payment_stall_diagnostics", "bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics"} and contract is None:
             raise ValueError("Isolated refresh contract required")
@@ -291,13 +291,16 @@ class Stages:
             raise ValueError("Exact partial timeout reclamation contract required")
         if profile_ledger in {"bounded_payment_stall_diagnostics", "bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics"} and getattr(contract, "arm", None) != "control":
             raise ValueError("Diagnostic scope must use unchanged control")
-        if profile_ledger == "bounded_api_placement_rebalance" and (
+        if profile_ledger in {"bounded_api_placement_rebalance", "bounded_diagnostic_placement"} and (
                 contract is None or contract.inventory_marker().get("decision") != "ADR0174"):
             raise ValueError("Exact fixed-budget placement contract required")
         if profile_ledger == "bounded_application_role_rebalance" and (
                 contract is None or contract.inventory_marker().get("decision") != "ADR0177"
                 or getattr(contract, "diagnostic_scope", None) != "application_role"):
             raise ValueError("Exact application-role placement contract required")
+        if profile_ledger == "bounded_diagnostic_placement" and (
+                contract is None or not hasattr(contract, "diagnostic_context")):
+            raise ValueError("Exact protected diagnostic placement contract required")
         self.contract = contract
         self.execute, self.bundle, self.results = execute, bundle, {}
         self.rate, self.ledger_key, self.stage_limit = rate, ledger_key, stage_limit
@@ -377,6 +380,11 @@ class Stages:
             if base_ledger(self.ledger_key) in {"bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"}:
                 from database_wait_evidence import preflight_program
                 record["database_wait_preflight"] = session.api(cid, preflight_program(), 45)
+            if base_ledger(self.ledger_key) == "bounded_diagnostic_placement":
+                from diagnostic_runner_connection import prepare as prepare_diagnostic_connection
+                record["diagnostic_cleanup_required"] = True
+                record.update(prepare_diagnostic_connection(session, cid, remote, directory, inventory, api_upload, self.contract.diagnostic_context))
+                (local / "inventory.private.json").write_text(json.dumps(inventory, indent=2))
             if base_ledger(self.ledger_key) == "bounded_application_role_rebalance":
                 from application_role_runner_diagnostics import prepare as prepare_scoped_diagnostics
                 record.update(prepare_scoped_diagnostics(session, cid, remote, directory, inventory, api_upload))
@@ -432,7 +440,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                 + ";assert {k:hashlib.sha256((p/k).read_bytes().replace(b'\\r\\n',b'\\n')).hexdigest() for k in expected}==expected;print(json.dumps({'transferred_generator_identity':True}))",
             )
             record["transferred_generator_identity"] = True
-            if base_ledger(self.ledger_key) != "bounded_application_role_rebalance":
+            if base_ledger(self.ledger_key) not in {"bounded_application_role_rebalance", "bounded_diagnostic_placement"}:
                 for name in ("observe_two_host_pipeline.py", "prepare_two_host_scaling.py", "database_wait_evidence.py"):
                     api_upload(session, cid, remote, directory, name, (ROOT / "scripts" / name).read_text())
             api_upload(session, cid, remote, directory, "inventory.private.json", json.dumps(inventory))
@@ -473,8 +481,10 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
 
                     arguments += ["--approved-inventory-sha256", digest(inventory)]
                 from work_envelope import base_ledger
-                if name == "pipeline" and base_ledger(self.ledger_key) in {"bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"}:
+                if name == "pipeline" and base_ledger(self.ledger_key) in {"bounded_database_wait_diagnostics", "bounded_api_placement_rebalance", "bounded_diagnostic_placement"}:
                     arguments += ["--database-wait-diagnostics"]
+                    if base_ledger(self.ledger_key) == "bounded_diagnostic_placement":
+                        arguments += ["--diagnostic-connection-bundle", directory + "/diagnostic.private.json"]
                 if name == "pipeline" and base_ledger(self.ledger_key) == "bounded_application_role_rebalance":
                     arguments += ["--application-database-wait-diagnostics"]
                 job = self.launch(session, "container", cid, arguments, directory, jobs, record, database=True)
@@ -494,7 +504,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                 if time.monotonic() >= deadline:
                     raise TimeoutError("Observer startup bound exceeded")
                 time.sleep(1)
-            if base_ledger(self.ledger_key) in {"bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"} and status["pipeline"].get("database_wait_diagnostics", {}).get("complete") is not True:
+            if base_ledger(self.ledger_key) in {"bounded_database_wait_diagnostics", "bounded_api_placement_rebalance", "bounded_diagnostic_placement"} and status["pipeline"].get("database_wait_diagnostics", {}).get("complete") is not True:
                 raise ValueError("Database diagnostic startup gate failed before buyer dispatch")
             if base_ledger(self.ledger_key) == "bounded_application_role_rebalance":
                 from application_role_runner_diagnostics import startup as scoped_startup
@@ -692,7 +702,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                         record.setdefault("trace_collection_errors", []).append(type(exc).__name__)
             retain_observer_summaries(local, record, inventory if "inventory" in locals() else None)
             from work_envelope import base_ledger
-            if base_ledger(self.ledger_key) in {"bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"}:
+            if base_ledger(self.ledger_key) in {"bounded_database_wait_diagnostics", "bounded_api_placement_rebalance", "bounded_diagnostic_placement"}:
                 from database_wait_evidence import summarize as summarize_database_wait
                 try:
                     record["database_wait_capture"] = summarize_database_wait(local / "pipeline.jsonl")
@@ -731,6 +741,12 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                 try:
                     self.stop(session, role, cid, job)
                 except Exception as exc:  # noqa: BLE001 - preserve mandatory remaining cleanup
+                    cleanup_errors.append(type(exc).__name__)
+            if record.get("diagnostic_cleanup_required"):
+                try:
+                    from diagnostic_runner_connection import cleanup as cleanup_diagnostic_connection
+                    record.update(cleanup_diagnostic_connection(session, cid, remote, directory))
+                except BaseException as exc:  # noqa: BLE001 - preserve other mandatory recovery
                     cleanup_errors.append(type(exc).__name__)
             if record["customers_dispatched"]:
                 # Audits remain mandatory even if CPU/transport/observer collection failed.
