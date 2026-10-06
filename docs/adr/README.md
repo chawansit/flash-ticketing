@@ -320,3 +320,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0188: Guarded worker runtime primitives](0188-guarded-worker-runtime-primitives.md)
 
 - [ADR0189: Atomic payment dispatch claim](0189-atomic-payment-dispatch-claim.md)
+
+- [ADR0190: Historical recovery exception and test isolation](0190-historical-recovery-exception-and-test-isolation.md)

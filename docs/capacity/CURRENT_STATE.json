@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "focused_atomic_payment_claim_candidate_locally_measured_cloud_recovery_required",
+  "status": "focused_payment_claim_locally_measured_historical_recovery_exception_proposed",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -63,7 +63,8 @@
     "Fresh read-only routing check (20.984s) verified simulator targets the primary Docker API service. Unchanged routing implies primary callback pool capacity falls from four to two at 1+3 placement despite equal total budgets. Polling/CPU amplification observed. ADR0183 log-input ceiling raised from 32 to 64 MiB: initial suite 84 passed/one stale assertion failed; corrected affected suite 20 passed; Ruff passed. No cloud retest.",
     "ADR0187:282 affected local tests/Ruff passed; native isolated Docker package verified7 worker roles/6 immutable images and79,484,928-byte archive, proof containers0. OCI index/config identity mismatch caught and corrected with failed evidence retained. Read-only pre-load report blocks unresolved recovery/unregistered profile/missing scope/evidence;0 cloud calls, no capacity result.",
     "ADR0188:327 affected local tests/Ruff/naming passed. Generated guarded original-worker stop and two-host absence programs qualified with simulated Docker/POSIX only; pause/drift/unknown acknowledgements and stale/cross-scope drain receipts block progression. Partial adapter only; no cloud calls/profile registration/capacity result, historical recovery unchanged.",
-    "ADR0189 focused callback claim correction:36 native/unit tests/Ruff passed;24 concurrent claims yield1 dispatch/paid-issued ticket with replay safety. Simulator successful-delivery SQL3=>2; local alternating rollback-only claim median2.830=>2.297ms (18.83% lower). No cloud deployment/throughput claim; recovery/gates/scopes unchanged."
+    "ADR0189 focused callback claim correction:36 native/unit tests/Ruff passed;24 concurrent claims yield1 dispatch/paid-issued ticket with replay safety. Simulator successful-delivery SQL3=>2; local alternating rollback-only claim median2.830=>2.297ms (18.83% lower). No cloud deployment/throughput claim; recovery/gates/scopes unchanged.",
+    "Fresh exact-path read-only paid-fixture inspection:16 retained host/container artifact locations checked,0 available; primary runtime unchanged, generator idle, all checked global queues0. Exact prior paid ownership remains missing; no recovery clearance or cloud load."
   ],
   "unresolved": "1+3 failed: 24 customer errors, 2,946 drops, 16.14 status checks/journey and payment-pool saturation. Primary-only callback routing reduces reachable callback pool capacity from four to two in the candidate. Standing ledger remains RECOVERY_REQUIRED despite completed owned restoration; strict paid-run recovery verification is needed before more load. 84/s, the single-show 18,000-seat projection, flash opening and hourly qualification remain unqualified.",
   "next_on_resume": [
@@ -434,7 +435,7 @@
     "all_required_gates_pass": true,
     "comparison_report": "docs/capacity/flash-sale-opening/status-refresh-paid-replacement-comparison-2026-10-05.json"
   },
-  "latest_checkpoint_evidence": "docs/capacity/flash-sale-opening/atomic-payment-claim-local-2026-10-06.json",
+  "latest_checkpoint_evidence": "docs/capacity/flash-sale-opening/paid-fixture-recovery-inspection-2026-10-06.json",
   "archived_status_refresh_scopes": [
     {
       "authorization_id": "adr0151-status-refresh-pair-2026-10-05",
@@ -1085,7 +1086,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Prioritize the isolated atomic callback claim candidate over general worker-adapter work. Resolve exact historical paid-fixture recovery and prepare only the minimum fixed-workload candidate comparison using existing artifact and bounded-runner mechanisms. No cloud mutation/load before qualified registration and recovery; evaluate completed paid-issued tickets, customer errors, latency, CPU, durability, zero double-booking and full drain.",
+  "next_action": "Review proposed ADR0190 with the user. Preserve old RECOVERY_REQUIRED scope and failed financial expectations; no inferred recovery, new deployment or load. Only after explicit exception approval, implement and qualify isolation on existing services and a freshly registered profile; ADR0189 performance candidate remains local only.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -2058,5 +2059,17 @@
     "capacity_improvement_measured": false,
     "remaining": "Fixed-workload cloud comparison and hourly qualification after required recovery; other performance causes remain unresolved",
     "deferred": "General worker-adapter expansion and unrelated tooling refinements"
+  },
+  "paid_fixture_recovery_inspection": {
+    "evidence": "docs/capacity/flash-sale-opening/paid-fixture-recovery-inspection-2026-10-06.json",
+    "exact_identity_recovered": false,
+    "cloud_mutations": 0,
+    "load_started": false,
+    "human_information_needed": "Explicit approval of proposed historical quarantine and isolated test environment exception; not granted.",
+    "human_reply": "No snapshot or fixture backup available.",
+    "proposed_exception_decision": "ADR0190"
+  },
+  "accounting": {
+    "read_only_paid_fixture_inspection_seconds_this_checkpoint": 38.703
   }
 }

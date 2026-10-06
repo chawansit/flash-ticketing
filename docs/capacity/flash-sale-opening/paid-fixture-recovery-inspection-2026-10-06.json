@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "kind": "read_only_failed_paid_fixture_recovery",
+  "decisions": [
+    "ADR0172",
+    "ADR0185"
+  ],
+  "historical_run": "adr0151-647e2505c995",
+  "scope_ledger": "bounded_diagnostic_placement__9647f50ed259",
+  "checked_revision": "7ca20ed3e541f1853a937a991e40383f3854a1e3",
+  "captured_at_utc": "2026-10-06T15:33:24.052635+00:00",
+  "exact_paid_identity_recovered": false,
+  "recovery_block_cleared": false,
+  "checks": {
+    "exact_artifact_locations_checked": 16,
+    "artifacts_available": 0,
+    "primary_runtime_unchanged_during_inspection": true,
+    "generator_idle": true,
+    "global_queues": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "pending_callback_deliveries": 0,
+      "pending_refunds": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "kafka_total_lag": 0,
+      "kafka_members": 1,
+      "pass": true,
+      "pending_confirmation_receipts": 0,
+      "review_confirmation_receipts": 0,
+      "confirmation_capacity_outstanding": 0,
+      "confirmation_capacity_mismatches": 0
+    }
+  },
+  "limits": [
+    "No current per-entity financial reconciliation was possible without exact show identifiers.",
+    "Runtime and queue checks do not convert the original failed paid run into a pass.",
+    "No new secondary resource inventory was collected in this inspection."
+  ],
+  "next_action": "Human review of proposed ADR0190: preserve historical failure and uncertainty; qualify an isolated test environment before any fresh cloud mutation/load. Exception is not approved or implemented.",
+  "accounting": {
+    "actual_read_only_inspection_seconds": 38.703,
+    "cloud_mutations": 0,
+    "customer_dispatches": 0,
+    "registered_experiments_added": 0,
+    "new_infrastructure_spend": 0
+  },
+  "raw_evidence_sha256": "5845d81c5932e8373c5098ba0c39c521fc51162bfbc03ce6ba12631f972f6d8d",
+  "ledger_sha256_unchanged": "de5566c1c85625ea9fe97aff9407ef29e6f7fde7466b6a5012112f76546d3692",
+  "human_reply": "No snapshot or fixture backup available.",
+  "proposed_exception_decision": "ADR0190"
+}
