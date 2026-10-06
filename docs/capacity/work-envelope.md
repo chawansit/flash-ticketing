@@ -23,7 +23,7 @@ Run the local status command without cloud access:
 .venv/Scripts/python.exe scripts/run_work_envelope.py
 ```
 
-The currently qualified registry contains only slow_database_control: unchanged ADR0171 images, topology and budgets, one safety qualification then one 60 journeys/s, 300-second control. One command performs both protocols, stops if qualification fails, preserves evidence and records the result:
+The default profile is slow_database_control: unchanged ADR0171 images, topology and budgets, one safety qualification then one 60 journeys/s, 300-second control. The registry also contains database_wait_control, api_placement_rebalance and application_role_rebalance. Registration does not start an experiment. One authorized command performs qualification and measurement, stops on failed controls, preserves evidence and records the result:
 
 ```powershell
 .venv/Scripts/python.exe scripts/run_work_envelope.py --execute --config tmp/adr0153-checks/live-config.private.json --ssh-runtime tmp/adr0126-ssh-runtime
@@ -52,8 +52,15 @@ Before publication, review the outgoing files, exclude secrets/private raw evide
 
 The publication guard records policy compliance, not proof that a human/code review happened. The pre-push hook restricts destinations to codex branches and rejects deletion; naming hooks still validate outgoing revisions. A separately approved main merge should use the normal reviewed merge workflow rather than disabling these checks.
 
-Extend the registry only after an ADR, implementation and executed local qualification. New profiles may proceed without another human approval if within the envelope. ADR0173 extends the locally qualified registry with database-side wait/WAL sampling on the unchanged 60/s control. Higher load and candidate comparisons remain outside this registry. Profile source/configuration/artifact changes need fresh binding and qualification, not a reset of previous ledgers.
+Extend the registry only after an ADR, implementation and executed local qualification. New profiles may proceed without another human approval if within the envelope. ADR0173 extends the locally qualified registry with database-side wait/WAL sampling on the unchanged 60/s control. Higher load remains outside this registry; only the exact registered placement pair permits a candidate comparison. Profile source/configuration/artifact changes need fresh binding and qualification, not a reset of previous ledgers.
 
 Escalate only new spending/infrastructure actions, requirement/correctness changes, publication exceptions or unresolved recovery requiring user involvement. Report result, evidence, remaining uncertainty and recommendation at meaningful checkpoints. Always distinguish implemented, tested and production-qualified.
 
 The ADR0173 profile uses the same protected configuration, immutable application images, workload and connection budgets. Select `--profile database_wait_control` with the existing `--execute`, `--config` and `--ssh-runtime` arguments. A transient read-only capabilities check closes before the existing pipeline observer starts; diagnostic startup must pass before buyer dispatch. Disabled WAL timing is reported as unavailable evidence. All existing customer, financial, queue and restoration gates remain required.
+
+
+ADR0177 registers `--profile application_role_rebalance` for the same frozen 2+2 versus 1+3 API placement pair, 60 journeys/s for 300 seconds in each measured arm. ADR0174's `api_placement_rebalance` and ADR0173's `database_wait_control` retain full-database diagnostics and their statistics-visibility requirement. The new profile uses ADR0176 application-role diagnostics in both arms, with the distinct `application_database_wait_evidence_complete` gate. Its separate `full_database_visibility_complete` observation can be false; foreign invisibility cannot be reported as full RDS coverage or a WAL diagnosis.
+
+The scoped profile checks actual inspected configuration for all four APIs and fourteen database workers, binds their shared role/database fingerprint to the qualified inventory receipt, verifies transferred collector/observer sources and checks the observer's effective identity before creating a paid fixture. It reuses the existing sampling connection. Missing role coverage, source/mode drift, hidden application activity, sample gaps and overhead stop progression. Admission/slow-phase diagnostics and all financial, customer, queue and restoration gates still apply. Failed controls stop the candidate; all experiments need fresh envelope bindings.
+
+The user stopped the current task before cloud deployment or load. Local registration and qualification do not consume a reservation, change cloud resources or measure capacity. Next work requires resuming cloud execution, then checking live identity/readiness and running the fresh bounded comparison. The short comparison does not qualify 84 paid-and-issued tickets/s or 300,000 tickets/hour.

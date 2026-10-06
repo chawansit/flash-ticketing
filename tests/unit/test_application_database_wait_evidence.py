@@ -176,9 +176,9 @@ def test_fully_visible_samples_can_report_global_visibility_without_global_gate_
     assert "complete" not in result
 
 
-def test_existing_cloud_profiles_remain_full_visibility_and_scope_is_unregistered():
+def test_existing_cloud_profiles_remain_full_visibility_with_separate_scoped_registration():
     import api_placement_contract
     import work_envelope
     assert "diagnostic_scope" not in api_placement_contract.plan()
-    assert all("application_role" not in p for p in work_envelope.envelope()["qualified_profiles"])
+    assert "application_role_rebalance" in work_envelope.envelope()["qualified_profiles"]
     assert "application_database_wait_evidence" not in Path("scripts/run_work_envelope.py").read_text()

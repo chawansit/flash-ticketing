@@ -16,7 +16,7 @@ from database_wait_evidence import ACTIVITY_SQL, Collector, bounded_query, failu
 pytestmark = pytest.mark.integration
 
 
-def test_foreign_session_is_hidden_until_statistics_privilege_granted():
+def test_foreign_session_is_hidden_until_statistics_privilege_granted(monkeypatch, capsys):
     url = os.environ.get("TEST_DIAGNOSTIC_DATABASE_URL")
     if not url:
         pytest.skip("Explicit isolated local PostgreSQL fixture required")
@@ -55,6 +55,13 @@ def test_foreign_session_is_hidden_until_statistics_privilege_granted():
                     assert "complete" not in scoped_value
                     assert observer_role not in str(scoped_value) and foreign_role not in str(scoped_value)
                     assert observer_role not in str(hidden) and foreign_role not in str(hidden)
+                    # Execute the runner's generated preflight against real local PostgreSQL.
+                    monkeypatch.setenv("DATABASE_URL", make_conninfo(url, user=observer_role))
+                    exec(scoped.preflight_program(proof, str(Path("scripts").resolve())), {})  # noqa: S102 - local generated read-only preflight.
+                    preflight = __import__("json").loads(capsys.readouterr().out)
+                    assert preflight["pass"] and preflight["diagnostic_scope"] == "application_role"
+                    assert preflight["role_identity_sha256"] == proof.identity_sha256
+                    assert not preflight["full_database_visibility_complete"]
                     admin.execute(sql.SQL("GRANT pg_read_all_stats TO {}").format(sql.Identifier(observer_role)))
                     collector = Collector()
                     visible = collector.collect(observer)

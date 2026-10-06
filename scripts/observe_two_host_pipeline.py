@@ -142,6 +142,18 @@ def verify_confirmation_factor_evidence(inventory):
 def verify_admission_factor_evidence(inventory):
     marker = inventory.get("status_refresh_contract", {})
     arm = inventory.get("arm")
+    if marker.get("decision") == "ADR0177":
+        from application_database_wait_evidence import binding_from_record
+
+        binding_from_record(inventory.get("application_database_role_binding"))
+        if marker.get("diagnostic_scope") != "application_role" or marker.get("diagnostic_decision") != "ADR0176":
+            raise ValueError("Exact role-scoped diagnostic policy required")
+        common = copy.deepcopy(inventory)
+        common["status_refresh_contract"].update(decision="ADR0174")
+        common["status_refresh_contract"].pop("diagnostic_scope")
+        common["status_refresh_contract"].pop("diagnostic_decision")
+        verify_admission_factor_evidence(common)
+        return
     if marker.get("decision") == "ADR0174":
         counts = {"primary": 2, "secondary": 2} if arm == "control" else {"primary": 1, "secondary": 3}
         expected = {"decision": "ADR0174", "arm": arm, "factor": "api_placement_2_2_to_1_3",
@@ -246,14 +258,14 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
         marker = inventory.get("status_refresh_contract", {})
         if (not isinstance(approved_inventory_sha256, str)
                 or not re.fullmatch(r"[0-9a-f]{64}", approved_inventory_sha256)
-                or actual != approved_inventory_sha256 or marker.get("decision") not in {"ADR0151", "ADR0157", "ADR0161", "ADR0163", "ADR0174"}
+                or actual != approved_inventory_sha256 or marker.get("decision") not in {"ADR0151", "ADR0157", "ADR0161", "ADR0163", "ADR0174", "ADR0177"}
                 or marker.get("cache_age_ms") != 1000 or marker.get("arm") != inventory.get("arm")
                 or not isinstance(marker.get("api_image_id"), str)
                 or not re.fullmatch(r"sha256:[0-9a-f]{64}", marker["api_image_id"])):
             raise ValueError("Exact host-qualified inventory digest required")
         if marker["decision"] == "ADR0161":
             verify_confirmation_factor_evidence(inventory)
-        if marker["decision"] in {"ADR0163", "ADR0174"}:
+        if marker["decision"] in {"ADR0163", "ADR0174", "ADR0177"}:
             verify_admission_factor_evidence(inventory)
         if marker["decision"] == "ADR0157":
             verify_dedup_factor_evidence(inventory)
@@ -265,18 +277,23 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
         structural["arm"] = "candidate"
         for api in structural["apis"]:
             api["settings"]["ORDER_STATUS_CACHE_MS"] = "0"
-        if marker["decision"] in {"ADR0161", "ADR0163", "ADR0174"}:
+        if marker["decision"] in {"ADR0161", "ADR0163", "ADR0174", "ADR0177"}:
             structural["background"] = copy.deepcopy(BACKGROUND)
             for api in structural["apis"]:
                 api["settings"].pop("PAYMENT_CONFIRMATION_ASYNC")
                 api["settings"].pop("ORDER_STATUS_POLL_MS")
-        if marker["decision"] in {"ADR0163", "ADR0174"}:
+        if marker["decision"] in {"ADR0163", "ADR0174", "ADR0177"}:
             # Full extended dictionaries were verified above; keep every original budget.
             for api in structural["apis"]:
                 api["settings"] = {key: api["settings"][key] for key in API_SETTINGS}
-        placement = "one-plus-three" if marker["decision"] == "ADR0174" and inventory["arm"] == "candidate" else None
+        if marker["decision"] == "ADR0177":
+            # Exact scoped evidence was validated above; only the legacy structural view changes.
+            structural["status_refresh_contract"]["decision"] = "ADR0174"
+            structural["status_refresh_contract"].pop("diagnostic_scope")
+            structural["status_refresh_contract"].pop("diagnostic_decision")
+        placement = "one-plus-three" if marker["decision"] in {"ADR0174", "ADR0177"} and inventory["arm"] == "candidate" else None
         validate_inventory(structural, image_id=marker["api_image_id"], now=now, placement=placement)
-    if inventory.get("status_refresh_contract", {}).get("decision") in {"ADR0161", "ADR0163", "ADR0174"}:
+    if inventory.get("status_refresh_contract", {}).get("decision") in {"ADR0161", "ADR0163", "ADR0174", "ADR0177"}:
         module.METRICS["confirmation"] = ("confirm_one", "http://confirmation:9101/metrics")
         original_parser = module.parse_api_metrics
 
@@ -312,7 +329,7 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
             raise ValueError("Metrics payload exceeds bound")
         payload = raw.decode("utf-8")
         extras = extra_api_metrics(payload)
-        if inventory.get("status_refresh_contract", {}).get("decision") in {"ADR0163", "ADR0174"}:
+        if inventory.get("status_refresh_contract", {}).get("decision") in {"ADR0163", "ADR0174", "ADR0177"}:
             extras.update(admission_failure_metrics(payload))
         prior = previous.get(label)
         if prior and (
@@ -401,14 +418,22 @@ def main(argv=None):
     parser.add_argument("--inventory", type=Path, required=True)
     parser.add_argument("--frozen-observer", type=Path, required=True)
     parser.add_argument("--approved-inventory-sha256")
-    parser.add_argument("--database-wait-diagnostics", action="store_true")
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--database-wait-diagnostics", action="store_true")
+    modes.add_argument("--application-database-wait-diagnostics", action="store_true")
     args, remaining = parser.parse_known_args(argv)
     inventory = json.loads(args.inventory.read_text())
+    scoped_profile = inventory.get("status_refresh_contract", {}).get("decision") == "ADR0177"
+    if scoped_profile != args.application_database_wait_diagnostics or (scoped_profile and not args.approved_inventory_sha256):
+        raise ValueError("Diagnostic mode must match the exact qualified inventory")
     frozen = load_frozen(args.frozen_observer)
     install_adapter(frozen, inventory, image_id=FROZEN_IMAGE_ID, approved_inventory_sha256=args.approved_inventory_sha256)
     if args.database_wait_diagnostics:
         from database_wait_evidence import install
         install(frozen)
+    if args.application_database_wait_diagnostics:
+        from application_database_wait_evidence import binding_from_record, install
+        install(frozen, binding_from_record(inventory.get("application_database_role_binding")))
     sys.argv = [str(args.frozen_observer), *remaining]
     frozen.main()
 

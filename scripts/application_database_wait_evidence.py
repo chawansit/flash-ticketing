@@ -1,4 +1,4 @@
-"""ADR0176 locally qualified application-role diagnostics; not a cloud profile."""
+"""ADR0176 application-role diagnostics; ADR0177 supplies the bounded profile."""
 import hashlib
 import json
 import re
@@ -224,3 +224,57 @@ def summarize(path, binding):
             "counter_deltas": totals if continuity and not errors else None,
             "application_active_wait_peaks": peaks,
             "scope": "Application-role activity only; WAL/checkpoint/database counters remain aggregate. Foreign invisibility is explicit; causality and global activity completeness are not inferred."}
+
+
+def binding_record(binding):
+    checked_binding(binding)
+    return {"decision": "ADR0176", "diagnostic_scope": SCOPE,
+            "role_identity_sha256": binding.identity_sha256, "bound_replicas": dict(binding.replicas)}
+
+
+def binding_from_record(value):
+    if (not isinstance(value, dict) or set(value) != {"decision", "diagnostic_scope", "role_identity_sha256", "bound_replicas"}
+            or value["decision"] != "ADR0176" or value["diagnostic_scope"] != SCOPE
+            or not isinstance(value["bound_replicas"], dict)):
+        raise ValueError("Exact application role coverage record required")
+    return checked_binding(RoleCoverage(value["role_identity_sha256"], tuple(sorted(value["bound_replicas"].items()))))
+
+
+def startup(row, binding=None):
+    item = row.get("application_database_wait_diagnostics", {})
+    if (item.get("diagnostic_scope") != SCOPE or item.get("application_visibility_complete") is not True
+            or type(item.get("full_database_visibility_complete")) is not bool):
+        raise ValueError("Application database diagnostics unavailable before dispatch")
+    if binding is not None and item.get("role_identity_sha256") != checked_binding(binding).identity_sha256:
+        raise ValueError("Scoped startup role binding differs")
+    if not isinstance(item.get("role_identity_sha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", item["role_identity_sha256"]):
+        raise ValueError("Scoped startup identity missing")
+    counts = partition(item)
+    if item["full_database_visibility_complete"] is not (counts["restricted_foreign_sessions"] == 0):
+        raise ValueError("Global visibility contradicts masked foreign sessions")
+    if full.number(item["collection_ms"]) > full.MAX_OVERHEAD_MS:
+        raise ValueError("Scoped startup overhead exceeded")
+
+
+def install(module, binding):
+    original, collector = module.sample, Collector(binding)
+
+    def sample(conn, show_ids):
+        result = original(conn, show_ids)
+        result["application_database_wait_diagnostics"] = collector.collect(conn)
+        return result
+
+    module.sample = sample
+
+
+def preflight_program(binding, directory):
+    value = binding_record(binding)
+    return ("import sys,json,os,psycopg;sys.path.insert(0," + repr(directory) + ")\n"
+            "from application_database_wait_evidence import Collector,binding_from_record,startup\n"
+            "binding=binding_from_record(" + repr(value) + ")\n"
+            "with psycopg.connect(os.environ['DATABASE_URL'],autocommit=True,connect_timeout=5) as conn:\n"
+            " collector=Collector(binding);records=[collector.collect(conn) for _ in range(2)]\n"
+            " for item in records:startup({'application_database_wait_diagnostics':item},binding)\n"
+            " print(json.dumps({'pass':True,'diagnostic_scope':'application_role',"
+            "'role_identity_sha256':binding.identity_sha256,'max_collection_ms':max(r['collection_ms'] for r in records),"
+            "'full_database_visibility_complete':all(r['full_database_visibility_complete'] for r in records)}))\n")

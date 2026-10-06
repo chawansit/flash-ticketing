@@ -23,7 +23,10 @@ def status():
 
 
 def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROFILE):
-    if profile_name == "api_placement_rebalance":
+    if profile_name == "application_role_rebalance":
+        import application_role_rebalance_contract as contract_policy
+        import run_application_role_rebalance_comparison as profile
+    elif profile_name == "api_placement_rebalance":
         import api_placement_contract as contract_policy
         import run_api_placement_comparison as profile
     elif profile_name == "database_wait_control":

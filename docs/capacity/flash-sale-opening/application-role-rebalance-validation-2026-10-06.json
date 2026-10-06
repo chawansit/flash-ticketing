@@ -1,0 +1,141 @@
+{
+  "decision": "ADR0177",
+  "diagnostic_decision": "ADR0176",
+  "status": "LOCALLY_QUALIFIED_REGISTERED_STOPPED_BEFORE_CLOUD",
+  "recorded_at_utc": "2026-10-06T05:27:49.160857+00:00",
+  "profile": "application_role_rebalance",
+  "diagnostic_scope": "application_role",
+  "implemented": true,
+  "locally_tested": true,
+  "cloud_runner_integrated": true,
+  "cloud_tested": false,
+  "production_qualified": false,
+  "cloud_calls": 0,
+  "cloud_deployments": 0,
+  "cloud_experiments_reserved": 0,
+  "capacity_improvement_measured": false,
+  "harness_base_revision": "08a36357a32a4b2d2f912d366efca5c188e29247",
+  "exact_source_identity": {
+    "scripts/observe_two_host_pipeline.py": "519e511456e29be6d91d22f57ce9962cbd5d2a215fd75831a9fc550fadc2a098",
+    "scripts/database_wait_evidence.py": "85fe63f8f437b9529984b076d691a88bb833acb39173c1f49b9391b0c9548f18",
+    "scripts/prepare_two_host_scaling.py": "665d0fce891da917b0d7a96c4404ae9269a9b543a79f9e02f1d59d6e6760746a",
+    "scripts/observe_two_host_cpu.py": "a3b5771aafaf10c1ab2b29177af7c9b8450494194c9bd63f5d95047f30282e5d",
+    "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+    "scripts/run_two_host_paid_comparison.py": "507d57e2d75841dc478852451d41bab696095ad18ab5247103592d40a0682ffd",
+    "scripts/qualify_two_host_deployment.py": "3108eff4468970c4d9ddf408e0fc474c007d5de8a454da408c113da5e8c46af2",
+    "scripts/collect_two_host_inventory.py": "ed4ed9442e349984e6005ae42da21d58625b1ac5e2d68745a2540e9eda8fd46c",
+    "scripts/runtime_source_identity.py": "5dd0db433abf10e79a3bf1c21ca29d28e85137e7f3e1483e9e96df35462ead80",
+    "scripts/probe_two_host_safety.py": "f61f3e718a19c158aa4c4f90a3411160facd9441d8dea9d7e53e20a0fe920bd2",
+    "scripts/run_status_refresh_comparison.py": "7c5e34e4dbb2311c4bf12c4224684bec20f3ec6b3522332f1b8cd72d2a7dbad6",
+    "scripts/status_refresh_contract.py": "98941571768e1a3984318dc22762bccc1713278f84f7acde11b61f8568932f27",
+    "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+    "scripts/work_envelope.py": "b50979e040f7ae149702efa2055c236b87a651e1615ff987a8bb581626a5fb2b",
+    "scripts/run_work_envelope.py": "7c10f59e7ce961e4627c5b0440b1fa9759bcc0a80c9b68b4b861910a0c99cc35",
+    "experiment_plan": "23a69a30046664ee2b0d49f5607d26fa678fbfebfa4528412a69ab0441a5ba2f",
+    "scripts/run_application_role_rebalance_comparison.py": "210d9e42fecb48e19ff858ad40bc7fefec8a8fba11941ce42b17f6743fc33352",
+    "scripts/application_role_rebalance_contract.py": "5850fa694f1bb80e17eb8efc8c58099d5bb5864ad04709dc634a015643606ddc",
+    "scripts/prepare_partial_timeout_reclamation.py": "0573f2a7f94177567ce58a5b9b43aee6a6bede552e1530fcb72e70b8d8b1a076",
+    "scripts/prepare_status_refresh_artifacts.py": "dd06c8574b63061dcecf69d2da9f9d0c0fa82b4df36a6c57f0c35099d9431467",
+    "scripts/status_refresh_image_install.py": "9a20736841a226feb599850b51493cf9383df89b4d8d5506a8cc4de9f9198752",
+    "scripts/stage_status_refresh_images.py": "f0150b07056e20a70bf6aef482c254f929a35d0437a81b2df0cf7b06a7b4daf7",
+    "scripts/run_async_confirmation_comparison.py": "d8dcf292216d413605a5778555e19ec20e1a0e11160775624d75244b4f056f8b",
+    "scripts/checkout_journey_probe.py": "10b14c979133188d42aaba5a9a91ab599101922e2d284e85dbe6c03244e3a5bc",
+    "scripts/fetch_status_refresh_parents.py": "b79f31039d1fceedcd9d51a64be5fecc24beb8212078dad64d36f134a95da26d",
+    "scripts/admission_failure_evidence.py": "0a4d3be45c7f9b9021918391a14848a0f8f9a4eb9ffdc99482a8ad8958eb7be5",
+    "scripts/slow_database_evidence.py": "f369fef593a2fb65d99faecd57ed6ebccd3012a67f513790a0cfbfb955c2c5d6",
+    "scripts/application_database_wait_evidence.py": "620154edc43271c3b50200ec7bd60f87294c071886d286a2e4402601e7c2666a",
+    "scripts/application_role_runner_diagnostics.py": "3647c9309700164aa316070d73958afb0281034c534c96ef72ab8c3a38b5c546",
+    "scripts/api_placement_contract.py": "dd14ad0ba7949340221d6c263970de38ee65630da00d106b16fe7877ee489cb3",
+    "scripts/partial_timeout_profile.py": "2c75b4b42e25c106384f87ba566b4caa58c758b6d055d27688d1f811358be519",
+    "artifacts/partial-timeout-reclamation/manifest.json": "5fb51d138dce9b04d1c40506e861b20350d08da421a7832392f4f0c48ea9c0fa",
+    "artifacts/partial-timeout-reclamation/adr0163.patch": "6950c3f3286f0ce3f4934e16682648ab52bb3ca165bf9992dbdce32a143a2a34"
+  },
+  "matched_plan": {
+    "arms": [
+      "control",
+      "candidate"
+    ],
+    "placements": {
+      "control": {
+        "primary": 2,
+        "secondary": 2
+      },
+      "candidate": {
+        "primary": 1,
+        "secondary": 3
+      }
+    },
+    "journeys_per_second": 60,
+    "duration_seconds_each": 300,
+    "expected_paid_issued_tickets_each": 18000,
+    "api_connections_total": 16,
+    "payment_connections_included": 8,
+    "pgbouncer_servers": 24,
+    "duration_rationale": "Matches the identified five-minute baseline and its intermittent diagnostic failure. Mandatory safety/post-TTL/drain/restoration windows are preserved."
+  },
+  "binding": {
+    "replicas": {
+      "api": 4,
+      "consumer": 6,
+      "reservation-writer": 3,
+      "maintenance": 1,
+      "publisher": 1,
+      "reconciler": 1,
+      "simulator": 1,
+      "confirmation": 1
+    },
+    "actual_private_configuration_required": true,
+    "effective_observer_identity_required": true,
+    "inventory_receipt_bound": true,
+    "transferred_sources_read_back": true,
+    "sample_connection_reused": true,
+    "local_replica_proof": "Synthetic inspected-container inputs, not live cloud coverage."
+  },
+  "gates": {
+    "new": "application_database_wait_evidence_complete",
+    "separate_global_flag": "full_database_visibility_complete",
+    "historical_full_database_profiles_unchanged": true,
+    "financial_customer_post_ttl_queue_and_restoration_gates_preserved": true,
+    "failed_control_stops_candidate": true
+  },
+  "validation": {
+    "regression_tests": {
+      "passed": 284,
+      "elapsed_seconds": 139.51599999999598,
+      "raw_evidence": "tmp/adr0177-runner-qualification-4js6xush/tests.txt",
+      "files": [
+        "tests/unit/test_application_role_rebalance.py",
+        "tests/unit/test_application_database_wait_evidence.py",
+        "tests/unit/test_database_wait_evidence.py",
+        "tests/unit/test_api_placement_comparison.py",
+        "tests/unit/test_work_envelope.py",
+        "tests/unit/test_two_host_paid_runner.py",
+        "tests/unit/test_two_host_observers.py",
+        "tests/unit/test_async_confirmation_comparison.py"
+      ]
+    },
+    "native_postgresql": {
+      "passed": 1,
+      "pytest_seconds": 0.24,
+      "helper_elapsed_seconds": 3.9059999999954016,
+      "image": "sha256:00bc86618629af00d2937fdc5a5d63db3ff8450acf52f0636ec813c7f4902929",
+      "owned_resources_removed": true,
+      "raw_evidence": "tmp/adr0177-visibility-9flfubaf/integration-tests.txt",
+      "verified": "Real restricted foreign activity, effective scoped preflight, statistics grant/revoke, role redaction. Replica coverage is synthetic."
+    },
+    "ruff_passed": true,
+    "isolated_source_contract_modules_verified": 21,
+    "corrected_before_final_qualification": [
+      "Candidate compatibility projection required an explicit validated legacy marker.",
+      "Tests were corrected to exercise the actual stage rather than the skipped setup arm."
+    ],
+    "cloud_ledger_unchanged_sha256": "aa47951260858ea70a41e68ff1d8dbb05feff5efdb6db2a5493e5343ab63884b"
+  },
+  "unresolved": [
+    "Live role/source/preflight coverage untested for this profile.",
+    "Foreign RDS sessions remain unidentified; WAL causality unproven.",
+    "No candidate capacity improvement measured.",
+    "84 paid-and-issued tickets/s and 300000 tickets/hour remain unqualified."
+  ],
+  "next_action": "Stop at user boundary. When cloud work is resumed, use one fresh registered envelope reservation for live readiness/safety then matched 60/s 300s control and candidate; stop candidate on a failed control."
+}

@@ -190,5 +190,8 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
             contract.inventory_marker() if hasattr(contract, "inventory_marker") else
             {"decision": "ADR0151", "cache_age_ms": 1000, "api_image_id": contract.images["api"], "arm": arm}
         )
+    if contract is not None and hasattr(contract, "bind_database_roles"):
+        inventory["application_database_role_binding"] = contract.bind_database_roles(
+            [*primary, *secondary], baseline_env["DATABASE_URL"])
     view = validate_inventory(inventory, image_id=IMAGE if contract is None else contract.images["api"], contract=contract)
     return inventory, view, primary, secondary

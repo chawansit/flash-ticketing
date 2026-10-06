@@ -240,7 +240,7 @@ def drain(session, cid, audit_program=GLOBAL_AUDIT):
 
 def collect_profile_failure_evidence(session, inventory, local, profile_ledger):
     """Collect declared phase evidence, including the placement-only profile."""
-    if profile_ledger in {"bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"}:
+    if profile_ledger in {"bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics", "bounded_api_placement_rebalance", "bounded_application_role_rebalance"}:
         from slow_database_evidence import collect
 
         capture = collect(session, inventory, local)
@@ -279,7 +279,7 @@ class Stages:
 
         profile_ledger = base_ledger(ledger_key)
         if (type(rate) is not int or type(stage_limit) is not int
-                or (rate, profile_ledger, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1), (60, "bounded_async_confirmation", 1), (60, "bounded_partial_timeout_reclamation", 1), (60, "bounded_partial_timeout_reclamation_v2", 1), (60, "bounded_payment_stall_diagnostics", 1), (60, "bounded_slow_database_diagnostics", 1), (60, "bounded_database_wait_diagnostics", 1), (60, "bounded_api_placement_rebalance", 1))):
+                or (rate, profile_ledger, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1), (60, "bounded_async_confirmation", 1), (60, "bounded_partial_timeout_reclamation", 1), (60, "bounded_partial_timeout_reclamation_v2", 1), (60, "bounded_payment_stall_diagnostics", 1), (60, "bounded_slow_database_diagnostics", 1), (60, "bounded_database_wait_diagnostics", 1), (60, "bounded_api_placement_rebalance", 1), (60, "bounded_application_role_rebalance", 1))):
             raise ValueError("Unsupported bounded stage contract")
         if profile_ledger in {"bounded_status_refresh", "bounded_status_refresh_dedup", "bounded_async_confirmation", "bounded_partial_timeout_reclamation", "bounded_partial_timeout_reclamation_v2", "bounded_payment_stall_diagnostics", "bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics"} and contract is None:
             raise ValueError("Isolated refresh contract required")
@@ -294,6 +294,10 @@ class Stages:
         if profile_ledger == "bounded_api_placement_rebalance" and (
                 contract is None or contract.inventory_marker().get("decision") != "ADR0174"):
             raise ValueError("Exact fixed-budget placement contract required")
+        if profile_ledger == "bounded_application_role_rebalance" and (
+                contract is None or contract.inventory_marker().get("decision") != "ADR0177"
+                or getattr(contract, "diagnostic_scope", None) != "application_role"):
+            raise ValueError("Exact application-role placement contract required")
         self.contract = contract
         self.execute, self.bundle, self.results = execute, bundle, {}
         self.rate, self.ledger_key, self.stage_limit = rate, ledger_key, stage_limit
@@ -373,6 +377,9 @@ class Stages:
             if base_ledger(self.ledger_key) in {"bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"}:
                 from database_wait_evidence import preflight_program
                 record["database_wait_preflight"] = session.api(cid, preflight_program(), 45)
+            if base_ledger(self.ledger_key) == "bounded_application_role_rebalance":
+                from application_role_runner_diagnostics import prepare as prepare_scoped_diagnostics
+                record.update(prepare_scoped_diagnostics(session, cid, remote, directory, inventory, api_upload))
             fixture_program = (
                 "import json,os,subprocess;from pathlib import Path;p=Path("
                 + repr(directory)
@@ -425,8 +432,9 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                 + ";assert {k:hashlib.sha256((p/k).read_bytes().replace(b'\\r\\n',b'\\n')).hexdigest() for k in expected}==expected;print(json.dumps({'transferred_generator_identity':True}))",
             )
             record["transferred_generator_identity"] = True
-            for name in ("observe_two_host_pipeline.py", "prepare_two_host_scaling.py", "database_wait_evidence.py"):
-                api_upload(session, cid, remote, directory, name, (ROOT / "scripts" / name).read_text())
+            if base_ledger(self.ledger_key) != "bounded_application_role_rebalance":
+                for name in ("observe_two_host_pipeline.py", "prepare_two_host_scaling.py", "database_wait_evidence.py"):
+                    api_upload(session, cid, remote, directory, name, (ROOT / "scripts" / name).read_text())
             api_upload(session, cid, remote, directory, "inventory.private.json", json.dumps(inventory))
             for name, arguments in [
                 (
@@ -467,6 +475,8 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                 from work_envelope import base_ledger
                 if name == "pipeline" and base_ledger(self.ledger_key) in {"bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"}:
                     arguments += ["--database-wait-diagnostics"]
+                if name == "pipeline" and base_ledger(self.ledger_key) == "bounded_application_role_rebalance":
+                    arguments += ["--application-database-wait-diagnostics"]
                 job = self.launch(session, "container", cid, arguments, directory, jobs, record, database=True)
                 record[name + "_job"] = job
             # First samples must pass before either CPUs or paid traffic are scheduled.
@@ -486,6 +496,9 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                 time.sleep(1)
             if base_ledger(self.ledger_key) in {"bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"} and status["pipeline"].get("database_wait_diagnostics", {}).get("complete") is not True:
                 raise ValueError("Database diagnostic startup gate failed before buyer dispatch")
+            if base_ledger(self.ledger_key) == "bounded_application_role_rebalance":
+                from application_role_runner_diagnostics import startup as scoped_startup
+                record["application_database_wait_startup"] = scoped_startup(status["pipeline"], inventory)
             record["pipeline_startup"] = pipeline_startup_view(status["pipeline"], 6)
             if self.contract is not None and hasattr(self.contract, "verify_pipeline_startup"):
                 self.contract.verify_pipeline_startup(status["pipeline"])
@@ -685,7 +698,15 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                     record["database_wait_capture"] = summarize_database_wait(local / "pipeline.jsonl")
                 except Exception as exc:  # noqa: BLE001 - preserve cleanup and fail diagnostic gate
                     record["database_wait_capture"] = {"complete": False, "error_type": type(exc).__name__}
-            if (self.contract is not None and self.contract.inventory_marker().get("decision") in {"ADR0163", "ADR0174"}
+            if base_ledger(self.ledger_key) == "bounded_application_role_rebalance":
+                from application_role_runner_diagnostics import summarize as summarize_scoped_diagnostics
+                try:
+                    record["application_database_wait_capture"] = summarize_scoped_diagnostics(local / "pipeline.jsonl", inventory)
+                except Exception as exc:  # noqa: BLE001 - continue mandatory financial cleanup.
+                    record["application_database_wait_capture"] = {
+                        "application_database_wait_evidence_complete": False, "full_database_visibility_complete": False,
+                        "error_type": type(exc).__name__}
+            if (self.contract is not None and self.contract.inventory_marker().get("decision") in {"ADR0163", "ADR0174", "ADR0177"}
                     and "inventory" in locals()):
                 try:
                     from work_envelope import base_ledger

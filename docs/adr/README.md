@@ -294,3 +294,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0175: Diagnostic visibility readiness](0175-diagnostic-visibility-readiness.md)
 
 - [ADR0176: Application-role database diagnostics](0176-application-role-database-diagnostics.md)
+
+- [ADR0177: Bounded application-role rebalance comparison](0177-bounded-application-role-rebalance-comparison.md)

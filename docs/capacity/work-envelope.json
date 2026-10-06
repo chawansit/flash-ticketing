@@ -35,7 +35,8 @@
   "qualified_profiles": [
     "slow_database_control",
     "database_wait_control",
-    "api_placement_rebalance"
+    "api_placement_rebalance",
+    "application_role_rebalance"
   ],
   "escalate": [
     "new spending or infrastructure action",
