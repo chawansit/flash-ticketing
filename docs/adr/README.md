@@ -300,3 +300,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0178: Exact placement diagnostic collection](0178-exact-placement-diagnostic-collection.md)
 
 - [ADR0179: Bounded scoped visibility failure context](0179-bounded-scoped-visibility-failure-context.md)
+
+- [ADR0180: Separate read-only diagnostic connection](0180-separate-read-only-diagnostic-connection.md)

@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0179_cloud_control_restored_monitoring_visibility_action_required",
+  "status": "adr0180_observer_connection_locally_qualified_runner_integration_pending",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -10,10 +10,10 @@
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "Fresh 3ae1fd15417b restored exact original primary API4 runtime; secondary test resources removed, generator idle and all queues/confirmation receipts/Kafka zero. Both dry layouts passed; measured candidate skipped after strict control diagnostic failure.",
+  "last_checked_topology": "Three bounded read-only probes verified unchanged primary runtime identities and idle generator. Last registered cloud workflow remains 3ae1fd15417b FAILED_RESTORED; no new deployment, grant, cloud load or reservation.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "ADR0179 harness 12af643 exercised in cloud; all 41 rejected contexts retained. Native autovacuum visibility reproduction is committed with this checkpoint; use Git HEAD for current harness. Frozen application deployment unchanged.",
+  "revision_note": "Existing application role lacks statistics visibility; supplied RDS root already has effective visibility over verified TLS. ADR0180 observer connection and tests are committed with this checkpoint; use Git HEAD for harness revision. Frozen application runtime unchanged.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -54,16 +54,18 @@
     "Fresh 4a39498e4eff used 1553.25 seconds: dry a27b10cd3e24 passed both 2+2 and 1+3; measured 61ba705c24bc control completed 18,000 scheduled/dispatched/confirmed paid-and-issued tickets with zero errors, drops, loss or duplicate bookings, post-TTL/full drain and exact restoration. Hold-to-ticket worst-shard p95 1668.00 ms; primary CPU 71.147%, secondary 17.430%. Only application_database_wait_evidence_complete failed: three of 478 validation samples, application_visibility_missing at roughly 60-second intervals and 13.8\u201319.4 ms collection. Candidate skipped; no rebalance benefit measured.",
     "ADR0179 bounded scoped-visibility failure context passed 247 targeted local tests and one real PostgreSQL check with owned resources removed. Same snapshot and query/connection budgets; unknown or hidden application activity still fails. Original three diagnostic failures remain failed and have no historical backend-category context. No new cloud experiment after this source change.",
     "Fresh ADR0179 workflow 3ae1fd15417b: dry 19e4281e9806 both placements passed; measured 9d5fb721cd4f control 18,000 scheduled/dispatched/confirmed paid-issued at 60/s for 300s, zero errors/drops/loss/doubles, post-TTL/full queues/exact restoration passed. Only scoped diagnostics failed: 41/472 samples, complete safe contexts, one unknown-role/hidden-backend each; candidate skipped.",
-    "Two real local PostgreSQL visibility tests passed in 1.58s; helper 6.875s removed owned resources, zero cloud calls. Autovacuum reproduced null-role/hidden-backend signature; statistics grant revealed worker and passed full collector but scoped null-role gate stayed failed. Cloud actor identity unproven; no policy/permissions changed."
+    "Two real local PostgreSQL visibility tests passed in 1.58s; helper 6.875s removed owned resources, zero cloud calls. Autovacuum reproduced null-role/hidden-backend signature; statistics grant revealed worker and passed full collector but scoped null-role gate stayed failed. Cloud actor identity unproven; no policy/permissions changed.",
+    "Application connection is not RDS root and lacks full statistics visibility/admin grant options. Supplied RDS root has effective statistics visibility, TLS1.3 and zero currently restricted sessions. Three read-only probes took42.639s total; runtimes unchanged, generator idle, zero grants/deployments/load. Temporary administrator CA removed.",
+    "ADR0180 read-only diagnostic connection component and opt-in observer binding locally qualified:77 final host/POSIX checks passed1.29s,including14 unsafe file cases;1 real PostgreSQL TLS test passed0.17s. Full statistics reads succeeded, wrong CA and writes rejected; native resources/key removed. Whole bounded-runner credential staging/cleanup/source registration remains future scope;no capacity benefit measured."
   ],
-  "unresolved": "41 unknown-role/hidden-backend samples prevented diagnostic completeness; local autovacuum reproduces this signature but cloud backend identity remains unknown. Granting statistics access alone does not satisfy the current scoped null-role policy. Provider-supported monitoring access/full-visibility profile or an explicitly approved alternative is required before more load. Candidate placement benefit, 84 paid-issued tickets/s, hourly qualification and WAL cause remain unproven.",
+  "unresolved": "ADR0180 observer component is locally qualified, but protected credential staging, source binding, startup proof, mandatory cleanup and full bounded-runner qualification are unfinished. Root monitoring capability is available; no permission grant is needed. Cloud hidden backend identity, placement improvement,84 tickets/s,hourly qualification and WAL cause remain unproven.",
   "next_on_resume": [
-    "Resolve provider-supported monitoring visibility; no unchanged paid repetition or automatic role grant.",
-    "If effective statistics access is available, qualify the existing full-visibility fixed-budget placement profile and fresh exact binding before comparison.",
-    "Keep current customer/correctness gates; increase load only after an eligible matched comparison and local registry qualification."
+    "Protected root-credential/CA staging and read-back binding within an exclusively owned stage.",
+    "Exact source pinning, startup receipts, secret-safe failure evidence and verified cleanup in the bounded runner.",
+    "Locally qualify the entire extension and registry before a fresh matched full-visibility placement comparison."
   ],
-  "authorization": "Standing envelope: existing resources only, $0 new infrastructure, no cumulative cap, short bounded tracked experiments, unchanged profile customer/correctness gates. Reviewed code/evidence may be pushed to codex branches; main merge needs approval. Monitoring privilege changes require administrator/user involvement.",
-  "scope": "One fresh registered diagnostics-first control completed and restored; candidate skipped. Added and executed a bounded isolated local reproduction. No cloud permission change, production optimization or capacity improvement.",
+  "authorization": "Standing envelope: existing resources only, zero new infrastructure spend, no cumulative cap, bounded tracked experiments, exact customer/correctness gates, codex branch publication only. ADR0180 reuses already supplied administrator access only in a read-only observer; no grants or infrastructure changes needed.",
+  "scope": "Verified existing supplied root monitoring access with read-only certificate-verified TLS; implemented and locally tested the separate observer connection. No cloud load or permission change. Complete bounded-runner integration before execution.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -138,6 +140,7 @@
     "latest_receipt": "tmp/adr0171-documentation-publication.json"
   },
   "evidence": [
+    "docs/capacity/flash-sale-opening/separate-diagnostic-connection-validation-2026-10-06.json",
     "docs/capacity/flash-sale-opening/scoped-visibility-background-diagnosis-2026-10-06.json",
     "docs/capacity/flash-sale-opening/scoped-visibility-failure-context-validation-2026-10-06.json",
     "docs/capacity/flash-sale-opening/application-role-rebalance-control-2026-10-06.json",
@@ -1075,7 +1078,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Resolve provider-supported effective statistics access and qualify the existing full-visibility fixed-budget profile before another comparison. A grant alone does not fix this scoped null-role policy. Do not repeat unchanged paid controls, ignore unknown rows, reclassify the hidden cloud backend as autovacuum, or reopen consumed scopes. Monitoring permission changes need administrator/user involvement; no grant was made.",
+  "next_action": "Integrate and locally qualify ADR0180 in the bounded runner before any cloud reservation or load. Existing supplied root access resolves the capability blocker; no new role, grant or resource is required. Keep frozen application images, identical workload/budgets, all customer/correctness/queue/restoration gates, and original failed evidence.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1324,7 +1327,7 @@
     "pass": true
   },
   "human_pause": false,
-  "cloud_load_stop_kind": "monitoring_visibility_action_required",
+  "cloud_load_stop_kind": "runner_integration_pending",
   "standing_work_envelope": {
     "decision": "ADR0172",
     "policy": "docs/capacity/work-envelope.json",
@@ -1763,7 +1766,9 @@
     "read_only_recovery_seconds_outside_experiments_this_checkpoint": 17.156,
     "cumulative_time_cap": null,
     "new_infrastructure_spend": 0,
-    "local_diagnostic_seconds_this_checkpoint": 6.875
+    "local_diagnostic_seconds_this_checkpoint": 6.875,
+    "read_only_capability_probe_seconds_this_checkpoint": 42.639,
+    "local_qualified_helper_seconds_this_checkpoint": 6.563
   },
   "bounded_application_role_rebalance__3ae1fd15417b": {
     "authorization_id": "work-envelope-3ae1fd15417b",

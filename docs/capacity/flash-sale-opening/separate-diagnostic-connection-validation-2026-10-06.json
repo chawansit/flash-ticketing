@@ -1,0 +1,84 @@
+{
+  "decision": "ADR0180",
+  "status": "OBSERVER_CONNECTION_LOCALLY_QUALIFIED_RUNNER_EXTENSION_PENDING",
+  "baseline_harness_revision": "f19d9e0caa20fe8dc3c38f22abea5632a014fab8",
+  "application_capabilities": {
+    "server_version_num": 170011,
+    "full_statistics_visibility": false,
+    "account_is_root": false,
+    "superuser": false,
+    "create_role": false,
+    "statistics_role_admin_option": false,
+    "monitor_role_admin_option": false,
+    "track_wal_io_timing": false,
+    "track_io_timing": true,
+    "collection_ms": 33.21083099581301
+  },
+  "administrator_capabilities": {
+    "server_version_num": 170011,
+    "full_statistics_visibility": true,
+    "account_is_root": true,
+    "superuser": false,
+    "create_role": true,
+    "statistics_role_admin_option": false,
+    "monitor_role_admin_option": false,
+    "track_wal_io_timing": false,
+    "track_io_timing": true,
+    "tls_session": {
+      "ssl": true,
+      "version": "TLSv1.3"
+    },
+    "restricted_sessions_now": 0,
+    "collection_ms": 36.90407902467996,
+    "temporary_certificate_removed": true
+  },
+  "read_only_cloud_checks": {
+    "count": 3,
+    "actual_elapsed_seconds": 42.639,
+    "cloud_load_started": false,
+    "permission_changes": 0,
+    "deployment_changes": 0,
+    "all_runtime_identities_unchanged": true,
+    "all_generators_idle": true
+  },
+  "implemented": [
+    "Protected immutable connection specification with exact endpoint, role/database identity and verified TLS.",
+    "Startup read-only enforcement and effective statistics-access checks.",
+    "One observer data connection substituted; PgBouncer administration and process-wide driver unchanged.",
+    "POSIX owner-only regular bounded credential/CA files, exact bundle and CA hashes, symlink/hardlink rejection.",
+    "Opt-in observer integration requires exact approved ADR0174 inventory and ADR0180 diagnostic binding; application/diagnostic database must match."
+  ],
+  "tests": {
+    "final_host_and_posix_tests_passed": 77,
+    "pytest_seconds": 1.29,
+    "helper_seconds": 2.188,
+    "native_posix_unsafe_cases_rejected": 14,
+    "native_tls_tests_passed": 1,
+    "native_tls_pytest_seconds": 0.17,
+    "native_tls_helper_seconds": 4.375,
+    "real_tls_verified": true,
+    "wrong_ca_rejected": true,
+    "writes_rejected_by_postgresql": true,
+    "full_statistics_collector_passed": true,
+    "native_owned_resources_removed": true,
+    "tls_private_key_removed": true,
+    "local_cloud_calls": 0
+  },
+  "retained_preparation_failures": [
+    "First capability wrapper had a local quoting syntax error; zero cloud connections occurred; corrected before execution.",
+    "First POSIX test container omitted Docker create -i and produced no test output; failed evidence assertion retained, finally cleanup ran; corrected under fresh local evidence identity.",
+    "Initial style checks found two issues; corrected and final Ruff passed."
+  ],
+  "source_files": [
+    "scripts/diagnostic_connection.py",
+    "scripts/observe_two_host_pipeline.py"
+  ],
+  "future_scope": [
+    "Protected root-credential/CA staging and read-back binding within an exclusively owned stage.",
+    "Exact source pinning, startup receipts, secret-safe failure evidence and verified cleanup in the bounded runner.",
+    "Locally qualify the entire extension and registry before a fresh matched full-visibility placement comparison."
+  ],
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "next_action": "Integrate and locally qualify ADR0180 in the bounded runner before any cloud reservation or load. Existing supplied root access resolves the capability blocker; no new role, grant or resource is required. Keep frozen application images, identical workload/budgets, all customer/correctness/queue/restoration gates, and original failed evidence."
+}

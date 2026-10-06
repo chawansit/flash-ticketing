@@ -6,6 +6,7 @@ import hashlib
 import importlib.util
 import json
 import math
+import os
 import re
 import sys
 from datetime import UTC, datetime
@@ -413,6 +414,40 @@ def summarize_distribution(rows, inventory, *, offered_start_utc, offered_end_ut
     }
 
 
+def install_diagnostic_connection(module, inventory, args):
+    """ADR0180 opt-in only: owned credentials and trust are inventory-bound."""
+    binding = inventory.get("diagnostic_connection_binding")
+    path = args.diagnostic_connection_bundle
+    if binding is None and path is None:
+        return None
+    if (not args.database_wait_diagnostics or not args.approved_inventory_sha256
+            or inventory.get("status_refresh_contract", {}).get("decision") != "ADR0174"
+            or not isinstance(binding, dict) or path is None
+            or set(binding) != {"decision", "database", "identity_sha256", "endpoint", "bundle_sha256", "ca_sha256"}
+            or binding["decision"] != "ADR0180"
+            or not isinstance(binding["database"], str) or not binding["database"]
+            or not isinstance(binding["endpoint"], list) or len(binding["endpoint"]) != 2
+            or any(not isinstance(binding[key], str) or not re.fullmatch(r"[0-9a-f]{64}", binding[key])
+                   for key in ("identity_sha256", "bundle_sha256", "ca_sha256"))):
+        raise ValueError("Exact full-visibility diagnostic connection binding required")
+    if hashlib.sha256(json.dumps(inventory, sort_keys=True, separators=(",", ":")).encode()).hexdigest() != args.approved_inventory_sha256:
+        raise ValueError("Diagnostic inventory binding differs")
+    from diagnostic_connection import install, load_bundle
+
+    spec = load_bundle(path, owned_directory=args.inventory.parent,
+                       expected_sha256=binding["bundle_sha256"], expected_database=binding["database"],
+                       expected_identity=binding["identity_sha256"], expected_endpoint=tuple(binding["endpoint"]),
+                       expected_ca_sha256=binding["ca_sha256"])
+    source = os.environ.get("TEST_DATABASE_URL")
+    if not source:
+        raise ValueError("Existing application observer connection required")
+    from psycopg.conninfo import conninfo_to_dict
+
+    if conninfo_to_dict(source).get("dbname") != binding["database"]:
+        raise ValueError("Diagnostic and application databases differ")
+    return install(module, source, spec)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, add_help=False)
     parser.add_argument("--inventory", type=Path, required=True)
@@ -421,6 +456,7 @@ def main(argv=None):
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--database-wait-diagnostics", action="store_true")
     modes.add_argument("--application-database-wait-diagnostics", action="store_true")
+    parser.add_argument("--diagnostic-connection-bundle", type=Path)
     args, remaining = parser.parse_known_args(argv)
     inventory = json.loads(args.inventory.read_text())
     scoped_profile = inventory.get("status_refresh_contract", {}).get("decision") == "ADR0177"
@@ -428,6 +464,7 @@ def main(argv=None):
         raise ValueError("Diagnostic mode must match the exact qualified inventory")
     frozen = load_frozen(args.frozen_observer)
     install_adapter(frozen, inventory, image_id=FROZEN_IMAGE_ID, approved_inventory_sha256=args.approved_inventory_sha256)
+    install_diagnostic_connection(frozen, inventory, args)
     if args.database_wait_diagnostics:
         from database_wait_evidence import install
         install(frozen)
