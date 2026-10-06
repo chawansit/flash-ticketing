@@ -145,11 +145,44 @@ def remote_collect(apis, since, *, classifier=None, record_limits=None):
     return {"complete": all(r["complete"] for r in results), "apis": results}
 
 
-def program(apis, since):
-    if not apis or len(apis) > 2:
+def expected_allocation(inventory):
+    """Resolve exact coverage from the qualified placement policy, never a guessed count."""
+    counts = {"primary": 2, "secondary": 2}
+    marker = inventory.get("status_refresh_contract", {})
+    placement = marker.get("decision") in ("ADR0174", "ADR0177")
+    if placement:
+        if marker["decision"] == "ADR0174":
+            import api_placement_contract as policy
+            contract_type = policy.ApiPlacementContract
+        else:
+            import application_role_rebalance_contract as policy
+            contract_type = policy.ApplicationRoleRebalanceContract
+        plan = policy.plan()
+        contract = contract_type(plan["artifact_receipt"], marker.get("arm"), plan["expected_runtime_source_sha256"])
+        if json.dumps(marker, sort_keys=True) != json.dumps(contract.inventory_marker(), sort_keys=True):
+            raise ValueError("Exact qualified placement marker required")
+        counts = contract.measured_api_counts
+    rows = inventory["apis"]
+    identities = [(a["host_role"], a["container_id"]) for a in rows]
+    if len(rows) != 4 or len(set(identities)) != 4 or any(host not in counts for host, _ in identities):
+        raise ValueError("Four distinct host-qualified API identities required")
+    if placement and len({cid for _, cid in identities}) != 4:
+        raise ValueError("Distinct immutable placement containers required")
+    if any(sum(a["host_role"] == host for a in rows) != count for host, count in counts.items()):
+        raise ValueError("Exact declared API allocation required")
+    return counts
+
+
+def program(apis, since, *, expected_api_count=None):
+    if expected_api_count is not None:
+        if type(expected_api_count) is not int or expected_api_count not in (1, 2, 3) or len(apis) != expected_api_count:
+            raise ValueError("Exact bounded per-host API count required")
+    elif not apis or len(apis) > 2:
         raise ValueError("One host's exact API replicas required")
     if not isinstance(since, str) or len(since) > 64 or datetime.fromisoformat(since).tzinfo is None:
         raise ValueError("Aware capture window required")
+    if len({a["container_id"] for a in apis}) != len(apis):
+        raise ValueError("Duplicate API identity")
     for api in apis:
         if not re.fullmatch(r"[0-9a-f]{64}", api["container_id"]) or not re.fullmatch(r"sha256:[0-9a-f]{64}", api["image_id"]):
             raise ValueError("Immutable container and image identity required")
@@ -196,16 +229,15 @@ def counter_coverage(records_by_replica, trace):
 
 def collect(session, inventory, local):
     collected, records, by_replica = [], [], {}
+    counts = expected_allocation(inventory)
     for role in ("primary", "secondary"):
         apis = [{k: a[k] for k in ("container_id", "image_id", "started_at")}
                 for a in inventory["apis"] if a["host_role"] == role]
-        if len(apis) != 2:
-            raise ValueError("Fixed two-host API allocation required")
-        proof = session.call(role, program(apis, inventory["captured_at"]), 45)
+        proof = session.call(role, program(apis, inventory["captured_at"], expected_api_count=counts[role]), 45)
         if {a["container_id"] for a in proof["apis"]} != {a["container_id"] for a in apis}:
             raise ValueError("Collected replica identity differs")
         safe_apis = []
-        if len(proof["apis"]) != 2:
+        if len(proof["apis"]) != counts[role]:
             raise ValueError("Duplicate or extra diagnostic replicas")
         for api in proof["apis"]:
             if len(api["records"]) > MAX_RECORDS or number(api["input_bytes"]) > MAX_BYTES + 65536:

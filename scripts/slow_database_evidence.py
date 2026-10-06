@@ -35,9 +35,9 @@ def sanitize(record):
             "outcome": record["outcome"], "duration_ms": duration}
 
 
-def program(apis, since):
+def program(apis, since, *, expected_api_count=None):
     # Reuse the verified stream program, including exact identity validation.
-    source = failure.program(apis, since).rsplit("\nprint(json.dumps(remote_collect(", 1)[0]
+    source = failure.program(apis, since, expected_api_count=expected_api_count).rsplit("\nprint(json.dumps(remote_collect(", 1)[0]
     source += "\nfailure_sanitize=sanitize\nPHASES=" + repr(PHASES) + "\n" + inspect.getsource(sanitize)
     limits = {"db_acquisition_failure": failure.MAX_RECORDS, "slow_db_phase": MAX_SLOW_RECORDS}
     return source + "\nprint(json.dumps(remote_collect(" + repr(apis) + "," + repr(since) + ",record_limits=" + repr(limits) + ")))\n"
@@ -111,13 +111,12 @@ def temporal_context(events, samples):
 def collect(session, inventory, local):
     local = Path(local)
     hosts, failures, events = [], {}, []
+    counts = failure.expected_allocation(inventory)
     for role in ("primary", "secondary"):
         apis = [{key: a[key] for key in ("container_id", "image_id", "started_at")}
                 for a in inventory["apis"] if a["host_role"] == role]
-        if len(apis) != 2:
-            raise ValueError("Fixed two-host API allocation required")
-        proof = session.call(role, program(apis, inventory["captured_at"]), 45)
-        if len(proof["apis"]) != 2 or {a["container_id"] for a in proof["apis"]} != {a["container_id"] for a in apis}:
+        proof = session.call(role, program(apis, inventory["captured_at"], expected_api_count=counts[role]), 45)
+        if len(proof["apis"]) != counts[role] or {a["container_id"] for a in proof["apis"]} != {a["container_id"] for a in apis}:
             raise ValueError("Collected replica identity differs")
         safe_apis = []
         for api in proof["apis"]:

@@ -132,7 +132,7 @@ def test_stream_filter_bounds_and_container_identity(monkeypatch):
 def test_hook_captures_before_cleanup_and_keeps_financial_audits_after_failure():
     source = Path("scripts/run_two_host_paid_comparison.py").read_text()
     finally_source = source[source.index("            cleanup_errors = []"):]
-    capture = finally_source.index("collect(session, inventory, local)")
+    capture = finally_source.index("record.update(collect_profile_failure_evidence(session, inventory, local, base_ledger(self.ledger_key)))")
     assert capture < finally_source.index("self.stop(session, role, cid, job)")
     assert capture < finally_source.index('("financial", lambda:')
     assert 'record["pass"] = False' in finally_source[:finally_source.index("self.stop(session, role, cid, job)")]

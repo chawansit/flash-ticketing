@@ -81,6 +81,41 @@
         }
       ],
       "finished_at_utc": "2026-10-06T04:11:54.880718+00:00"
+    },
+    {
+      "ledger": "bounded_application_role_rebalance__96c361adab38",
+      "authorization_id": "work-envelope-96c361adab38",
+      "envelope_sha256": "f76d7543d70870188e5815c26b821eea6893e9054d6b8691b532adb90610db19",
+      "binding_sha256": "171f5ab0ca5c775882ede0658e1be60540a998472baa3e7e4eb0c032ca1531b0",
+      "plan_sha256": "23a69a30046664ee2b0d49f5607d26fa678fbfebfa4528412a69ab0441a5ba2f",
+      "profile": "application_role_rebalance",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 645.625,
+      "started_at_utc": "2026-10-06T05:32:09.348658+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-6b3bf436e1c6",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-06T05:42:55.037907+00:00",
+      "original_terminal_status": "RECOVERY_REQUIRED",
+      "recovery_verification": {
+        "decision": "ADR0178",
+        "run": "adr0151-6b3bf436e1c6",
+        "ledger": "bounded_application_role_rebalance__96c361adab38",
+        "pass": true,
+        "recorded_both_arm_financial_and_restoration_pass": true,
+        "primary_original_topology_verified": true,
+        "secondary_empty": true,
+        "generator_idle": true,
+        "full_global_queues_and_receipts_zero": true,
+        "kafka_members": 1,
+        "no_scope_replay": true,
+        "capacity_stages_started": 0,
+        "read_only_verification_seconds": 17.1559999999954
+      }
     }
   ]
 }
