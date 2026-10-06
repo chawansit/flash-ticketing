@@ -2,7 +2,7 @@
   "schema_version": 1,
   "decision": "ADR0172",
   "envelope_id": "standing-work-envelope-2026-10-06",
-  "authorization": "Direct user approval; existing resources only, time as required, current profile gates, reviewed code/evidence to codex branch; main merge requires approval.",
+  "authorization": "Direct user approval; existing resources only, no cumulative time cap, experiments as effectively short as possible, current profile gates, reviewed code/evidence to codex branch; main merge requires approval.",
   "goal_unique_paid_issued_tickets_per_hour": 300000,
   "spending": {
     "maximum_new_infrastructure_spend": 0,
@@ -13,7 +13,9 @@
     "cumulative_experiment_seconds_limit": null,
     "unlimited_cumulative_time_explicitly_authorized": true,
     "experiment_seconds_limit": 3600,
-    "cleanup_may_exceed_deadline": true
+    "cleanup_may_exceed_deadline": true,
+    "duration_policy": "shortest_sufficient_evidence",
+    "duration_selection": "Choose the shortest predeclared window sufficient for the hypothesis and required gates. Match baseline/candidate windows; use longer runs only for intermittency, stability or hourly qualification."
   },
   "customer_gates": {
     "mode": "exact_current_profile",

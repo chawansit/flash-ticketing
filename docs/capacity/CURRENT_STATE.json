@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0172_standing_work_envelope_locally_qualified_no_cloud_load",
+  "status": "adr0172_time_boundary_shortest_sufficient_experiments_recorded",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "ADR0171 exact original primary runtime restored: four primary APIs; secondary test resources removed; generator idle; full queues and Kafka lag zero. Measured topology was two APIs per host.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "Revision identifies the implemented/tested ADR0172 source commit; this final checkpoint changes metadata only. Code/evidence publication verified on codex/standing-work-envelope; main unchanged. No cloud execution this turn; frozen backend/generator and historical ledgers remain unchanged.",
+  "revision_note": "Revision identifies the pre-amendment checkpoint. This change updates time-selection policy and documents only; previous implementation/cloud evidence remains historical. No new capacity measurement.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -53,8 +53,8 @@
     "Create the next ADR for bounded database-side wait/WAL diagnostics and qualify the new profile locally before registering it.",
     "Preserve current controls, financial integrity, complete queue drain and exact restoration; no higher load before evidence."
   ],
-  "authorization": "Standing work envelope approved 2026-10-06: routine engineering and locally qualified bounded tests on existing resources; zero new infrastructure spend, cumulative time as required, exact current profile gates. Reviewed code/evidence to codex branches; main merge requires approval. No unattended schedule.",
-  "scope": "ADR0172 workflow implementation and local qualification only in this turn; no new cloud load. Historical ADR0171 scope remains consumed. Future registered experiments receive fresh exact-bound reservations within the standing envelope.",
+  "authorization": "Standing work envelope: existing resources only, zero new infrastructure spend, no cumulative time cap, experiments as effectively short as possible, exact current profile gates. Reviewed code/evidence to codex branches; main merge requires approval. No unattended schedule.",
+  "scope": "Time-boundary policy amendment and local metadata checks only; no new cloud load, profile or runtime behavior. Historical consumed scopes and validation evidence are preserved.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -1125,7 +1125,7 @@
     ],
     "scope_closed": true
   },
-  "revision": "99af63e3c36c439681671e5362d72205a7b2d4b0",
+  "revision": "53be1e12111a176778f5cab1308474ce4eca2919",
   "latest_experiment": {
     "decision": "ADR0171",
     "run": "adr0151-d7e8f730fc58",
@@ -1331,6 +1331,8 @@
       "main_revision": "878d364acd4e508150dee25c6eb13af6bc72226f",
       "main_merged": false,
       "cloud_calls": 0
-    }
+    },
+    "time_policy": "No cumulative cap; every experiment bounded, tracked and as effectively short as possible. Choose and record the shortest sufficient predeclared window; preserve matched comparisons and mandatory correctness windows.",
+    "time_policy_amended_date_bangkok": "2026-10-06"
   }
 }

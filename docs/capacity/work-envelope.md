@@ -7,13 +7,15 @@ The user approved ADR0172 on 2026-10-06. Routine engineering proceeds independen
 | Business goal | 300,000 unique paid-and-issued tickets per hour; not yet qualified |
 | New infrastructure spending | Zero; no new services, resize, replicas or storage upgrades |
 | Existing cloud charges | Continue at existing sizes; no overall billing cap specified |
-| Cumulative test time | As long as required; recorded with no overall cap |
+| Cumulative test time | No cumulative cap; recorded; every experiment as effectively short as possible |
 | Individual experiment | At most 3,600 seconds before stop; mandatory cleanup may extend this |
 | Customer outcomes | Exact current profile gates, zero double-booking/payment loss, complete queue drain |
 | Deployment | Bounded tests on the existing verified resources |
 | Publication | Reviewed code and sanitized evidence to codex/ branches |
 | Main merge / other destinations | Require separate approval |
 | Unattended scheduling | Not authorized |
+
+Select the shortest useful duration before execution and record the hypothesis and duration rationale. Prefer offline/local verification and short diagnostic probes, then extend only when needed to capture intermittent behavior or validate stability. Matched comparisons keep equal baseline/candidate windows; do not stop an apparently successful arm early to improve its reported result. Mandatory post-TTL durability, zero-double-booking, queue drain and restoration checks retain their required windows. Hour-long qualification still requires an hour. The 3,600-second experiment bound is a ceiling, not a target; the current matched diagnostic control retains its qualified 300-second load window.
 
 Run the local status command without cloud access:
 
