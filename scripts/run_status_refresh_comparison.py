@@ -21,6 +21,7 @@ LOCK = ROOT / "tmp/adr0151-run.lock"
 LEDGER = "bounded_status_refresh"
 AUTHORIZATION = "adr0151-status-refresh-pair-2026-10-05"
 ARMS = ("control", "candidate")
+ENVELOPE_GUARD = None
 
 
 def identity():
@@ -32,6 +33,8 @@ def identity():
                 "run_status_refresh_comparison.py",
                 "status_refresh_contract.py",
                 "two_host_topology.py",
+                "work_envelope.py",
+                "run_work_envelope.py",
             )
         },
         "experiment_plan": digest(json.loads(PLAN.read_text())),
@@ -121,9 +124,16 @@ def binding_for(config, artifact, sources):
 
 
 def validate_release(state, binding, *, execute, qualification=None):
-    if state.get("cloud_load_requires_resume") or state.get("current_run"):
-        raise ValueError("Paused or active experiment")
     ledger = state.get(LEDGER, {})
+    if state.get("standing_work_envelope") and not ledger.get("standing_envelope"):
+        raise ValueError("Use a fresh standing-envelope scope; legacy allowances remain closed")
+    if ledger.get("standing_envelope"):
+        from work_envelope import scope_authorized
+        scope_authorized(state, LEDGER, binding)
+        if state.get("current_run"):
+            raise ValueError("Active experiment")
+    elif state.get("cloud_load_requires_resume") or state.get("current_run"):
+        raise ValueError("Paused or active experiment")
     if ledger.get("authorization_id") != AUTHORIZATION or ledger.get("binding") != binding:
         raise ValueError("New exact artifact/configuration/adapter approval required")
     numbers = {"qualification_runs_authorized": 1}
@@ -311,7 +321,8 @@ def run_arm(config, artifact, sources, bundle, arm, run_id, output, *, execute):
     reserve_arm(run_id, arm, execute=execute)
     contract = StatusRefreshContract(artifact, arm, sources)
     stages = RefreshStages(execute, bundle, contract, run_id)
-    restored = run(config, output, stage_hook=stages, runtime_policy=contract)
+    guarded = {"action_guard": ENVELOPE_GUARD} if ENVELOPE_GUARD is not None else {}
+    restored = run(config, output, stage_hook=stages, runtime_policy=contract, **guarded)
     record = stages.results.get(arm, {})
     path = output / arm / "inventory.private.json"
     gates = (
@@ -352,6 +363,8 @@ def protocol(config, artifact, sources, bundle, binding, *, execute, qualificati
     if type(execute) is not bool or binding != binding_for(config, artifact, sources):
         raise ValueError("Actual configuration/artifact/source binding differs before cloud access")
     validate_release(json.loads(STATE.read_text()), binding, execute=execute, qualification=qualification)
+    if ENVELOPE_GUARD is not None:
+        ENVELOPE_GUARD.check()
     run_id = "adr0151-" + uuid4().hex[:12]
     output = ROOT / "tmp" / run_id
     lock = RunLock(run_id)

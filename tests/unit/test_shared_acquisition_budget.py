@@ -2,12 +2,18 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from unittest.mock import Mock
+
 import pytest
 from psycopg_pool import PoolTimeout, TooManyRequests
+
 from ticketing.config import Settings
 from ticketing.infrastructure.postgres import (
-    AcquisitionLimitedPool, SharedAcquisitionBudget, api_pool_budgets, create_api_databases,
+    AcquisitionLimitedPool,
+    SharedAcquisitionBudget,
+    api_pool_budgets,
+    create_api_databases,
 )
+
 
 class Native:
     timeout = .15

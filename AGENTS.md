@@ -23,3 +23,15 @@ This policy was requested by the user on 2026-10-03. Apply it in future sessions
 - Generate staging directories with stage_status_refresh_images.new_stage_output(); never rebuild an ownership prefix in a workflow. Ownership naming and validation share one definition.
 - Run scripts/check_repository_names.py before commit/publication; staged and outgoing-revision hooks plus CI enforce structural checks. Fix naming failures before any cloud mutation. These checks do not authorize load or reset consumed scopes.
 - Proofread human-facing text for spacing and spelling; automated structural checks do not guarantee prose correctness.
+
+# Standing work envelope
+
+The user approved ADR0172 on 2026-10-06. Read docs/capacity/work-envelope.json with the compact CURRENT_STATE checkpoint. Routine implementation, profiling, fixes, local tests, ADRs and evidence collection proceed independently within these boundaries. ADRs record decisions; they do not automatically require another human approval.
+
+- Existing resources and sizes only; maximum new infrastructure spending is zero. Existing service charges continue; no overall bill cap was specified.
+- Cumulative time may be as long as needed, explicitly approved; track it. Every experiment remains bounded. Use scripts/run_work_envelope.py for registered profiles, fresh reservations and exact bindings. Extend and locally qualify the registry before other experiments. Never reopen old scopes or bypass the runner.
+- Preserve current profile latency/error gates, payment durability, zero double-booking, customer authorization, post-TTL checks and complete queue drain. Failed controls stop progression. Diagnose and correct independently; preserve evidence and use a fresh identity, never replay an ambiguous experiment.
+- Human pause is separate from scope exhaustion. Stop new experimental actions when paused; continue owned cleanup and mandatory verification. Uncertain ownership or restoration blocks more load.
+- Reviewed code and sanitized evidence may be pushed to codex/ branches. Main merges, other destinations and unattended schedules require approval. Run naming checks and appropriate tests; never publish secrets or private manifests.
+- Escalate only new spending/infrastructure, requirement or correctness changes, publication exceptions or unresolved recovery requiring user involvement. Handle routine implementation independently.
+- Report meaningful checkpoints with result, evidence, uncertainty and recommendation. Distinguish implemented, tested and production-qualified; update cumulative accounting faithfully.

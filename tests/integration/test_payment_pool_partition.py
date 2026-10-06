@@ -321,6 +321,7 @@ def test_two_payment_connections_and_six_waiters_remain_bounded_without_borrowin
     from contextlib import ExitStack
 
     from psycopg_pool import TooManyRequests
+
     from ticketing.infrastructure.postgres import create_api_databases
 
     svc,db,show=system

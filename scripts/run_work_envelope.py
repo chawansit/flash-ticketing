@@ -1,0 +1,131 @@
+"""ADR0172: local status by default; one qualified fresh experiment when executed."""
+import argparse
+import json
+import sys
+import time
+from pathlib import Path
+from uuid import uuid4
+
+import work_envelope as policy
+
+
+def status():
+    data = policy.envelope()
+    records = policy.journal(data)
+    return {"decision": "ADR0172", "implemented": True, "cloud_calls": 0,
+            "production_qualified": False, "human_pause": records["human_pause"] or policy.PAUSE.exists(),
+            "profile": policy.PROFILE,
+            "reserved_seconds": sum(r["reserved_seconds"] for r in records["experiments"]),
+            "actual_elapsed_seconds": sum(r["actual_elapsed_seconds"] for r in records["experiments"]),
+            "cumulative_seconds_limit": data["time"]["cumulative_experiment_seconds_limit"],
+            "maximum_new_infrastructure_spend": 0,
+            "existing_service_charges_continue": True}
+
+
+def execute(config_path, artifact_path, ssh_runtime):
+    import run_slow_database_diagnostics as profile
+    import slow_database_contract
+    from run_status_refresh_comparison import RunLock
+
+    engine = profile.create_runner()
+    sources = engine.source_contract()
+    plan = slow_database_contract.plan()
+    artifact = policy.read(artifact_path) if artifact_path is not None else plan["artifact_receipt"]
+    config = policy.read(config_path)
+    engine.StatusRefreshContract(artifact, "control", sources)
+    engine.comparison.validate_config(config)
+    binding = engine.binding_for(config, artifact, sources)
+    # Constructors and canonical names qualify before reservation or cloud mutation.
+    engine.RefreshStages(False, {}, engine.StatusRefreshContract(artifact, "control", sources),
+                         "adr0151-" + uuid4().hex[:12])
+    engine.comparison.subprocess.run(
+        [sys.executable, str(policy.ROOT / "scripts/check_repository_names.py")],
+        cwd=policy.ROOT, check=True, stdout=engine.comparison.subprocess.DEVNULL)
+    policy.LOCK.parent.mkdir(exist_ok=True)
+    allocation_lock = RunLock("adr0151-" + uuid4().hex[:12])
+    try:
+        entry = policy.reserve(binding, plan)
+    finally:
+        allocation_lock.release()
+    engine.LEDGER, engine.AUTHORIZATION = entry["ledger"], entry["authorization_id"]
+    guard = policy.ActionGuard(entry["ledger"], binding)
+    engine.ENVELOPE_GUARD = guard
+    sys.path.insert(0, str(ssh_runtime.resolve()))
+    reports, started = [], time.monotonic()
+    try:
+        bundle = engine.comparison.frozen_bundle()
+        guard.check()
+        qualification = engine.protocol(config, artifact, sources, bundle, binding, execute=False)
+        reports.append(qualification)
+        if qualification["pass"] is True:
+            guard.check()
+            reports.append(engine.protocol(config, artifact, sources, bundle, binding,
+                                           execute=True, qualification=qualification))
+    finally:
+        receipt = guard.finish(reports, time.monotonic() - started)
+        print(json.dumps({"phase": "standing-experiment-finished", **receipt}), flush=True)
+    return receipt
+
+
+def set_pause(paused):
+    # The independent stop file can be updated during an active workflow without
+    # rewriting its counters, ownership or CURRENT_STATE.
+    policy.envelope()
+    policy.PAUSE.parent.mkdir(exist_ok=True)
+    if paused:
+        policy.write(policy.PAUSE, {"human_pause": True, "decision": "ADR0172"})
+    elif policy.PAUSE.exists():
+        if policy.PAUSE.is_symlink() or policy.read(policy.PAUSE) != {
+                "human_pause": True, "decision": "ADR0172"}:
+            raise ValueError("Unknown pause marker; explicit recovery required")
+        policy.PAUSE.unlink()
+    # Journal/CURRENT_STATE flags record pre-existing explicit pauses; never silently
+    # clear them during active work or ambiguous ownership.
+    if not paused and (policy.journal(policy.envelope())["human_pause"]
+                       or policy.read(policy.STATE).get("human_pause") is True):
+        from run_status_refresh_comparison import RunLock
+
+        lock = RunLock("adr0151-" + uuid4().hex[:12])
+        try:
+            records, state = policy.journal(policy.envelope()), policy.read(policy.STATE)
+            records["human_pause"], state["human_pause"] = False, False
+            policy.write(policy.JOURNAL, records)
+            policy.write(policy.STATE, state)
+        finally:
+            lock.release()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--execute", action="store_true")
+    modes.add_argument("--pause", action="store_true")
+    modes.add_argument("--resume", action="store_true")
+    modes.add_argument("--check-publication", metavar="BRANCH")
+    parser.add_argument("--reviewed", action="store_true")
+    parser.add_argument("--sanitized", action="store_true")
+    parser.add_argument("--config", type=Path)
+    parser.add_argument("--artifact", type=Path)
+    parser.add_argument("--ssh-runtime", type=Path)
+    args = parser.parse_args()
+    if args.check_publication:
+        allowed = policy.publication_allowed(args.check_publication,
+                                             reviewed=args.reviewed, sanitized=args.sanitized)
+        print(json.dumps({"publication_allowed": allowed, "branch": args.check_publication}))
+        if not allowed:
+            raise SystemExit(1)
+        return
+    if args.pause or args.resume:
+        set_pause(args.pause)
+    elif args.execute:
+        if any(v is None for v in (args.config, args.ssh_runtime)):
+            parser.error("Execution needs protected configuration and SSH runtime; default artifact is the exact profile receipt")
+        result = execute(args.config, args.artifact, args.ssh_runtime)
+        if result["status"] != "PASSED_RESTORED":
+            raise SystemExit(1)
+        return
+    print(json.dumps(status(), indent=2))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,54 @@
+{
+  "decision": "ADR0172",
+  "status": "IMPLEMENTED_AND_LOCALLY_QUALIFIED",
+  "starting_revision": "55a3f92f6f0673d405521c3c0434849cbf71cebb",
+  "branch": "codex/standing-work-envelope",
+  "validated_at_utc": "2026-10-06T01:40:56.557725+00:00",
+  "boundaries": {
+    "maximum_new_infrastructure_spend": 0,
+    "existing_service_charges_continue": true,
+    "cumulative_time_cap_seconds": null,
+    "unlimited_cumulative_time_explicitly_authorized": true,
+    "experiment_window_seconds": 3600,
+    "mandatory_cleanup_may_extend_window": true,
+    "customer_gates": "exact current qualified profile; zero booking duplication/payment loss and complete queue drain",
+    "publication": "reviewed code and sanitized evidence to codex branches; main merge requires approval"
+  },
+  "local_test_runs": [
+    {
+      "passed": 368,
+      "skipped": 3,
+      "seconds": 67.84,
+      "evidence": "tmp/adr0172-qualified-tests.txt",
+      "scope": "Nine focused runner, qualification, restoration and diagnostic unit suites; POSIX hook tests initially skipped due PATH."
+    },
+    {
+      "passed": 65,
+      "skipped": 0,
+      "seconds": 9.56,
+      "evidence": "tmp/adr0172-final-boundary-tests.txt",
+      "scope": "Final envelope/admission checks including all three actual publication-hook cases using bundled Git shell."
+    }
+  ],
+  "test_count_note": "Runs overlap; do not add their counts as distinct tests.",
+  "repository_wide_ruff_pass": true,
+  "naming_checks_pass": true,
+  "preparation_cloud_calls": 0,
+  "cloud_experiments_started": 0,
+  "production_qualified": false,
+  "qualified_profile": "slow_database_control",
+  "limitations": [
+    "New load levels/candidate profiles/database sampling require an ADR, implementation and local registry qualification.",
+    "Cooperative stop checks run between bounded remote actions; cleanup is never skipped to meet the experimental deadline.",
+    "Existing service billing and idle time are not capped by this envelope.",
+    "No live validation of the new controller or hourly capacity qualification was performed."
+  ],
+  "source_sha256": {
+    "scripts/work_envelope.py": "c4cf80f7cfdd7baced0f2db5dcd189e082b1c16075d019e541f3b0de9e20e6c5",
+    "scripts/run_work_envelope.py": "b74d1f711f02fc398727aa6dcc952c6bc7effcc809400c61a35835c251b4f60d",
+    "scripts/run_status_refresh_comparison.py": "8d636d748ca8c1b7a2e4dde8ab1aa9923607d07551ec48ad1013d2723741eb19",
+    "scripts/run_two_host_paid_comparison.py": "d8818e32dea3f787a4a8fddd29325bcd12dcff23935543e197c5e18a06fc3c41",
+    "scripts/qualify_two_host_deployment.py": "e2c5003aac13e539f74929e52f66a4d9c7381254509af1e85fae3650349621e4",
+    "tests/unit/test_work_envelope.py": "649ea495a1418ef78014b53dd6e736835512a8347b1b3640a15f880fb4b0d7d6"
+  }
+}

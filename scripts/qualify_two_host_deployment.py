@@ -49,10 +49,13 @@ def transport_failure(exc):
 
 
 class Session:
-    def __init__(self, config, output, password):
+    def __init__(self, config, output, password, *, action_guard=None):
         if type(config.get("secondary_ssh_private_fallback", False)) is not bool:
             raise ValueError("Private SSH fallback must be explicitly boolean")
         self.config, self.output, self.clients = config, output, {}
+        self.action_guard, self.cleanup_mode = action_guard, False
+        if action_guard is not None:
+            action_guard.check(45)
         self._password, self._closed, self._via_primary = password, False, set()
         self.state = {
             "run_id": output.name,
@@ -152,7 +155,17 @@ class Session:
         self.checkpoint()
         print(json.dumps({"phase": name}), flush=True)
 
+    def begin_cleanup(self):
+        # Stopping experiments must never prevent financial verification or owned restoration.
+        self.cleanup_mode = True
+
+    def check_action(self, timeout):
+        guard = getattr(self, "action_guard", None)
+        if guard is not None and not getattr(self, "cleanup_mode", False):
+            guard.check(timeout)
+
     def call(self, role, code, timeout=180):
+        self.check_action(timeout)
         compile(code, "owned_remote_action", "exec")
         i, o, e = self.clients[role].exec_command("python3 -", timeout=timeout)
         i.write(code)
@@ -167,6 +180,7 @@ class Session:
         return json.loads(payload)
 
     def put(self, role, path, content, fresh=False):
+        self.check_action(180)
         s = self.clients[role].open_sftp()
         try:
             with s.open(path, "wx" if fresh else "w") as f:
@@ -332,10 +346,11 @@ print(json.dumps(result))
 )
 
 
-def run(config, output, *, stage_hook=None, runtime_policy=None):
+def run(config, output, *, stage_hook=None, runtime_policy=None, action_guard=None):
     if not sys.stdin.isatty():
         raise ValueError("Protected password terminal required")
-    session = Session(config, output, getpass.getpass("ECS password: "))
+    options = {"action_guard": action_guard} if action_guard is not None else {}
+    session = Session(config, output, getpass.getpass("ECS password: "), **options)
     counts = getattr(runtime_policy, "candidate_counts", CANDIDATE_COUNTS)
     changed = getattr(runtime_policy, "changed_services", CHANGED)
     global_audit = getattr(runtime_policy, "global_audit", GLOBAL_AUDIT)
@@ -602,6 +617,8 @@ with psycopg.connect(os.environ['DATABASE_URL'],autocommit=True) as conn:
         session.state["failure_type"] = type(exc).__name__
         session.state["failure_phase"] = session.state["phases"][-1]
     finally:
+        if hasattr(session, "begin_cleanup"):
+            session.begin_cleanup()
         session.phase("restore-original-topology")
         if fixture and cid:
             try:

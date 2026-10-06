@@ -1,8 +1,8 @@
 {
   "updated_date_bangkok": "2026-10-06",
-  "branch": "codex/redis-failover-recovery",
+  "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0171_passed_shared_commit_stall_captured_restored",
+  "status": "adr0172_standing_work_envelope_locally_qualified_no_cloud_load",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "ADR0171 exact original primary runtime restored: four primary APIs; secondary test resources removed; generator idle; full queues and Kafka lag zero. Measured topology was two APIs per host.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "Frozen cloud application/profile unchanged. ADR0165control18000paid-issued vs candidate17999;reclamation notadopted. ADR0166retention271localtests. ADR0168projection106nativeintegrationtests;isolatedcandidate rejected afterread/clientregression,baseline source restored. No higher load/async/hour qualification.",
+  "revision_note": "ADR0172 controller and policy locally qualified; no cloud mutation or load this turn. Frozen backend/generator and all historical execution identities remain unchanged. Existing engineering history is being published on the approved codex branch; main merge requires approval.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -49,12 +49,12 @@
   ],
   "unresolved": "Longest commits completed together across both API hosts; shared downstream stall cause is unproven. Payment admission rejected two callbacks at role limit10; all customer journeys and payments/tickets completed. Earlier native-pool timeout not reproduced. Reclamation remains off; projection, asynchronous confirmation benefit,84 tickets/s and hourly opening qualification remain unresolved.",
   "next_on_resume": [
-    "Design bounded database-side wait sampling alongside existing proxy/CPU/phase diagnostics; verify supported views and timing availability without changing RDS settings.",
-    "Qualify sampling bounds, privacy, observer connection budget, source identity and failure cleanup locally under ADR0172.",
-    "Only after local qualification create one fresh control scope. Preserve executed ADR0171 plan/binding and all consumed scopes."
+    "Use standing envelope for independent routine work; do not request per-experiment approval within its boundaries.",
+    "Create the next ADR for bounded database-side wait/WAL diagnostics and qualify the new profile locally before registering it.",
+    "Preserve current controls, financial integrity, complete queue drain and exact restoration; no higher load before evidence."
   ],
-  "authorization": "Direct user Continue after evidence-led plan and checkpoint; unchanged machines,60journeys/s300s single control under ADR0171,one fresh safety qualification then only if all gates pass one measured control. No higher load,candidate,unattended schedule or paid infrastructure change.",
-  "scope": "One completed control-only safety qualification, then one completed 60 journeys/s,300s control with one safety ticket. No candidate,higher load or replay.",
+  "authorization": "Standing work envelope approved 2026-10-06: routine engineering and locally qualified bounded tests on existing resources; zero new infrastructure spend, cumulative time as required, exact current profile gates. Reviewed code/evidence to codex branches; main merge requires approval. No unattended schedule.",
+  "scope": "ADR0172 workflow implementation and local qualification only in this turn; no new cloud load. Historical ADR0171 scope remains consumed. Future registered experiments receive fresh exact-bound reservations within the standing envelope.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -1062,7 +1062,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Create ADR0172 and locally qualify bounded database-side wait-event/WAL evidence to distinguish the shared commit stall, using existing observer budgets and preserving redaction, temporal identity, full financial/drain/restoration. No pool, deadline, persistence or load increase before evidence.",
+  "next_action": "Implement and locally qualify bounded database-side wait/WAL diagnostics under ADR0173 within the standing envelope. Do not replay historical scopes or increase load before evidence.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1125,7 +1125,7 @@
     ],
     "scope_closed": true
   },
-  "revision": "5cb8b0fda45c3df77b000657c7271e72851381e2",
+  "revision": "55a3f92f6f0673d405521c3c0434849cbf71cebb",
   "latest_experiment": {
     "decision": "ADR0171",
     "run": "adr0151-d7e8f730fc58",
@@ -1149,7 +1149,7 @@
     "capacity_improvement_demonstrated": false,
     "evidence": "docs/capacity/flash-sale-opening/slow-database-diagnostic-control-2026-10-06.json"
   },
-  "cloud_load_pause_reason": "ADR0171 bounded scope consumed and closed after verified restoration; no explicit user pause. Further cloud execution requires a fresh bound scope, not replay.",
+  "cloud_load_pause_reason": "Legacy scopes remain exhausted and cannot be replayed. This is not a human pause. Fresh standing-envelope reservations may execute through the qualified runner.",
   "latest_local_validation": {
     "decision": "ADR0171",
     "pre_cloud_tests_passed": 253,
@@ -1309,5 +1309,17 @@
     "closed_at_utc": "2026-10-06T01:02:15.696382+00:00",
     "restoration_complete": true,
     "pass": true
+  },
+  "human_pause": false,
+  "cloud_load_stop_kind": "scope_exhausted",
+  "standing_work_envelope": {
+    "decision": "ADR0172",
+    "policy": "docs/capacity/work-envelope.json",
+    "ledger": "docs/capacity/work-envelope-ledger.json",
+    "status": "IMPLEMENTED_AND_LOCALLY_QUALIFIED",
+    "authorization": "User approved standing boundaries; existing resources only, time as required, current profile gates, reviewed code and evidence to codex branch; main merge requires approval.",
+    "cloud_experiments_started": 0,
+    "validation": "docs/capacity/work-envelope-validation-2026-10-06.json",
+    "runbook": "docs/capacity/work-envelope.md"
   }
 }

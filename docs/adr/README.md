@@ -284,3 +284,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0170: Single-control payment-stall diagnostics](0170-single-control-payment-stall-diagnostics.md)
 
 - [ADR0171: Bounded slow database phase diagnostics](0171-bounded-slow-database-phase-diagnostics.md)
+
+- [ADR0172: Standing work envelope and exception escalation](0172-standing-work-envelope-and-exception-escalation.md)

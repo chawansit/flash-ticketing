@@ -1,17 +1,17 @@
 """Reproduce the measured fast payment queue rejection with real HTTP/SQL."""
-from concurrent.futures import ThreadPoolExecutor
-from contextlib import ExitStack
 import hashlib
 import hmac
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import ExitStack
 from uuid import uuid4
 
 import jwt
 import pytest
+from conftest import NoShield
 from fastapi.testclient import TestClient
 
-from conftest import NoShield
 from ticketing import api
 from ticketing.application.reservations import Reservations
 from ticketing.infrastructure.postgres import Postgres

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "decision": "ADR0172",
+  "envelope_id": "standing-work-envelope-2026-10-06",
+  "authorization": "Direct user approval; existing resources only, time as required, current profile gates, reviewed code/evidence to codex branch; main merge requires approval.",
+  "goal_unique_paid_issued_tickets_per_hour": 300000,
+  "spending": {
+    "maximum_new_infrastructure_spend": 0,
+    "existing_service_charges": "Continue at existing sizes; no total bill cap specified.",
+    "allow_new_resources_or_resize": false
+  },
+  "time": {
+    "cumulative_experiment_seconds_limit": null,
+    "unlimited_cumulative_time_explicitly_authorized": true,
+    "experiment_seconds_limit": 3600,
+    "cleanup_may_exceed_deadline": true
+  },
+  "customer_gates": {
+    "mode": "exact_current_profile",
+    "zero_double_booking": true,
+    "zero_payment_loss": true,
+    "complete_queue_drain": true,
+    "no_slo_relaxation": true
+  },
+  "permissions": {
+    "local_engineering": true,
+    "bounded_test_deployment": true,
+    "push_reviewed_code_and_sanitized_evidence": true,
+    "branch_prefix": "codex/",
+    "merge_main": false,
+    "unattended_schedule": false
+  },
+  "qualified_profiles": [
+    "slow_database_control"
+  ],
+  "escalate": [
+    "new spending or infrastructure action",
+    "requirements or correctness change",
+    "publication outside approved branch",
+    "unresolved restoration or ownership"
+  ],
+  "existing_resource_configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b"
+}
