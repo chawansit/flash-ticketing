@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "decision": "ADR0189",
+  "base_revision": "69fb502ab785a606900df5d38677fdba111f2150",
+  "status": "isolated_application_candidate_locally_tested_not_cloud_adopted",
+  "hypothesis": "Remove one database round trip per callback claim to reduce simulator database work; claim SQL is not proven to be the sole cause of the 84/s backlog",
+  "measured_problem_reference": "docs/capacity/flash-sale-opening/two-host-84-buyer-probe-2026-10-05.json",
+  "change": "One atomic SKIP LOCKED CTE UPDATE RETURNING replaces the locked SELECT plus lease UPDATE; acknowledgement, lease TTL, token fencing and financial logic unchanged",
+  "statement_counts": {
+    "claim_before": 2,
+    "claim_after": 1,
+    "successful_simulator_delivery_before": 3,
+    "successful_simulator_delivery_after": 2
+  },
+  "local_comparison": {
+    "decision": "ADR0189",
+    "scope": "Local PostgreSQL alternating rollback-only claim microbenchmark; no HTTP, customer load or capacity inference",
+    "samples_per_arm": 200,
+    "warmup_pairs": 10,
+    "database_version": "17.6 (Debian 17.6-2.pgdg13+1)",
+    "baseline_source_sha256": "2d7874343aff458a4d24a0d50bab477007f535c69384e37f8cea339e4fe494f0",
+    "claim_statements": {
+      "baseline": 2,
+      "candidate": 1
+    },
+    "timings_ms": {
+      "baseline": {
+        "median": 2.83,
+        "p95": 4.272
+      },
+      "candidate": {
+        "median": 2.297,
+        "p95": 3.493
+      }
+    },
+    "elapsed_seconds": 1.157,
+    "cloud_calls": 0,
+    "customer_dispatches": 0,
+    "median_reduction_percent": 18.83,
+    "rollback_verified": true
+  },
+  "baseline_claim": {
+    "source_sha256": "2d7874343aff458a4d24a0d50bab477007f535c69384e37f8cea339e4fe494f0",
+    "select": "SELECT p.*,o.total,o.currency,clock_timestamp() AS claim_observed_at FROM payment_attempts p JOIN orders o ON o.id=p.order_id\n            WHERE p.deliveries<p.target_deliveries AND p.due_at<=clock_timestamp()\n            AND (p.lease_until IS NULL OR p.lease_until<clock_timestamp())\n            ORDER BY p.due_at LIMIT 1 FOR UPDATE OF p SKIP LOCKED",
+    "update": "UPDATE payment_attempts SET lease_until=clock_timestamp()+interval '15 seconds',lease_token=%s WHERE id=%s"
+  },
+  "validation": {
+    "final_tests_passed": 36,
+    "pytest_seconds": 7.96,
+    "suites": [
+      "tests/integration/test_atomic_payment_dispatch_claim.py",
+      "tests/unit/test_simulator_dispatch.py",
+      "tests/integration/test_payment_dispatch_index.py",
+      "tests/integration/test_background_optimization.py",
+      "tests/integration/test_recovery.py"
+    ],
+    "initial_existing_suite": {
+      "passed": 29,
+      "pytest_seconds": 7.03
+    },
+    "initial_new_suite": {
+      "passed": 30,
+      "failed": 3,
+      "pytest_seconds": 7.44,
+      "finding": "Test fixture initially asserted tickets before consuming the persisted OrderPaid event; corrected to perform actual event-driven fulfillment and replay"
+    },
+    "corrected_suite": {
+      "passed": 33,
+      "pytest_seconds": 7.35
+    },
+    "native_checks": [
+      "24 simultaneous claims, one dispatch and one paid/issued ticket",
+      "two simulator SQL statements, HTTP outside claim transaction",
+      "rolled-back claim becomes available",
+      "stale lease token cannot acknowledge replacement",
+      "lost claim commit response sends no HTTP; existing lease expiry permits recovery",
+      "duplicate callbacks and OrderPaid replay issue one ticket"
+    ],
+    "ruff_pass": true
+  },
+  "source_sha256": {
+    "src/ticketing/workers.py": "5f0234959c3e9550e42438dcc844d6c77c31d267d33e6cfcd5ba6a4e337afbbb",
+    "tests/integration/test_atomic_payment_dispatch_claim.py": "ac85c95fc2ce0b780fd1c4eed168c8b087feb8be6ab624735c74339bfebde6fb"
+  },
+  "accounting": {
+    "recorded_local_pytest_seconds": 29.78,
+    "recorded_local_comparison_seconds": 1.157,
+    "editing_and_review_separately_timed": false
+  },
+  "limits": [
+    "Rollback-only local query timing is not a durable-commit or customer-throughput benchmark",
+    "No 84/s, flash-sale opening, post-TTL cloud queue drain or hourly qualification executed",
+    "No claim of 40-percent overall improvement or 300000 paid-issued tickets/hour"
+  ],
+  "cloud_calls": 0,
+  "cloud_deployment_started": false,
+  "cloud_load_started": false,
+  "customer_gates_changed": false,
+  "capacity_improvement_measured": false,
+  "local_claim_time_improvement_measured": true,
+  "production_qualified": false,
+  "new_infrastructure_spend": 0,
+  "experiment_ledger_sha256_unchanged": "de5566c1c85625ea9fe97aff9407ef29e6f7fde7466b6a5012112f76546d3692"
+}

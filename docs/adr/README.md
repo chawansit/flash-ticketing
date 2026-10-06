@@ -318,3 +318,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0187: Bound worker image staging and pre-load gates](0187-bound-worker-image-staging-and-preload-gates.md)
 
 - [ADR0188: Guarded worker runtime primitives](0188-guarded-worker-runtime-primitives.md)
+
+- [ADR0189: Atomic payment dispatch claim](0189-atomic-payment-dispatch-claim.md)

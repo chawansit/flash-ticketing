@@ -921,20 +921,26 @@ def consume_iteration(consumer, db, cache, batch_size, order_status_projector=No
     return False
 
 
+CLAIM_PAYMENT_SQL = """WITH due AS MATERIALIZED (
+    SELECT p.id,o.total,o.currency,clock_timestamp() AS claim_observed_at
+    FROM payment_attempts p JOIN orders o ON o.id=p.order_id
+    WHERE p.deliveries<p.target_deliveries AND p.due_at<=clock_timestamp()
+    AND (p.lease_until IS NULL OR p.lease_until<clock_timestamp())
+    ORDER BY p.due_at LIMIT 1 FOR UPDATE OF p SKIP LOCKED
+)
+UPDATE payment_attempts p
+SET lease_until=clock_timestamp()+interval '15 seconds',lease_token=%s
+FROM due WHERE p.id=due.id
+RETURNING p.*,due.total,due.currency,due.claim_observed_at"""
+
+
 @measured_work("simulate_one")
 def simulate_one(db, settings, transport=None):
     token = uuid4()
     with simulator_phase("claim"), db.transaction() as conn:
-        row = conn.execute("""SELECT p.*,o.total,o.currency,clock_timestamp() AS claim_observed_at FROM payment_attempts p JOIN orders o ON o.id=p.order_id
-            WHERE p.deliveries<p.target_deliveries AND p.due_at<=clock_timestamp()
-            AND (p.lease_until IS NULL OR p.lease_until<clock_timestamp())
-            ORDER BY p.due_at LIMIT 1 FOR UPDATE OF p SKIP LOCKED""").fetchone()
+        row = conn.execute(CLAIM_PAYMENT_SQL, (token,)).fetchone()
         if not row:
             return False
-        conn.execute(
-            "UPDATE payment_attempts SET lease_until=clock_timestamp()+interval '15 seconds',lease_token=%s WHERE id=%s",
-            (token, row["id"]),
-        )
     SIMULATOR_DUE_TO_CLAIM_SECONDS.observe(
         max(0, (row["claim_observed_at"] - row["due_at"]).total_seconds())
     )
