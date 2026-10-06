@@ -25,6 +25,7 @@ PLAN = ROOT / "docs/capacity/flash-sale-opening/frozen-baseline-cpu-diagnostic-p
 CORE = ("checkout_journey_probe.py", "paid_ticket_load_generator.py", "paid_ticket_sharded_generator.py")
 ADAPTERS = (
     "observe_two_host_pipeline.py",
+    "database_wait_evidence.py",
     "prepare_two_host_scaling.py",
     "observe_two_host_cpu.py",
     "run_synchronized_paid_generator.py",
@@ -262,17 +263,17 @@ class Stages:
 
         profile_ledger = base_ledger(ledger_key)
         if (type(rate) is not int or type(stage_limit) is not int
-                or (rate, profile_ledger, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1), (60, "bounded_async_confirmation", 1), (60, "bounded_partial_timeout_reclamation", 1), (60, "bounded_partial_timeout_reclamation_v2", 1), (60, "bounded_payment_stall_diagnostics", 1), (60, "bounded_slow_database_diagnostics", 1))):
+                or (rate, profile_ledger, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1), (60, "bounded_async_confirmation", 1), (60, "bounded_partial_timeout_reclamation", 1), (60, "bounded_partial_timeout_reclamation_v2", 1), (60, "bounded_payment_stall_diagnostics", 1), (60, "bounded_slow_database_diagnostics", 1), (60, "bounded_database_wait_diagnostics", 1))):
             raise ValueError("Unsupported bounded stage contract")
-        if profile_ledger in {"bounded_status_refresh", "bounded_status_refresh_dedup", "bounded_async_confirmation", "bounded_partial_timeout_reclamation", "bounded_partial_timeout_reclamation_v2", "bounded_payment_stall_diagnostics", "bounded_slow_database_diagnostics"} and contract is None:
+        if profile_ledger in {"bounded_status_refresh", "bounded_status_refresh_dedup", "bounded_async_confirmation", "bounded_partial_timeout_reclamation", "bounded_partial_timeout_reclamation_v2", "bounded_payment_stall_diagnostics", "bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics"} and contract is None:
             raise ValueError("Isolated refresh contract required")
         if profile_ledger == "bounded_async_confirmation" and (
                 not hasattr(contract, "inventory_marker") or contract.inventory_marker().get("decision") != "ADR0161"):
             raise ValueError("Exact durable confirmation contract required")
-        if profile_ledger in {"bounded_partial_timeout_reclamation", "bounded_partial_timeout_reclamation_v2", "bounded_payment_stall_diagnostics", "bounded_slow_database_diagnostics"} and (
+        if profile_ledger in {"bounded_partial_timeout_reclamation", "bounded_partial_timeout_reclamation_v2", "bounded_payment_stall_diagnostics", "bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics"} and (
                 not hasattr(contract, "inventory_marker") or contract.inventory_marker().get("decision") != "ADR0163"):
             raise ValueError("Exact partial timeout reclamation contract required")
-        if profile_ledger in {"bounded_payment_stall_diagnostics", "bounded_slow_database_diagnostics"} and getattr(contract, "arm", None) != "control":
+        if profile_ledger in {"bounded_payment_stall_diagnostics", "bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics"} and getattr(contract, "arm", None) != "control":
             raise ValueError("Diagnostic scope must use unchanged control")
         self.contract = contract
         self.execute, self.bundle, self.results = execute, bundle, {}
@@ -349,6 +350,10 @@ class Stages:
                 45,
             )
             record.update(proof)
+            from work_envelope import base_ledger
+            if base_ledger(self.ledger_key) == "bounded_database_wait_diagnostics":
+                from database_wait_evidence import preflight_program
+                record["database_wait_preflight"] = session.api(cid, preflight_program(), 45)
             fixture_program = (
                 "import json,os,subprocess;from pathlib import Path;p=Path("
                 + repr(directory)
@@ -401,7 +406,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                 + ";assert {k:hashlib.sha256((p/k).read_bytes().replace(b'\\r\\n',b'\\n')).hexdigest() for k in expected}==expected;print(json.dumps({'transferred_generator_identity':True}))",
             )
             record["transferred_generator_identity"] = True
-            for name in ("observe_two_host_pipeline.py", "prepare_two_host_scaling.py"):
+            for name in ("observe_two_host_pipeline.py", "prepare_two_host_scaling.py", "database_wait_evidence.py"):
                 api_upload(session, cid, remote, directory, name, (ROOT / "scripts" / name).read_text())
             api_upload(session, cid, remote, directory, "inventory.private.json", json.dumps(inventory))
             for name, arguments in [
@@ -440,6 +445,9 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                     from status_refresh_contract import digest
 
                     arguments += ["--approved-inventory-sha256", digest(inventory)]
+                from work_envelope import base_ledger
+                if name == "pipeline" and base_ledger(self.ledger_key) == "bounded_database_wait_diagnostics":
+                    arguments += ["--database-wait-diagnostics"]
                 job = self.launch(session, "container", cid, arguments, directory, jobs, record, database=True)
                 record[name + "_job"] = job
             # First samples must pass before either CPUs or paid traffic are scheduled.
@@ -457,6 +465,8 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                 if time.monotonic() >= deadline:
                     raise TimeoutError("Observer startup bound exceeded")
                 time.sleep(1)
+            if base_ledger(self.ledger_key) == "bounded_database_wait_diagnostics" and status["pipeline"].get("database_wait_diagnostics", {}).get("complete") is not True:
+                raise ValueError("Database diagnostic startup gate failed before buyer dispatch")
             record["pipeline_startup"] = pipeline_startup_view(status["pipeline"], 6)
             if self.contract is not None and hasattr(self.contract, "verify_pipeline_startup"):
                 self.contract.verify_pipeline_startup(status["pipeline"])
@@ -648,13 +658,20 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                     except Exception as exc:  # noqa: BLE001 - retain partial failure evidence
                         record.setdefault("trace_collection_errors", []).append(type(exc).__name__)
             retain_observer_summaries(local, record, inventory if "inventory" in locals() else None)
+            from work_envelope import base_ledger
+            if base_ledger(self.ledger_key) == "bounded_database_wait_diagnostics":
+                from database_wait_evidence import summarize as summarize_database_wait
+                try:
+                    record["database_wait_capture"] = summarize_database_wait(local / "pipeline.jsonl")
+                except Exception as exc:  # noqa: BLE001 - preserve cleanup and fail diagnostic gate
+                    record["database_wait_capture"] = {"complete": False, "error_type": type(exc).__name__}
             if (self.contract is not None and self.contract.inventory_marker().get("decision") == "ADR0163"
                     and "inventory" in locals()):
                 try:
                     from admission_failure_evidence import collect
                     from work_envelope import base_ledger
 
-                    if base_ledger(self.ledger_key) == "bounded_slow_database_diagnostics":
+                    if base_ledger(self.ledger_key) in {"bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics"}:
                         from slow_database_evidence import collect as collect_slow
 
                         capture = collect_slow(session, inventory, local)

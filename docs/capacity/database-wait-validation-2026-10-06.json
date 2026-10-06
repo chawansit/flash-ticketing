@@ -1,0 +1,31 @@
+{
+  "decision": "ADR0173",
+  "implemented": true,
+  "local_tests": {
+    "passed": 297,
+    "skipped": 0,
+    "elapsed_seconds": 51.59,
+    "raw_evidence": "tmp/adr0173-local-tests.txt"
+  },
+  "ruff_pass": true,
+  "repository_names": {
+    "pass": true,
+    "checked_documents": 1488
+  },
+  "managed_postgresql_preflight": {
+    "read_only": true,
+    "server_version_num": 170011,
+    "activity_visibility_complete": true,
+    "wal_view": true,
+    "checkpointer_view": true,
+    "track_wal_io_timing": false,
+    "track_io_timing": true,
+    "collector_wall_ms": [
+      31.08314,
+      13.887578
+    ]
+  },
+  "cloud_paid_load_started": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false
+}

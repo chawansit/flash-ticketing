@@ -381,3 +381,22 @@ def test_runtime_ownership_drift_blocks_further_actions(area, lost):
     policy.write(policy.STATE, state)
     with pytest.raises(ValueError, match="ownership"):
         policy.ActionGuard(entry["ledger"], binding).check()
+
+
+def test_new_diagnostic_profile_requires_registration_and_exact_decision(area):
+    binding, plan, _ = area
+    updated = {**plan, "decision": "ADR0173"}
+    initial = policy.read(policy.ENVELOPE)
+    initial["qualified_profiles"] = [policy.PROFILE]
+    policy.write(policy.ENVELOPE, initial)
+    with pytest.raises(ValueError, match="Unknown diagnostic profile"):
+        policy.reserve(binding, updated, profile="database_wait_control")
+    data = policy.read(policy.ENVELOPE)
+    data["qualified_profiles"] = list(policy.PROFILES)
+    policy.write(policy.ENVELOPE, data)
+    with pytest.raises(ValueError, match="Only locally qualified"):
+        policy.reserve(binding, plan, profile="database_wait_control")
+    entry = policy.reserve(binding, updated, profile="database_wait_control")
+    assert entry["profile"] == "database_wait_control"
+    assert policy.base_ledger(entry["ledger"]) == "bounded_database_wait_diagnostics"
+    assert policy.scope_authorized(policy.read(policy.STATE), entry["ledger"], binding) == entry

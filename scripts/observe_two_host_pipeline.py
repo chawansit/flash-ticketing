@@ -374,10 +374,14 @@ def main(argv=None):
     parser.add_argument("--inventory", type=Path, required=True)
     parser.add_argument("--frozen-observer", type=Path, required=True)
     parser.add_argument("--approved-inventory-sha256")
+    parser.add_argument("--database-wait-diagnostics", action="store_true")
     args, remaining = parser.parse_known_args(argv)
     inventory = json.loads(args.inventory.read_text())
     frozen = load_frozen(args.frozen_observer)
     install_adapter(frozen, inventory, image_id=FROZEN_IMAGE_ID, approved_inventory_sha256=args.approved_inventory_sha256)
+    if args.database_wait_diagnostics:
+        from database_wait_evidence import install
+        install(frozen)
     sys.argv = [str(args.frozen_observer), *remaining]
     frozen.main()
 

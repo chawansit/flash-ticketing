@@ -17,7 +17,9 @@ LOCK = ROOT / "tmp/adr0151-run.lock"
 PAUSE = ROOT / "tmp/work-envelope.pause"
 PROFILE = "slow_database_control"
 BASE_LEDGER = "bounded_slow_database_diagnostics"
-SCOPE = re.compile(BASE_LEDGER + r"__(?:[0-9a-f]{12})$")
+PROFILES = {PROFILE: (BASE_LEDGER, "ADR0171"),
+            "database_wait_control": ("bounded_database_wait_diagnostics", "ADR0173")}
+SCOPE = re.compile("(?:" + "|".join(v[0] for v in PROFILES.values()) + r")__(?:[0-9a-f]{12})$")
 
 
 def digest(value):
@@ -61,7 +63,7 @@ def envelope():
             or data.get("customer_gates") != {
                 "mode": "exact_current_profile", "zero_double_booking": True, "zero_payment_loss": True,
                 "complete_queue_drain": True, "no_slo_relaxation": True}
-            or data.get("qualified_profiles") != [PROFILE]):
+            or data.get("qualified_profiles") not in ([PROFILE], list(PROFILES))):
         raise ValueError("Standing boundaries changed; locally qualify and record the decision first")
     return data
 
@@ -102,7 +104,7 @@ def check_available(data, records, state):
     return charged
 
 
-def reserve(binding, plan):
+def reserve(binding, plan, *, profile=PROFILE):
     """Caller holds the existing exclusive run lock; reserve before any cloud access."""
     if (not LOCK.exists() or LOCK.is_symlink() or read(LOCK).get("pid") != os.getpid()
             or not re.fullmatch(r"adr0151-[0-9a-f]{12}", read(LOCK).get("run", ""))):
@@ -111,18 +113,21 @@ def reserve(binding, plan):
     records = journal(data)
     state = read(STATE)
     check_available(data, records, state)
-    if (plan.get("decision") != "ADR0171" or plan.get("arms") != ["control"]
+    if profile not in PROFILES or profile not in data["qualified_profiles"]:
+        raise ValueError("Unknown diagnostic profile")
+    base, decision = PROFILES[profile]
+    if (plan.get("decision") != decision or plan.get("arms") != ["control"]
             or plan.get("common", {}).get("buyer_journeys_per_second") != 60
             or plan["common"].get("duration_seconds") != 300):
         raise ValueError("Only locally qualified unchanged diagnostic control permitted")
     if binding.get("configuration_sha256") != data["existing_resource_configuration_sha256"]:
         raise ValueError("Existing resource configuration changed; infrastructure exception")
     identity = uuid4().hex[:12]
-    key = BASE_LEDGER + "__" + identity
+    key = base + "__" + identity
     stamp = datetime.now(UTC)
     entry = {"ledger": key, "authorization_id": "work-envelope-" + identity,
              "envelope_sha256": digest(data), "binding_sha256": digest(binding),
-             "plan_sha256": digest(plan), "profile": PROFILE, "reserved_seconds": 3600,
+             "plan_sha256": digest(plan), "profile": profile, "reserved_seconds": 3600,
              "actual_elapsed_seconds": 0, "started_at_utc": stamp.isoformat(),
              "status": "ACTIVE", "reports": []}
     records["experiments"].append(entry)
@@ -133,7 +138,7 @@ def reserve(binding, plan):
         "qualification_runs_authorized": 1, "paid_runs_authorized": 1, "safety_tickets_authorized": 2,
         "qualification_protocols_started": 0, "paid_runs_started": 0,
         "paid_protocols_started": 0, "safety_protocols_started": 0, "active_run": None,
-        "scope": "Fresh ADR0171 control under ADR0172 standing boundaries; no replay or higher load"}
+        "scope": "Fresh " + decision + " control under ADR0172 standing boundaries; no replay or higher load"}
     write(STATE, state)
     return entry
 
@@ -163,7 +168,7 @@ def scope_authorized(state, key, binding):
 
 def base_ledger(key):
     """Only the qualified control can get fresh identities; other names stay exact."""
-    return BASE_LEDGER if SCOPE.fullmatch(key) else key
+    return key.rsplit("__", 1)[0] if SCOPE.fullmatch(key) else key
 
 
 class ActionGuard:

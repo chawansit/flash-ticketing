@@ -286,3 +286,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0171: Bounded slow database phase diagnostics](0171-bounded-slow-database-phase-diagnostics.md)
 
 - [ADR0172: Standing work envelope and exception escalation](0172-standing-work-envelope-and-exception-escalation.md)
+
+- [ADR0173: Bounded database wait and WAL diagnostics](0173-bounded-database-wait-and-wal-diagnostics.md)

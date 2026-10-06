@@ -14,7 +14,7 @@ def status():
     records = policy.journal(data)
     return {"decision": "ADR0172", "implemented": True, "cloud_calls": 0,
             "production_qualified": False, "human_pause": records["human_pause"] or policy.PAUSE.exists(),
-            "profile": policy.PROFILE,
+            "profile": policy.PROFILE, "qualified_profiles": data["qualified_profiles"],
             "reserved_seconds": sum(r["reserved_seconds"] for r in records["experiments"]),
             "actual_elapsed_seconds": sum(r["actual_elapsed_seconds"] for r in records["experiments"]),
             "cumulative_seconds_limit": data["time"]["cumulative_experiment_seconds_limit"],
@@ -22,14 +22,20 @@ def status():
             "existing_service_charges_continue": True}
 
 
-def execute(config_path, artifact_path, ssh_runtime):
-    import run_slow_database_diagnostics as profile
-    import slow_database_contract
+def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROFILE):
+    if profile_name == "database_wait_control":
+        import database_wait_contract as contract_policy
+        import run_database_wait_diagnostics as profile
+    elif profile_name == policy.PROFILE:
+        import run_slow_database_diagnostics as profile
+        import slow_database_contract as contract_policy
+    else:
+        raise ValueError("Unknown qualified profile")
     from run_status_refresh_comparison import RunLock
 
     engine = profile.create_runner()
     sources = engine.source_contract()
-    plan = slow_database_contract.plan()
+    plan = contract_policy.plan()
     artifact = policy.read(artifact_path) if artifact_path is not None else plan["artifact_receipt"]
     config = policy.read(config_path)
     engine.StatusRefreshContract(artifact, "control", sources)
@@ -44,7 +50,7 @@ def execute(config_path, artifact_path, ssh_runtime):
     policy.LOCK.parent.mkdir(exist_ok=True)
     allocation_lock = RunLock("adr0151-" + uuid4().hex[:12])
     try:
-        entry = policy.reserve(binding, plan)
+        entry = policy.reserve(binding, plan, profile=profile_name)
     finally:
         allocation_lock.release()
     engine.LEDGER, engine.AUTHORIZATION = entry["ledger"], entry["authorization_id"]
@@ -104,6 +110,7 @@ def main():
     modes.add_argument("--check-publication", metavar="BRANCH")
     parser.add_argument("--reviewed", action="store_true")
     parser.add_argument("--sanitized", action="store_true")
+    parser.add_argument("--profile", choices=list(policy.PROFILES), default=policy.PROFILE)
     parser.add_argument("--config", type=Path)
     parser.add_argument("--artifact", type=Path)
     parser.add_argument("--ssh-runtime", type=Path)
@@ -120,7 +127,7 @@ def main():
     elif args.execute:
         if any(v is None for v in (args.config, args.ssh_runtime)):
             parser.error("Execution needs protected configuration and SSH runtime; default artifact is the exact profile receipt")
-        result = execute(args.config, args.artifact, args.ssh_runtime)
+        result = execute(args.config, args.artifact, args.ssh_runtime, profile_name=args.profile)
         if result["status"] != "PASSED_RESTORED":
             raise SystemExit(1)
         return

@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0172_time_boundary_shortest_sufficient_experiments_recorded",
+  "status": "adr0173_local_qualified_managed_capabilities_passed_control_pending",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "ADR0171 exact original primary runtime restored: four primary APIs; secondary test resources removed; generator idle; full queues and Kafka lag zero. Measured topology was two APIs per host.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "Revision identifies the pre-amendment checkpoint. This change updates time-selection policy and documents only; previous implementation/cloud evidence remains historical. No new capacity measurement.",
+  "revision_note": "Revision is the parent checkpoint of the ADR0173 implementation; cloud paid control has not started at this checkpoint.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -1062,7 +1062,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Implement and locally qualify bounded database-side wait/WAL diagnostics under ADR0173 within the standing envelope. Do not replay historical scopes or increase load before evidence.",
+  "next_action": "Fresh ADR0172 standing reservation: ADR0173 safety qualification then unchanged 60 journeys/s for 300s only on safety pass. Preserve all financial, queue and restoration gates; attribute shared commit stall before any higher load.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1125,7 +1125,7 @@
     ],
     "scope_closed": true
   },
-  "revision": "53be1e12111a176778f5cab1308474ce4eca2919",
+  "revision": "b857aaa2b4c77e6001a5ad7e0fe15f66f62738cc",
   "latest_experiment": {
     "decision": "ADR0171",
     "run": "adr0151-d7e8f730fc58",
@@ -1334,5 +1334,16 @@
     },
     "time_policy": "No cumulative cap; every experiment bounded, tracked and as effectively short as possible. Choose and record the shortest sufficient predeclared window; preserve matched comparisons and mandatory correctness windows.",
     "time_policy_amended_date_bangkok": "2026-10-06"
+  },
+  "database_wait_diagnostics": {
+    "decision": "ADR0173",
+    "local_validation": "docs/capacity/database-wait-validation-2026-10-06.json",
+    "plan": "docs/capacity/flash-sale-opening/database-wait-diagnostics-plan-2026-10-06.json",
+    "implemented": true,
+    "tests_passed": 297,
+    "rds_capabilities_pass": true,
+    "wal_timing_enabled": false,
+    "cloud_paid_load_started": false,
+    "capacity_improvement_measured": false
   }
 }

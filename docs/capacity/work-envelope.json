@@ -33,7 +33,8 @@
     "unattended_schedule": false
   },
   "qualified_profiles": [
-    "slow_database_control"
+    "slow_database_control",
+    "database_wait_control"
   ],
   "escalate": [
     "new spending or infrastructure action",
