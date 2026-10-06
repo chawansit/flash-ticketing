@@ -16,7 +16,7 @@ EXPECTED_REPLICAS = {"api": 4, "consumer": 6, "reservation-writer": 3, "maintena
 COUNTS = ("sessions_total", "application_sessions", "foreign_sessions", "unknown_sessions",
           "restricted_application_sessions", "restricted_foreign_sessions", "active", "idle_in_transaction")
 ACTIVITY_SQL = """WITH activity AS MATERIALIZED (
- SELECT state, wait_event_type, wait_event,
+ SELECT state, wait_event_type, wait_event, backend_type,
         usesysid=(SELECT oid FROM pg_catalog.pg_roles WHERE rolname=current_user) AS own_role
  FROM pg_catalog.pg_stat_activity WHERE datname=current_database() AND pid<>pg_backend_pid())
 SELECT json_build_object(
@@ -29,6 +29,10 @@ SELECT json_build_object(
  'restricted_foreign_sessions',count(*) FILTER (WHERE own_role IS FALSE AND state IS NULL),
  'active',count(*) FILTER (WHERE own_role IS TRUE AND state='active'),
  'idle_in_transaction',count(*) FILTER (WHERE own_role IS TRUE AND state LIKE 'idle in transaction%'),
+ 'failure_backends',coalesce((SELECT json_agg(b) FROM (
+   SELECT backend_type,own_role,(state IS NULL) AS state_hidden,count(*) AS count
+   FROM activity WHERE own_role IS NULL OR (own_role IS TRUE AND state IS NULL)
+   GROUP BY backend_type,own_role,(state IS NULL) ORDER BY backend_type,own_role LIMIT 16) b),'[]'::json),
  'waits',coalesce((SELECT json_agg(w) FROM (
    SELECT coalesce(wait_event_type,'None') AS type,coalesce(wait_event,'None') AS event,count(*) AS count
    FROM activity WHERE own_role IS TRUE AND state='active'
@@ -120,13 +124,46 @@ def sanitize(activity, stats, binding):
             "full_database_visibility_complete": counts["restricted_foreign_sessions"] == 0}
 
 
+BACKEND_LABELS = {"client backend", "autovacuum worker", "parallel worker", "background worker", "unavailable", "other"}
+ERROR_PHASES = {"capabilities", "activity", "statistics", "validation"}
+ERROR_CODES = {"application_visibility_missing", "role_binding_changed", "partition_invalid", "scoped_diagnostics_invalid"}
+
+
+def failure_context(activity):
+    """Best-effort category counts only; never include identities or arbitrary labels."""
+    safe = {}
+    for key in COUNTS:
+        value = activity.get(key)
+        if type(value) is int and 0 <= value <= 10**12:
+            safe[key] = value
+    groups = activity.get("failure_backends", activity.get("backend_groups"))
+    valid = isinstance(groups, list) and len(groups) <= 16
+    rows = []
+    for group in groups if valid else []:
+        if (not isinstance(group, dict) or not {"backend_type", "own_role", "state_hidden", "count"} <= group.keys()
+                or group.get("own_role") is not None and type(group["own_role"]) is not bool
+                or type(group.get("state_hidden")) is not bool
+                or type(group.get("count")) is not int or not 0 < group["count"] <= 10**12):
+            continue
+        label = group.get("backend_type")
+        label = "unavailable" if label is None else label if isinstance(label, str) and label in BACKEND_LABELS else "other"
+        rows.append({"backend_type": label, "own_role": group.get("own_role"),
+                     "state_hidden": group["state_hidden"], "count": group["count"]})
+    safe["backend_groups"] = rows
+    targets = (safe.get("unknown_sessions"), safe.get("restricted_application_sessions"))
+    accounted = all(value is not None for value in targets) and sum(row["count"] for row in rows) == sum(targets)
+    safe["backend_groups_complete"] = (valid and len(groups) < 16 and len(rows) == len(groups) and accounted
+                                       and activity.get("backend_groups_complete", True) is True)
+    return safe
+
+
 class Collector:
     def __init__(self, binding):
         self.binding = checked_binding(binding)
         self.capability = None
 
     def collect(self, conn):
-        started, phase = time.monotonic(), "capabilities"
+        started, phase, activity = time.monotonic(), "capabilities", None
         try:
             if self.capability is None:
                 value = full.bounded_query(conn, full.CAPABILITY_SQL)
@@ -148,6 +185,8 @@ class Collector:
             result = {"diagnostic_scope": SCOPE, "application_visibility_complete": False,
                       "full_database_visibility_complete": False, "error_phase": phase,
                       "error_type": type(exc).__name__, "error_code": code}
+            if isinstance(activity, dict):
+                result["failure_context"] = failure_context(activity)
         result["collection_ms"] = (time.monotonic() - started) * 1000
         if result["collection_ms"] > full.MAX_OVERHEAD_MS:
             result.update(application_visibility_complete=False, overhead_budget_exceeded=True)
@@ -164,6 +203,8 @@ def summarize(path, binding):
     totals = {g: {} for g in ("wal", "checkpointer", "database")}
     peaks, rows, max_ms, max_foreign, masked_rows, timing = {}, 0, 0, 0, 0, set()
     continuity, global_visibility = True, True
+    failure_categories, context_counts, context_groups = Counter(), {}, {}
+    context_samples, context_incomplete = 0, 0
     with path.open("rb") as stream:
         while line := stream.readline(full.MAX_LINE + 1):
             if len(line) > full.MAX_LINE or rows >= full.MAX_ROWS:
@@ -173,6 +214,23 @@ def summarize(path, binding):
             if (item.get("diagnostic_scope") != SCOPE or item.get("application_visibility_complete") is not True
                     or item.get("role_identity_sha256") != binding.identity_sha256):
                 errors["MissingOrInvalidScope"] += 1
+                phase = item.get("error_phase")
+                code = item.get("error_code")
+                category = (phase if isinstance(phase, str) and phase in ERROR_PHASES else "other") + ":" + (
+                    code if isinstance(code, str) and code in ERROR_CODES else "other")
+                failure_categories[category] += 1
+                context = item.get("failure_context")
+                if isinstance(context, dict):
+                    context = failure_context(context)
+                    context_samples += 1
+                    context_incomplete += context["backend_groups_complete"] is not True
+                    for key in COUNTS:
+                        if key in context:
+                            context_counts[key] = max(context_counts.get(key, 0), context[key])
+                    for group in context["backend_groups"]:
+                        role = "unknown" if group["own_role"] is None else "application" if group["own_role"] else "foreign"
+                        key = group["backend_type"] + ":" + role + ":" + ("hidden" if group["state_hidden"] else "visible")
+                        context_groups[key] = max(context_groups.get(key, 0), group["count"])
                 global_visibility = False
                 continue
             counts = partition(item)
@@ -219,6 +277,9 @@ def summarize(path, binding):
             "full_database_visibility_complete": complete and global_visibility,
             "role_identity_sha256": binding.identity_sha256, "bound_replicas": dict(binding.replicas),
             "rows": rows, "error_counts": dict(errors), "counter_continuity": continuity,
+            "collector_failure_categories": dict(failure_categories),
+            "failure_context_samples": context_samples, "incomplete_failure_context_samples": context_incomplete,
+            "failure_context_peaks": {"partition_counts": context_counts, "backend_groups": context_groups},
             "max_collection_ms": max_ms, "masked_foreign_sample_count": masked_rows,
             "masked_foreign_sessions_peak": max_foreign, "wal_timing_available_throughout": timing == {True},
             "counter_deltas": totals if continuity and not errors else None,

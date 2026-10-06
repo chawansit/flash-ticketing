@@ -1,0 +1,44 @@
+{
+  "decision": "ADR0179",
+  "status": "locally_qualified_cloud_context_unmeasured",
+  "implementation": "Same materialized activity snapshot, bounded partition and backend category failure context; fixed failure categories in summary. No extra query, connection, retry, gate relaxation or application image change.",
+  "unit_and_runner_tests": {
+    "passed": 247,
+    "failed": 0,
+    "pytest_seconds": 89.71,
+    "actual_seconds": 90.453,
+    "evidence_directory": "tmp/adr0179-local-qualification-2e2wrgmw"
+  },
+  "real_postgresql": {
+    "cloud_calls": 0,
+    "image": "sha256:00bc86618629af00d2937fdc5a5d63db3ff8450acf52f0636ec813c7f4902929",
+    "owned_resources_removed": true,
+    "test_exit_code": 0,
+    "output_directory": "E:\\MVP Project\\tmp\\adr0179-visibility-cojvb6wx",
+    "actual_elapsed_seconds": 4.6560000000026776
+  },
+  "original_failure_summary": {
+    "error_counts": {
+      "MissingOrInvalidScope": 3
+    },
+    "collector_failure_categories": {
+      "validation:application_visibility_missing": 3
+    },
+    "failure_context_samples": 0,
+    "counter_continuity": false,
+    "counter_deltas": null,
+    "application_database_wait_evidence_complete": false,
+    "evidence": "tmp/adr0179-local-qualification-2e2wrgmw/original-failure-attribution.json",
+    "original_report_rewritten": false
+  },
+  "checks": {
+    "ruff": "passed",
+    "repository_names": "passed",
+    "diff_check": "passed"
+  },
+  "cloud_experiments_after_change": 0,
+  "unknown_session_cause_proven": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "next_action": "Use a fresh registered diagnostic comparison to capture rejection categories; preserve failed control stopping, customer gates, financial/post-TTL, full drain and restoration. Do not reinterpret unknown sessions without evidence and a new ADR."
+}

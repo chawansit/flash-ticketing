@@ -1,0 +1,310 @@
+{
+  "decision": "ADR0177",
+  "collector_correction": "ADR0178",
+  "harness_revision": "40294c5ca8d515270683e00fc7db31552fc1195a",
+  "status": "failed_control_restored_candidate_skipped",
+  "experiment": {
+    "ledger": "bounded_application_role_rebalance__4a39498e4eff",
+    "authorization_id": "work-envelope-4a39498e4eff",
+    "envelope_sha256": "f76d7543d70870188e5815c26b821eea6893e9054d6b8691b532adb90610db19",
+    "binding_sha256": "b7bbf26cca14f47ab04874a4225d83571919e50dcc3b271d0e9a6f74bc089a0a",
+    "plan_sha256": "23a69a30046664ee2b0d49f5607d26fa678fbfebfa4528412a69ab0441a5ba2f",
+    "profile": "application_role_rebalance",
+    "reserved_seconds": 3600,
+    "actual_elapsed_seconds": 1553.25,
+    "started_at_utc": "2026-10-06T05:57:59.942634+00:00",
+    "status": "FAILED_RESTORED",
+    "reports": [
+      {
+        "run": "adr0151-a27b10cd3e24",
+        "pass": true
+      },
+      {
+        "run": "adr0151-61ba705c24bc",
+        "pass": false
+      }
+    ],
+    "finished_at_utc": "2026-10-06T06:23:53.244138+00:00"
+  },
+  "dry_qualification": {
+    "run": "adr0151-a27b10cd3e24",
+    "both_layouts_passed": true,
+    "placement_log_collection_passed": true,
+    "capacity_stages_started": 0
+  },
+  "measured_comparison": {
+    "run": "adr0151-61ba705c24bc",
+    "pass": false,
+    "capacity_stages_started": 1,
+    "control": {
+      "pass": false,
+      "restoration_complete": true,
+      "gates": {
+        "paid": {
+          "customer_load": true,
+          "post_ttl_financial": true,
+          "zero_double_booking": true,
+          "full_keyspace_queue_drain": true,
+          "kafka_drain": true,
+          "pipeline_observer": true,
+          "kafka_observer": true,
+          "cpu_sampler": true,
+          "source_and_restored_configuration_pass": true,
+          "generator_idle_pass": true,
+          "private_cleanup_pass": true,
+          "hold_deadlines_elapsed": true,
+          "pipeline_observer_source": true,
+          "candidate_source_identity": true,
+          "only_expected_runtime_modules_changed": true,
+          "payment_partition_active": true,
+          "fixed_connection_and_waiter_budget": true,
+          "payment_partition_restored": true,
+          "financial_logic_unchanged": true,
+          "baseline_runtime_deployed": true,
+          "pinned_harness_identity": true,
+          "bounded_equal_cache_age": true
+        },
+        "additional": {
+          "distinct_api_and_generator_machines": true,
+          "fixed_aggregate_budgets": true,
+          "all_four_replicas_observed": true,
+          "both_hosts_cpu_observed": true,
+          "same_offered_measurement_window": true,
+          "per_replica_traffic_distribution": true,
+          "cross_host_one_seat_one_owner": true,
+          "cross_host_idempotent_replay": true,
+          "secondary_resources_removed": true,
+          "primary_lb_and_four_apis_restored": true
+        },
+        "all_required_gates_pass": false,
+        "failed_gates": [
+          "application_database_wait_evidence_complete"
+        ],
+        "scope": "Gate-map evaluation only; live evidence must be collected by a qualified runner.",
+        "confirmation": {
+          "durable_confirmation_receipts_complete": true,
+          "durable_confirmation_global_drain": true,
+          "admission_failure_evidence_complete": true,
+          "slow_database_evidence_complete": true,
+          "application_database_wait_evidence_complete": false
+        }
+      },
+      "stage": {
+        "stage_pass": true,
+        "customer_pass": true,
+        "offered_buyers_per_second": 60,
+        "dispatch_seconds": 300,
+        "scheduled": 18000,
+        "dispatched": 18000,
+        "customer_confirmations_by_deadline": 18000,
+        "generator_drops": 0,
+        "failed_dispatched_journeys": 0,
+        "errors_per_dispatched_journey_percent": 0.0,
+        "customer_outcomes": {
+          "fulfilled": 18000
+        },
+        "customer_http_attempts_total": 108785,
+        "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+        "p95_ms": {
+          "hold_http_p95_ms": 11.973759974353015,
+          "durable_p95_ms": 1026.7960249911994,
+          "payment_http_p95_ms": 54.7162969596684,
+          "payment_to_ticket_p95_ms": 641.5474520181306,
+          "hold_to_ticket_p95_ms": 1668.0011459975503
+        },
+        "host_cpu_percent": {
+          "primary": 71.14694108955968,
+          "secondary": 17.429806344864847
+        },
+        "aggregate_api_cpu_cores": 1.3861871190140342,
+        "financial": {
+          "orders": 18000,
+          "fulfilled_orders": 18000,
+          "expired_orders": 0,
+          "pending_orders": 0,
+          "payment_attempts": 18000,
+          "pending_payment_attempts": 0,
+          "succeeded_payments": 18000,
+          "bookings": 18000,
+          "tickets": 18000,
+          "payment_callbacks": 18000,
+          "incomplete_callback_deliveries": 0,
+          "callback_delivery_attempts": 18000,
+          "callback_delivery_target": 18000,
+          "duplicate_booked_seats": 0,
+          "multi_booking_orders": 0,
+          "unpublished_outbox": 0,
+          "dead_letters": 0,
+          "expected": 18000,
+          "expected_paid": 18000,
+          "expected_callback_deliveries_per_payment": 1,
+          "pass": true,
+          "hold_deadlines_elapsed": true
+        },
+        "global_queues": {
+          "unpublished_outbox": 0,
+          "pending_refresh": 0,
+          "dead_letters": 0,
+          "pending_callback_deliveries": 0,
+          "pending_refunds": 0,
+          "reservation_stream_entries": 0,
+          "reservation_stream_pending": 0,
+          "kafka_total_lag": 0,
+          "kafka_members": 6,
+          "pass": true,
+          "pending_confirmation_receipts": 0,
+          "review_confirmation_receipts": 0,
+          "confirmation_capacity_outstanding": 0,
+          "confirmation_capacity_mismatches": 0
+        },
+        "all_four_replicas_observed": true,
+        "request_shares": [
+          0.22774034744465657,
+          0.22794546917651515,
+          0.2704924499424081,
+          0.27382173343642013
+        ],
+        "private_cleanup_pass": true,
+        "failure_type": null
+      },
+      "measurements": {
+        "status_checks": 36563,
+        "status_checks_per_dispatched_journey": 2.031277777777778,
+        "consumer_database": {
+          "observed_replicas": 6,
+          "counter_deltas": {
+            "order_cache:event_fill": 36004.0,
+            "pool_acquire:ok": 101329.0,
+            "process_cpu_seconds_total": 220.63
+          },
+          "duration_mean_ms": {
+            "db_query:SELECT": 1.5534817048652363,
+            "db_commit:all": 2.538898347681025,
+            "db_query:UPDATE": 1.5669119178459772,
+            "db_connection_hold:all": 11.11443457449644,
+            "db_query:INSERT": 1.8820955351939246,
+            "db_pool_acquire:ok": 0.01477396855491762,
+            "db_query:BEGIN": 2.8336596898286874
+          },
+          "event_loop_lag_current_peak_ms": 0.0,
+          "pool_peaks_per_replica": {
+            "pool_acquiring": 0,
+            "pool_in_use": 1.0,
+            "pool_state:pool_size": 1.0,
+            "pool_state:pool_available": 1.0,
+            "pool_state:requests_waiting": 0,
+            "pool_state:pool_max": 8.0
+          },
+          "counter_reset_detected": false
+        },
+        "callback_backlog": {
+          "max": 21,
+          "last": 0,
+          "delta": 0,
+          "p95": 8
+        },
+        "cache_scope": "Full observer lifetime including completion tail; not offered-window HTTP RPS.",
+        "cache_observed": true,
+        "cache_series_present": true,
+        "cache_outcome_deltas": {
+          "miss": 18168.0,
+          "fill": 18169.0,
+          "hit": 18393.0,
+          "stale": 2.0,
+          "fill_raced": 1.0
+        },
+        "cache_hit_share": 0.5030770493148436,
+        "confirmation_observed": true,
+        "confirmation_backlog_peak": 0,
+        "admission_diagnostics_observed": true,
+        "admission_failure_deltas": {
+          "acquisition_failure:general:native_timeout": 0.0,
+          "acquisition_failure:general:role_limit": 0.0,
+          "acquisition_failure:payment:role_limit": 0.0,
+          "acquisition_failure:payment:native_timeout": 0.0,
+          "acquisition_failure:payment:native_limit": 0.0,
+          "acquisition_failure:general:global_limit": 0.0,
+          "acquisition_failure:payment:global_limit": 0.0,
+          "acquisition_failure:general:native_limit": 0.0
+        },
+        "admission_counter_window": "observer lifetime;not exact offered window",
+        "slow_database_capture": {
+          "decision": "ADR0171",
+          "complete": true,
+          "counter_coverage": true,
+          "failure_context_complete": true,
+          "failure_count": 0,
+          "slow_phase_count": 44,
+          "uncorrelated_slow_records": 0,
+          "scope": "Existing API phase logs; replica/time adjacency and interval means, not request correlation or causal proof."
+        },
+        "application_database_wait_capture": {
+          "decision": "ADR0176",
+          "diagnostic_scope": "application_role",
+          "application_database_wait_evidence_complete": false,
+          "full_database_visibility_complete": false,
+          "role_identity_sha256": "a321c0468ad2b28d710ea856238cfdbd7f2fa315d8d4730b0aeb5831d04ce394",
+          "bound_replicas": {
+            "api": 4,
+            "confirmation": 1,
+            "consumer": 6,
+            "maintenance": 1,
+            "publisher": 1,
+            "reconciler": 1,
+            "reservation-writer": 3,
+            "simulator": 1
+          },
+          "rows": 478,
+          "error_counts": {
+            "MissingOrInvalidScope": 3
+          },
+          "counter_continuity": false,
+          "max_collection_ms": 35.60385399032384,
+          "masked_foreign_sample_count": 0,
+          "masked_foreign_sessions_peak": 0,
+          "wal_timing_available_throughout": false,
+          "counter_deltas": null,
+          "application_active_wait_peaks": {
+            "Client:ClientRead": 3,
+            "None:None": 4,
+            "IO:WalSync": 1,
+            "LWLock:WALWrite": 10,
+            "Lock:transactionid": 2,
+            "IO:WalWrite": 1,
+            "IO:DataFileRead": 1,
+            "LWLock:LockManager": 3,
+            "IO:DataFileExtend": 1
+          },
+          "scope": "Application-role activity only; WAL/checkpoint/database counters remain aggregate. Foreign invisibility is explicit; causality and global activity completeness are not inferred."
+        }
+      },
+      "evidence_directory": "tmp/adr0151-61ba705c24bc/adr0151-arm-d111b04802cc"
+    },
+    "candidate_started": false
+  },
+  "failed_sample_attribution": {
+    "error_phase": "validation",
+    "error_type": "ValueError",
+    "error_code": "application_visibility_missing",
+    "rows": [
+      211,
+      270,
+      330
+    ],
+    "sample_times_utc": [
+      "2026-10-06T06:16:24.946874+00:00",
+      "2026-10-06T06:17:24.207098+00:00",
+      "2026-10-06T06:18:24.970981+00:00"
+    ],
+    "collection_ms": [
+      19.31440201587975,
+      16.754097014199942,
+      13.846307003404945
+    ],
+    "known_cause": "Rejected application activity ownership/visibility partition. Existing failure record did not retain which predicate or backend category failed.",
+    "unproven_hypothesis": "A periodic unknown-identity or hidden-state session; no backend identity or WAL cause established."
+  },
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "next_action": "Locally qualify ADR0179 bounded failure context, then a fresh registered diagnostic control may identify rejected session categories. Keep failed samples and all existing gates."
+}

@@ -1,7 +1,7 @@
 # ADR0178: Exact placement diagnostic collection
 
 ## Status
-Accepted and locally qualified under the standing work envelope; fresh cloud comparison pending.
+Accepted and locally qualified; cloud dry qualification passed both exact placements. Measured candidate remains untested after an unrelated control visibility-gate failure.
 
 ## Context
 ADR0177 qualification 6b3bf436e1c6 passed its 2+2 arm but rejected 1+3 during final log collection. Both post-TTL financial audits and exact restoration passed; no measured paid stage ran. The shared slow-phase collector and its admission-program builder still assumed two APIs per host. Earlier placement tests mocked collection and did not exercise the allocation restriction.
@@ -24,3 +24,5 @@ Stop before further load while the envelope is recovery-required. Verify both re
 
 ## Validation evidence
 Executed 32 new placement regressions and resolved all four recorded real cloud inventories without cloud calls. The combined runner suite passed 227 tests and exposed one historical cleanup-hook assertion loaded before its correction; that failed evidence is retained. After correction, the complete collector subset passed 52 tests, including cleanup ordering. Ruff, repository naming and diff checks passed. Read-only live recovery verified original runtime, idle generator and full queue drain in 17.156 seconds. See [the sanitized validation report](../capacity/flash-sale-opening/exact-placement-diagnostic-validation-2026-10-06.json). No capacity improvement is claimed.
+
+Cloud follow-up: fresh dry a27b10cd3e24 passed both layouts, including the real three-API collector path. Measured control 61ba705c24bc passed admission/slow-phase collection and all financial/customer gates but failed scoped visibility evidence; the candidate was skipped. The placement correction is cloud-qualified for dry collection, without a capacity-improvement claim. See [measured control](../capacity/flash-sale-opening/application-role-rebalance-control-2026-10-06.json).

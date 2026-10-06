@@ -116,6 +116,29 @@
         "capacity_stages_started": 0,
         "read_only_verification_seconds": 17.1559999999954
       }
+    },
+    {
+      "ledger": "bounded_application_role_rebalance__4a39498e4eff",
+      "authorization_id": "work-envelope-4a39498e4eff",
+      "envelope_sha256": "f76d7543d70870188e5815c26b821eea6893e9054d6b8691b532adb90610db19",
+      "binding_sha256": "b7bbf26cca14f47ab04874a4225d83571919e50dcc3b271d0e9a6f74bc089a0a",
+      "plan_sha256": "23a69a30046664ee2b0d49f5607d26fa678fbfebfa4528412a69ab0441a5ba2f",
+      "profile": "application_role_rebalance",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1553.25,
+      "started_at_utc": "2026-10-06T05:57:59.942634+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-a27b10cd3e24",
+          "pass": true
+        },
+        {
+          "run": "adr0151-61ba705c24bc",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-06T06:23:53.244138+00:00"
     }
   ]
 }
