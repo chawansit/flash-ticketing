@@ -382,9 +382,10 @@ class Stages:
                 record["database_wait_preflight"] = session.api(cid, preflight_program(), 45)
             if base_ledger(self.ledger_key) == "bounded_diagnostic_placement":
                 from diagnostic_runner_connection import prepare as prepare_diagnostic_connection
+                from diagnostic_runner_connection import qualify_bound_inventory
                 record["diagnostic_cleanup_required"] = True
                 record.update(prepare_diagnostic_connection(session, cid, remote, directory, inventory, api_upload, self.contract.diagnostic_context))
-                (local / "inventory.private.json").write_text(json.dumps(inventory, indent=2))
+                qualify_bound_inventory(self.contract, inventory, record, local)
             if base_ledger(self.ledger_key) == "bounded_application_role_rebalance":
                 from application_role_runner_diagnostics import prepare as prepare_scoped_diagnostics
                 record.update(prepare_scoped_diagnostics(session, cid, remote, directory, inventory, api_upload))

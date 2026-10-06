@@ -142,3 +142,13 @@ def prepare(session, cid, owner, directory, inventory, upload, context):
             or preflight.get("identity_sha256") != role_identity):
         raise ValueError("Exact read-only diagnostic preflight proof required")
     return {"diagnostic_connection_preflight": preflight, **proof}
+
+
+def qualify_bound_inventory(contract, inventory, record, local):
+    """Bind the final inventory, preserving the original exact receipt checks."""
+    if inventory.get("diagnostic_connection_binding", {}).get("decision") != "ADR0180":
+        raise ValueError("Diagnostic connection must be bound before qualification")
+    record["inventory_qualification"] = contract.qualify_inventory(inventory)
+    (local / "inventory.private.json").write_text(json.dumps(inventory, indent=2), encoding="utf-8")
+    (local / "inventory-qualification.private.json").write_text(
+        json.dumps(record["inventory_qualification"], indent=2), encoding="utf-8")

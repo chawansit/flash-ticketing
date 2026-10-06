@@ -197,3 +197,24 @@ def test_new_profile_never_weakens_customer_financial_or_diagnostic_gates(monkey
     else: record["global_queues"]["pending_confirmation_receipts"] = 1
     result = engine.stage_gates(record, {}, {}, c)
     assert not result["all_required_gates_pass"] and key in result["failed_gates"]
+
+
+def test_final_diagnostic_inventory_receipt_rejects_old_digest_and_preserves_chronology(tmp_path):
+    from datetime import UTC, datetime, timedelta
+
+    c, data = observed("control")
+    record = {"arm": "control", "inventory_qualification": c.qualify_inventory(data),
+              "inventory_contract": {"inventory_contract_pass": True}, "pre_dispatch_qualified": True}
+    data["diagnostic_connection_binding"] = {"decision": "ADR0180", "bundle_sha256": "a" * 64}
+    now = datetime.now(UTC)
+    record.update(pre_dispatch_qualified_at_utc=now.isoformat(), dispatch_requested_at_utc=now.isoformat(),
+                  scheduled_offered_start_utc=(now + timedelta(seconds=5)).isoformat())
+    with pytest.raises(ValueError, match="inventory receipt"):
+        c.validate_inventory_receipt(record, data, final=False, now=now)
+    staging.qualify_bound_inventory(c, data, record, tmp_path)
+    now = datetime.now(UTC)
+    record.update(pre_dispatch_qualified_at_utc=now.isoformat(), dispatch_requested_at_utc=now.isoformat())
+    c.validate_inventory_receipt(record, data, final=False, now=now)
+    data["diagnostic_connection_binding"]["bundle_sha256"] = "b" * 64
+    with pytest.raises(ValueError, match="inventory receipt"):
+        c.validate_inventory_receipt(record, data, final=False, now=now)

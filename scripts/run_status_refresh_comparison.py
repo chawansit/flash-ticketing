@@ -34,6 +34,7 @@ def identity():
                 "status_refresh_contract.py",
                 "two_host_topology.py",
                 "work_envelope.py",
+                "pre_dispatch_abort_recovery.py",
                 "run_work_envelope.py",
             )
         },

@@ -1,0 +1,32 @@
+{
+  "decision": "ADR0182",
+  "profile_decision": "ADR0181",
+  "original_scope": "bounded_diagnostic_placement__874965d115cc",
+  "original_status": "RECOVERY_REQUIRED",
+  "original_status_preserved": true,
+  "safety_qualification_run": "adr0151-52cf2dcc92f6",
+  "safety_pair_pass": true,
+  "measured_attempt_run": "adr0151-c5ca1d43f70d",
+  "measured_candidate_started": false,
+  "paid_stage_customers_dispatched": 0,
+  "capacity_improvement_measured": false,
+  "cause": "Diagnostic binding was added after the inventory qualification receipt; exact dispatch fingerprint gate rejected it before reservation of a paid stage.",
+  "correction": "Qualify the complete diagnostic-bound inventory before dispatch; preserve original fingerprint, freshness and chronology checks.",
+  "diagnostic_preflight_pass": true,
+  "full_statistics_runtime_samples": 2,
+  "full_statistics_runtime_samples_complete": true,
+  "diagnostic_max_collection_ms": 21.221322007477283,
+  "credential_cleanup_pass": true,
+  "original_topology_restored": true,
+  "all_restored_queues_zero": true,
+  "experiment_actual_seconds": 949.703,
+  "recovery_receipt": "docs/capacity/flash-sale-opening/pre-dispatch-abort-recovery-2026-10-06.json",
+  "local_tests": {
+    "combined_passes": 100,
+    "combined_pytest_seconds": 33.63,
+    "subsequent_focused_recovery_parser_passes": 28,
+    "subsequent_pytest_seconds": 0.21
+  },
+  "read_only_final_recovery_seconds": 19.594,
+  "limits": "No offered paid-stage load, customer error percentage, placement benefit, 84/s capacity or hourly qualification can be reported for the aborted attempt."
+}

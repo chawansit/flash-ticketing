@@ -162,6 +162,36 @@
         }
       ],
       "finished_at_utc": "2026-10-06T07:43:50.061468+00:00"
+    },
+    {
+      "ledger": "bounded_diagnostic_placement__874965d115cc",
+      "authorization_id": "work-envelope-874965d115cc",
+      "envelope_sha256": "7532a85e603674f28d77d6ef1dfa049beb66343059f8ba0a0aa675edf82016d1",
+      "binding_sha256": "382d0f0ac71d1da6ca93173af00fa2589bfde10d9f94753456751cc77b7fb632",
+      "plan_sha256": "ccbeed79cabbad26929110249e34ed1a235abadff1754c89e595217be415663a",
+      "profile": "diagnostic_placement",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 949.7029999999941,
+      "started_at_utc": "2026-10-06T09:10:28.662888+00:00",
+      "status": "RECOVERY_REQUIRED",
+      "reports": [
+        {
+          "run": "adr0151-52cf2dcc92f6",
+          "pass": true
+        },
+        {
+          "run": "adr0151-c5ca1d43f70d",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-06T09:26:18.441698+00:00"
     }
-  ]
+  ],
+  "verified_aborts": {
+    "bounded_diagnostic_placement__874965d115cc": {
+      "entry_sha256": "f2f83b34ae62c75f4821be1103fe34cf6ba98b58668f263e2303e6dbce7494cc",
+      "receipt_path": "docs/capacity/flash-sale-opening/pre-dispatch-abort-recovery-2026-10-06.json",
+      "receipt_sha256": "a18ada0433328f49616fc1f44953cb899a5cf36809dd17cb7f39a7fdb45d9895"
+    }
+  }
 }

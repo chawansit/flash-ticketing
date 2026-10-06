@@ -304,3 +304,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0180: Separate read-only diagnostic connection](0180-separate-read-only-diagnostic-connection.md)
 
 - [ADR0181: Bounded diagnostic placement comparison](0181-bounded-diagnostic-placement-comparison.md)
+
+- [ADR0182: Verified pre-dispatch abort recovery](0182-verified-pre-dispatch-abort-recovery.md)
