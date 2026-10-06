@@ -51,11 +51,14 @@ def sanitize(record):
             "native_pool": native, "guard": guard}
 
 
-def remote_collect(apis, since):
+def remote_collect(apis, since, *, classifier=None, record_limits=None):
     import os
     import select
     import subprocess
     import time
+
+    classifier = classifier or sanitize
+    record_limits = record_limits or {"db_acquisition_failure": MAX_RECORDS}
 
     def identities():
         rows = json.loads(subprocess.check_output(["docker", "inspect", *[a["container_id"] for a in apis]], timeout=5))
@@ -77,22 +80,32 @@ def remote_collect(apis, since):
                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         start, total, buffer, records, complete = time.monotonic(), 0, b"", [], True
 
-        def accept(line, records=records):
+        counts = {event: 0 for event in record_limits}
+
+        def accept(line, records=records, counts=counts):
             if len(line) > MAX_LINE:
                 raise ValueError("Diagnostic line bound exceeded")
             payload = line.partition(b" ")[2]
             if not payload.startswith(b"{"):
+                if any(event.encode() in payload for event in record_limits):
+                    raise ValueError("Malformed diagnostic object")
                 return
             try:
                 value = json.loads(payload)
             except (ValueError, UnicodeError):
-                if b"db_acquisition_failure" in payload:
+                if any(event.encode() in payload for event in record_limits):
                     raise ValueError("Malformed failure snapshot") from None
                 return
-            item = sanitize(value)
+            if not isinstance(value, dict):
+                if any(event.encode() in payload for event in record_limits):
+                    raise ValueError("Malformed diagnostic object")
+                return
+            item = classifier(value)
             if item is not None:
-                if len(records) >= MAX_RECORDS:
+                event = item["event"]
+                if event not in counts or counts[event] >= record_limits[event]:
                     raise ValueError("Diagnostic record bound exceeded")
+                counts[event] += 1
                 records.append(item)
 
         try:

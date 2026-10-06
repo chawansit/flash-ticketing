@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/redis-failover-recovery",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0170_control_passed_restored_timeout_not_reproduced",
+  "status": "adr0171_slow_database_diagnostics_local_qualified",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -1059,7 +1059,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Before another cloud test, design and locally qualify bounded slow-phase and connection-wait diagnostics under an ADR, correlated with the existing failure snapshots. Keep source, budgets and load fixed until a measured cause supports a correction.",
+  "next_action": "Activate a fresh ADR0171 unchanged single-control diagnostic scope: one safety qualification, then only if passed one 60 journeys/s 300s control. Retain bounded slow phases/acquisition failures/temporal pool context and all financial/drain/restoration gates. Do not replay earlier scopes.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1122,7 +1122,7 @@
     ],
     "scope_closed": true
   },
-  "revision": "f3e3d2f9675a37e7bae9316eb84409f7e4e2be3f",
+  "revision": "208204af8552c5388e545003fa3597359b9c2d1b",
   "latest_experiment": {
     "decision": "ADR0170",
     "run": "adr0151-3f6e2d8a0021",
@@ -1143,10 +1143,11 @@
   },
   "cloud_load_pause_reason": "ADR0170 bounded scope is fully consumed and closed after verified restoration. No user pause; further cloud execution needs a fresh bounded scope, not replay.",
   "latest_local_validation": {
-    "decision": "ADR0170",
-    "unit_tests_passed": 223,
+    "decision": "ADR0171",
+    "tests_passed": 253,
+    "seconds": 31.13,
     "cloud_calls": 0,
-    "evidence": "docs/capacity/flash-sale-opening/payment-stall-diagnostics-local-validation-2026-10-06.json"
+    "evidence": "docs/capacity/flash-sale-opening/slow-database-diagnostics-local-validation-2026-10-06.json"
   },
   "latest_projection": {
     "decision": "ADR0168",
