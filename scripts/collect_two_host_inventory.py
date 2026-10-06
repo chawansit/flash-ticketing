@@ -99,6 +99,7 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
     }
     if contract is not None:
         expected_counts.update({r: c["replicas"] for r, c in roles.items()})
+        expected_counts["api"] = getattr(contract, "measured_api_counts", {"primary": 2})["primary"]
     if {k: len(v) for k, v in groups.items()} != expected_counts:
         raise ValueError("Observed primary placement differs")
     background = {k: {"replicas": len(groups[k])} for k in roles}

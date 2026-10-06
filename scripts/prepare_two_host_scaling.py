@@ -69,7 +69,7 @@ def digest(value):
     return value
 
 
-def validate_inventory(data, *, image_id, now=None, contract=None):
+def validate_inventory(data, *, image_id, now=None, contract=None, placement=None):
     """Validate supplied observations, not their authenticity or live qualification."""
     settings = API_SETTINGS
     if contract is not None:
@@ -167,6 +167,17 @@ def validate_inventory(data, *, image_id, now=None, contract=None):
             )
         )
     expected = ({"primary": 4, "secondary": 0} if data["arm"] == "control" else {"primary": 2, "secondary": 2}) if contract is None else {"primary": 2, "secondary": 2}
+    if contract is not None:
+        expected = getattr(contract, "measured_api_counts", expected)
+        if expected not in ({"primary": 2, "secondary": 2}, {"primary": 1, "secondary": 3}):
+            raise ValueError("Unknown measured API placement")
+    if placement is not None:
+        marker = data.get("status_refresh_contract", {})
+        if (contract is not None or placement != "one-plus-three" or data["arm"] != "candidate"
+                or marker.get("decision") != "ADR0174"
+                or marker.get("api_counts") != {"primary": 1, "secondary": 3}):
+            raise ValueError("Explicit qualified rebalance compatibility placement required")
+        expected = {"primary": 1, "secondary": 3}
     reference = tuple(
         digest(data["baseline_authorities"][k])
         for k in (

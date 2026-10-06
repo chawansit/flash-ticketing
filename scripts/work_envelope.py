@@ -18,7 +18,8 @@ PAUSE = ROOT / "tmp/work-envelope.pause"
 PROFILE = "slow_database_control"
 BASE_LEDGER = "bounded_slow_database_diagnostics"
 PROFILES = {PROFILE: (BASE_LEDGER, "ADR0171"),
-            "database_wait_control": ("bounded_database_wait_diagnostics", "ADR0173")}
+            "database_wait_control": ("bounded_database_wait_diagnostics", "ADR0173"),
+            "api_placement_rebalance": ("bounded_api_placement_rebalance", "ADR0174")}
 SCOPE = re.compile("(?:" + "|".join(v[0] for v in PROFILES.values()) + r")__(?:[0-9a-f]{12})$")
 
 
@@ -63,7 +64,7 @@ def envelope():
             or data.get("customer_gates") != {
                 "mode": "exact_current_profile", "zero_double_booking": True, "zero_payment_loss": True,
                 "complete_queue_drain": True, "no_slo_relaxation": True}
-            or data.get("qualified_profiles") not in ([PROFILE], list(PROFILES))):
+            or data.get("qualified_profiles") not in ([PROFILE], [PROFILE, "database_wait_control"], list(PROFILES))):
         raise ValueError("Standing boundaries changed; locally qualify and record the decision first")
     return data
 
@@ -116,10 +117,17 @@ def reserve(binding, plan, *, profile=PROFILE):
     if profile not in PROFILES or profile not in data["qualified_profiles"]:
         raise ValueError("Unknown diagnostic profile")
     base, decision = PROFILES[profile]
-    if (plan.get("decision") != decision or plan.get("arms") != ["control"]
+    expected_arms = ["control", "candidate"] if profile == "api_placement_rebalance" else ["control"]
+    if (plan.get("decision") != decision or plan.get("arms") != expected_arms
             or plan.get("common", {}).get("buyer_journeys_per_second") != 60
             or plan["common"].get("duration_seconds") != 300):
         raise ValueError("Only locally qualified unchanged diagnostic control permitted")
+    if profile == "api_placement_rebalance" and (
+            digest(plan.get("placements")) != digest({"control": {"primary": 2, "secondary": 2},
+                                                      "candidate": {"primary": 1, "secondary": 3}})
+            or digest(plan.get("allowance")) != digest({"qualification_runs_authorized": 1,
+                                                        "paid_runs_authorized": 2, "safety_tickets_authorized": 4})):
+        raise ValueError("Exact registered placement pair budget required")
     if binding.get("configuration_sha256") != data["existing_resource_configuration_sha256"]:
         raise ValueError("Existing resource configuration changed; infrastructure exception")
     identity = uuid4().hex[:12]
@@ -135,10 +143,10 @@ def reserve(binding, plan, *, profile=PROFILE):
     state[key] = {
         "authorization_id": entry["authorization_id"], "binding": binding,
         "standing_envelope": {"ledger": key, "envelope_sha256": entry["envelope_sha256"]},
-        "qualification_runs_authorized": 1, "paid_runs_authorized": 1, "safety_tickets_authorized": 2,
+        "qualification_runs_authorized": 1, "paid_runs_authorized": len(expected_arms), "safety_tickets_authorized": 2 * len(expected_arms),
         "qualification_protocols_started": 0, "paid_runs_started": 0,
         "paid_protocols_started": 0, "safety_protocols_started": 0, "active_run": None,
-        "scope": "Fresh " + decision + " control under ADR0172 standing boundaries; no replay or higher load"}
+        "scope": "Fresh " + decision + " experiment under ADR0172 standing boundaries; no replay or higher load"}
     write(STATE, state)
     return entry
 

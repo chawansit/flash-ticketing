@@ -474,9 +474,12 @@ def run(config, output, *, stage_hook=None, runtime_policy=None, action_guard=No
         if stage_hook is not None:
             session.phase("control-stage")
             stage_hook(session, "control", controls, saved, owner, output)
-        session.phase("two-plus-two-topology")
-        session.up("primary", live_path, {**counts, "api": 2}, ["api"])
-        primary_rows = session.wait("primary", 2)
+        placement = getattr(runtime_policy, "measured_api_counts", {"primary": 2, "secondary": 2})
+        if placement not in ({"primary": 2, "secondary": 2}, {"primary": 1, "secondary": 3}):
+            raise ValueError("Unknown measured API placement")
+        session.phase("two-plus-two-topology" if placement["primary"] == 2 else "one-plus-three-topology")
+        session.up("primary", live_path, {**counts, "api": placement["primary"]}, ["api"])
+        primary_rows = session.wait("primary", placement["primary"])
         secondary_model = json.loads(secondary_compose())
         secondary_model["services"]["api"]["image"] = IMAGE
         secondary_model["services"]["api"]["env_file"][0]["path"] = (
@@ -494,8 +497,8 @@ def run(config, output, *, stage_hook=None, runtime_policy=None, action_guard=No
             secondary_model = runtime_policy.secondary_model(secondary_model)
         session.put("secondary", secondary_path, json.dumps(secondary_model), True)
         secondary_started = True
-        session.up("secondary", secondary_path, {"api": 2}, ["api"])
-        secondary_rows = session.wait("secondary", 2)
+        session.up("secondary", secondary_path, {"api": placement["secondary"]}, ["api"])
+        secondary_rows = session.wait("secondary", placement["secondary"])
         routes = endpoints(primary_rows, "primary", primary["private_ipv4"], runtime_policy=runtime_policy) + endpoints(
             secondary_rows, "secondary", config["secondary"]["private_ipv4"], runtime_policy=runtime_policy
         )

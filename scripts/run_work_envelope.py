@@ -23,7 +23,10 @@ def status():
 
 
 def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROFILE):
-    if profile_name == "database_wait_control":
+    if profile_name == "api_placement_rebalance":
+        import api_placement_contract as contract_policy
+        import run_api_placement_comparison as profile
+    elif profile_name == "database_wait_control":
         import database_wait_contract as contract_policy
         import run_database_wait_diagnostics as profile
     elif profile_name == policy.PROFILE:
@@ -38,7 +41,8 @@ def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROF
     plan = contract_policy.plan()
     artifact = policy.read(artifact_path) if artifact_path is not None else plan["artifact_receipt"]
     config = policy.read(config_path)
-    engine.StatusRefreshContract(artifact, "control", sources)
+    for arm in engine.ARMS:
+        engine.StatusRefreshContract(artifact, arm, sources)
     engine.comparison.validate_config(config)
     binding = engine.binding_for(config, artifact, sources)
     # Constructors and canonical names qualify before reservation or cloud mutation.

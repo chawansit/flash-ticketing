@@ -37,7 +37,7 @@ def placement(spec):
     if arm not in {"control", "candidate"}:
         raise ValueError("Unknown logical CPU arm")
     value = spec.get("placement", "four-primary" if arm == "control" else "two-plus-two")
-    if value not in {"four-primary", "two-plus-two"} or (value == "four-primary" and arm != "control"):
+    if value not in {"four-primary", "two-plus-two", "one-plus-three"} or (value == "four-primary" and arm != "control") or (value == "one-plus-three" and arm != "candidate"):
         raise ValueError("Unknown or incompatible CPU placement")
     return value
 
@@ -63,7 +63,9 @@ def validate_spec(spec):
             raise ValueError("Secondary must be API-only")
         ids.add(entry["id"])
     count = sum(entry["role"] == "api" for entry in rows)
-    expected = (4 if spec["host_role"] == "primary" else 0) if physical == "four-primary" else 2
+    expected = ({"primary": 4, "secondary": 0} if physical == "four-primary" else
+                {"primary": 1, "secondary": 3} if physical == "one-plus-three" else
+                {"primary": 2, "secondary": 2})[spec["host_role"]]
     if spec.get("arm") not in {"control", "candidate"} or count != expected:
         raise ValueError("Placement differs from arm")
     return rows

@@ -1,0 +1,31 @@
+{
+  "decision": "ADR0174",
+  "implemented": true,
+  "locally_tested": true,
+  "production_qualified": false,
+  "tests": {
+    "passed": 402,
+    "seconds": 70.0,
+    "suites": 9,
+    "raw_evidence": "tmp/adr0174-final-tests.txt"
+  },
+  "ruff": "PASS",
+  "repository_names": {
+    "pass": true,
+    "checked_documents": 1493
+  },
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "profile": "api_placement_rebalance",
+  "next_action": "Fresh standing reservation: safety pair, then matched paid pair; failed control stops candidate.",
+  "focused_follow_up": {
+    "passed": 198,
+    "seconds": 65.06,
+    "raw_evidence": "tmp/adr0174-observer-tests.txt"
+  },
+  "registered_envelope_tests": {
+    "passed": 70,
+    "seconds": 42.92,
+    "raw_evidence": "tmp/adr0174-registered-tests.txt"
+  }
+}

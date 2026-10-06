@@ -238,7 +238,7 @@ def drain(session, cid, audit_program=GLOBAL_AUDIT):
         time.sleep(2)
 
 
-def cpu_spec(arm, role, rows, inventory, *, fixed_two_host=False):
+def cpu_spec(arm, role, rows, inventory, *, fixed_two_host=False, placement=None):
     if type(fixed_two_host) is not bool:
         raise ValueError("Explicit CPU placement policy required")
     spec = {
@@ -252,7 +252,9 @@ def cpu_spec(arm, role, rows, inventory, *, fixed_two_host=False):
         ],
     }
     if fixed_two_host:
-        spec["placement"] = "two-plus-two"
+        spec["placement"] = placement or "two-plus-two"
+    elif placement is not None:
+        raise ValueError("Explicit fixed placement required")
     validate_spec(spec)  # Exact emitted spec must pass before upload or owned job launch.
     return spec
 
@@ -263,7 +265,7 @@ class Stages:
 
         profile_ledger = base_ledger(ledger_key)
         if (type(rate) is not int or type(stage_limit) is not int
-                or (rate, profile_ledger, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1), (60, "bounded_async_confirmation", 1), (60, "bounded_partial_timeout_reclamation", 1), (60, "bounded_partial_timeout_reclamation_v2", 1), (60, "bounded_payment_stall_diagnostics", 1), (60, "bounded_slow_database_diagnostics", 1), (60, "bounded_database_wait_diagnostics", 1))):
+                or (rate, profile_ledger, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1), (60, "bounded_async_confirmation", 1), (60, "bounded_partial_timeout_reclamation", 1), (60, "bounded_partial_timeout_reclamation_v2", 1), (60, "bounded_payment_stall_diagnostics", 1), (60, "bounded_slow_database_diagnostics", 1), (60, "bounded_database_wait_diagnostics", 1), (60, "bounded_api_placement_rebalance", 1))):
             raise ValueError("Unsupported bounded stage contract")
         if profile_ledger in {"bounded_status_refresh", "bounded_status_refresh_dedup", "bounded_async_confirmation", "bounded_partial_timeout_reclamation", "bounded_partial_timeout_reclamation_v2", "bounded_payment_stall_diagnostics", "bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics"} and contract is None:
             raise ValueError("Isolated refresh contract required")
@@ -275,6 +277,9 @@ class Stages:
             raise ValueError("Exact partial timeout reclamation contract required")
         if profile_ledger in {"bounded_payment_stall_diagnostics", "bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics"} and getattr(contract, "arm", None) != "control":
             raise ValueError("Diagnostic scope must use unchanged control")
+        if profile_ledger == "bounded_api_placement_rebalance" and (
+                contract is None or contract.inventory_marker().get("decision") != "ADR0174"):
+            raise ValueError("Exact fixed-budget placement contract required")
         self.contract = contract
         self.execute, self.bundle, self.results = execute, bundle, {}
         self.rate, self.ledger_key, self.stage_limit = rate, ledger_key, stage_limit
@@ -351,7 +356,7 @@ class Stages:
             )
             record.update(proof)
             from work_envelope import base_ledger
-            if base_ledger(self.ledger_key) == "bounded_database_wait_diagnostics":
+            if base_ledger(self.ledger_key) in {"bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"}:
                 from database_wait_evidence import preflight_program
                 record["database_wait_preflight"] = session.api(cid, preflight_program(), 45)
             fixture_program = (
@@ -446,7 +451,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
 
                     arguments += ["--approved-inventory-sha256", digest(inventory)]
                 from work_envelope import base_ledger
-                if name == "pipeline" and base_ledger(self.ledger_key) == "bounded_database_wait_diagnostics":
+                if name == "pipeline" and base_ledger(self.ledger_key) in {"bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"}:
                     arguments += ["--database-wait-diagnostics"]
                 job = self.launch(session, "container", cid, arguments, directory, jobs, record, database=True)
                 record[name + "_job"] = job
@@ -465,7 +470,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                 if time.monotonic() >= deadline:
                     raise TimeoutError("Observer startup bound exceeded")
                 time.sleep(1)
-            if base_ledger(self.ledger_key) == "bounded_database_wait_diagnostics" and status["pipeline"].get("database_wait_diagnostics", {}).get("complete") is not True:
+            if base_ledger(self.ledger_key) in {"bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"} and status["pipeline"].get("database_wait_diagnostics", {}).get("complete") is not True:
                 raise ValueError("Database diagnostic startup gate failed before buyer dispatch")
             record["pipeline_startup"] = pipeline_startup_view(status["pipeline"], 6)
             if self.contract is not None and hasattr(self.contract, "verify_pipeline_startup"):
@@ -496,6 +501,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                     )
                 spec = cpu_spec(
                     arm, role, rows, inventory, fixed_two_host=self.contract is not None,
+                    placement=getattr(self.contract, "cpu_placement", None),
                 )
                 session.put(role, location + "/cpu-spec.json", json.dumps(spec), True)
                 session.put(
@@ -659,7 +665,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                         record.setdefault("trace_collection_errors", []).append(type(exc).__name__)
             retain_observer_summaries(local, record, inventory if "inventory" in locals() else None)
             from work_envelope import base_ledger
-            if base_ledger(self.ledger_key) == "bounded_database_wait_diagnostics":
+            if base_ledger(self.ledger_key) in {"bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"}:
                 from database_wait_evidence import summarize as summarize_database_wait
                 try:
                     record["database_wait_capture"] = summarize_database_wait(local / "pipeline.jsonl")
@@ -671,7 +677,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                     from admission_failure_evidence import collect
                     from work_envelope import base_ledger
 
-                    if base_ledger(self.ledger_key) in {"bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics"}:
+                    if base_ledger(self.ledger_key) in {"bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics", "bounded_api_placement_rebalance"}:
                         from slow_database_evidence import collect as collect_slow
 
                         capture = collect_slow(session, inventory, local)

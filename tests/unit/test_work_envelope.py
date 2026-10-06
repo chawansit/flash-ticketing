@@ -281,6 +281,7 @@ def test_single_command_qualifies_then_executes_only_on_pass(area, tmp_path, mon
     outcomes = reports(measured_pass)
     outcomes[0]["pass"] = qualification_pass
     fake = SimpleNamespace(
+        ARMS=("control",),
         source_contract=dict,
         StatusRefreshContract=lambda *_a: object(),
         RefreshStages=lambda *_a: None,

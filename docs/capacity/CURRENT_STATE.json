@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-06",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0173_control_customer_financial_pass_diagnostic_coverage_failed_restored",
+  "status": "adr0174_api_placement_locally_qualified_comparison_pending",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -54,7 +54,7 @@
     "Preserve current controls, financial integrity, complete queue drain and exact restoration; no higher load before evidence."
   ],
   "authorization": "Standing work envelope: existing resources only, zero new infrastructure spend, no cumulative time cap, experiments as effectively short as possible, exact current profile gates. Reviewed code/evidence to codex branches; main merge requires approval. No unattended schedule.",
-  "scope": "Time-boundary policy amendment and local metadata checks only; no new cloud load, profile or runtime behavior. Historical consumed scopes and validation evidence are preserved.",
+  "scope": "ADR0174 placement-only implementation and local qualification; existing resources, no new spending; main requires approval. No cloud action in this checkpoint.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -1062,7 +1062,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Verify the failure classifier, then use a new standing reservation and safety qualification for an unchanged control if needed to reproduce the missing samples. Attribute the WAL-related contention before one isolated correction; do not raise load yet.",
+  "next_action": "Run registered api_placement_rebalance through the standing envelope: unchanged 2+2 control then 1+3 candidate, same 60 journeys/s300s, diagnostics and financial gates. Failed control stops candidate.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1429,5 +1429,18 @@
       "control"
     ]
   },
-  "unresolved_issue": "Ten database diagnostic samples failed validation under paid load; idle read-only check did not reproduce the cause. Valid snapshots show WALWrite/WalSync waits near shared slow commits, but WAL timing is disabled and causal attribution is incomplete. 84/s, hourly 300k, projection correction and async confirmation capacity benefit remain unqualified."
+  "unresolved_issue": "Ten database diagnostic samples failed validation under paid load; idle read-only check did not reproduce the cause. Valid snapshots show WALWrite/WalSync waits near shared slow commits, but WAL timing is disabled and causal attribution is incomplete. 84/s, hourly 300k, projection correction and async confirmation capacity benefit remain unqualified.",
+  "api_placement_rebalance": {
+    "decision": "ADR0174",
+    "profile": "api_placement_rebalance",
+    "implemented": true,
+    "locally_tested": true,
+    "cloud_measured": false,
+    "production_qualified": false,
+    "evidence": [
+      "docs/capacity/api-placement-validation-2026-10-06.json",
+      "docs/capacity/flash-sale-opening/api-placement-rebalance-plan-2026-10-06.json"
+    ],
+    "remaining": "Fresh control must pass complete diagnostics before candidate. Shared WAL cause and 84 tickets/s remain unqualified."
+  }
 }
