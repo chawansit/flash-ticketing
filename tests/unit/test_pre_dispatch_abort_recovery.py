@@ -105,3 +105,68 @@ def test_missing_container_requires_exact_identity_and_accepts_documented_case_v
     cid="a"*64
     assert recovery.missing_container_observation(status,error+cid,cid) is expected
     assert not recovery.missing_container_observation(status,error+cid,"b"*64)
+
+
+@pytest.fixture
+def fixture_abort(tmp_path, monkeypatch, facts):
+    report, state, stage, _failure = copy.deepcopy(facts)
+    binding = {"configuration_sha256": "a"*64}
+    entry = {"ledger": recovery.FIXTURE_ABORT_LEDGER, "status": "RECOVERY_REQUIRED",
+             "binding_sha256": envelope.digest(binding)}
+    monkeypatch.setattr(recovery, "FIXTURE_ABORT_BINDING", entry["binding_sha256"])
+    monkeypatch.setattr(recovery, "FIXTURE_ABORT_ENTRY_SHA256", envelope.digest(entry))
+    parent = tmp_path / "tmp/adr0151-0013af72d51b"
+    directory = parent / "adr0151-arm-2fe92b8fe307"
+    (directory / "control").mkdir(parents=True)
+    report.update(run=parent.name, binding=binding)
+    report['arms']['control'].update(evidence_directory=directory.relative_to(tmp_path).as_posix(), pre_safety_source_pass=True)
+    state['retirement'] = {'retired_shows': 1}; stage['retired_shows'] = 1
+    stage.pop('diagnostic_credentials_removed')
+    for path, value in [(parent / 'comparison-summary.json', report), (directory / 'state.json', state),
+                        (directory / 'control/stage.private.json', stage)]:
+        path.write_text(json.dumps(value))
+    failure = directory / 'control/failure.private.log'
+    failure.write_text('ValueError: Exact distributed development fixture required')
+    fresh = {"ledger": entry['ledger'], 'binding_sha256': entry['binding_sha256'],
+             'captured_at_utc': datetime.now(UTC).isoformat(), 'queues': state['restored_global_queues'],
+             **dict.fromkeys(['runtime_unchanged', 'primary_four', 'secondary_empty', 'generator_idle', 'credentials_absent'], True)}
+    return tmp_path, entry, report, state, stage, fresh, parent, directory
+
+
+@pytest.mark.parametrize('case', [None, 'dispatch', 'capacity_reserved', 'financial', 'different_failure',
+                                 'retirement', 'source', 'cleanup', 'queues', 'stale', 'entry'])
+def test_exact_fixture_format_abort_needs_all_safety_and_restoration(fixture_abort, case):
+    root, entry, report, state, stage, fresh, parent, directory = fixture_abort
+    if case == 'dispatch': stage['customers_dispatched'] = True
+    elif case == 'capacity_reserved': state['capacity_stages_started'] = 1
+    elif case == 'financial': state['post_ttl_financial']['tickets'] = 0
+    elif case == 'different_failure': (directory / 'control/failure.private.log').write_text('ValueError: other')
+    elif case == 'retirement': stage['retired_shows'] = 0
+    elif case == 'source': report['arms']['control']['pre_safety_source_pass'] = False
+    elif case == 'cleanup': stage['private_cleanup_pass'] = False
+    elif case == 'queues': fresh['queues']['dead_letters'] = 1
+    elif case == 'stale': fresh['captured_at_utc'] = (datetime.now(UTC) - timedelta(seconds=121)).isoformat()
+    elif case == 'entry': entry['status'] = 'ACTIVE'
+    for path, value in [(parent / 'comparison-summary.json', report), (directory / 'state.json', state),
+                        (directory / 'control/stage.private.json', stage)]:
+        path.write_text(json.dumps(value))
+    if case:
+        with pytest.raises(ValueError): recovery.verify_artifacts(root, entry, fresh)
+    else:
+        receipt = recovery.verify_artifacts(root, entry, fresh)
+        assert receipt['decision'] == 'ADR0191'
+        assert receipt['gates'] == dict.fromkeys(recovery.GATES, True)
+        assert len(receipt['retained_artifact_sha256']) == 4
+
+
+def test_fixture_abort_receipt_keeps_exact_retained_artifacts_required(fixture_abort):
+    import hashlib
+    root, entry, _report, _state, _stage, fresh, parent, _directory = fixture_abort
+    receipt = recovery.verify_artifacts(root, entry, fresh)
+    p = root / 'docs/capacity/flash-sale-opening/fixture-abort.json'; p.parent.mkdir(parents=True)
+    p.write_text(json.dumps(receipt))
+    records = {'verified_aborts': {entry['ledger']: {'entry_sha256': envelope.digest(entry),
+               'receipt_path': p.relative_to(root).as_posix(), 'receipt_sha256': hashlib.sha256(p.read_bytes()).hexdigest()}}}
+    assert recovery.resolved(records, entry, root)
+    (parent / 'comparison-summary.json').write_text('{}')
+    assert not recovery.resolved(records, entry, root)

@@ -322,3 +322,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0189: Atomic payment dispatch claim](0189-atomic-payment-dispatch-claim.md)
 
 - [ADR0190: Historical recovery exception and test isolation](0190-historical-recovery-exception-and-test-isolation.md)
+
+- [ADR0191: Pinned fixture format and zero-dispatch abort](0191-pinned-fixture-format-and-zero-dispatch-abort.md)

@@ -20,13 +20,13 @@ def queue_pass(value):
         type(value.get(k)) is int and value[k] == 0 for k in QUEUE_KEYS)
 
 
-def retained_pass(report, state, stage, failure):
+def retained_pass(report, state, stage, failure, *, expected_failure="ValueError: Exact qualified inventory receipt required", require_diagnostic_cleanup=True):
     if (report.get("pass") is not False or (type(report.get("capacity_stages_started")) is not int or report["capacity_stages_started"] != 0)
             or set(report.get("arms", {})) != {"control"}
             or report["arms"]["control"].get("restoration_complete") is not True
             or (type(state.get("capacity_stages_started")) is not int or state["capacity_stages_started"] != 0) or stage.get("customers_dispatched") is not False
             or any(k in stage for k in ("customer", "customer_job", "offered_start_utc", "offered_end_utc"))
-            or failure.splitlines()[-1] != "ValueError: Exact qualified inventory receipt required"):
+            or failure.splitlines()[-1] != expected_failure):
         raise ValueError("Exact known zero-dispatch receipt abort required")
     safety, financial = state.get("safety", {}), state.get("post_ttl_financial", {})
     if (any(safety.get(k) is not True for k in ("pass", "one_durable_owner_before_payment", "cross_host_hold_replay",
@@ -40,7 +40,7 @@ def retained_pass(report, state, stage, failure):
     if (any(state.get(k) is not True for k in ("restore_pass", "primary_runtime_semantics_restored",
             "secondary_resources_removed", "generator_idle_after", "credential_snapshots_removed"))
             or state.get("primary_api_count") != 4 or not queue_pass(state.get("restored_global_queues"))
-            or stage.get("diagnostic_credentials_removed") is not True or stage.get("private_cleanup_pass") is not True
+            or (require_diagnostic_cleanup and stage.get("diagnostic_credentials_removed") is not True) or stage.get("private_cleanup_pass") is not True
             or stage.get("cleanup_errors") != []):
         raise ValueError("Complete retained restoration and credential proof required")
     return True
@@ -55,6 +55,8 @@ def bounded_json(path):
 
 def verify_artifacts(root, entry, fresh, *, now=None):
     now = now or datetime.now(UTC)
+    if entry.get("ledger") == FIXTURE_ABORT_LEDGER:
+        return verify_fixture_abort(root, entry, fresh, now=now)
     if (entry.get("profile") != "diagnostic_placement" or entry.get("status") != "RECOVERY_REQUIRED"
             or not re.fullmatch(r"bounded_diagnostic_placement__[0-9a-f]{12}", entry.get("ledger", ""))
             or len(entry.get("reports", [])) != 2 or entry["reports"][0].get("pass") is not True
@@ -110,10 +112,23 @@ def resolved(records, entry, root):
         if not path.resolve().is_relative_to((root / "docs/capacity/flash-sale-opening").resolve()):
             return False
         receipt = bounded_json(path)
-        return (hashlib.sha256(path.read_bytes()).hexdigest() == item["receipt_sha256"]
-                and receipt.get("decision") == "ADR0182" and receipt.get("ledger") == entry["ledger"]
-                and receipt.get("binding_sha256") == entry["binding_sha256"]
-                and receipt.get("gates") == dict.fromkeys(GATES, True))
+        valid = (hashlib.sha256(path.read_bytes()).hexdigest() == item["receipt_sha256"]
+                 and receipt.get("decision") == ("ADR0191" if entry["ledger"] == FIXTURE_ABORT_LEDGER else "ADR0182")
+                 and receipt.get("ledger") == entry["ledger"]
+                 and receipt.get("binding_sha256") == entry["binding_sha256"]
+                 and receipt.get("gates") == dict.fromkeys(GATES, True))
+        if not valid or entry["ledger"] != FIXTURE_ABORT_LEDGER:
+            return valid
+        prefix = "tmp/adr0151-0013af72d51b/"
+        expected = {prefix + "comparison-summary.json", prefix + "adr0151-arm-2fe92b8fe307/state.json",
+                    prefix + "adr0151-arm-2fe92b8fe307/control/stage.private.json",
+                    prefix + "adr0151-arm-2fe92b8fe307/control/failure.private.log"}
+        hashes = receipt.get("retained_artifact_sha256", {})
+        return (isinstance(hashes, dict) and set(hashes) == expected
+                and all((root / name).absolute() == (root / name).resolve()
+                        and (root / name).is_file() and (root / name).stat().st_size <= 2 * 1024 * 1024
+                        and hashlib.sha256((root / name).read_bytes()).hexdigest() == fingerprint
+                        for name, fingerprint in hashes.items()))
     except (OSError, ValueError, TypeError, KeyError):
         return False
 
@@ -152,3 +167,48 @@ def missing_container_observation(status, error, container_id):
         return False
     pattern = r"(?:error:|error response from daemon:)\s*no such (?:object|container):\s*" + re.escape(container_id)
     return re.fullmatch(pattern, error.strip().lower()) is not None
+
+
+FIXTURE_ABORT_LEDGER = "bounded_slow_database_diagnostics__7c5c5950fffd"
+FIXTURE_ABORT_ENTRY_SHA256 = "57078b2bb9794919b25f25282c99a5d487bbc2e321a159b8154ab5ba5f636b01"
+FIXTURE_ABORT_BINDING = "826a87a43e6f2dd04c3423835f0926f61d0e4f57627d954ebb4286513cb7712e"
+
+
+def verify_fixture_abort(root, entry, fresh, *, now):
+    """ADR0191: only the exact known frozen-producer qualification failure."""
+    from work_envelope import digest
+    if (entry.get("status") != "RECOVERY_REQUIRED" or digest(entry) != FIXTURE_ABORT_ENTRY_SHA256
+            or entry.get("binding_sha256") != FIXTURE_ABORT_BINDING):
+        raise ValueError("Exact consumed fixture format abort required")
+    parent = root / "tmp/adr0151-0013af72d51b"
+    directory = parent / "adr0151-arm-2fe92b8fe307"
+    paths = [parent / "comparison-summary.json", directory / "state.json",
+             directory / "control/stage.private.json", directory / "control/failure.private.log"]
+    if any(p.absolute() != p.resolve() or not p.resolve().is_relative_to(root.resolve()) for p in paths):
+        raise ValueError("Exact retained fixture abort artifacts required")
+    report, state, stage = (bounded_json(p) for p in paths[:3])
+    if (report.get("run") != parent.name or digest(report.get("binding")) != FIXTURE_ABORT_BINDING
+            or report.get("arms", {}).get("control", {}).get("evidence_directory") != directory.relative_to(root).as_posix()
+            or report["arms"]["control"].get("pre_safety_source_pass") is not True
+            or state.get("retirement", {}).get("retired_shows") != 1
+            or stage.get("retired_shows") != 1):
+        raise ValueError("Exact source and retired zero-dispatch fixture required")
+    if paths[3].stat().st_size > 65536:
+        raise ValueError("Bounded retained fixture failure required")
+    failure = paths[3].read_text()
+    if stage.get("diagnostic_cleanup_required", False) is not False or "diagnostic_credentials_removed" in stage:
+        raise ValueError("This exact control never staged administrator diagnostic credentials")
+    retained_pass(report, state, stage, failure,
+                  expected_failure="ValueError: Exact distributed development fixture required",
+                  require_diagnostic_cleanup=False)
+    stamp = datetime.fromisoformat(fresh.get("captured_at_utc", ""))
+    if (stamp.tzinfo is None or not 0 <= (now - stamp).total_seconds() <= 120
+            or fresh.get("ledger") != FIXTURE_ABORT_LEDGER or fresh.get("binding_sha256") != FIXTURE_ABORT_BINDING
+            or any(fresh.get(k) is not True for k in ("runtime_unchanged", "primary_four", "secondary_empty",
+                "generator_idle", "credentials_absent")) or not queue_pass(fresh.get("queues"))):
+        raise ValueError("Fresh exact fixture-abort restoration observation required")
+    return {"decision": "ADR0191", "ledger": entry["ledger"], "binding_sha256": entry["binding_sha256"],
+            "verified_at_utc": now.isoformat(), "gates": dict.fromkeys(GATES, True),
+            "retained_artifact_sha256": {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},
+            "fresh_probe_sha256": digest(fresh),
+            "scope": "Verified exact zero-paid-dispatch fixture-format abort; original failure and consumed scope preserved. No historical paid reconciliation or capacity claim."}

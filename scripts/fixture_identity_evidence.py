@@ -6,8 +6,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID
 
+LEGACY_DISTRIBUTED_PRODUCER = "99d09157747843478768a5d8be7d3cb326cbd2d4d4387e8873c501fca4fcc13c"
 
-def fixture_identity(fixture, expected_shows, *, now=None):
+
+def fixture_identity(fixture, expected_shows, *, now=None, producer_sha256=None):
+    if "fixture_layout" not in fixture and producer_sha256 == LEGACY_DISTRIBUTED_PRODUCER:
+        fixture = {**fixture, "fixture_layout": "distributed"}
     now = now or datetime.now(UTC)
     if type(expected_shows) is not int or expected_shows not in {1, 60, 84}:
         raise ValueError("Exact bounded stage show count required")
@@ -34,16 +38,20 @@ def fixture_identity(fixture, expected_shows, *, now=None):
     return {k: list(fixture[k]) if k == "show_ids" else fixture[k] for k in keys}
 
 
-def retain_fixture_identity(local, record, fixture, expected_shows, *, now=None):
+def retain_fixture_identity(local, record, fixture, expected_shows, *, now=None, producer_sha256=None):
     local = Path(local)
     if (record.get("arm") not in {"control", "candidate"} or local.name != record["arm"]
             or local.is_symlink() or not local.is_dir() or local.absolute() != local.resolve()
             or record.get("customers_dispatched") is not False):
         raise ValueError("Owned undispatched stage directory required")
-    identity = fixture_identity(fixture, expected_shows, now=now)
+    identity = fixture_identity(fixture, expected_shows, now=now, producer_sha256=producer_sha256)
     canonical = json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
     receipt = {"decision": "ADR0185", "arm": record["arm"], "fixture_identity": identity,
                "fixture_identity_sha256": hashlib.sha256(canonical).hexdigest()}
+    if producer_sha256 is not None:
+        if not isinstance(producer_sha256, str) or len(producer_sha256) != 64 or any(c not in "0123456789abcdef" for c in producer_sha256):
+            raise ValueError("Canonical producer fingerprint required")
+        receipt["producer_sha256"] = producer_sha256
     with (local / "fixture-identity.json").open("x", encoding="utf-8") as target:
         target.write(json.dumps(receipt, indent=2) + "\n")
         target.flush()

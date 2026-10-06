@@ -399,7 +399,8 @@ class Stages:
             )
             fixture = session.api(cid, fixture_program, 115)
             event_ids = fixture["show_ids"]
-            retain_fixture_identity(local, record, fixture, self.rate if self.execute else 1)
+            retain_fixture_identity(local, record, fixture, self.rate if self.execute else 1,
+                                    producer_sha256=source_sha256(self.bundle["scripts/prepare_capacity_fixture.py"]))
             origin = "http://" + session.config["primary"]["private_ipv4"] + ":8000"
             # Mint only expiring viewer tokens on the API. Never send the signing key.
             mint = (

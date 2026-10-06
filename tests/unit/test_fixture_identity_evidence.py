@@ -155,3 +155,16 @@ def test_real_stage_retires_exact_fixture_when_receipt_write_fails(monkeypatch, 
     assert record['customers_dispatched'] is False
     assert not any('jwt.encode' in program for program in api_calls)
     assert (tmp_path / 'candidate' / 'stage.private.json').is_file()
+
+
+def test_only_exact_pinned_legacy_producer_can_supply_missing_layout():
+    value = fixture(); value.pop('fixture_layout')
+    for fingerprint in (None, 'a'*64):
+        with pytest.raises(ValueError):
+            evidence.fixture_identity(value, 1, now=NOW, producer_sha256=fingerprint)
+    result = evidence.fixture_identity(value, 1, now=NOW, producer_sha256=evidence.LEGACY_DISTRIBUTED_PRODUCER)
+    assert result['fixture_layout'] == 'distributed'
+    assert 'fixture_layout' not in value
+    with pytest.raises(ValueError):
+        evidence.fixture_identity(dict(value, fixture_layout='single-concert'), 1, now=NOW,
+                                  producer_sha256=evidence.LEGACY_DISTRIBUTED_PRODUCER)

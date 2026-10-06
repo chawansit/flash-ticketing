@@ -208,6 +208,25 @@
         }
       ],
       "finished_at_utc": "2026-10-06T10:25:57.370045+00:00"
+    },
+    {
+      "ledger": "bounded_slow_database_diagnostics__7c5c5950fffd",
+      "authorization_id": "work-envelope-7c5c5950fffd",
+      "envelope_sha256": "7532a85e603674f28d77d6ef1dfa049beb66343059f8ba0a0aa675edf82016d1",
+      "binding_sha256": "826a87a43e6f2dd04c3423835f0926f61d0e4f57627d954ebb4286513cb7712e",
+      "plan_sha256": "c99fc97e545e5a0b0552351a1cf0a6b0a8ca0897cf101423e2e9da9522cd584f",
+      "profile": "slow_database_control",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 305.43799999999464,
+      "started_at_utc": "2026-10-06T15:46:48.738716+00:00",
+      "status": "RECOVERY_REQUIRED",
+      "reports": [
+        {
+          "run": "adr0151-0013af72d51b",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-06T15:51:54.808161+00:00"
     }
   ],
   "verified_aborts": {
@@ -215,6 +234,11 @@
       "entry_sha256": "f2f83b34ae62c75f4821be1103fe34cf6ba98b58668f263e2303e6dbce7494cc",
       "receipt_path": "docs/capacity/flash-sale-opening/pre-dispatch-abort-recovery-2026-10-06.json",
       "receipt_sha256": "a18ada0433328f49616fc1f44953cb899a5cf36809dd17cb7f39a7fdb45d9895"
+    },
+    "bounded_slow_database_diagnostics__7c5c5950fffd": {
+      "entry_sha256": "57078b2bb9794919b25f25282c99a5d487bbc2e321a159b8154ab5ba5f636b01",
+      "receipt_path": "docs/capacity/flash-sale-opening/fixture-format-abort-recovery-2026-10-06.json",
+      "receipt_sha256": "54d0d654b04230450b15af50fb883ed5c8c74850fe7f4ea9216b6e9357039c77"
     }
   },
   "historical_exceptions": {
