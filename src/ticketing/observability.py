@@ -46,6 +46,11 @@ SIMULATOR_PHASE_SECONDS = Histogram(
     "ticketing_simulator_phase_seconds", "Development callback dispatch phase wall time",
     ["phase", "outcome"], buckets=(.001, .005, .01, .025, .05, .1, .25, .5, 1, 2, 5, 10),
 )
+SIMULATOR_CONFIGURED_DELAY_SECONDS = Histogram(
+    "ticketing_simulator_configured_delay_seconds",
+    "Synthetic gateway delay per request or delivery; separate from processing and queue time",
+    ["phase"], buckets=(.02, .05, .1, .15, 1, 2, 3, 10, 60, 600),
+)
 SIMULATOR_DUE_TO_CLAIM_SECONDS = Histogram(
     "ticketing_simulator_due_to_claim_seconds", "DB-clock due-to-claim statement age",
     buckets=(.001, .01, .1, .25, .5, 1, 2, 5, 10, 15, 30, 60, 120),

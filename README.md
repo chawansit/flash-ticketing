@@ -156,3 +156,23 @@ still requires capacity validation. See [ADR 0016](docs/adr/0016-isolated-reconc
 Latest cloud validation: [concentrated seat-map reads, seat contention and burst recovery](docs/capacity/concentrated-traffic/README.md). Hot reads passed 400 RPS for five minutes; contention retained one durable winner but exposed admission and client-latency limits.
 
 Latest diagnosis: [connection reuse and generator timing under seat contention](docs/capacity/contention-timing/README.md). Sixteen cloud waves retained one durable winner each; client queueing was material, and admission limits remain unresolved.
+
+### Payment simulator latency
+
+New local deployments use `SIMULATOR_LATENCY_PROFILE=bank-like`. These are synthetic assumptions, not measured gateway performance.
+
+| Phase | Delay |
+| --- | --- |
+| Initiation | Uniform 50â€“150 ms per request |
+| Confirmation | Stable jitter of 1â€“3 seconds per actor/order/idempotency key |
+| Callback transport | Uniform 20â€“100 ms per delivery |
+
+POST to `/v1/orders/{order_id}/payments` with an idempotency key and, for example, `{"outcome":"SUCCEEDED","duplicates":1}`. Omit `delay_seconds` to use the confirmation profile. An explicit numeric value overrides confirmation only. `duplicates` is the total target delivery count, including the first callback.
+
+Initiation yields the API event loop before persistence. Confirmation is a durable `due_at` schedule; no worker or database connection waits for those seconds. The short callback transport wait occurs outside the claim transaction, uses an existing bounded callback slot, and is separate from HTTP processing. Leases, replay protection and token-fenced acknowledgements are unchanged.
+
+For an unchanged legacy zero-delay control, set `SIMULATOR_LATENCY_PROFILE=none` on the API and simulator and send `"delay_seconds":0`. With `none`, omitting the field retains the former one-second default. Existing paid generators explicitly send zero; they must omit that override for a realistic confirmation profile. Match profile and all other factors between baseline and candidate.
+
+Prometheus `ticketing_simulator_configured_delay_seconds{phase=...}` records the chosen delays, including confirmation overrides. Compare it separately from `ticketing_simulator_due_to_claim_seconds` (unexpected scheduling lateness) and `ticketing_simulator_phase_seconds` (claim, HTTP delivery and acknowledgement). The transport delay does not enter the HTTP delivery phase timer.
+
+Implementation does not update frozen cloud images or establish simulator capacity. See [ADR0214](docs/adr/0214-bounded-payment-gateway-latency.md).

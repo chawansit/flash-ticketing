@@ -3141,5 +3141,15 @@
       "reserved_seconds": 79200
     },
     "publication": "Reviewed checkpoint code and sanitized evidence included on codex/standing-work-envelope; no main merge."
+  },
+  "payment_simulator_latency_checkpoint": {
+    "decision": "docs/adr/0214-bounded-payment-gateway-latency.md",
+    "evidence": "docs/capacity/flash-sale-opening/payment-gateway-latency-local-2026-10-07.json",
+    "status": "implemented_and_locally_tested_not_cloud_deployed",
+    "unit_passed": 63,
+    "integration_passed": 36,
+    "cloud_calls": 0,
+    "capacity_improvement_measured": false,
+    "note": "New local default bank-like; frozen cloud configuration and failed recovery are unchanged. Explicit numeric confirmation delay overrides remain available."
   }
 }

@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "decision": "docs/adr/0214-bounded-payment-gateway-latency.md",
+  "status": "implemented_and_locally_tested_not_cloud_deployed",
+  "application_base_revision": "98f0f4c7640bdadeeb986a69da385e4a3d0be14e",
+  "profile": "bank-like",
+  "synthetic_assumptions_not_provider_measurements": true,
+  "delays": {
+    "initiation_seconds": [
+      0.05,
+      0.15
+    ],
+    "confirmation_seconds": [
+      1,
+      3
+    ],
+    "callback_network_seconds": [
+      0.02,
+      0.1
+    ]
+  },
+  "selection": {
+    "initiation": "uniform_per_request",
+    "confirmation": "stable_identity_hash_per_actor_order_idempotency_key",
+    "callback_network": "uniform_per_delivery"
+  },
+  "confirmation_override": "explicit numeric delay_seconds; omission uses profile",
+  "legacy_control": "SIMULATOR_LATENCY_PROFILE=none and delay_seconds=0 on API/simulator",
+  "database_transactions_held_during_delays": false,
+  "short_callback_delay_uses_existing_bounded_slot": true,
+  "validation": {
+    "unit": {
+      "passed": 63,
+      "seconds": 14.3
+    },
+    "integration": {
+      "passed": 36,
+      "seconds": 24.41,
+      "services": "isolated PostgreSQL 17.6 and Redis 7.4.5",
+      "owned_containers_removed": true,
+      "actual_seconds_including_setup_cleanup": 33.046
+    },
+    "ruff": "passed",
+    "diff_check": "passed",
+    "naming": "passed working and staged snapshots"
+  },
+  "preserved": [
+    "customer authorization",
+    "idempotency",
+    "callback lease and fenced acknowledgement",
+    "duplicate callback recovery",
+    "paid ticket durability after hold expiry",
+    "financial persistence and messaging patterns"
+  ],
+  "cloud_calls": 0,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "unresolved": "Previous failed-paid recovery remains required. Existing frozen zero-delay generator/profile unchanged; cloud adoption requires fresh exact-bound configuration and recovery closure."
+}

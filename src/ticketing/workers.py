@@ -22,6 +22,7 @@ from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.order_status_cache import RedisOrderStatusCache
 from ticketing.infrastructure.order_status_projector import ORDER_EVENTS, CommittedOrderStatusProjector
 from ticketing.infrastructure.payment_confirmation import PostgresPaymentConfirmation
+from ticketing.infrastructure.payment_simulator_latency import sample_delay
 from ticketing.infrastructure.payment_transport import CallbackTransport
 from ticketing.infrastructure.postgres import Postgres
 from ticketing.infrastructure.redis_reservations import RedisReservationIntake
@@ -46,6 +47,7 @@ from ticketing.observability import (
     RESERVATION_PERSISTENCE_FAILURES,
     RESERVATION_PERSISTENCE_PHASE_SECONDS,
     SIMULATOR_BATCH_BARRIER_SECONDS,
+    SIMULATOR_CONFIGURED_DELAY_SECONDS,
     SIMULATOR_DUE_TO_CLAIM_SECONDS,
     WORKER_ERRORS,
     configure_logging,
@@ -954,6 +956,11 @@ def simulate_one(db, settings, transport=None):
         "outcome": row["outcome"],
     }
     raw = json.dumps(payload).encode()
+    # A short synthetic transport wait uses a bounded slot, never a DB connection.
+    network_delay = sample_delay(settings.simulator_latency_profile, "callback_network")
+    SIMULATOR_CONFIGURED_DELAY_SECONDS.labels("callback_network").observe(network_delay)
+    if network_delay:
+        time.sleep(network_delay)
     timestamp = str(int(time.time()))
     signature = hmac.new(
         settings.webhook_secret.encode(), timestamp.encode() + b"." + raw, hashlib.sha256

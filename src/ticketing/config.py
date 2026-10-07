@@ -47,6 +47,7 @@ class Settings:
     consumer_batch_wait_ms: int = int(os.getenv("CONSUMER_BATCH_WAIT_MS", "10"))
     simulator_dispatch_mode: str = os.getenv("SIMULATOR_DISPATCH_MODE", "batch")
     simulator_concurrency: int = int(os.getenv("SIMULATOR_CONCURRENCY", "4"))
+    simulator_latency_profile: str = os.getenv("SIMULATOR_LATENCY_PROFILE", "bank-like")
     refresh_cooldown_ms: int = int(os.getenv("REFRESH_COOLDOWN_MS", "250"))
     refresh_batch_size: int = int(os.getenv("REFRESH_BATCH_SIZE", "16"))
     expiry_batch_size: int = int(os.getenv("EXPIRY_BATCH_SIZE", "8"))
@@ -159,6 +160,8 @@ class Settings:
             raise RuntimeError("CONSUMER_BATCH_SIZE must be between 1 and 100")
         if not 1 <= self.consumer_batch_wait_ms <= 100:
             raise RuntimeError("CONSUMER_BATCH_WAIT_MS must be between 1 and 100")
+        if self.simulator_latency_profile not in {"bank-like", "none"}:
+            raise RuntimeError("SIMULATOR_LATENCY_PROFILE must be bank-like or none")
         if self.simulator_dispatch_mode not in {"batch", "refill"}:
             raise RuntimeError("SIMULATOR_DISPATCH_MODE must be batch or refill")
         if not 1 <= self.simulator_concurrency <= self.pool_max:

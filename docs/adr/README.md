@@ -368,3 +368,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0212: Canonical worker host workspaces](0212-canonical-worker-host-workspaces.md)
 
 - [ADR0213: Bounded worker manifest and zero-dispatch recovery](0213-bounded-worker-manifest-and-zero-dispatch-recovery.md)
+
+- [ADR0214: Bounded payment gateway latency](0214-bounded-payment-gateway-latency.md)

@@ -26,6 +26,7 @@ from ticketing.http import RequestInstrumentation
 from ticketing.infrastructure.cache import RedisSeats
 from ticketing.infrastructure.order_status_cache import RedisOrderStatusCache
 from ticketing.infrastructure.payment_confirmation import PostgresPaymentConfirmation
+from ticketing.infrastructure.payment_simulator_latency import confirmation_delay, sample_delay
 from ticketing.infrastructure.postgres import create_api_databases
 from ticketing.infrastructure.redis_reservations import RedisReservationIntake
 from ticketing.infrastructure.reservations import PostgresReservations, RedisFirstReservations
@@ -34,6 +35,7 @@ from ticketing.observability import (
     EVENT_LOOP_LAG_CURRENT_SECONDS,
     EVENT_LOOP_LAG_SECONDS,
     OUTCOMES,
+    SIMULATOR_CONFIGURED_DELAY_SECONDS,
     configure_logging,
     hold_phase,
     observe_hold_phase,
@@ -169,7 +171,10 @@ class OrderInput(BaseModel):
 
 class PaymentInput(BaseModel):
     outcome: Literal["SUCCEEDED", "FAILED"] = "SUCCEEDED"
-    delay_seconds: int = Field(default=1, ge=0, le=600)
+    delay_seconds: int | float | None = Field(
+        default=None, ge=0, le=600,
+        description="Omit for the configured gateway confirmation delay; a number overrides it.",
+    )
     duplicates: int = Field(default=3, ge=1, le=10)
 
 
@@ -417,11 +422,26 @@ def get_order(order_id: UUID, who: Actor, svc: Service, response: Response):
 
 
 @app.post("/v1/orders/{order_id}/payments", tags=["Payment simulator"], responses=ERRORS, status_code=202)
-def payment(order_id: UUID, body: PaymentInput, who: Actor, svc: Service, key: Key):
-    """Development only. Durable dispatch; no network calls inside reservation transactions."""
+async def payment(order_id: UUID, body: PaymentInput, who: Actor, svc: Service, key: Key):
+    """Development only. Synthetic gateway waits never occupy database transactions.
+
+    bank-like profile: initiation 50â€“150 ms, confirmation 1â€“3 seconds,
+    callback transport 20â€“100 ms. Explicit delay_seconds overrides confirmation only.
+    """
     if settings.environment != "development":
         raise Failure("SIMULATOR_DISABLED", 403)
-    return svc.initiate_payment(who, order_id, key, body.outcome, body.delay_seconds, body.duplicates)
+    profile = settings.simulator_latency_profile
+    delay = confirmation_delay(profile, who, order_id, key, body.delay_seconds)
+    initiation = sample_delay(profile, "initiation")
+    SIMULATOR_CONFIGURED_DELAY_SECONDS.labels("initiation").observe(initiation)
+    SIMULATOR_CONFIGURED_DELAY_SECONDS.labels("confirmation").observe(delay)
+    if initiation:
+        await asyncio.sleep(initiation)
+    from starlette.concurrency import run_in_threadpool
+
+    return await run_in_threadpool(
+        svc.initiate_payment, who, order_id, key, body.outcome, delay, body.duplicates,
+    )
 
 
 @app.post("/v1/webhooks/payments", tags=["Payments"], responses=ERRORS)
