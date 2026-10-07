@@ -1,0 +1,59 @@
+{
+  "decision": "ADR0198",
+  "recorded_at_utc": "2026-10-07T07:20:16.311130+00:00",
+  "base_revision": "a34936e1841d1212215d432002e5f689393ce077",
+  "implemented": [
+    "Original guarded paid-stage adapter with frozen 60 journeys/s, 300-second workload and 18,000 expected paid tickets per arm",
+    "Retained fixture before token creation; exact fixture, manifest, adapter source and observer inventory bindings",
+    "Both host CPU windows and complete qualified worker observers; failed startup blocks buyer dispatch",
+    "Persisted paid allowance before launch; candidate requires a restored passing control; no ambiguous replay",
+    "Exact Linux PID, process-start and command identity; identity receipt fsync; pause-safe independent job cleanup",
+    "Independent payment/post-TTL, double-booking and full queue/Kafka audit attempts after any interruption"
+  ],
+  "source_sha256": {
+    "scripts/worker_separation_paid_jobs.py": "9e9d13e2244ac7734c8a6e68fe6dc891b6eb325944159516b1f26bea70ece86f",
+    "scripts/worker_separation_paid_stage.py": "022b803afa66ac7a4c032e425ac3fe913097d7adf6a7e5d3e7bddaf205d85221",
+    "tests/unit/test_worker_separation_paid_stage.py": "794e6ec10e99ecec3ba7cebe7d6b629c2948a0e084cb925c42e0720a537b9c55"
+  },
+  "validation": {
+    "affected_suite": {
+      "passed": 618,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 175.7,
+      "raw_evidence": "tmp/adr0153-parents-7a7af6df4791/qualification-tests.txt",
+      "scope": "Before the final adapter-source fingerprint and strict boolean stop-evidence corrections"
+    },
+    "final_focused_suite": {
+      "passed": 43,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 44.92,
+      "raw_evidence": "tmp/adr0153-parents-5c44e398b593/paid-stage-focused-tests.txt",
+      "scope": "Final paid-stage/job changes; actual adapter ordering uses synthetic transport and observer outcomes"
+    },
+    "native_linux_case": "Cached immutable local image, no network, actual launcher metadata and owned process-group stop; no cloud or customer transactions",
+    "postgresql_cases": "The affected suite retains existing real local PostgreSQL financial integration checks; the new stage ordering scenarios use synthetic audit adapters",
+    "ruff": "passed",
+    "working_tree_naming": "passed before the final checkpoint files; rerun required before publication",
+    "owned_local_test_resources_remaining": 0
+  },
+  "development_corrections": [
+    "Correct Python source-write quoting before file creation",
+    "Avoid a second primary-host helper upload because DiagnosticActions already stages these exact sources",
+    "Limit native test template substitution to the intended marker before embedding source text",
+    "Include the complete actual paid-job import closure in the Linux test",
+    "Bind the paid adapter source and reject integer/string substitutes for boolean stop evidence"
+  ],
+  "cloud_load_started": false,
+  "cloud_calls": 0,
+  "capacity_improvement_measured": false,
+  "full_worker_lifecycle_qualified": false,
+  "worker_profile_registered": false,
+  "remaining": [
+    "Assemble exact independent restoration and private-artifact cleanup/retention with the paid stage",
+    "Locally qualify the complete lifecycle failure, pause, journal-loss and restoration paths",
+    "Register the worker profile, reserve a fresh scope and pass live preflight before the matched comparison"
+  ],
+  "publication_scope": "Reviewed code and sanitized evidence to codex branch only; no main merge"
+}

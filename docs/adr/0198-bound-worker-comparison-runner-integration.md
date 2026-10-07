@@ -1,7 +1,7 @@
 # ADR0198: Bound worker comparison runner integration
 
 ## Status
-Accepted for implementation under ADR0172 and ADR0184–ADR0197. The worker profile remains unregistered until complete local lifecycle qualification. Observer and diagnostic setup components are locally qualified; paid-stage dispatch and the complete lifecycle remain pending. No production topology decision or customer gate is superseded.
+Accepted for implementation under ADR0172 and ADR0184–ADR0197. The worker profile remains unregistered until complete local lifecycle qualification. Observer, diagnostic setup and paid-stage adapter components are locally qualified. Complete restoration/artifact cleanup assembly and full lifecycle qualification remain pending. No production topology decision or customer gate is superseded.
 
 ## Context
 The historical paid runner assumes a two-host API placement. Worker separation retains all four APIs on the primary machine and moves only the same background workers. Shared source assumptions and historical inventory markers cannot certify this topology.
@@ -28,3 +28,7 @@ The affected suite passed 577 tests with zero failures or skips in 121.99 second
 The diagnostic transport and runtime fault tests use synthetic observations. Live RDS TLS, diagnostic credentials and dependency readiness were not exercised. The worker profile remains unregistered, and complete paid-stage/lifecycle qualification is pending. No cloud readiness, deployment, load or capacity improvement is claimed.
 
 See [the compact integration checkpoint](../capacity/flash-sale-opening/background-service-separation-runner-integration-2026-10-07.json).
+
+The paid-stage adapter now preserves the frozen 60 journeys/s, 300-second workload, retains and binds the exact fixture before token creation, verifies transferred sources and the private token manifest, and consumes the paid allowance before a potentially ambiguous launch. The launcher uses the existing command template, records exact process identity, flushes its ownership receipt, and independently stops owned jobs after pause or interruption. Stage completion cannot certify restoration or authorize the candidate; candidate dispatch requires a restored passing control. The primary host verifies already-staged observer helpers instead of uploading them twice.
+
+The affected suite passed 618 tests with zero failures or skips in 175.70 seconds. After final adapter-source fingerprint and strict boolean stop-evidence corrections, 43 focused tests passed with zero failures or skips in 44.92 seconds, including an isolated Linux launcher/process-group cleanup case. Stage ordering and fault scenarios use synthetic transports and observer outcomes; they do not prove live database trust, customer throughput or production restoration. The worker profile remains unregistered. See [the paid-stage integration checkpoint](../capacity/flash-sale-opening/background-service-separation-paid-stage-integration-2026-10-07.json).
