@@ -6,6 +6,7 @@ import re
 
 import work_envelope as policy
 from fetch_status_refresh_parents import owner_path, validate_owner
+from two_host_topology import literal_model
 from worker_separation_preload import binding_for
 from worker_separation_runtime import RuntimeActions
 from worker_separation_topology import validate_pair
@@ -26,7 +27,7 @@ def bundle(pair, saved, arm, host, scope_sha256):
     documents = {'arm.compose.json': model}
     if host == 'primary':
         documents['restore.compose.json'] = saved['model']
-    files = {name: json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False) + '\n'
+    files = {name: json.dumps(literal_model(value), sort_keys=True, separators=(',', ':'), allow_nan=False) + '\n'
              for name, value in documents.items()}
     if any(not 0 < len(value.encode('utf-8')) <= MAX_FILE for value in files.values()):
         raise ValueError('Bounded nonempty configuration required')

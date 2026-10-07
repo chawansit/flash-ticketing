@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "decision": "ADR0195",
+  "placement_decision": "ADR0184",
+  "base_revision": "9538a3ae4e008a61d8bb8eeac91b0bf02c9dd288",
+  "recorded_at_utc": "2026-10-07T03:54:30.754438+00:00",
+  "status": "execution_components_locally_qualified_full_live_lifecycle_pending",
+  "implemented": [
+    "Guarded common infrastructure application with exact original Kafka volume and immutable image retention",
+    "Fixed seven-role destination starts after independent two-host worker absence",
+    "Partial-start cleanup by observed immutable container IDs with per-target identity rechecks",
+    "Sealed original runtime restoration with independent complete semantic verification",
+    "Fresh bound dispatch/full-queue/Kafka drain receipts and durable single-use action intents",
+    "Existing Compose literal escaping applied to sealed documents; complete model/file binding and pre-application executable-setting validation"
+  ],
+  "validation": {
+    "final_affected_suite": {
+      "passed": 390,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 45.76,
+      "cache_provider_disabled": true
+    },
+    "generated_program_real_linux_cases_with_simulated_docker": 11,
+    "existing_configuration_real_linux_file_cases": 14,
+    "real_local_compose_literal_probe": {
+      "passed": true,
+      "environment_and_command_exact": true,
+      "owned_container_removed": true,
+      "business_runtime_deployed": false
+    },
+    "local_owned_test_containers_remaining": 0,
+    "ruff_pass": true,
+    "repository_naming_working_pass": true,
+    "faults": [
+      "Partial or lost common application/start/stop/restoration acknowledgement",
+      "Scope, transport, stale drain or sealed model drift",
+      "Foreign, replaced, overlapping or oversized resources",
+      "Broker volume, bind file, execution option, image and health drift",
+      "Pause and local journal failure with known owned cleanup",
+      "Unregistered profile remains blocked"
+    ],
+    "qualification_history": [
+      {
+        "passed": 38,
+        "failed": 33,
+        "corrected": "Synthetic runtime fixture omitted materialized image environment defaults"
+      },
+      {
+        "passed": 34,
+        "pytest_seconds": 7.56
+      },
+      {
+        "passed": 12,
+        "pytest_seconds": 5.59,
+        "scope": "New POSIX and real Compose tests"
+      },
+      {
+        "passed": 97,
+        "pytest_seconds": 18.77,
+        "scope": "Configuration and execution components"
+      }
+    ],
+    "source_sha256": {
+      "scripts/worker_separation_execution.py": "e78b4012a703719c580d8f8c89674d10a1c878bfbf975b0a967e9c1a66e3fa76",
+      "scripts/worker_separation_configuration.py": "b56acbc0a1d12cd234e0917fb4a4b919ec4e2af3088b775bfca5a463e4bb1d27",
+      "tests/unit/test_worker_separation_execution.py": "2f4aa39c4487a1956cc87bed5b6097140f7581c49011054945a921776d1b7a14",
+      "tests/unit/test_worker_separation_configuration.py": "9715bad6aaf45af0b2db3c4618aefd130372cf20c23d11482c3b6eff43367a57",
+      "tests/integration/test_worker_execution_posix.py": "a1309c9b5da3922ff4aad464890264c65f30548e401308ac39325e18fab86320"
+    },
+    "local_test_log": {
+      "path": "tmp/adr0195-local-tests.txt",
+      "sha256": "7bd6a3bf2d0ea74ad5a227f23cedbf8f720ed67f03c6f94d6576c213f7896d50"
+    },
+    "linux_python_image": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e",
+    "limitations": "Generated execution programs used simulated Docker on real Linux; only literal serialization had a real local Compose container probe. Original-stop acknowledgements in execution unit tests were emulated. Full live lifecycle, readiness and financial audits remain unqualified."
+  },
+  "remaining": [
+    "Private dependency readiness and complete financial/audit/observer lifecycle integration",
+    "Local qualification of the complete live adapter and fresh guarded worker profile registration",
+    "Matched four-primary-API worker placement comparison, then 84 paid-and-issued tickets/s and hourly qualification"
+  ],
+  "fixed_factor": {
+    "api_placement": "four primary APIs in both arms",
+    "worker_placement": "primary versus existing secondary",
+    "images_and_logical_pool_budgets": "unchanged between arms"
+  },
+  "cloud_deployments": 0,
+  "cloud_load_started": false,
+  "customer_dispatches": 0,
+  "capacity_improvement_measured": false,
+  "hourly_qualified": false,
+  "worker_profile_registered": false,
+  "historical_financial_reconciliation_verified": false,
+  "cloud_accounting_unchanged": true,
+  "new_infrastructure_spending": 0,
+  "actual_cumulative_cloud_seconds": 14324.329999999987
+}

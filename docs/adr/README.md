@@ -330,3 +330,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0193: Bounded atomic payment claim comparison](0193-bounded-atomic-payment-claim-comparison.md)
 
 - [ADR0194: Sealed worker configuration bundles](0194-sealed-worker-configuration-bundles.md)
+
+- [ADR0195: Guarded worker execution and exact restoration](0195-guarded-worker-execution-and-exact-restoration.md)

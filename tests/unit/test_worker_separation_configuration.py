@@ -59,9 +59,9 @@ def test_models_and_hashes_exactly_match_prepared_pair_and_saved_restoration(arm
     saved, _, _, inputs = source.fixture()
     before = copy.deepcopy((inputs, saved))
     value = config.bundle(inputs['pair'], saved, arm, host, 'a' * 64)
-    assert json.loads(value['files']['arm.compose.json']) == inputs['pair'][arm][host]
+    assert json.loads(value['files']['arm.compose.json']) == config.literal_model(inputs['pair'][arm][host])
     if host == 'primary':
-        assert json.loads(value['files']['restore.compose.json']) == saved['model']
+        assert json.loads(value['files']['restore.compose.json']) == config.literal_model(saved['model'])
     else:
         assert set(value['files']) == {'arm.compose.json'}
     assert (inputs, saved) == before
