@@ -104,3 +104,75 @@ def test_journal_failure_never_clears_ownership(case,tmp_path,monkeypatch):
     monkeypatch.setattr(policy,'write',lambda *args:(_ for _ in ()).throw(OSError('Synthetic disk full')))
     with pytest.raises(OSError):recovery.close('ledger',case[2],case[3],case[4],evidence)
     assert records['state']['current_run'] is not None and not writes
+
+
+def bootstrap_case(case):
+    state,journal,report,_package,_config=case
+    report['staging'].update(status='STAGED_VERIFIED',pass_=True)
+    report['staging'].pop('pass_');report['staging']['pass']=True
+    report['staging']['hosts']['secondary']=copy.deepcopy(report['staging']['hosts']['primary'])
+    report['arms']={'control':{'arm':'control','decision':'ADR0200','status':'RECOVERY_REQUIRED','pass':False,
+        'customers_dispatched':False,'zero_dispatch_proven':True,'restoration_complete':False,'failures':[],
+        'bootstrap_recovery':{'bootstrap_zero_dispatch':{'financial_cohort':'not_created','zero_dispatch':True}},
+        'events':['install_primary','verify_original_runtime','verify_generator_idle','initial_queue_drain',
+                  'stop_original_workers','verify_all_workers_absent','configure_common_infrastructure']}}
+    state['ledger']['worker_result_sha256']=policy.digest(report);journal['experiments'][0]['result_sha256']=policy.digest(report)
+    return case
+
+
+def test_bootstrap_failure_closes_only_after_original_runtime_and_cleanup_proof(case,tmp_path,monkeypatch):
+    case=bootstrap_case(case);records,_writes,evidence,receipt=setup_close(case,tmp_path,monkeypatch)
+    receipt.update(decision='ADR0206',original_runtime_restored=True,private_configuration_cleaned=True,
+                   restore_checks={'runtime_restored':True,'broker_volume_retained':True,'bind_files_restored':True,'secondary_empty':True})
+    evidence.write_text(json.dumps(receipt))
+    result=recovery.close('ledger',case[2],case[3],case[4],evidence)
+    assert result['status']=='FAILED_RESTORED' and records['journal']['experiments'][0]['recovery']['decision']=='ADR0206'
+
+
+@pytest.mark.parametrize('field,value',[('stage',{}),('customers_dispatched',True),('zero_dispatch_proven',False),('restoration_complete',True)])
+def test_bootstrap_customer_or_unknown_stage_cannot_close(case,field,value):
+    state,journal,report,package,config=bootstrap_case(case);report['arms']['control'][field]=value
+    state['ledger']['worker_result_sha256']=policy.digest(report);journal['experiments'][0]['result_sha256']=policy.digest(report)
+    with pytest.raises(ValueError):recovery.validate(state,journal,'ledger',report,package,config)
+
+
+@pytest.mark.parametrize('field',['original_runtime_restored','private_configuration_cleaned','restore_checks'])
+def test_bootstrap_missing_restore_proof_blocks_closure(case,tmp_path,monkeypatch,field):
+    case=bootstrap_case(case);_records,writes,evidence,receipt=setup_close(case,tmp_path,monkeypatch)
+    receipt.update(decision='ADR0206',original_runtime_restored=True,private_configuration_cleaned=True,
+                   restore_checks={'runtime_restored':True,'broker_volume_retained':True,'bind_files_restored':True,'secondary_empty':True})
+    receipt.pop(field);evidence.write_text(json.dumps(receipt))
+    with pytest.raises(ValueError):recovery.close('ledger',case[2],case[3],case[4],evidence)
+    assert not writes
+
+
+def restored_case():
+    import importlib.util
+    spec=importlib.util.spec_from_file_location('lifecycle_recovery_fixture',ROOT/'tests/unit/test_worker_separation_lifecycle.py')
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    model,original,volumes,hashes=module.original()
+    for row in original:row['Config']['Entrypoint']=None
+    saved=module.snapshot.capture_runtime(model,original,volumes,hashes)
+    for service in saved['model']['services'].values():service['entrypoint']=[]  # Historical sealed restore.
+    observed={'primary':copy.deepcopy(original),'secondary':[]}
+    for row in observed['primary']:row['Config']['Entrypoint']=[]
+    return saved,original,observed,volumes,hashes
+
+
+def test_authenticated_historical_null_to_empty_entrypoint_is_only_recovery_equivalence():
+    saved,original,observed,volumes,hashes=restored_case();before=copy.deepcopy(observed)
+    assert recovery.verify_restored_runtime(saved,original,observed,volumes,hashes)['runtime_restored']
+    assert observed==before
+
+
+@pytest.mark.parametrize('change',['original_command','observed_command','nonempty_entrypoint','image','user','unsealed','missing_original'])
+def test_empty_entrypoint_equivalence_cannot_hide_other_runtime_changes(change):
+    saved,original,observed,volumes,hashes=restored_case();row=observed['primary'][0]
+    if change=='original_command':original[0]['Config']['Cmd']=['foreign']
+    elif change=='observed_command':row['Config']['Cmd']=['foreign']
+    elif change=='nonempty_entrypoint':row['Config']['Entrypoint']=['foreign']
+    elif change=='image':row['Image']='sha256:'+'f'*64
+    elif change=='user':row['Config']['User']='root'
+    elif change=='unsealed':saved['model']['services'][row['Config']['Labels']['com.docker.compose.service']]['entrypoint']=None
+    else:original.pop()
+    with pytest.raises(ValueError):recovery.verify_restored_runtime(saved,original,observed,volumes,hashes)

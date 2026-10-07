@@ -35,6 +35,11 @@ def bind_images(model, image_rows):
                                                 for k, v in explicit.items()):
             raise ValueError('Resolved literal service environment required')
         service['environment'] = {**inherited, **explicit}
+        for field,key in [('user','User'),('working_dir','WorkingDir')]:
+            if service.get(field) is None and (field in service or config.get(key)):
+                service[field]=config.get(key) or ''
+            if field in service and not isinstance(service[field],str):
+                raise TypeError('Exact literal image user and working directory required')
         if service.get('entrypoint') is not None and service.get('command') is None:
             service['command'] = []  # Explicit entrypoint suppresses the image CMD in Compose.
         for field, key in [('command', 'Cmd'), ('entrypoint', 'Entrypoint')]:
@@ -166,7 +171,7 @@ def capture_runtime(model, rows, volumes, bind_hashes):
             raise ValueError('Exact original Compose default network required')
         service.update(image=row['Image'], pull_policy='never', environment=environment(row),
                        command=copy.deepcopy(row['Config']['Cmd'] or []),
-                       entrypoint=copy.deepcopy(row['Config'].get('Entrypoint') or []),
+                       entrypoint=copy.deepcopy(row['Config'].get('Entrypoint')),
                        ports=[{'target': p, 'protocol': proto, 'host_ip': ip, 'published': str(public)}
                               for p, proto, ip, public in bindings(row)])
         if row['Config'].get('Healthcheck') is not None:

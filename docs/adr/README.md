@@ -352,3 +352,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0204: Predeployment staging recovery](0204-predeployment-staging-recovery.md)
 
 - [ADR0205: Host-independent image content identity](0205-host-independent-image-content-identity.md)
+
+- [ADR0206: Resolved published port identity](0206-resolved-published-port-identity.md)

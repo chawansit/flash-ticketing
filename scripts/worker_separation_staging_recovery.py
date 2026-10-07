@@ -1,4 +1,4 @@
-"""ADR0204 read-only recovery of an exact failed predeployment staging scope."""
+"""ADR0204/0206 append-only closure of independently verified zero-dispatch failures."""
 import copy
 import math
 import time
@@ -31,23 +31,42 @@ def cleaned_predeployment(value):
                     and isinstance(v.get('seal'),dict) and v['seal'].get('owner')==v.get('owner') for v in hosts.values()))
 
 
+
+def zero_dispatch_bootstrap(report):
+    arms=report.get('arms')
+    if not isinstance(arms,dict) or set(arms)!={'control'}:return False
+    arm=arms['control']
+    fields={'arm','bootstrap_recovery','customers_dispatched','decision','events','failures','pass',
+            'restoration_complete','status','zero_dispatch_proven'}
+    return (isinstance(arm,dict) and set(arm)==fields and arm.get('arm')=='control'
+            and arm.get('status')=='RECOVERY_REQUIRED' and arm.get('pass') is False
+            and arm.get('customers_dispatched') is False and arm.get('zero_dispatch_proven') is True
+            and arm.get('restoration_complete') is False
+            and isinstance(arm.get('bootstrap_recovery'),dict)
+            and arm['bootstrap_recovery'].get('bootstrap_zero_dispatch')=={'financial_cohort':'not_created','zero_dispatch':True}
+            and isinstance(arm.get('events'),list) and arm['events'][:7]==[
+                'install_primary','verify_original_runtime','verify_generator_idle','initial_queue_drain',
+                'stop_original_workers','verify_all_workers_absent','configure_common_infrastructure'])
+
 def validate(state, journal, key, report, package, config):
     scope=state.get(key,{})
     matches=[entry for entry in journal['experiments'] if entry['ledger']==key]
     if len(matches)!=1:raise ValueError('One exact original reservation required')
     entry=matches[0];binding=scope.get('binding',{})
     counters=('paid_runs_started','paid_protocols_started','qualification_protocols_started','safety_protocols_started')
-    staging=report.get('staging',{});hosts=staging.get('hosts')
+    staging=report.get('staging',{});hosts=staging.get('hosts');bootstrap=zero_dispatch_bootstrap(report)
     if (entry.get('profile')!='worker_separation' or entry.get('status')!='RECOVERY_REQUIRED'
             or entry.get('binding_sha256')!=policy.digest(binding)
             or entry.get('result_sha256')!=policy.digest(report) or scope.get('worker_result_sha256')!=policy.digest(report)
             or state.get('current_run')!=report.get('run') or scope.get('active_run')!=report.get('run')
             or scope.get('worker_run')!=report.get('run') or report.get('binding_sha256')!=policy.digest(binding)
             or report.get('status')!='RECOVERY_REQUIRED' or report.get('pass') is not False
-            or report.get('comparison_attempted') is not True or report.get('arms')!={}
+            or report.get('comparison_attempted') is not True or (report.get('arms')!={} and not bootstrap)
             or any(type(scope.get(k)) is not int or scope[k]!=0 for k in counters)
             or scope.get('attempted_paid_arms',[])!=[]
-            or staging.get('status')!='FAILED_CLEANED' or staging.get('pass') is not False
+            or staging.get('status')!=('STAGED_VERIFIED' if bootstrap else 'FAILED_CLEANED')
+            or staging.get('pass') is not bootstrap
+            or (bootstrap and set(hosts or {})!={'primary','secondary'})
             or staging.get('runtime_unchanged') is not True
             or any(type(staging.get(k)) is not int or staging[k]!=0 for k in ('service_deployments','customer_dispatches'))
             or not isinstance(hosts,dict) or not hosts or not set(hosts)<={'primary','secondary'}
@@ -61,6 +80,22 @@ def validate(state, journal, key, report, package, config):
         raise ValueError('Exact failed, cleaned, zero-dispatch predeployment scope required')
     return copy.deepcopy(binding)
 
+
+
+def verify_restored_runtime(saved, original_rows, rows_by_host, volumes, bind_hashes):
+    """Authenticate old hashes before one exact empty-entrypoint representation equivalence."""
+    original_rows=[r for r in original_rows if r['Id'] in saved['original_containers']]
+    if sorted(r['Id'] for r in original_rows)!=sorted(saved['original_containers']):
+        raise ValueError('Exact original raw container identities required')
+    verify_restored(saved, {'primary':original_rows, 'secondary':[]}, volumes, bind_hashes)
+    expected={r['Config']['Labels']['com.docker.compose.service']:r['Config'].get('Entrypoint') for r in original_rows}
+    observed=copy.deepcopy(rows_by_host)
+    for row in observed.get('primary',[]):
+        role=row['Config']['Labels']['com.docker.compose.service']
+        if (role in expected and expected[role] is None and row['Config'].get('Entrypoint')==[]
+                and saved['model']['services'][role].get('entrypoint')==[]):
+            row['Config']['Entrypoint']=None
+    return verify_restored(saved, observed, volumes, bind_hashes)
 
 def verify(session, package, owners, expected_starts):
     """Existing read-only transport bodies; never stage, create, stop or deploy services."""
@@ -113,7 +148,10 @@ def close(key, report, package, config, evidence):
     required=('pass','runtime_unchanged','all_staging_owners_absent','zero_dispatch','zero_double_booking',
               'all_queues_zero','kafka_drained','generator_idle')
     if (receipt.get('ledger')!=key or receipt.get('original_result_sha256')!=policy.digest(report)
-            or receipt.get('binding_sha256')!=policy.digest(binding) or receipt.get('decision')!='ADR0204'
+            or receipt.get('binding_sha256')!=policy.digest(binding) or receipt.get('decision')!=('ADR0206' if zero_dispatch_bootstrap(report) else 'ADR0204')
+            or (zero_dispatch_bootstrap(report) and (receipt.get('original_runtime_restored') is not True
+                or receipt.get('private_configuration_cleaned') is not True
+                or receipt.get('restore_checks')!={'runtime_restored':True,'broker_volume_retained':True,'bind_files_restored':True,'secondary_empty':True}))
             or any(receipt.get(k) is not True for k in required)
             or receipt.get('financial_cohort')!='not_created' or not queue_checks(receipt.get('queue_counts'),1)
             or type(receipt.get('actual_elapsed_seconds')) not in (int,float)
@@ -121,7 +159,7 @@ def close(key, report, package, config, evidence):
         raise ValueError('Complete independently verified recovery receipt required')
     entry=next(r for r in journal['experiments'] if r['ledger']==key)
     entry['initial_status']=entry['status'];entry['initial_actual_elapsed_seconds']=entry['actual_elapsed_seconds']
-    entry['recovery']={'decision':'ADR0204','evidence':str(path.relative_to(policy.ROOT)),
+    entry['recovery']={'decision':receipt['decision'],'evidence':str(path.relative_to(policy.ROOT)),
                        'sha256':policy.digest(receipt),'actual_elapsed_seconds':receipt['actual_elapsed_seconds']}
     entry['actual_elapsed_seconds']+=receipt['actual_elapsed_seconds'];entry['status']='FAILED_RESTORED'
     policy.write(policy.JOURNAL,journal)

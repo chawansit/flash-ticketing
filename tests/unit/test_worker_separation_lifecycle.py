@@ -60,7 +60,7 @@ def test_snapshot_retains_actual_volume_and_runtime_overrides_without_mutation()
     assert result['model']['services']['api']['environment']['JWT_SECRET'] == 'a$literal#value'
     assert result['model']['services']['api']['logging']['options']['max-size'] == '10m'
     assert result['model']['services']['api']['command'] == ['uvicorn', 'ticketing.api:app']
-    assert result['model']['services']['api']['entrypoint'] == []
+    assert result['model']['services']['api']['entrypoint'] is None
     assert 'build' not in result['model']['services']['api']
     assert snapshot.verify_restored(result, {'primary': inputs[1], 'secondary': []}, inputs[2], inputs[3]) == {
         'runtime_restored': True, 'broker_volume_retained': True, 'bind_files_restored': True, 'secondary_empty': True}
@@ -380,3 +380,21 @@ def test_recovery_files_survive_journal_failure_after_verified_restoration(tmp_p
     assert result['status'] == 'RECOVERY_REQUIRED'
     assert ('verify_exact_restoration', True) in adapter.calls
     assert ('cleanup_owned_private_files', True) not in adapter.calls
+
+
+def test_image_user_directory_defaults_are_materialized_without_overwriting_overrides():
+    source=fixture_module('test_worker_separation_topology').model();records=images(source)
+    for row in records:row['Config'].update(User='ticketing',WorkingDir='/app')
+    source['services']['api'].update(user='custom',working_dir='/custom')
+    bound=snapshot.bind_images(source,records)
+    assert bound['services']['consumer']['user']=='ticketing'
+    assert bound['services']['consumer']['working_dir']=='/app'
+    assert bound['services']['api']['user']=='custom' and bound['services']['api']['working_dir']=='/custom'
+    assert 'user' not in source['services']['consumer']
+
+
+def test_restore_snapshot_preserves_null_entrypoint():
+    model,rows,volumes,hashes=original()
+    for row in rows:row['Config']['Entrypoint']=None
+    saved=snapshot.capture_runtime(model,rows,volumes,hashes)
+    assert saved['model']['services']['api']['entrypoint'] is None

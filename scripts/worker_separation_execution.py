@@ -83,9 +83,9 @@ def planned_row(row, service, model, ports, *, stopped=False):
             if field not in health: continue
             value = health[field]
             if field in {'interval', 'timeout', 'start_period', 'start_interval'}:
-                if not isinstance(value, str) or not re.fullmatch(r'[0-9]+ns', value):
-                    raise ValueError('Snapshot nanosecond health durations required')
-                value = int(value[:-2])
+                match=re.fullmatch(r'([0-9]+)(ns|us|ms|s|m|h)',value) if isinstance(value,str) else None
+                if match is None:raise ValueError('Exact integer health duration and supported unit required')
+                value=int(match[1])*{'ns':1,'us':1000,'ms':1000000,'s':1000000000,'m':60000000000,'h':3600000000000}[match[2]]
             expected_health[key] = value
     if row['Config'].get('Healthcheck') != expected_health: raise ValueError('Health policy changed')
 

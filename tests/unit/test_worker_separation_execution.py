@@ -298,3 +298,22 @@ def test_restoration_rejects_uncertain_absence_or_persistence(monkeypatch,change
     before=len(session.mutations)
     with pytest.raises(ValueError):engine.restore()
     assert len(session.mutations)==before
+
+
+@pytest.mark.parametrize('unit,multiplier',[('ns',1),('us',1000),('ms',1000000),('s',1000000000),('m',60000000000),('h',3600000000000)])
+def test_health_integer_units_match_exact_docker_nanoseconds(unit,multiplier):
+    _saved,_rows,_volumes,inputs=fixture();model=inputs['pair']['control']['primary'];service=model['services']['api']
+    service['healthcheck']={'test':['CMD','check'],'interval':'5'+unit,'timeout':'3'+unit,'retries':2}
+    row=next(r for r in rows_for(model,execution.INFRA) if r['Config']['Labels']['com.docker.compose.service']=='api')
+    row['Config']['Healthcheck']={'Test':['CMD','check'],'Interval':5*multiplier,'Timeout':3*multiplier,'Retries':2}
+    execution.planned_row(row,service,model,set())
+    row['Config']['Healthcheck']['Timeout']+=1
+    with pytest.raises(ValueError,match='Health policy changed'):execution.planned_row(row,service,model,set())
+
+
+@pytest.mark.parametrize('duration',['1.5s','1second','5',5,None])
+def test_unsupported_health_duration_is_rejected(duration):
+    _saved,_rows,_volumes,inputs=fixture();model=inputs['pair']['control']['primary'];service=model['services']['api']
+    service['healthcheck']={'test':['CMD','check'],'interval':duration}
+    row=next(r for r in rows_for(model,execution.INFRA) if r['Config']['Labels']['com.docker.compose.service']=='api')
+    with pytest.raises(ValueError,match='Exact integer health duration'):execution.planned_row(row,service,model,set())

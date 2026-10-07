@@ -40,11 +40,24 @@ def environment(row):
 
 
 def bindings(row):
-    return sorted(
-        (int(port.split("/")[0]), port.split("/")[1], bind["HostIp"], int(bind["HostPort"]))
-        for port, published in (row["HostConfig"].get("PortBindings") or {}).items()
-        for bind in (published or [])
-    )
+    result=[]
+    for port,published in (row['HostConfig'].get('PortBindings') or {}).items():
+        target,protocol=port.split('/')
+        for declared in published or []:
+            value=declared['HostPort'];interface=declared['HostIp']
+            if '-' in value:
+                lower,upper=map(int,value.split('-'))
+                if not interface or not 1<=lower<=upper<=65535:raise ValueError('Exact explicit bounded port range required')
+                matches=[item for item in (row.get('NetworkSettings',{}).get('Ports',{}).get(port) or [])
+                         if item['HostIp']==interface]
+                if len(matches)!=1:raise ValueError('One exact resolved interface binding required')
+                assigned=int(matches[0]['HostPort'])
+                if not lower<=assigned<=upper:raise ValueError('Resolved port outside declared range')
+            else:assigned=int(value)
+            if not 1<=assigned<=65535:raise ValueError('Bounded assigned port required')
+            result.append((int(target),protocol,interface,assigned))
+    if len(set(result))!=len(result):raise ValueError('Duplicate resolved port identity')
+    return sorted(result)
 
 
 def semantic(row):

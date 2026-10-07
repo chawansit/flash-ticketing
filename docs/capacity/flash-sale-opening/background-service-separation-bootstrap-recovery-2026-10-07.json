@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "decision": "ADR0206",
+  "base_revision": "0b8a15762641669fc4304342cb82dc0bf2ac2b14",
+  "recorded_at_utc": "2026-10-07T12:10:10.688478+00:00",
+  "original_run": "adr0153-parents-2de196db6da9",
+  "status": "FAILED_RESTORED",
+  "original_failed_report_preserved": true,
+  "scope_reopened": false,
+  "allowances_refunded": false,
+  "staging": "Both hosts verified immutable content and removed owned archives",
+  "failure": "Post-application observer rejected declared port ranges and omitted image defaults; original restore subsequently encoded null entrypoints as empty lists",
+  "customer_dispatches": 0,
+  "paid_runs_started": 0,
+  "candidate_started": false,
+  "service_mutation": "Common infrastructure applied and original workers stopped; original twelve-service topology subsequently restored",
+  "verification": {
+    "original_runtime_restored": true,
+    "private_configuration_cleaned": true,
+    "original_broker_volumes_retained": true,
+    "retained_inactive_inventory_preserved": true,
+    "secondary_empty": true,
+    "generator_idle": true,
+    "zero_double_booking": true,
+    "all_queues_zero": true,
+    "financial_cohort": "not_created; no paid stage began",
+    "queue_counts": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "pending_callback_deliveries": 0,
+      "pending_refunds": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "kafka_total_lag": 0,
+      "kafka_members": 1,
+      "pass": true,
+      "pending_confirmation_receipts": 0,
+      "review_confirmation_receipts": 0,
+      "confirmation_capacity_outstanding": 0,
+      "confirmation_capacity_mismatches": 0
+    },
+    "evidence": "tmp/adr0153-parents-eff6aa7465ed/recovery-verification.json",
+    "verification_seconds": 46.375
+  },
+  "accounting": {
+    "recovery_seconds": 121.5,
+    "known_failed_recovery_attempt_seconds": [
+      40.922,
+      34.203
+    ],
+    "recorded_experiments": 13,
+    "cumulative_actual_experiment_seconds": 14611.689,
+    "cumulative_reserved_seconds": 46800,
+    "cumulative_cap": null,
+    "new_infrastructure_spend": 0,
+    "note": "Known observed SSH attempt durations included; local pre-SSH failures and unmeasured diagnostics are not invented."
+  },
+  "implementation": [
+    "Resolve each port-range assignment on its exact interface; preserve fixed-port identities",
+    "Materialize inherited nonempty image User and WorkingDir before sealing",
+    "Compare exact integer Compose health units with Docker nanoseconds",
+    "Preserve observed null entrypoints in future restore snapshots",
+    "Authenticate original raw rows before the narrow historical null/empty equivalence",
+    "Close zero-dispatch bootstrap failure with separate verified recovery evidence, preserving consumed counters",
+    "Bind shared topology observer into future runner source identity"
+  ],
+  "tests": {
+    "focused_suite": {
+      "passed": 196,
+      "failed": 0,
+      "pytest_seconds": 26.48,
+      "evidence": "tmp/adr0206-targeted-final.txt"
+    },
+    "affected_runner_suite": {
+      "passed": 627,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 271.45,
+      "harness_seconds": 272.08,
+      "evidence": "tmp/adr0153-parents-3f3f279039ce/broker-qualification.txt",
+      "isolated_linux_checks": 3
+    }
+  },
+  "cloud_customer_load_started": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "next_action": "Prepare fresh live snapshot and bound package after affected-runner qualification/publication; run matched 60-journey/s 300-second control and candidate only after every control gate passes.",
+  "result": "original_runtime_restored_and_runner_regressions_qualified"
+}
