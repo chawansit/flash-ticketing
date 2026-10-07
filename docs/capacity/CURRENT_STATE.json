@@ -13,7 +13,7 @@
   "last_checked_topology": "ADR0216 restored original four-primary APIs and load-balancer/configuration; secondary test resources removed, generator idle, diagnostic credentials removed, full queues/Kafka drained. No permanent routing or placement adoption.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
-  "revision_note": "Checkpoint base cbbe4f8; Git HEAD identifies the commit containing ADR0208-0210 corrections.",
+  "revision_note": "ADR0216 comparison harness was committed at 9ae6abf63268c2dd8de41c02d3c7eef68f88a68b; its passed evidence was committed at d79c62200764fcef4d91800465544db641c2b1ee. Git HEAD identifies the latest checkpoint. Application/generator remain the frozen benchmark inputs with ADR0163 source/image bindings, not the local bank-like/SWR candidate.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -3348,7 +3348,9 @@
       "registered_experiments": 24,
       "actual_seconds": 23087.592999999935,
       "reserved_seconds": 86400
-    }
+    },
+    "implementation_revision": "9ae6abf63268c2dd8de41c02d3c7eef68f88a68b",
+    "evidence_revision": "d79c62200764fcef4d91800465544db641c2b1ee"
   },
   "bounded_callback_routing__7fdfc4e86333": {
     "authorization_id": "work-envelope-7fdfc4e86333",
