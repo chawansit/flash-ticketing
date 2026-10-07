@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-07",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "worker_paid_restoration_locally_qualified_candidate_identity_binding_pending",
+  "status": "worker_candidate_handover_locally_qualified_full_comparison_assembly_pending",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -1094,7 +1094,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Resolve per-arm restored identity binding, assemble and fault-qualify full guarded bootstrap/comparison, register only after qualification, then fresh live preflight/control/candidate.",
+  "next_action": "Assemble complete guarded bootstrap and paired progression with the ADR0199 passing-control continuation; fault-qualify full lifecycle and accounting before registration, then fresh live preflight/control/candidate.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -2398,6 +2398,23 @@
     "maximum_new_infrastructure_spend": 0
   },
   "last_engineering_checkpoint": {
+    "decision": "ADR0199",
+    "base_revision": "9e7f062fe2e8174225e83f1e77554b068eed7a71",
+    "evidence": "docs/capacity/flash-sale-opening/background-service-separation-handover-2026-10-07.json",
+    "recorded_at_utc": "2026-10-07T08:51:28.044054+00:00",
+    "tests_passed": 708,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "cloud_load_started": false,
+    "capacity_improvement_measured": false,
+    "full_worker_lifecycle_qualified": false,
+    "worker_observers_and_diagnostics_locally_qualified": true,
+    "worker_paid_stage_locally_qualified": true,
+    "worker_paid_restoration_locally_qualified": true,
+    "worker_candidate_handover_locally_qualified": true,
+    "profile_registered": false
+  },
+  "previous_engineering_checkpoint": {
     "decision": "ADR0198",
     "base_revision": "bb0671cb16f2427e75a3a7aad1b0b3e059ab20ec",
     "evidence": "docs/capacity/flash-sale-opening/background-service-separation-restoration-integration-2026-10-07.json",
@@ -2412,19 +2429,6 @@
     "worker_paid_restoration_locally_qualified": true,
     "profile_registered": false
   },
-  "previous_engineering_checkpoint": {
-    "decision": "ADR0198",
-    "base_revision": "a34936e1841d1212215d432002e5f689393ce077",
-    "evidence": "docs/capacity/flash-sale-opening/background-service-separation-paid-stage-integration-2026-10-07.json",
-    "recorded_at_utc": "2026-10-07T07:20:16.311130+00:00",
-    "tests_passed": 618,
-    "final_focused_tests_passed": 43,
-    "cloud_load_started": false,
-    "capacity_improvement_measured": false,
-    "full_worker_lifecycle_qualified": false,
-    "worker_observers_and_diagnostics_locally_qualified": true,
-    "worker_paid_stage_locally_qualified": true
-  },
   "post_round_prevention_review": {
     "requested": "2026-10-07",
     "timing": "After the current worker-runner integration/comparison round; keep the capacity objective in focus.",
@@ -2434,8 +2438,9 @@
     "round_observations": [
       "Local tests caught duplicate primary helper staging before cloud execution; primary helpers now use read-back verification.",
       "The paid stage binds adapter, fixture, inventory and transferred manifest identities before dispatch; ambiguous launches retain their consumed allowance and cleanup obligations.",
-      "Local restoration qualification found that recreated container IDs cannot reuse the initial handover snapshot. Fix the proven per-arm identity binding before cloud mutation instead of handling stale IDs during live load."
+      "Local restoration qualification found that recreated container IDs cannot reuse the initial handover snapshot. Fix the proven per-arm identity binding before cloud mutation instead of handling stale IDs during live load.",
+      "ADR0199 locally qualifies immutable passing-control handover receipts for recreated container IDs, preserving the baseline snapshot. Full comparison still requires enforced paired progression and registration."
     ]
   },
-  "worker_runner_integration_blocker": "Restoration creates new container IDs. RuntimeActions correctly rejects reuse of the initial original-container snapshot. A fresh, proven arm binding is required before candidate handover; no guard bypass implemented."
+  "worker_runner_integration_blocker": "Restored container continuation is locally qualified. Complete bootstrap/pair progression and persisted passing-control paid-stage authorization remain unassembled/unqualified; worker profile remains unregistered."
 }

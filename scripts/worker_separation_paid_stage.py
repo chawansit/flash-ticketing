@@ -28,7 +28,9 @@ FIXED = {'rate':60,'seconds':300,'expected_tickets':18000,'shows':60,'seats_per_
 IMAGE_HELPERS = ('observe_paid_pipeline.py','kafka_lag_observe.py','prepare_capacity_fixture.py')
 SCHEDULER = 'run_synchronized_paid_generator.py'
 ADAPTER_FILES = ('worker_separation_paid_stage.py','worker_separation_paid_jobs.py',
-                 'worker_separation_artifacts.py','worker_separation_recovery.py')
+                 'worker_separation_artifacts.py','worker_separation_recovery.py',
+                 'worker_separation_handover.py','worker_separation_runtime.py',
+                 'worker_separation_configuration.py','worker_separation_execution.py')
 
 
 def adapter_identity():

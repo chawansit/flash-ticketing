@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "decision": "ADR0199",
+  "base_revision": "9e7f062fe2e8174225e83f1e77554b068eed7a71",
+  "result": "restored_control_candidate_handover_locally_qualified",
+  "implemented": [
+    "Persisted passing-control summary provenance",
+    "Single-use same-session handover binding for restored IDs, starts and semantics",
+    "Original snapshot and scope hashes retained unchanged",
+    "Exact five-worker target verification and removal",
+    "Handover/runtime/configuration/execution sources included in paid-stage source contract"
+  ],
+  "tests": {
+    "final_suite": {
+      "passed": 708,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 292.92,
+      "harness_seconds": 294.25,
+      "raw_evidence": "tmp/adr0153-parents-c5a879f9a071/qualification-tests.txt"
+    },
+    "focused_suite": {
+      "passed": 54,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 52.76,
+      "raw_evidence": "tmp/adr0153-parents-47e2e5a2b7e0/handover-tests.txt"
+    },
+    "development_failure": {
+      "passed": 42,
+      "failed": 12,
+      "pytest_seconds": 53.61,
+      "raw_evidence": "tmp/adr0153-parents-d4fbeec7866e/handover-tests.txt",
+      "cause": "Windows path stat and descriptor fstat exposed different ctime semantics; compare portable identities across both, ctime within each observation method, and immutable content hashes."
+    },
+    "local_test_seconds_total": 399.29,
+    "coverage": [
+      "Restoration with changed IDs followed by exact original-worker stop",
+      "Failed controls and missing/tampered summaries",
+      "Receipt, image, restart, bind, scope and source drift",
+      "Same-session claim, stale receipt and single-use enforcement",
+      "Journal loss and unknown stop acknowledgement",
+      "Changed files during protected receipt read",
+      "Configuration constructor carries the proof",
+      "23 existing real PostgreSQL financial cases",
+      "Three existing isolated Linux cases"
+    ],
+    "runtime_transport_tests": "synthetic observations; generated exact-ID stop program executed against a simulated Docker transport"
+  },
+  "owned_local_postgres_removed": true,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "profile_registered": false,
+  "full_worker_lifecycle_qualified": false,
+  "remaining": [
+    "Complete guarded bootstrap and paired progression",
+    "Persist restored passing-control authorization before candidate paid allowance",
+    "Full lifecycle fault qualification before profile registration",
+    "Fresh registered live preflight and matched comparison"
+  ],
+  "accounting": "No cloud experiment or additional infrastructure spend; cloud ledger unchanged."
+}

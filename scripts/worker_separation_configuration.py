@@ -190,8 +190,8 @@ finally:os.close(parent)
 
 class ConfigurationActions:
     """Guarded configuration component; the complete worker profile stays unregistered."""
-    def __init__(self, session, guard, inputs, saved, arm, output):
-        self.runtime = RuntimeActions(session, guard, inputs, saved, arm, output)
+    def __init__(self, session, guard, inputs, saved, arm, output, *, handover=None):
+        self.runtime = RuntimeActions(session, guard, inputs, saved, arm, output, handover=handover)
         self.session = session
         self.arm, self.scope_key = arm, guard.key
         self.used, self.seals, self.failed, self.cleanup_used = set(), {}, False, set()

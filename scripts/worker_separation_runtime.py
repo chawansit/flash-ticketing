@@ -94,7 +94,7 @@ class RuntimeActions:
     """Partial transport-bound adapter; incomplete actions cannot authorize a lifecycle."""
     offline_only = False
 
-    def __init__(self, session, guard, inputs, saved, arm, output, *, drain_provider=None, now=None):
+    def __init__(self, session, guard, inputs, saved, arm, output, *, drain_provider=None, now=None, handover=None):
         if (arm not in {'control','candidate'} or not isinstance(guard,policy.ActionGuard)
                 or getattr(session,'action_guard',None) is not guard or getattr(session,'cleanup_mode',False)):
             raise ValueError('Same active guarded session and exact arm required')
@@ -117,6 +117,14 @@ class RuntimeActions:
                             'lifecycle_binding_sha256':policy.digest(self.binding)}
         self.used,self.failed = [],False
         self.original_starts = None
+        self.handover = handover
+        if handover is not None:
+            from worker_separation_handover import CandidateHandover
+            if type(handover) is not CandidateHandover or arm != 'candidate':
+                raise ValueError('Proven candidate continuation required')
+            handover.claim(self)
+            self.binding['handover_sha256'] = handover.sha256
+            self.audit_binding['lifecycle_binding_sha256'] = policy.digest(self.binding)
         self._authorize(5)
         output = Path(output).absolute()
         owner_path('/qualification/repository',output.name)
@@ -134,10 +142,13 @@ class RuntimeActions:
                 or check_authority(self.expected,self.guard.key)['status']!='PASS'):
             raise ValueError('Registered fresh exact worker scope required; recovery or pause blocks runtime actions')
         self.guard.check(timeout)
+        if self.handover is not None:self.handover._validate()
 
     def _write(self,kind,value):
         self.sequence += 1
-        _receipt(self.output/f'{self.sequence:04d}-{kind}.json',value)
+        path = self.output/f'{self.sequence:04d}-{kind}.json'
+        _receipt(path,value)
+        return path
 
     def _call(self,host,code,timeout):
         self._authorize(timeout)
@@ -150,7 +161,11 @@ class RuntimeActions:
         observed=self._observe()
         primary=observed['primary']
         verify_restored(self.saved,{h:o['rows'] for h,o in observed.items()},primary['volumes'],primary['bind_sha256'])
-        if sorted(r['Id'] for r in primary['rows'])!=self.saved['original_containers']:
+        expected_ids = self.saved['original_containers']
+        if self.handover is not None:
+            self.handover.verify(self, observed)
+            expected_ids = self.handover.container_ids
+        if sorted(r['Id'] for r in primary['rows'])!=expected_ids:
             raise ValueError('Original containers replaced before handover')
         starts={r['Id']:r['State']['StartedAt'] for r in primary['rows']}
         if self.original_starts is not None and starts!=self.original_starts:
@@ -194,7 +209,10 @@ class RuntimeActions:
             elif name=='verify_generator_idle':checks=self._idle()
             elif name=='stop_original_workers':
                 self._idle();observed=self._original();drained_at=self._drain()
-                program,targets=stop_program(self.saved,observed['primary']['rows'])
+                targets_snapshot = copy.deepcopy(self.saved)
+                if self.handover is not None:
+                    targets_snapshot['original_containers'] = self.handover.container_ids
+                program,targets=stop_program(targets_snapshot,observed['primary']['rows'])
                 self._write('stop-targets',{'targets':targets,'input_sha256':policy.digest(request)})
                 if not 0<=(self.now()-drained_at).total_seconds()<=30:
                     raise ValueError('Drain receipt expired before worker stop')

@@ -48,12 +48,15 @@ class RestoredPaidArm:
             raise ValueError('Original single-use paid stage and started guarded worker deployment required')
         self.stage,self.execution,self.runtime,self.session=stage,stage.execution,stage.runtime,stage.session
         self.used,self.journal_healthy=False,True
+        self.summary_path = None
         self.record={'decision':'ADR0198','arm':self.execution.arm,'pass':False,'restoration_complete':False,
                      'status':'RECOVERY_REQUIRED','failures':[],'events':[]}
         stage._guard(5)
 
     def _journal(self, kind, value):
-        try:self.runtime._write(kind,value)
+        try:
+            path = self.runtime._write(kind,value)
+            if kind == 'worker-arm-summary':self.summary_path = path
         except BaseException:  # noqa: BLE001 - journal loss cannot stop mandatory recovery.
             self.journal_healthy=self.execution.journal_healthy=False
             return False

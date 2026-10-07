@@ -1,7 +1,7 @@
 # ADR0198: Bound worker comparison runner integration
 
 ## Status
-Accepted for implementation under ADR0172 and ADR0184Ã¢â‚¬â€œADR0197. The worker profile remains unregistered until complete local lifecycle qualification. Observer, diagnostic setup, paid-stage and paid-arm restoration/artifact cleanup components are locally qualified. Complete guarded bootstrap/comparison qualification and candidate handover identity binding remain pending. No production topology decision or customer gate is superseded.
+Accepted for implementation under ADR0172 and ADR0184Ã¢â‚¬â€œADR0197. The worker profile remains unregistered until complete local lifecycle qualification. Observer, diagnostic setup, paid-stage and paid-arm restoration/artifact cleanup components are locally qualified. Candidate handover identity binding is locally qualified under ADR0199; complete guarded bootstrap/comparison qualification remains pending. No production topology decision or customer gate is superseded.
 
 ## Context
 The historical paid runner assumes a two-host API placement. Worker separation retains all four APIs on the primary machine and moves only the same background workers. Shared source assumptions and historical inventory markers cannot certify this topology.
@@ -41,3 +41,5 @@ The paid-arm restoration assembly now runs independent financial/booking/queue c
 The final affected suite passed 673 tests with zero failures or skips in 191.23 seconds, including 23 existing real PostgreSQL financial cases and three isolated Linux cases. A separate candidate-identity regression passed in 1.14 seconds. Development failures came from the new test fixture and are retained in local evidence; the corrected suite passed. Owned local test containers were removed. Runtime/transport restoration cases remain synthetic; no live RDS/DCS or cloud restoration is claimed.
 
 The identity regression confirms a remaining integration blocker: restoration can recreate containers with different IDs, and the current original-ID handover guard correctly rejects that changed snapshot. The candidate needs a fresh proven arm identity binding before the complete runner can be registered. The existing guard has not been weakened. See [the restoration integration checkpoint](../capacity/flash-sale-opening/background-service-separation-restoration-integration-2026-10-07.json). No cloud load or capacity improvement was measured.
+
+ADR0199 now binds the candidate to independently verified restored container IDs from the persisted passing control without modifying the baseline snapshot. The final affected suite passed 708 tests; complete paired bootstrap/progression and profile registration remain pending. See [ADR0199](0199-restored-control-candidate-handover.md) for the decision and qualification limits.
