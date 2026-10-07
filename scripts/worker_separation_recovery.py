@@ -4,7 +4,7 @@ import copy
 from fetch_status_refresh_parents import owner_path
 from qualify_two_host_deployment import GENERATOR_IDLE
 from worker_separation_artifacts import cleanup_program
-from worker_separation_configuration import bundle
+from worker_separation_configuration import bundle, host_repository
 from worker_separation_configuration import validate_seal as validate_configuration_seal
 from worker_separation_execution import ExecutionActions, verify_phase
 from worker_separation_snapshot import verify_restored
@@ -102,7 +102,7 @@ class RestoredPaidArm:
             raise ValueError('Every configured host requires its original configuration seal')
         for host,seal in self.execution.configurations.seals.items():
             prepared=bundle(self.execution.pair,self.execution.saved,self.execution.arm,host,self.execution.scope_sha)
-            validate_configuration_seal(seal,owner_path(self.session.config[host]['repo'],self.runtime.output.name),prepared['manifest'])
+            validate_configuration_seal(seal,owner_path(host_repository(self.session.config, host),self.runtime.output.name),prepared['manifest'])
         # Validate every site before deleting anything; unexpected files retain evidence.
         retired=stage.diagnostics.container_retired()
         sites=[s for s in stage.locations if s!='container' or not retired]

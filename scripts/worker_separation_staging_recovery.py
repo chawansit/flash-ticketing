@@ -51,13 +51,55 @@ def zero_dispatch_bootstrap(report):
                 'install_primary','verify_original_runtime','verify_generator_idle','initial_queue_drain',
                 'stop_original_workers','verify_all_workers_absent','configure_common_infrastructure'])
 
+def zero_dispatch_fixture(report):
+    """ADR0213 exact retained preparation abort; independent financial audit required."""
+    from datetime import datetime
+
+    from fixture_identity_evidence import fixture_identity
+    arms=report.get('arms')
+    if not isinstance(arms,dict) or set(arms)!={'control'}:return False
+    arm=arms['control'];stage=arm.get('stage') if isinstance(arm,dict) else None
+    if not isinstance(stage,dict):return False
+    receipt=stage.get('fixture_identity');jobs=stage.get('job_cleanup',{})
+    if not isinstance(receipt,dict) or not isinstance(receipt.get('fixture_identity'),dict):return False
+    identity=receipt['fixture_identity']
+    try:
+        if fixture_identity(identity,60,now=datetime.fromisoformat(identity['created_at']))!=identity:return False
+    except (KeyError,ValueError,TypeError):return False
+    restored={'runtime_restored':True,'broker_volume_retained':True,'bind_files_restored':True,'secondary_empty':True}
+    return (receipt.get('decision')=='ADR0185' and receipt.get('arm')=='control'
+            and receipt.get('fixture_identity_sha256')==policy.digest(identity)
+            and arm.get('status')=='RECOVERY_REQUIRED' and arm.get('pass') is False
+            and arm.get('customers_dispatched') is False and stage.get('customers_dispatched') is False
+            and stage.get('pre_dispatch_qualified') is False and not stage.get('dispatch_attempted')
+            and arm.get('restoration_complete') is True and arm.get('verify_restoration')==restored
+            and arm.get('restored_idle')=={'generator_idle':True}
+            and all(jobs.get(k) is True for k in ('pass','all_jobs_stopped','dispatch_stopped','journal_healthy'))
+            and jobs.get('failures')==[] and stage.get('duplicates')=={'zero_double_booking':True}
+            and all(arm.get('restored_queues',{}).get(k) is True for k in ('dispatch_stopped','all_queues_zero','kafka_drained')))
+
+def zero_fixture_financial_audit(value):
+    if not isinstance(value,dict):return False
+    counts=value.get('counts',{});checks=value.get('checks',{})
+    financial=('orders','fulfilled_orders','expired_orders','pending_orders','payment_attempts',
+               'pending_payment_attempts','succeeded_payments','bookings','tickets','payment_callbacks',
+               'incomplete_callback_deliveries','callback_delivery_attempts','callback_delivery_target',
+               'duplicate_booked_seats','multi_booking_orders','unpublished_outbox','dead_letters')
+    return (value.get('pass') is True and counts.get('pass') is True
+            and type(counts.get('expected')) is int and counts['expected']==0
+            and type(counts.get('expected_paid')) is int and counts['expected_paid']==0
+            and counts.get('expected_callback_deliveries_per_payment')==3
+            and type(value.get('fixture_hold_rows')) is int and value['fixture_hold_rows']==0
+            and checks=={'post_ttl_complete':True,'payments_durable':True,'ticket_relationships_valid':True}
+            and all(type(counts.get(k)) is int and counts[k]==0 for k in financial))
+
 def validate(state, journal, key, report, package, config):
     scope=state.get(key,{})
     matches=[entry for entry in journal['experiments'] if entry['ledger']==key]
     if len(matches)!=1:raise ValueError('One exact original reservation required')
     entry=matches[0];binding=scope.get('binding',{})
     counters=('paid_runs_started','paid_protocols_started','qualification_protocols_started','safety_protocols_started')
-    staging=report.get('staging',{});hosts=staging.get('hosts');bootstrap=zero_dispatch_bootstrap(report)
+    staging=report.get('staging',{});hosts=staging.get('hosts');bootstrap=zero_dispatch_bootstrap(report) or zero_dispatch_fixture(report)
     if (entry.get('profile')!='worker_separation' or entry.get('status')!='RECOVERY_REQUIRED'
             or entry.get('binding_sha256')!=policy.digest(binding)
             or entry.get('result_sha256')!=policy.digest(report) or scope.get('worker_result_sha256')!=policy.digest(report)
@@ -148,15 +190,19 @@ def close(key, report, package, config, evidence):
     path=Path(evidence).absolute();root=(policy.ROOT/'tmp').resolve()
     if not path.is_relative_to(root) or path.is_symlink() or path.resolve()!=path:raise ValueError('Owned durable recovery evidence required')
     receipt=policy.read(path)
+    fixture=zero_dispatch_fixture(report)
     required=('pass','runtime_unchanged','all_staging_owners_absent','zero_dispatch','zero_double_booking',
               'all_queues_zero','kafka_drained','generator_idle')
     if (receipt.get('ledger')!=key or receipt.get('original_result_sha256')!=policy.digest(report)
-            or receipt.get('binding_sha256')!=policy.digest(binding) or receipt.get('decision')!=('ADR0206' if zero_dispatch_bootstrap(report) else 'ADR0204')
-            or (zero_dispatch_bootstrap(report) and (receipt.get('original_runtime_restored') is not True
+            or receipt.get('binding_sha256')!=policy.digest(binding) or receipt.get('decision')!=('ADR0213' if fixture else 'ADR0206' if zero_dispatch_bootstrap(report) else 'ADR0204')
+            or ((zero_dispatch_bootstrap(report) or fixture) and (receipt.get('original_runtime_restored') is not True
                 or receipt.get('private_configuration_cleaned') is not True
                 or receipt.get('restore_checks')!={'runtime_restored':True,'broker_volume_retained':True,'bind_files_restored':True,'secondary_empty':True}))
             or any(receipt.get(k) is not True for k in required)
-            or receipt.get('financial_cohort')!='not_created' or not queue_checks(receipt.get('queue_counts'),1)
+            or receipt.get('financial_cohort')!=('created_zero_financial_rows' if fixture else 'not_created')
+            or (fixture and (receipt.get('fixture_identity_sha256')!=report['arms']['control']['stage']['fixture_identity']['fixture_identity_sha256']
+                or receipt.get('zero_fixture_financial_rows') is not True or receipt.get('private_artifacts_cleaned') is not True
+                or not zero_fixture_financial_audit(receipt.get('fixture_financial_audit')))) or not queue_checks(receipt.get('queue_counts'),1)
             or type(receipt.get('actual_elapsed_seconds')) not in (int,float)
             or not math.isfinite(receipt['actual_elapsed_seconds']) or receipt['actual_elapsed_seconds']<0):
         raise ValueError('Complete independently verified recovery receipt required')

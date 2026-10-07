@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "decisions": [
+    "ADR0211",
+    "ADR0212",
+    "ADR0213"
+  ],
+  "base_revision": "9f42420aa05975f083a220d045a155d438c8ae4d",
+  "recorded_at_utc": "2026-10-07T14:08:43.185012+00:00",
+  "runs": [
+    {
+      "run": "adr0153-parents-875f09fa69fb",
+      "status": "FAILED_RESTORED",
+      "pass": false,
+      "evidence": "tmp/adr0153-parents-875f09fa69fb/worker-envelope-result.json",
+      "sha256": "e32ad92fc7d7d5e658169d0dddb9ef20f4265c89a958d9af5923e1caa4d78233",
+      "actual_elapsed_seconds": 197.7029999999795,
+      "failure_type": null,
+      "zero_mutation": false,
+      "arms": {
+        "control": {
+          "status": "FAILED_RESTORED",
+          "restoration_complete": true,
+          "customers_dispatched": false,
+          "failures": [
+            {
+              "exception_type": "ValueError",
+              "phase": "bootstrap_or_paid"
+            }
+          ],
+          "stage_failures": [],
+          "duplicates": null,
+          "queues": null,
+          "private_artifact_cleanup_complete": null
+        }
+      }
+    },
+    {
+      "run": "adr0153-parents-a3792c9ad27c",
+      "status": "FAILED_RESTORED",
+      "pass": false,
+      "evidence": "tmp/adr0153-parents-a3792c9ad27c/worker-envelope-result.json",
+      "sha256": "3dc627fa8e275f55d2cfb94605d194c97a59868c6593cb26833c029d2fdc7a18",
+      "actual_elapsed_seconds": 194.45300000000861,
+      "failure_type": null,
+      "zero_mutation": false,
+      "arms": {
+        "control": {
+          "status": "FAILED_RESTORED",
+          "restoration_complete": true,
+          "customers_dispatched": false,
+          "failures": [
+            {
+              "exception_type": "KeyError",
+              "phase": "bootstrap_or_paid"
+            }
+          ],
+          "stage_failures": [],
+          "duplicates": null,
+          "queues": null,
+          "private_artifact_cleanup_complete": null
+        }
+      }
+    },
+    {
+      "run": "adr0153-parents-b8793b03b66c",
+      "status": "FAILED_RESTORED",
+      "pass": false,
+      "evidence": "tmp/adr0153-parents-b8793b03b66c/worker-envelope-result.json",
+      "sha256": "f993bfa45163bb54ab5d32d43816893b3fa4f1a87f9d5e7e1a3df16995ed96c2",
+      "actual_elapsed_seconds": 3.2030000000086147,
+      "failure_type": "AuthenticationException",
+      "zero_mutation": true,
+      "arms": {}
+    },
+    {
+      "run": "adr0153-parents-c6ab818e9ef8",
+      "status": "RECOVERY_REQUIRED",
+      "pass": false,
+      "evidence": "tmp/adr0153-parents-c6ab818e9ef8/worker-envelope-result.json",
+      "sha256": "93fed8e226e78c4a3799562afe2589ad92d80faf6a319c479ea2a818ba410963",
+      "actual_elapsed_seconds": 266.5779999999795,
+      "failure_type": null,
+      "zero_mutation": false,
+      "arms": {
+        "control": {
+          "status": "RECOVERY_REQUIRED",
+          "restoration_complete": true,
+          "customers_dispatched": false,
+          "failures": [],
+          "stage_failures": [
+            {
+              "exception_type": "RuntimeError",
+              "phase": "paid_stage"
+            },
+            {
+              "exception_type": "RuntimeError",
+              "phase": "pipeline_evidence"
+            },
+            {
+              "exception_type": "RuntimeError",
+              "phase": "kafka_evidence"
+            },
+            {
+              "exception_type": "RuntimeError",
+              "phase": "financial"
+            }
+          ],
+          "duplicates": {
+            "zero_double_booking": true
+          },
+          "queues": {
+            "all_queues_zero": true,
+            "binding_sha256": "24d8851cf4ab1216f58bfb559af950d531f989c5183fa3211534bff6df0a4230",
+            "checked_at": "2026-10-07T14:01:45.681336+00:00",
+            "dispatch_stopped": true,
+            "kafka_drained": true
+          },
+          "private_artifact_cleanup_complete": false
+        }
+      }
+    }
+  ],
+  "tests": {
+    "authority": {
+      "passed": 114,
+      "seconds": 204.32
+    },
+    "workspace_affected": {
+      "passed": 261,
+      "skipped": 1,
+      "seconds": 373.25
+    },
+    "explicit_native_job": {
+      "passed": 1,
+      "seconds": 4.79
+    }
+  },
+  "accounting": {
+    "experiments": 21,
+    "actual_experiment_seconds": 16021.625,
+    "reserved_seconds": 75600
+  },
+  "customer_dispatches": 0,
+  "capacity_improvement_measured": false,
+  "correctness_gates_weakened": false,
+  "new_infrastructure_spend": 0,
+  "interruption": "No new experiments after interrupted command; ADR0213 implementation command did not execute.",
+  "local_timed_operations_seconds": {
+    "snapshots": 129.34300000000002,
+    "packages": 90.73600000000002,
+    "tests": 582.3599999999999
+  },
+  "timing_note": "Separate timed operations can overlap and are not added to registered cloud elapsed time. Editing and review were not independently timed.",
+  "findings": [
+    "Shared diagnostic trust and distinct application/observer principals passed live setup.",
+    "Canonical secondary workspace passed actual control-stage construction and private artifact setup.",
+    "Manifest transfer verifier caps all files at one MiB although the fixed 18000-token private manifest needs the existing 16-MiB read limit.",
+    "Preparation abort retained exact fixture identity; full expected-paid recovery audit failed before dispatch. Original runtime, generator idle, duplicate-booking and queue checks passed. Owned credentials/artifacts remain retained, and original scope blocks load."
+  ]
+}

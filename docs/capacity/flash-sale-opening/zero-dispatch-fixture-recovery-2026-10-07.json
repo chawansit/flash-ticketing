@@ -1,0 +1,28 @@
+{
+  "decision": "ADR0213",
+  "original_run": "adr0153-parents-c6ab818e9ef8",
+  "status": "FAILED_RESTORED",
+  "recovery_pass": true,
+  "original_result_preserved": true,
+  "paid_runs_started": 0,
+  "fixture_holds_orders_payments_tickets": 0,
+  "global_duplicate_bookings": 0,
+  "all_queues_drained": true,
+  "original_runtime_verified": true,
+  "owned_private_artifacts_removed": true,
+  "recovery_seconds": 75.265,
+  "local_tests": {
+    "passed": 78,
+    "seconds": 0.67
+  },
+  "hourly_approval": {
+    "experiment_seconds_limit": 5400,
+    "scope": "hourly qualification only, including setup, post-TTL, durability, complete queue drain and restoration",
+    "authorization": "Direct user reply: Allow 90 minutes for hourly qualification",
+    "approved_date_bangkok": "2026-10-07",
+    "spending_or_size_changes": false,
+    "status": "approval recorded; hourly runner not yet registered or locally qualified"
+  },
+  "capacity_improvement_measured": false,
+  "new_worker_runner_deferred": true
+}

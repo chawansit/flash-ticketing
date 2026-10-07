@@ -85,7 +85,7 @@ class Session:
     cleanup_mode=False
     def __init__(self,guard,saved,rows):
         self.action_guard=guard
-        self.config={h:{'repo':'/qualification/repository'} for h in ('primary','secondary')}
+        self.config={'primary':{'repo':'/qualification/repository'},'secondary':{'prepared_directory':'/qualification/repository'}}
         self.values={'primary':{'rows':copy.deepcopy(rows),'volumes':[saved['broker_volume']], 'bind_sha256':saved['bind_sha256']},
                      'secondary':{'rows':[],'volumes':[],'bind_sha256':{}}}
         self.saved=saved;self.calls=[];self.mutations=[];self.fail=None;self.generator_idle=True
@@ -134,7 +134,7 @@ def create(monkeypatch,arm='candidate',dependency_sha='d'*64):
     for host in ('primary','secondary'):
         if inputs['pair'][arm][host] is None:continue
         value=configuration.bundle(inputs['pair'],saved,arm,host,policy.digest(binding))
-        owner=configuration.owner_path(session.config[host]['repo'],cfg.runtime.output.name)
+        owner=configuration.owner_path(configuration.host_repository(session.config, host),cfg.runtime.output.name)
         cfg.seals[host]=module('test_worker_separation_configuration').seal(value,owner)
     def drain(bound):return {'binding_sha256':policy.digest(bound),'checked_at':NOW.isoformat(),
                             'dispatch_stopped':True,'all_queues_zero':True,'kafka_drained':True}

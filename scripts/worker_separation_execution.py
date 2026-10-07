@@ -10,7 +10,7 @@ from pathlib import PurePosixPath
 
 import work_envelope as policy
 from two_host_topology import NORMAL_COUNTS, bindings, environment, literal_model, semantic
-from worker_separation_configuration import POSIX, bundle, validate_seal
+from worker_separation_configuration import POSIX, bundle, host_repository, validate_seal
 from worker_separation_inventory import _port_matches
 from worker_separation_preload import binding_for
 from worker_separation_runtime import ORDER, observation_program
@@ -323,7 +323,7 @@ class ExecutionActions:
         finally:self.session.cleanup_mode=previous
 
     def _apply(self, host, before, model, counts, filename, *, cleanup=False):
-        code = program(self.saved,before[host],seal=self._seal(host),repo=self.session.config[host]['repo'],
+        code = program(self.saved,before[host],seal=self._seal(host),repo=host_repository(self.session.config, host),
                        model=model,counts=counts,filename=filename)
         receipt = self._call(host,code, LIMITS['restore_original_runtime'] if cleanup else 150,cleanup=cleanup)
         if not isinstance(receipt,dict) or set(receipt) != {'applied','after'} or receipt['applied'] is not True:

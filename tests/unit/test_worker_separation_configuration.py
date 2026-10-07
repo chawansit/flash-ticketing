@@ -36,7 +36,7 @@ def seal(value, owner='/qualification/repository/tmp/adr0153-parents-00000000000
 def create(monkeypatch):
     source = load('test_worker_separation_runtime')
     runtime, session, checks = source.create(monkeypatch)
-    session.config = {host: {'repo': '/qualification/repository'} for host in ('primary', 'secondary')}
+    session.config = {'primary': {'repo': '/qualification/repository'}, 'secondary': {'prepared_directory': '/qualification/repository'}}
     # Reuse authority setup; the configuration component still creates its own fresh journal.
     adapter = config.ConfigurationActions(session, runtime.guard, runtime.inputs, runtime.saved,
                                           'candidate', source.module('test_worker_separation_lifecycle').staging.new_stage_output())
@@ -46,7 +46,7 @@ def create(monkeypatch):
         if 'payload=' in code:
             value = config.bundle(adapter.runtime.inputs['pair'], adapter.runtime.saved, adapter.arm, host,
                                   adapter.runtime.scope_binding_sha256)
-            owner = config.owner_path(session.config[host]['repo'], adapter.runtime.output.name)
+            owner = config.owner_path(config.host_repository(session.config, host), adapter.runtime.output.name)
             return seal(value, owner)
         return {'owned_configuration_removed': True} if 'cleanup=True' in code else {'configuration_matches': True}
     session.call = call
@@ -222,3 +222,20 @@ def test_cleanup_failure_preserves_single_use_and_transport_mode(monkeypatch, ch
     with pytest.raises(ValueError, match='single-use'): adapter.cleanup('primary')
     with pytest.raises(ValueError, match='Single-use'): adapter.install('secondary')
     assert len(calls) == count
+
+
+@pytest.mark.parametrize('host,field',[('primary','repo'),('secondary','prepared_directory'),('generator','repo')])
+def test_registered_workspace_schema(host,field):
+    value={host:{field:'/qualification/workspace'}}
+    assert config.host_repository(value,host)=='/qualification/workspace'
+
+
+@pytest.mark.parametrize('value',[None,'relative','/','/root','/root/../other','/root//other','/root/other/','/root/other\x00'])
+def test_invalid_workspace_fails(value):
+    with pytest.raises((ValueError,TypeError)):config.host_repository({'secondary':{'prepared_directory':value}},'secondary')
+
+
+def test_secondary_repo_alias_cannot_replace_registered_field():
+    with pytest.raises((ValueError,TypeError)):config.host_repository({'secondary':{'repo':'/qualification/workspace'}},'secondary')
+    with pytest.raises((ValueError,TypeError)):config.host_repository({'secondary':{'prepared_directory':'/qualification/workspace','repo':'/qualification/foreign'}},'secondary')
+    with pytest.raises((ValueError,TypeError)):config.host_repository({},'foreign')

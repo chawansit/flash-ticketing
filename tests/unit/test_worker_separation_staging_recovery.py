@@ -189,3 +189,99 @@ def test_bootstrap_automatic_restoration_with_failed_audits_still_requires_indep
     evidence.write_text(json.dumps(receipt))
     assert recovery.close('ledger',case[2],case[3],case[4],evidence)['status']=='FAILED_RESTORED'
     assert records['state']['current_run'] is None
+
+
+
+def prepared_fixture_case(case):
+    from datetime import UTC, datetime, timedelta
+    from uuid import uuid4
+    state,journal,report,package,config=copy.deepcopy(case)
+    now=datetime.now(UTC)
+    identity={'schema_version':1,'environment':'development','fixture_layout':'distributed',
+              'fixture_id':str(uuid4()),'created_at':now.isoformat(),'sale_ends':(now+timedelta(hours=1)).isoformat(),
+              'shows':60,'seats_per_show':300,'show_ids':[str(uuid4()) for _ in range(60)]}
+    restored={'runtime_restored':True,'broker_volume_retained':True,'bind_files_restored':True,'secondary_empty':True}
+    report['arms']={'control':{'status':'RECOVERY_REQUIRED','pass':False,'customers_dispatched':False,
+        'restoration_complete':True,'verify_restoration':restored,'restored_idle':{'generator_idle':True},
+        'restored_queues':{'dispatch_stopped':True,'all_queues_zero':True,'kafka_drained':True},
+        'stage':{'customers_dispatched':False,'pre_dispatch_qualified':False,
+            'duplicates':{'zero_double_booking':True},'job_cleanup':{'pass':True,'all_jobs_stopped':True,
+                'dispatch_stopped':True,'journal_healthy':True,'failures':[]},
+            'fixture_identity':{'decision':'ADR0185','arm':'control','fixture_identity':identity,
+                'fixture_identity_sha256':policy.digest(identity)}}}}
+    report['staging'].update(status='STAGED_VERIFIED',pass_=True)
+    report['staging']['pass']=report['staging'].pop('pass_')
+    report['staging']['hosts']['secondary']=copy.deepcopy(report['staging']['hosts']['primary'])
+    state['ledger']['worker_result_sha256']=journal['experiments'][0]['result_sha256']=policy.digest(report)
+    return state,journal,report,package,config
+
+
+def zero_financial():
+    names=('orders','fulfilled_orders','expired_orders','pending_orders','payment_attempts','pending_payment_attempts',
+           'succeeded_payments','bookings','tickets','payment_callbacks','incomplete_callback_deliveries',
+           'callback_delivery_attempts','callback_delivery_target','duplicate_booked_seats','multi_booking_orders',
+           'unpublished_outbox','dead_letters')
+    return {'counts':{**dict.fromkeys(names,0),'pass':True,'expected':0,'expected_paid':0,
+               'expected_callback_deliveries_per_payment':3},'fixture_hold_rows':0,'pass':True,
+        'checks':{'post_ttl_complete':True,'payments_durable':True,'ticket_relationships_valid':True}}
+
+
+def test_exact_retained_zero_dispatch_fixture_scope(case):
+    state,journal,report,package,config=prepared_fixture_case(case)
+    assert recovery.zero_dispatch_fixture(report)
+    assert recovery.validate(state,journal,'ledger',report,package,config)==state['ledger']['binding']
+
+
+@pytest.mark.parametrize('change',['claimed','dispatched','dispatch_attempt','unqualified_unknown','job_unknown','fixture_hash','duplicate','restoration','queue','idle'])
+def test_prepared_abort_cannot_hide_uncertain_customer_or_ownership(case,change):
+    state,journal,report,package,config=prepared_fixture_case(case);arm=report['arms']['control'];stage=arm['stage']
+    if change=='claimed':state['ledger']['paid_runs_started']=1
+    elif change=='dispatched':stage['customers_dispatched']=True
+    elif change=='dispatch_attempt':stage['dispatch_attempted']=True
+    elif change=='unqualified_unknown':stage['pre_dispatch_qualified']=None
+    elif change=='job_unknown':stage['job_cleanup']['failures']=['unknown']
+    elif change=='fixture_hash':stage['fixture_identity']['fixture_identity_sha256']='f'*64
+    elif change=='duplicate':stage['duplicates']['zero_double_booking']=False
+    elif change=='restoration':arm['restoration_complete']=False
+    elif change=='queue':arm['restored_queues']['all_queues_zero']=False
+    else:arm['restored_idle']['generator_idle']=False
+    state['ledger']['worker_result_sha256']=journal['experiments'][0]['result_sha256']=policy.digest(report)
+    with pytest.raises(ValueError):recovery.validate(state,journal,'ledger',report,package,config)
+
+
+@pytest.mark.parametrize('field',['fixture_identity_sha256','zero_fixture_financial_rows','private_artifacts_cleaned','fixture_financial_audit'])
+def test_missing_zero_fixture_cleanup_proof_retains_block(case,tmp_path,monkeypatch,field):
+    case=prepared_fixture_case(case);_records,writes,evidence,receipt=setup_close(case,tmp_path,monkeypatch)
+    receipt.update(decision='ADR0213',original_runtime_restored=True,private_configuration_cleaned=True,
+        restore_checks=case[2]['arms']['control']['verify_restoration'],financial_cohort='created_zero_financial_rows',
+        fixture_identity_sha256=case[2]['arms']['control']['stage']['fixture_identity']['fixture_identity_sha256'],
+        zero_fixture_financial_rows=True,private_artifacts_cleaned=True,fixture_financial_audit=zero_financial())
+    receipt.pop(field);evidence.write_text(json.dumps(receipt))
+    with pytest.raises(ValueError):recovery.close('ledger',case[2],case[3],case[4],evidence)
+    assert not writes
+
+
+def test_complete_zero_fixture_closure_preserves_original_failure(case,tmp_path,monkeypatch):
+    case=prepared_fixture_case(case);records,_writes,evidence,receipt=setup_close(case,tmp_path,monkeypatch)
+    receipt.update(decision='ADR0213',original_runtime_restored=True,private_configuration_cleaned=True,
+        restore_checks=case[2]['arms']['control']['verify_restoration'],financial_cohort='created_zero_financial_rows',
+        fixture_identity_sha256=case[2]['arms']['control']['stage']['fixture_identity']['fixture_identity_sha256'],
+        zero_fixture_financial_rows=True,private_artifacts_cleaned=True,fixture_financial_audit=zero_financial())
+    evidence.write_text(json.dumps(receipt));original=case[1]['experiments'][0]['result_sha256']
+    assert recovery.close('ledger',case[2],case[3],case[4],evidence)['status']=='FAILED_RESTORED'
+    assert records['journal']['experiments'][0]['result_sha256']==original
+    assert records['journal']['experiments'][0]['paid_runs_started']==0
+
+
+@pytest.mark.parametrize('change',['orders','payments','tickets','holds','missing','bool','ttl','expected'])
+def test_zero_row_financial_audit_is_strict(change):
+    value=zero_financial();assert recovery.zero_fixture_financial_audit(value)
+    if change=='orders':value['counts']['orders']=1
+    elif change=='payments':value['counts']['payment_attempts']=1
+    elif change=='tickets':value['counts']['tickets']=1
+    elif change=='holds':value['fixture_hold_rows']=1
+    elif change=='missing':value['counts'].pop('payment_callbacks')
+    elif change=='bool':value['counts']['orders']=False
+    elif change=='ttl':value['checks']['post_ttl_complete']=False
+    else:value['counts']['expected']=18000
+    assert not recovery.zero_fixture_financial_audit(value)

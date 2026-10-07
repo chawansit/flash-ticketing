@@ -19,6 +19,7 @@ from run_two_host_paid_comparison import CORE, PLAN, REVISION, kafka_pass
 from stage_status_refresh_images import ROOT
 from summarize_paid_kafka_lag import summarize as summarize_kafka
 from worker_separation_artifacts import directories_program, validate_seal
+from worker_separation_configuration import host_repository
 from worker_separation_inventory import cpu_spec
 from worker_separation_paid_jobs import PaidJobs
 
@@ -112,7 +113,7 @@ class PaidStage:
         self.runtime,self.session = execution.runtime,execution.session
         self.sources,self.contract = stage_sources(bundle)
         self.clock,self.wall,self.sleep = clock,wall,sleep
-        self.locations = {'container':diagnostics.directory, **{host:owner_path(self.session.config[host]['repo'],
+        self.locations = {'container':diagnostics.directory, **{host:owner_path(host_repository(self.session.config, host),
                           diagnostics.artifact_owner_name)+'/'+execution.arm for host in ('primary','secondary','generator')}}
         self.jobs = PaidJobs(execution,diagnostics,self.locations,clock=clock,sleep=sleep)
         self.local = self.runtime.output/execution.arm

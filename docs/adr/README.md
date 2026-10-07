@@ -362,3 +362,9 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0209: Bounded container startup health](0209-bounded-container-startup-health.md)
 
 - [ADR0210: Retained inventory in worker source qualification](0210-retained-inventory-in-worker-source-qualification.md)
+
+- [ADR0211: Separate worker diagnostic authority](0211-separate-worker-diagnostic-authority.md)
+
+- [ADR0212: Canonical worker host workspaces](0212-canonical-worker-host-workspaces.md)
+
+- [ADR0213: Bounded worker manifest and zero-dispatch recovery](0213-bounded-worker-manifest-and-zero-dispatch-recovery.md)

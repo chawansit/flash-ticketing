@@ -9,6 +9,7 @@ from pathlib import PurePosixPath
 
 from fetch_status_refresh_parents import owner_path
 from run_two_host_paid_comparison import job_program, process_program
+from worker_separation_configuration import host_repository
 
 HASH = re.compile(r'[0-9a-f]{64}$')
 KEYS = {'pid', 'start_ticks', 'identity_path', 'name', 'status_path', 'command_sha256'}
@@ -62,7 +63,7 @@ class PaidJobs:
             p = PurePosixPath(value)
             if not p.is_absolute() or '..' in p.parts or str(p) != value:
                 raise ValueError('Canonical owned job location required')
-        expected_locations = {'container':diagnostics.directory, **{host:owner_path(execution.session.config[host]['repo'], diagnostics.artifact_owner_name)+'/'+execution.arm for host in ('primary','secondary','generator')}}
+        expected_locations = {'container':diagnostics.directory, **{host:owner_path(host_repository(execution.session.config, host), diagnostics.artifact_owner_name)+'/'+execution.arm for host in ('primary','secondary','generator')}}
         if locations != expected_locations:
             raise ValueError('Scope-bound observer owner required on every site')
         self.execution, self.diagnostics = execution, diagnostics

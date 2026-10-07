@@ -30,7 +30,7 @@ def setup(tmp_path, monkeypatch, frozen, arm='control'):
     engine._observe=lambda **kwargs:original()
     engine.journal_healthy=True
     engine.runtime.guard.key='synthetic-worker-scope'
-    engine.session.config.update(secondary={'repo':'/qualification/secondary'},generator={'repo':'/qualification/generator'})
+    engine.session.config.update(secondary={'prepared_directory':'/qualification/secondary'},generator={'repo':'/qualification/generator'})
     engine.session.config['primary']['private_ipv4']='10.0.0.1'
     engine.runtime.output=tmp_path
     engine.runtime.audit_binding={'scope':'synthetic-worker-scope'}
@@ -377,8 +377,9 @@ from worker_separation_paid_jobs import PaidJobs,process_program
 from fetch_status_refresh_parents import owner_path
 owner=OWNER
 arm='control'
-config={host:{'repo':'/tmp/'+host} for host in ('primary','secondary','generator')}
-locations={host:owner_path(config[host]['repo'],owner)+'/'+arm for host in config}
+config={host:{'prepared_directory' if host=='secondary' else 'repo':'/tmp/'+host} for host in ('primary','secondary','generator')}
+from worker_separation_configuration import host_repository
+locations={host:owner_path(host_repository(config,host),owner)+'/'+arm for host in config}
 locations['container']='/tmp/'+owner+'/'+arm
 for value in locations.values():Path(value).mkdir(mode=0o700,parents=True)
 class Session:

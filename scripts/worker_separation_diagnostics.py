@@ -37,6 +37,23 @@ def preflight_program(inventory, directory):
             "'max_collection_ms':max(row['collection_ms'] for row in records)}))")
 
 
+def validate_diagnostic_trust(saved, target):
+    """Exact original trust with a separately bound, approved diagnostic principal."""
+    pg = saved['model']['services']['pgbouncer']
+    env = pg['environment']
+    mounts = [m for m in pg.get('volumes', []) if m['type'] == 'bind'
+              and m['target'] == env.get('SERVER_TLS_CA_FILE') and m.get('read_only') is True]
+    original_target = {'host':env.get('DB_HOST'), 'port':int(env.get('DB_PORT', '5432')),
+                       'dbname':env.get('DB_NAME')}
+    if (target['user'] not in {env.get('DB_USER'), 'root'}
+            or env.get('SERVER_TLS_SSLMODE') != 'verify-full'
+            or original_target != {k:target[k] for k in original_target}
+            or len(mounts) != 1 or mounts[0]['source'] != target['ca_source_path']
+            or saved['bind_sha256'].get(target['ca_source_path']) != target['ca_sha256']):
+        raise ValueError('Original saved CA trust required')
+    return True
+
+
 class DiagnosticActions:
     """Single-use, scope-bound setup. Caller owns stage retention and final restoration."""
     def __init__(self, execution, inventory, sources, context, cid, *, artifact_output, upload=api_upload):
@@ -67,17 +84,7 @@ class DiagnosticActions:
                 or len([r for r in inventory['containers'] if r['role']=='api' and r['container_id']==cid
                         and r['host_role']=='primary']) != 1):
             raise ValueError('Exact current worker inventory and primary API required')
-        pg = execution.saved['model']['services']['pgbouncer']
-        env = pg['environment']
-        mounts = [m for m in pg.get('volumes', []) if m['type'] == 'bind'
-                  and m['target'] == env.get('SERVER_TLS_CA_FILE') and m.get('read_only') is True]
-        original_target = {'host':env.get('DB_HOST'), 'port':int(env.get('DB_PORT', '5432')),
-                           'dbname':env.get('DB_NAME'), 'user':env.get('DB_USER')}
-        if (env.get('SERVER_TLS_SSLMODE') != 'verify-full'
-                or original_target != {k:self.target[k] for k in original_target}
-                or len(mounts) != 1 or mounts[0]['source'] != self.target['ca_source_path']
-                or execution.saved['bind_sha256'].get(self.target['ca_source_path']) != self.target['ca_sha256']):
-            raise ValueError('Original saved CA trust required')
+        validate_diagnostic_trust(execution.saved, self.target)
 
     def _guard(self, timeout, *, cleanup=False):
         self.execution._guard(timeout, cleanup=cleanup)

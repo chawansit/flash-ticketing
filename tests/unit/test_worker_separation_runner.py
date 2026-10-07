@@ -45,7 +45,7 @@ def setup(monkeypatch,tmp_path,source_bundle):
     fixture=module('test_worker_separation_execution')
     saved,_rows,_volumes,inputs=fixture.fixture()
     route=urlsplit(inputs['pair']['control']['primary']['services']['consumer']['environment']['DATABASE_URL'])
-    fields={'DB_HOST':'10.0.0.8','DB_PORT':'5432','DB_NAME':unquote(route.path[1:]),'DB_USER':'root',
+    fields={'DB_HOST':'10.0.0.8','DB_PORT':'5432','DB_NAME':unquote(route.path[1:]),'DB_USER':'ticketing',
             'DB_PASSWORD':unquote(route.password),'SERVER_TLS_SSLMODE':'verify-full','SERVER_TLS_CA_FILE':'/etc/pgbouncer/ca.pem'}
     mount={'type':'bind','source':'/root/qualification/ca.pem','target':fields['SERVER_TLS_CA_FILE'],'read_only':True}
     saved['model']['services']['pgbouncer']['environment'].update(fields)
@@ -54,7 +54,7 @@ def setup(monkeypatch,tmp_path,source_bundle):
     for arm in ('control','candidate'):
         pg=inputs['pair'][arm]['primary']['services']['pgbouncer']
         pg['environment'].update(fields);pg.setdefault('volumes',[]).append(copy.deepcopy(mount))
-    updated_route=route._replace(netloc='root:'+route.password+'@'+route.hostname+':'+str(route.port)).geturl()
+    updated_route=route._replace(netloc='ticketing:'+route.password+'@'+route.hostname+':'+str(route.port)).geturl()
     for arm in ('control','candidate'):
         for host in ('primary','secondary'):
             model=inputs['pair'][arm][host]
@@ -70,7 +70,7 @@ def setup(monkeypatch,tmp_path,source_bundle):
     inputs['archive_receipt']['contract_sha256']=policy.digest(inputs['staging_contract'])
     sources={'api':next(iter(inputs['role_sources'].values())),**copy.deepcopy(inputs['role_sources'])}
     observer_sources=observers();artifact_output=new_stage_output()
-    target={'host':fields['DB_HOST'],'port':5432,'dbname':fields['DB_NAME'],'user':fields['DB_USER'],
+    target={'host':fields['DB_HOST'],'port':5432,'dbname':fields['DB_NAME'],'user':'root',
             'ca_source_path':mount['source'],'ca_sha256':saved['bind_sha256'][mount['source']]}
     dependency=readiness.dependency_context(SimpleNamespace(pair=inputs['pair'],saved=saved),CA)
     binding={**runtime.binding_for(inputs),'worker_dependency_context_sha256':policy.digest(dependency),

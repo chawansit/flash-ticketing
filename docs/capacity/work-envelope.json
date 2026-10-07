@@ -15,7 +15,15 @@
     "experiment_seconds_limit": 3600,
     "cleanup_may_exceed_deadline": true,
     "duration_policy": "shortest_sufficient_evidence",
-    "duration_selection": "Choose the shortest predeclared window sufficient for the hypothesis and required gates. Match baseline/candidate windows; use longer runs only for intermittency, stability or hourly qualification."
+    "duration_selection": "Choose the shortest predeclared window sufficient for the hypothesis and required gates. Match baseline/candidate windows; use longer runs only for intermittency, stability or hourly qualification.",
+    "hourly_qualification_exception": {
+      "experiment_seconds_limit": 5400,
+      "scope": "hourly qualification only, including setup, post-TTL, durability, complete queue drain and restoration",
+      "authorization": "Direct user reply: Allow 90 minutes for hourly qualification",
+      "approved_date_bangkok": "2026-10-07",
+      "spending_or_size_changes": false,
+      "status": "approval recorded; hourly runner not yet registered or locally qualified"
+    }
   },
   "customer_gates": {
     "mode": "exact_current_profile",

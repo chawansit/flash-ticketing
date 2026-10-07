@@ -3,6 +3,7 @@ import copy
 import hashlib
 import json
 import re
+from pathlib import PurePosixPath
 
 import work_envelope as policy
 from fetch_status_refresh_parents import owner_path, validate_owner
@@ -13,6 +14,22 @@ from worker_separation_topology import validate_pair
 
 MAX_FILE = 1024 * 1024
 HASH = re.compile(r'[0-9a-f]{64}$')
+
+
+def host_repository(config, host):
+    """ADR0212 exact registered role path; no inferred or conflicting aliases."""
+    keys = {'primary':'repo', 'secondary':'prepared_directory', 'generator':'repo'}
+    if host not in keys or not isinstance(config.get(host), dict):
+        raise ValueError('Exact configured worker host required')
+    fields = config[host];value = fields.get(keys[host])
+    if not isinstance(value, str):
+        raise TypeError('Registered host workspace field required')
+    path = PurePosixPath(value)
+    if (not path.is_absolute() or len(path.parts) < 3 or '..' in path.parts
+            or str(path) != value or '\x00' in value
+            or (host == 'secondary' and 'repo' in fields and fields['repo'] != value)):
+        raise ValueError('Canonical unambiguous host workspace required')
+    return value
 
 
 def bundle(pair, saved, arm, host, scope_sha256):
@@ -206,7 +223,7 @@ class ConfigurationActions:
             raise ValueError('Prepared configuration binding changed')
         prepared = bundle(self.runtime.inputs['pair'], self.runtime.saved, self.arm, host,
                           self.runtime.scope_binding_sha256)
-        owner = owner_path(self.session.config[host]['repo'], self.runtime.output.name)
+        owner = owner_path(host_repository(self.session.config, host), self.runtime.output.name)
         self.used.add(host)
         try:
             self.runtime._write('configuration-intent', {'host': host, 'manifest_sha256': policy.digest(prepared['manifest'])})

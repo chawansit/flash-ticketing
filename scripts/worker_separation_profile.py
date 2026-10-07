@@ -18,6 +18,8 @@ from runtime_source_identity import source_identity_program
 from stage_status_refresh_images import new_stage_output
 from two_host_topology import NORMAL_COUNTS
 from worker_separation_audits import audit_contract
+from worker_separation_configuration import host_repository
+from worker_separation_diagnostics import validate_diagnostic_trust
 from worker_separation_observer_bundle import prepare as observers
 from worker_separation_paid_stage import stage_sources
 from worker_separation_preload import binding_for
@@ -72,6 +74,7 @@ class Prepared:
         if not isinstance(package,dict) or set(package)!={'schema','decision','inputs','saved','inventory_sources','helpers'} or type(package['schema']) is not int or package['schema']!=1 or package['decision']!='ADR0201':
             raise ValueError('Exact protected prepared worker package required')
         validate_config(config)
+        for host in ('primary', 'secondary', 'generator'):host_repository(config, host)
         self.config,self.package=copy.deepcopy(config),copy.deepcopy(package)
         self.used=False
         self.inputs,self.saved=self.package['inputs'],self.package['saved']
@@ -92,6 +95,7 @@ class Prepared:
                 or self.target['ca_sha256']!=hashlib.sha256(ca_pem.encode()).hexdigest()
                 or self.saved['bind_sha256'].get(self.target['ca_source_path'])!=self.target['ca_sha256']):
             raise ValueError('Prepared dependency authority differs from configured target')
+        validate_diagnostic_trust(self.saved, self.target)
         owner=self.archive.parent
         owner_path('/qualification/repository',owner.name)
         if (self.archive.name!='images.tar' or self.archive.resolve()!=self.archive or self.archive.is_symlink()

@@ -439,6 +439,129 @@
       "finished_at_utc": "2026-10-07T13:08:31.605105+00:00",
       "paid_runs_started": 0,
       "result_sha256": "49900a7454f906ac7b8293aa7969215835981ea7d1ab3abf28950901930edf69"
+    },
+    {
+      "ledger": "bounded_worker_separation__abe2ef0259a9",
+      "authorization_id": "work-envelope-abe2ef0259a9",
+      "envelope_sha256": "d107f460619c25241900a26c251358823f9ca4c2e2875b33e28a13f5efb39a33",
+      "binding_sha256": "09076612361bed7de8ee908f809d6ec1c5c525649ed750279b871c11f58f4684",
+      "plan_sha256": "35e1cff218c21bc250ff589d3deeb57036c5febe268752fead4ffd6e725f2aa9",
+      "profile": "worker_separation",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 197.78099999998813,
+      "started_at_utc": "2026-10-07T13:25:44.394275+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0153-parents-875f09fa69fb",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-07T13:29:01.971015+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "156be91408ab4e8846d9c66f73876cc8551b0e0f3a372121175bf24476ad16a2"
+    },
+    {
+      "ledger": "bounded_worker_separation__45597922b1b8",
+      "authorization_id": "work-envelope-45597922b1b8",
+      "envelope_sha256": "d107f460619c25241900a26c251358823f9ca4c2e2875b33e28a13f5efb39a33",
+      "binding_sha256": "81fab9931b6118bec814332e6b6575c846925b7c9f3e2647a8b1ef6a12465dbb",
+      "plan_sha256": "35e1cff218c21bc250ff589d3deeb57036c5febe268752fead4ffd6e725f2aa9",
+      "profile": "worker_separation",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 194.53100000001723,
+      "started_at_utc": "2026-10-07T13:39:30.161552+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0153-parents-a3792c9ad27c",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-07T13:42:44.671876+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "a9970bc88c96ce56a335a6d2d6793d907cb8431688b655fd379f82a9ee34d942"
+    },
+    {
+      "ledger": "bounded_worker_separation__33762917060a",
+      "authorization_id": "work-envelope-33762917060a",
+      "envelope_sha256": "d107f460619c25241900a26c251358823f9ca4c2e2875b33e28a13f5efb39a33",
+      "binding_sha256": "45dea9c66e0a8e5b053d2e891b3aa31714613b6e64bd8457c6e8b18d7ebe4bf3",
+      "plan_sha256": "35e1cff218c21bc250ff589d3deeb57036c5febe268752fead4ffd6e725f2aa9",
+      "profile": "worker_separation",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 3.2969999999913853,
+      "started_at_utc": "2026-10-07T13:54:48.867721+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0153-parents-b8793b03b66c",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-07T13:54:52.139389+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "b969d88b8cb6f018414f098fbf0dc07c8eed344a1dd69169a5234e7444e506d2"
+    },
+    {
+      "ledger": "bounded_worker_separation__9a9a88b11aeb",
+      "authorization_id": "work-envelope-9a9a88b11aeb",
+      "envelope_sha256": "d107f460619c25241900a26c251358823f9ca4c2e2875b33e28a13f5efb39a33",
+      "binding_sha256": "ebc682e692c8108c69643b0e4607edee93e6f788a525f6dc1f952da40569e86f",
+      "plan_sha256": "35e1cff218c21bc250ff589d3deeb57036c5febe268752fead4ffd6e725f2aa9",
+      "profile": "worker_separation",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 341.90499999999884,
+      "started_at_utc": "2026-10-07T13:58:03.206345+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0153-parents-c6ab818e9ef8",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-07T14:02:29.840324+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "3e4683c9c4a478649ae97dd901e838bd96db7e026e56a1271c9cc548c7566a88",
+      "initial_status": "RECOVERY_REQUIRED",
+      "initial_actual_elapsed_seconds": 266.63999999998487,
+      "recovery": {
+        "decision": "ADR0213",
+        "evidence": "tmp\\adr0153-parents-7a476189d5b4\\recovery-verification.json",
+        "sha256": "af555b5894c682ff5e2b3208bb020ce16ff3993cc6f0b7462a30719edb224696",
+        "actual_elapsed_seconds": 75.26500000001397
+      }
+    },
+    {
+      "ledger": "bounded_slow_database_diagnostics__c45c9d5f5ad0",
+      "authorization_id": "work-envelope-c45c9d5f5ad0",
+      "envelope_sha256": "05eebddf7c8c9c15ced76d02a4d944f1832d1b9178ac0aac2a2caba7e89c5752",
+      "binding_sha256": "99d4019baf175762477979e106e5686c8c8669a8bf6b30b80e444ca71638f0ce",
+      "plan_sha256": "c99fc97e545e5a0b0552351a1cf0a6b0a8ca0897cf101423e2e9da9522cd584f",
+      "profile": "slow_database_control",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1355.7499999999968,
+      "started_at_utc": "2026-10-07T14:26:37.262922+00:00",
+      "status": "RECOVERY_REQUIRED",
+      "reports": [
+        {
+          "run": "adr0151-c2f4583e6010",
+          "pass": true
+        },
+        {
+          "run": "adr0151-35255e50f774",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-07T14:48:02.576107+00:00",
+      "independent_failed_paid_audit": {
+        "decision": "ADR0172",
+        "pass": false,
+        "failure_type": "RuntimeError",
+        "evidence": "tmp/adr0153-parents-2e7dfbdf5bfd",
+        "actual_elapsed_seconds": 70.516,
+        "scope_recovery_closed": false
+      }
     }
   ],
   "verified_aborts": {

@@ -30,7 +30,7 @@ def setup(arm='candidate'):
     spec = importlib.util.spec_from_file_location('diagnostic_execution_fixture', ROOT / 'tests/unit/test_worker_separation_execution.py')
     module = importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     saved, _, _, inputs = module.fixture()
-    fields = {'DB_HOST':TARGET['host'], 'DB_PORT':'5432','DB_NAME':'ticketing','DB_USER':'root',
+    fields = {'DB_HOST':TARGET['host'], 'DB_PORT':'5432','DB_NAME':'ticketing','DB_USER':'ticketing',
               'SERVER_TLS_CA_FILE':'/etc/pgbouncer/rds-ca.pem','SERVER_TLS_SSLMODE':'verify-full'}
     mount = {'type':'bind','source':TARGET['ca_source_path'],'target':fields['SERVER_TLS_CA_FILE'],'read_only':True}
     saved['model']['services']['pgbouncer']['environment'].update(fields)
@@ -241,3 +241,28 @@ def test_persistent_mount_blocks_writable_layer_retirement_assumption(monkeypatc
     engine._observe=observed
     with pytest.raises(ValueError,match='writable layer'):component.prepare()
     assert not component.attempted and uploads==[]
+
+
+@pytest.mark.parametrize('user',['root','ticketing'])
+def test_original_trust_allows_bound_diagnostic_or_application_user(user):
+    _component,engine,_events,_uploads=setup()
+    target={**TARGET,'user':user}
+    assert diagnostics.validate_diagnostic_trust(engine.saved,target) is True
+    assert engine.saved['model']['services']['pgbouncer']['environment']['DB_USER']=='ticketing'
+
+
+@pytest.mark.parametrize('change',['foreign_user','host','port','database','tls','source','hash','writable','multiple_mounts'])
+def test_original_diagnostic_trust_rejects_unapproved_authority(change):
+    _component,engine,_events,_uploads=setup()
+    target=dict(TARGET);saved=copy.deepcopy(engine.saved)
+    pg=saved['model']['services']['pgbouncer']
+    if change=='foreign_user':target['user']='unapproved_observer'
+    elif change=='host':target['host']='10.0.0.9'
+    elif change=='port':target['port']=5433
+    elif change=='database':target['dbname']='other'
+    elif change=='tls':pg['environment']['SERVER_TLS_SSLMODE']='require'
+    elif change=='source':target['ca_source_path']='/foreign/ca.pem'
+    elif change=='hash':target['ca_sha256']='f'*64
+    elif change=='writable':pg['volumes'][-1]['read_only']=False
+    else:pg['volumes'].append(copy.deepcopy(pg['volumes'][-1]))
+    with pytest.raises(ValueError,match='Original saved CA trust'):diagnostics.validate_diagnostic_trust(saved,target)
