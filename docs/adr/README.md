@@ -340,3 +340,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0198: Bound worker comparison runner integration](0198-bound-worker-comparison-runner-integration.md)
 
 - [ADR0199: Restored control candidate handover](0199-restored-control-candidate-handover.md)
+
+- [ADR0200: Guarded worker comparison assembly](0200-guarded-worker-comparison-assembly.md)

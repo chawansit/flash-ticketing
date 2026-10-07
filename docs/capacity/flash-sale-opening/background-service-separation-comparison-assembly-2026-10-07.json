@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "decision": "ADR0200",
+  "base_revision": "dd303290a8552898bcd29053dc8b87b98d5151bd",
+  "result": "guarded_bootstrap_and_pair_coordination_locally_qualified",
+  "implemented": [
+    "One source-bound guarded bootstrap and paired coordinator using existing concrete components",
+    "Exact persisted passing-control summary and claimed handover required before candidate paid allowance",
+    "Known bootstrap recovery with explicit zero-dispatch evidence before a financial cohort exists",
+    "Single-use progression, independent restoration checks and retained ambiguous ownership",
+    "Eighteen adapter files bound into paid-stage source identity"
+  ],
+  "tests": {
+    "broad_suite": {
+      "passed": 726,
+      "failed": 4,
+      "skipped": 0,
+      "pytest_seconds": 338.17,
+      "harness_seconds": 339.7,
+      "raw_evidence": "tmp/adr0153-parents-dc0898e45245/qualification-tests.txt",
+      "failure_cause": "Four isolated candidate adapter tests omitted the customers_dispatched record in their test-only claim stub. The actual handover claim remained covered by the connected runner tests."
+    },
+    "corrected_affected_suite": {
+      "passed": 42,
+      "failed": 0,
+      "skipped": 1,
+      "pytest_seconds": 40.18,
+      "harness_seconds": 40.73,
+      "raw_evidence": "tmp/adr0153-parents-9e2264bfbc7b/paid-adapter-rerun.txt",
+      "skip_reason": "The isolated Linux paid-job case requires a pinned local image environment. It passed in the broad harness; the correction only changed a separate test stub."
+    },
+    "qualification_summary": "All 730 distinct broad-suite cases have passing executed evidence after the targeted correction. This is a combined qualification, not a claim of a single 730-pass rerun.",
+    "connected_runner_cases": 22,
+    "real_postgresql_financial_cases": 23,
+    "isolated_linux_cases": 3,
+    "development_runs": [
+      {
+        "raw_evidence": "tmp/adr0153-parents-0aed949df377/runner-tests.txt",
+        "passed": 0,
+        "failed": 9,
+        "pytest_seconds": 7.96
+      },
+      {
+        "raw_evidence": "tmp/adr0153-parents-7a702176b8f8/runner-tests.txt",
+        "passed": 3,
+        "failed": 6,
+        "pytest_seconds": 11.73
+      },
+      {
+        "raw_evidence": "tmp/adr0153-parents-b680317a7837/runner-tests.txt",
+        "passed": 4,
+        "failed": 5,
+        "pytest_seconds": 24.41
+      },
+      {
+        "raw_evidence": "tmp/adr0153-parents-ad20f026315c/runner-tests.txt",
+        "passed": 9,
+        "failed": 0,
+        "pytest_seconds": 31.56
+      },
+      {
+        "raw_evidence": "tmp/adr0153-parents-c5e4b4672ad5/runner-tests.txt",
+        "passed": 60,
+        "failed": 4,
+        "skipped": 1,
+        "pytest_seconds": 118.04
+      }
+    ],
+    "local_pytest_seconds_total": 572.05,
+    "coverage": [
+      "Control-to-candidate handover and exact consumed-arm accounting",
+      "Failed controls, pauses, readiness and inventory failures block candidate",
+      "Unknown original stop, common-infrastructure changes and partial worker startup are not replayed",
+      "Journal loss before bootstrap acknowledgement, control summary, candidate authorization or final summary",
+      "Source, owner, diagnostic target, CA and frozen-generator drift before staging",
+      "Independent restoration, full queue gates, zero double-booking and sealed cleanup",
+      "Existing PostgreSQL payment/booking relationship audits and native container ownership checks"
+    ],
+    "limitations": [
+      "Connected coordinator tests simulate staging, inventory and customer backend outcomes; no live transport or capacity is measured.",
+      "The candidate adapter-ordering test isolates the paid allowance claim; actual candidate proof enforcement is exercised in the connected runner tests.",
+      "Registered entry-point and complete experiment accounting integration remain unqualified."
+    ]
+  },
+  "owned_local_postgres_removed": true,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "profile_registered": false,
+  "full_worker_lifecycle_qualified": false,
+  "remaining": [
+    "Connect the work-envelope entry point and complete reservation/finalization accounting",
+    "Qualify the entry-point boundary and failure accounting locally before worker profile registration",
+    "Fresh registered live preflight and matched control/candidate comparison"
+  ],
+  "accounting": "No cloud experiment/reservation or new infrastructure spend; cloud ledger unchanged. Recorded test time includes failed attempts. Editing/review and exploratory debug wall time were not independently timed."
+}

@@ -30,7 +30,12 @@ SCHEDULER = 'run_synchronized_paid_generator.py'
 ADAPTER_FILES = ('worker_separation_paid_stage.py','worker_separation_paid_jobs.py',
                  'worker_separation_artifacts.py','worker_separation_recovery.py',
                  'worker_separation_handover.py','worker_separation_runtime.py',
-                 'worker_separation_configuration.py','worker_separation_execution.py')
+                 'worker_separation_configuration.py','worker_separation_execution.py',
+                 'worker_separation_runner.py','worker_separation_readiness.py',
+                 'worker_separation_inventory.py','worker_separation_audits.py',
+                 'worker_separation_diagnostics.py','worker_separation_snapshot.py',
+                 'worker_separation_preload.py','worker_separation_staging.py',
+                 'worker_separation_topology.py','worker_separation_observer_bundle.py')
 
 
 def adapter_identity():
@@ -254,6 +259,13 @@ class PaidStage:
                 or scope.get('attempted_paid_arms',[])!=expected
                 or (self.execution.arm=='candidate' and scope.get('worker_control_pass') is not True)):
             raise ValueError('Fresh unused paid allowance and restored passing control required')
+        if self.execution.arm=='candidate':
+            from worker_separation_handover import CandidateHandover
+            from worker_separation_runner import control_authorization
+            proof=getattr(self.runtime,'handover',None)
+            if (type(proof) is not CandidateHandover or not proof.used or proof.runtime is not self.runtime
+                    or scope.get('worker_control_authorization')!=control_authorization(proof)):
+                raise ValueError('Exact claimed passing-control handover authorization required')
         self._write('paid-dispatch-intent',{'arm':self.execution.arm,'inventory_sha256':policy.digest(self.inventory),
                                           'scheduled_offered_start_utc':self.record['scheduled_offered_start_utc'],
                                           'fixture_identity_sha256':self.record['fixture_identity']['fixture_identity_sha256']})

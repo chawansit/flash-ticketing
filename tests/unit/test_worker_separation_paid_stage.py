@@ -154,8 +154,8 @@ def test_candidate_claim_requires_a_restored_passing_control(tmp_path,monkeypatc
     component.prepare();component.record['scheduled_offered_start_utc']=datetime.now(UTC).isoformat()
     with pytest.raises(ValueError,match='passing control'):component._claim()
     state=policy.read(policy.STATE);state[engine.runtime.guard.key]['worker_control_pass']=True;policy.write(policy.STATE,state)
-    component._claim()
-    assert policy.read(policy.STATE)[engine.runtime.guard.key]['paid_runs_started']==2
+    with pytest.raises(ValueError,match='handover authorization'):component._claim()
+    assert policy.read(policy.STATE)[engine.runtime.guard.key]['paid_runs_started']==1
 
 
 @pytest.mark.parametrize('audit_failure',[None,'financial','duplicates','queues'])
@@ -299,7 +299,15 @@ def test_actual_adapter_ordering_keeps_fixed_dispatch_and_failure_audits(tmp_pat
     component,engine,_events,audit_events,_clock=setup(tmp_path,monkeypatch,frozen,arm)
     launches=successful_stage(component,monkeypatch,failure=failure)
     if arm=='candidate':
-        state=policy.read(policy.STATE);state[engine.runtime.guard.key]['worker_control_pass']=True;policy.write(policy.STATE,state)
+        # Adapter ordering is isolated here; the connected runner tests exercise
+        # the real handover/authorization claim, including rejection of bare flags.
+        def adapter_only_claim():
+            state=policy.read(policy.STATE);scope=state[engine.runtime.guard.key]
+            assert scope['paid_runs_started']==1 and scope['attempted_paid_arms']==['control']
+            scope.update(paid_runs_started=2,attempted_paid_arms=['control','candidate'])
+            policy.write(policy.STATE,state)
+            component.record['customers_dispatched']=True
+        monkeypatch.setattr(component,'_claim',adapter_only_claim)
     result=component.run()
     assert audit_events==['fixture','financial','duplicates','queues']
     assert result['stage_pass'] is (failure is None)
