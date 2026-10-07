@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-08",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "api_placement_candidate_failed_primary_callback_affinity_confirmed_recovery_closed",
+  "status": "callback_routing_locally_qualified_cloud_comparison_next",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -1095,7 +1095,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Record an ADR and qualify routing callbacks through all four APIs. Compare routing alone on the stable 2+2 baseline before retrying placement or increasing load.",
+  "next_action": "Execute one fresh ADR0216 callback-routing pair on fixed 2+2 APIs: unchanged frozen images/budgets, 60 journeys/s for 300 seconds per arm. Stop on failed control; retain full financial/drain/restoration gates.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -3308,5 +3308,17 @@
       "actual_seconds": 20447.670999999944,
       "reserved_seconds": 82800
     }
+  },
+  "callback_routing_checkpoint": {
+    "decision": "docs/adr/0216-shared-callback-routing-comparison.md",
+    "plan": "docs/capacity/flash-sale-opening/callback-routing-plan-2026-10-08.json",
+    "status": "implemented_locally_qualified_registered",
+    "local_unit_tests_passed": 212,
+    "local_nginx_route_tests_passed": 1,
+    "cloud_load_started": false,
+    "capacity_improvement_measured": false,
+    "placement": "2+2 in both arms",
+    "factor": "simulator API_URL only",
+    "new_spending": 0
   }
 }

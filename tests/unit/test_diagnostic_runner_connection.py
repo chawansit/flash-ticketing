@@ -145,7 +145,7 @@ def test_registration_requires_exact_target_and_preserves_failed_scope_history(a
     binding, _, _ = area
     plan = policy.plan()
     configured = envelope.read(envelope.ENVELOPE)
-    configured["qualified_profiles"] = list(envelope.PROFILES)[:-1]
+    configured["qualified_profiles"] = list(envelope.PROFILES)[:list(envelope.PROFILES).index("diagnostic_placement")]
     envelope.write(envelope.ENVELOPE, configured)
     assert "diagnostic_placement" not in configured["qualified_profiles"]
     with pytest.raises(ValueError, match="Unknown diagnostic profile"):

@@ -372,3 +372,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0214: Bounded payment gateway latency](0214-bounded-payment-gateway-latency.md)
 
 - [ADR0215: Digest-pinned SWR image publication](0215-digest-pinned-swr-image-publication.md)
+
+- [ADR0216: Shared callback routing comparison](0216-shared-callback-routing-comparison.md)

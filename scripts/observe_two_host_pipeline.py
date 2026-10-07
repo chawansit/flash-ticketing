@@ -143,6 +143,24 @@ def verify_confirmation_factor_evidence(inventory):
 def verify_admission_factor_evidence(inventory):
     marker = inventory.get("status_refresh_contract", {})
     arm = inventory.get("arm")
+    if marker.get("decision") == "ADR0216":
+        url = {"control": "http://api:8000", "candidate": "http://load-balancer:8000"}.get(arm)
+        counts = {"primary": 2, "secondary": 2}
+        expected = {"decision": "ADR0216", "arm": arm, "factor": "simulator_callback_destination_local_to_shared",
+                    "api_counts": counts, "callback_url": url, "partial_timeout_reclaim": "0", "async_intake": "0",
+                    "cache_age_ms": 1000, "poll_ms": 500, "api_image_id": marker.get("api_image_id")}
+        actual = {role: sum(a.get("host_role") == role for a in inventory.get("apis", [])) for role in counts}
+        simulators = [w for w in inventory.get("worker_sources", []) if w.get("role") == "simulator"]
+        if (arm not in {"control", "candidate"} or marker != expected or actual != counts
+                or len(simulators) != 1 or simulators[0].get("settings", {}).get("API_URL") != url):
+            raise ValueError("Exact inspected callback routing and fixed placement required")
+        common = copy.deepcopy(inventory)
+        common["arm"] = "control"
+        common["status_refresh_contract"] = {"decision": "ADR0174", "arm": "control",
+            "factor": "api_placement_2_2_to_1_3", "api_counts": counts, "partial_timeout_reclaim": "0",
+            "async_intake": "0", "cache_age_ms": 1000, "poll_ms": 500, "api_image_id": marker["api_image_id"]}
+        verify_admission_factor_evidence(common)
+        return
     if marker.get("decision") == "ADR0193":
         expected = {"decision": "ADR0193", "arm": arm, "factor": "payment_dispatch_claim_two_statements_to_one",
                     "claim_statements": 1 if arm == "candidate" else 2,
@@ -281,14 +299,14 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
         marker = inventory.get("status_refresh_contract", {})
         if (not isinstance(approved_inventory_sha256, str)
                 or not re.fullmatch(r"[0-9a-f]{64}", approved_inventory_sha256)
-                or actual != approved_inventory_sha256 or marker.get("decision") not in {"ADR0151", "ADR0157", "ADR0161", "ADR0163", "ADR0174", "ADR0177", "ADR0193"}
+                or actual != approved_inventory_sha256 or marker.get("decision") not in {"ADR0151", "ADR0157", "ADR0161", "ADR0163", "ADR0174", "ADR0177", "ADR0193", "ADR0216"}
                 or marker.get("cache_age_ms") != 1000 or marker.get("arm") != inventory.get("arm")
                 or not isinstance(marker.get("api_image_id"), str)
                 or not re.fullmatch(r"sha256:[0-9a-f]{64}", marker["api_image_id"])):
             raise ValueError("Exact host-qualified inventory digest required")
         if marker["decision"] == "ADR0161":
             verify_confirmation_factor_evidence(inventory)
-        if marker["decision"] in {"ADR0163", "ADR0174", "ADR0177", "ADR0193"}:
+        if marker["decision"] in {"ADR0163", "ADR0174", "ADR0177", "ADR0193", "ADR0216"}:
             verify_admission_factor_evidence(inventory)
         if marker["decision"] == "ADR0157":
             verify_dedup_factor_evidence(inventory)
@@ -300,12 +318,12 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
         structural["arm"] = "candidate"
         for api in structural["apis"]:
             api["settings"]["ORDER_STATUS_CACHE_MS"] = "0"
-        if marker["decision"] in {"ADR0161", "ADR0163", "ADR0174", "ADR0177", "ADR0193"}:
+        if marker["decision"] in {"ADR0161", "ADR0163", "ADR0174", "ADR0177", "ADR0193", "ADR0216"}:
             structural["background"] = copy.deepcopy(BACKGROUND)
             for api in structural["apis"]:
                 api["settings"].pop("PAYMENT_CONFIRMATION_ASYNC")
                 api["settings"].pop("ORDER_STATUS_POLL_MS")
-        if marker["decision"] in {"ADR0163", "ADR0174", "ADR0177", "ADR0193"}:
+        if marker["decision"] in {"ADR0163", "ADR0174", "ADR0177", "ADR0193", "ADR0216"}:
             # Full extended dictionaries were verified above; keep every original budget.
             for api in structural["apis"]:
                 api["settings"] = {key: api["settings"][key] for key in API_SETTINGS}
@@ -316,7 +334,7 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
             structural["status_refresh_contract"].pop("diagnostic_decision")
         placement = "one-plus-three" if marker["decision"] in {"ADR0174", "ADR0177"} and inventory["arm"] == "candidate" else None
         validate_inventory(structural, image_id=marker["api_image_id"], now=now, placement=placement)
-    if inventory.get("status_refresh_contract", {}).get("decision") in {"ADR0161", "ADR0163", "ADR0174", "ADR0177", "ADR0193"}:
+    if inventory.get("status_refresh_contract", {}).get("decision") in {"ADR0161", "ADR0163", "ADR0174", "ADR0177", "ADR0193", "ADR0216"}:
         module.METRICS["confirmation"] = ("confirm_one", "http://confirmation:9101/metrics")
         original_parser = module.parse_api_metrics
 
@@ -352,7 +370,7 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
             raise ValueError("Metrics payload exceeds bound")
         payload = raw.decode("utf-8")
         extras = extra_api_metrics(payload)
-        if inventory.get("status_refresh_contract", {}).get("decision") in {"ADR0163", "ADR0174", "ADR0177", "ADR0193"}:
+        if inventory.get("status_refresh_contract", {}).get("decision") in {"ADR0163", "ADR0174", "ADR0177", "ADR0193", "ADR0216"}:
             extras.update(admission_failure_metrics(payload))
         prior = previous.get(label)
         if prior and (
@@ -443,7 +461,7 @@ def install_diagnostic_connection(module, inventory, args):
     if binding is None and path is None:
         return None
     if (not args.database_wait_diagnostics or not args.approved_inventory_sha256
-            or inventory.get("status_refresh_contract", {}).get("decision") != "ADR0174"
+            or inventory.get("status_refresh_contract", {}).get("decision") not in {"ADR0174", "ADR0216"}
             or not isinstance(binding, dict) or path is None
             or set(binding) != {"decision", "database", "identity_sha256", "endpoint", "bundle_sha256", "ca_sha256"}
             or binding["decision"] != "ADR0180"

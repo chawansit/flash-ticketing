@@ -47,7 +47,8 @@
     "application_role_rebalance",
     "diagnostic_placement",
     "atomic_payment_claim",
-    "worker_separation"
+    "worker_separation",
+    "callback_routing"
   ],
   "escalate": [
     "new spending or infrastructure action",

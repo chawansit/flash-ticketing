@@ -37,6 +37,9 @@ def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROF
     if profile_name == "atomic_payment_claim":
         import atomic_payment_claim_contract as contract_policy
         import run_atomic_payment_claim_comparison as profile
+    elif profile_name == "callback_routing":
+        import callback_routing_contract as contract_policy
+        import run_callback_routing_comparison as profile
     elif profile_name == "diagnostic_placement":
         import diagnostic_placement_contract as contract_policy
         import run_diagnostic_placement_comparison as profile
@@ -57,7 +60,7 @@ def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROF
     from run_status_refresh_comparison import RunLock
 
     engine = profile.create_runner()
-    if profile_name == "diagnostic_placement":
+    if profile_name in {"diagnostic_placement", "callback_routing"}:
         from diagnostic_runner_connection import validate_target
         if diagnostic_target is None or not sys.stdin.isatty():
             raise ValueError("Protected target file and credential terminal required")
@@ -91,7 +94,7 @@ def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROF
     sys.path.insert(0, str(ssh_runtime.resolve()))
     reports, started = [], time.monotonic()
     try:
-        if profile_name == "diagnostic_placement":
+        if profile_name in {"diagnostic_placement", "callback_routing"}:
             engine.configure_diagnostic(target, getpass.getpass("Diagnostic administrator password: "))
         if hasattr(engine, "stage_images"):
             engine.stage_images(config, artifact, getpass.getpass("Image staging SSH password: "), guard)

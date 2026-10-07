@@ -1,0 +1,26 @@
+# ADR0216: Shared callback routing comparison
+
+## Status
+Accepted for implementation and bounded comparison under ADR0172. Not cloud-tested; no capacity improvement qualified.
+
+## Context
+ADR0181 matched pair adr0151-7912e222ec22 passed 2+2 but failed 1+3. Simulator callbacks targeted http://api:8000 and per-replica counters show zero secondary callbacks. Primary payment-pool slots fell from four to two while the aggregate eight slots stayed unchanged. Callback backlog and status polling increased. Primary-only routing is confirmed; its causal contribution requires an isolated correction test.
+
+## Decision
+Compare only simulator API_URL: control http://api:8000 versus candidate http://load-balancer:8000. Keep 2+2 APIs in both arms, frozen ADR0163 images, all database/admission budgets, worker counts and placement, synchronous payment intake, gateway delays, polling, Redis and PostgreSQL unchanged. Reuse the proven ADR0181 paid runner and diagnostic connection, not the deferred worker-separation runner. Use 60 offered journeys/s for 300 seconds per arm, matching the identified baseline and covering observed intermittent stalls. Reserve a fresh registered callback_routing scope with the existing 3600-second ceiling, one safety pair, two paid stages and four safety protocols/tickets; stop on a failed control.
+
+Verify the simulator's inspected API_URL before safety and dispatch. Prove fixed placement and unchanged settings/source/budgets. Add a candidate gate showing positive callback-request deltas on every API, including secondary APIs, over the existing qualified offered window. Preserve strict coverage, monotonic counters and reset rejection; never infer routing from configuration alone. Safety verifies signed callback delivery through the selected route; safety traffic is not capacity evidence. Measured routing additionally requires positive HTTP 200 callback deltas on every candidate replica; these counters may include duplicate deliveries and are not unique-ticket counts. The load balancer retains proxy_next_upstream off; this adds no proxy retries or new worker slots. Existing fenced callbacks and payment idempotency remain authoritative.
+
+This supersedes primary-local callback affinity only for this new registered comparison. Historical plans and consumed scopes remain unchanged. The simulator's normal Compose default remains local until a measured correction is accepted. No additional resources or spending, no main merge and no higher offered load are authorized by this decision.
+
+## Alternatives
+Increase primary payment slots: changes budgets and leaves secondary capacity unreachable. Retry callbacks more aggressively: can amplify saturation and confounds routing. Permanently adopt 1+3 first: rejected because its measured customer result failed. Build a dedicated gateway or worker host: unnecessary for this isolated correction and outside current resource boundaries.
+
+## Consequences
+The callback path adds one existing proxy hop and competes with customer traffic at the same load balancer. It makes distributed API payment capacity reachable but does not guarantee higher throughput. Application binaries and financial transactions are unchanged. Positive per-replica evidence is mandatory before claiming the routing correction worked.
+
+## Failure and recovery behavior
+Reject wrong routing, placement, images, source, budgets, diagnostics or stale/replayed scope before dispatch. A failed control stops the candidate. Preserve failed results and mandatory post-TTL financial/relationship checks, zero double-booking/payment-loss checks, complete queues/Kafka drain, credential cleanup and exact original runtime restoration. Ambiguous dispatch or unclosed recovery blocks new load. Restore API_URL with the full original runtime snapshot. Do not relax customer gates to accept a routing change.
+
+## Validation evidence
+Implemented the routing-only contract and protected runner extension. Native local Nginx forwarding test passed: 32 signed duplicate deliveries reached all four synthetic backends unchanged; one invalid signature produced one rejection without proxy or transport retry. The test qualifies forwarding only, not financial correctness or capacity. 82 affected observer/failure-capture checks passed. 130 exact-profile, placement, protected-connection and work-envelope tests passed. Ruff, canonical naming and whitespace checks passed. Registered callback_routing under the standing envelope; no cloud execution or capacity improvement at this checkpoint. Previous measured evidence: [failed placement pair](../capacity/flash-sale-opening/api-placement-comparison-2026-10-08.json). This decision does not qualify 84 tickets/s, maximum RPS or 300000 tickets/hour.
