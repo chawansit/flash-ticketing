@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "decision": "ADR0196",
+  "placement_decision": "ADR0184",
+  "base_revision": "c73d8db0a13fd3beaf7830db6058c9394c869b66",
+  "recorded_at_utc": "2026-10-07T04:16:12.055082+00:00",
+  "status": "dependency_and_audit_retention_components_locally_qualified_full_runner_pending",
+  "implemented": [
+    "Protected dependency context derived from original pooler identity, verify-full settings and exact read-only CA bind; fresh scope binding required",
+    "Read-only RDS and pooler identity/TLS queries, authenticated Redis ping, exact private Kafka metadata and four observed API readiness endpoints",
+    "Fresh owned immutable-image probes on both hosts with restricted resource settings, private stdin and exact-ID removal",
+    "Shared 90-second readiness deadline with reserved remote cleanup time and independent unchanged-runtime observations",
+    "Worker startup requires complete readiness receipt, matching scope/context, and freshness rechecked immediately before start",
+    "Recovery files retained until every mandatory financial, post-TTL, booking, stop/absence, restoration, drain, idle and journal gate passes"
+  ],
+  "validation": {
+    "final_affected_suite": {
+      "passed": 446,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 58.43,
+      "cache_provider_disabled": true
+    },
+    "real_local_docker_probe_lifecycle_cases": 2,
+    "real_docker_probe_dependency_outcomes": "Synthetic success/failure functions; authenticated live dependencies were not tested",
+    "new_generated_program_real_linux_cases_with_simulated_docker": 8,
+    "dependency_client_tests": "Mocked PostgreSQL, Redis, Kafka and HTTP clients; verify-full/read-only parameters, private DNS, encrypted identity, metadata, API completeness and resource close paths exercised",
+    "real_cloud_dependency_readiness_verified": false,
+    "local_owned_test_resources_remaining": 0,
+    "ruff_pass": true,
+    "repository_naming_working_pass": true,
+    "faults": [
+      "Changed TLS authority, CA content, route, trust mount or scope",
+      "Missing/false/stale/incomplete readiness and expiry before startup",
+      "Create/start response loss, replaced/foreign/pre-existing probes, post-probe runtime drift",
+      "Shared deadline and acknowledgement persistence failure",
+      "Financial, booking, full queue, worker stop and generator idle failures retain recovery files"
+    ],
+    "qualification_history": [
+      {
+        "passed": 0,
+        "failed": 1,
+        "pytest_seconds": 0.71,
+        "correction": "Use shared ownership validator instead of assuming the staging prefix"
+      },
+      {
+        "passed": 16,
+        "failed": 1,
+        "pytest_seconds": 0.95,
+        "correction": "Synthetic drift fixture accessed an empty secondary inventory"
+      },
+      {
+        "passed": 157,
+        "failed": 0,
+        "pytest_seconds": 28.26
+      },
+      {
+        "passed": 0,
+        "failed": 1,
+        "pytest_seconds": 2.41,
+        "correction": "Real Docker probe caught a missing generated-program JSON import; corrected before cloud use"
+      },
+      {
+        "passed": 2,
+        "failed": 0,
+        "pytest_seconds": 4.97,
+        "scope": "Real local Docker cleanup on synthetic dependency success/failure"
+      },
+      {
+        "passed": 10,
+        "failed": 0,
+        "pytest_seconds": 7.25,
+        "scope": "New generated Linux faults and real local Docker cases"
+      }
+    ],
+    "source_sha256": {
+      "scripts/worker_separation_readiness.py": "ffa603f3b07dadde8b64b4ab198faa469be1dfcab6f86adb917a6f02beda8ef9",
+      "scripts/worker_separation_execution.py": "da55d3b99c62e9aa76f5952370456db32cd0fd5804c868300f278902b9800cde",
+      "scripts/worker_separation_lifecycle.py": "8e791b2bee8a38ca698a92d1548523dd8eb03561f6d2853472e90acf55847a6c",
+      "tests/unit/test_worker_separation_readiness.py": "b522122cb380df9c2a1446fad7bf13c38f670e022958a90408064623f74ced94",
+      "tests/unit/test_worker_separation_execution.py": "57aff45d2fba2622bfca34b299effce729ea7e04fe69f3c1a08bec51d69fbb1e",
+      "tests/unit/test_worker_separation_lifecycle.py": "d3d4cfd3db58080a4b18f7aef9a6e15da8a548d1b406ce938025a88c82237e86",
+      "tests/integration/test_worker_dependency_probe_native.py": "229eb257fd4776f6193f9a849ca6de6ba84466819636292742908535658171b7",
+      "tests/integration/test_worker_dependency_probe_posix.py": "87d2de659158cb4eebd7f5b735643967657b54d36a1f550d6339afc86478bc9c"
+    },
+    "source_hash_scope": "Executed local working-tree file bytes",
+    "local_test_log": {
+      "path": "tmp/adr0196-local-tests.txt",
+      "sha256": "079889211a8007807cfece1fcfa2e74d6e9dd77f27f4c76a61ce6f5bc955b9fc"
+    }
+  },
+  "remaining": [
+    "Concrete mandatory payment/post-TTL/double-booking/full queue and observer integration in the complete worker runner",
+    "Complete adapter fault qualification and fresh guarded worker profile registration",
+    "Matched four-primary-API worker placement comparison with unchanged images, workloads and logical budgets",
+    "84 paid-and-issued tickets/s, then one-hour 300000-ticket qualification"
+  ],
+  "worker_profile_registered": false,
+  "full_live_adapter_implemented": false,
+  "cloud_deployments": 0,
+  "cloud_load_started": false,
+  "customer_dispatches": 0,
+  "capacity_improvement_measured": false,
+  "hourly_qualified": false,
+  "cloud_accounting_unchanged": true,
+  "new_infrastructure_spending": 0,
+  "actual_cumulative_cloud_seconds": 14324.329999999987
+}

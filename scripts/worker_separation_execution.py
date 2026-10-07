@@ -238,6 +238,7 @@ class ExecutionActions:
         self.scope_sha = self.runtime.scope_binding_sha256
         self.drain_provider, self.now = drain_provider, now or (lambda:datetime.now(UTC))
         self.used, self.failed, self.journal_healthy = set(), False, True
+        self.dependency_receipt = None
         if not callable(drain_provider): raise TypeError('Bound live drain provider required')
         self._guard(5)
         # Kafka image/data identity is a hard invariant across common configuration and restoration.
@@ -339,10 +340,25 @@ class ExecutionActions:
     def start_workers(self):
         def action():
             if 'configure_common_infrastructure' not in self.used:raise ValueError('Common infrastructure required')
+            from worker_separation_readiness import CHECKS
+            receipt = self.dependency_receipt
+            if (not isinstance(receipt, dict) or set(receipt) != {'binding_sha256','checked_at','context_sha256','checks','runtime_unchanged','probes_removed'}
+                    or receipt['binding_sha256'] != policy.digest(self.runtime.audit_binding)
+                    or not HASH.fullmatch(receipt['context_sha256'])
+                    or receipt['context_sha256'] != self.runtime.guard.binding.get('worker_dependency_context_sha256')
+                    or receipt['runtime_unchanged'] is not True or receipt['probes_removed'] is not True
+                    or not isinstance(receipt['checks'],dict) or set(receipt['checks']) != set(CHECKS)
+                    or any(receipt['checks'][k] is not True for k in CHECKS)):
+                raise ValueError('Exact complete dependency readiness required before worker start')
+            ready_at = datetime.fromisoformat(receipt['checked_at'])
+            if ready_at.tzinfo is None or not 0 <= (self.now()-ready_at).total_seconds() <= 30:
+                raise ValueError('Fresh dependency readiness required before worker start')
             before=self._observe();verify_phase(self.pair,self.saved,self.arm,before,'infrastructure')
             stamp=self._drain()
             host='primary' if self.arm == 'control' else 'secondary'
             if not 0 <= (self.now()-stamp).total_seconds() <= 30:raise ValueError('Drain receipt expired before start')
+            if not 0 <= (self.now()-ready_at).total_seconds() <= 30:
+                raise ValueError('Dependency readiness expired before worker start')
             after=self._apply(host,before,self.pair[self.arm][host],WORKERS,'arm.compose.json')
             verify_phase(self.pair,self.saved,self.arm,after,'workers')
             return {'exact_arm_workers_started':True}

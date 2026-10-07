@@ -332,3 +332,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0194: Sealed worker configuration bundles](0194-sealed-worker-configuration-bundles.md)
 
 - [ADR0195: Guarded worker execution and exact restoration](0195-guarded-worker-execution-and-exact-restoration.md)
+
+- [ADR0196: Bound private dependency readiness and audit retention](0196-bound-private-dependency-readiness-and-audit-retention.md)

@@ -136,7 +136,8 @@ class Qualification:
             restored = self._action(VERIFY, cleanup=True)
         drain = self._action(DRAIN, cleanup=True)
         idle = self._action(FORWARD[2], cleanup=True)
-        files = self._action(FILES, cleanup=True) if restored and absence else False
+        retain_safe = all(audits) and stopped and absence and restored and drain and idle and self.journal_healthy
+        files = self._action(FILES, cleanup=True) if retain_safe else False
         safe = all(audits) and stopped and absence and restored and drain and idle and files and self.journal_healthy
         result = {'decision': 'ADR0186', 'offline_only': True, 'arm': self.binding['arm'],
                   'binding_sha256': digest(self.binding), 'deployment_preparation_pass': prepared,

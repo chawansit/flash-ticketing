@@ -358,3 +358,25 @@ def test_lost_mutation_response_is_not_retried_and_can_be_verified_restored(tmp_
     assert ('start_arm_workers', False) not in adapter.calls
     assert ('restore_original_runtime', True) in adapter.calls
     assert result['restoration_verified'] and not result['pass']
+
+@pytest.mark.parametrize('failure', [s[0] for s in lifecycle.CLEANUP] + [lifecycle.STOP[0], lifecycle.DRAIN[0], 'verify_generator_idle'])
+def test_recovery_files_survive_failed_mandatory_gate(tmp_path, monkeypatch, failure):
+    adapter = Adapter(failures={(failure, True)})
+    result = qualification(tmp_path, monkeypatch, adapter).run()
+    assert result['status'] == 'RECOVERY_REQUIRED'
+    assert ('cleanup_owned_private_files', True) not in adapter.calls
+    assert all((s[0], True) in adapter.calls for s in lifecycle.CLEANUP)
+    assert ('restore_original_runtime', True) in adapter.calls
+
+
+def test_recovery_files_survive_journal_failure_after_verified_restoration(tmp_path, monkeypatch):
+    class BrokenJournal(lifecycle.Journal):
+        def write(self, event, value):
+            if event == 'ack' and value.get('action') == 'restore_original_runtime':
+                raise OSError('synthetic disk failure')
+            return super().write(event, value)
+    adapter = Adapter()
+    result = qualification(tmp_path, monkeypatch, adapter, journal_factory=BrokenJournal).run()
+    assert result['status'] == 'RECOVERY_REQUIRED'
+    assert ('verify_exact_restoration', True) in adapter.calls
+    assert ('cleanup_owned_private_files', True) not in adapter.calls

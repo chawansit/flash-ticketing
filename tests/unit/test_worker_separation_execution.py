@@ -119,9 +119,10 @@ class Session:
         return copy.deepcopy(self.values[host])
 
 
-def create(monkeypatch,arm='candidate'):
+def create(monkeypatch,arm='candidate',dependency_sha='d'*64):
     saved,rows,_,inputs=fixture()
     binding=runtime.binding_for(inputs)
+    binding['worker_dependency_context_sha256']=dependency_sha
     guard=object.__new__(policy.ActionGuard);guard.key='synthetic-worker-scope';guard.binding=binding;guard.check=lambda _:None
     monkeypatch.setattr(policy,'PROFILES',{staging.PROFILE:('synthetic','ADR0195')})
     monkeypatch.setattr(runtime,'check_authority',lambda *a:{'status':'PASS'})
@@ -138,6 +139,11 @@ def create(monkeypatch,arm='candidate'):
     def drain(bound):return {'binding_sha256':policy.digest(bound),'checked_at':NOW.isoformat(),
                             'dispatch_stopped':True,'all_queues_zero':True,'kafka_drained':True}
     engine=execution.ExecutionActions(cfg,drain_provider=drain,now=lambda:NOW)
+    # Readiness is exercised separately; these operation fixtures emulate its bound acknowledgement.
+    from worker_separation_readiness import CHECKS
+    engine.dependency_receipt={'binding_sha256':policy.digest(engine.runtime.audit_binding),'checked_at':NOW.isoformat(),
+                              'context_sha256':dependency_sha,'checks':{k:True for k in CHECKS},
+                              'runtime_unchanged':True,'probes_removed':True}
     return engine,session
 
 

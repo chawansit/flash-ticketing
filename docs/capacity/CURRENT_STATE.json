@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-07",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "background_execution_components_locally_qualified_full_worker_lifecycle_pending",
+  "status": "background_readiness_and_audit_retention_locally_qualified_full_worker_runner_pending",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -68,7 +68,8 @@
     "ADR0190 user explicitly accepted missing historical fixture information;126 exception/envelope/retention tests and129 affected orchestration tests passed. Fresh24.219s read-only restoration passed all8 exception gates;append-only receipt installed,all original ledger experiment entries unchanged. Old paid failure remains unreconciled;fresh registered admission available.",
     "New qualification0013af72d51b:100concurrent=>1hold/1paid-issued ticket,replays/authorization/post-TTL/duplicate callbacks/queues/restoration passed;paid stages0. Pinned producer omitted fixture_layout;receipt stopped before minting/dispatch. ADR0191 normalizes only exact99d091 producer.242 affected tests plus93 final abort/envelope checks passed;fresh22.391s strict zero-paid abort verified. Original failure/scopes unchanged;fresh control retry pending.",
     "Fresh registered control adr0151-c8bb0a476b4c: 18000/18000 paid-and-issued customer confirmations, zero customer errors/drops/double-booking/payment loss, post-TTL and global/Kafka queues passed, original runtime restored. No ADR0189 or hourly improvement claim.",
-    "ADR0195 guarded common infrastructure, fixed worker starts, exact-ID partial cleanup and original restoration components passed 390 affected tests in 45.76s; 11 generated-operation Linux cases use simulated Docker and 1 real Compose literal probe passed. Literal escaping corrected before startup; owned local test containers absent. Full readiness/financial/observer lifecycle and worker profile registration remain pending; 0 cloud calls or capacity improvement."
+    "ADR0195 guarded common infrastructure, fixed worker starts, exact-ID partial cleanup and original restoration components passed 390 affected tests in 45.76s; 11 generated-operation Linux cases use simulated Docker and 1 real Compose literal probe passed. Literal escaping corrected before startup; owned local test containers absent. Full readiness/financial/observer lifecycle and worker profile registration remain pending; 0 cloud calls or capacity improvement.",
+    "ADR0196 dependency and financial-recovery retention components passed 446 affected tests in 58.43s. Two real local Docker probe lifecycle cases and eight generated Linux faults passed; dependency clients were mocked, so live private readiness is unverified. Worker startup requires fresh complete bound readiness. Failed financial/drain/journal gates retain recovery files. No cloud calls, load or capacity gain; full audited runner and registration pending."
   ],
   "unresolved": "1+3 failed: 24 customer errors, 2,946 drops, 16.14 status checks/journey and payment-pool saturation. Primary-only callback routing reduces reachable callback pool capacity from four to two in the candidate. Standing ledger remains RECOVERY_REQUIRED despite completed owned restoration; strict paid-run recovery verification is needed before more load. 84/s, the single-show 18,000-seat projection, flash opening and hourly qualification remain unqualified.",
   "next_on_resume": [
@@ -1094,7 +1095,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Integrate ADR0195 execution components with private dependency readiness and complete ADR0186 financial, queue, observer and restoration lifecycle; locally qualify and register a fresh guarded worker profile before the matched four-primary-API worker placement comparison. Preserve unchanged budgets and failed-control stopping. Then pursue 84 paid-and-issued tickets/s and hourly qualification; capacity improvement remains unmeasured.",
+  "next_action": "Connect ADR0196 readiness and ADR0195 execution to concrete mandatory paid/post-TTL/double-booking/full queue audits and host-aware observers in the complete worker runner. Locally qualify all failure/restoration paths and register a fresh guarded profile before the unchanged-budget four-primary-API worker-placement comparison. Then pursue 84 paid-and-issued tickets/s and one-hour qualification. No measured capacity improvement from local preparation.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -2018,7 +2019,7 @@
     ]
   },
   "worker_separation_preparation": {
-    "status": "guarded_execution_components_locally_qualified_full_live_adapter_pending",
+    "status": "dependency_and_retention_components_locally_qualified_full_live_runner_pending",
     "implemented": [
       "Pure fixed-factor worker placement models with immutable images and unchanged logical pool totals",
       "Common private Kafka listener and four-API callback ingress configuration",
@@ -2047,11 +2048,17 @@
       "Partial-start cleanup by observed immutable container IDs with per-target identity rechecks",
       "Sealed original runtime restoration with independent complete semantic verification",
       "Fresh bound dispatch/full-queue/Kafka drain receipts and durable single-use action intents",
-      "Existing Compose literal escaping applied to sealed documents; complete model/file binding and pre-application executable-setting validation"
+      "Existing Compose literal escaping applied to sealed documents; complete model/file binding and pre-application executable-setting validation",
+      "Protected dependency context derived from original pooler identity, verify-full settings and exact read-only CA bind; fresh scope binding required",
+      "Read-only RDS and pooler identity/TLS queries, authenticated Redis ping, exact private Kafka metadata and four observed API readiness endpoints",
+      "Fresh owned immutable-image probes on both hosts with restricted resource settings, private stdin and exact-ID removal",
+      "Shared 90-second readiness deadline with reserved remote cleanup time and independent unchanged-runtime observations",
+      "Worker startup requires complete readiness receipt, matching scope/context, and freshness rechecked immediately before start",
+      "Recovery files retained until every mandatory financial, post-TTL, booking, stop/absence, restoration, drain, idle and journal gate passes"
     ],
     "not_implemented": [
-      "Private dependency readiness and complete financial/audit/observer lifecycle integration",
-      "Local qualification of the complete live adapter and fresh guarded worker profile registration"
+      "Concrete mandatory payment/post-TTL/double-booking/full queue and observer integration in the complete worker runner",
+      "Complete adapter fault qualification and fresh guarded worker profile registration"
     ],
     "cloud_deployment_started": false,
     "cloud_load_started": false,
@@ -2059,7 +2066,7 @@
     "host_aware_observers_locally_tested": true,
     "local_lifecycle_qualified": true,
     "live_lifecycle_qualified": false,
-    "latest_evidence": "docs/capacity/flash-sale-opening/background-service-separation-execution-2026-10-07.json",
+    "latest_evidence": "docs/capacity/flash-sale-opening/background-service-separation-readiness-2026-10-07.json",
     "local_staging_qualified": true,
     "local_preload_report_qualified": true,
     "live_staging_qualified": false,
@@ -2068,7 +2075,9 @@
     "full_live_adapter_implemented": false,
     "local_configuration_qualified": true,
     "historical_recovery_note": "ADR0190 exact exception permits fresh work without certifying or replaying the old missing-fixture run. New ownership, restoration and financial gates remain mandatory.",
-    "local_execution_components_qualified": true
+    "local_execution_components_qualified": true,
+    "local_dependency_readiness_component_qualified": true,
+    "live_dependency_readiness_verified": false
   },
   "performance_focus": {
     "decision": "ADR0189",
@@ -2104,7 +2113,8 @@
     "historical_exception_initial_failed_pytest_seconds": 11.08,
     "fixture_abort_fresh_read_only_seconds": 22.391,
     "fixture_compatibility_affected_tests_seconds": 13.33,
-    "fixture_abort_final_tests_seconds": 5.76
+    "fixture_abort_final_tests_seconds": 5.76,
+    "adr0196_final_local_pytest_seconds": 58.43
   },
   "bounded_slow_database_diagnostics__7c5c5950fffd": {
     "authorization_id": "work-envelope-7c5c5950fffd",
@@ -2378,11 +2388,11 @@
     "maximum_new_infrastructure_spend": 0
   },
   "last_engineering_checkpoint": {
-    "decision": "ADR0195",
-    "base_revision": "9538a3ae4e008a61d8bb8eeac91b0bf02c9dd288",
-    "evidence": "docs/capacity/flash-sale-opening/background-service-separation-execution-2026-10-07.json",
-    "recorded_at_utc": "2026-10-07T03:54:30.754438+00:00",
-    "tests_passed": 390,
+    "decision": "ADR0196",
+    "base_revision": "c73d8db0a13fd3beaf7830db6058c9394c869b66",
+    "evidence": "docs/capacity/flash-sale-opening/background-service-separation-readiness-2026-10-07.json",
+    "recorded_at_utc": "2026-10-07T04:16:12.055082+00:00",
+    "tests_passed": 446,
     "cloud_load_started": false,
     "capacity_improvement_measured": false,
     "full_worker_lifecycle_qualified": false
