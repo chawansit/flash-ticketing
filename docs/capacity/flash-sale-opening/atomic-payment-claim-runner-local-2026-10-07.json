@@ -1,0 +1,136 @@
+{
+  "decision": "ADR0193",
+  "date_bangkok": "2026-10-07",
+  "implemented": true,
+  "locally_tested": true,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "profile": "atomic_payment_claim",
+  "controlled_factor": "payment_dispatch_claim_two_statements_to_one",
+  "common": {
+    "primary_apis": 2,
+    "secondary_apis": 2,
+    "api_pool": 4,
+    "api_waiters": 12,
+    "payment_pool": 2,
+    "pool_wait_ms": 500,
+    "async_intake": "0",
+    "callback_reserve": "0",
+    "cache_age_ms": 1000,
+    "consumer_event_refresh": "1",
+    "consumer_dedup": "0",
+    "poll_ms": 500,
+    "simulator_pool": 10,
+    "confirmation_pool": 2,
+    "buyer_journeys_per_second": 60,
+    "duration_seconds": 300
+  },
+  "allowance": {
+    "qualification_runs_authorized": 1,
+    "paid_runs_authorized": 2,
+    "safety_tickets_authorized": 4
+  },
+  "local_validation": [
+    {
+      "checks": 330,
+      "passed": 330,
+      "elapsed_seconds": 258.04,
+      "scope": "Runner, envelope, both-arm identity, observer, staging and historical compatibility regressions."
+    },
+    {
+      "checks": 75,
+      "passed": 75,
+      "elapsed_seconds": 193.4,
+      "scope": "Updated pair/archive and existing staging/diagnostic checks; overlaps broader suite."
+    },
+    {
+      "checks": 5,
+      "passed": 5,
+      "elapsed_seconds": 7.6,
+      "scope": "Final shared-parent archive bounds, fresh registration and paused owned-seal cleanup; overlapping checks."
+    }
+  ],
+  "ruff": "passed",
+  "image_proof": {
+    "decision": "ADR0193",
+    "cloud_calls": 0,
+    "source_contract_verified": true,
+    "arms": {
+      "control": {
+        "image_parent_config_label_proof": {
+          "artifact_roles_verified": [
+            "api",
+            "consumer",
+            "reservation-writer",
+            "maintenance",
+            "publisher",
+            "reconciler",
+            "simulator",
+            "confirmation"
+          ]
+        },
+        "source_manifest_sha256": "13d78bdf41e7d442f87ee04d1bb4f357d648789adf0e5270a23b06d74c55ccd2",
+        "marker": {
+          "decision": "ADR0193",
+          "arm": "control",
+          "factor": "payment_dispatch_claim_two_statements_to_one",
+          "claim_statements": 2,
+          "worker_source_sha256": "42073129f3b3e9735edb468b50f15b274d7d5c7ac8bbda52a6e85c6d6bc752ce",
+          "partial_timeout_reclaim": "0",
+          "async_intake": "0",
+          "cache_age_ms": 1000,
+          "poll_ms": 500,
+          "api_image_id": "sha256:18ddd5d6faee7673eefa39eab39b3579eb66766f474a82768caa58852e31122c"
+        }
+      },
+      "candidate": {
+        "image_parent_config_label_proof": {
+          "artifact_roles_verified": [
+            "api",
+            "consumer",
+            "reservation-writer",
+            "maintenance",
+            "publisher",
+            "reconciler",
+            "simulator",
+            "confirmation"
+          ]
+        },
+        "source_manifest_sha256": "12e9e4cb3518e9962f2d51e772f72f1d1c7fa9037a6a13c9f700b65a9262bde7",
+        "marker": {
+          "decision": "ADR0193",
+          "arm": "candidate",
+          "factor": "payment_dispatch_claim_two_statements_to_one",
+          "claim_statements": 1,
+          "worker_source_sha256": "b33b3fb001b56ed48864d13d28b19166408b5ddf73d9c42d2d12af1a980fbd8f",
+          "partial_timeout_reclaim": "0",
+          "async_intake": "0",
+          "cache_age_ms": 1000,
+          "poll_ms": 500,
+          "api_image_id": "sha256:64ce020bb90341379ae5454a3d84a3ca35b09f627027e8b6b77c9c9b3dba5f31"
+        }
+      }
+    },
+    "primary_archive_upper_bound_bytes": 1964033932,
+    "secondary_archive_upper_bound_bytes": 327338977,
+    "elapsed_seconds": 18.828000000008615
+  },
+  "native_source_qualification": "docs/capacity/flash-sale-opening/atomic-claim-source-export-2026-10-07.json",
+  "changed_runtime_files": [
+    "src/ticketing/workers.py"
+  ],
+  "archive_limit_bytes": 3221225472,
+  "required_future_gates": [
+    "source/image/bytecode identities",
+    "100-way same-seat exactly one winner",
+    "idempotent replay and customer authorization",
+    "current latency/customer error gates",
+    "post-TTL payment durability",
+    "zero double-booking",
+    "global queues and Kafka drain",
+    "exact restoration"
+  ],
+  "raw_local_image_proof_sha256": "4dfdbab5d758780082a2312b62043ec435ef217913c105f798dbf6ee4ba48b99",
+  "next": "Fresh reserved staging, both-arm qualification, then matched 60 journeys/s 300s control/candidate. Failed control stops progression."
+}

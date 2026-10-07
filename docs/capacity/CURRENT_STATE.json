@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-07",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "fresh_control_published_atomic_claim_frozen_source_locally_qualified",
+  "status": "atomic_claim_comparison_locally_qualified_registered_cloud_pending",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -1093,7 +1093,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Integrate and locally qualify a registered one-factor cloud comparison with arm-specific pinned image/source receipts; keep 60 journeys/s for 300 seconds, 2+2 APIs and aggregate budgets unchanged. Cloud mutation requires fresh reservation, image proof, all original financial/post-TTL/queue/restoration gates and a passing control.",
+  "next_action": "Fresh ADR0193 reservation: guarded verified-image staging, both-arm safety/post-TTL/restoration qualification, matched 60 journeys/s300s pair. Stop on failed control; keep budgets/gates fixed.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -2232,8 +2232,8 @@
     "decision": "ADR0192",
     "implemented": true,
     "locally_tested": true,
-    "cloud_profile_registered": false,
-    "cloud_candidate_images_built": false,
+    "cloud_profile_registered": true,
+    "cloud_candidate_images_built": true,
     "cloud_candidate_deployed": false,
     "capacity_improvement_measured": false,
     "production_qualified": false,
@@ -2242,5 +2242,14 @@
       "src/ticketing/workers.py"
     ],
     "evidence": "docs/capacity/flash-sale-opening/atomic-claim-source-export-2026-10-07.json"
+  },
+  "local_atomic_claim_runner": {
+    "decision": "ADR0193",
+    "implemented": true,
+    "locally_tested": true,
+    "profile": "atomic_payment_claim",
+    "evidence": "docs/capacity/flash-sale-opening/atomic-payment-claim-runner-local-2026-10-07.json",
+    "cloud_load_started": false,
+    "capacity_improvement_measured": false
   }
 }

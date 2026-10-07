@@ -241,7 +241,7 @@ def drain(session, cid, audit_program=GLOBAL_AUDIT):
 
 def collect_profile_failure_evidence(session, inventory, local, profile_ledger):
     """Collect declared phase evidence, including the placement-only profile."""
-    if profile_ledger in {"bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics", "bounded_api_placement_rebalance", "bounded_application_role_rebalance", "bounded_diagnostic_placement"}:
+    if profile_ledger in {"bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics", "bounded_api_placement_rebalance", "bounded_application_role_rebalance", "bounded_diagnostic_placement", "bounded_atomic_payment_claim"}:
         from slow_database_evidence import collect
 
         capture = collect(session, inventory, local)
@@ -280,10 +280,13 @@ class Stages:
 
         profile_ledger = base_ledger(ledger_key)
         if (type(rate) is not int or type(stage_limit) is not int
-                or (rate, profile_ledger, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1), (60, "bounded_async_confirmation", 1), (60, "bounded_partial_timeout_reclamation", 1), (60, "bounded_partial_timeout_reclamation_v2", 1), (60, "bounded_payment_stall_diagnostics", 1), (60, "bounded_slow_database_diagnostics", 1), (60, "bounded_database_wait_diagnostics", 1), (60, "bounded_api_placement_rebalance", 1), (60, "bounded_application_role_rebalance", 1), (60, "bounded_diagnostic_placement", 1))):
+                or (rate, profile_ledger, stage_limit) not in ((60, "bounded_control", 2), (84, "bounded_rate_probe", 1), (60, "bounded_status_refresh", 1), (60, "bounded_status_refresh_dedup", 1), (60, "bounded_async_confirmation", 1), (60, "bounded_partial_timeout_reclamation", 1), (60, "bounded_partial_timeout_reclamation_v2", 1), (60, "bounded_payment_stall_diagnostics", 1), (60, "bounded_slow_database_diagnostics", 1), (60, "bounded_database_wait_diagnostics", 1), (60, "bounded_api_placement_rebalance", 1), (60, "bounded_application_role_rebalance", 1), (60, "bounded_diagnostic_placement", 1), (60, "bounded_atomic_payment_claim", 1))):
             raise ValueError("Unsupported bounded stage contract")
         if profile_ledger in {"bounded_status_refresh", "bounded_status_refresh_dedup", "bounded_async_confirmation", "bounded_partial_timeout_reclamation", "bounded_partial_timeout_reclamation_v2", "bounded_payment_stall_diagnostics", "bounded_slow_database_diagnostics", "bounded_database_wait_diagnostics"} and contract is None:
             raise ValueError("Isolated refresh contract required")
+        if profile_ledger == "bounded_atomic_payment_claim" and (
+                contract is None or contract.inventory_marker().get("decision") != "ADR0193"):
+            raise ValueError("Exact source-pinned atomic claim contract required")
         if profile_ledger == "bounded_async_confirmation" and (
                 not hasattr(contract, "inventory_marker") or contract.inventory_marker().get("decision") != "ADR0161"):
             raise ValueError("Exact durable confirmation contract required")
@@ -720,7 +723,7 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
                     record["application_database_wait_capture"] = {
                         "application_database_wait_evidence_complete": False, "full_database_visibility_complete": False,
                         "error_type": type(exc).__name__}
-            if (self.contract is not None and self.contract.inventory_marker().get("decision") in {"ADR0163", "ADR0174", "ADR0177"}
+            if (self.contract is not None and self.contract.inventory_marker().get("decision") in {"ADR0163", "ADR0174", "ADR0177", "ADR0193"}
                     and "inventory" in locals()):
                 try:
                     from work_envelope import base_ledger

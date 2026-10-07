@@ -37,7 +37,8 @@
     "database_wait_control",
     "api_placement_rebalance",
     "application_role_rebalance",
-    "diagnostic_placement"
+    "diagnostic_placement",
+    "atomic_payment_claim"
   ],
   "escalate": [
     "new spending or infrastructure action",

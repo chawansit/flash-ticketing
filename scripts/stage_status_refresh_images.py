@@ -145,27 +145,65 @@ def upload(session, role, owner, path, size, digest, *, action_guard=None):
     return {"bytes": sent, "sha256": computed.hexdigest()}
 
 
+def archive_images(contracts):
+    if len(contracts) not in {1, 2} or any(c.parents != contracts[0].parents for c in contracts):
+        raise ValueError("One receipt or exact-parent arm pair required")
+    return {
+        "primary": sorted({image for c in contracts for image in c.images.values()}),
+        "secondary": sorted({c.images["api"] for c in contracts} | {contracts[0].parents["api"]}),
+    }
+
+
+def archive_upper_bound(images, contracts):
+    if len(contracts) == 1:
+        return sum(inspect_image(i)["Size"] for i in images)
+    # Each checked image inherits an exact original parent. Count those roots once,
+    # plus each unique overlay; summing complete roots twice overcounts shared layers.
+    mapping = {image: c.parents[role] for c in contracts for role, image in c.images.items()}
+    parents = {mapping.get(image, image) for image in images}
+    parent_data = {image: inspect_image(image) for image in parents}
+    bound = sum(info["Size"] for info in parent_data.values())
+    for image in images:
+        if image in parents:
+            continue
+        info, parent = inspect_image(image), parent_data[mapping[image]]
+        layers = parent["RootFS"]["Layers"]
+        if (not layers or info["RootFS"]["Layers"][:len(layers)] != layers
+                or info["Size"] < parent["Size"]):
+            raise ValueError("Verified parent layers required for archive bound")
+        bound += info["Size"] - parent["Size"]
+    return bound
+
+
+def cleanup_verified_archive(session, role, seal, host):
+    previous = session.cleanup_mode
+    session.begin_cleanup()
+    try:
+        host.update(session.call(role, cleanup_program(seal), 30))
+    finally:
+        session.cleanup_mode = previous
+
+
 def stage(config, artifact, output, password):
     validate_config(config)
     sources = source_contract()
     contract = StatusRefreshContract(artifact, "control", sources)
+    contracts = contract.staging_contracts() if hasattr(contract, "staging_contracts") else (contract,)
+    if len(contracts) not in {1, 2} or any(c.parents != contract.parents for c in contracts):
+        raise ValueError("One receipt or exact-parent arm pair required")
     validate_release(json.loads(STATE.read_text()), binding_for(config, artifact, sources), execute=False)
     output = owned_output(output)
     result = {"pass": False, "customer_dispatches": 0, "service_deployments": 0, "hosts": {}}
     session = None
+    pending_seals = {}
     try:
         # Verify real local receipt metadata again before creating any remote resource.
-        command(
-            [sys.executable, "-c", contract.image_program(ROLES)],
-            log=output / "local-images.txt",
-            timeout=120,
-        )
+        for index, candidate in enumerate(contracts):
+            command([sys.executable, "-c", candidate.image_program(ROLES)],
+                    log=output / ("local-images.txt" if index == 0 else "local-candidate-images.txt"), timeout=120)
         archives = {}
-        for role, images in (
-            ("primary", sorted(set(contract.images.values()))),
-            ("secondary", sorted({contract.images["api"], contract.parents["api"]})),
-        ):
-            if sum(inspect_image(i)["Size"] for i in images) > MAX_ARCHIVE:
+        for role, images in archive_images(contracts).items():
+            if archive_upper_bound(images, contracts) > MAX_ARCHIVE:
                 raise ValueError("Bounded image archive required")
             path = output / (role + ".tar")
             command(
@@ -177,7 +215,7 @@ def stage(config, artifact, output, password):
             if not 0 < size <= MAX_ARCHIVE:
                 raise ValueError("Bounded local archive required")
             archives[role] = (path, images, size, hash_file(path))
-        session = Session(config, output, password)
+        session = Session(config, output, password, action_guard=globals().get("ENVELOPE_GUARD"))
         session.phase("staging-runtime-preflight")
         before = session.call("primary", inventory_program(config["primary"]["repo"]), 45)
         if parents_from_inventory(before) != getattr(contract, "original_parents", contract.parents):
@@ -195,7 +233,7 @@ def stage(config, artifact, output, password):
             created = session.call(role, create_owner_program(owner, size), 30)
             if created != {"owner": owner, "created": True}:
                 raise ValueError("Owner receipt differs")
-            host["transfer"] = upload(session, role, owner, path, size, digest)
+            host["transfer"] = upload(session, role, owner, path, size, digest, action_guard=globals().get("ENVELOPE_GUARD"))
             seal = session.call(role, seal_program(owner, size, digest), 60)
             if (
                 seal.get("owner") != owner
@@ -203,6 +241,7 @@ def stage(config, artifact, output, password):
                 or seal.get("seal", {}).get("size") != size
             ):
                 raise ValueError("Archive receipt differs")
+            pending_seals[role] = seal
             (output / (role + "-seal.private.json")).write_text(json.dumps(seal, indent=2) + "\n")
             session.phase(role + "-verified-image-cache-load")
             loaded = session.call(role, load_program(seal, images), 240)
@@ -211,7 +250,11 @@ def stage(config, artifact, output, password):
             host["artifact_proof"] = session.call(
                 role, contract.image_program(contract.roles if role == "primary" else ("api",)), 120
             )
-            host.update(session.call(role, cleanup_program(seal), 30))
+            if len(contracts) == 2:
+                host["candidate_artifact_proof"] = session.call(
+                    role, contracts[1].image_program(contracts[1].roles if role == "primary" else ("api",)), 120)
+            cleanup_verified_archive(session, role, seal, host)
+            pending_seals.pop(role)
         if before != session.call("primary", inventory_program(config["primary"]["repo"]), 45):
             raise ValueError("Primary runtime changed during staging")
         if secondary_before != session.call("secondary", secondary_inventory(), 30):
@@ -224,7 +267,14 @@ def stage(config, artifact, output, password):
         raise
     finally:
         if session:
-            session.close()
+            try:
+                for role, seal in pending_seals.items():
+                    try:
+                        cleanup_verified_archive(session, role, seal, result["hosts"][role])
+                    except Exception as exc:  # noqa: BLE001 - preserve failure and continue other exact sealed cleanup.
+                        result["hosts"][role]["cleanup_failure_type"] = type(exc).__name__
+            finally:
+                session.close()
         password = None
         (output / "staging-summary.json").write_text(json.dumps(result, indent=2) + "\n")
     return result

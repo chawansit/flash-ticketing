@@ -24,7 +24,10 @@ def status():
 
 
 def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROFILE, diagnostic_target=None):
-    if profile_name == "diagnostic_placement":
+    if profile_name == "atomic_payment_claim":
+        import atomic_payment_claim_contract as contract_policy
+        import run_atomic_payment_claim_comparison as profile
+    elif profile_name == "diagnostic_placement":
         import diagnostic_placement_contract as contract_policy
         import run_diagnostic_placement_comparison as profile
     elif profile_name == "application_role_rebalance":
@@ -80,6 +83,8 @@ def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROF
     try:
         if profile_name == "diagnostic_placement":
             engine.configure_diagnostic(target, getpass.getpass("Diagnostic administrator password: "))
+        if hasattr(engine, "stage_images"):
+            engine.stage_images(config, artifact, getpass.getpass("Image staging SSH password: "), guard)
         bundle = engine.comparison.frozen_bundle()
         guard.check()
         qualification = engine.protocol(config, artifact, sources, bundle, binding, execute=False)

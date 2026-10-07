@@ -21,7 +21,8 @@ PROFILES = {PROFILE: (BASE_LEDGER, "ADR0171"),
             "database_wait_control": ("bounded_database_wait_diagnostics", "ADR0173"),
             "api_placement_rebalance": ("bounded_api_placement_rebalance", "ADR0174"),
             "application_role_rebalance": ("bounded_application_role_rebalance", "ADR0177"),
-            "diagnostic_placement": ("bounded_diagnostic_placement", "ADR0181")}
+            "diagnostic_placement": ("bounded_diagnostic_placement", "ADR0181"),
+            "atomic_payment_claim": ("bounded_atomic_payment_claim", "ADR0193")}
 SCOPE = re.compile("(?:" + "|".join(v[0] for v in PROFILES.values()) + r")__(?:[0-9a-f]{12})$")
 
 
@@ -123,7 +124,7 @@ def reserve(binding, plan, *, profile=PROFILE):
     if profile not in PROFILES or profile not in data["qualified_profiles"]:
         raise ValueError("Unknown diagnostic profile")
     base, decision = PROFILES[profile]
-    expected_arms = ["control", "candidate"] if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement"} else ["control"]
+    expected_arms = ["control", "candidate"] if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement", "atomic_payment_claim"} else ["control"]
     if (plan.get("decision") != decision or plan.get("arms") != expected_arms
             or plan.get("common", {}).get("buyer_journeys_per_second") != 60
             or plan["common"].get("duration_seconds") != 300):
@@ -141,6 +142,11 @@ def reserve(binding, plan, *, profile=PROFILE):
             plan.get("diagnostic_connection_decision") != "ADR0180"
             or not re.fullmatch(r"[0-9a-f]{64}", binding.get("diagnostic_target_sha256", ""))):
         raise ValueError("Exact diagnostic target binding required")
+    if profile == "atomic_payment_claim":
+        import atomic_payment_claim_contract as claim
+
+        if plan != claim.plan():
+            raise ValueError("Exact registered atomic claim pair required")
     if binding.get("configuration_sha256") != data["existing_resource_configuration_sha256"]:
         raise ValueError("Existing resource configuration changed; infrastructure exception")
     identity = uuid4().hex[:12]
