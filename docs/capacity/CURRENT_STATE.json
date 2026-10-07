@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-08",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "callback_routing_locally_qualified_cloud_comparison_next",
+  "status": "shared_callback_routing_comparison_passed_runtime_restored",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -10,7 +10,7 @@
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "Independent read-only recovery verified original four-primary APIs, secondary empty, generator idle, all financial relationships and full queues/Kafka zero. Failed 1+3 result preserved; no permanent adoption.",
+  "last_checked_topology": "ADR0216 restored original four-primary APIs and load-balancer/configuration; secondary test resources removed, generator idle, diagnostic credentials removed, full queues/Kafka drained. No permanent routing or placement adoption.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
   "revision_note": "Checkpoint base cbbe4f8; Git HEAD identifies the commit containing ADR0208-0210 corrections.",
@@ -1095,7 +1095,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Execute one fresh ADR0216 callback-routing pair on fixed 2+2 APIs: unchanged frozen images/budgets, 60 journeys/s for 300 seconds per arm. Stop on failed control; retain full financial/drain/restoration gates.",
+  "next_action": "Compare fixed shared callback routing with 2+2 versus 1+3 API placement, keeping workload and aggregate budgets unchanged; create and locally qualify the exact registered profile first. Then attempt 84 tickets/s if the measured gates pass.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -3307,18 +3307,122 @@
       "registered_experiments": 23,
       "actual_seconds": 20447.670999999944,
       "reserved_seconds": 82800
-    }
+    },
+    "follow_up_routing_evidence": "docs/capacity/flash-sale-opening/callback-routing-comparison-2026-10-08.json"
   },
   "callback_routing_checkpoint": {
     "decision": "docs/adr/0216-shared-callback-routing-comparison.md",
     "plan": "docs/capacity/flash-sale-opening/callback-routing-plan-2026-10-08.json",
-    "status": "implemented_locally_qualified_registered",
+    "status": "matched_cloud_pair_passed_restored",
     "local_unit_tests_passed": 212,
     "local_nginx_route_tests_passed": 1,
-    "cloud_load_started": false,
+    "cloud_load_started": true,
     "capacity_improvement_measured": false,
     "placement": "2+2 in both arms",
     "factor": "simulator API_URL only",
-    "new_spending": 0
+    "new_spending": 0,
+    "evidence": "docs/capacity/flash-sale-opening/callback-routing-comparison-2026-10-08.json",
+    "scope": "bounded_callback_routing__7fdfc4e86333",
+    "safety_run": "adr0151-5d32bc4883f4",
+    "measured_run": "adr0151-b7a3a592979f",
+    "control_pass": true,
+    "candidate_pass": true,
+    "customer_confirmed_each": 18000,
+    "customer_errors_each": 0,
+    "generator_drops_each": 0,
+    "callback_routing_verified_both": true,
+    "callback_coverage": "Control primary only; candidate all four APIs, including both secondary APIs.",
+    "control_end_to_end_p95_ms": 2514.9875890347175,
+    "candidate_end_to_end_p95_ms": 1658.0680690240115,
+    "end_to_end_p95_change_percent": -34.07251486038554,
+    "control_primary_cpu_percent": 77.1098434986105,
+    "candidate_primary_cpu_percent": 68.83098944169623,
+    "control_callback_backlog_peak": 44,
+    "candidate_callback_backlog_peak": 14,
+    "restoration_complete": true,
+    "recovery_required": false,
+    "actual_elapsed_seconds": 2639.9219999999914,
+    "performance_comparison_measured": true,
+    "new_capacity_qualified": false,
+    "accounting": {
+      "registered_experiments": 24,
+      "actual_seconds": 23087.592999999935,
+      "reserved_seconds": 86400
+    }
+  },
+  "bounded_callback_routing__7fdfc4e86333": {
+    "authorization_id": "work-envelope-7fdfc4e86333",
+    "binding": {
+      "adapter_identity": {
+        "scripts/observe_two_host_pipeline.py": "eaeb7c134f7be450dc5a5f6ee85db09d2fbe4b27e2d644de8cacd76d94c49f79",
+        "scripts/database_wait_evidence.py": "85fe63f8f437b9529984b076d691a88bb833acb39173c1f49b9391b0c9548f18",
+        "scripts/prepare_two_host_scaling.py": "665d0fce891da917b0d7a96c4404ae9269a9b543a79f9e02f1d59d6e6760746a",
+        "scripts/observe_two_host_cpu.py": "461bd4dcfe8d3951c4e9aede8c1910d24c6be9d4f7d5d8f10de5530eebb25c57",
+        "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+        "scripts/fixture_identity_evidence.py": "209c769c52410049703f6b92ecd7ef2380657fcbda5465f764a1444089827e6d",
+        "scripts/run_two_host_paid_comparison.py": "10205cf1509a71bdb261070b332c3d1dca1b80acc498c88ea66f90a5ff1e6b4b",
+        "scripts/qualify_two_host_deployment.py": "3108eff4468970c4d9ddf408e0fc474c007d5de8a454da408c113da5e8c46af2",
+        "scripts/collect_two_host_inventory.py": "ed4ed9442e349984e6005ae42da21d58625b1ac5e2d68745a2540e9eda8fd46c",
+        "scripts/runtime_source_identity.py": "5dd0db433abf10e79a3bf1c21ca29d28e85137e7f3e1483e9e96df35462ead80",
+        "scripts/probe_two_host_safety.py": "f61f3e718a19c158aa4c4f90a3411160facd9441d8dea9d7e53e20a0fe920bd2",
+        "scripts/run_status_refresh_comparison.py": "f2f9f97265a6c788554cebb864b0a031432c52702f24e8249815e1d9f5d210e0",
+        "scripts/status_refresh_contract.py": "98941571768e1a3984318dc22762bccc1713278f84f7acde11b61f8568932f27",
+        "scripts/two_host_topology.py": "682a5db1b6ec38676e797bcd9f218eceb0ba94d666897840832eaa7df2ee3fa8",
+        "scripts/work_envelope.py": "f26079eec59f01bb9c421331014cea880032311f26e55a5bcba0d761a74d460d",
+        "scripts/pre_dispatch_abort_recovery.py": "86a60a7af28ec101acc4bab40da2eec3fb2af2c39dbc46640b3a1a9be832cdd4",
+        "scripts/historical_recovery_exception.py": "6fa77472a46c0116b1a71faf0ca643ebc191b0035d754af33ee0cc56f4ad15e7",
+        "scripts/run_work_envelope.py": "03c94598df050c2ecea1d33fb396e1b371a8ca6a9df3385a7172004cacdd6544",
+        "experiment_plan": "fcebe56fc778123acefdb4aae2449461b25e8a2dbec37f34c1ebae9754e75c15",
+        "scripts/run_callback_routing_comparison.py": "dfa55b4dc19287d0d5066e3afed9e9ce809ce7a6440421f1549bf4a39f4b64ec",
+        "scripts/callback_routing_contract.py": "120afc7a57daafe6c1df32d6e39ddc7c2203f5f79ca9c02e4bc555820577ceb1",
+        "scripts/prepare_partial_timeout_reclamation.py": "0573f2a7f94177567ce58a5b9b43aee6a6bede552e1530fcb72e70b8d8b1a076",
+        "scripts/prepare_status_refresh_artifacts.py": "dd06c8574b63061dcecf69d2da9f9d0c0fa82b4df36a6c57f0c35099d9431467",
+        "scripts/status_refresh_image_install.py": "9a20736841a226feb599850b51493cf9383df89b4d8d5506a8cc4de9f9198752",
+        "scripts/stage_status_refresh_images.py": "4030728037df2634ae086aa58e943cb29b3b891f745487fbb32b63a0f0afd550",
+        "scripts/run_async_confirmation_comparison.py": "944ee3c56539aca1119cc23c88e2f8c75cdd7271068a616ae9a866d5b61952c4",
+        "scripts/checkout_journey_probe.py": "10b14c979133188d42aaba5a9a91ab599101922e2d284e85dbe6c03244e3a5bc",
+        "scripts/fetch_status_refresh_parents.py": "b79f31039d1fceedcd9d51a64be5fecc24beb8212078dad64d36f134a95da26d",
+        "scripts/admission_failure_evidence.py": "89a27e96ea08b636d1febef4dc8e5cfeb9404910f9bd38475a5fe7d9c80d7094",
+        "scripts/slow_database_evidence.py": "e4018d92871a13b3c58cb06cfc66adce7e1d771b1a12117c0b8f4a79f6a1d9d0",
+        "scripts/diagnostic_connection.py": "c04df402492e652ef3082e87ce0cbf0b532d9d664db57ef8dcfd04883f822aed",
+        "scripts/diagnostic_runner_connection.py": "078f85b4d3653d9342f9f9d0ee5fe933c8737eef790f20d48e67e95f18cb39a7",
+        "scripts/api_placement_contract.py": "dd14ad0ba7949340221d6c263970de38ee65630da00d106b16fe7877ee489cb3",
+        "scripts/partial_timeout_profile.py": "2c75b4b42e25c106384f87ba566b4caa58c758b6d055d27688d1f811358be519",
+        "scripts/run_diagnostic_placement_comparison.py": "d36509bcc3d398b7adbe9ec131b9a21c3acbc2a3fed68b92488bd54c51b56297",
+        "artifacts/partial-timeout-reclamation/manifest.json": "5fb51d138dce9b04d1c40506e861b20350d08da421a7832392f4f0c48ea9c0fa",
+        "artifacts/partial-timeout-reclamation/adr0163.patch": "6950c3f3286f0ce3f4934e16682648ab52bb3ca165bf9992dbdce32a143a2a34"
+      },
+      "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+      "artifact_sha256": "3c045c15719fedeea69df0ab5bfd274e53d8989f2e9de113a3457d72c5c03b6d",
+      "source_manifest_sha256": "13d78bdf41e7d442f87ee04d1bb4f357d648789adf0e5270a23b06d74c55ccd2",
+      "diagnostic_target_sha256": "8930dc2995de78e0c898c049485fb0bfa7ce963eb3a7f7b30861255de9140ca7"
+    },
+    "standing_envelope": {
+      "ledger": "bounded_callback_routing__7fdfc4e86333",
+      "envelope_sha256": "64d917f7e8f483d395b669d041aad8358b7488f9d613f28f00cf503a893814ab"
+    },
+    "qualification_runs_authorized": 1,
+    "paid_runs_authorized": 2,
+    "safety_tickets_authorized": 4,
+    "qualification_protocols_started": 1,
+    "paid_runs_started": 2,
+    "paid_protocols_started": 2,
+    "safety_protocols_started": 4,
+    "active_run": null,
+    "scope": "Fresh ADR0216 experiment under ADR0172 standing boundaries; no replay or higher load",
+    "qualification_arms": [
+      "control",
+      "candidate"
+    ],
+    "last_runner_report": "tmp/adr0151-b7a3a592979f/comparison-summary.json",
+    "dry_qualification_report": "tmp/adr0151-5d32bc4883f4/comparison-summary.json",
+    "paid_protocol_arms": [
+      "control",
+      "candidate"
+    ],
+    "attempted_paid_arms": [
+      "control",
+      "candidate"
+    ]
   }
 }

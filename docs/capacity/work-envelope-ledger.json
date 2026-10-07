@@ -634,6 +634,29 @@
         "original_failed_gate_preserved": true,
         "financial_scope": "exact dispatched cohort; original scheduled gate remains failed"
       }
+    },
+    {
+      "ledger": "bounded_callback_routing__7fdfc4e86333",
+      "authorization_id": "work-envelope-7fdfc4e86333",
+      "envelope_sha256": "64d917f7e8f483d395b669d041aad8358b7488f9d613f28f00cf503a893814ab",
+      "binding_sha256": "e66ecd855b68b7c4d2fd30f043ecd7b3002c45387a14d9d26dfbee8da3b6f045",
+      "plan_sha256": "fcebe56fc778123acefdb4aae2449461b25e8a2dbec37f34c1ebae9754e75c15",
+      "profile": "callback_routing",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 2639.9219999999914,
+      "started_at_utc": "2026-10-07T17:56:43.304495+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-5d32bc4883f4",
+          "pass": true
+        },
+        {
+          "run": "adr0151-b7a3a592979f",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-07T18:40:43.333655+00:00"
     }
   ],
   "verified_aborts": {
