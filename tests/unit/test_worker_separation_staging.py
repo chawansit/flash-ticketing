@@ -196,7 +196,8 @@ def test_cleanup_checks_runtime_drift_independently(tmp_path,monkeypatch):
     assert session.remote=={}
 
 
-def test_current_registry_rejects_cloud_staging_before_any_remote_call(tmp_path,monkeypatch):
+def test_unregistered_registry_rejects_cloud_staging_before_any_remote_call(tmp_path,monkeypatch):
+    monkeypatch.setattr(policy,'PROFILES',{k:v for k,v in policy.PROFILES.items() if k!=stage.PROFILE})
     data,_,output,archive,receipt=package(tmp_path,monkeypatch)
     session=Session(data,archive,output)
     guard=object.__new__(policy.ActionGuard)
@@ -281,7 +282,9 @@ def test_preflight_blocks_missing_failed_stale_or_unbound_evidence(tmp_path,monk
     assert 'secret' not in json.dumps(result)
 
 
-def test_real_local_preflight_preserves_unregistered_profile_blocker(monkeypatch):
+def test_local_preflight_preserves_unregistered_profile_blocker(monkeypatch):
+    data=policy.envelope();data['qualified_profiles']=[p for p in data['qualified_profiles'] if p!=stage.PROFILE]
+    monkeypatch.setattr(policy,'envelope',lambda:data)
     monkeypatch.setattr(preload,'check_naming',lambda:{'status':'PASS'})
     result=preload.evaluate()
     assert result['status']=='BLOCKED'

@@ -22,7 +22,8 @@ PROFILES = {PROFILE: (BASE_LEDGER, "ADR0171"),
             "api_placement_rebalance": ("bounded_api_placement_rebalance", "ADR0174"),
             "application_role_rebalance": ("bounded_application_role_rebalance", "ADR0177"),
             "diagnostic_placement": ("bounded_diagnostic_placement", "ADR0181"),
-            "atomic_payment_claim": ("bounded_atomic_payment_claim", "ADR0193")}
+            "atomic_payment_claim": ("bounded_atomic_payment_claim", "ADR0193"),
+            "worker_separation": ("bounded_worker_separation", "ADR0201")}
 SCOPE = re.compile("(?:" + "|".join(v[0] for v in PROFILES.values()) + r")__(?:[0-9a-f]{12})$")
 
 
@@ -124,7 +125,7 @@ def reserve(binding, plan, *, profile=PROFILE):
     if profile not in PROFILES or profile not in data["qualified_profiles"]:
         raise ValueError("Unknown diagnostic profile")
     base, decision = PROFILES[profile]
-    expected_arms = ["control", "candidate"] if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement", "atomic_payment_claim"} else ["control"]
+    expected_arms = ["control", "candidate"] if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement", "atomic_payment_claim", "worker_separation"} else ["control"]
     if (plan.get("decision") != decision or plan.get("arms") != expected_arms
             or plan.get("common", {}).get("buyer_journeys_per_second") != 60
             or plan["common"].get("duration_seconds") != 300):
@@ -147,6 +148,11 @@ def reserve(binding, plan, *, profile=PROFILE):
 
         if plan != claim.plan():
             raise ValueError("Exact registered atomic claim pair required")
+    if profile == "worker_separation":
+        from worker_separation_profile import entry_identity
+        from worker_separation_profile import plan as worker_plan
+        if plan != worker_plan() or binding.get("worker_entrypoint_sources_sha256") != entry_identity():
+            raise ValueError("Exact locally qualified worker entry-point plan required")
     if binding.get("configuration_sha256") != data["existing_resource_configuration_sha256"]:
         raise ValueError("Existing resource configuration changed; infrastructure exception")
     identity = uuid4().hex[:12]
@@ -166,6 +172,8 @@ def reserve(binding, plan, *, profile=PROFILE):
         "qualification_protocols_started": 0, "paid_runs_started": 0,
         "paid_protocols_started": 0, "safety_protocols_started": 0, "active_run": None,
         "scope": "Fresh " + decision + " experiment under ADR0172 standing boundaries; no replay or higher load"}
+    if profile == "worker_separation":
+        state[key].update(qualification_runs_authorized=0, safety_tickets_authorized=0)
     write(STATE, state)
     return entry
 
@@ -204,7 +212,11 @@ class ActionGuard:
         self.deadline = time.monotonic() + 3600
 
     def check(self, timeout=0):
-        scope_authorized(read(STATE), self.key, self.binding)
+        entry = scope_authorized(read(STATE), self.key, self.binding)
+        if entry["profile"] == "worker_separation":
+            from worker_separation_profile import entry_identity
+            if self.binding.get("worker_entrypoint_sources_sha256") != entry_identity():
+                raise ValueError("Worker entry-point sources changed")
         remaining = self.deadline - time.monotonic()
         if remaining <= max(0, timeout):
             raise TimeoutError("Not enough experiment time for another remote action")
@@ -218,6 +230,26 @@ class ActionGuard:
         if type(elapsed) not in {int, float} or not math.isfinite(elapsed) or elapsed < 0:
             raise ValueError("Valid actual elapsed time required")
         state = read(STATE)
+        if entry['profile'] == 'worker_separation':
+            from worker_separation_profile import entry_identity, outcome
+            scope = state[self.key]
+            valid = (len(reports) == 1 and isinstance(reports[0],dict)
+                     and self.binding.get('worker_entrypoint_sources_sha256') == entry_identity()
+                     and entry['binding_sha256'] == digest(self.binding) and entry['envelope_sha256'] == digest(data)
+                     and scope.get('binding') == self.binding
+                     and scope.get('worker_result_sha256') == digest(reports[0]))
+            restored, integrity, passed = outcome(reports[0], scope, self.binding) if valid else (False, False, False)
+            ambiguous = state.get('current_run') or scope.get('active_run')
+            if elapsed >= 3600 or records['human_pause'] or PAUSE.exists() or state.get('human_pause') is True:
+                passed = False
+            entry.update(actual_elapsed_seconds=elapsed, finished_at_utc=datetime.now(UTC).isoformat(),
+                         status=('PASSED_RESTORED' if passed else 'FAILED_RESTORED')
+                         if restored and integrity and not ambiguous else 'RECOVERY_REQUIRED',
+                         reports=[{'run': r.get('run'), 'pass': r.get('pass') is True} for r in reports if isinstance(r,dict)],
+                         paid_runs_started=scope.get('paid_runs_started'),
+                         result_sha256=digest(reports[0]) if len(reports) == 1 else None)
+            write(JOURNAL, records)
+            return entry
         restored = bool(reports) and all(
             isinstance(r.get("arms"), dict) and bool(r["arms"])
             and all(a.get("restoration_complete") is True for a in r["arms"].values()) for r in reports)

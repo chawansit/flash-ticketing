@@ -1,4 +1,4 @@
-"""ADR0188 partial guarded runtime adapter; unregistered, no CLI/SSH/dispatch/restore."""
+"""ADR0188 guarded runtime primitives; entry-point authority is enforced by ADR0201."""
 import copy
 import inspect
 import re

@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "decision": "ADR0201",
+  "base_revision": "bc4ec6de66e2e452225069882c08a7e7bc126ffa",
+  "result": "worker_entrypoint_and_accounting_locally_qualified_and_registered",
+  "implemented": [
+    "Protected prepared package, canonical fresh archive receipts, CA and dependency authority validated before connection",
+    "Entry-point, observer, frozen workload, original snapshot and role source identities bound to a fresh scope",
+    "Exclusive lock held through reservation, execution, restoration and final accounting",
+    "Independent financial, booking, queue, job termination, cleanup and restoration checks at closure",
+    "Consumed preparation and paid allowances cannot be replayed",
+    "Credentials cleared, transports closed and actual elapsed time retained",
+    "Worker comparison available through the standing runner and approved registry"
+  ],
+  "profile": {
+    "name": "worker_separation",
+    "buyer_journeys_per_second": 60,
+    "duration_seconds_per_arm": 300,
+    "expected_paid_tickets_per_arm": 18000,
+    "arms": [
+      "control",
+      "candidate"
+    ],
+    "api_replicas": 4,
+    "worker_replicas": 14,
+    "qualification_runs_authorized": 0,
+    "paid_runs_authorized": 2,
+    "new_infrastructure_spend": 0,
+    "current_gates_preserved": true
+  },
+  "tests": {
+    "broad_suite": {
+      "passed": 830,
+      "failed": 1,
+      "skipped": 0,
+      "pytest_seconds": 437.05,
+      "harness_seconds": 438.0,
+      "raw_evidence": "tmp/adr0153-parents-776d94bda27d/qualification-tests.txt",
+      "failure_cause": "An old test assumed the live worker profile was permanently unregistered. It now creates an explicitly unregistered registry before asserting no remote calls."
+    },
+    "final_affected_suite": {
+      "passed": 209,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 158.07,
+      "harness_seconds": 160.61,
+      "raw_evidence": "tmp/adr0153-parents-0724998460ee/worker-envelope-final-affected.txt"
+    },
+    "qualification_summary": "All 832 distinct cases have passing executed evidence across the broad and final affected runs. There was no single 832-pass rerun.",
+    "real_postgresql_financial_cases": 23,
+    "existing_isolated_linux_cases": 3,
+    "development_runs": [
+      {
+        "raw_evidence": "tmp/adr0153-parents-24b51abfb645/worker-envelope-tests.txt",
+        "passed": 54,
+        "errors": 22,
+        "pytest_seconds": 31.61,
+        "cause": "Reusable coordinator fixture replaced the profile registry; restore the real registry before testing the envelope boundary."
+      },
+      {
+        "raw_evidence": "tmp/adr0153-parents-a1ab68f0dc61/worker-envelope-tests.txt",
+        "passed": 76,
+        "failed": 0,
+        "pytest_seconds": 34.77
+      },
+      {
+        "raw_evidence": "tmp/adr0153-parents-933138978819/worker-envelope-connected-tests.txt",
+        "passed": 40,
+        "failed": 0,
+        "pytest_seconds": 51.79
+      },
+      {
+        "raw_evidence": "tmp/adr0153-parents-433a72a24df6/worker-envelope-final-focused.txt",
+        "passed": 87,
+        "errors": 11,
+        "pytest_seconds": 71.26,
+        "cause": "A file read updated access time and was incorrectly classified as tampering; use ADR0199 portable identity checks and add replacement/access-time regression coverage."
+      },
+      {
+        "raw_evidence": "tmp/adr0153-parents-8184a98ba1f5/worker-envelope-portable-read-tests.txt",
+        "passed": 101,
+        "failed": 0,
+        "pytest_seconds": 76.55
+      }
+    ],
+    "local_pytest_seconds_total": 861.1,
+    "coverage": [
+      "Actual coordinator through reservation and finalization with simulated transport/customer outcomes",
+      "Reservation before connection, exact arm order and paid consumption, no refund or scope reopening",
+      "Connection failure before mutation versus uncertain attempted execution",
+      "Missing financial/booking/queue/restoration evidence and counter/owner drift",
+      "Pause, deadline, registration, source, CA, target, archive and original snapshot checks",
+      "Journal/close failures and malformed results retain recovery blocks",
+      "Windows access-time changes accepted while file replacement remains rejected",
+      "Secret-free reports and protected credential cleanup",
+      "Existing actual PostgreSQL financial and isolated Linux ownership checks"
+    ],
+    "limitations": [
+      "Transport, image staging and customer backend outcomes are simulated in connected boundary tests; archive and database behavior are qualified separately.",
+      "A fresh protected cloud package and independent runtime preflight are required before the real comparison.",
+      "No cloud workload or production capacity qualification occurred in this checkpoint."
+    ]
+  },
+  "owned_local_postgres_removed": true,
+  "profile_registered": true,
+  "entrypoint_and_accounting_qualified": true,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "remaining": [
+    "Prepare fresh protected cloud inputs and immutable image package",
+    "Run registered live preflight and matched comparison; failed control stops candidate",
+    "Evaluate paid-and-issued throughput, customer outcomes, CPU, database waits and complete correctness audits"
+  ],
+  "accounting": "Cloud ledger remains at 11 experiments, 14324.33 actual seconds and 39600 reserved seconds. No new cloud reservation or infrastructure spend. Local test time includes failed attempts; editing/review and other local command wall time were not separately measured."
+}

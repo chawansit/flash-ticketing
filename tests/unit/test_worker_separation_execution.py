@@ -250,9 +250,11 @@ def test_generated_program_cannot_select_infrastructure_for_worker_removal():
     with pytest.raises(ValueError,match='worker targets'):execution.program(saved,before,targets=[execution.row_identity(api)])
 
 
-def test_real_registry_still_blocks_execution_before_remote_mutation():
-    assert staging.PROFILE not in policy.PROFILES
-    assert staging.PROFILE not in policy.envelope()['qualified_profiles']
+def test_unqualified_registry_still_blocks_execution_before_remote_mutation(monkeypatch):
+    data=policy.envelope();data['qualified_profiles']=[p for p in data['qualified_profiles'] if p!=staging.PROFILE]
+    monkeypatch.setattr(policy,'envelope',lambda:data)
+    from worker_separation_preload import check_authority
+    assert 'profile_not_registered' in check_authority(None,None)['blockers']
 
 
 @pytest.mark.parametrize('failure', ['stop', 'restore'])

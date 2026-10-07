@@ -189,7 +189,7 @@ finally:os.close(parent)
 
 
 class ConfigurationActions:
-    """Guarded configuration component; the complete worker profile stays unregistered."""
+    """Guarded configuration component; ADR0201 supplies the registered worker profile."""
     def __init__(self, session, guard, inputs, saved, arm, output, *, handover=None):
         self.runtime = RuntimeActions(session, guard, inputs, saved, arm, output, handover=handover)
         self.session = session

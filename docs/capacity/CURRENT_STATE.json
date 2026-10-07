@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-07",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "worker_bootstrap_and_pair_locally_qualified_envelope_integration_pending",
+  "status": "worker_entrypoint_and_accounting_locally_qualified_fresh_cloud_preparation_pending",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -1094,7 +1094,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Integrate guarded worker comparison with the work-envelope entry point and exact reservation/finalization accounting; locally qualify failures before registering the profile, then run fresh preflight and matched control/candidate.",
+  "next_action": "Prepare fresh protected cloud snapshot/pair/source/archive inputs, verify independent readiness through the registered worker runner, then execute the unchanged 60 journeys/s matched comparison; stop progression on failed control and evaluate paid-ticket outcomes and complete audits.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1809,7 +1809,9 @@
     "local_atomic_claim_export_native_orchestration_seconds": 8.5,
     "local_atomic_claim_export_initial_connection_command_seconds": 6.488,
     "local_worker_comparison_assembly_pytest_seconds_this_checkpoint": 572.05,
-    "worker_comparison_assembly_accounting_note": "No cloud experiment/reservation or new infrastructure spend; cloud ledger unchanged. Recorded test time includes failed attempts. Editing/review and exploratory debug wall time were not independently timed."
+    "worker_comparison_assembly_accounting_note": "No cloud experiment/reservation or new infrastructure spend; cloud ledger unchanged. Recorded test time includes failed attempts. Editing/review and exploratory debug wall time were not independently timed.",
+    "local_worker_envelope_pytest_seconds_this_checkpoint": 861.1,
+    "worker_envelope_accounting_note": "Cloud ledger remains at 11 experiments, 14324.33 actual seconds and 39600 reserved seconds. No new cloud reservation or infrastructure spend. Local test time includes failed attempts; editing/review and other local command wall time were not separately measured."
   },
   "bounded_application_role_rebalance__3ae1fd15417b": {
     "authorization_id": "work-envelope-3ae1fd15417b",
@@ -2020,7 +2022,7 @@
     ]
   },
   "worker_separation_preparation": {
-    "status": "concrete_audit_components_locally_qualified_complete_worker_runner_pending",
+    "status": "registered_worker_runner_locally_qualified_fresh_cloud_preparation_pending",
     "implemented": [
       "Pure fixed-factor worker placement models with immutable images and unchanged logical pool totals",
       "Common private Kafka listener and four-API callback ingress configuration",
@@ -2063,11 +2065,13 @@
       "Consumer-free Kafka handover audit requires Empty membership, all partition offsets and unchanged offsets/metadata; no absent-offset inference",
       "Same guarded audit provider connected to original worker stop and placement start/stop/restoration gates",
       "Exact primary API identity and two-host runtime rechecks, private stdin, shared bounded audit deadlines and Linux child alarm",
-      "Unknown financial outcomes cannot be replayed; journal failures preserve recovery state while mandatory owned cleanup observations continue"
+      "Unknown financial outcomes cannot be replayed; journal failures preserve recovery state while mandatory owned cleanup observations continue",
+      "Registered standing-runner worker entry point with exact protected preparation, fixed comparison and single-use identity",
+      "Exclusive experiment reservation and independent durable result accounting across success, failed control and uncertain recovery"
     ],
     "not_implemented": [
-      "Complete host-aware observer and paid-stage integration in one worker lifecycle runner",
-      "Complete adapter failure/restoration qualification and guarded profile registration"
+      "Fresh protected cloud preparation and independent live preflight for the registered worker comparison",
+      "Executed matched cloud comparison and measured paid-ticket capacity improvement"
     ],
     "cloud_deployment_started": false,
     "cloud_load_started": false,
@@ -2075,13 +2079,13 @@
     "host_aware_observers_locally_tested": true,
     "local_lifecycle_qualified": true,
     "live_lifecycle_qualified": false,
-    "latest_evidence": "docs/capacity/flash-sale-opening/background-service-separation-audits-2026-10-07.json",
+    "latest_evidence": "docs/capacity/flash-sale-opening/background-service-separation-envelope-2026-10-07.json",
     "local_staging_qualified": true,
     "local_preload_report_qualified": true,
     "live_staging_qualified": false,
-    "worker_profile_registered": false,
+    "worker_profile_registered": true,
     "partial_runtime_adapter_locally_qualified": true,
-    "full_live_adapter_implemented": false,
+    "full_live_adapter_implemented": true,
     "local_configuration_qualified": true,
     "historical_recovery_note": "ADR0190 exact exception permits fresh work without certifying or replaying the old missing-fixture run. New ownership, restoration and financial gates remain mandatory.",
     "local_execution_components_qualified": true,
@@ -2089,7 +2093,9 @@
     "live_dependency_readiness_verified": false,
     "concrete_financial_audits_locally_qualified": true,
     "guarded_execution_audit_provider_connected": true,
-    "full_worker_lifecycle_qualified": false
+    "full_worker_lifecycle_qualified": false,
+    "entrypoint_and_accounting_locally_qualified": true,
+    "qualification_note": "Concrete lifecycle and entry point implemented; connected local qualification simulates cloud transport, staging and customer outcomes. Live lifecycle and production capacity remain unqualified."
   },
   "performance_focus": {
     "decision": "ADR0189",
@@ -2400,6 +2406,26 @@
     "maximum_new_infrastructure_spend": 0
   },
   "last_engineering_checkpoint": {
+    "decision": "ADR0201",
+    "base_revision": "bc4ec6de66e2e452225069882c08a7e7bc126ffa",
+    "evidence": "docs/capacity/flash-sale-opening/background-service-separation-envelope-2026-10-07.json",
+    "recorded_at_utc": "2026-10-07T10:24:07.508958+00:00",
+    "unique_cases_with_passing_evidence": 832,
+    "broad_suite_passed": 830,
+    "broad_suite_failed": 1,
+    "final_affected_suite_passed": 209,
+    "final_affected_suite_failed": 0,
+    "final_affected_suite_skipped": 0,
+    "qualification_note": "Combined broad and final affected evidence; no single 832-pass rerun. Connected tests simulate transport, staging and customer replies.",
+    "worker_bootstrap_and_pair_coordination_locally_qualified": true,
+    "entrypoint_and_accounting_qualified": true,
+    "full_worker_lifecycle_locally_qualified_with_simulated_transport": true,
+    "profile_registered": true,
+    "cloud_load_started": false,
+    "capacity_improvement_measured": false,
+    "production_qualified": false
+  },
+  "previous_engineering_checkpoint": {
     "decision": "ADR0200",
     "base_revision": "dd303290a8552898bcd29053dc8b87b98d5151bd",
     "evidence": "docs/capacity/flash-sale-opening/background-service-separation-comparison-assembly-2026-10-07.json",
@@ -2419,23 +2445,6 @@
     "cloud_load_started": false,
     "capacity_improvement_measured": false
   },
-  "previous_engineering_checkpoint": {
-    "decision": "ADR0199",
-    "base_revision": "9e7f062fe2e8174225e83f1e77554b068eed7a71",
-    "evidence": "docs/capacity/flash-sale-opening/background-service-separation-handover-2026-10-07.json",
-    "recorded_at_utc": "2026-10-07T08:51:28.044054+00:00",
-    "tests_passed": 708,
-    "tests_failed": 0,
-    "tests_skipped": 0,
-    "cloud_load_started": false,
-    "capacity_improvement_measured": false,
-    "full_worker_lifecycle_qualified": false,
-    "worker_observers_and_diagnostics_locally_qualified": true,
-    "worker_paid_stage_locally_qualified": true,
-    "worker_paid_restoration_locally_qualified": true,
-    "worker_candidate_handover_locally_qualified": true,
-    "profile_registered": false
-  },
   "post_round_prevention_review": {
     "requested": "2026-10-07",
     "timing": "After the current worker-runner integration/comparison round; keep the capacity objective in focus.",
@@ -2447,8 +2456,9 @@
       "The paid stage binds adapter, fixture, inventory and transferred manifest identities before dispatch; ambiguous launches retain their consumed allowance and cleanup obligations.",
       "Local restoration qualification found that recreated container IDs cannot reuse the initial handover snapshot. Fix the proven per-arm identity binding before cloud mutation instead of handling stale IDs during live load.",
       "ADR0199 locally qualifies immutable passing-control handover receipts for recreated container IDs, preserving the baseline snapshot. Full comparison still requires enforced paired progression and registration.",
-      "ADR0200 rejects bare passing-control flags and binds all 18 coordinator/adapter sources before paid allowance. Complete entry-point enforcement is still pending; no cloud mismatch was discovered in this local-only checkpoint."
+      "ADR0200 rejects bare passing-control flags and binds all 18 coordinator/adapter sources before paid allowance. Complete entry-point enforcement is still pending; no cloud mismatch was discovered in this local-only checkpoint.",
+      "ADR0201 validates fresh canonical package receipts before connection, binds entry-point/observer/workload identities, and rejects reused preparation objects. Local regression caught access-time false positives and old tests depending on the live unregistered state; explicit isolated policy fixtures now cover rejection. Cloud preparation still requires independently observed fresh runtime inputs."
     ]
   },
-  "worker_runner_integration_blocker": "Guarded bootstrap, restoration and persisted control-to-candidate authorization are assembled and locally qualified with simulated transport/customer outcomes. Registered entry-point and complete experiment accounting integration remain unqualified; worker profile remains unregistered."
+  "worker_runner_integration_blocker": "Entry point, exact reservation/finalization accounting and worker registration are locally qualified. Fresh protected cloud input/image package and live preflight remain pending; simulated boundary tests do not measure cloud capacity."
 }

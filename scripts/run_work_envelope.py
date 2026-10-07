@@ -23,7 +23,17 @@ def status():
             "existing_service_charges_continue": True}
 
 
-def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROFILE, diagnostic_target=None):
+def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROFILE, diagnostic_target=None, worker_inputs=None, worker_ca=None):
+    if profile_name == 'worker_separation':
+        import worker_separation_profile as worker
+        prepared = worker.prepare_files(config_path, worker_inputs, artifact_path, worker_ca, diagnostic_target)
+        if not sys.stdin.isatty():raise ValueError('Protected credential terminal required')
+        import subprocess
+        subprocess.run([sys.executable, str(policy.ROOT / 'scripts/check_repository_names.py')],
+                       cwd=policy.ROOT, check=True, stdout=subprocess.DEVNULL)
+        sys.path.insert(0, str(ssh_runtime.resolve()))
+        return worker.execute(prepared, getpass.getpass('ECS password: '), getpass.getpass('Diagnostic administrator password: '))
+    if worker_inputs is not None or worker_ca is not None:raise ValueError('Worker inputs are restricted to the worker profile')
     if profile_name == "atomic_payment_claim":
         import atomic_payment_claim_contract as contract_policy
         import run_atomic_payment_claim_comparison as profile
@@ -145,6 +155,7 @@ def main():
     parser.add_argument("--diagnostic-target", type=Path)
     parser.add_argument("--ssh-runtime", type=Path)
     parser.add_argument("--worker-inputs", type=Path)
+    parser.add_argument("--worker-ca", type=Path)
     parser.add_argument("--worker-evidence", type=Path)
     parser.add_argument("--worker-scope")
     args = parser.parse_args()
@@ -155,7 +166,10 @@ def main():
         if not report["ready_for_load"]:
             raise SystemExit(1)
         return
-    if any(v is not None for v in (args.worker_inputs, args.worker_evidence, args.worker_scope)):
+    worker_execution = args.execute and args.profile == 'worker_separation'
+    if args.worker_ca is not None and not worker_execution:parser.error('Worker CA is restricted to worker execution')
+    if (args.worker_evidence is not None or args.worker_scope is not None
+            or (args.worker_inputs is not None and not worker_execution)):
         parser.error("Worker evidence is restricted to --worker-preflight; this does not enable execution")
     if args.check_publication:
         allowed = policy.publication_allowed(args.check_publication,
@@ -169,7 +183,7 @@ def main():
     elif args.execute:
         if any(v is None for v in (args.config, args.ssh_runtime)):
             parser.error("Execution needs protected configuration and SSH runtime; default artifact is the exact profile receipt")
-        result = execute(args.config, args.artifact, args.ssh_runtime, profile_name=args.profile, diagnostic_target=args.diagnostic_target)
+        result = execute(args.config, args.artifact, args.ssh_runtime, profile_name=args.profile, diagnostic_target=args.diagnostic_target, worker_inputs=args.worker_inputs, worker_ca=args.worker_ca)
         if result["status"] != "PASSED_RESTORED":
             raise SystemExit(1)
         return

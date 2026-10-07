@@ -1,4 +1,4 @@
-"""ADR0200 concrete guarded bootstrap and comparison; unregistered, no load CLI."""
+"""ADR0200 concrete guarded bootstrap and comparison; ADR0201 supplies the registered entry point."""
 import copy
 from pathlib import Path
 

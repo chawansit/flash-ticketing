@@ -38,7 +38,8 @@
     "api_placement_rebalance",
     "application_role_rebalance",
     "diagnostic_placement",
-    "atomic_payment_claim"
+    "atomic_payment_claim",
+    "worker_separation"
   ],
   "escalate": [
     "new spending or infrastructure action",

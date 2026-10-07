@@ -331,7 +331,7 @@ def sealed_cleanup_program(seal):
 
 
 def stage_package(session, contract, sources, archive, receipt, guard):
-    """Future guarded adapter hook. No CLI and no currently registered profile can enter."""
+    """Guarded staging hook; only the registered fresh worker scope can enter."""
     validate_contract(contract, sources)
     _authorize(guard, contract, 360, receipt)
     archive = Path(archive).absolute()
