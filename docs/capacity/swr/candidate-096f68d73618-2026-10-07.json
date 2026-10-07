@@ -1,0 +1,60 @@
+{
+  "decision": "docs/adr/0215-digest-pinned-swr-image-publication.md",
+  "repository": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing",
+  "ecs_deployed": false,
+  "cloud_load_started": false,
+  "application_revision": "096f68d7361809a3b42cc3dc32b0474b6211b179",
+  "archive_sha256": "5f3104daf9974580458270324e50181e27ca4d8077915bae4c33e9dad3787bec",
+  "base_image": "python@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f",
+  "build_recipe_sha256": "7004c53543bb7638c22656276d25f0b0ce8a332668ac92f5d22bf466b3c85149",
+  "requirements_lock_sha256": "8f581c15fc9759937e19e2049b330c16a2eea4e49e377a820133955ee1f79048",
+  "build_format": {
+    "platform": "linux/amd64",
+    "provenance": false,
+    "sbom": false,
+    "oci_media_types": false
+  },
+  "exported_media_type": "application/vnd.docker.distribution.manifest.v2+json",
+  "installed_module_sha256": {
+    "ticketing.api": "6b7f56b687b00d551c0e33083b7697be5a3a09371af91601eb164c472c881611",
+    "ticketing.config": "d7fef6af80af6856763afc625a118eca1ab3662e53cee3d0fe1030e2cb1445e4",
+    "ticketing.workers": "d0c752456da42a86380f2893ed076a96de74dae785eaba9416ab0938e1bd0a15",
+    "ticketing.observability": "9abcc1f5723ecc9a6b0383fdfc5dd29daa0b27c286c6963b4df4025f77e8b16a",
+    "ticketing.infrastructure.payment_simulator_latency": "1d463ea8277c67114ac9dc31e74c0ff1ebce9b984c9ed362b1465418ebe4fca9"
+  },
+  "built_image_tests": {
+    "passed": 63,
+    "seconds": 8.125
+  },
+  "tag": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing:git-096f68d73618-833137d65b1e-6f9eae4f",
+  "manifest_digest": "sha256:833137d65b1e7dbda71d8bbe53e615b6d0cc1b5f4a434c2f7f6699a12560a04f",
+  "immutable_reference": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:833137d65b1e7dbda71d8bbe53e615b6d0cc1b5f4a434c2f7f6699a12560a04f",
+  "digest_pull_verified": true,
+  "anonymous_access_rejected": true,
+  "status": "published_verified_not_deployed",
+  "credential_restored": true,
+  "plaintext_auth_written": false,
+  "actual_seconds": 39.265,
+  "completed_at_utc": "2026-10-07T15:46:49.194363+00:00",
+  "local_image_id": "sha256:833137d65b1e7dbda71d8bbe53e615b6d0cc1b5f4a434c2f7f6699a12560a04f",
+  "image_config_digest": "sha256:fe6a2b81a0d55fa7423e05cabedfdd8cb50da0a3b92ccc5a8ed9aafa9dd05345",
+  "schema_version": 1,
+  "registry_source": "existing user-supplied SWR registry; no ECS, RDS, DCS or machine-size changes",
+  "credential_expiry_bangkok": "2026-10-08T22:35:38+07:00",
+  "registry_verification": "Authenticated digest pull verified; anonymous manifest access rejected",
+  "failed_attempts": [
+    {
+      "status": "local_receipt_decoding_failed_before_login",
+      "actual_seconds": 99.937
+    },
+    {
+      "status": "registry_rejected_oci_manifest",
+      "actual_seconds": 41.828
+    },
+    {
+      "status": "registry_rejected_oci_manifest_diagnostics",
+      "actual_seconds": 41.766
+    }
+  ],
+  "total_recorded_publication_seconds": 222.796
+}

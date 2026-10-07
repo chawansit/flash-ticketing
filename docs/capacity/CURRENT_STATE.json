@@ -3151,5 +3151,17 @@
     "cloud_calls": 0,
     "capacity_improvement_measured": false,
     "note": "New local default bank-like; frozen cloud configuration and failed recovery are unchanged. Explicit numeric confirmation delay overrides remain available."
+  },
+  "swr_publication_checkpoint": {
+    "decision": "docs/adr/0215-digest-pinned-swr-image-publication.md",
+    "manifest": "docs/capacity/swr/candidate-096f68d73618-2026-10-07.json",
+    "status": "published_verified_not_deployed",
+    "application_revision": "096f68d7361809a3b42cc3dc32b0474b6211b179",
+    "immutable_reference": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:833137d65b1e7dbda71d8bbe53e615b6d0cc1b5f4a434c2f7f6699a12560a04f",
+    "built_image_tests_passed": 63,
+    "credential_restored": true,
+    "ecs_deployed": false,
+    "cloud_load_started": false,
+    "note": "Existing failed-paid recovery and frozen benchmark deployments unchanged; registry publication does not qualify capacity."
   }
 }
