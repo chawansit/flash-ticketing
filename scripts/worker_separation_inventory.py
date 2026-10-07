@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from collect_two_host_inventory import container_call, host_program
 from runtime_source_identity import container_identity_program, source_identity_program
 from two_host_topology import bindings, environment, fingerprint
+from worker_separation_retained import validate_receipt, verify_retained
 from worker_separation_topology import PROJECT, validate_pair
 
 ALL_CONTAINERS = "import json,subprocess;ids=subprocess.check_output(['docker','ps','-aq','--no-trunc'],text=True).split();print(json.dumps(json.loads(subprocess.check_output(['docker','inspect',*ids],text=True)) if ids else []))"
@@ -114,14 +115,17 @@ def collect(session, pair, arm, sources):
     return result
 
 
-def collect_roles(session, pair, arm, role_sources):
+def collect_roles(session, pair, arm, role_sources, *, retained=None):
     """Read-only preflight. Never dispatch, deploy, classify recovery or authorize load."""
     from worker_separation_topology import WORKERS
     if not isinstance(role_sources, dict) or set(role_sources) != {'api', *WORKERS}:
         raise ValueError('Exact source expectations for every API and worker role required')
     role_sources = copy.deepcopy(role_sources)
+    retained = copy.deepcopy({} if retained is None else retained)
+    validate_receipt(retained)
     for sources in role_sources.values():source_identity_program(sources)
     before = {host: session.call(host, ALL_CONTAINERS, 45) for host in ('primary', 'secondary')}
+    before = {h: verify_retained(rows, retained if h == 'primary' else {}) for h, rows in before.items()}
     entries = inspect_layout(pair, arm, before)
     hosts = {role: session.call(role, host_program(), 45) for role in ('primary', 'secondary', 'generator')}
     if (len({h['machine_id_sha256'] for h in hosts.values()}) != 3
@@ -162,6 +166,7 @@ def collect_roles(session, pair, arm, role_sources):
         entry.update(process_start_time_seconds=start, metrics_container_port=port,
                      metrics_url='http://' + target[0][2] + ':' + str(target[0][3]) + '/metrics')
     after = {host: session.call(host, ALL_CONTAINERS, 45) for host in ('primary', 'secondary')}
+    after = {h: verify_retained(rows, retained if h == 'primary' else {}) for h, rows in after.items()}
     repeated = inspect_layout(pair, arm, after)
     comparable = [{k: v for k, v in entry.items() if k in repeated[0]} for entry in entries] if repeated else []
     if comparable != repeated:
@@ -170,6 +175,7 @@ def collect_roles(session, pair, arm, role_sources):
               'prepared_pair_sha256': digest(pair), 'source_manifest_sha256': digest(role_sources),
               'hosts': {role: {k: v for k, v in h.items() if k != 'addresses'} for role, h in hosts.items()},
               'containers': entries, 'budgets': copy.deepcopy(pair['budgets']), 'runtime_unchanged': True,
+              'retained_inventory_sha256': digest(retained),
               'scope': 'Read-only identity preflight only; queue/financial/customer gates and live runner pending.'}
     return report
 

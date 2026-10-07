@@ -356,3 +356,9 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0206: Resolved published port identity](0206-resolved-published-port-identity.md)
 
 - [ADR0207: Existing Kafka client for dependency readiness](0207-existing-kafka-client-readiness.md)
+
+- [ADR0208: Readiness failure phase receipts](0208-readiness-failure-phase-receipts.md)
+
+- [ADR0209: Bounded container startup health](0209-bounded-container-startup-health.md)
+
+- [ADR0210: Retained inventory in worker source qualification](0210-retained-inventory-in-worker-source-qualification.md)

@@ -53,8 +53,11 @@ def dependency_context(execution, ca_pem):
             'kafka': kafka, 'primary': primary}
 
 
-def probe(context):
+def probe(context, progress=None):
     """Executed only inside an owned probe; authenticate/read, never process business data."""
+    if progress is None:
+        progress = {}
+    progress["phase"] = "imports"
     import ipaddress
     import json
     import os
@@ -73,6 +76,7 @@ def probe(context):
         if not parsed or any(not a.is_private or a.is_loopback or a.is_unspecified or a.is_link_local or a.is_multicast for a in parsed):
             raise ValueError('Dependency must resolve exclusively to private addresses')
 
+    progress["phase"] = 'private_address_resolution'
     for key, port in (('database_url', 5432), ('redis_url', 6379)):
         route = urlsplit(context[key])
         private(route.hostname, route.port or port)
@@ -87,10 +91,12 @@ def probe(context):
         params.update(sslmode='verify-full', sslrootcert=ca, connect_timeout=4,
                       options='-c default_transaction_read_only=on -c statement_timeout=3000 -c lock_timeout=1000',
                       application_name='flash-worker-dependency-readiness')
+        progress["phase"] = 'direct_rds_tls'
         with psycopg.connect(**params) as conn:
             row = conn.execute("SELECT current_user,current_database(),current_setting('transaction_read_only')='on',pg_is_in_recovery(),(SELECT ssl FROM pg_stat_ssl WHERE pid=pg_backend_pid())").fetchone()
             if row != (*expected, True, False, True):
                 raise ValueError('Verified primary RDS read-only identity required')
+        progress["phase"] = 'pooler'
         with psycopg.connect(context['database_url'], connect_timeout=4, application_name='flash-worker-pooler-readiness') as conn:
             conn.execute('SET TRANSACTION READ ONLY')
             conn.execute("SET LOCAL statement_timeout='3s'")
@@ -100,6 +106,7 @@ def probe(context):
                 raise ValueError('Authenticated pooler and encrypted primary backend required')
     finally:
         os.unlink(ca)
+    progress["phase"] = 'redis'
     cache = Redis.from_url(context['redis_url'], socket_connect_timeout=3, socket_timeout=3)
     try:
         if cache.ping() is not True:
@@ -107,6 +114,7 @@ def probe(context):
     finally:
         cache.close()
 
+    progress["phase"] = 'kafka'
     client = KafkaAdminClient(bootstrap_servers=context['kafka'], request_timeout_ms=3000,
                               api_version_auto_timeout_ms=3000)
     try:
@@ -116,6 +124,7 @@ def probe(context):
             raise ValueError('Exact private Kafka advertised broker required')
     finally:
         client.close()
+    progress["phase"] = 'api_readiness'
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
     if len(context['api_urls']) != 4 or len(set(context['api_urls'])) != 4:
         raise ValueError('Four distinct observed API endpoints required')
@@ -125,6 +134,33 @@ def probe(context):
             if response.status != 200 or len(content) > 16384 or json.loads(content).get('status') != 'ready':
                 raise ValueError('Exact API readiness required')
     return {k: True for k in ('verified_rds_tls', 'redis_ready', 'pooler_ready', 'private_kafka_ready', 'all_four_apis_reachable')}
+
+
+def probe_receipt(context):
+    """Never serialize exception text: connection failures can contain credentials."""
+    progress = {'phase': 'imports'}
+    try:
+        return {'checks': probe(context, progress)}
+    except Exception as exc:  # noqa: BLE001 - sanitize dependency boundary; never authorize failure.
+        phases = {'imports', 'private_address_resolution', 'direct_rds_tls', 'pooler',
+                  'redis', 'kafka', 'api_readiness'}
+        classes = {'ModuleNotFoundError', 'ImportError', 'OperationalError', 'TimeoutError',
+                   'ValueError', 'ConnectionError', 'URLError', 'HTTPError', 'NoBrokersAvailable'}
+        message = str(exc).lower()
+        category = ('connection_refused' if 'connection refused' in message else
+                    'tls_verification' if 'certificate verify failed' in message or 'certificate verification failed' in message else
+                    'timeout' if isinstance(exc, TimeoutError) or 'timeout' in message or 'timed out' in message else
+                    'check_failed')
+        return {'failure': {'phase': progress['phase'] if progress['phase'] in phases else 'unknown',
+                            'exception_category': type(exc).__name__ if type(exc).__name__ in classes else 'other',
+                            'category': category}}
+
+
+def valid_failure(value):
+    return (isinstance(value, dict) and set(value) == {'phase', 'exception_category', 'category'}
+            and value['phase'] in {'imports', 'private_address_resolution', 'direct_rds_tls', 'pooler', 'redis', 'kafka', 'api_readiness', 'unknown'}
+            and value['exception_category'] in {'ModuleNotFoundError', 'ImportError', 'OperationalError', 'TimeoutError', 'ValueError', 'ConnectionError', 'URLError', 'HTTPError', 'NoBrokersAvailable', 'other'}
+            and value['category'] in {'connection_refused', 'tls_verification', 'timeout', 'check_failed'})
 
 
 def probe_program(saved, before, context, image, name, scope_sha, timeout):
@@ -138,7 +174,7 @@ def probe_program(saved, before, context, image, name, scope_sha, timeout):
     owner_path('/qualification/repository', owner)
     prefix = observation_program(saved, bool(before['volumes']))
     prefix = prefix[:prefix.rindex('print(json.dumps(observe()))')].replace('time.monotonic()+25', 'time.monotonic()+' + str(timeout))
-    body = 'import json\n' + inspect.getsource(probe) + '\ncontext=' + repr(context) + '\ntry:\n print(json.dumps(probe(context)))\nexcept BaseException:\n raise RuntimeError("Dependency readiness failed") from None\n'
+    body = 'import json\n' + inspect.getsource(probe) + '\n' + inspect.getsource(probe_receipt) + '\ncontext=' + repr(context) + '\nprint(json.dumps(probe_receipt(context)))\n'
     labels = {'org.flash-ticketing.dependency-scope': scope_sha,
               'org.flash-ticketing.dependency-context': policy.digest(context), 'org.flash-ticketing.dependency-owner': name}
     args = ['docker', 'create', '--pull=never', '--name', name, '--network=bridge', '--read-only', '--user=65534:65534',
@@ -148,6 +184,7 @@ def probe_program(saved, before, context, image, name, scope_sha, timeout):
         args += ['--label', key + '=' + value]
     args += [image, '-']
     helpers = '\n'.join(inspect.getsource(f) for f in (environment, bindings, semantic, runtime_semantic, policy.digest))
+    helpers += '\n' + inspect.getsource(valid_failure)
     helpers += '\n' + inspect.getsource(row_identity).replace('policy.digest', 'digest') + '\n' + inspect.getsource(observation_identity)
     code = prefix + '\n' + helpers + '\nexpected=' + repr(policy.digest(observation_identity(before))) + '\nimage=' + repr(image) + '\nname=' + repr(name)
     code += '\nlabels=' + repr(labels) + '\nargs=' + repr(args) + '\nbody=' + repr(body) + r'''
@@ -163,7 +200,7 @@ def owned(row):
   and h.get('Tmpfs')=={'/tmp':'rw,noexec,nosuid,size=8m,mode=1777'}
   and all(m['Type']=='tmpfs' and m['Destination']=='/tmp' and m['RW'] is True for m in row.get('Mounts',[])))
 if digest(observation_identity(observe()))!=expected or ids():raise ValueError('Changed runtime or existing probe prevents launch')
-created=None;checks=None;attempted=False
+created=None;receipt=None;attempted=False
 try:
  attempted=True
  value=subprocess.run(args,capture_output=True,text=True,timeout=budget(5),check=False)
@@ -174,7 +211,9 @@ try:
  if row['Id']!=created or not owned(row):raise ValueError('Exact created probe semantics required')
  value=subprocess.run(['docker','start','-ai',created],input=body,text=True,capture_output=True,timeout=budget(35),check=False)
  if value.returncode!=0 or len(value.stdout.encode())>16384:raise RuntimeError('Dependency readiness failed')
- checks=json.loads(value.stdout)
+ receipt=json.loads(value.stdout)
+ if not isinstance(receipt,dict) or set(receipt) not in ({'checks'},{'failure'}):raise ValueError('Malformed probe receipt')
+ if 'failure' in receipt and not valid_failure(receipt['failure']):raise ValueError('Unknown dependency failure')
 finally:
  # Cleanup is separately bounded even after the readiness deadline, never broad or retried.
  deadline=max(deadline,time.monotonic()+10)
@@ -186,7 +225,7 @@ finally:
   subprocess.run(['docker','rm','-f',current[0]],stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,timeout=budget(5),check=True)
   if ids():raise ValueError('Probe removal incomplete')
 if digest(observation_identity(observe()))!=expected:raise ValueError('Runtime changed during dependency probe')
-print(json.dumps({'checks':checks,'probe_removed':True,'runtime_unchanged':True}))
+print(json.dumps({**receipt,'probe_removed':True,'runtime_unchanged':True}))
 '''
     return code
 
@@ -241,6 +280,12 @@ class ReadinessActions:
                 self.execution.runtime._write('dependency-probe-intent', {**record,'host':host,'name':name,'image':image})
                 code = probe_program(self.execution.saved, before[host], context, image, name, self.execution.scope_sha, remaining - 12)
                 receipt = call(host, code, remaining)
+                if (isinstance(receipt, dict) and set(receipt) == {'failure','probe_removed','runtime_unchanged'}
+                        and receipt['probe_removed'] is True and receipt['runtime_unchanged'] is True
+                        and valid_failure(receipt['failure'])):
+                    self.execution.runtime._write('dependency-probe-failure', {**record, 'host': host, 'failure': receipt['failure'],
+                                                                             'probe_removed': True, 'runtime_unchanged': True})
+                    raise RuntimeError('Dependency readiness failed at ' + receipt['failure']['phase'])
                 if (not isinstance(receipt, dict) or set(receipt) != {'checks','probe_removed','runtime_unchanged'}
                         or receipt['probe_removed'] is not True or receipt['runtime_unchanged'] is not True
                         or not isinstance(receipt['checks'],dict) or set(receipt['checks']) != set(CHECKS)

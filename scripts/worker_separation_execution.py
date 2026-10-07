@@ -146,7 +146,7 @@ def compose_arguments(repo, model, counts):
             or not set(counts) <= set(model['services'])):
         raise ValueError('Exact existing repository, project and roles required')
     base = ['docker','compose','--project-directory',repo,'--project-name',model['name'],'-f','-']
-    up = [*base,'up','-d','--no-deps','--no-build','--pull','never']
+    up = [*base,'up','-d','--wait','--wait-timeout','90','--no-deps','--no-build','--pull','never']
     for role,count in sorted(counts.items()): up += ['--scale',f'{role}={count}']
     return base, [*up,*sorted(counts)]
 

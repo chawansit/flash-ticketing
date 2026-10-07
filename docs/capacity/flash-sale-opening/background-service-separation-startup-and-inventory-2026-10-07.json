@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "decisions": [
+    "ADR0208",
+    "ADR0209",
+    "ADR0210"
+  ],
+  "base_revision": "cbbe4f8bb74cd3a6d90b126f62f7219415e5bac8",
+  "recorded_at_utc": "2026-10-07T13:18:26.126895+00:00",
+  "runs": [
+    {
+      "run": "adr0153-parents-f441cc96fac4",
+      "ledger_status": "FAILED_RESTORED",
+      "original_result_status": "RECOVERY_REQUIRED",
+      "original_result_sha256": "ba71a37d0b549a1f99db983b2d5e71894f52d87aef26bccce7fa38cae1e489a8",
+      "stopped_at": "dependency_unknown",
+      "customer_dispatches": 0,
+      "paid_runs_started": 0,
+      "candidate_started": false,
+      "restoration_verified": true,
+      "actual_experiment_seconds": 210.625,
+      "evidence": "tmp/adr0153-parents-f441cc96fac4/worker-envelope-result.json"
+    },
+    {
+      "run": "adr0153-parents-8113d716d1af",
+      "ledger_status": "FAILED_RESTORED",
+      "original_result_status": "RECOVERY_REQUIRED",
+      "original_result_sha256": "69b0eab3e20274db612168aa196b29f947abee328e3d0fe34a08b9ee57bcdc99",
+      "stopped_at": "kafka_startup",
+      "customer_dispatches": 0,
+      "paid_runs_started": 0,
+      "candidate_started": false,
+      "restoration_verified": true,
+      "actual_experiment_seconds": 171.3739999999816,
+      "evidence": "tmp/adr0153-parents-8113d716d1af/worker-envelope-result.json"
+    },
+    {
+      "run": "adr0153-parents-6e300e94f5da",
+      "ledger_status": "FAILED_RESTORED",
+      "original_result_status": "FAILED_RESTORED",
+      "original_result_sha256": "49900a7454f906ac7b8293aa7969215835981ea7d1ab3abf28950901930edf69",
+      "stopped_at": "host_inventory",
+      "customer_dispatches": 0,
+      "paid_runs_started": 0,
+      "candidate_started": false,
+      "restoration_verified": true,
+      "actual_experiment_seconds": 169.0,
+      "evidence": "tmp/adr0153-parents-6e300e94f5da/worker-envelope-result.json"
+    }
+  ],
+  "implemented": {
+    "safe_readiness_failure_receipts": true,
+    "bounded_existing_health_wait_seconds": 90,
+    "scope_authenticated_retained_inventory_before_and_after": true,
+    "backend_images_changed": false,
+    "customer_gates_weakened": false
+  },
+  "live_verified": {
+    "both_hosts_all_private_dependencies": true,
+    "worker_startup": true,
+    "automatic_complete_bootstrap_recovery": true,
+    "corrected_inventory": false,
+    "customer_load_started": false
+  },
+  "findings": [
+    "Original child failures were hidden by generic reporting. Safe receipts captured Kafka NoBrokersAvailable during initial startup.",
+    "Waiting for existing container health passed RDS TLS, pooler, Redis, private Kafka and four API probes on both hosts.",
+    "Inventory rejected exactly retained inactive historical rows; the same rejection reproduced offline for all 16 saved rows. Collector now reuses authenticated retained verification before and after active source qualification."
+  ],
+  "tests": {
+    "readiness_initial": {
+      "passed": 181,
+      "failed": 2,
+      "seconds": 80.73,
+      "evidence": "tmp/adr0208-readiness-tests.txt"
+    },
+    "corrected_native_cleanup": {
+      "passed": 2,
+      "failed": 0,
+      "seconds": 5.48,
+      "evidence": "tmp/adr0208-native-recheck.txt"
+    },
+    "startup_and_readiness_final": {
+      "passed": 278,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 213.02,
+      "evidence": "tmp/adr0209-startup-tests.txt"
+    },
+    "inventory_initial": {
+      "passed": 145,
+      "failed": 8,
+      "seconds": 139.61,
+      "evidence": "tmp/adr0210-inventory-tests.txt"
+    },
+    "corrected_runner_and_profile": {
+      "passed": 75,
+      "failed": 0,
+      "seconds": 150.21,
+      "evidence": "tmp/adr0210-runner-recheck.txt"
+    },
+    "note": "Initial inventory failures caught an incorrect bootstrap attribute reference; corrected to the authenticated execution snapshot. Observer/retained tests passed in the initial suite; affected runner/profile cases all passed on rerun."
+  },
+  "recovery": {
+    "original_runtime_restored": true,
+    "broker_volumes_retained": true,
+    "bind_files_restored": true,
+    "secondary_empty": true,
+    "zero_double_booking": true,
+    "all_queues_zero": true,
+    "kafka_drained": true,
+    "generator_idle": true,
+    "owned_configuration_removed": true,
+    "financial_cohort": "not_created",
+    "active_experiment": false
+  },
+  "accounting": {
+    "recorded_experiments": 17,
+    "cumulative_actual_experiment_seconds": 15359.376,
+    "cumulative_reserved_seconds": 61200,
+    "additional_read_only_diagnostic_seconds": 36.484,
+    "read_only_snapshots_seconds": [
+      36.047,
+      36.328,
+      36.328
+    ],
+    "local_package_seconds": [
+      19.797,
+      19.125,
+      20.453
+    ],
+    "recorded_local_test_seconds": 589.05,
+    "note": "Experiment totals include independently verified recovery durations. Additional read-only diagnostics and local work are recorded separately; editing/review time not independently timed.",
+    "new_infrastructure_spend": 0,
+    "cumulative_time_cap": null
+  },
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "next_action": "Fresh snapshot, package and registered scope; matched 60 journeys/s for 300s control, candidate only after every control gate. Corrected cloud inventory and paid capacity remain unqualified."
+}

@@ -317,3 +317,13 @@ def test_unsupported_health_duration_is_rejected(duration):
     service['healthcheck']={'test':['CMD','check'],'interval':duration}
     row=next(r for r in rows_for(model,execution.INFRA) if r['Config']['Labels']['com.docker.compose.service']=='api')
     with pytest.raises(ValueError,match='Exact integer health duration'):execution.planned_row(row,service,model,set())
+
+
+@pytest.mark.parametrize('counts',[execution.INFRA,execution.NORMAL_COUNTS,execution.WORKERS])
+def test_every_owned_application_waits_inside_existing_deadline(counts):
+    saved,_,_,inputs=fixture()
+    model=saved['model'] if counts==execution.NORMAL_COUNTS else inputs['pair']['control']['primary']
+    _,command=execution.compose_arguments('/qualification/repository',model,counts)
+    assert command.count('--wait')==1 and command[command.index('--wait-timeout')+1]=='90'
+    assert '--no-build' in command and command[command.index('--pull')+1]=='never'
+    assert execution.LIMITS['configure_common_infrastructure']==150

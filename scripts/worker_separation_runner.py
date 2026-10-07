@@ -122,7 +122,8 @@ class WorkerArm:
         self._forward('verify_private_dependencies',self.readiness.verify,90)
         self._forward('start_arm_workers',self.execution.start_workers,150)
         inventory=self._forward('verify_host_aware_inventory',
-                                lambda:collect_roles(self.session,self.execution.pair,self.arm,self.sources),180)
+                                lambda:collect_roles(self.session,self.execution.pair,self.arm,self.sources,
+                                                     retained=self.execution.saved.get("retained_inactive_containers",{})),180)
         self.runtime._write('bootstrap-inventory',inventory)
         cid=min(r['container_id'] for r in inventory['containers'] if r['role']=='api' and r['host_role']=='primary')
         diagnostic=DiagnosticActions(self.execution,inventory,self.observer_sources,self.context,cid,

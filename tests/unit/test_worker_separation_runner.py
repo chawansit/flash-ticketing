@@ -127,7 +127,7 @@ def setup(monkeypatch,tmp_path,source_bundle):
             return {'pass':True,'checks':{'post_ttl_complete':True,'payments_durable':True,'ticket_relationships_valid':True}}
         return original(host,code,timeout)
     session.call=call
-    def collect(transport,pair,arm,role_sources):
+    def collect(transport,pair,arm,role_sources,*,retained=None):
         assert transport is session and role_sources==sources
         session.arm_factories.append(arm)
         if session.bootstrap_fail=='inventory':raise ValueError('Synthetic source inventory mismatch')

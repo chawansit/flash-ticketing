@@ -276,19 +276,36 @@ def test_invalid_confirmation_gauge_is_sticky():
         module.urlopen(f'http://{label}:9101/metrics')
 
 @pytest.mark.parametrize('arm', ['control', 'candidate'])
-def test_collector_uses_the_source_map_for_each_actual_role(arm):
+@pytest.mark.parametrize('retained_case',['none','unchanged','missing','changed','activated','new','secondary','after_changed'])
+def test_collector_uses_the_source_map_for_each_actual_role(arm,retained_case):
     import re
     plan = pair()
     rows = observed(plan, arm)
+    from worker_separation_retained import row_digest
+    historical=copy.deepcopy(rows['primary'][0])
+    historical['Id']='f'*64
+    historical['Config']['Labels']['com.docker.compose.project']='flash-cloud-bench'
+    historical['State'].update(Running=False,Status='exited',Paused=False,Restarting=False)
+    retained={} if retained_case in {'none','new'} else {historical['Id']:row_digest(historical)}
+    if retained_case not in {'none','missing'}:
+        host='secondary' if retained_case=='secondary' else 'primary'
+        rows[host].append(historical)
+    if retained_case=='changed':historical['Image']='sha256:'+'e'*64
+    if retained_case=='activated':historical['State'].update(Running=True,Status='running')
     sources = {role: {'src/ticketing/config.py': f'{i:064x}'}
                for i, role in enumerate(('api', *topology.WORKERS), 1)}
     by_id = {r['Id']: (host, r) for host, values in rows.items() for r in values}
     class Session:
         def __init__(self):
+            self.primary_observations=0
             self.config = {r: {'private_ipv4': ip} for r, ip in
                            [('primary', '10.0.0.1'), ('secondary', '10.0.0.2'), ('generator', '10.0.0.3')]}
         def call(self, host, code, timeout):
-            if code == inv.ALL_CONTAINERS:return copy.deepcopy(rows[host])
+            if code == inv.ALL_CONTAINERS:
+                if host=='primary':self.primary_observations+=1
+                if retained_case=='after_changed' and host=='primary' and self.primary_observations==2:
+                    historical['Image']='sha256:'+'e'*64
+                return copy.deepcopy(rows[host])
             if code == inv.host_program():
                 return {'machine_id_sha256': {'primary': 'a', 'secondary': 'b', 'generator': 'c'}[host] * 64,
                         'vcpus': 4, 'memory_bytes': 8 * 2**30, 'addresses': [self.config[host]['private_ipv4']],
@@ -302,7 +319,12 @@ def test_collector_uses_the_source_map_for_each_actual_role(arm):
             return {'container_id': cid, 'image_id': row['Image'], 'started_at': row['State']['StartedAt'],
                     'role': role, 'source_identity': {'source_hashes_match': True, 'app_source_hashes_match': True,
                          'import_source_hashes_match': True, 'import_code_matches_source': True, 'ready': True}}
-    result = inv.collect_roles(Session(), plan, arm, sources)
+    if retained_case not in {'none','unchanged'}:
+        with pytest.raises(ValueError):inv.collect_roles(Session(), plan, arm, sources,retained=retained)
+        return
+    result = inv.collect_roles(Session(), plan, arm, sources,retained=retained)
+    assert result['retained_inventory_sha256']==inv.digest(retained)
+    assert all(r['container_id']!=historical['Id'] for r in result['containers'])
     assert result['source_manifest_sha256'] == inv.digest(sources)
     for entry in result['containers']:
         if entry['role'] in sources:

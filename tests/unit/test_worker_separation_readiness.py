@@ -262,3 +262,58 @@ def test_actual_readiness_imports_exist_in_immutable_frozen_image():
         '--network=none','--read-only','--user=65534:65534','--cap-drop=ALL','--security-opt=no-new-privileges',
         '--entrypoint=python',image,'-c',body],capture_output=True,text=True,timeout=30,check=False)
     assert result.returncode==0 and result.stdout.strip()=='readiness_imports_passed',result.stderr
+
+
+@pytest.mark.parametrize('bad,phase', [('public_dns','private_address_resolution'),('tls','direct_rds_tls'),
+    ('identity','direct_rds_tls'),('redis','redis'),('kafka','kafka'),('metadata','kafka'),('api','api_readiness')])
+def test_safe_failure_receipt_preserves_actual_phase(monkeypatch,bad,phase):
+    context,_=clients(monkeypatch,bad)
+    receipt=readiness.probe_receipt(context)
+    assert set(receipt)=={'failure'} and readiness.valid_failure(receipt['failure'])
+    assert receipt['failure']['phase']==phase
+    assert context['rds']['password'] not in json.dumps(receipt) and CA not in json.dumps(receipt)
+
+
+@pytest.mark.parametrize('message,category',[('password=never-publish Connection refused','connection_refused'),
+    ('certificate verify failed secret','tls_verification'),('secret timed out','timeout'),('arbitrary secret','check_failed')])
+def test_exception_details_are_never_serialized(monkeypatch,message,category):
+    def fail(context,progress):
+        progress['phase']='pooler'
+        raise ConnectionError(message)
+    monkeypatch.setattr(readiness,'probe',fail)
+    receipt=readiness.probe_receipt({})
+    assert receipt=={'failure':{'phase':'pooler','exception_category':'ConnectionError','category':category}}
+    assert message not in json.dumps(receipt)
+
+
+def test_structured_failure_is_retained_then_blocks_workers(monkeypatch):
+    engine,events=setup();component=readiness.ReadinessActions(engine,CA)
+    original=engine.session.call
+    failure={'phase':'pooler','exception_category':'OperationalError','category':'connection_refused'}
+    def call(host,code,timeout):
+        if '\nbody=' in code:return {'failure':failure,'probe_removed':True,'runtime_unchanged':True}
+        return original(host,code,timeout)
+    monkeypatch.setattr(engine.session,'call',call)
+    with pytest.raises(RuntimeError,match='at pooler'):component.verify()
+    assert engine.failed and engine.dependency_receipt is None
+    kind,record=events[-1]
+    assert kind=='dependency-probe-failure' and record['failure']==failure
+    assert record['scope_binding_sha256']==engine.scope_sha
+    assert record['context_sha256']==component.context_sha
+
+
+@pytest.mark.parametrize('change',['secret','cleanup','drift','unknown_phase'])
+def test_unverified_or_secret_failure_cannot_be_retained(monkeypatch,change):
+    engine,events=setup();component=readiness.ReadinessActions(engine,CA)
+    original=engine.session.call
+    receipt={'failure':{'phase':'pooler','exception_category':'OperationalError','category':'timeout'},
+             'probe_removed':True,'runtime_unchanged':True}
+    if change=='secret':receipt['failure']['detail']='password=never-publish'
+    elif change=='unknown_phase':receipt['failure']['phase']='password=never-publish'
+    else:receipt['probe_removed' if change=='cleanup' else 'runtime_unchanged']=False
+    def call(host,code,timeout):
+        return receipt if '\nbody=' in code else original(host,code,timeout)
+    monkeypatch.setattr(engine.session,'call',call)
+    with pytest.raises(ValueError):component.verify()
+    assert engine.failed and engine.dependency_receipt is None
+    assert not any(k=='dependency-probe-failure' for k,_ in events)

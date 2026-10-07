@@ -26,7 +26,7 @@ def fixture_module():
     return value
 
 
-@pytest.mark.parametrize('case',['common','start','restore','before_drift','seal_drift','volume_drift',
+@pytest.mark.parametrize('case',['common','start','restore','health_failure','before_drift','seal_drift','volume_drift',
                                  'compose_drift','partial_apply','stop','stop_replacement','partial_stop'])
 def test_generated_program_on_real_posix_with_simulated_docker(linux,case):  # noqa: F811 - pytest fixture injection.
     fixture=fixture_module();saved,original,_,inputs=fixture.fixture()
@@ -98,9 +98,9 @@ class Docker:
    composed=json.loads(kwargs['input'])
    if case=='compose_drift':composed['services']['api']['environment']['DB_POOL_MAX']='99'
    return SimpleNamespace(returncode=0,stdout=json.dumps(composed))
-  assert all(flag in args for flag in ('--no-deps','--no-build','--pull'))
+  assert all(flag in args for flag in ('--wait','--wait-timeout','--no-deps','--no-build','--pull'))
   self.up+=1;self.rows=copy.deepcopy(after['rows']);self.volumes=copy.deepcopy(after['volumes'])
-  return SimpleNamespace(returncode=1 if case=='partial_apply' else 0)
+  return SimpleNamespace(returncode=1 if case in {'partial_apply','health_failure'} else 0)
 docker=Docker()
 if case=='before_drift':docker.rows[0]['State']['StartedAt']='changed'
 if case=='volume_drift':docker.volumes=[{'Name':'unowned'}]
@@ -114,7 +114,7 @@ if case in {'common','start','restore','stop'}:
  assert len(result['after']['rows'])==len(after['rows'])
 else:
  assert failed
- if case=='partial_apply':assert docker.up==1
+ if case in {'partial_apply','health_failure'}:assert docker.up==1
  elif case=='partial_stop':assert len(docker.rm)==1
  else:assert docker.up==0 and docker.rm==[]
 print(json.dumps({'case':case,'pass':True,'compose_applications':docker.up,'exact_removals':len(docker.rm)}))
@@ -158,3 +158,28 @@ def test_real_compose_preserves_literal_environment_and_command():
                 assert all(r['Image']==image and r['Config']['Labels'].get('com.docker.compose.project')==name
                            and r['Config']['Labels'].get('com.docker.compose.service')=='probe' for r in rows)
                 subprocess.run(['docker','rm','-f',*ids],capture_output=True,check=True,timeout=20)
+
+
+@pytest.mark.parametrize('healthy',[True,False])
+def test_real_compose_wait_requires_health_before_acknowledgement(healthy):
+    image=os.getenv('WORKER_CONFIG_TEST_IMAGE')
+    if not image:pytest.skip('Explicit cached immutable local image required')
+    assert re.fullmatch(r'sha256:[0-9a-f]{64}',image)
+    name=new_stage_output().name+'-health'
+    model={'name':name,'services':{'probe':{'image':image,'pull_policy':'never','network_mode':'none',
+        'read_only':True,'user':'65534','cap_drop':['ALL'],'entrypoint':['python'],
+        'command':['-c','import time;time.sleep(30)'],
+        'healthcheck':{'test':['CMD','python','-c','raise SystemExit('+('0' if healthy else '1')+')'],
+                       'interval':'1s','timeout':'1s','retries':1}}}}
+    payload=json.dumps(execution.literal_model(model))
+    base=['docker','compose','--project-name',name,'-f','-']
+    try:
+        result=subprocess.run([*base,'up','-d','--wait','--wait-timeout','5','--no-build','--pull','never'],
+            input=payload,text=True,capture_output=True,timeout=20,check=False)
+        assert (result.returncode==0) is healthy,result.stderr[-1000:]
+        ids=subprocess.check_output(['docker','ps','-aq','--no-trunc','--filter','label=com.docker.compose.project='+name],text=True,timeout=10).split()
+        assert len(ids)==1
+        row=json.loads(subprocess.check_output(['docker','inspect',ids[0]],text=True,timeout=10))[0]
+        assert row['State']['Health']['Status']==('healthy' if healthy else 'unhealthy')
+    finally:
+        subprocess.run([*base,'down','--remove-orphans'],input=payload,text=True,capture_output=True,check=True,timeout=20)

@@ -51,7 +51,7 @@ class Docker:
    if case=='foreign_probe':self.rows[0]['Config']['Labels']['org.flash-ticketing.dependency-scope']='f'*64
    if case=='replacement':self.rows[0]['Id']='d'*64
    if case=='start_timeout':raise TimeoutError('Synthetic probe timeout')
-   return SimpleNamespace(returncode=1 if case=='failed_dependency' else 0,stdout=json.dumps({k:True for k in ('verified_rds_tls','redis_ready','pooler_ready','private_kafka_ready','all_four_apis_reachable')}))
+   return SimpleNamespace(returncode=1 if case=='failed_dependency' else 0,stdout=json.dumps({'checks':{k:True for k in ('verified_rds_tls','redis_ready','pooler_ready','private_kafka_ready','all_four_apis_reachable')}}))
   assert args[:3]==['docker','rm','-f']
   self.removes.append(args[3]);self.rows=[]
   if case=='post_drift':
