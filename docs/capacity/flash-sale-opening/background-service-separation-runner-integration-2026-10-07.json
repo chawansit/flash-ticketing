@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "decision": "ADR0198",
+  "placement_decision": "ADR0184",
+  "base_revision": "eb4d6b1b46f2a53ad51649e1653b954a9cfd8170",
+  "recorded_at_utc": "2026-10-07T06:01:11.998434+00:00",
+  "status": "worker_observers_and_diagnostic_setup_locally_qualified_paid_runner_assembly_pending",
+  "implemented": [
+    "Exact per-role API/worker source inventories; the legacy common-source entry remains compatible",
+    "Private frozen observer composition with all four primary APIs and fourteen workers, including confirmation",
+    "Exact per-sample process coverage, worker CPU counters, restart/reset/error rejection and historical offered-window distribution gates",
+    "Read-only diagnostic account, database, endpoint, verified TLS options and protected trust-file bindings retained",
+    "Sealed transitive source bundle; bounded source bytes and owner-only remote read-back before launch",
+    "Single-use diagnostic setup on the original guarded transport; original RDS/CA authority and stable runtime required",
+    "Known partial transfers marked before mutation; both credential sites cleaned even after pause or interruption",
+    "Observer artifacts use a separately generated scope-bound owner, outside sealed restoration configuration; owner changes and namespace collisions fail before transfer"
+  ],
+  "source_sha256": {
+    "scripts/observe_worker_pipeline.py": "77cd958a27b7e6033405d12b533e275d1b444e558ffe142adc2e7e3fe72917ab",
+    "scripts/worker_separation_inventory.py": "b19d99ece5ed6c67ce3456f7d9b81886fb3e199a0cd426ffcb885055bcafb98d",
+    "scripts/worker_separation_observer_bundle.py": "dba0a8bf70b5e3039055106faadd9796ce5106a6bd9b5e5e473b4a7e9338e302",
+    "scripts/worker_separation_diagnostics.py": "284b3fd3ecae252e3e8d9d12657a56ba98da17a6436d17c1cf8fd3570c7cf38a"
+  },
+  "observer_bundle": {
+    "files": 40,
+    "bytes": 460631,
+    "manifest_sha256": "0f07293db93e5d793e87885815089c275e9deceebbd164a33d3db05cade115f8"
+  },
+  "validation": {
+    "final_native_container_check_after_test_only_cached_image_flag": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 2.72,
+      "included_in_final_focused_subset": true
+    },
+    "native_linux_case": "Actual isolated cached immutable Linux container; source import and POSIX protected-file checks, synthetic inventory and no network",
+    "native_protected_file_rejections": [
+      "bundle_permissions",
+      "certificate_permissions",
+      "bundle_bytes",
+      "certificate_bytes",
+      "hardlink"
+    ],
+    "existing_postgresql_financial_integration_cases": 23,
+    "worker_diagnostic_transport_tests": "Synthetic guarded execution/transport; live RDS TLS, credentials and collector preflight not executed",
+    "faults_tested": [
+      "missing_or_changed_replica",
+      "process_restart",
+      "counter_reset",
+      "missing_full_visibility",
+      "changed_role_sources",
+      "altered_helper_bundle",
+      "altered_endpoint_or_TLS_options",
+      "partial_transfer",
+      "failed_preflight",
+      "pause",
+      "binding_change",
+      "runtime_drift",
+      "cleanup_interruption",
+      "sealed_configuration_namespace_collision"
+    ],
+    "local_owned_test_resources_remaining": 0,
+    "ruff_pass": true,
+    "working_repository_naming_pass": true,
+    "development_corrections": [
+      "Use an absolute local test CA path on Windows",
+      "Use the existing readiness keyword in the source-proof test",
+      "Compare runtime observations separately for each host",
+      "Check the expensive source dependency closure once; revalidate sealed bytes and scope on each action",
+      "Review identified a sealed-configuration/artifact namespace collision; separate generated ownership and collision/change regression tests corrected it before publication"
+    ],
+    "development_attempts": [
+      {
+        "passed": 88,
+        "failed": 1,
+        "scope": "initial wrapper tests"
+      },
+      {
+        "passed": 92,
+        "failed": 2,
+        "scope": "role source tests"
+      },
+      {
+        "passed": 108,
+        "failed": 12,
+        "scope": "first diagnostic integration tests"
+      },
+      {
+        "status": "stopped_for_source_validation_overhead_correction",
+        "scope": "development diagnostic tests",
+        "cloud_calls": 0
+      }
+    ],
+    "broad_affected_suite": {
+      "passed": 577,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 121.99
+    },
+    "final_observer_and_diagnostic_subset_after_compatibility_cleanup": {
+      "passed": 124,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 20.13,
+      "includes_sealed_configuration_namespace_regressions": true
+    }
+  },
+  "accounting": {
+    "new_registered_cloud_experiments": 0,
+    "cloud_experiment_ledger_unchanged": true,
+    "final_local_test_process_wall_seconds": 123.33,
+    "local_test_time_excludes_editing_and_review": true,
+    "final_focused_test_seconds": 20.13
+  },
+  "not_implemented": [
+    "Complete worker-specific paid stage dispatch and retained fixture/observer/audit assembly",
+    "Complete concrete control/candidate lifecycle and local end-to-end restoration qualification",
+    "Worker experiment registry qualification and fresh reservation"
+  ],
+  "not_executed": [
+    "Live worker dependency/diagnostic preflight",
+    "Cloud deployment or customer load",
+    "Matched worker-placement capacity comparison",
+    "84 paid-and-issued tickets/s",
+    "One-hour 300000-ticket qualification"
+  ],
+  "next_action": "Connect the locally qualified observer/diagnostic setup to the frozen paid stage and ADR0197 audit provider; then qualify the complete cleanup/restoration lifecycle before registering worker_separation.",
+  "scope": "Engineering checkpoint only; no cloud load, capacity gain or hourly production qualification."
+}

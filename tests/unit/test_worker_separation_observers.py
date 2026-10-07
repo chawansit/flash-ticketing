@@ -258,6 +258,7 @@ def test_read_only_collector_proves_sources_on_the_actual_host():
                     'source_identity': {'source_hashes_match': True, 'app_source_hashes_match': True,
                                         'import_source_hashes_match': True, 'import_code_matches_source': True, 'ready': True}}
     result = inv.collect(Session(), plan, 'candidate', sources)
+    assert result['source_manifest_sha256'] == inv.digest(sources)
     assert result['runtime_unchanged'] is True
     assert len([r for r in result['containers'] if 'metrics_url' in r]) == 18
     assert {host for host, role in seen if role == 'consumer'} == {'secondary'}
@@ -273,3 +274,47 @@ def test_invalid_confirmation_gauge_is_sticky():
         module.urlopen(f'http://{label}:9101/metrics')
     with pytest.raises(ValueError, match='Previously failed'):
         module.urlopen(f'http://{label}:9101/metrics')
+
+@pytest.mark.parametrize('arm', ['control', 'candidate'])
+def test_collector_uses_the_source_map_for_each_actual_role(arm):
+    import re
+    plan = pair()
+    rows = observed(plan, arm)
+    sources = {role: {'src/ticketing/config.py': f'{i:064x}'}
+               for i, role in enumerate(('api', *topology.WORKERS), 1)}
+    by_id = {r['Id']: (host, r) for host, values in rows.items() for r in values}
+    class Session:
+        def __init__(self):
+            self.config = {r: {'private_ipv4': ip} for r, ip in
+                           [('primary', '10.0.0.1'), ('secondary', '10.0.0.2'), ('generator', '10.0.0.3')]}
+        def call(self, host, code, timeout):
+            if code == inv.ALL_CONTAINERS:return copy.deepcopy(rows[host])
+            if code == inv.host_program():
+                return {'machine_id_sha256': {'primary': 'a', 'secondary': 'b', 'generator': 'c'}[host] * 64,
+                        'vcpus': 4, 'memory_bytes': 8 * 2**30, 'addresses': [self.config[host]['private_ipv4']],
+                        'api_processes': 4 if host == 'primary' else 0, 'load_processes': 0}
+            cid = re.search(r"[0-9a-f]{64}", code)[0]
+            expected_host, row = by_id[cid]
+            role = row['Config']['Labels']['com.docker.compose.service']
+            assert host == expected_host
+            if "['docker', 'exec'" in code:return {'process_start_time_seconds': 1000}
+            assert code == inv.container_identity_program(row, role, sources[role], readiness=role == 'api')
+            return {'container_id': cid, 'image_id': row['Image'], 'started_at': row['State']['StartedAt'],
+                    'role': role, 'source_identity': {'source_hashes_match': True, 'app_source_hashes_match': True,
+                         'import_source_hashes_match': True, 'import_code_matches_source': True, 'ready': True}}
+    result = inv.collect_roles(Session(), plan, arm, sources)
+    assert result['source_manifest_sha256'] == inv.digest(sources)
+    for entry in result['containers']:
+        if entry['role'] in sources:
+            assert entry['source_expectations_sha256'] == inv.digest(sources[entry['role']])
+
+
+@pytest.mark.parametrize('change', ['missing_role', 'unknown_role', 'invalid_hash'])
+def test_bad_per_role_sources_fail_before_any_transport_call(change):
+    sources = {role: {'src/ticketing/config.py': 'a' * 64} for role in ('api', *topology.WORKERS)}
+    if change == 'missing_role':sources.pop('confirmation')
+    elif change == 'unknown_role':sources['unknown'] = sources['api']
+    else:sources['confirmation']['src/ticketing/config.py'] = 'invalid'
+    class Session:
+        def call(self, *args):pytest.fail('Bad source binding reached remote transport')
+    with pytest.raises(ValueError):inv.collect_roles(Session(), pair(), 'candidate', sources)

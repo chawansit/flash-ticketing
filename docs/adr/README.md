@@ -336,3 +336,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0196: Bound private dependency readiness and audit retention](0196-bound-private-dependency-readiness-and-audit-retention.md)
 
 - [ADR0197: Fixture-bound financial and full queue audits](0197-fixture-bound-financial-and-full-queue-audits.md)
+
+- [ADR0198: Bound worker comparison runner integration](0198-bound-worker-comparison-runner-integration.md)

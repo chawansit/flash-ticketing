@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-07",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "concrete_worker_audits_locally_qualified_complete_runner_pending",
+  "status": "worker_observers_and_diagnostic_setup_locally_qualified_paid_runner_assembly_pending",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -73,12 +73,11 @@
   ],
   "unresolved": "1+3 failed: 24 customer errors, 2,946 drops, 16.14 status checks/journey and payment-pool saturation. Primary-only callback routing reduces reachable callback pool capacity from four to two in the candidate. Standing ledger remains RECOVERY_REQUIRED despite completed owned restoration; strict paid-run recovery verification is needed before more load. 84/s, the single-show 18,000-seat projection, flash opening and hourly qualification remain unqualified.",
   "next_on_resume": [
-    "Protected root-credential/CA staging and read-back binding within an exclusively owned stage.",
-    "Exact source pinning, startup receipts, secret-safe failure evidence and verified cleanup in the bounded runner.",
-    "Locally qualify the entire extension and registry before a fresh matched full-visibility placement comparison."
+    "Connect the locally qualified observer/diagnostic setup to the frozen paid stage and ADR0197 audit provider; then qualify the complete cleanup/restoration lifecycle before registering worker_separation.",
+    "Qualify failure, pause, journal-loss and restoration paths; register and reserve a fresh profile before live preflight and the matched four-primary-API comparison."
   ],
   "authorization": "Standing envelope: existing resources only, zero new infrastructure spend, no cumulative cap, bounded tracked experiments, exact customer/correctness gates, codex branch publication only. ADR0180 reuses already supplied administrator access only in a read-only observer; no grants or infrastructure changes needed.",
-  "scope": "Routine offline background-service separation integration under ADR0172 on existing resources. No cloud deployment or load in ADR0194. Preserve all current customer/correctness gates; reviewed code/evidence may publish to codex branch; main merge requires approval.",
+  "scope": "Routine worker-runner integration under ADR0172 and ADR0198 on existing resources; observers and diagnostic setup locally qualified, full paid stage/lifecycle pending. No cloud calls, deployment, load or capacity gain. Preserve current gates; reviewed code/evidence may publish to codex branch; main merge requires approval.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -1095,7 +1094,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Assemble the ADR0197 concrete audit provider, ADR0196 readiness, ADR0195 execution and host-aware observers/paid stage into the complete worker runner. Locally qualify failures, pause, journal loss and restoration; then register a fresh guarded profile before the unchanged-budget four-primary-API worker-placement comparison. No cloud load or capacity improvement from this local checkpoint. Continue toward 84 paid-and-issued tickets/s and one-hour qualification after the measured comparison passes.",
+  "next_action": "Connect the locally qualified observer/diagnostic setup to the frozen paid stage and ADR0197 audit provider; then qualify the complete cleanup/restoration lifecycle before registering worker_separation.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -2399,6 +2398,18 @@
     "maximum_new_infrastructure_spend": 0
   },
   "last_engineering_checkpoint": {
+    "decision": "ADR0198",
+    "base_revision": "eb4d6b1b46f2a53ad51649e1653b954a9cfd8170",
+    "evidence": "docs/capacity/flash-sale-opening/background-service-separation-runner-integration-2026-10-07.json",
+    "recorded_at_utc": "2026-10-07T06:01:11.998434+00:00",
+    "tests_passed": 577,
+    "cloud_load_started": false,
+    "capacity_improvement_measured": false,
+    "full_worker_lifecycle_qualified": false,
+    "worker_observers_and_diagnostics_locally_qualified": true,
+    "final_focused_tests_passed": 124
+  },
+  "previous_engineering_checkpoint": {
     "decision": "ADR0197",
     "base_revision": "60bf2a21058bb00b4c373458aa88235f5c7b90c5",
     "evidence": "docs/capacity/flash-sale-opening/background-service-separation-audits-2026-10-07.json",

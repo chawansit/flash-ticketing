@@ -106,8 +106,21 @@ def process_start_program(port):
 
 
 def collect(session, pair, arm, sources):
-    """Read-only preflight. Never dispatch, deploy, classify recovery or authorize load."""
+    """Compatibility entry for a single common source map; historical behavior retained."""
     source_identity_program(sources)
+    from worker_separation_topology import WORKERS
+    result = collect_roles(session, pair, arm, {role: sources for role in ('api', *WORKERS)})
+    result['source_manifest_sha256'] = digest(sources)
+    return result
+
+
+def collect_roles(session, pair, arm, role_sources):
+    """Read-only preflight. Never dispatch, deploy, classify recovery or authorize load."""
+    from worker_separation_topology import WORKERS
+    if not isinstance(role_sources, dict) or set(role_sources) != {'api', *WORKERS}:
+        raise ValueError('Exact source expectations for every API and worker role required')
+    role_sources = copy.deepcopy(role_sources)
+    for sources in role_sources.values():source_identity_program(sources)
     before = {host: session.call(host, ALL_CONTAINERS, 45) for host in ('primary', 'secondary')}
     entries = inspect_layout(pair, arm, before)
     hosts = {role: session.call(role, host_program(), 45) for role in ('primary', 'secondary', 'generator')}
@@ -129,7 +142,7 @@ def collect(session, pair, arm, sources):
         if entry['role'] in {'kafka', 'pgbouncer', 'load-balancer'}:
             continue
         host, cid = entry['host_role'], entry['container_id']
-        proof = session.call(host, container_identity_program(by_id[cid], entry['role'], sources,
+        proof = session.call(host, container_identity_program(by_id[cid], entry['role'], role_sources[entry['role']],
                                                              readiness=entry['role'] == 'api'), 50)
         if (proof['container_id'] != cid or proof['image_id'] != entry['image_id']
                 or proof['started_at'] != entry['started_at'] or proof['role'] != entry['role']
@@ -138,6 +151,7 @@ def collect(session, pair, arm, sources):
                 or (entry['role'] == 'api' and proof['source_identity'].get('ready') is not True)):
             raise ValueError('Exact live source/import/readiness identity required')
         entry['source_identity_sha256'] = digest(proof['source_identity'])
+        entry['source_expectations_sha256'] = digest(role_sources[entry['role']])
         port = 8000 if entry['role'] == 'api' else int(environment(by_id[cid]).get('WORKER_METRICS_PORT', '9101'))
         start = container_call(session, host, cid, process_start_program(port), 30)['process_start_time_seconds']
         if isinstance(start, bool) or not isinstance(start, (int, float)) or not math.isfinite(start) or start <= 0:
@@ -153,7 +167,7 @@ def collect(session, pair, arm, sources):
     if comparable != repeated:
         raise ValueError('Runtime changed during inventory qualification')
     report = {'schema': 1, 'decision': 'ADR0184', 'arm': arm, 'captured_at': datetime.now(UTC).isoformat(),
-              'prepared_pair_sha256': digest(pair), 'source_manifest_sha256': digest(sources),
+              'prepared_pair_sha256': digest(pair), 'source_manifest_sha256': digest(role_sources),
               'hosts': {role: {k: v for k, v in h.items() if k != 'addresses'} for role, h in hosts.items()},
               'containers': entries, 'budgets': copy.deepcopy(pair['budgets']), 'runtime_unchanged': True,
               'scope': 'Read-only identity preflight only; queue/financial/customer gates and live runner pending.'}
