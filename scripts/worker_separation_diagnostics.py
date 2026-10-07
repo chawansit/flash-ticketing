@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import json
+import re
 
 from diagnostic_runner_connection import FILES, ProtectedContext, cleanup_program, validate_target
 from fetch_status_refresh_parents import owner_path
@@ -10,13 +11,14 @@ from stage_status_refresh_images import ROOT
 from worker_separation_execution import observation_identity, verify_phase
 from worker_separation_inventory import digest
 from worker_separation_observer_bundle import validate, verification_program
+from worker_separation_snapshot import verify_restored
 
 
 def preflight_program(inventory, directory):
     """Use the existing diagnostic connection/collector; never an application fallback."""
     binding = inventory['diagnostic_connection_binding']
     return ("import json,os,sys;from pathlib import Path;from types import SimpleNamespace\n"
-            "sys.path.insert(0," + repr(directory) + ")\n"
+            "sys.dont_write_bytecode=True;sys.path.insert(0," + repr(directory) + ")\n"
             "import psycopg,observe_worker_pipeline as observer,diagnostic_connection,database_wait_evidence\n"
             "p=Path(" + repr(directory) + ")\n"
             "inventory=json.loads((p/'diagnostic-preflight-inventory.private.json').read_text())\n"
@@ -58,6 +60,7 @@ class DiagnosticActions:
         if self.owner == sealed_owner or self.owner.startswith(sealed_owner + '/'):
             raise ValueError('Observer artifacts must not enter sealed configuration directory')
         self.used, self.cleanup_used, self.attempted = False, False, False
+        self.writable_layer_verified = False
         self._guard(5)
         if (inventory.get('decision') != 'ADR0184' or inventory.get('arm') != execution.arm
                 or inventory.get('prepared_pair_sha256') != digest(execution.pair)
@@ -96,6 +99,10 @@ class DiagnosticActions:
             raise ValueError('Runtime changed during diagnostic setup')
         from two_host_topology import fingerprint
         actual = {row['Id']:row for values in after.values() for row in values['rows']}
+        if any(self.directory == m['Destination'] or self.directory.startswith(m['Destination'].rstrip('/')+'/')
+               for m in actual[self.cid].get('Mounts', [])):
+            raise ValueError('Diagnostic artifacts must reside in the container writable layer')
+        self.writable_layer_verified = True
         expected = {entry['container_id']:entry for entry in self.inventory['containers']}
         if set(actual) != set(expected) or any(
                 actual[cid]['State']['StartedAt'] != entry['started_at']
@@ -163,7 +170,38 @@ class DiagnosticActions:
         self.runtime._write('worker-diagnostic-ack',receipt)
         return {'inventory':copy.deepcopy(self.inventory), 'receipt':receipt}
 
-    def cleanup(self):
+    def container_retired(self):
+        """Require exact restored observations and successful all-container enumeration."""
+        self._guard(45, cleanup=True)
+        if self.writable_layer_verified is not True:raise ValueError('Original writable-layer proof required')
+        before = self.execution._observe(cleanup=True)
+        verify_restored(self.execution.saved,{h:o['rows'] for h,o in before.items()},
+                        before['primary']['volumes'],before['primary']['bind_sha256'])
+        entry = next(r for r in self.inventory['containers'] if r['container_id']==self.cid)
+        present = [r for r in before['primary']['rows'] if r['Id']==self.cid]
+        if present:
+            from two_host_topology import fingerprint
+            row = present[0]
+            if (row['State']['StartedAt']!=entry['started_at'] or row['Image']!=entry['image_id']
+                    or fingerprint(row)!=entry['runtime_fingerprint']):
+                raise ValueError('Present diagnostic container identity changed')
+            return False
+        if not re.fullmatch(r'[0-9a-f]{64}',self.cid):raise ValueError('Exact diagnostic container ID required')
+        code = ("import json,re,subprocess;cid="+repr(self.cid)+"\n"
+                "r=subprocess.run(['docker','ps','-aq','--no-trunc'],capture_output=True,text=True,timeout=15,check=True)\n"
+                "ids=r.stdout.splitlines();assert all(re.fullmatch(r'[0-9a-f]{64}',i) for i in ids) and len(set(ids))==len(ids)\n"
+                "assert cid not in ids;print(json.dumps({'diagnostic_container_retired':True}))")
+        receipt = self.session.call('primary',code,30)
+        if receipt != {'diagnostic_container_retired':True}:raise ValueError('Exact retirement proof required')
+        after = self.execution._observe(cleanup=True)
+        verify_restored(self.execution.saved,{h:o['rows'] for h,o in after.items()},
+                        after['primary']['volumes'],after['primary']['bind_sha256'])
+        if any(observation_identity(before[h])!=observation_identity(after[h]) for h in ('primary','secondary')):
+            raise ValueError('Restored runtime changed during retirement proof')
+        return True
+
+    def cleanup(self, *, restored=False):
+        if type(restored) is not bool:raise ValueError('Explicit restoration mode required')
         if not self.attempted or self.cleanup_used:raise ValueError('Known single-use diagnostic cleanup required')
         self.cleanup_used = True
         self._guard(45, cleanup=True)
@@ -174,6 +212,7 @@ class DiagnosticActions:
             for site, directory in [('container', self.directory), ('primary', self.owner)]:
                 try:
                     self._guard(45, cleanup=True)
+                    if site=='container' and restored and self.container_retired():continue
                     code = cleanup_program(directory)
                     receipt = (self.session.api(self.cid, code, 45) if site=='container'
                                else self.session.call(site, code, 45))

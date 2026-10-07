@@ -183,3 +183,61 @@ def test_separate_artifact_owner_cannot_change_after_binding(change):
     else:engine.runtime.guard.binding['worker_observer_owner_name']=engine.runtime.output.name
     with pytest.raises(ValueError):component.prepare()
     assert not uploads and not events and not engine.session.calls
+
+
+def restoration_fixture():
+    component,engine,_events,_uploads=setup()
+    component.prepare()
+    spec=importlib.util.spec_from_file_location('retirement_fixture',ROOT/'tests/unit/test_worker_separation_execution.py')
+    fixture=importlib.util.module_from_spec(spec);spec.loader.exec_module(fixture)
+    from worker_separation_snapshot import runtime_semantic
+    restored=fixture.rows_for(engine.saved['model'],engine.saved['counts'])
+    for index,row in enumerate(restored):row['Id']=f'{900+index:064x}'
+    for row in restored:
+        role=row['Config']['Labels']['com.docker.compose.service']
+        engine.saved['semantics'][role]=inventory.digest(runtime_semantic(row))
+    observations={'primary':{'rows':restored,'volumes':[engine.saved['broker_volume']],
+                             'bind_sha256':engine.saved['bind_sha256']},
+                  'secondary':{'rows':[],'volumes':[],'bind_sha256':{}}}
+    engine._observe=lambda **kwargs:copy.deepcopy(observations)
+    engine.session.call=lambda host,code,timeout:({'diagnostic_container_retired':True}
+        if 'docker' in code else {'diagnostic_credentials_removed':True})
+    return component,engine,observations
+
+
+def test_restored_cleanup_does_not_contact_removed_container():
+    component,engine,_observations=restoration_fixture()
+    engine.session.api=lambda *args:(_ for _ in ()).throw(AssertionError('Removed container contacted'))
+    assert component.cleanup(restored=True)=={'diagnostic_credentials_removed':True}
+    assert engine.session.cleanup_mode is False
+
+
+@pytest.mark.parametrize('failure',['docker','receipt','runtime','writable_layer','replacement'])
+def test_missing_container_is_not_retirement_without_independent_exact_proofs(failure):
+    component,engine,observations=restoration_fixture()
+    original=engine.session.call
+    def call(host,code,timeout):
+        if 'docker' in code:
+            if failure=='docker':raise TimeoutError('Synthetic Docker enumeration failed')
+            if failure=='receipt':return {'diagnostic_container_retired':False}
+            if failure=='runtime':observations['primary']['rows'][0]['Image']='sha256:'+'f'*64
+            if failure=='replacement':observations['primary']['rows'][0]['Id']='e'*64
+        return original(host,code,timeout)
+    engine.session.call=call
+    if failure=='writable_layer':component.writable_layer_verified=False
+    with pytest.raises((ValueError,TimeoutError)):component.container_retired()
+
+
+def test_persistent_mount_blocks_writable_layer_retirement_assumption(monkeypatch):
+    component,engine,_events,uploads=setup()
+    # Exact phase/mount matching has separate execution tests; isolate the writable-layer guard here.
+    monkeypatch.setattr(diagnostics,'verify_phase',lambda *a:True)
+    original=engine._observe
+    def observed():
+        value=original()
+        next(r for r in value['primary']['rows'] if r['Id']==component.cid)['Mounts'].append(
+            {'Destination':'/tmp','Type':'bind','Source':'/qualification/persistent','RW':True})
+        return value
+    engine._observe=observed
+    with pytest.raises(ValueError,match='writable layer'):component.prepare()
+    assert not component.attempted and uploads==[]

@@ -24,6 +24,9 @@ def launch_spec(arguments, directory, *, database=False):
             or type(database) is not bool):
         raise ValueError('Exact bounded script launch required')
     code = job_program(arguments, directory, database=database)
+    marker='env=dict(os.environ)'
+    if code.count(marker)!=1:raise ValueError('Historical job environment changed')
+    code=code.replace(marker,marker+";env['PYTHONDONTWRITEBYTECODE']='1';os.umask(0o077)")
     marker='file.write(json.dumps(job))'
     if code.count(marker)!=1:raise ValueError('Historical identity persistence changed')
     code=code.replace(marker,marker+';file.flush();os.fsync(file.fileno())')

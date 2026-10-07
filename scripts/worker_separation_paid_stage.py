@@ -18,6 +18,7 @@ from observe_worker_pipeline import summarize as summarize_worker
 from run_two_host_paid_comparison import CORE, PLAN, REVISION, kafka_pass
 from stage_status_refresh_images import ROOT
 from summarize_paid_kafka_lag import summarize as summarize_kafka
+from worker_separation_artifacts import directories_program, validate_seal
 from worker_separation_inventory import cpu_spec
 from worker_separation_paid_jobs import PaidJobs
 
@@ -26,7 +27,8 @@ FIXED = {'rate':60,'seconds':300,'expected_tickets':18000,'shows':60,'seats_per_
          'payment_start_duplicates':1,'callback_deliveries':3,'observer_seconds':480,'start_delay_seconds':30}
 IMAGE_HELPERS = ('observe_paid_pipeline.py','kafka_lag_observe.py','prepare_capacity_fixture.py')
 SCHEDULER = 'run_synchronized_paid_generator.py'
-ADAPTER_FILES = ('worker_separation_paid_stage.py','worker_separation_paid_jobs.py')
+ADAPTER_FILES = ('worker_separation_paid_stage.py','worker_separation_paid_jobs.py',
+                 'worker_separation_artifacts.py','worker_separation_recovery.py')
 
 
 def adapter_identity():
@@ -48,14 +50,6 @@ def stage_sources(bundle):
                 'fixed':copy.deepcopy(FIXED),'adapter_sources':adapter_identity(),'files':{name:hashlib.sha256(source.encode()).hexdigest()
                                                      for name,source in sorted(files.items())}}
     return files,contract
-
-
-def directories_program(root, arm):
-    """Fresh arm directory beneath the shared generated owner."""
-    return ("import json,os,stat;from pathlib import Path\np=Path("+repr(root)+")\n"
-            "if not p.exists():p.mkdir(mode=0o700)\n"
-            "assert p.is_dir() and not p.is_symlink() and stat.S_IMODE(p.stat().st_mode)==0o700 and p.stat().st_uid==os.geteuid()\n"
-            "q=p/"+repr(arm)+"\nq.mkdir(mode=0o700)\nprint(json.dumps({'fresh_arm_directory':True}))")
 
 
 def verify_files_program(directory, sources):
@@ -119,6 +113,8 @@ class PaidStage:
         self.record = {'decision':'ADR0198','arm':execution.arm,'customers_dispatched':False,'pass':False,
                        'pre_dispatch_qualified':False,'restoration_complete':False,'failures':[]}
         self.inventory = None
+        self.artifact_seals,self.artifact_attempts = {},[]
+        self.artifact_seals_sha256 = None
         self.inventory_sha256,self.fixture_receipt_bytes = None,None
         self._guard(5)
 
@@ -128,6 +124,8 @@ class PaidStage:
             raise ValueError('Failed journal blocks new paid actions')
         if not cleanup and adapter_identity()!=self.contract['adapter_sources']:
             raise ValueError('Paid adapter source changed after scope binding')
+        if self.artifact_seals_sha256 is not None and policy.digest(self.artifact_seals)!=self.artifact_seals_sha256:
+            raise ValueError('Original artifact ownership seals changed')
         if self.inventory_sha256 is not None and policy.digest(self.inventory)!=self.inventory_sha256:
             raise ValueError('Qualified inventory changed')
         if self.fixture_receipt_bytes is not None and (self.local/'fixture-identity.json').read_bytes()!=self.fixture_receipt_bytes:
@@ -180,8 +178,12 @@ class PaidStage:
         for site in ('primary','secondary','generator','container'):
             root=self.locations[site].rsplit('/',1)[0]
             code=directories_program(root,self.execution.arm)
+            self._write('paid-artifact-intent',{'site':site,'directory':self.locations[site]})
+            self.artifact_attempts.append(site)
             result=(self._api(code,45) if site=='container' else self._call(site,code,45))
-            if result!={'fresh_arm_directory':True}:raise ValueError('Fresh artifact owner required')
+            self.artifact_seals[site]=validate_seal(result,self.locations[site])
+            self.artifact_seals_sha256=policy.digest(self.artifact_seals)
+            self._write('paid-artifact-seal',{'site':site,'seal':self.artifact_seals[site]})
         expected={name:self.contract['files'][name] for name in IMAGE_HELPERS}
         code=("import hashlib,json;from pathlib import Path;expected="+repr(expected)+
               ";actual={name:hashlib.sha256((Path('/app/scripts')/name).read_bytes().replace(b'\\r\\n',b'\\n')).hexdigest() for name in expected};assert actual==expected;print(json.dumps({'frozen_helpers_verified':True}))")
@@ -191,7 +193,7 @@ class PaidStage:
         self.inventory_sha256=policy.digest(self.inventory)
         self.record['diagnostic_receipt']=diagnostic['receipt']
         directory=self.locations['container']
-        fixture_code=("import json,os,subprocess;from pathlib import Path;env=dict(os.environ,TEST_DATABASE_URL=os.environ['DATABASE_URL'],TEST_REDIS_URL=os.environ['REDIS_URL']);"
+        fixture_code=("import json,os,subprocess;from pathlib import Path;os.umask(0o077);env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',TEST_DATABASE_URL=os.environ['DATABASE_URL'],TEST_REDIS_URL=os.environ['REDIS_URL']);"
                       "r=subprocess.run(['python','/app/scripts/prepare_capacity_fixture.py','--output',"+
                       repr(directory+'/fixture.json')+",'--shows','60','--seats','300','--sale-hours','1'],env=env,stdin=subprocess.DEVNULL,capture_output=True,text=True,timeout=90);r.check_returncode();print(Path("+
                       repr(directory+'/fixture.json')+").read_text())")

@@ -74,7 +74,8 @@ def setup(tmp_path, monkeypatch, frozen, arm='control'):
     def remote(site,code,timeout):
         compile(code,'synthetic-paid-program','exec')
         events.append(('remote',{'site':site,'cleanup':engine.session.cleanup_mode}))
-        if 'fresh_arm_directory' in code:return {'fresh_arm_directory':True}
+        if 'fresh_arm_directory' in code:return {'fresh_arm_directory':True,
+            'root':{'device':1,'inode':2,'uid':0,'mode':0o700},'directory':{'device':1,'inode':3,'uid':0,'mode':0o700}}
         if 'frozen_helpers_verified' in code:
             if engine.session.fail=='old_helper':raise ValueError('Synthetic old helper')
             return {'frozen_helpers_verified':True}

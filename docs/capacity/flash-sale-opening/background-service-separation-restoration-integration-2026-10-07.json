@@ -1,0 +1,57 @@
+{
+  "decision": "ADR0198",
+  "recorded_at_utc": "2026-10-07T07:55:39.063988+00:00",
+  "base_revision": "bb0671cb16f2427e75a3a7aad1b0b3e059ab20ec",
+  "implemented": {
+    "paid_arm_restoration_adapter": true,
+    "sealed_artifact_cleanup": true,
+    "verified_removed_container_cleanup": true,
+    "pause_and_journal_failure_recovery": true
+  },
+  "validation": {
+    "affected_suite": {
+      "passed": 673,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 191.23,
+      "raw_evidence": "tmp/adr0153-parents-6d6f6cfccf15/qualification-tests.txt"
+    },
+    "candidate_identity_regression": {
+      "passed": 1,
+      "seconds": 1.14,
+      "raw_evidence": "tmp/adr0153-parents-fae4e0bf8592/candidate-identity-regression.txt"
+    },
+    "local_postgresql_financial_cases": 23,
+    "isolated_linux_cases": 3,
+    "transport_and_restoration": "Synthetic transports with real guarded execution primitives; not live cloud restoration.",
+    "native": "Existing real PostgreSQL financial audits, Linux observer import, exact process cleanup, and ten artifact ownership/removal cases.",
+    "development_failures": "A new mount test fixture initially failed before its intended guard; corrected and retained. Final affected suite passed.",
+    "retained_failed_evidence": [
+      "tmp/adr0153-parents-27d04229bb68/restoration-tests.txt",
+      "tmp/adr0153-parents-14d9a31b351f/qualification-tests.txt",
+      "tmp/adr0153-parents-fec7aaa14031/final-restoration-tests.txt"
+    ],
+    "owned_local_resources_removed": true,
+    "ruff_pass": true
+  },
+  "source_sha256": {
+    "scripts/worker_separation_artifacts.py": "b8d6fef718cf9f4e0abf5944fb2850d7ab796372b1f7cbd1ca3133c3d01491a3",
+    "scripts/worker_separation_recovery.py": "44133f68f92a1e61347640dbf1eb3a2f71daa9f45b5ddeb4e32830383b0cb446",
+    "scripts/worker_separation_diagnostics.py": "c7b6d11af7f378c3ab20e4fda119fcb149578e54088ad74403966c58da8f51b2",
+    "scripts/worker_separation_paid_jobs.py": "548e447d6ec0ce5f8af4f524cb79b9160e77ff0bd9f2e33a442c2db1b26285cc",
+    "scripts/worker_separation_paid_stage.py": "aaf1b57b8bc1c0d883e89bd7999f7806cf989621a97fe6933c7ea036a59bcd48"
+  },
+  "remaining": {
+    "full_comparison_runner_qualified": false,
+    "profile_registered": false,
+    "candidate_handover_identity": "Restoration creates new container IDs. RuntimeActions correctly rejects reuse of the initial original-container snapshot. A fresh, proven arm binding is required before candidate handover; no guard bypass implemented.",
+    "next": "Resolve per-arm restored identity binding, assemble and fault-qualify full guarded bootstrap/comparison, register only after qualification, then fresh live preflight/control/candidate."
+  },
+  "cloud_calls": 0,
+  "cloud_load_started": false,
+  "cloud_deployment_started": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "new_infrastructure_spend": 0,
+  "cloud_accounting_unchanged": true
+}
