@@ -9,7 +9,7 @@ The ADR0206 fixes passed 627 affected checks. The next fresh cloud scope passed 
 ## Decision
 Use the already installed kafka-python KafkaAdminClient for one read-only describe_cluster metadata request. Preserve three-second request and version-discovery limits, exact single private advertised broker verification, guaranteed close and the existing shared probe deadline. Do not subscribe, join a consumer group, publish, commit offsets or install a new runtime dependency.
 
-Qualify the readiness probe's actual direct imports inside the immutable frozen image with no network, mounts or credentials, in addition to synthetic error-path tests. Bind readiness source in the runner entry identity so fresh scopes authenticate this change. Preserve the aborted result and consumed counters; use a fresh scope for any next cloud experiment.
+Qualify the readiness probe's actual direct imports inside the immutable frozen image with no network, mounts or credentials, in addition to synthetic error-path tests. Retain readiness source in the runner entry identity so fresh scopes authenticate this change. Preserve the aborted result and consumed counters; use a fresh scope for any next cloud experiment.
 
 ## Alternatives
 Adding aiokafka would change frozen image contents solely for a diagnostic and require rebuilding/requalifying them. Ignoring Kafka readiness weakens a required gate. Reuse the deployed client's supported read-only metadata API instead.

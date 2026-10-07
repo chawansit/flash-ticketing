@@ -317,3 +317,7 @@ def test_diagnostic_root_remains_separate_from_application_principal(prepared):
     value=worker.Prepared(prepared.config,package,prepared.archive,prepared.ca_pem,prepared.target)
     assert value.target['user']=='root'
     assert value.saved['model']['services']['pgbouncer']['environment']['DB_USER']=='ticketing'
+
+
+def test_entrypoint_source_closure_has_no_duplicate_paths():
+    assert len(worker.ENTRY_FILES)==len(set(worker.ENTRY_FILES))
