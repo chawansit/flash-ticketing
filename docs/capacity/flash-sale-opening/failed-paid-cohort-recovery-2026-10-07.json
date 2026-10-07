@@ -1,0 +1,73 @@
+{
+  "decision": "ADR0172",
+  "kind": "independent_failed_paid_cohort_recovery",
+  "original_run": "adr0151-35255e50f774",
+  "original_load_pass": false,
+  "recovery_closed": true,
+  "expected_dispatched_orders": 14778,
+  "expected_paid_tickets": 14775,
+  "financial_counts": {
+    "orders": 14778,
+    "fulfilled_orders": 14775,
+    "expired_orders": 3,
+    "pending_orders": 0,
+    "payment_attempts": 14775,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 14775,
+    "bookings": 14775,
+    "tickets": 14775,
+    "payment_callbacks": 14775,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 14775,
+    "callback_delivery_target": 14775,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 14778,
+    "expected_paid": 14775,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true
+  },
+  "relationship_checks": {
+    "hold_relationship_errors": 0,
+    "booking_relationship_errors": 0,
+    "order_item_relationship_errors": 0,
+    "inventory_relationship_errors": 0,
+    "fulfilled_ticket_relationship_errors": 0,
+    "unique_issued_tickets": 14775,
+    "holds_not_past_ttl": 0
+  },
+  "checks": {
+    "post_ttl_complete": true,
+    "payments_durable": true,
+    "ticket_relationships_valid": true
+  },
+  "zero_double_booking": true,
+  "all_queues_zero": true,
+  "kafka_drained": true,
+  "generator_idle": true,
+  "original_runtime_restored": true,
+  "runtime_unchanged": true,
+  "original_failed_gate_preserved": true,
+  "original_scheduled_ticket_expectation": 18000,
+  "new_paid_runs_started_by_recovery": 0,
+  "audit_timeout_diagnosis": {
+    "error_type": "QueryCanceled",
+    "sqlstate": "57014",
+    "original_statement_timeout_seconds": 20,
+    "successful_statement_timeout_seconds": 90,
+    "relationship_query_seconds": 30.09373368503293,
+    "nested_audit_timeout_reset_corrected_for_recovery": true,
+    "application_or_customer_SLO_changed": false
+  },
+  "successful_recovery_seconds": 79.67199999999139,
+  "additional_recovery_attempts_seconds": 273.4379999999914,
+  "local_placement_envelope_tests": {
+    "passed": 75,
+    "seconds": 52.9
+  },
+  "raw_evidence": "tmp/adr0153-parents-7db6d9c5d143/recovery-verification.json",
+  "raw_evidence_sha256": "5ef2d2beaadaf54773de1f131fa2496ddab1d9d6fb9801af8f823dc1cd828449",
+  "qualification": "Financial recovery only; no new capacity or placement improvement measured."
+}

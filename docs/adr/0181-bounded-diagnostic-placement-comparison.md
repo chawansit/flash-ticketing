@@ -1,7 +1,7 @@
 # ADR0181: Bounded diagnostic placement comparison
 
 ## Status
-Accepted under the standing work envelope; complete bounded profile implemented, locally qualified and registered. Fresh cloud qualification and paid comparison remain pending.
+Accepted under the standing work envelope; the profile is implemented, locally qualified and cloud-tested. The latest 2+2 control passed and 1+3 candidate failed; no capacity improvement is qualified.
 
 ## Context
 ADR0180 qualified a separate read-only observer connection. Historical placement profiles use an application account without full statistics visibility and must remain reproducible. A complete runner needs protected staging, exact target/source binding and mandatory credential cleanup before another paid comparison.
@@ -28,3 +28,9 @@ Executed final local qualification: 27 tests passed in 28.22 seconds (helper 29.
 Cloud safety pair 52cf2dcc92f6 passed. Measured control c5ca1d43f70d stopped before paid dispatch because its diagnostic-bound inventory did not match the earlier qualification receipt. Diagnostic preflight, two runtime samples, credential cleanup, original topology restoration and safety post-TTL financial audit passed. Candidate was not run. ADR0182 corrects the receipt order and records strict abort recovery; no capacity result is inferred from this attempt.
 
 Corrected replacement safety 89c90d2cb80b passed. Measured 647e2505c995 completed both arms: control passed all required gates; candidate failed customer/expected-financial and diagnostic completeness gates. Original topology and private cleanup passed, global queues zero. Candidate rejected; do not infer a capacity gain. ADR0183 corrects bounded log headroom locally. See [paired result](../capacity/flash-sale-opening/diagnostic-placement-result-2026-10-06.json).
+
+Cloud follow-up on 2026-10-08 (Bangkok): safety pair `adr0151-1bd25f505383` passed both placements. Matched paid pair `adr0151-7912e222ec22` offered 60 journeys/s for 300 seconds per arm with unchanged images, budgets and settings. The 2+2 control passed all required gates: 18,000 customer-confirmed paid-and-issued tickets, zero customer errors or drops. The 1+3 candidate confirmed 13,499 tickets, with 23 customer errors (0.1701% of dispatched journeys) and 4,478 active-capacity drops. End-to-end worst-shard p95 rose from 2,682.99 to 12,413.85 ms; primary CPU fell only from 81.65% to 78.19%, while secondary CPU rose from 18.87% to 55.56%. Candidate rejected.
+
+Retained per-replica counters confirm callbacks reached only primary APIs in both placements. The simulator targets `http://api:8000`; local payment-pool slots decreased from four to two when the primary API count decreased, although the aggregate eight payment slots remained unchanged. This is confirmed routing affinity, not an isolated causal qualification. Status polling and callback backlog rose sharply. Correct routing in a separate decision and fixed-placement comparison before another placement or higher-load test.
+
+Independent exact-cohort recovery verified 13,513 succeeded payments and unique issued tickets, nine unpaid expired orders, valid financial relationships, zero observed duplicates, complete queues/Kafka drain, idle generator and original four-primary runtime restoration. The failed expected-18,000 gates and experiment result remain unchanged; scope is closed as `FAILED_RESTORED`. Local placement/envelope checks executed: 75 passed in 52.90 seconds. See [matched comparison and recovery evidence](../capacity/flash-sale-opening/api-placement-comparison-2026-10-08.json). This does not qualify 84 tickets/s or an hourly sale.

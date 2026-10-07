@@ -1,0 +1,346 @@
+{
+  "decision": "ADR0181",
+  "placement_decision": "ADR0174",
+  "date_bangkok": "2026-10-08",
+  "scope": "bounded_diagnostic_placement__377e5e0061bd",
+  "qualification_run": "adr0151-1bd25f505383",
+  "measured_run": "adr0151-7912e222ec22",
+  "pass": false,
+  "binding_sha256": "b0bbca7502b92730e77d2825111bf5cb529604be154b6cba146529647370e999",
+  "workload": {
+    "offered_journeys_per_second": 60,
+    "dispatch_seconds_per_arm": 300,
+    "scheduled_per_arm": 18000,
+    "generator_shards": 2,
+    "generator_active_journey_limit": 500,
+    "aggregate_api_pool_slots": 16,
+    "aggregate_api_payment_pool_slots": 8,
+    "pgbouncer_server_connection_budget": 24,
+    "factor": "API placement 2+2 versus 1+3; frozen images and other settings unchanged"
+  },
+  "arms": {
+    "control": {
+      "pass": true,
+      "failed_gates": [],
+      "stage": {
+        "stage_pass": true,
+        "customer_pass": true,
+        "offered_buyers_per_second": 60,
+        "dispatch_seconds": 300,
+        "scheduled": 18000,
+        "dispatched": 18000,
+        "customer_confirmations_by_deadline": 18000,
+        "generator_drops": 0,
+        "failed_dispatched_journeys": 0,
+        "errors_per_dispatched_journey_percent": 0.0,
+        "customer_outcomes": {
+          "fulfilled": 18000
+        },
+        "customer_http_attempts_total": 114088,
+        "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+        "p95_ms": {
+          "hold_http_p95_ms": 16.339620982762426,
+          "durable_p95_ms": 2027.1461100201122,
+          "payment_http_p95_ms": 102.79962298227474,
+          "payment_to_ticket_p95_ms": 1210.4728569975123,
+          "hold_to_ticket_p95_ms": 2682.991513982415
+        },
+        "host_cpu_percent": {
+          "primary": 81.64634876126318,
+          "secondary": 18.872402057241302
+        },
+        "aggregate_api_cpu_cores": 1.575319022209217,
+        "financial": {
+          "orders": 18000,
+          "fulfilled_orders": 18000,
+          "expired_orders": 0,
+          "pending_orders": 0,
+          "payment_attempts": 18000,
+          "pending_payment_attempts": 0,
+          "succeeded_payments": 18000,
+          "bookings": 18000,
+          "tickets": 18000,
+          "payment_callbacks": 18000,
+          "incomplete_callback_deliveries": 0,
+          "callback_delivery_attempts": 18000,
+          "callback_delivery_target": 18000,
+          "duplicate_booked_seats": 0,
+          "multi_booking_orders": 0,
+          "unpublished_outbox": 0,
+          "dead_letters": 0,
+          "expected": 18000,
+          "expected_paid": 18000,
+          "expected_callback_deliveries_per_payment": 1,
+          "pass": true,
+          "hold_deadlines_elapsed": true
+        },
+        "global_queues": {
+          "unpublished_outbox": 0,
+          "pending_refresh": 0,
+          "dead_letters": 0,
+          "pending_callback_deliveries": 0,
+          "pending_refunds": 0,
+          "reservation_stream_entries": 0,
+          "reservation_stream_pending": 0,
+          "kafka_total_lag": 0,
+          "kafka_members": 6,
+          "pass": true,
+          "pending_confirmation_receipts": 0,
+          "review_confirmation_receipts": 0,
+          "confirmation_capacity_outstanding": 0,
+          "confirmation_capacity_mismatches": 0
+        },
+        "all_four_replicas_observed": true,
+        "request_shares": [
+          0.23802849978409255,
+          0.247967818425618,
+          0.25560412421118023,
+          0.25839955757910926
+        ],
+        "private_cleanup_pass": true,
+        "failure_type": null
+      },
+      "measurements": {
+        "status_checks": 40632,
+        "status_checks_per_dispatched_journey": 2.2573333333333334,
+        "callback_backlog": {
+          "max": 84,
+          "last": 0,
+          "delta": 0,
+          "p95": 24
+        },
+        "admission_failure_deltas": {
+          "acquisition_failure:payment:global_limit": 0.0,
+          "acquisition_failure:general:role_limit": 0.0,
+          "acquisition_failure:payment:role_limit": 1.0,
+          "acquisition_failure:payment:native_limit": 0.0,
+          "acquisition_failure:payment:native_timeout": 1.0,
+          "acquisition_failure:general:native_limit": 0.0,
+          "acquisition_failure:general:native_timeout": 0.0,
+          "acquisition_failure:general:global_limit": 0.0
+        }
+      },
+      "restoration_complete": true
+    },
+    "candidate": {
+      "pass": false,
+      "failed_gates": [
+        "all_four_replicas_observed",
+        "customer_load",
+        "per_replica_traffic_distribution",
+        "post_ttl_financial",
+        "zero_double_booking",
+        "admission_failure_evidence_complete",
+        "slow_database_evidence_complete",
+        "database_wait_evidence_complete",
+        "confirmation_worker_metrics_coverage"
+      ],
+      "stage": {
+        "stage_pass": false,
+        "customer_pass": false,
+        "offered_buyers_per_second": 60,
+        "dispatch_seconds": 300,
+        "scheduled": 18000,
+        "dispatched": 13522,
+        "customer_confirmations_by_deadline": 13499,
+        "generator_drops": 4478,
+        "failed_dispatched_journeys": 23,
+        "errors_per_dispatched_journey_percent": 0.1700931814820293,
+        "customer_outcomes": {
+          "fulfilled": 13499,
+          "payment_http_503": 9,
+          "order_http_503": 14
+        },
+        "customer_http_attempts_total": 292139,
+        "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+        "p95_ms": {
+          "hold_http_p95_ms": 182.13553400710225,
+          "durable_p95_ms": 1378.1937019666657,
+          "payment_http_p95_ms": 216.00892301648855,
+          "payment_to_ticket_p95_ms": 11271.424083039165,
+          "hold_to_ticket_p95_ms": 12413.85374701349
+        },
+        "host_cpu_percent": {
+          "primary": 78.19135240906985,
+          "secondary": 55.55783253923528
+        },
+        "aggregate_api_cpu_cores": 2.752288478702069,
+        "financial": {
+          "orders": 13522,
+          "fulfilled_orders": 13513,
+          "expired_orders": 9,
+          "pending_orders": 0,
+          "payment_attempts": 13513,
+          "pending_payment_attempts": 0,
+          "succeeded_payments": 13513,
+          "bookings": 13513,
+          "tickets": 13513,
+          "payment_callbacks": 13513,
+          "incomplete_callback_deliveries": 0,
+          "callback_delivery_attempts": 13513,
+          "callback_delivery_target": 13513,
+          "duplicate_booked_seats": 0,
+          "multi_booking_orders": 0,
+          "unpublished_outbox": 0,
+          "dead_letters": 0,
+          "expected": 18000,
+          "expected_paid": 18000,
+          "expected_callback_deliveries_per_payment": 1,
+          "pass": false,
+          "hold_deadlines_elapsed": true
+        },
+        "global_queues": {
+          "unpublished_outbox": 0,
+          "pending_refresh": 0,
+          "dead_letters": 0,
+          "pending_callback_deliveries": 0,
+          "pending_refunds": 0,
+          "reservation_stream_entries": 0,
+          "reservation_stream_pending": 0,
+          "kafka_total_lag": 0,
+          "kafka_members": 6,
+          "pass": true,
+          "pending_confirmation_receipts": 0,
+          "review_confirmation_receipts": 0,
+          "confirmation_capacity_outstanding": 0,
+          "confirmation_capacity_mismatches": 0
+        },
+        "all_four_replicas_observed": null,
+        "request_shares": [],
+        "private_cleanup_pass": true,
+        "failure_type": "ValueError"
+      },
+      "measurements": {
+        "status_checks": 238053,
+        "status_checks_per_dispatched_journey": 17.60486614406153,
+        "callback_backlog": {
+          "max": 457,
+          "last": 0,
+          "delta": 0,
+          "p95": 443
+        },
+        "admission_failure_deltas": {
+          "acquisition_failure:payment:global_limit": 3.0,
+          "acquisition_failure:general:role_limit": 0.0,
+          "acquisition_failure:payment:role_limit": 13.0,
+          "acquisition_failure:payment:native_limit": 0.0,
+          "acquisition_failure:payment:native_timeout": 0.0,
+          "acquisition_failure:general:native_limit": 0.0,
+          "acquisition_failure:general:native_timeout": 0.0,
+          "acquisition_failure:general:global_limit": 14.0
+        }
+      },
+      "restoration_complete": true
+    }
+  },
+  "observed_callback_routing": {
+    "configured_api_url": "http://api:8000",
+    "observed_secondary_callbacks": 0,
+    "sample_window": "Full retained observer lifetime, including safety/replay requests; HTTP counters are not unique payments.",
+    "control": {
+      "per_replica": [
+        {
+          "host": "primary",
+          "sampled_webhook_request_delta_including_replays": 6101.0,
+          "samples": 465,
+          "monotonic": true
+        },
+        {
+          "host": "primary",
+          "sampled_webhook_request_delta_including_replays": 11906.0,
+          "samples": 465,
+          "monotonic": true
+        },
+        {
+          "host": "secondary",
+          "sampled_webhook_request_delta_including_replays": 0,
+          "samples": 465,
+          "monotonic": true
+        },
+        {
+          "host": "secondary",
+          "sampled_webhook_request_delta_including_replays": 0,
+          "samples": 465,
+          "monotonic": true
+        }
+      ],
+      "primary_payment_pool_slots": 4,
+      "aggregate_payment_pool_slots": 8
+    },
+    "candidate": {
+      "per_replica": [
+        {
+          "host": "primary",
+          "sampled_webhook_request_delta_including_replays": 13520.0,
+          "samples": 471,
+          "monotonic": true
+        },
+        {
+          "host": "secondary",
+          "sampled_webhook_request_delta_including_replays": 0,
+          "samples": 471,
+          "monotonic": true
+        },
+        {
+          "host": "secondary",
+          "sampled_webhook_request_delta_including_replays": 0,
+          "samples": 471,
+          "monotonic": true
+        },
+        {
+          "host": "secondary",
+          "sampled_webhook_request_delta_including_replays": 0,
+          "samples": 471,
+          "monotonic": true
+        }
+      ],
+      "primary_payment_pool_slots": 2,
+      "aggregate_payment_pool_slots": 8
+    }
+  },
+  "independent_candidate_recovery": {
+    "pass": true,
+    "cohort_orders": 13522,
+    "succeeded_payments_and_unique_issued_tickets": 13513,
+    "expired_unpaid_orders": 9,
+    "relationship_checks": {
+      "hold_relationship_errors": 0,
+      "booking_relationship_errors": 0,
+      "order_item_relationship_errors": 0,
+      "inventory_relationship_errors": 0,
+      "fulfilled_ticket_relationship_errors": 0,
+      "unique_issued_tickets": 13513,
+      "holds_not_past_ttl": 0
+    },
+    "zero_double_booking": true,
+    "all_queues_zero": true,
+    "kafka_drained": true,
+    "generator_idle": true,
+    "original_runtime_restored": true,
+    "original_failed_gates_preserved": true,
+    "scope_recovery_closed": true,
+    "actual_seconds": 83.43700000000536,
+    "relationship_query_seconds": 32.895760578045156,
+    "raw_evidence": "tmp/adr0153-parents-8a7defa67b15/recovery-verification.json"
+  },
+  "findings": [
+    "The 1+3 candidate failed at unchanged load; do not adopt it as a capacity improvement.",
+    "Primary CPU decreased only 3.45 percentage points while customer-confirmed tickets decreased by 4501 and end-to-end p95 increased from 2.68s to 12.41s.",
+    "All measured callbacks reached primary-host APIs; reducing primary APIs from two to one reduced callback-local payment pool slots from four to two while the aggregate budget remained eight.",
+    "Primary-only callback affinity is confirmed. Its contribution to the entire regression requires an isolated routing correction test.",
+    "Status checks rose from 2.26 to 17.60 per dispatched journey and callback backlog p95 rose from 24 to 443.",
+    "Nine unpaid orders expired; every observed succeeded payment has an issued ticket. Original expected-18000 financial/correctness gates remain failed closed.",
+    "Generator drops reflect the unchanged 500-active-journey limit, not a measured hardware maximum."
+  ],
+  "next_action": "Record an ADR and qualify routing callbacks through all four APIs. Compare routing alone on the stable 2+2 baseline before retrying placement or increasing load.",
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "hourly_qualification_started": false,
+  "84_ticket_probe_started": false,
+  "raw_comparison_evidence": "tmp/adr0151-7912e222ec22/comparison-summary.json",
+  "raw_comparison_sha256": "17655b5ffc9dbe5162ccf0fa1c863b2ef2b1b79d9f110b3b5ba73410ad9a749d",
+  "local_regression_tests": {
+    "passed": 75,
+    "seconds": 52.9
+  }
+}
