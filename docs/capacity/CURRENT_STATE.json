@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-07",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "atomic_claim_comparison_locally_qualified_registered_cloud_pending",
+  "status": "atomic_claim_matched_pair_passed_restored_modest_latency_no_capacity_gain",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -10,7 +10,7 @@
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "Original four primary APIs restored; secondary test resources absent; generator idle; fresh read-only20.984s routing check verified unchanged runtime and global queues0.",
+  "last_checked_topology": "ADR0193 both safety and paid arms restored original four primary APIs;secondary test resources absent;generator idle;global queues/Kafka0;owned image archives and credential snapshots removed.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
   "revision_note": "ADR0191 corrects only pinned fixture receipt compatibility and exact pre-dispatch recovery after base37500b9. App images and financial/workload gates unchanged; callback claim candidate not deployed.",
@@ -1093,7 +1093,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Fresh ADR0193 reservation: guarded verified-image staging, both-arm safety/post-TTL/restoration qualification, matched 60 journeys/s300s pair. Stop on failed control; keep budgets/gates fixed.",
+  "next_action": "Focus on measured background CPU imbalance: integrate and locally qualify fixed-budget background-service rebalancing on the existing secondary ECS. Keep total API, worker and database budgets and all gates unchanged; then run a controlled comparison and 84 tickets/s qualification. Atomic claim shows modest latency benefit, without the required 40% capacity increase.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -2221,11 +2221,11 @@
     ]
   },
   "latest_paid_control_report": {
-    "run": "adr0151-c8bb0a476b4c",
-    "ledger": "bounded_slow_database_diagnostics__2a65247c5103",
+    "run": "adr0151-9da9b8938ff4",
+    "ledger": "bounded_atomic_payment_claim__117aded48607",
     "status": "PASSED_RESTORED",
     "active": false,
-    "evidence": "docs/capacity/flash-sale-opening/fresh-slow-database-control-2026-10-06.json",
+    "evidence": "docs/capacity/flash-sale-opening/atomic-payment-claim-comparison-2026-10-07.json",
     "original_services_restored": true
   },
   "local_atomic_claim_export": {
@@ -2234,22 +2234,134 @@
     "locally_tested": true,
     "cloud_profile_registered": true,
     "cloud_candidate_images_built": true,
-    "cloud_candidate_deployed": false,
+    "cloud_candidate_deployed": true,
     "capacity_improvement_measured": false,
     "production_qualified": false,
     "source_manifest_sha256": "12e9e4cb3518e9962f2d51e772f72f1d1c7fa9037a6a13c9f700b65a9262bde7",
     "changed_runtime_files": [
       "src/ticketing/workers.py"
     ],
-    "evidence": "docs/capacity/flash-sale-opening/atomic-claim-source-export-2026-10-07.json"
+    "evidence": "docs/capacity/flash-sale-opening/atomic-claim-source-export-2026-10-07.json",
+    "cloud_candidate_deployed_note": "Deployed only for the completed bounded comparison; original normal services restored.",
+    "candidate_active_in_normal_deployment": false
   },
   "local_atomic_claim_runner": {
     "decision": "ADR0193",
     "implemented": true,
     "locally_tested": true,
     "profile": "atomic_payment_claim",
-    "evidence": "docs/capacity/flash-sale-opening/atomic-payment-claim-runner-local-2026-10-07.json",
-    "cloud_load_started": false,
-    "capacity_improvement_measured": false
+    "evidence": "docs/capacity/flash-sale-opening/atomic-payment-claim-comparison-2026-10-07.json",
+    "cloud_load_started": true,
+    "capacity_improvement_measured": false,
+    "cloud_comparison_finished": true,
+    "pass": true
+  },
+  "bounded_atomic_payment_claim__117aded48607": {
+    "authorization_id": "work-envelope-117aded48607",
+    "binding": {
+      "adapter_identity": {
+        "scripts/observe_two_host_pipeline.py": "0c8a95865467b479a75b8b37c63c1252b240e3f108d73824c3aee2b9675173f9",
+        "scripts/database_wait_evidence.py": "85fe63f8f437b9529984b076d691a88bb833acb39173c1f49b9391b0c9548f18",
+        "scripts/prepare_two_host_scaling.py": "665d0fce891da917b0d7a96c4404ae9269a9b543a79f9e02f1d59d6e6760746a",
+        "scripts/observe_two_host_cpu.py": "461bd4dcfe8d3951c4e9aede8c1910d24c6be9d4f7d5d8f10de5530eebb25c57",
+        "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+        "scripts/fixture_identity_evidence.py": "209c769c52410049703f6b92ecd7ef2380657fcbda5465f764a1444089827e6d",
+        "scripts/run_two_host_paid_comparison.py": "7789aaa6ca75a34e5df0aa1e680971eedf2cc8edc380914b05a2e5cfaad9f10b",
+        "scripts/qualify_two_host_deployment.py": "3108eff4468970c4d9ddf408e0fc474c007d5de8a454da408c113da5e8c46af2",
+        "scripts/collect_two_host_inventory.py": "ed4ed9442e349984e6005ae42da21d58625b1ac5e2d68745a2540e9eda8fd46c",
+        "scripts/runtime_source_identity.py": "5dd0db433abf10e79a3bf1c21ca29d28e85137e7f3e1483e9e96df35462ead80",
+        "scripts/probe_two_host_safety.py": "f61f3e718a19c158aa4c4f90a3411160facd9441d8dea9d7e53e20a0fe920bd2",
+        "scripts/run_status_refresh_comparison.py": "f2f9f97265a6c788554cebb864b0a031432c52702f24e8249815e1d9f5d210e0",
+        "scripts/status_refresh_contract.py": "98941571768e1a3984318dc22762bccc1713278f84f7acde11b61f8568932f27",
+        "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+        "scripts/work_envelope.py": "dcd2a8accfe185f2360f2f94b4f0701fe2e77196ea999524c4d3a5781c0bf4a4",
+        "scripts/pre_dispatch_abort_recovery.py": "86a60a7af28ec101acc4bab40da2eec3fb2af2c39dbc46640b3a1a9be832cdd4",
+        "scripts/historical_recovery_exception.py": "6fa77472a46c0116b1a71faf0ca643ebc191b0035d754af33ee0cc56f4ad15e7",
+        "scripts/run_work_envelope.py": "2fd7ac2d17a8639d5c214a79cece1711433e7282e73a9f43ef9b82e60b6044c4",
+        "experiment_plan": "2339aa5fa8fadfd33b4c465e5a23173fc91b39114084b71e992921a6c2c734ec",
+        "scripts/run_atomic_payment_claim_comparison.py": "3de767f22b41675630f1784bb47f12af909dbf41d3aa723e24fc29d273021bf2",
+        "scripts/atomic_payment_claim_contract.py": "c47dec4ad9f6ee322fddec6b4c40287bec6bd5ecd9990907e1f5b0967fb902f5",
+        "scripts/prepare_atomic_payment_claim.py": "b613efd4ef25cd3572e1d8d07ee370e6ba5b8e7ae5245d6b73708ede76120930",
+        "scripts/prepare_status_refresh_artifacts.py": "dd06c8574b63061dcecf69d2da9f9d0c0fa82b4df36a6c57f0c35099d9431467",
+        "scripts/status_refresh_image_install.py": "9a20736841a226feb599850b51493cf9383df89b4d8d5506a8cc4de9f9198752",
+        "scripts/stage_status_refresh_images.py": "4030728037df2634ae086aa58e943cb29b3b891f745487fbb32b63a0f0afd550",
+        "scripts/run_async_confirmation_comparison.py": "a359d3fcb94f20dec2da0c7d60aa11378642910ad59a84acf4c7c4be0ba458c8",
+        "scripts/checkout_journey_probe.py": "10b14c979133188d42aaba5a9a91ab599101922e2d284e85dbe6c03244e3a5bc",
+        "scripts/fetch_status_refresh_parents.py": "b79f31039d1fceedcd9d51a64be5fecc24beb8212078dad64d36f134a95da26d",
+        "scripts/admission_failure_evidence.py": "89a27e96ea08b636d1febef4dc8e5cfeb9404910f9bd38475a5fe7d9c80d7094",
+        "scripts/slow_database_evidence.py": "e4018d92871a13b3c58cb06cfc66adce7e1d771b1a12117c0b8f4a79f6a1d9d0",
+        "scripts/partial_timeout_profile.py": "2c75b4b42e25c106384f87ba566b4caa58c758b6d055d27688d1f811358be519",
+        "scripts/prepare_partial_timeout_reclamation.py": "0573f2a7f94177567ce58a5b9b43aee6a6bede552e1530fcb72e70b8d8b1a076",
+        "scripts/prepare_async_confirmation.py": "439904bd5571a11b90fbe6fb678e5d2cffac40c8cc3364b115258fe7224b0275",
+        "scripts/prepare_status_refresh_dedup.py": "84317c4c1e161c6ea3fc109a95485948f9777e8c4de6f28478476bde9a22343d",
+        "scripts/slow_database_contract.py": "3e32851f33277403928d0d100c681067561a78a5a440ab7b768fdfb3e5eee617",
+        "scripts/partial_timeout_contract.py": "d671b956a3936c012db23e4159e57c3a098229ec7fac55a0e904b1e28fd24a36",
+        "scripts/async_confirmation_contract.py": "4aaa3607a9e06c3d93e278db25a501311eed46a65360110bc394aaf6ed4c83d2",
+        "artifacts/partial-timeout-reclamation/manifest.json": "5fb51d138dce9b04d1c40506e861b20350d08da421a7832392f4f0c48ea9c0fa",
+        "artifacts/partial-timeout-reclamation/adr0163.patch": "6950c3f3286f0ce3f4934e16682648ab52bb3ca165bf9992dbdce32a143a2a34"
+      },
+      "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+      "artifact_sha256": "2cf2c4fb24c19fbded046d98306a2320b4f436ef66e62dd6a21719c4d593b25f",
+      "source_manifest_sha256": "343ded53be365b3df46e8451a284cfb9e0b50ab5f76af05830bc2d56f33ac214"
+    },
+    "standing_envelope": {
+      "ledger": "bounded_atomic_payment_claim__117aded48607",
+      "envelope_sha256": "76853b19c60e6dd42f28e3b6e10e37da36fb06070d88c86d4d49e6bdc6da7577"
+    },
+    "qualification_runs_authorized": 1,
+    "paid_runs_authorized": 2,
+    "safety_tickets_authorized": 4,
+    "qualification_protocols_started": 1,
+    "paid_runs_started": 2,
+    "paid_protocols_started": 2,
+    "safety_protocols_started": 4,
+    "active_run": null,
+    "scope": "Fresh ADR0193 experiment under ADR0172 standing boundaries; no replay or higher load",
+    "staging_evidence_directory": "tmp/adr0153-parents-f9d40d0944f8",
+    "qualification_arms": [
+      "control",
+      "candidate"
+    ],
+    "last_runner_report": "tmp/adr0151-9da9b8938ff4/comparison-summary.json",
+    "dry_qualification_report": "tmp/adr0151-b988fbd28ef1/comparison-summary.json",
+    "paid_protocol_arms": [
+      "control",
+      "candidate"
+    ],
+    "attempted_paid_arms": [
+      "control",
+      "candidate"
+    ]
+  },
+  "latest_atomic_claim_comparison": {
+    "evidence": "docs/capacity/flash-sale-opening/atomic-payment-claim-comparison-2026-10-07.json",
+    "both_arms_pass": true,
+    "paid_issued_each_arm": 18000,
+    "offered_journeys_per_second": 60,
+    "duration_each_arm_seconds": 300,
+    "customer_errors_each_arm": 0,
+    "double_booking_each_arm": 0,
+    "payment_loss_each_arm": 0,
+    "queues_drained": true,
+    "primary_cpu_percent": [
+      70.70700080449132,
+      70.60760843394215
+    ],
+    "hold_to_ticket_worst_shard_p95_ms": [
+      1835.5869560036808,
+      1667.5999260041863
+    ],
+    "claim_mean_ms": [
+      9.246683827915184,
+      8.641791797869748
+    ],
+    "capacity_improvement_measured": false,
+    "hourly_qualified": false
+  },
+  "standing_experiment_accounting": {
+    "registered_experiments": 11,
+    "actual_elapsed_seconds": 14324.329999999987,
+    "reserved_seconds": 39600,
+    "maximum_new_infrastructure_spend": 0
   }
 }
