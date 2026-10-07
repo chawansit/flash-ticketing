@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "decision": "ADR0192",
+  "implementation_decision": "ADR0189",
+  "implemented": true,
+  "locally_tested": true,
+  "cloud_calls": 0,
+  "cloud_profile_registered": false,
+  "cloud_candidate_images_built": false,
+  "cloud_candidate_deployed": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "implementation_revision": "7ca20ed3e541f1853a937a991e40383f3854a1e3",
+  "parent_worker_sha256": "42073129f3b3e9735edb468b50f15b274d7d5c7ac8bbda52a6e85c6d6bc752ce",
+  "candidate_worker_sha256": "b33b3fb001b56ed48864d13d28b19166408b5ddf73d9c42d2d12af1a980fbd8f",
+  "source_manifest_sha256": "12e9e4cb3518e9962f2d51e772f72f1d1c7fa9037a6a13c9f700b65a9262bde7",
+  "runtime_modules_verified": 21,
+  "dependency_and_source_files_verified": 213,
+  "changed_runtime_files": [
+    "src/ticketing/workers.py"
+  ],
+  "delivery_and_acknowledgement_ast_unchanged": true,
+  "other_worker_ast_unchanged": true,
+  "unit_tests": {
+    "passed": 8,
+    "failed": 0,
+    "pytest_seconds": 31.74
+  },
+  "native_tests": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "pytest_seconds": 1.69,
+    "orchestration_seconds": 8.5,
+    "postgres_image": "sha256:00bc86618629af00d2937fdc5a5d63db3ff8450acf52f0636ec813c7f4902929",
+    "exported_runtime_import_verified": true,
+    "owned_temporary_database_removed": true,
+    "cases": [
+      "24 concurrent claims produce one delivery",
+      "claim and acknowledgement use two SQL statements; HTTP outside claim transaction",
+      "rolled-back claim is available",
+      "stale lease-token acknowledgement cannot update replacement",
+      "lost commit response sends no HTTP; recovery after lease expiry; duplicate callbacks and paid-event replay retain one ticket"
+    ]
+  },
+  "ruff_pass": true,
+  "test_warning": "Pytest cache could not write its optional cache directory; executed tests passed. No correctness check was skipped.",
+  "initial_local_connection_checks": "Port 5432 timed out; native service on 5433 rejected the Compose test credentials. No service configuration changed. Qualification then used a fresh owned local PostgreSQL 17.6 container with isolated test schemas and exact-identity cleanup.",
+  "accounting": {
+    "local_test_orchestration_seconds": 8.5,
+    "unit_pytest_seconds": 31.74,
+    "initial_connection_command_seconds": 6.488,
+    "new_registered_cloud_experiments": 0,
+    "new_infrastructure_spend": 0,
+    "editing_review_and_export_wall_time_not_separately_measured": true
+  },
+  "raw_evidence_sha256": {
+    "tmp/adr0192-atomic-claim-source-2026-10-07/atomic-claim-source-receipt.json": "582c725880730f426d50b2f24b16677da2845813ebd59539cb8f276497e159ea",
+    "tmp/adr0192-native-44897e7e8779/result.json": "fa4bbc6887132c21269a66a0ad3202592ee7d03961115bb16fdc752a23e4e355",
+    "tmp/adr0192-native-44897e7e8779/pytest.txt": "69c6d94baa69d8f52353c92f2081c09cdc8aa5150ce3272d89b430d2d18bed8b",
+    "tmp/adr0192-native-44897e7e8779/junit.xml": "aee94f2225f1e4f392efb1cc31572442baf6139ef9ca9668abd28e6dcd25f334"
+  },
+  "next_action": "Integrate and locally qualify a registered one-factor cloud comparison with arm-specific pinned image/source receipts; keep 60 journeys/s for 300 seconds, 2+2 APIs and aggregate budgets unchanged. Cloud mutation requires fresh reservation, image proof, all original financial/post-TTL/queue/restoration gates and a passing control."
+}

@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-07",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "fresh_60_journey_control_passed_restored_callback_candidate_unmeasured",
+  "status": "fresh_control_published_atomic_claim_frozen_source_locally_qualified",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -148,7 +148,9 @@
     "scope_adjustment": "Automatic approval review rejected full engineering-branch push as beyond ADR authorization. Separate reviewed docs-only snapshot published successfully.",
     "latest_adr": "ADR0171",
     "latest_evidence": "docs/capacity/flash-sale-opening/slow-database-diagnostic-control-2026-10-06.json",
-    "latest_receipt": "tmp/adr0171-documentation-publication.json"
+    "latest_receipt": "tmp/adr0171-documentation-publication.json",
+    "latest_control_commit": "1eba4ec230753772cfebf61deb36f4bb272f1ea1",
+    "latest_control_evidence_pushed": true
   },
   "evidence": [
     "docs/capacity/flash-sale-opening/separate-diagnostic-connection-validation-2026-10-06.json",
@@ -206,7 +208,8 @@
     "docs/capacity/flash-sale-opening/payment-stall-diagnostic-control-2026-10-06.json",
     "docs/capacity/flash-sale-opening/slow-database-diagnostic-control-2026-10-06.json",
     "tmp/adr0151-d7e8f730fc58/comparison-summary.json",
-    "docs/capacity/flash-sale-opening/fresh-slow-database-control-2026-10-06.json"
+    "docs/capacity/flash-sale-opening/fresh-slow-database-control-2026-10-06.json",
+    "docs/capacity/flash-sale-opening/atomic-claim-source-export-2026-10-07.json"
   ],
   "isolated_coalescing_candidate": {
     "revision": "dfb11bc8b6907bcaf2b9cde3d7e2f7ddf1724a19",
@@ -1090,7 +1093,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Register and locally qualify a one-factor ADR0189 callback-claim comparison against this control at unchanged load, topology and budgets; do not increase load before candidate and correctness gates pass.",
+  "next_action": "Integrate and locally qualify a registered one-factor cloud comparison with arm-specific pinned image/source receipts; keep 60 journeys/s for 300 seconds, 2+2 APIs and aggregate budgets unchanged. Cloud mutation requires fresh reservation, image proof, all original financial/post-TTL/queue/restoration gates and a passing control.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1800,7 +1803,10 @@
     "local_atomic_payment_claim_pytest_seconds_this_checkpoint": 29.78,
     "local_atomic_payment_claim_comparison_seconds_this_checkpoint": 1.157,
     "atomic_payment_claim_accounting_note": "Recorded local test durations include the initial three fixture failures and corrected event-consumption/replay tests. Local microbenchmark elapsed recorded separately; editing/review not timed. No cloud experiment/reservation/spending change.",
-    "latest_experiment_actual_seconds": 1358.375
+    "latest_experiment_actual_seconds": 1358.375,
+    "local_atomic_claim_export_unit_pytest_seconds": 31.74,
+    "local_atomic_claim_export_native_orchestration_seconds": 8.5,
+    "local_atomic_claim_export_initial_connection_command_seconds": 6.488
   },
   "bounded_application_role_rebalance__3ae1fd15417b": {
     "authorization_id": "work-envelope-3ae1fd15417b",
@@ -2062,7 +2068,7 @@
     },
     "cloud_adopted": false,
     "capacity_improvement_measured": false,
-    "remaining": "Register and locally qualify a one-factor ADR0189 callback-claim comparison against this control at unchanged load, topology and budgets; do not increase load before candidate and correctness gates pass.",
+    "remaining": "Integrate and locally qualify a registered one-factor cloud comparison with arm-specific pinned image/source receipts; keep 60 journeys/s for 300 seconds, 2+2 APIs and aggregate budgets unchanged. Cloud mutation requires fresh reservation, image proof, all original financial/post-TTL/queue/restoration gates and a passing control.",
     "deferred": "General worker-adapter expansion and unrelated tooling refinements"
   },
   "paid_fixture_recovery_inspection": {
@@ -2221,5 +2227,20 @@
     "active": false,
     "evidence": "docs/capacity/flash-sale-opening/fresh-slow-database-control-2026-10-06.json",
     "original_services_restored": true
+  },
+  "local_atomic_claim_export": {
+    "decision": "ADR0192",
+    "implemented": true,
+    "locally_tested": true,
+    "cloud_profile_registered": false,
+    "cloud_candidate_images_built": false,
+    "cloud_candidate_deployed": false,
+    "capacity_improvement_measured": false,
+    "production_qualified": false,
+    "source_manifest_sha256": "12e9e4cb3518e9962f2d51e772f72f1d1c7fa9037a6a13c9f700b65a9262bde7",
+    "changed_runtime_files": [
+      "src/ticketing/workers.py"
+    ],
+    "evidence": "docs/capacity/flash-sale-opening/atomic-claim-source-export-2026-10-07.json"
   }
 }
