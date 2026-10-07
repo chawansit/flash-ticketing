@@ -171,12 +171,12 @@ def clients(monkeypatch,bad=None):
     monkeypatch.setitem(sys.modules,'redis',SimpleNamespace(Redis=Cache))
     class Kafka:
         def __init__(self,**kw):
-            self.cluster=SimpleNamespace(brokers=lambda:[SimpleNamespace(host='public' if bad=='metadata' else '10.0.0.1',port=19092)])
-        async def bootstrap(self):
+            assert kw['request_timeout_ms']==3000 and kw['api_version_auto_timeout_ms']==3000
+        def describe_cluster(self):
             if bad=='kafka':raise TimeoutError('Synthetic Kafka timeout')
-        async def close(self):records['kafka_closed']=True
-    monkeypatch.setitem(sys.modules,'aiokafka',SimpleNamespace())
-    monkeypatch.setitem(sys.modules,'aiokafka.client',SimpleNamespace(AIOKafkaClient=Kafka))
+            return {'brokers':[{'host':'public' if bad=='metadata' else '10.0.0.1','port':19092}]}
+        def close(self):records['kafka_closed']=True
+    monkeypatch.setitem(sys.modules,'kafka.admin',SimpleNamespace(KafkaAdminClient=Kafka))
     import urllib.request
     class Response:
         status=200
@@ -244,3 +244,21 @@ def test_pooler_query_overrides_remain_forbidden(query):
         env['DATABASE_URL']=env['DATABASE_URL'].split('?')[0]+'?'+query
     with pytest.raises(ValueError,match='overrides'):
         readiness.dependency_context(engine,CA)
+
+
+def test_actual_readiness_imports_exist_in_immutable_frozen_image():
+    import ast
+    import inspect
+    import re
+    import subprocess
+
+    from stage_status_refresh_images import new_stage_output
+    image=os.environ.get('ADR0198_LOCAL_LINUX_IMAGE')
+    if image is None:pytest.skip('Explicit immutable local Linux image required')
+    assert re.fullmatch(r'sha256:[0-9a-f]{64}',image)
+    tree=ast.parse(inspect.getsource(readiness.probe));imports=[ast.unparse(node) for node in tree.body[0].body if isinstance(node,(ast.Import,ast.ImportFrom))]
+    body='\n'.join(imports)+'\nprint("readiness_imports_passed")\n'
+    result=subprocess.run(['docker','run','--rm','--pull=never','--name',new_stage_output().name+'-readiness-imports',
+        '--network=none','--read-only','--user=65534:65534','--cap-drop=ALL','--security-opt=no-new-privileges',
+        '--entrypoint=python',image,'-c',body],capture_output=True,text=True,timeout=30,check=False)
+    assert result.returncode==0 and result.stdout.strip()=='readiness_imports_passed',result.stderr

@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "decisions": [
+    "ADR0206",
+    "ADR0207"
+  ],
+  "base_revision": "7ced9d055b8fcd3ae60f7b27f1293ac58593c21f",
+  "recorded_at_utc": "2026-10-07T12:30:16.012938+00:00",
+  "run": "adr0153-parents-543471440d66",
+  "status": "FAILED_RESTORED",
+  "original_failed_result_preserved": true,
+  "scope_reopened": false,
+  "allowances_refunded": false,
+  "staging_passed_on_both_hosts": true,
+  "common_runtime_validation_passed": true,
+  "customer_dispatches": 0,
+  "paid_runs_started": 0,
+  "candidate_started": false,
+  "root_cause": "Readiness imported aiokafka, absent from frozen application images; project and images use kafka-python. Mock tests concealed the missing dependency.",
+  "recovery": {
+    "original_runtime_restored": true,
+    "retained_inventory_preserved": true,
+    "broker_volumes_retained": true,
+    "secondary_empty": true,
+    "private_configuration_cleaned": true,
+    "archive_owners_absent": true,
+    "generator_idle": true,
+    "zero_double_booking": true,
+    "all_queues_zero": true,
+    "queue_counts": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "pending_callback_deliveries": 0,
+      "pending_refunds": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "kafka_total_lag": 0,
+      "kafka_members": 1,
+      "pass": true,
+      "pending_confirmation_receipts": 0,
+      "review_confirmation_receipts": 0,
+      "confirmation_capacity_outstanding": 0,
+      "confirmation_capacity_mismatches": 0
+    },
+    "financial_cohort": "not_created",
+    "evidence": "tmp/adr0153-parents-0f5bc6456337/recovery-closure.json",
+    "accounted_seconds": 78.42199999999674,
+    "note": "Includes measured failed read-only CA-text diagnostic (33.438s). Subsequent read-only import diagnostic did not separately record elapsed seconds; no duration invented."
+  },
+  "implementation": {
+    "readiness_client": "Existing kafka-python KafkaAdminClient read-only describe_cluster",
+    "client_limits_ms": {
+      "request": 3000,
+      "version_discovery": 3000
+    },
+    "exact_private_broker_gate_preserved": true,
+    "always_close": true,
+    "no_group_subscription_or_offset_commit": true,
+    "frozen_backend_images_changed": false,
+    "readiness_source_bound_to_fresh_runner_identity": true,
+    "actual_image_import_regression": "Probe imports executed with no network, mounts or credentials inside the immutable frozen consumer image"
+  },
+  "tests": {
+    "bootstrap_recovery_extension": {
+      "passed": 54,
+      "failed": 0,
+      "pytest_seconds": 1.53,
+      "evidence": "tmp/adr0206-recovery-final-extension.txt"
+    },
+    "final_readiness_recovery_profile_suite": {
+      "passed": 156,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 78.1,
+      "includes_actual_frozen_image_import_test": true,
+      "evidence": "tmp/adr0207-readiness-tests.txt"
+    }
+  },
+  "accounting": {
+    "recorded_experiments": 14,
+    "cumulative_actual_experiment_seconds": 14808.377,
+    "cumulative_reserved_seconds": 50400,
+    "read_only_snapshot_seconds": 32.172,
+    "local_package_seconds": 19.86,
+    "new_infrastructure_spend": 0,
+    "cumulative_time_cap": null
+  },
+  "cloud_customer_load_started": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "next_action": "Fresh snapshot and package, then one registered matched 60-journey/s 300-second control; candidate only after all control gates. Never reuse consumed scopes or packages."
+}

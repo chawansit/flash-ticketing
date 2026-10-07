@@ -41,7 +41,10 @@ def zero_dispatch_bootstrap(report):
     return (isinstance(arm,dict) and set(arm)==fields and arm.get('arm')=='control'
             and arm.get('status')=='RECOVERY_REQUIRED' and arm.get('pass') is False
             and arm.get('customers_dispatched') is False and arm.get('zero_dispatch_proven') is True
-            and arm.get('restoration_complete') is False
+            and (arm.get('restoration_complete') is False or (arm.get('restoration_complete') is True
+                and isinstance(arm.get('bootstrap_recovery'),dict)
+                and all(arm['bootstrap_recovery'].get(name)=={'runtime_restored':True,'broker_volume_retained':True,'bind_files_restored':True,'secondary_empty':True}
+                        for name in ('restore_bootstrap_original','verify_bootstrap_restoration'))))
             and isinstance(arm.get('bootstrap_recovery'),dict)
             and arm['bootstrap_recovery'].get('bootstrap_zero_dispatch')=={'financial_cohort':'not_created','zero_dispatch':True}
             and isinstance(arm.get('events'),list) and arm['events'][:7]==[

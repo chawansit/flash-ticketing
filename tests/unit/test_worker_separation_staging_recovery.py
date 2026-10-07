@@ -176,3 +176,16 @@ def test_empty_entrypoint_equivalence_cannot_hide_other_runtime_changes(change):
     elif change=='unsealed':saved['model']['services'][row['Config']['Labels']['com.docker.compose.service']]['entrypoint']=None
     else:original.pop()
     with pytest.raises(ValueError):recovery.verify_restored_runtime(saved,original,observed,volumes,hashes)
+
+
+def test_bootstrap_automatic_restoration_with_failed_audits_still_requires_independent_receipt(case,tmp_path,monkeypatch):
+    case=bootstrap_case(case);state,journal,report,_package,_config=case
+    arm=report['arms']['control'];arm['restoration_complete']=True
+    checks={'runtime_restored':True,'broker_volume_retained':True,'bind_files_restored':True,'secondary_empty':True}
+    for name in ('restore_bootstrap_original','verify_bootstrap_restoration'):arm['bootstrap_recovery'][name]=checks.copy()
+    state['ledger']['worker_result_sha256']=policy.digest(report);journal['experiments'][0]['result_sha256']=policy.digest(report)
+    records,_writes,evidence,receipt=setup_close(case,tmp_path,monkeypatch)
+    receipt.update(decision='ADR0206',original_runtime_restored=True,private_configuration_cleaned=True,restore_checks=checks)
+    evidence.write_text(json.dumps(receipt))
+    assert recovery.close('ledger',case[2],case[3],case[4],evidence)['status']=='FAILED_RESTORED'
+    assert records['state']['current_run'] is None

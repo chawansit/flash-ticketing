@@ -33,7 +33,7 @@ ENTRY_FILES=('worker_separation_profile.py','work_envelope.py','run_work_envelop
              'worker_separation_retained.py','worker_separation_snapshot.py','worker_separation_runtime.py',
              'worker_separation_staging.py','worker_separation_runner.py','worker_separation_topology.py',
              'worker_separation_execution.py','worker_separation_readiness.py','worker_separation_staging_recovery.py',
-             'two_host_topology.py')
+             'two_host_topology.py','worker_separation_readiness.py')
 
 
 def entry_identity():

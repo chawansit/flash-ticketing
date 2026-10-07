@@ -55,7 +55,6 @@ def dependency_context(execution, ca_pem):
 
 def probe(context):
     """Executed only inside an owned probe; authenticate/read, never process business data."""
-    import asyncio
     import ipaddress
     import json
     import os
@@ -65,7 +64,7 @@ def probe(context):
     from urllib.parse import urlsplit
 
     import psycopg
-    from aiokafka.client import AIOKafkaClient
+    from kafka.admin import KafkaAdminClient
     from redis import Redis
 
     def private(host, port):
@@ -108,17 +107,15 @@ def probe(context):
     finally:
         cache.close()
 
-    async def metadata():
-        client = AIOKafkaClient(bootstrap_servers=context['kafka'], request_timeout_ms=3000)
-        try:
-            await asyncio.wait_for(client.bootstrap(), timeout=4)
-            observed = list(client.cluster.brokers())
-            brokers = {(b.host, b.port) for b in observed}
-            if len(observed) != 1 or brokers != {(context['primary'], 19092)}:
-                raise ValueError('Exact private Kafka advertised broker required')
-        finally:
-            await client.close()
-    asyncio.run(asyncio.wait_for(metadata(), timeout=6))
+    client = KafkaAdminClient(bootstrap_servers=context['kafka'], request_timeout_ms=3000,
+                              api_version_auto_timeout_ms=3000)
+    try:
+        observed = client.describe_cluster()['brokers']
+        brokers = {(b['host'], b['port']) for b in observed}
+        if len(observed) != 1 or brokers != {(context['primary'], 19092)}:
+            raise ValueError('Exact private Kafka advertised broker required')
+    finally:
+        client.close()
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
     if len(context['api_urls']) != 4 or len(set(context['api_urls'])) != 4:
         raise ValueError('Four distinct observed API endpoints required')

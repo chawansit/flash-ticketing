@@ -354,3 +354,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0205: Host-independent image content identity](0205-host-independent-image-content-identity.md)
 
 - [ADR0206: Resolved published port identity](0206-resolved-published-port-identity.md)
+
+- [ADR0207: Existing Kafka client for dependency readiness](0207-existing-kafka-client-readiness.md)
