@@ -227,6 +227,29 @@
         }
       ],
       "finished_at_utc": "2026-10-06T15:51:54.808161+00:00"
+    },
+    {
+      "ledger": "bounded_slow_database_diagnostics__2a65247c5103",
+      "authorization_id": "work-envelope-2a65247c5103",
+      "envelope_sha256": "7532a85e603674f28d77d6ef1dfa049beb66343059f8ba0a0aa675edf82016d1",
+      "binding_sha256": "4d0a605baecb4d58726b559142194a1fd432097fc4d00e15247a471962d4e850",
+      "plan_sha256": "c99fc97e545e5a0b0552351a1cf0a6b0a8ca0897cf101423e2e9da9522cd584f",
+      "profile": "slow_database_control",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1358.375,
+      "started_at_utc": "2026-10-06T16:02:57.139470+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-98d66aca4c67",
+          "pass": true
+        },
+        {
+          "run": "adr0151-c8bb0a476b4c",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-06T16:25:35.599536+00:00"
     }
   ],
   "verified_aborts": {

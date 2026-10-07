@@ -1,8 +1,8 @@
 {
-  "updated_date_bangkok": "2026-10-06",
+  "updated_date_bangkok": "2026-10-07",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "pinned_fixture_format_corrected_zero_dispatch_abort_verified_control_retry_ready",
+  "status": "fresh_60_journey_control_passed_restored_callback_candidate_unmeasured",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -66,7 +66,8 @@
     "ADR0189 focused callback claim correction:36 native/unit tests/Ruff passed;24 concurrent claims yield1 dispatch/paid-issued ticket with replay safety. Simulator successful-delivery SQL3=>2; local alternating rollback-only claim median2.830=>2.297ms (18.83% lower). No cloud deployment/throughput claim; recovery/gates/scopes unchanged.",
     "Fresh exact-path read-only paid-fixture inspection:16 retained host/container artifact locations checked,0 available; primary runtime unchanged, generator idle, all checked global queues0. Exact prior paid ownership remains missing; no recovery clearance or cloud load.",
     "ADR0190 user explicitly accepted missing historical fixture information;126 exception/envelope/retention tests and129 affected orchestration tests passed. Fresh24.219s read-only restoration passed all8 exception gates;append-only receipt installed,all original ledger experiment entries unchanged. Old paid failure remains unreconciled;fresh registered admission available.",
-    "New qualification0013af72d51b:100concurrent=>1hold/1paid-issued ticket,replays/authorization/post-TTL/duplicate callbacks/queues/restoration passed;paid stages0. Pinned producer omitted fixture_layout;receipt stopped before minting/dispatch. ADR0191 normalizes only exact99d091 producer.242 affected tests plus93 final abort/envelope checks passed;fresh22.391s strict zero-paid abort verified. Original failure/scopes unchanged;fresh control retry pending."
+    "New qualification0013af72d51b:100concurrent=>1hold/1paid-issued ticket,replays/authorization/post-TTL/duplicate callbacks/queues/restoration passed;paid stages0. Pinned producer omitted fixture_layout;receipt stopped before minting/dispatch. ADR0191 normalizes only exact99d091 producer.242 affected tests plus93 final abort/envelope checks passed;fresh22.391s strict zero-paid abort verified. Original failure/scopes unchanged;fresh control retry pending.",
+    "Fresh registered control adr0151-c8bb0a476b4c: 18000/18000 paid-and-issued customer confirmations, zero customer errors/drops/double-booking/payment loss, post-TTL and global/Kafka queues passed, original runtime restored. No ADR0189 or hourly improvement claim."
   ],
   "unresolved": "1+3 failed: 24 customer errors, 2,946 drops, 16.14 status checks/journey and payment-pool saturation. Primary-only callback routing reduces reachable callback pool capacity from four to two in the candidate. Standing ledger remains RECOVERY_REQUIRED despite completed owned restoration; strict paid-run recovery verification is needed before more load. 84/s, the single-show 18,000-seat projection, flash opening and hourly qualification remain unqualified.",
   "next_on_resume": [
@@ -75,7 +76,7 @@
     "Locally qualify the entire extension and registry before a fresh matched full-visibility placement comparison."
   ],
   "authorization": "Standing envelope: existing resources only, zero new infrastructure spend, no cumulative cap, bounded tracked experiments, exact customer/correctness gates, codex branch publication only. ADR0180 reuses already supplied administrator access only in a read-only observer; no grants or infrastructure changes needed.",
-  "scope": "Verified existing supplied root monitoring access with read-only certificate-verified TLS; implemented and locally tested the separate observer connection. No cloud load or permission change. Complete bounded-runner integration before execution.",
+  "scope": "Fresh frozen synchronous control on existing resources; same 2+2 APIs, workload and aggregate connection budgets. No ADR0189 candidate, higher-rate or hourly qualification.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -204,7 +205,8 @@
     "tmp/adr0151-3f6e2d8a0021/comparison-summary.json",
     "docs/capacity/flash-sale-opening/payment-stall-diagnostic-control-2026-10-06.json",
     "docs/capacity/flash-sale-opening/slow-database-diagnostic-control-2026-10-06.json",
-    "tmp/adr0151-d7e8f730fc58/comparison-summary.json"
+    "tmp/adr0151-d7e8f730fc58/comparison-summary.json",
+    "docs/capacity/flash-sale-opening/fresh-slow-database-control-2026-10-06.json"
   ],
   "isolated_coalescing_candidate": {
     "revision": "dfb11bc8b6907bcaf2b9cde3d7e2f7ddf1724a19",
@@ -437,7 +439,7 @@
     "all_required_gates_pass": true,
     "comparison_report": "docs/capacity/flash-sale-opening/status-refresh-paid-replacement-comparison-2026-10-05.json"
   },
-  "latest_checkpoint_evidence": "docs/capacity/flash-sale-opening/fixture-format-abort-recovery-2026-10-06.json",
+  "latest_checkpoint_evidence": "docs/capacity/flash-sale-opening/fresh-slow-database-control-2026-10-06.json",
   "archived_status_refresh_scopes": [
     {
       "authorization_id": "adr0151-status-refresh-pair-2026-10-05",
@@ -618,7 +620,7 @@
       "qualification_report": "docs/capacity/flash-sale-opening/status-refresh-dispatch-qualification-2026-10-05.json"
     }
   ],
-  "qualified_runner_revision": "f24ad70e8bc77807f703ca9f10dbc687b5d9f905",
+  "qualified_runner_revision": "99a11ecfffc5647a6633bf1faa0666e28dbd09ec",
   "checkpoint_revision_note": "References preceding verified engineering checkpoint. Executed ADR0171 harness revision and original plan binding are retained separately in measured evidence; future metadata guard passed256 local tests.",
   "local_dispatch_inventory_qualification": {
     "decision": "0155-dispatch-time-inventory-qualification",
@@ -1088,7 +1090,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Retry one fresh registered slow_database_control at60journeys/s300s after ADR0191 source-pinned producer compatibility correction and verified zero-paid-dispatch abort. Retain fixture receipts before token minting; preserve every current safety, customer, financial, post-TTL, double-booking, full-queue and restoration gate. Stop on failed control. No historical paid reconciliation or candidate benefit claim.",
+  "next_action": "Register and locally qualify a one-factor ADR0189 callback-claim comparison against this control at unchanged load, topology and budgets; do not increase load before candidate and correctness gates pass.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -1450,7 +1452,7 @@
       "control"
     ]
   },
-  "unresolved_issue": "Old historical paid fixture remains unreconciled under user-approved ADR0190 exception. Fresh qualification format abort is verified under ADR0191 with zero paid dispatch and unchanged failed scope. Fresh control capacity, ADR0189 candidate benefit and84paid-issued/s still unqualified.",
+  "unresolved_issue": "ADR0189 cloud benefit and 84 paid-issued tickets/s remain unqualified. Primary CPU pressure, recovered internal callback pool timeouts and intermittent commit latency remain measured concerns. Original paid-fixture identity remains missing under the explicit ADR0190 historical exception; this fresh run is fully reconciled.",
   "api_placement_rebalance": {
     "decision": "ADR0174",
     "profile": "api_placement_rebalance",
@@ -1765,9 +1767,9 @@
     ]
   },
   "work_envelope_accounting": {
-    "recorded_experiments": 8,
-    "cumulative_actual_experiment_seconds": 10001.751,
-    "cumulative_reserved_experiment_seconds": 28800,
+    "recorded_experiments": 10,
+    "cumulative_actual_experiment_seconds": 11665.564,
+    "cumulative_reserved_experiment_seconds": 36000,
     "read_only_recovery_seconds_outside_experiments_this_checkpoint": 17.156,
     "cumulative_time_cap": null,
     "new_infrastructure_spend": 0,
@@ -1797,7 +1799,8 @@
     "worker_runtime_accounting_note": "Sum of executed pytest durations, including initial failed fixtures and repeated qualification after corrections. Editing/review and other checks were not separately timed; cloud accounting unchanged.",
     "local_atomic_payment_claim_pytest_seconds_this_checkpoint": 29.78,
     "local_atomic_payment_claim_comparison_seconds_this_checkpoint": 1.157,
-    "atomic_payment_claim_accounting_note": "Recorded local test durations include the initial three fixture failures and corrected event-consumption/replay tests. Local microbenchmark elapsed recorded separately; editing/review not timed. No cloud experiment/reservation/spending change."
+    "atomic_payment_claim_accounting_note": "Recorded local test durations include the initial three fixture failures and corrected event-consumption/replay tests. Local microbenchmark elapsed recorded separately; editing/review not timed. No cloud experiment/reservation/spending change.",
+    "latest_experiment_actual_seconds": 1358.375
   },
   "bounded_application_role_rebalance__3ae1fd15417b": {
     "authorization_id": "work-envelope-3ae1fd15417b",
@@ -1933,7 +1936,7 @@
       "control"
     ]
   },
-  "latest_cloud_evidence": "docs/capacity/flash-sale-opening/diagnostic-placement-result-2026-10-06.json",
+  "latest_cloud_evidence": "docs/capacity/flash-sale-opening/fresh-slow-database-control-2026-10-06.json",
   "latest_recovery_receipt": "docs/capacity/flash-sale-opening/pre-dispatch-abort-recovery-2026-10-06.json",
   "bounded_diagnostic_placement__9647f50ed259": {
     "authorization_id": "work-envelope-9647f50ed259",
@@ -2059,7 +2062,7 @@
     },
     "cloud_adopted": false,
     "capacity_improvement_measured": false,
-    "remaining": "Fixed-workload cloud comparison and hourly qualification after required recovery; other performance causes remain unresolved",
+    "remaining": "Register and locally qualify a one-factor ADR0189 callback-claim comparison against this control at unchanged load, topology and budgets; do not increase load before candidate and correctness gates pass.",
     "deferred": "General worker-adapter expansion and unrelated tooling refinements"
   },
   "paid_fixture_recovery_inspection": {
@@ -2143,5 +2146,80 @@
       "control"
     ],
     "last_runner_report": "tmp/adr0151-0013af72d51b/comparison-summary.json"
+  },
+  "bounded_slow_database_diagnostics__2a65247c5103": {
+    "authorization_id": "work-envelope-2a65247c5103",
+    "binding": {
+      "adapter_identity": {
+        "scripts/observe_two_host_pipeline.py": "ffe759b5f61fb92ea89076f47a4731388af0e058557403a50548b2895fade870",
+        "scripts/database_wait_evidence.py": "85fe63f8f437b9529984b076d691a88bb833acb39173c1f49b9391b0c9548f18",
+        "scripts/prepare_two_host_scaling.py": "665d0fce891da917b0d7a96c4404ae9269a9b543a79f9e02f1d59d6e6760746a",
+        "scripts/observe_two_host_cpu.py": "461bd4dcfe8d3951c4e9aede8c1910d24c6be9d4f7d5d8f10de5530eebb25c57",
+        "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+        "scripts/fixture_identity_evidence.py": "209c769c52410049703f6b92ecd7ef2380657fcbda5465f764a1444089827e6d",
+        "scripts/run_two_host_paid_comparison.py": "352dc91cd69556c849e11fb078d0585021d27c5f9049707f43b4cdf260600a83",
+        "scripts/qualify_two_host_deployment.py": "3108eff4468970c4d9ddf408e0fc474c007d5de8a454da408c113da5e8c46af2",
+        "scripts/collect_two_host_inventory.py": "ed4ed9442e349984e6005ae42da21d58625b1ac5e2d68745a2540e9eda8fd46c",
+        "scripts/runtime_source_identity.py": "5dd0db433abf10e79a3bf1c21ca29d28e85137e7f3e1483e9e96df35462ead80",
+        "scripts/probe_two_host_safety.py": "f61f3e718a19c158aa4c4f90a3411160facd9441d8dea9d7e53e20a0fe920bd2",
+        "scripts/run_status_refresh_comparison.py": "f2f9f97265a6c788554cebb864b0a031432c52702f24e8249815e1d9f5d210e0",
+        "scripts/status_refresh_contract.py": "98941571768e1a3984318dc22762bccc1713278f84f7acde11b61f8568932f27",
+        "scripts/two_host_topology.py": "14e3d75ad4bc633d4b50315c15e6e6accb58f6d4e78fd0394cef9be5078bc9d4",
+        "scripts/work_envelope.py": "41382fc00eb38a164f3501a41566b25d91cb069f8381ba1b536e416fd2f1a57e",
+        "scripts/pre_dispatch_abort_recovery.py": "86a60a7af28ec101acc4bab40da2eec3fb2af2c39dbc46640b3a1a9be832cdd4",
+        "scripts/historical_recovery_exception.py": "6fa77472a46c0116b1a71faf0ca643ebc191b0035d754af33ee0cc56f4ad15e7",
+        "scripts/run_work_envelope.py": "4e959d30ceb7d942a390595c29d7e58ba7b040b83f5f8b8b8cc03d541fd403d8",
+        "experiment_plan": "c99fc97e545e5a0b0552351a1cf0a6b0a8ca0897cf101423e2e9da9522cd584f",
+        "scripts/run_slow_database_diagnostics.py": "452e8b3d12735cfb22ffbd06d785063e3d491407b93894bc6cca7640c5592995",
+        "scripts/slow_database_contract.py": "3e32851f33277403928d0d100c681067561a78a5a440ab7b768fdfb3e5eee617",
+        "scripts/prepare_partial_timeout_reclamation.py": "0573f2a7f94177567ce58a5b9b43aee6a6bede552e1530fcb72e70b8d8b1a076",
+        "scripts/prepare_status_refresh_artifacts.py": "dd06c8574b63061dcecf69d2da9f9d0c0fa82b4df36a6c57f0c35099d9431467",
+        "scripts/status_refresh_image_install.py": "9a20736841a226feb599850b51493cf9383df89b4d8d5506a8cc4de9f9198752",
+        "scripts/stage_status_refresh_images.py": "e96f98d421a90fc9a132c5a89b972eb58e4f2aa17d6f02cea73319daf1b8f289",
+        "scripts/run_async_confirmation_comparison.py": "8b935af3d2f4e803c1559ebe44ecba434ca7954da944072875fbfc4742f53637",
+        "scripts/checkout_journey_probe.py": "10b14c979133188d42aaba5a9a91ab599101922e2d284e85dbe6c03244e3a5bc",
+        "scripts/fetch_status_refresh_parents.py": "b79f31039d1fceedcd9d51a64be5fecc24beb8212078dad64d36f134a95da26d",
+        "scripts/admission_failure_evidence.py": "89a27e96ea08b636d1febef4dc8e5cfeb9404910f9bd38475a5fe7d9c80d7094",
+        "scripts/slow_database_evidence.py": "e4018d92871a13b3c58cb06cfc66adce7e1d771b1a12117c0b8f4a79f6a1d9d0",
+        "scripts/partial_timeout_profile.py": "2c75b4b42e25c106384f87ba566b4caa58c758b6d055d27688d1f811358be519",
+        "artifacts/partial-timeout-reclamation/manifest.json": "5fb51d138dce9b04d1c40506e861b20350d08da421a7832392f4f0c48ea9c0fa",
+        "artifacts/partial-timeout-reclamation/adr0163.patch": "6950c3f3286f0ce3f4934e16682648ab52bb3ca165bf9992dbdce32a143a2a34"
+      },
+      "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+      "artifact_sha256": "3c045c15719fedeea69df0ab5bfd274e53d8989f2e9de113a3457d72c5c03b6d",
+      "source_manifest_sha256": "13d78bdf41e7d442f87ee04d1bb4f357d648789adf0e5270a23b06d74c55ccd2"
+    },
+    "standing_envelope": {
+      "ledger": "bounded_slow_database_diagnostics__2a65247c5103",
+      "envelope_sha256": "7532a85e603674f28d77d6ef1dfa049beb66343059f8ba0a0aa675edf82016d1"
+    },
+    "qualification_runs_authorized": 1,
+    "paid_runs_authorized": 1,
+    "safety_tickets_authorized": 2,
+    "qualification_protocols_started": 1,
+    "paid_runs_started": 1,
+    "paid_protocols_started": 1,
+    "safety_protocols_started": 2,
+    "active_run": null,
+    "scope": "Fresh ADR0171 experiment under ADR0172 standing boundaries; no replay or higher load",
+    "qualification_arms": [
+      "control"
+    ],
+    "last_runner_report": "tmp/adr0151-c8bb0a476b4c/comparison-summary.json",
+    "dry_qualification_report": "tmp/adr0151-98d66aca4c67/comparison-summary.json",
+    "paid_protocol_arms": [
+      "control"
+    ],
+    "attempted_paid_arms": [
+      "control"
+    ]
+  },
+  "latest_paid_control_report": {
+    "run": "adr0151-c8bb0a476b4c",
+    "ledger": "bounded_slow_database_diagnostics__2a65247c5103",
+    "status": "PASSED_RESTORED",
+    "active": false,
+    "evidence": "docs/capacity/flash-sale-opening/fresh-slow-database-control-2026-10-06.json",
+    "original_services_restored": true
   }
 }
