@@ -19,6 +19,7 @@ from worker_separation_recovery import RESTORED, RestoredPaidArm, checks
 from worker_separation_runtime import LIMITS, ORDER
 from worker_separation_snapshot import verify_restored
 from worker_separation_staging import stage_package
+from worker_separation_staging_recovery import cleaned_predeployment
 from worker_separation_topology import WORKERS
 
 
@@ -137,7 +138,7 @@ class WorkerArm:
         verify_restored(self.execution.saved,{h:v['rows'] for h,v in observed.items()},primary['volumes'],primary['bind_sha256'])
         return observed
 
-    def _recover_bootstrap(self):
+    def _recover_bootstrap(self, *, read_only=False):
         """No paid-stage attempt exists: retain explicit zero-dispatch evidence and owned cleanup."""
         previous=self.session.cleanup_mode;self.session.cleanup_mode=True
         results={}
@@ -161,7 +162,9 @@ class WorkerArm:
             try:self._restored();already_original=True
             except BaseException:already_original=False  # noqa: BLE001 - unknown runtime is not restored.
             stopped=applied=True
-            if not already_original:
+            if not already_original and read_only:
+                stopped=applied=False
+            elif not already_original:
                 stopped=attempt('stop_bootstrap_workers',self.execution.stop_workers)
                 def absent():
                     observed=self.execution._observe(cleanup=True)
@@ -241,7 +244,12 @@ class WorkerComparison:
             self.control=WorkerArm(self.session,self.guard,self.inputs,self.saved,'control',**self.components)
             self.result['staging']=stage_package(self.session,self.inputs['staging_contract'],self.inputs['role_sources'],
                                                   self.archive,self.inputs['archive_receipt'],self.guard,saved=self.saved)
-            if self.result['staging'].get('pass') is not True:raise ValueError('Verified unchanged staged package required')
+            if self.result['staging'].get('pass') is not True:
+                if cleaned_predeployment(self.result['staging']):
+                    self.control._recover_bootstrap(read_only=True)
+                    self.result['arms']['control']=copy.deepcopy(self.control.result)
+                    self.result['status']=self.control.result['status']
+                raise ValueError('Verified unchanged staged package required')
             self.result['arms']['control']=self.control.run()
             if self.result['arms']['control']['pass'] is not True:
                 self.result['status']=self.result['arms']['control']['status']

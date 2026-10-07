@@ -25,13 +25,14 @@ from worker_separation_readiness import dependency_context
 from worker_separation_recovery import FINANCIAL, RESTORED, checks
 from worker_separation_runner import WorkerComparison
 from worker_separation_staging import _receipt, validate_archive
+from worker_separation_staging_recovery import cleaned_predeployment
 from worker_separation_topology import WORKERS
 
 PROFILE='worker_separation'
 ENTRY_FILES=('worker_separation_profile.py','work_envelope.py','run_work_envelope.py',
              'worker_separation_retained.py','worker_separation_snapshot.py','worker_separation_runtime.py',
              'worker_separation_staging.py','worker_separation_runner.py','worker_separation_topology.py',
-             'worker_separation_execution.py','worker_separation_readiness.py')
+             'worker_separation_execution.py','worker_separation_readiness.py','worker_separation_staging_recovery.py')
 
 
 def entry_identity():
@@ -165,9 +166,11 @@ def outcome(report, scope, binding):
     staging=report.get('staging',{})
     if not isinstance(staging,dict):return False,False,False
     hosts=staging.get('hosts')
-    if (not isinstance(hosts,dict) or staging.get('pass') is not True or staging.get('runtime_unchanged') is not True
+    failed_staging=cleaned_predeployment(staging)
+    if failed_staging and (count!=0 or list(report.get('arms',{}))!=['control']):return False,False,False
+    if (not failed_staging and (not isinstance(hosts,dict) or staging.get('pass') is not True or staging.get('runtime_unchanged') is not True
             or set(hosts)!={'primary','secondary'}
-            or any(not flags(v,'archive_removed') for v in hosts.values())):
+            or any(not flags(v,'archive_removed') for v in hosts.values()))):
         return False,False,False
     arms=report.get('arms',{})
     if not isinstance(arms,dict) or list(arms) not in [['control'],['control','candidate']]:return False,False,False

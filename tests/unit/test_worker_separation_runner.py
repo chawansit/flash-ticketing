@@ -256,3 +256,31 @@ def test_configuration_cleanup_unknown_ack_retains_recovery_status(monkeypatch,t
     assert result['arms']['control']['restoration_complete'] is True
     assert result['arms']['control']['status']=='RECOVERY_REQUIRED'
     assert not result['arms']['control']['private_artifact_cleanup_complete']
+
+
+def test_clean_failed_staging_runs_independent_recovery_without_dispatch(monkeypatch,tmp_path,source_bundle):
+    comparison,session=setup(monkeypatch,tmp_path,source_bundle)
+    cleaned={'pass':False,'status':'FAILED_CLEANED','runtime_unchanged':True,'service_deployments':0,'customer_dispatches':0,
+        'hosts':{'primary':{'creation_attempted':True,'archive_removed':True,'owner':'/synthetic/owner','seal':{'owner':'/synthetic/owner'}}}}
+    monkeypatch.setattr(runner,'stage_package',lambda *args,**kwargs:copy.deepcopy(cleaned))
+    result=comparison.run()
+    assert not result['pass'] and result['status']=='FAILED_RESTORED',result
+    assert session.paid_arms==[] and session.original_stops==0 and not session.mutations
+    assert list(result['arms'])==['control'] and result['arms']['control']['zero_dispatch_proven'] is True
+    import worker_separation_profile as profile
+    state=policy.read(policy.STATE);scope=state[comparison.guard.key];scope['worker_run']='adr0153-parents-aaaaaaaaaaaa'
+    result.update(run=scope['worker_run'],binding_sha256=policy.digest(comparison.guard.binding))
+    assert profile.outcome(result,scope,comparison.guard.binding)==(True,True,False)
+    result['staging']['hosts']['primary']['archive_removed']=False
+    assert profile.outcome(result,scope,comparison.guard.binding)==(False,False,False)
+
+
+def test_failed_staging_recovery_never_mutates_changed_runtime(monkeypatch,tmp_path,source_bundle):
+    comparison,session=setup(monkeypatch,tmp_path,source_bundle)
+    cleaned={'pass':False,'status':'FAILED_CLEANED','runtime_unchanged':True,'service_deployments':0,'customer_dispatches':0,
+        'hosts':{'primary':{'creation_attempted':True,'archive_removed':True,'owner':'/synthetic/owner','seal':{'owner':'/synthetic/owner'}}}}
+    monkeypatch.setattr(runner,'stage_package',lambda *args,**kwargs:copy.deepcopy(cleaned))
+    session.values['primary']['rows'][0]['Image']='sha256:'+'f'*64
+    result=comparison.run()
+    assert not result['pass'] and result['status']=='RECOVERY_REQUIRED',result
+    assert not session.mutations and session.original_stops==0 and not session.paid_arms

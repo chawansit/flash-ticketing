@@ -55,9 +55,9 @@ def make_contract(pair, sources, metadata):
         if image in per_image and per_image[image] != sources[role]:
             raise ValueError('Shared images cannot have different source expectations')
         per_image[image] = sources[role]
-    return {'schema': 1, 'decision': 'ADR0187', 'placement_decision': 'ADR0184',
+    return {'schema': 2, 'decision': 'ADR0205', 'placement_decision': 'ADR0184',
             'prepared_pair_sha256': policy.digest(pair), 'source_manifest_sha256': policy.digest(sources),
-            'role_images': images, 'image_metadata_sha256': {i: policy.digest(r) for i, r in rows.items()},
+            'role_images': images, 'image_metadata_sha256': {i: policy.digest({k:v for k,v in r.items() if k!='Size'}) for i, r in rows.items()},
             'image_sizes': {i: r['Size'] for i, r in rows.items()},
             'image_sources_sha256': {i: policy.digest(s) for i, s in per_image.items()}}
 
@@ -65,7 +65,8 @@ def make_contract(pair, sources, metadata):
 def validate_contract(contract, sources):
     if (set(contract) != {'schema', 'decision', 'placement_decision', 'prepared_pair_sha256',
             'source_manifest_sha256', 'role_images', 'image_metadata_sha256', 'image_sizes', 'image_sources_sha256'}
-            or type(contract['schema']) is not int or contract['schema'] != 1 or contract['decision'] != 'ADR0187'
+            or type(contract['schema']) is not int or contract['schema'] not in {1,2}
+            or contract['decision'] != {1:'ADR0187',2:'ADR0205'}[contract['schema']]
             or contract['placement_decision'] != 'ADR0184' or not HASH.fullmatch(contract['prepared_pair_sha256'])
             or set(contract['role_images']) != set(WORKERS) or set(sources) != set(WORKERS)
             or policy.digest(sources) != contract['source_manifest_sha256']):
@@ -99,7 +100,9 @@ images=sorted(expected['image_metadata_sha256'])
 rows=json.loads(subprocess.check_output(['docker','image','inspect',*images],text=True,timeout=30))
 if len(rows)!=len(images) or {r['Id'] for r in rows}!=set(images):raise ValueError('Image cache identities differ')
 for row in rows:
- metadata={k:row[k] for k in ('Id','Os','Architecture','Size','Config','RootFS')}
+ if type(row.get('Size')) is not int or not 0<row['Size']<=MAX_IMAGE_SIZE:raise ValueError('Remote image size is unbounded')
+ keys=('Id','Os','Architecture','Size','Config','RootFS') if expected['schema']==1 else ('Id','Os','Architecture','Config','RootFS')
+ metadata={k:row[k] for k in keys}
  if digest(metadata)!=expected['image_metadata_sha256'][row['Id']]:raise ValueError('Image metadata differs')
 for index,image in enumerate(images):
  name=owner+'-proof-'+str(index)
@@ -120,7 +123,7 @@ for index,image in enumerate(images):
    subprocess.run(['docker','rm','-f',current[0]],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,timeout=10)
    if ids():raise ValueError('Proof container cleanup incomplete')
 print(json.dumps({'contract_sha256':digest(expected),'images_verified':images,'source_imports_match':True}))
-'''.replace('EXPECTED', repr(contract)).replace('PROOFS', repr(proofs)).replace('OWNER', repr(owner_name))
+'''.replace('EXPECTED', repr(contract)).replace('PROOFS', repr(proofs)).replace('OWNER', repr(owner_name)).replace('MAX_IMAGE_SIZE',repr(staging.MAX_ARCHIVE))
 
 
 

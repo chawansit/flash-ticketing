@@ -486,3 +486,45 @@ def test_worker_authority_reuses_only_exact_verified_historical_exception(tmp_pa
     result = preload.check_authority(preload.binding_for(data), 'test-scope')
     assert ('unresolved_recovery' not in result['blockers']) == (change == 'known')
     assert (result['status'] == 'PASS') == (change == 'known')
+
+
+@pytest.mark.parametrize('schema',[1,2])
+def test_cross_host_size_contracts_keep_historical_semantics(monkeypatch,schema):
+    data,metadata=inputs();contract=copy.deepcopy(data['staging_contract'])
+    if schema==1:
+        contract.update(schema=1,decision='ADR0187')
+        contract['image_metadata_sha256']={r['Id']:policy.digest(stage.stable_image(r)) for r in metadata}
+    code=stage.image_proof_program(contract,data['role_sources'],'adr0153-parents-aaaaaaaaaaaa')
+    rows=copy.deepcopy(metadata)
+    for row in rows:row['Size']+=7
+    def output(args,**kwargs):
+        if args[:3]==['docker','image','inspect']:return json.dumps(rows)
+        if args[:2]==['docker','ps']:return ''
+        if args[:2]==['docker','run']:return json.dumps({k:True for k in ('source_hashes_match','app_source_hashes_match','import_source_hashes_match','import_code_matches_source')})
+        raise AssertionError(args)
+    import subprocess
+    monkeypatch.setattr(subprocess,'check_output',output)
+    if schema==1:
+        with pytest.raises(ValueError,match='metadata differs'):exec(code,{})  # noqa: S102 - execute repository-generated proof with a synthetic transport.
+    else:exec(code,{})  # noqa: S102 - synthetic transport only.
+
+
+@pytest.mark.parametrize('change',['Config','RootFS','Os','Architecture','negative_size','oversized','boolean_size'])
+def test_portable_identity_still_rejects_content_and_budget_changes(monkeypatch,change):
+    data,metadata=inputs();rows=copy.deepcopy(metadata)
+    if change=='Config':rows[0]['Config']['Cmd']=['foreign']
+    elif change=='RootFS':rows[0]['RootFS']['Layers']=['sha256:'+'0'*64]
+    elif change=='Os':rows[0]['Os']='windows'
+    elif change=='Architecture':rows[0]['Architecture']='arm64'
+    elif change=='negative_size':rows[0]['Size']=-1
+    elif change=='oversized':rows[0]['Size']=old_stage.MAX_ARCHIVE+1
+    else:rows[0]['Size']=True
+    import subprocess
+    monkeypatch.setattr(subprocess,'check_output',lambda *args,**kwargs:json.dumps(rows))
+    with pytest.raises(ValueError):exec(stage.image_proof_program(data['staging_contract'],data['role_sources'],'adr0153-parents-aaaaaaaaaaaa'),{})  # noqa: S102 - synthetic transport only.
+
+
+def test_contract_version_cannot_reinterpret_old_receipts():
+    data,_=inputs();contract=copy.deepcopy(data['staging_contract']);assert contract['schema']==2 and contract['decision']=='ADR0205'
+    contract['schema']=1
+    with pytest.raises(ValueError):stage.validate_contract(contract,data['role_sources'])

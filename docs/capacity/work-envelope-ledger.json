@@ -273,6 +273,35 @@
         }
       ],
       "finished_at_utc": "2026-10-07T01:56:46.662560+00:00"
+    },
+    {
+      "ledger": "bounded_worker_separation__71d9f20981c9",
+      "authorization_id": "work-envelope-71d9f20981c9",
+      "envelope_sha256": "d107f460619c25241900a26c251358823f9ca4c2e2875b33e28a13f5efb39a33",
+      "binding_sha256": "6be82f2feb90d51dff45c4abd6d7d3a8aef180c426d30cc6874a6f325afb9a87",
+      "plan_sha256": "35e1cff218c21bc250ff589d3deeb57036c5febe268752fead4ffd6e725f2aa9",
+      "profile": "worker_separation",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 74.03099999998813,
+      "started_at_utc": "2026-10-07T11:19:27.017499+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0153-parents-cb01412061a8",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-07T11:20:02.078041+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "33d75efd93b5e53847292233076fad40b042df27a17109b052fa8b5090aa6026",
+      "initial_status": "RECOVERY_REQUIRED",
+      "initial_actual_elapsed_seconds": 35.187000000005355,
+      "recovery": {
+        "decision": "ADR0204",
+        "evidence": "tmp\\adr0153-parents-7d0948b2f176\\recovery-verification.json",
+        "sha256": "e92ad5509230e0f5f8bcde3776a1d6abd133b9e857428691cbb429ceec00b6e5",
+        "actual_elapsed_seconds": 38.84399999998277
+      }
     }
   ],
   "verified_aborts": {

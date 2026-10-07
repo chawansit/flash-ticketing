@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "decisions": [
+    "ADR0204",
+    "ADR0205"
+  ],
+  "base_revision": "4ba1887436fb1cf444c73fb7e96852a7de5d9a54",
+  "recorded_at_utc": "2026-10-07T11:33:07.074155+00:00",
+  "original_run": "adr0153-parents-cb01412061a8",
+  "original_result": "RECOVERY_REQUIRED after staging failure; original result preserved",
+  "recovered_status": "FAILED_RESTORED",
+  "staging_failure": "Docker metadata Size differed across local and ECS daemons; immutable content fields matched",
+  "customer_dispatches": 0,
+  "service_deployments": 0,
+  "paid_runs_started": 0,
+  "candidate_started": false,
+  "scope_reopened": false,
+  "allowances_refunded": false,
+  "verification": {
+    "pass": true,
+    "original_container_ids_and_starts_unchanged": true,
+    "retained_resources_and_broker_volumes_unchanged": true,
+    "original_binds_unchanged": true,
+    "all_staging_owners_absent": true,
+    "generator_idle": true,
+    "global_duplicate_booked_seats": 0,
+    "all_queues_zero": true,
+    "kafka_lag_zero": true,
+    "financial_cohort": "not_created; exact zero paid/protocol counters and no arm prove no cohort was created",
+    "raw_evidence": "tmp/adr0153-parents-7d0948b2f176/recovery-verification.json",
+    "actual_elapsed_seconds": 38.844
+  },
+  "image_observation": {
+    "images": 6,
+    "different_fields": [
+      "Size"
+    ],
+    "all_immutable_content_fields_equal": true,
+    "local_size_bytes_range": [
+      326230166,
+      326230183
+    ],
+    "remote_size_bytes_range": [
+      78537710,
+      78537727
+    ],
+    "raw_summary": "tmp/adr0153-parents-7d0948b2f176/image-difference-summary.json"
+  },
+  "implementation": {
+    "versioned_staging_contract": {
+      "new_schema": 2,
+      "decision": "ADR0205",
+      "identity_fields": [
+        "Id",
+        "Os",
+        "Architecture",
+        "Config",
+        "RootFS"
+      ],
+      "positive_bounded_size_per_host": true,
+      "legacy_schema_one_semantics_preserved": true
+    },
+    "automatic_failed_cleaned_staging_recovery": "Independent read-only runtime, duplicate and complete queue checks before final accounting; no deployment or dispatch during recovery",
+    "recovery_accounting": "Separate recovery evidence appended; original failure and consumed scope preserved; journal written before ownership is cleared"
+  },
+  "tests": {
+    "recovery_persistence_and_rejection": {
+      "passed": 37,
+      "failed": 0,
+      "pytest_seconds": 0.51,
+      "harness_seconds": 1.125,
+      "raw_evidence": "tmp/adr0153-parents-0cbe26b620da/recovery-tests.txt"
+    },
+    "targeted_staging_recovery_and_coordinator": {
+      "passed": 133,
+      "failed": 0,
+      "pytest_seconds": 17.92
+    },
+    "final_affected_suite": {
+      "passed": 587,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 307.29,
+      "harness_seconds": 308.11,
+      "raw_evidence": "tmp/adr0153-parents-c20f0676f84f/broker-qualification.txt"
+    },
+    "changed_runtime_read_only_fault": {
+      "passed": 1,
+      "failed": 0,
+      "pytest_seconds": 4.06,
+      "note": "Added after broad collection; not included in its 587 count."
+    }
+  },
+  "capacity_improvement_measured": false,
+  "cloud_customer_load_started": false,
+  "production_qualified": false,
+  "new_infrastructure_spend": 0,
+  "result": "recovery_verified_closed_and_portable_image_contract_locally_qualified",
+  "fresh_schema_two_package": {
+    "pass": true,
+    "cloud_mutations": false,
+    "scope_reserved": false,
+    "archive_bytes": 79484928,
+    "elapsed_seconds": 23.0,
+    "raw_summary": "tmp/adr0153-parents-e39431f9a65a/package-summary.json"
+  },
+  "prevention": {
+    "implemented": [
+      "Capture the actual deployment rather than infer live shapes from synthetic fixtures",
+      "Keep exact inactive resources and every broker volume bound to recovery evidence",
+      "Use immutable image content identity across Docker daemons; treat host size as bounded accounting",
+      "Version the contract so historical receipts cannot be reinterpreted",
+      "Automatically verify known cleaned staging failures without service mutation or customer dispatch",
+      "Preserve failed evidence and consume a fresh ownership identity for every next experiment"
+    ],
+    "remaining": [
+      "Complete actual paired cloud comparison; capacity remains unmeasured",
+      "Consider one compact field-level identity failure report if another mismatch appears; do not add unrelated infrastructure or relax correctness gates"
+    ]
+  }
+}

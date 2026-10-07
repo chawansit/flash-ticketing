@@ -348,3 +348,7 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0202: Retained inactive container inventory](0202-retained-inactive-container-inventory.md)
 
 - [ADR0203: Retain Kafka image-declared volumes](0203-retain-kafka-image-declared-volumes.md)
+
+- [ADR0204: Predeployment staging recovery](0204-predeployment-staging-recovery.md)
+
+- [ADR0205: Host-independent image content identity](0205-host-independent-image-content-identity.md)
