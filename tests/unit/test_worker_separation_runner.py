@@ -136,7 +136,7 @@ def setup(monkeypatch,tmp_path,source_bundle):
         return {'decision':'ADR0184','arm':arm,'prepared_pair_sha256':policy.digest(pair),
                 'containers':inspect_layout(pair,arm,observed),'budgets':pair['budgets']}
     monkeypatch.setattr(runner,'collect_roles',collect)
-    def stage_images(*args):
+    def stage_images(*args, **kwargs):
         if session.bootstrap_fail=='staging':return {'pass':False,'status':'RECOVERY_REQUIRED'}
         return {'pass':True,'status':'STAGED_VERIFIED','runtime_unchanged':True}
     monkeypatch.setattr(runner,'stage_package',stage_images)

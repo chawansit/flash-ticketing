@@ -31,7 +31,7 @@ def model():
     }
     services['kafka']['volumes'] = [{'type': 'volume', 'source': 'kafka-data', 'target': '/var/lib/kafka/data'}]
     return {'name': 'flash-ticketing', 'services': services,
-            'volumes': {'kafka-data': {'name': 'flash-ticketing_kafka-data'}}}
+            'volumes': {'kafka-data': {'name': 'flash-ticketing_kafka-data','external':True}}}
 
 
 def pair():

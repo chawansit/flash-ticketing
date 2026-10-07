@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-07",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "worker_entrypoint_and_accounting_locally_qualified_fresh_cloud_preparation_pending",
+  "status": "worker_runtime_compatibility_qualified_fresh_cloud_package_ready_for_registered_comparison",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -1094,7 +1094,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Prepare fresh protected cloud snapshot/pair/source/archive inputs, verify independent readiness through the registered worker runner, then execute the unchanged 60 journeys/s matched comparison; stop progression on failed control and evaluate paid-ticket outcomes and complete audits.",
+  "next_action": "Execute registered worker_separation profile: matched 60 journeys/s, 300 seconds per arm; stop after failed control; preserve all financial, double-booking, queue and restoration gates.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -2406,6 +2406,25 @@
     "maximum_new_infrastructure_spend": 0
   },
   "last_engineering_checkpoint": {
+    "decisions": [
+      "ADR0201",
+      "ADR0202",
+      "ADR0203"
+    ],
+    "base_revision": "1fc1826f57e9ec5c62a3380311da6cd3658956bc",
+    "evidence": "docs/capacity/flash-sale-opening/background-service-separation-runtime-compatibility-2026-10-07.json",
+    "recorded_at_utc": "2026-10-07T11:17:12.732864+00:00",
+    "final_affected_suite_passed": 539,
+    "final_affected_suite_failed": 0,
+    "earlier_broad_suite_passed": 859,
+    "real_postgresql_financial_cases": 23,
+    "immutable_package_validated": true,
+    "fresh_read_only_live_snapshot_passed": true,
+    "cloud_load_started": false,
+    "capacity_improvement_measured": false,
+    "production_qualified": false
+  },
+  "previous_engineering_checkpoint": {
     "decision": "ADR0201",
     "base_revision": "bc4ec6de66e2e452225069882c08a7e7bc126ffa",
     "evidence": "docs/capacity/flash-sale-opening/background-service-separation-envelope-2026-10-07.json",
@@ -2425,26 +2444,6 @@
     "capacity_improvement_measured": false,
     "production_qualified": false
   },
-  "previous_engineering_checkpoint": {
-    "decision": "ADR0200",
-    "base_revision": "dd303290a8552898bcd29053dc8b87b98d5151bd",
-    "evidence": "docs/capacity/flash-sale-opening/background-service-separation-comparison-assembly-2026-10-07.json",
-    "recorded_at_utc": "2026-10-07T09:44:58.587490+00:00",
-    "unique_cases_with_passing_evidence": 730,
-    "broad_suite_passed": 726,
-    "broad_suite_failed": 4,
-    "corrected_affected_suite_passed": 42,
-    "corrected_affected_suite_failed": 0,
-    "corrected_affected_suite_skipped": 1,
-    "qualification_note": "Combined broad and corrected affected evidence; no single 730-pass rerun. Connected tests simulate staging, inventory and customer replies.",
-    "worker_bootstrap_and_pair_coordination_locally_qualified": true,
-    "worker_candidate_authorization_locally_qualified": true,
-    "full_worker_lifecycle_qualified": false,
-    "entrypoint_and_accounting_qualified": false,
-    "profile_registered": false,
-    "cloud_load_started": false,
-    "capacity_improvement_measured": false
-  },
   "post_round_prevention_review": {
     "requested": "2026-10-07",
     "timing": "After the current worker-runner integration/comparison round; keep the capacity objective in focus.",
@@ -2457,8 +2456,9 @@
       "Local restoration qualification found that recreated container IDs cannot reuse the initial handover snapshot. Fix the proven per-arm identity binding before cloud mutation instead of handling stale IDs during live load.",
       "ADR0199 locally qualifies immutable passing-control handover receipts for recreated container IDs, preserving the baseline snapshot. Full comparison still requires enforced paired progression and registration.",
       "ADR0200 rejects bare passing-control flags and binds all 18 coordinator/adapter sources before paid allowance. Complete entry-point enforcement is still pending; no cloud mismatch was discovered in this local-only checkpoint.",
-      "ADR0201 validates fresh canonical package receipts before connection, binds entry-point/observer/workload identities, and rejects reused preparation objects. Local regression caught access-time false positives and old tests depending on the live unregistered state; explicit isolated policy fixtures now cover rejection. Cloud preparation still requires independently observed fresh runtime inputs."
+      "ADR0201 validates fresh canonical package receipts before connection, binds entry-point/observer/workload identities, and rejects reused preparation objects. Local regression caught access-time false positives and old tests depending on the live unregistered state; explicit isolated policy fixtures now cover rejection. Cloud preparation still requires independently observed fresh runtime inputs.",
+      "ADR0202/ADR0203 fresh live capture exposed synthetic/live inventory differences: inactive historical resources, Kafka image-declared auxiliary volumes and inherited nofile limits. Exact capture/retention now binds these before dispatch. Complete mount objects are sorted to avoid order-only false positives. Existing URI timeout and separate app/admin principals are validated independently; final affected539 pass."
     ]
   },
-  "worker_runner_integration_blocker": "Entry point, exact reservation/finalization accounting and worker registration are locally qualified. Fresh protected cloud input/image package and live preflight remain pending; simulated boundary tests do not measure cloud capacity."
+  "worker_runner_integration_blocker": "Resolved preflight compatibility: exact retained inactive inventory, all existing Kafka volumes, original nofile limits, diagnostic/application authority separation and bounded original URI timeout. Fresh scope and live gated comparison pending."
 }

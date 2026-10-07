@@ -31,7 +31,10 @@ def dependency_context(execution, ca_pem):
     from prepare_two_host_scaling import private_ipv4
     primary = private_ipv4(db.hostname)
     query = parse_qsl(db.query, keep_blank_values=True)
-    if query not in ([], [('sslmode','disable')]):
+    if (len({key for key, _ in query}) != len(query)
+            or any(not ((key == 'sslmode' and value == 'disable')
+                        or (key == 'connect_timeout' and value in {'1', '2', '3', '4'}))
+                   for key, value in query)):
         raise ValueError('Pooler URI overrides are forbidden')
     if db.port != 5432 or kafka != primary + ':19092' or cache.scheme not in {'redis', 'rediss'}:
         raise ValueError('Exact prepared private dependency routes required')

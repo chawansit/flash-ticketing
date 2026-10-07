@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "decisions": [
+    "ADR0201",
+    "ADR0202",
+    "ADR0203"
+  ],
+  "base_revision": "1fc1826f57e9ec5c62a3380311da6cd3658956bc",
+  "recorded_at_utc": "2026-10-07T11:14:33.862604+00:00",
+  "result": "runtime_compatibility_locally_qualified_fresh_cloud_package_validated",
+  "implemented": [
+    "Full identity receipt for bounded inactive historical containers; changed or new resources block progression",
+    "Canonical ordering of complete Docker mount objects prevents order-only hash mismatch",
+    "Existing Kafka data and image-declared auxiliary volumes remain external and exact",
+    "Exact existing load-balancer nofile limits retained",
+    "Separate application and diagnostic database authorities with identical RDS route and trusted CA",
+    "Unique bounded connection timeout query retained; unknown and duplicate options rejected",
+    "Affected runner source identities bound before fresh scope actions"
+  ],
+  "tests": {
+    "executed_runs": [
+      {
+        "raw_evidence": "tmp/adr0153-parents-2bd05500e316/qualification-tests.txt",
+        "summary": "859 passed in 438.17s (0:07:18)",
+        "pytest_seconds": 438.17
+      },
+      {
+        "raw_evidence": "tmp/adr0153-parents-a4b0d9284ec4/broker-qualification.txt",
+        "summary": "3 failed, 2 warnings in 1.19s",
+        "pytest_seconds": 1.19,
+        "failure_cause": "Incorrect fixture import path; corrected before meaningful assertions."
+      },
+      {
+        "raw_evidence": "tmp/adr0153-parents-a5c6e10299cc/broker-qualification.txt",
+        "summary": "1 failed, 519 passed, 2 warnings in 234.70s (0:03:54)",
+        "pytest_seconds": 234.7,
+        "failure_cause": "Synthetic broker receipt lacked required local driver fields; corrected fixture."
+      },
+      {
+        "raw_evidence": "tmp/adr0153-parents-7512de55b5dc/broker-qualification.txt",
+        "summary": "523 passed, 1 warning in 238.02s (0:03:58)",
+        "pytest_seconds": 238.02
+      },
+      {
+        "raw_evidence": "tmp/adr0153-parents-cafea23f6e51/broker-qualification.txt",
+        "summary": "1 failed, 524 passed, 2 warnings in 277.48s (0:04:37)",
+        "pytest_seconds": 277.48,
+        "failure_cause": "Added nofile preservation test used a row with unrelated logging settings; corrected fixture."
+      },
+      {
+        "raw_evidence": "tmp/adr0153-parents-933b36fb0243/final-preparation-tests.txt",
+        "summary": "1 failed, 145 passed, 2 warnings in 90.27s (0:01:30)",
+        "pytest_seconds": 90.27,
+        "failure_cause": "Same new test used original Entrypoint None against explicit model []; corrected to exact planned row fixture."
+      }
+    ],
+    "targeted_settings_regression": {
+      "passed": 52,
+      "failed": 0,
+      "pytest_seconds": 5.72,
+      "command": "pytest exact nofile fixture plus worker readiness suite"
+    },
+    "final_affected_suite": {
+      "passed": 539,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 276.54,
+      "harness_seconds": 277.31,
+      "raw_evidence": "tmp/adr0153-parents-7c8e08b041de/broker-qualification.txt"
+    },
+    "broad_suite_real_postgresql_financial_cases": 23,
+    "broad_suite_owned_database_removed": true,
+    "final_affected_suite_isolated_linux_cases": 3,
+    "recorded_pytest_seconds_total": 1562.09
+  },
+  "live_read_only_snapshot": {
+    "pass": true,
+    "managed_containers": 12,
+    "retained_inactive_containers": 16,
+    "retained_kafka_volumes": 3,
+    "secondary_empty": true,
+    "generator_idle": true,
+    "elapsed_seconds": 30.578,
+    "raw_summary": "tmp/adr0153-parents-4ec8c6473d44/summary.json"
+  },
+  "local_immutable_package_validation": {
+    "pass": true,
+    "archive_bytes": 79484928,
+    "elapsed_seconds": 5.797,
+    "scope_reserved": false,
+    "cloud_mutations": false,
+    "note": "Private CA retained as exact bytes to avoid Windows newline conversion. Earlier private validation failed first on incorrect diagnostic identity, then on unsupported existing timeout; those causes were corrected without rebuilding the package."
+  },
+  "comparison": {
+    "profile": "worker_separation",
+    "journeys_per_second": 60,
+    "seconds_each_arm": 300,
+    "expected_unique_paid_issued_tickets_each_arm": 18000,
+    "factor": "14 background workers primary versus secondary; four APIs remain fixed",
+    "control_failure_stops_candidate": true,
+    "all_current_customer_financial_queue_and_restoration_gates_preserved": true,
+    "cloud_load_started": false,
+    "capacity_improvement_measured": false,
+    "hourly_production_qualified": false
+  },
+  "new_infrastructure_spend": 0
+}

@@ -190,7 +190,7 @@ def test_actual_connected_comparison_runs_through_real_envelope_boundary(prepare
         return session
     monkeypatch.setattr(worker,'Session',transport)
     monkeypatch.setattr(worker,'WorkerComparison',connected.WorkerComparison)
-    monkeypatch.setattr(connected,'stage_package',lambda *args:{'pass':True,'runtime_unchanged':True,
+    monkeypatch.setattr(connected,'stage_package',lambda *args,**kwargs:{'pass':True,'runtime_unchanged':True,
         'hosts':{h:{'archive_removed':True} for h in ('primary','secondary')}})
     receipt=worker.execute(prepared,'synthetic-ssh-secret','synthetic-diagnostic-secret')
     assert receipt['status']=='PASSED_RESTORED',json.loads((prepared.output/'worker-envelope-result.json').read_text())
@@ -298,3 +298,22 @@ def test_consumed_preparation_cannot_create_a_second_scope_or_connect_again(prep
         worker.execute(prepared,'synthetic-ssh-secret','synthetic-diagnostic-secret')
     assert len(policy.journal(policy.envelope())['experiments'])==1
     assert events==['connected','comparison','closed']
+
+
+def test_diagnostic_root_remains_separate_from_application_principal(prepared):
+    package=copy.deepcopy(prepared.package)
+    saved=package['saved'];pair=package['inputs']['pair']
+    saved['model']['services']['pgbouncer']['environment']['DB_USER']='ticketing'
+    for model in (saved['model'],pair['control']['primary'],pair['candidate']['primary'],pair['candidate']['secondary']):
+        for service in model['services'].values():
+            env=service['environment']
+            if 'DATABASE_URL' in env:env['DATABASE_URL']=env['DATABASE_URL'].replace('postgresql://root:','postgresql://ticketing:')
+            if 'DB_USER' in env:env['DB_USER']='ticketing'
+    package['inputs']['saved_runtime_sha256']=policy.digest(saved)
+    package['inputs']['staging_contract']['prepared_pair_sha256']=policy.digest(pair)
+    package['inputs']['archive_receipt']['contract_sha256']=policy.digest(package['inputs']['staging_contract'])
+    owner=prepared.archive.parent
+    for name,value in (('contract.json',package['inputs']['staging_contract']),('archive.json',package['inputs']['archive_receipt'])):policy.write(owner/name,value)
+    value=worker.Prepared(prepared.config,package,prepared.archive,prepared.ca_pem,prepared.target)
+    assert value.target['user']=='root'
+    assert value.saved['model']['services']['pgbouncer']['environment']['DB_USER']=='ticketing'

@@ -240,7 +240,7 @@ class WorkerComparison:
             # Construct connected, validated primitives before any staging mutation.
             self.control=WorkerArm(self.session,self.guard,self.inputs,self.saved,'control',**self.components)
             self.result['staging']=stage_package(self.session,self.inputs['staging_contract'],self.inputs['role_sources'],
-                                                  self.archive,self.inputs['archive_receipt'],self.guard)
+                                                  self.archive,self.inputs['archive_receipt'],self.guard,saved=self.saved)
             if self.result['staging'].get('pass') is not True:raise ValueError('Verified unchanged staged package required')
             self.result['arms']['control']=self.control.run()
             if self.result['arms']['control']['pass'] is not True:

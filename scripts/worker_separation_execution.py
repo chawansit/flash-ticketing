@@ -14,7 +14,7 @@ from worker_separation_configuration import POSIX, bundle, validate_seal
 from worker_separation_inventory import _port_matches
 from worker_separation_preload import binding_for
 from worker_separation_runtime import ORDER, observation_program
-from worker_separation_snapshot import runtime_semantic, verify_restored
+from worker_separation_snapshot import broker_records, runtime_semantic, verify_restored
 from worker_separation_topology import INFRA, PROJECT, WORKERS, validate_pair
 
 HASH = re.compile(r'[0-9a-f]{64}$')
@@ -57,9 +57,16 @@ def planned_row(row, service, model, ports, *, stopped=False):
     host = row['HostConfig']
     if (host.get('NetworkMode') != model['name'] + '_default'
             or any(host.get(k) for k in ('ReadonlyRootfs', 'Privileged', 'SecurityOpt', 'CapAdd', 'CapDrop',
-                                        'Tmpfs', 'Memory', 'NanoCpus', 'Ulimits'))
+                                        'Tmpfs', 'Memory', 'NanoCpus'))
             or host.get('PidsLimit') not in (None, 0)):
         raise ValueError('Unsupported runtime execution options')
+    limits=service.get('ulimits')
+    if limits not in (None,{'nofile':{'soft':65535,'hard':65535}}) or (limits is not None and row['Config']['Labels'].get('com.docker.compose.service')!='load-balancer'):
+        raise ValueError('Exact existing load-balancer nofile setting required')
+    expected_limits=[{'Name':'nofile','Soft':65535,'Hard':65535}] if limits else None
+    observed_limits=host.get('Ulimits')
+    if (expected_limits is None and observed_limits not in (None,[])) or (expected_limits is not None and observed_limits!=expected_limits):
+        raise ValueError('Open-file resource limits changed')
     restart = service.get('restart', 'no').split(':')
     if (host['RestartPolicy']['Name'] != restart[0]
             or host['RestartPolicy'].get('MaximumRetryCount', 0) != (int(restart[1]) if len(restart) == 2 else 0)):
@@ -90,7 +97,7 @@ def verify_phase(pair, saved, arm, observed, phase):
         raise ValueError('Complete bound two-host observations required')
     if phase not in {'infrastructure','workers','partial_workers','restorable','original_infrastructure'}:
         raise ValueError('Exact lifecycle phase required')
-    if observed['primary']['volumes'] != [saved['broker_volume']] or observed['primary']['bind_sha256'] != saved['bind_sha256']:
+    if observed['primary']['volumes'] != broker_records(saved) or observed['primary']['bind_sha256'] != saved['bind_sha256']:
         raise ValueError('Original broker volume and bind files must be retained')
     if observed['secondary']['volumes'] or observed['secondary']['bind_sha256']:
         raise ValueError('Secondary persistent resources are forbidden')
@@ -244,11 +251,14 @@ class ExecutionActions:
         # Kafka image/data identity is a hard invariant across common configuration and restoration.
         broker = self.pair[self.arm]['primary']['services']['kafka']
         mounts = broker['volumes']
-        if len(mounts) != 1:raise ValueError('Exactly one retained broker mount required')
-        volume = self.pair[self.arm]['primary']['volumes'][mounts[0]['source']]
-        if (len(mounts) != 1 or volume.get('name') != self.saved['broker_volume']['Name']
-                or volume.get('external') is not True or broker['image'] != self.saved['model']['services']['kafka']['image']):
-            raise ValueError('Exact original external broker volume and image required')
+        definitions=self.pair[self.arm]['primary']['volumes']
+        original=self.saved['model']
+        mount_identity=lambda model,values:sorted((model['volumes'][m['source']].get('name'),m['target'],m.get('read_only',False)) for m in values)
+        if (mount_identity(self.pair[self.arm]['primary'],mounts)!=mount_identity(original,original['services']['kafka']['volumes'])
+                or {definitions[m['source']].get('name') for m in mounts}!={r['Name'] for r in broker_records(self.saved)}
+                or any(definitions[m['source']].get('external') is not True for m in mounts)
+                or broker['image'] != self.saved['model']['services']['kafka']['image']):
+            raise ValueError('Every original external broker volume and immutable image required')
 
     def _guard(self, timeout, *, cleanup=False):
         if (self.session.action_guard is not self.runtime.guard or self.runtime.guard.key != self.scope_key

@@ -222,3 +222,25 @@ def test_dependency_readiness_is_rechecked_immediately_before_start(monkeypatch)
     engine._drain=drained
     with pytest.raises(ValueError,match='readiness expired'):engine.start_workers()
     assert all(phase!='start' for phase,_,_ in session.mutations)
+
+
+@pytest.mark.parametrize('query', ['connect_timeout=2', 'sslmode=disable&connect_timeout=4', 'connect_timeout=1&sslmode=disable'])
+def test_original_bounded_connection_timeout_is_preserved(query):
+    engine,_=setup()
+    for role in readiness.WORKERS:
+        env=engine.pair['control']['primary']['services'][role]['environment']
+        env['DATABASE_URL']=env['DATABASE_URL'].split('?')[0]+'?'+query
+    context=readiness.dependency_context(engine,CA)
+    assert context['database_url'].endswith('?'+query)
+
+
+@pytest.mark.parametrize('query', ['connect_timeout=0','connect_timeout=5','connect_timeout=-1',
+    'connect_timeout=2&connect_timeout=2','sslmode=disable&sslmode=disable','options=-c%20search_path=foreign',
+    'host=10.0.0.9','sslmode=require','connect_timeout=','connect_timeout=02'])
+def test_pooler_query_overrides_remain_forbidden(query):
+    engine,_=setup()
+    for role in readiness.WORKERS:
+        env=engine.pair['control']['primary']['services'][role]['environment']
+        env['DATABASE_URL']=env['DATABASE_URL'].split('?')[0]+'?'+query
+    with pytest.raises(ValueError,match='overrides'):
+        readiness.dependency_context(engine,CA)

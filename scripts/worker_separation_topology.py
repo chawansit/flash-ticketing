@@ -74,12 +74,17 @@ def _broker(model, primary):
     if any(env.get(k) != v for k, v in expected.items()) or broker.get("ports"):
         raise ValueError("Exact existing internal broker listeners required")
     mounts = broker.get("volumes", [])
-    if (len(mounts) != 1 or not isinstance(mounts[0], dict) or mounts[0].get("type") != "volume"
-            or mounts[0].get("target") != env.get("KAFKA_LOG_DIRS") or mounts[0].get("read_only", False)):
-        raise ValueError("Exact existing writable Kafka data volume required")
-    definition = model.get("volumes", {}).get(mounts[0].get("source"))
-    if not isinstance(definition, dict) or not definition.get("name"):
-        raise ValueError("Actual Kafka volume name must be retained")
+    if (not 1<=len(mounts)<=3 or any(not isinstance(m,dict) or m.get('type')!='volume'
+                                     or m.get('read_only',False) for m in mounts)
+            or len({m.get('target') for m in mounts})!=len(mounts)
+            or len({m.get('source') for m in mounts})!=len(mounts)
+            or sum(m.get('target')==env.get('KAFKA_LOG_DIRS') for m in mounts)!=1
+            or any(m.get('target') not in {env.get('KAFKA_LOG_DIRS'),'/etc/kafka/secrets','/mnt/shared/config'} for m in mounts)):
+        raise ValueError('Exact existing data and bounded auxiliary Kafka mounts required')
+    definitions=model.get('volumes',{})
+    if any(not isinstance(definitions.get(m['source']),dict) or not definitions[m['source']].get('name')
+           or definitions[m['source']].get('external') is not True for m in mounts):
+        raise ValueError('Every actual Kafka volume must remain external')
     env["KAFKA_LISTENERS"] += ",PRIVATE://:" + str(KAFKA_PORT)
     env["KAFKA_ADVERTISED_LISTENERS"] += ",PRIVATE://" + primary + ":" + str(KAFKA_PORT)
     env["KAFKA_LISTENER_SECURITY_PROTOCOL_MAP"] += ",PRIVATE:PLAINTEXT"

@@ -18,6 +18,7 @@ from qualify_two_host_deployment import GENERATOR_IDLE
 from runtime_source_identity import source_identity_program
 from two_host_topology import NORMAL_COUNTS
 from worker_separation_inventory import ALL_CONTAINERS
+from worker_separation_retained import verify_retained
 from worker_separation_snapshot import bind_images, runtime_semantic
 from worker_separation_topology import WORKERS, validate_pair
 
@@ -308,11 +309,12 @@ def _authorize(guard, contract, timeout, receipt):
     guard.check(timeout)
 
 
-def _runtime(session, before_call=None):
+def _runtime(session, before_call=None, saved=None):
     signature = {}
     for host in ('primary', 'secondary'):
         if before_call is not None: before_call(45)
         rows = session.call(host, ALL_CONTAINERS, 45)
+        rows = verify_retained(rows, (saved or {}).get('retained_inactive_containers',{}) if host=='primary' else {})
         counts = Counter(r['Config']['Labels'].get('com.docker.compose.service') for r in rows)
         if ((host == 'secondary' and rows) or (host == 'primary' and dict(counts) != NORMAL_COUNTS)
                 or any(r['State']['Running'] is not True or r['Config']['Labels'].get('com.docker.compose.project') != 'flash-ticketing' for r in rows)):
@@ -330,9 +332,11 @@ def sealed_cleanup_program(seal):
     return proof + '\nif seal!=' + repr(seal['seal']) + ":raise ValueError('Cleanup seal changed')\n" + cleanup_program(seal)
 
 
-def stage_package(session, contract, sources, archive, receipt, guard):
+def stage_package(session, contract, sources, archive, receipt, guard, *, saved=None):
     """Guarded staging hook; only the registered fresh worker scope can enter."""
     validate_contract(contract, sources)
+    if saved is not None and guard.binding.get('worker_saved_runtime_sha256') != policy.digest(saved):
+        raise ValueError('Exact saved runtime including retained inventory required')
     _authorize(guard, contract, 360, receipt)
     archive = Path(archive).absolute()
     output = archive.parent
@@ -355,7 +359,7 @@ def stage_package(session, contract, sources, archive, receipt, guard):
     try:
         _authorize(guard, contract, 120, receipt)
         session.phase('worker-image-staging')
-        before = _runtime(session, lambda timeout: _authorize(guard, contract, timeout, receipt))
+        before = _runtime(session, lambda timeout: _authorize(guard, contract, timeout, receipt), saved)
         for host in ('primary', 'secondary'):
             repo = session.config[host]['repo'] if host == 'primary' else session.config[host]['prepared_directory']
             owner = owner_path(repo, output.name)
@@ -385,7 +389,7 @@ def stage_package(session, contract, sources, archive, receipt, guard):
                 raise ValueError('Exact loaded image/source proof required')
             _receipt(output / (host + '-verified.json'), proof)
         _authorize(guard, contract, 120, receipt)
-        if before != _runtime(session, lambda timeout: _authorize(guard, contract, timeout, receipt)): raise ValueError('Runtime changed during image staging')
+        if before != _runtime(session, lambda timeout: _authorize(guard, contract, timeout, receipt), saved): raise ValueError('Runtime changed during image staging')
         completed = True
     except BaseException as exc:  # noqa: BLE001 - interruption must retain ownership and attempt exact cleanup.
         result['failure_type'] = type(exc).__name__
@@ -402,7 +406,7 @@ def stage_package(session, contract, sources, archive, receipt, guard):
         runtime_unchanged = False
         if before is not None:
             try:
-                runtime_unchanged = before == _runtime(session)
+                runtime_unchanged = before == _runtime(session, saved=saved)
             except BaseException as exc:  # noqa: BLE001 - unknown runtime after cleanup blocks progression.
                 result['runtime_failure_type'] = type(exc).__name__
         result['runtime_unchanged'] = runtime_unchanged

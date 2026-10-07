@@ -28,7 +28,10 @@ from worker_separation_staging import _receipt, validate_archive
 from worker_separation_topology import WORKERS
 
 PROFILE='worker_separation'
-ENTRY_FILES=('worker_separation_profile.py','work_envelope.py','run_work_envelope.py')
+ENTRY_FILES=('worker_separation_profile.py','work_envelope.py','run_work_envelope.py',
+             'worker_separation_retained.py','worker_separation_snapshot.py','worker_separation_runtime.py',
+             'worker_separation_staging.py','worker_separation_runner.py','worker_separation_topology.py',
+             'worker_separation_execution.py','worker_separation_readiness.py')
 
 
 def entry_identity():
@@ -83,7 +86,7 @@ class Prepared:
         for value in package['inventory_sources'].values():source_identity_program(value)
         context=dependency_context(SimpleNamespace(pair=self.inputs['pair'],saved=self.saved),ca_pem)
         if (context['primary']!=config['primary']['private_ipv4']
-                or any(self.target[k]!=context['rds'][k] for k in ('host','port','dbname','user'))
+                or any(self.target[k]!=context['rds'][k] for k in ('host','port','dbname'))
                 or self.target['ca_sha256']!=hashlib.sha256(ca_pem.encode()).hexdigest()
                 or self.saved['bind_sha256'].get(self.target['ca_source_path'])!=self.target['ca_sha256']):
             raise ValueError('Prepared dependency authority differs from configured target')

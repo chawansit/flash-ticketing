@@ -11,7 +11,8 @@ from prepare_status_refresh_artifacts import owned_output
 from qualify_two_host_deployment import GENERATOR_IDLE
 from two_host_topology import NORMAL_COUNTS, bindings, environment, semantic
 from worker_separation_preload import binding_for, check_authority
-from worker_separation_snapshot import runtime_semantic, verify_restored
+from worker_separation_retained import program_prefix
+from worker_separation_snapshot import broker_records, runtime_semantic, verify_restored
 from worker_separation_staging import PROFILE, _receipt
 from worker_separation_topology import WORKERS
 
@@ -24,12 +25,12 @@ ID = re.compile(r'[0-9a-f]{64}$')
 def observation_program(saved, primary):
     """Bounded all-container/broker/bind observation; private data is never printed locally."""
     if type(primary) is not bool: raise TypeError('Explicit observation host required')
-    volume = saved['broker_volume']['Name'] if primary else None
+    volume = [r['Name'] for r in broker_records(saved)] if primary else []
     files = sorted(saved['bind_sha256']) if primary else []
     if (len(files) > 64 or any(not isinstance(p, str) or not p.startswith('/') or '..' in p.split('/') for p in files)
-            or (primary and (not isinstance(volume, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*', volume)))):
+            or (primary and any(not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*', v) for v in volume))):
         raise ValueError('Bounded exact original volume and bind paths required')
-    return "import hashlib,json,os,stat,subprocess,time\nvolume=" + repr(volume) + "\nfiles=" + repr(files) + r"""
+    return program_prefix(saved.get("retained_inactive_containers",{}) if primary else {}) + "import hashlib,json,os,stat,subprocess,time\nvolume=" + repr(volume) + "\nfiles=" + repr(files) + r"""
 deadline=time.monotonic()+25
 def budget(limit):
  remaining=deadline-time.monotonic()
@@ -40,7 +41,8 @@ def observe():
  if len(ids)>64 or len(set(ids))!=len(ids):raise ValueError('Bounded distinct inventory required')
  rows=json.loads(subprocess.check_output(['docker','inspect',*ids],text=True,timeout=budget(10))) if ids else []
  if len(rows)!=len(ids) or {r['Id'] for r in rows}!=set(ids):raise ValueError('Complete inventory required')
- volumes=json.loads(subprocess.check_output(['docker','volume','inspect',volume],text=True,timeout=budget(5))) if volume else []
+ rows=verify_retained(rows,retained_expected)
+ volumes=json.loads(subprocess.check_output(['docker','volume','inspect',*volume],text=True,timeout=budget(5))) if volume else []
  hashes={}
  for path in files:
   fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)
@@ -73,10 +75,10 @@ def stop_program(saved, rows):
     code = prelude + '\n' + helpers + '\n' + inspect.getsource(policy.digest)
     code += '\nexpected=' + repr(expected) + '\ntargets=' + repr(targets)
     code += '\nstarts_expected=' + repr({r['Id']:r['State']['StartedAt'] for r in rows})
-    code += '\nvolume_expected=' + repr(saved['broker_volume']) + '\nfiles_expected=' + repr(saved['bind_sha256'])
+    code += '\nvolume_expected=' + repr(broker_records(saved)) + '\nfiles_expected=' + repr(saved['bind_sha256'])
     code += r"""
 observed=observe()
-if observed['volumes']!=[volume_expected] or observed['bind_sha256']!=files_expected or {r['Id'] for r in observed['rows']}!=set(expected):raise ValueError('Original runtime changed before stop')
+if observed['volumes']!=volume_expected or observed['bind_sha256']!=files_expected or {r['Id'] for r in observed['rows']}!=set(expected):raise ValueError('Original runtime changed before stop')
 for row in observed['rows']:
  if row['State']['Running'] is not True or row['State']['StartedAt']!=starts_expected[row['Id']] or row['Config']['Labels'].get('com.docker.compose.project')!='flash-ticketing' or digest(runtime_semantic(row))!=expected[row['Id']]:raise ValueError('Original runtime semantics changed')
 for target in targets:
@@ -234,7 +236,7 @@ class RuntimeActions:
                                    or policy.digest(runtime_semantic(r))!=self.saved['semantics'].get(role)
                                    for role,r in zip(roles,rows,strict=True))
                         or any(roles.count(k)!=v for k,v in NORMAL_COUNTS.items() if k not in WORKERS)
-                        or primary['volumes']!=[self.saved['broker_volume']] or primary['bind_sha256']!=self.saved['bind_sha256']):
+                        or primary['volumes']!=broker_records(self.saved) or primary['bind_sha256']!=self.saved['bind_sha256']):
                     raise ValueError('Infrastructure changed while proving absence')
                 checks={'primary_workers_absent':True,'secondary_workers_absent':True}
             receipt={'action':name,'input_sha256':policy.digest(request),'pass':True,'checks':checks}

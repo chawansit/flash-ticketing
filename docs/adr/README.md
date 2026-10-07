@@ -344,3 +344,7 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0200: Guarded worker comparison assembly](0200-guarded-worker-comparison-assembly.md)
 
 - [ADR0201: Worker comparison envelope entry point](0201-worker-comparison-envelope-entrypoint.md)
+
+- [ADR0202: Retained inactive container inventory](0202-retained-inactive-container-inventory.md)
+
+- [ADR0203: Retain Kafka image-declared volumes](0203-retain-kafka-image-declared-volumes.md)

@@ -6,6 +6,7 @@ from pathlib import PurePosixPath
 
 from two_host_topology import NORMAL_COUNTS, bindings, environment, semantic
 from worker_separation_inventory import digest
+from worker_separation_retained import capture_retained
 from worker_separation_topology import FORBIDDEN
 
 IMAGE = re.compile(r'sha256:[0-9a-f]{64}$')
@@ -55,7 +56,7 @@ def _path(value):
 def runtime_semantic(row):
     result = semantic(row)
     result['mounts'] = sorted((m['Type'], m.get('Name', ''), m['Source'], m['Destination'], m['RW'],
-                               m.get('Propagation', ''), m.get('Mode', ''))
+                               m.get('Propagation', ''), m.get('Mode') or ('rw' if m['RW'] else 'ro'))
                               for m in row.get('Mounts', []))
     host = row['HostConfig']
     result['host_options'] = {k: host.get(k) for k in (
@@ -83,34 +84,59 @@ def _groups(rows):
     return groups
 
 
+def broker_records(saved):
+    auxiliary=saved.get('broker_auxiliary_volumes',[])
+    if not isinstance(auxiliary,list) or len(auxiliary)>2:
+        raise ValueError('Bounded existing broker volume receipt required')
+    records=[saved['broker_volume'],*auxiliary]
+    names=[r.get('Name') for r in records]
+    if (len(set(names))!=len(names) or any(not isinstance(n,str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*',n) for n in names)
+            or any(r.get('Driver')!='local' or r.get('Options') not in (None,{}) for r in records)):
+        raise ValueError('Exact distinct local broker volumes required')
+    return records
+
+
+def _broker_inventory(groups, volumes):
+    row=groups['kafka'][0];mounts=row.get('Mounts',[])
+    if (not 1<=len(mounts)<=3 or any(m['Type']!='volume' or m['RW'] is not True for m in mounts)
+            or len({m['Destination'] for m in mounts})!=len(mounts)
+            or len({m.get('Name') for m in mounts})!=len(mounts)):
+        raise ValueError('Exact bounded writable Kafka volumes required')
+    directory=environment(row).get('KAFKA_LOG_DIRS')
+    data=[m for m in mounts if m['Destination']==directory]
+    auxiliary=[m for m in mounts if m['Destination']!=directory]
+    declared=row['Config'].get('Volumes') or {}
+    if (len(data)!=1 or any(m['Destination'] not in {'/etc/kafka/secrets','/mnt/shared/config'}
+                            or m['Destination'] not in declared for m in auxiliary)):
+        raise ValueError('Exact log volume and declared auxiliary destinations required')
+    rows={v['Name']:v for v in volumes}
+    if len(rows)!=len(volumes) or set(rows)!={m.get('Name') for m in mounts}:
+        raise ValueError('Every existing broker volume must be inspected')
+    main=copy.deepcopy(rows[data[0]['Name']])
+    aux=[copy.deepcopy(rows[m['Name']]) for m in sorted(auxiliary,key=lambda m:m['Name'])]
+    broker_records({'broker_volume':main,'broker_auxiliary_volumes':aux})
+    return main,aux
+
+
 def _broker_volume(groups, volumes):
-    mounts = groups['kafka'][0].get('Mounts', [])
-    if len(mounts) != 1 or mounts[0]['Type'] != 'volume' or mounts[0]['RW'] is not True:
-        raise ValueError('Exact writable Kafka named volume required')
-    mount = mounts[0]
-    env = environment(groups['kafka'][0])
-    if mount['Destination'] != env.get('KAFKA_LOG_DIRS') or not mount.get('Name'):
-        raise ValueError('Kafka log directory and actual volume name required')
-    if len(volumes) != 1 or volumes[0].get('Name') != mount['Name']:
-        raise ValueError('Exact existing broker volume inspection required')
-    if volumes[0].get('Driver') != 'local' or volumes[0].get('Options') not in (None, {}):
-        raise ValueError('Custom persistent volume drivers need separate qualification')
-    return copy.deepcopy(volumes[0])
+    return _broker_inventory(groups,volumes)[0]
 
 
 def capture_runtime(model, rows, volumes, bind_hashes):
     """Input rows must come from all-container observations, including stopped rows."""
     if model.get('name') != 'flash-ticketing':
         raise ValueError('Original project required')
+    rows, retained = capture_retained(rows)
     groups = _groups(rows)
-    volume = _broker_volume(groups, volumes)
+    volume, auxiliary_volumes = _broker_inventory(groups, volumes)
     actual_binds = {_path(m['Source']) for r in rows for m in r.get('Mounts', []) if m['Type'] == 'bind'}
     if set(bind_hashes) != actual_binds or any(not IDENTITY.fullmatch(v) for v in bind_hashes.values()):
         raise ValueError('Every original bind file needs exact content identity')
     result = copy.deepcopy(model)
     result['services'] = {r: result['services'][r] for r in groups}
     # Existing volume only: Compose must never create a replacement for a missing one.
-    result['volumes'] = {'owned-kafka-data': {'name': volume['Name'], 'external': True}}
+    volume_keys={volume['Name']:'owned-kafka-data',**{v['Name']:'owned-kafka-aux-'+str(i) for i,v in enumerate(auxiliary_volumes)}}
+    result['volumes'] = {volume_keys[v['Name']]:{'name':v['Name'],'external':True} for v in [volume,*auxiliary_volumes]}
     semantics = {}
     for role, replicas in groups.items():
         if len({digest(runtime_semantic(r)) for r in replicas}) != 1:
@@ -127,8 +153,14 @@ def capture_runtime(model, rows, volumes, bind_hashes):
         if (host.get('Privileged') or host.get('ReadonlyRootfs') or host.get('SecurityOpt')
                 or host.get('CapAdd') or host.get('CapDrop') or host.get('Tmpfs')
                 or host.get('Memory', 0) or host.get('NanoCpus', 0)
-                or host.get('PidsLimit') not in (None, 0) or host.get('Ulimits')):
+                or host.get('PidsLimit') not in (None, 0)):
             raise ValueError('Unsupported runtime options need separate restoration qualification')
+        limits=host.get('Ulimits')
+        expected_limits=[{'Name':'nofile','Soft':65535,'Hard':65535}]
+        if limits not in (None,[]) and (role!='load-balancer' or limits!=expected_limits):
+            raise ValueError('Only the exact original load-balancer nofile limits are supported')
+        service.pop('ulimits',None)
+        if limits:service['ulimits']={'nofile':{'soft':65535,'hard':65535}}
         mode = host.get('NetworkMode')
         if mode not in (None, 'flash-ticketing_default'):
             raise ValueError('Exact original Compose default network required')
@@ -165,8 +197,8 @@ def capture_runtime(model, rows, volumes, bind_hashes):
         for mount in row.get('Mounts', []):
             if mount.get('Propagation', '') not in ('', 'rprivate') or mount.get('Mode', '') not in ('', 'ro', 'rw'):
                 raise ValueError('Unsupported runtime mount propagation or mode')
-            if mount['Type'] == 'volume' and role == 'kafka' and mount['Name'] == volume['Name']:
-                source = 'owned-kafka-data'
+            if mount['Type'] == 'volume' and role == 'kafka' and mount['Name'] in volume_keys:
+                source = volume_keys[mount['Name']]
             elif mount['Type'] == 'bind':
                 source = _path(mount['Source'])
             else:
@@ -176,7 +208,9 @@ def capture_runtime(model, rows, volumes, bind_hashes):
         semantics[role] = digest(runtime_semantic(row))
     return {'schema': 1, 'decision': 'ADR0186', 'model': result, 'counts': dict(NORMAL_COUNTS),
             'semantics': semantics, 'broker_volume': volume, 'bind_sha256': dict(bind_hashes),
-            'original_containers': sorted(r['Id'] for r in rows)}
+            'original_containers': sorted(r['Id'] for r in rows),
+            **({'broker_auxiliary_volumes':auxiliary_volumes} if auxiliary_volumes else {}),
+            **({'retained_inactive_containers': retained} if retained else {})}
 
 
 def verify_restored(saved, rows_by_host, volumes, bind_hashes):
@@ -185,7 +219,8 @@ def verify_restored(saved, rows_by_host, volumes, bind_hashes):
     groups = _groups(rows_by_host['primary'])
     if (dict(Counter(r['Config']['Labels']['com.docker.compose.service'] for r in rows_by_host['primary'])) != saved['counts']
             or any(digest(runtime_semantic(row)) != saved['semantics'][role] for role, rs in groups.items() for row in rs)
-            or _broker_volume(groups, volumes) != saved['broker_volume'] or bind_hashes != saved['bind_sha256']):
+            or _broker_inventory(groups, volumes) != (saved['broker_volume'],saved.get('broker_auxiliary_volumes',[]))
+            or bind_hashes != saved['bind_sha256']):
         raise ValueError('Original runtime, broker volume or private file restoration differs')
     return {'runtime_restored': True, 'broker_volume_retained': True, 'bind_files_restored': True,
             'secondary_empty': True}
