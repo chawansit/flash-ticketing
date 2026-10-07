@@ -47,8 +47,10 @@ def check_authority(binding, scope_key):
         records, state = policy.journal(data), policy.read(policy.STATE)
         if records['human_pause'] or state.get('human_pause') is True or policy.PAUSE.exists():
             blockers.append('human_pause')
+        from historical_recovery_exception import accepted
         from pre_dispatch_abort_recovery import resolved
-        if any(r['status'] == 'RECOVERY_REQUIRED' and not resolved(records, r, policy.ROOT) for r in records['experiments']):
+        if any(r['status'] == 'RECOVERY_REQUIRED' and not resolved(records, r, policy.ROOT)
+               and not accepted(records, r, policy.ROOT) for r in records['experiments']):
             blockers.append('unresolved_recovery')
         if any(r['status'] == 'ACTIVE' and r['ledger'] != scope_key for r in records['experiments']):
             blockers.append('other_active_experiment')

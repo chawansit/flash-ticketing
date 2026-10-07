@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-07",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "atomic_claim_matched_pair_passed_restored_modest_latency_no_capacity_gain",
+  "status": "background_configuration_locally_qualified_full_worker_lifecycle_pending",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -76,7 +76,7 @@
     "Locally qualify the entire extension and registry before a fresh matched full-visibility placement comparison."
   ],
   "authorization": "Standing envelope: existing resources only, zero new infrastructure spend, no cumulative cap, bounded tracked experiments, exact customer/correctness gates, codex branch publication only. ADR0180 reuses already supplied administrator access only in a read-only observer; no grants or infrastructure changes needed.",
-  "scope": "Fresh frozen synchronous control on existing resources; same 2+2 APIs, workload and aggregate connection budgets. No ADR0189 candidate, higher-rate or hourly qualification.",
+  "scope": "Routine offline background-service separation integration under ADR0172 on existing resources. No cloud deployment or load in ADR0194. Preserve all current customer/correctness gates; reviewed code/evidence may publish to codex branch; main merge requires approval.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -1093,7 +1093,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Focus on measured background CPU imbalance: integrate and locally qualify fixed-budget background-service rebalancing on the existing secondary ECS. Keep total API, worker and database budgets and all gates unchanged; then run a controlled comparison and 84 tickets/s qualification. Atomic claim shows modest latency benefit, without the required 40% capacity increase.",
+  "next_action": "Integrate sealed ADR0194 configuration into ADR0186 handover: common infrastructure and private dependency readiness, exact worker starts, owned stops, original broker/runtime restoration and full mandatory financial/observer audits. Locally qualify the complete adapter and register its fresh guarded profile before a matched four-primary-API background-placement comparison. Then pursue 84 paid-and-issued tickets/s and hourly qualification; no capacity gain from this preparation.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -2017,7 +2017,7 @@
     ]
   },
   "worker_separation_preparation": {
-    "status": "worker_runtime_primitives_locally_qualified_full_adapter_pending_recovery_required",
+    "status": "sealed_configuration_locally_qualified_full_live_adapter_pending",
     "implemented": [
       "Pure fixed-factor worker placement models with immutable images and unchanged logical pool totals",
       "Common private Kafka listener and four-API callback ingress configuration",
@@ -2036,12 +2036,16 @@
       "Exact immutable-ID original worker stop with per-target role, start and semantic checks and a shared remote deadline",
       "Independent two-host worker-absence verification, rejecting stopped, foreign and overlapping resources",
       "Fresh drain evidence bound to the complete scope and selected arm, rechecked immediately before removal",
-      "Exclusive flushed intents, stop-target receipts and acknowledgements; failures block forward progression and replay"
+      "Exclusive flushed intents, stop-target receipts and acknowledgements; failures block forward progression and replay",
+      "Exact arm and original restoration Compose JSON bound to pair, snapshot, host, arm and fresh scope",
+      "Exclusive owner-only POSIX installation, complete file/inode/hash seal and payload-free private ownership receipts",
+      "Single-use guarded installation; exact sealed verification and cleanup during pause or deadline expiry",
+      "Worker authority reuses the existing exact ADR0190 exception verifier; unknown failures still block"
     ],
     "not_implemented": [
-      "Owned configuration installation, common infrastructure changes, destination starts and exact original restoration",
-      "Full lifecycle/audit/observer integration, private live receipt collection and registered guarded profile qualification",
-      "Exact historical paid-fixture ownership and recovery verification before fresh cloud mutations or load"
+      "Common infrastructure application and private dependency readiness",
+      "Exact destination worker starts, owned stop and original broker/runtime restoration",
+      "Full financial/audit/observer lifecycle integration and registered guarded profile qualification"
     ],
     "cloud_deployment_started": false,
     "cloud_load_started": false,
@@ -2049,13 +2053,15 @@
     "host_aware_observers_locally_tested": true,
     "local_lifecycle_qualified": true,
     "live_lifecycle_qualified": false,
-    "latest_evidence": "docs/capacity/flash-sale-opening/background-service-separation-runtime-2026-10-06.json",
+    "latest_evidence": "docs/capacity/flash-sale-opening/background-service-separation-configuration-2026-10-07.json",
     "local_staging_qualified": true,
     "local_preload_report_qualified": true,
     "live_staging_qualified": false,
     "worker_profile_registered": false,
     "partial_runtime_adapter_locally_qualified": true,
-    "full_live_adapter_implemented": false
+    "full_live_adapter_implemented": false,
+    "local_configuration_qualified": true,
+    "historical_recovery_note": "ADR0190 exact exception permits fresh work without certifying or replaying the old missing-fixture run. New ownership, restoration and financial gates remain mandatory."
   },
   "performance_focus": {
     "decision": "ADR0189",
@@ -2363,5 +2369,15 @@
     "actual_elapsed_seconds": 14324.329999999987,
     "reserved_seconds": 39600,
     "maximum_new_infrastructure_spend": 0
+  },
+  "last_engineering_checkpoint": {
+    "decision": "ADR0194",
+    "base_revision": "f281c8cd241ef4d84880d52d0b05a1e32cb697fe",
+    "evidence": "docs/capacity/flash-sale-opening/background-service-separation-configuration-2026-10-07.json",
+    "recorded_at_utc": "2026-10-07T03:17:02.649304+00:00",
+    "tests_passed": 336,
+    "cloud_load_started": false,
+    "capacity_improvement_measured": false,
+    "full_worker_lifecycle_qualified": false
   }
 }

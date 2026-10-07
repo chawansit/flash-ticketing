@@ -328,3 +328,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0192: Source-pinned atomic claim candidate export](0192-source-pinned-atomic-claim-candidate-export.md)
 
 - [ADR0193: Bounded atomic payment claim comparison](0193-bounded-atomic-payment-claim-comparison.md)
+
+- [ADR0194: Sealed worker configuration bundles](0194-sealed-worker-configuration-bundles.md)

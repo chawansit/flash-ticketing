@@ -281,12 +281,12 @@ def test_preflight_blocks_missing_failed_stale_or_unbound_evidence(tmp_path,monk
     assert 'secret' not in json.dumps(result)
 
 
-def test_real_local_preflight_retains_historical_recovery_blocker(monkeypatch):
+def test_real_local_preflight_preserves_unregistered_profile_blocker(monkeypatch):
     monkeypatch.setattr(preload,'check_naming',lambda:{'status':'PASS'})
     result=preload.evaluate()
     assert result['status']=='BLOCKED'
     blockers=result['checks']['authorization_and_ownership']['blockers']
-    assert 'unresolved_recovery' in blockers and 'profile_not_registered' in blockers
+    assert 'profile_not_registered' in blockers and 'fresh_bound_scope_missing' in blockers
 
 
 def test_upload_guard_is_checked_before_transfer_and_each_block(tmp_path):
@@ -462,3 +462,24 @@ def test_oci_archive_verifies_pinned_runtime_and_attestation_graph(tmp_path, cha
     if change:
         with pytest.raises((ValueError, KeyError)): stage.validate_archive(path,{root['digest']})
     else: stage.validate_archive(path,{root['digest']})
+
+
+@pytest.mark.parametrize('change', ['known', 'binding', 'unknown', 'receipt_missing'])
+def test_worker_authority_reuses_only_exact_verified_historical_exception(tmp_path, monkeypatch, change):
+    import historical_recovery_exception as history
+    history_tests = module('test_historical_recovery_exception')
+    area = history_tests.area.__wrapped__(tmp_path, monkeypatch)
+    history_tests.install(area)
+    actual = policy.read(policy.JOURNAL)
+    original = area[1]
+    assert history.accepted(actual, original, area[0]) is True
+    data, _ = inputs()
+    _, records, _ = mock_preload_policy(monkeypatch, tmp_path, data)
+    records['experiments'].append(copy.deepcopy(original))
+    records['historical_exceptions'] = copy.deepcopy(actual['historical_exceptions'])
+    if change == 'binding': records['experiments'][-1]['binding_sha256'] = 'f' * 64
+    elif change == 'unknown': records['experiments'][-1]['ledger'] = 'unknown-paid-failure'
+    elif change == 'receipt_missing': records['historical_exceptions'] = {}
+    result = preload.check_authority(preload.binding_for(data), 'test-scope')
+    assert ('unresolved_recovery' not in result['blockers']) == (change == 'known')
+    assert (result['status'] == 'PASS') == (change == 'known')

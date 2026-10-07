@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "decision": "ADR0194",
+  "placement_decision": "ADR0184",
+  "base_revision": "f281c8cd241ef4d84880d52d0b05a1e32cb697fe",
+  "status": "configuration_component_locally_qualified_full_live_lifecycle_pending",
+  "recorded_at_utc": "2026-10-07T03:17:02.649304+00:00",
+  "implemented": [
+    "Exact arm and original restoration Compose JSON bound to pair, snapshot, host, arm and fresh scope",
+    "Exclusive owner-only POSIX installation, complete file/inode/hash seal and payload-free private ownership receipts",
+    "Single-use guarded installation; exact sealed verification and cleanup during pause or deadline expiry",
+    "No overwrite of original configuration; no recursive deletion, broker mutation or worker start",
+    "Worker authority reuses the existing exact ADR0190 exception verifier; unknown failures still block"
+  ],
+  "validation": {
+    "final_affected_suite": {
+      "passed": 336,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 31.23,
+      "cache_provider_disabled": true
+    },
+    "real_linux_generated_program_cases": 14,
+    "local_linux_container_removed": true,
+    "ruff_pass": true,
+    "repository_naming_working_pass": true,
+    "faults": [
+      "partial write",
+      "lost acknowledgement",
+      "journal failure",
+      "changed content or inode",
+      "symlink or hardlink",
+      "permission or ownership drift",
+      "unowned files",
+      "guard/transport/scope drift",
+      "pause",
+      "changed or missing historical exception proof"
+    ],
+    "qualification_history": [
+      {
+        "passed": 27,
+        "pytest_seconds": 3.48
+      },
+      {
+        "passed": 41,
+        "pytest_seconds": 5.86
+      },
+      {
+        "passed": 302,
+        "pytest_seconds": 26.97
+      },
+      {
+        "test_collection_errors": 1,
+        "corrected": "Local test-template quoting"
+      },
+      {
+        "passed": 48,
+        "pytest_seconds": 6.88
+      },
+      {
+        "passed": 307,
+        "pytest_seconds": 30.35
+      },
+      {
+        "passed": 311,
+        "pytest_seconds": 27.51
+      },
+      {
+        "passed": 336,
+        "pytest_seconds": 29.91
+      },
+      {
+        "passed": 51,
+        "pytest_seconds": 7.63,
+        "scope": "Final changed component and real Linux cases after cleanup failure fencing"
+      }
+    ],
+    "source_sha256": {
+      "scripts/worker_separation_configuration.py": "83fb38599ab2e0d62e7e2d2fbbac6538940b2478b3f08611dabf60f00d7b2011",
+      "scripts/worker_separation_preload.py": "b84272792aa31f7dfcc3a3db2338cd3ba38852b01927a140e8ee7d5a30d8b95b",
+      "tests/unit/test_worker_separation_configuration.py": "5615b0e6c1f6c1916f6a2bbf62ba9f2608d76878b2e7e6aea06c56a00a935123",
+      "tests/unit/test_worker_separation_staging.py": "e6840e201243dd05a2889fb17c81124aff700b8c44ae2faba34dee18e8299087",
+      "tests/integration/test_worker_configuration_posix.py": "1b292bab5b230cb217cefa9af780a61515e97e3489972b34b3e19daae0fee79c"
+    },
+    "regression_note": "Final authority tests construct isolated proof artifacts; no dependence on private cloud evidence. Cleanup failure fences all subsequent installation while retaining owned cleanup access.",
+    "local_test_log": {
+      "path": "tmp/adr0194-local-tests.txt",
+      "sha256": "5b011ef5ef1ed3e5fac9a8c733b4ce453cf07e18ec1de81cb30bed6745d79b59"
+    },
+    "linux_python_image": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e"
+  },
+  "remaining": [
+    "Common infrastructure application and private dependency readiness",
+    "Exact destination worker starts, owned stop and original broker/runtime restoration",
+    "Full financial/audit/observer lifecycle integration and registered guarded profile qualification",
+    "Fresh fixed-budget control/candidate cloud comparison, then 84 tickets/s and hourly qualification"
+  ],
+  "fixed_factor": {
+    "api_placement": "four primary APIs in both arms",
+    "worker_placement": "primary versus existing secondary",
+    "images_and_logical_pool_budgets": "unchanged between arms"
+  },
+  "cloud_deployments": 0,
+  "cloud_load_started": false,
+  "customer_dispatches": 0,
+  "capacity_improvement_measured": false,
+  "hourly_qualified": false,
+  "worker_profile_registered": false,
+  "historical_financial_reconciliation_verified": false,
+  "cloud_accounting_unchanged": true,
+  "new_infrastructure_spending": 0,
+  "actual_cumulative_cloud_seconds": 14324.329999999987
+}
