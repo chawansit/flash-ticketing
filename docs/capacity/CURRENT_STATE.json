@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-07",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "background_readiness_and_audit_retention_locally_qualified_full_worker_runner_pending",
+  "status": "concrete_worker_audits_locally_qualified_complete_runner_pending",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -1095,7 +1095,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Connect ADR0196 readiness and ADR0195 execution to concrete mandatory paid/post-TTL/double-booking/full queue audits and host-aware observers in the complete worker runner. Locally qualify all failure/restoration paths and register a fresh guarded profile before the unchanged-budget four-primary-API worker-placement comparison. Then pursue 84 paid-and-issued tickets/s and one-hour qualification. No measured capacity improvement from local preparation.",
+  "next_action": "Assemble the ADR0197 concrete audit provider, ADR0196 readiness, ADR0195 execution and host-aware observers/paid stage into the complete worker runner. Locally qualify failures, pause, journal loss and restoration; then register a fresh guarded profile before the unchanged-budget four-primary-API worker-placement comparison. No cloud load or capacity improvement from this local checkpoint. Continue toward 84 paid-and-issued tickets/s and one-hour qualification after the measured comparison passes.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -2019,7 +2019,7 @@
     ]
   },
   "worker_separation_preparation": {
-    "status": "dependency_and_retention_components_locally_qualified_full_live_runner_pending",
+    "status": "concrete_audit_components_locally_qualified_complete_worker_runner_pending",
     "implemented": [
       "Pure fixed-factor worker placement models with immutable images and unchanged logical pool totals",
       "Common private Kafka listener and four-API callback ingress configuration",
@@ -2054,11 +2054,19 @@
       "Fresh owned immutable-image probes on both hosts with restricted resource settings, private stdin and exact-ID removal",
       "Shared 90-second readiness deadline with reserved remote cleanup time and independent unchanged-runtime observations",
       "Worker startup requires complete readiness receipt, matching scope/context, and freshness rechecked immediately before start",
-      "Recovery files retained until every mandatory financial, post-TTL, booking, stop/absence, restoration, drain, idle and journal gate passes"
+      "Recovery files retained until every mandatory financial, post-TTL, booking, stop/absence, restoration, drain, idle and journal gate passes",
+      "Scope-bound retained fixture and predetermined order/payment/callback expectations; missing or altered cohort cannot pass",
+      "Read-only repeatable-read committed financial snapshot with exact counts, hold/customer, order, item, seat, booking, ticket, total and currency checks",
+      "Database-clock post-TTL wait and independent global duplicate-booking audit",
+      "Complete reservation, refresh, outbox, refund, callback, confirmation/capacity and Kafka drain checks",
+      "Consumer-free Kafka handover audit requires Empty membership, all partition offsets and unchanged offsets/metadata; no absent-offset inference",
+      "Same guarded audit provider connected to original worker stop and placement start/stop/restoration gates",
+      "Exact primary API identity and two-host runtime rechecks, private stdin, shared bounded audit deadlines and Linux child alarm",
+      "Unknown financial outcomes cannot be replayed; journal failures preserve recovery state while mandatory owned cleanup observations continue"
     ],
     "not_implemented": [
-      "Concrete mandatory payment/post-TTL/double-booking/full queue and observer integration in the complete worker runner",
-      "Complete adapter fault qualification and fresh guarded worker profile registration"
+      "Complete host-aware observer and paid-stage integration in one worker lifecycle runner",
+      "Complete adapter failure/restoration qualification and guarded profile registration"
     ],
     "cloud_deployment_started": false,
     "cloud_load_started": false,
@@ -2066,7 +2074,7 @@
     "host_aware_observers_locally_tested": true,
     "local_lifecycle_qualified": true,
     "live_lifecycle_qualified": false,
-    "latest_evidence": "docs/capacity/flash-sale-opening/background-service-separation-readiness-2026-10-07.json",
+    "latest_evidence": "docs/capacity/flash-sale-opening/background-service-separation-audits-2026-10-07.json",
     "local_staging_qualified": true,
     "local_preload_report_qualified": true,
     "live_staging_qualified": false,
@@ -2077,7 +2085,10 @@
     "historical_recovery_note": "ADR0190 exact exception permits fresh work without certifying or replaying the old missing-fixture run. New ownership, restoration and financial gates remain mandatory.",
     "local_execution_components_qualified": true,
     "local_dependency_readiness_component_qualified": true,
-    "live_dependency_readiness_verified": false
+    "live_dependency_readiness_verified": false,
+    "concrete_financial_audits_locally_qualified": true,
+    "guarded_execution_audit_provider_connected": true,
+    "full_worker_lifecycle_qualified": false
   },
   "performance_focus": {
     "decision": "ADR0189",
@@ -2388,11 +2399,11 @@
     "maximum_new_infrastructure_spend": 0
   },
   "last_engineering_checkpoint": {
-    "decision": "ADR0196",
-    "base_revision": "c73d8db0a13fd3beaf7830db6058c9394c869b66",
-    "evidence": "docs/capacity/flash-sale-opening/background-service-separation-readiness-2026-10-07.json",
-    "recorded_at_utc": "2026-10-07T04:16:12.055082+00:00",
-    "tests_passed": 446,
+    "decision": "ADR0197",
+    "base_revision": "60bf2a21058bb00b4c373458aa88235f5c7b90c5",
+    "evidence": "docs/capacity/flash-sale-opening/background-service-separation-audits-2026-10-07.json",
+    "recorded_at_utc": "2026-10-07T05:19:07.287678+00:00",
+    "tests_passed": 488,
     "cloud_load_started": false,
     "capacity_improvement_measured": false,
     "full_worker_lifecycle_qualified": false

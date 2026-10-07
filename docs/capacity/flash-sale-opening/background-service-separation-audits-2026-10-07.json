@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "decision": "ADR0197",
+  "placement_decision": "ADR0184",
+  "base_revision": "60bf2a21058bb00b4c373458aa88235f5c7b90c5",
+  "recorded_at_utc": "2026-10-07T05:19:07.287678+00:00",
+  "status": "concrete_audit_components_locally_qualified_complete_worker_runner_pending",
+  "implemented": [
+    "Scope-bound retained fixture and predetermined order/payment/callback expectations; missing or altered cohort cannot pass",
+    "Read-only repeatable-read committed financial snapshot with exact counts, hold/customer, order, item, seat, booking, ticket, total and currency checks",
+    "Database-clock post-TTL wait and independent global duplicate-booking audit",
+    "Complete reservation, refresh, outbox, refund, callback, confirmation/capacity and Kafka drain checks",
+    "Consumer-free Kafka handover audit requires Empty membership, all partition offsets and unchanged offsets/metadata; no absent-offset inference",
+    "Same guarded audit provider connected to original worker stop and placement start/stop/restoration gates",
+    "Exact primary API identity and two-host runtime rechecks, private stdin, shared bounded audit deadlines and Linux child alarm",
+    "Unknown financial outcomes cannot be replayed; journal failures preserve recovery state while mandatory owned cleanup observations continue"
+  ],
+  "validation": {
+    "final_affected_suite": {
+      "passed": 488,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 147.07
+    },
+    "new_focused_unit_cases": 57,
+    "new_postgresql_integration_cases": 23,
+    "real_linux_generated_transport_cases": 6,
+    "linux_transport_docker_observations": "Simulated Docker; real Linux subprocesses, alarm deadline and local PostgreSQL queries",
+    "concurrent_commit_snapshot_test": true,
+    "database_clock_expiry_wait_test": true,
+    "local_owned_test_resources_remaining": 0,
+    "ruff_pass": true,
+    "repository_naming_working_pass": true,
+    "failure_history": [
+      {
+        "scope": "first focused unit suite",
+        "passed": 34,
+        "failed": 4,
+        "pytest_seconds": 6.71,
+        "correction": "Rebind synthetic configuration seals after extending the test scope"
+      },
+      {
+        "scope": "first PostgreSQL suite",
+        "passed": 14,
+        "failed": 1,
+        "pytest_seconds": 3.5,
+        "correction": "Run Linux alarm transport on actual Linux rather than Windows child processes"
+      },
+      {
+        "scope": "combined collection",
+        "errors": 1,
+        "pytest_seconds": 1.02,
+        "correction": "Use distinct unit and integration module basenames"
+      },
+      {
+        "scope": "first native harness suite",
+        "passed": 460,
+        "failed": 6,
+        "pytest_seconds": 99.22,
+        "correction": "Supply the simulated observation function to generated program globals"
+      },
+      {
+        "scope": "second native harness suite",
+        "passed": 479,
+        "failed": 1,
+        "pytest_seconds": 103.93,
+        "correction": "Use the isolated PostgreSQL container network rather than host-loopback forwarding"
+      },
+      {
+        "scope": "focused PostgreSQL/Linux correction check",
+        "passed": 21,
+        "failed": 0,
+        "pytest_seconds": 18.14
+      }
+    ]
+  },
+  "accounting": {
+    "new_registered_cloud_experiments": 0,
+    "cloud_experiment_ledger_unchanged": true,
+    "final_local_test_process_wall_seconds": 148.0,
+    "local_test_time_excludes_editing_and_review": true
+  },
+  "not_implemented": [
+    "Complete host-aware observer and paid-stage integration in one worker lifecycle runner",
+    "Complete adapter failure/restoration qualification and guarded profile registration"
+  ],
+  "full_worker_lifecycle_qualified": false,
+  "worker_profile_registered": false,
+  "cloud_dependency_readiness_verified": false,
+  "cloud_deployment_started": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false
+}

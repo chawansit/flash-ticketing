@@ -334,3 +334,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0195: Guarded worker execution and exact restoration](0195-guarded-worker-execution-and-exact-restoration.md)
 
 - [ADR0196: Bound private dependency readiness and audit retention](0196-bound-private-dependency-readiness-and-audit-retention.md)
+
+- [ADR0197: Fixture-bound financial and full queue audits](0197-fixture-bound-financial-and-full-queue-audits.md)
