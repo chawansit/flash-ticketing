@@ -699,6 +699,29 @@
         }
       ],
       "finished_at_utc": "2026-10-08T01:53:37.158406+00:00"
+    },
+    {
+      "ledger": "bounded_shared_callback_rate_probe__aea04bbd86e2",
+      "authorization_id": "work-envelope-aea04bbd86e2",
+      "envelope_sha256": "b2fc5267cf7e5c3fe2ab4ac3578d4eea290b580834877a1047b6de523bbb8c06",
+      "binding_sha256": "302d861e61d6db478928e3e1e582264f10e0cfc8bc8be80b8afb1b275eb1d20c",
+      "plan_sha256": "b775d9679a2dc33be05b1a0ed1d6e4dfa15bf3685bca825ea8a8a03d99e6baad",
+      "profile": "shared_callback_rate_probe",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1382.1879999999946,
+      "started_at_utc": "2026-10-08T02:15:59.606724+00:00",
+      "status": "RECOVERY_REQUIRED",
+      "reports": [
+        {
+          "run": "adr0151-16fb7dcff5ed",
+          "pass": true
+        },
+        {
+          "run": "adr0151-ee1f1f1716f5",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-08T02:39:01.885855+00:00"
     }
   ],
   "verified_aborts": {
