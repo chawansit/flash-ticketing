@@ -1,0 +1,54 @@
+{
+  "decision": "ADR0228",
+  "date_bangkok": "2026-10-08",
+  "base_revision": "a76ce0f2fc0d3c2eb94059891d79585e879bc308",
+  "status": "NATIVE_STAGE_COMPONENTS_LOCALLY_VERIFIED_FULL_RUNNER_PENDING",
+  "implemented": [
+    "Four-pod safety protocol: 100 simultaneous requests, 25 per pod, exactly one hold, cross-pod hold/payment replay, authorization and customer ticket checks",
+    "Corrected frozen 78-file generator reuse, immutable source read-back, retained fixture identity and allowance consumption before ambiguous dispatch",
+    "Owned generator launch/wait/stop and independent post-TTL financial/full queue audits",
+    "Verified generator idle required before input removal; unknown or reused process identity preserves inputs and blocks recovery completion",
+    "Captured one-plus-three ECS API stop, unchanged Nginx policy with native pod upstreams, and exact candidate API/route restoration",
+    "Partial route transfer recovery verifies load-balancer identity before repairing configuration; it does not require malformed configuration to parse first"
+  ],
+  "validation": {
+    "focused_tests_passed": 231,
+    "elapsed_seconds": 12.09,
+    "new_component_tests": 63,
+    "existing_component_regressions": 168,
+    "ruff_passed": true,
+    "naming_working_passed": true,
+    "diff_check_passed": true,
+    "remote_lifecycle_programs": "Executed with mocked Docker for identity drift and partial-route recovery; no actual ECS mutation",
+    "concurrency_scope": "HTTP responses simulated; this checkpoint does not prove live cross-pod Redis concurrency",
+    "earlier_local_failures_corrected": [
+      "Recovery-handler indentation during editing",
+      "Overbroad test receipt containing an unrelated cleanup field",
+      "A nonexistent test filename corrected using repository file discovery"
+    ]
+  },
+  "core_sources_sha256": {
+    "scripts/cce_paid_stage.py": "1f440340eff94ce3346d0fa2f39d2667c8086199f49c5393184c0fc916eba668",
+    "scripts/cce_paid_safety.py": "d8c97685832e3e0b4c20a944c1a789799831589bae789ca8b635e60ce6f433b5",
+    "scripts/cce_api_adapter.py": "a18d55cc9c4da7ed0626743d2b8b8985b8aa86f520eeb85ecb90cc718c0bc6aa",
+    "scripts/cce_ecs_transition.py": "dd19818480c0fff83fe8bec4d0e837e070c9a935c8fcb8488fde01ee8638a0fd",
+    "scripts/run_two_host_paid_comparison.py": "f1ca3df9d9ee8d144dc5586fb408b4c78f5a2271a85e988664fb72671c8b09b6",
+    "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+    "scripts/prepare_generator_completion.py": "4ad90f94bbd53108cb01b805037e6aeb7a227a3032defa2c86d5193678a912b4",
+    "docs/capacity/cce/api-adapter-contract-2026-10-08.json": "ed6eeeeb718768d73de2f719c93fb17ff322de1ae450ab8872cc53b828ee4379"
+  },
+  "cloud_calls_this_checkpoint": 0,
+  "cloud_paid_stages_started": 0,
+  "customer_journeys_dispatched": 0,
+  "paid_runner_registered": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "remaining": [
+    "Compose the native stage with owned audit-container/private pooler bridge, CCE deployment, safety post-TTL checks, background identity/budget proof and exact outer ECS restoration",
+    "Wire native API CPU/pipeline/traffic-distribution and protected database failure diagnostics; preserve all current SLO and correctness gates",
+    "Qualify the complete envelope entry point, explicit safety/paid allowances, outcome/recovery bindings and cleanup before registering the CCE paid profile",
+    "Then execute fresh safety qualification and 84 offered journeys/s for 300 seconds within valid spending/publication credentials; reconcile paid-issued tickets and full queues"
+  ],
+  "baseline": "docs/capacity/flash-sale-opening/generator-completion-probe-2026-10-08.json",
+  "accounting_note": "Final test duration is pytest-reported local time. Editing/review wall time was not separately measured. Cloud experiment accounting unchanged."
+}
