@@ -12,22 +12,36 @@ RUN = "adr0151-ab5fe14d1c72"
 RESULT_SHA = "d030ca037671ddd16a92f9b168cb23e0e719b0d1a756a7239200b196cd685127"
 
 
+RETRY_CASE = ("bounded_cce_dependency_probe__b14e8117a3ba", "adr0151-752abd03b92f",
+              "e133ac47b2f78536a2b7e6f75a59912c1bbb3748e3294c2947a9f833557ec1ef")
+
+
+def case_identity(report):
+    cases = ((LEDGER, RUN, RESULT_SHA), RETRY_CASE)
+    matches = [case for case in cases if report.get("run") == case[1] and policy.digest(report) == case[2]]
+    if len(matches) != 1:
+        raise ValueError("One exact allowlisted zero-customer CCE case required")
+    return matches[0]
+
+
 def close(report, evidence):
+    ledger, run, result_sha = case_identity(report)
+    idle_field = "generator_idle" if ledger == LEDGER else "generator_idle_after"
     state = policy.read(policy.STATE)
     records = policy.journal(policy.envelope())
-    matches = [r for r in records["experiments"] if r["ledger"] == LEDGER]
+    matches = [r for r in records["experiments"] if r["ledger"] == ledger]
     if len(matches) != 1:
         raise ValueError("Exact original CCE reservation required")
     entry = matches[0]
-    scope = state[LEDGER]
+    scope = state[ledger]
     if (entry["profile"] != PROFILE or entry["status"] != "RECOVERY_REQUIRED"
-            or entry.get("result_sha256") != RESULT_SHA or policy.digest(report) != RESULT_SHA
-            or report.get("run") != RUN or report.get("customer_writes") != 0
-            or report.get("capacity_stages_started") != 0 or report.get("generator_idle") is not True
+            or entry.get("result_sha256") != result_sha or policy.digest(report) != result_sha
+            or report.get("run") != run or report.get("customer_writes") != 0
+            or report.get("capacity_stages_started") != 0 or report.get(idle_field) is not True
             or report.get("namespace_removed") is not True or report.get("bridge_removed") is not True
             or report.get("temporary_credentials_removed") is not True
             or report.get("existing_runtime_unchanged") is not False
-            or scope.get("cce_result_sha256") != RESULT_SHA
+            or scope.get("cce_result_sha256") != result_sha
             or entry["binding_sha256"] != policy.digest(scope["binding"])
             or any(scope.get(k) != 0 for k in ("paid_runs_started", "safety_protocols_started",
                                               "paid_protocols_started"))
@@ -40,10 +54,10 @@ def close(report, evidence):
     required = ("pass", "runtime_unchanged", "audit_ids_starts_stable", "namespace_absent",
                 "bridge_absent", "generator_idle", "zero_double_booking", "all_queues_zero",
                 "kafka_drained", "temporary_credentials_removed")
-    if (receipt.get("decision") != "ADR0228" or receipt.get("ledger") != LEDGER
-            or receipt.get("original_result_sha256") != RESULT_SHA
+    if (receipt.get("decision") != "ADR0228" or receipt.get("ledger") != ledger
+            or receipt.get("original_result_sha256") != result_sha
             or receipt.get("binding_sha256") != entry["binding_sha256"]
-            or receipt.get("namespace") != namespace_for(RUN)
+            or receipt.get("namespace") != namespace_for(run)
             or any(receipt.get(k) is not True for k in required)
             or not queue_checks(receipt.get("queue_counts"), 1)
             or type(receipt.get("actual_elapsed_seconds")) not in (int, float)

@@ -78,7 +78,8 @@ def area(tmp_path, monkeypatch):
 def restored_report():
     return {"run": "adr0151-"+"a"*12, "customer_writes": 0, "capacity_stages_started": 0,
             "namespace_removed": True, "bridge_removed": True, "existing_runtime_unchanged": True,
-            "generator_idle_after": True, "temporary_credentials_removed": True, "pass": True}
+            "generator_idle_after": True, "temporary_credentials_removed": True, "pass": True,
+            "runtime_fingerprint_before": "a"*64, "runtime_fingerprint_after": "a"*64, "runtime_drift": []}
 
 
 def test_probe_cannot_dispatch_customers_and_receipt_is_bound(area):
@@ -129,7 +130,7 @@ def test_changed_plan_and_sources_rejected_before_cloud(area):
 
 
 @pytest.mark.parametrize("fault", [None, "pod_image", "pod_startup", "network", "namespace_uid",
-                                  "bridge_owner", "namespace_create_lost_response"])
+                                  "bridge_owner", "namespace_create_lost_response", "mount_order", "changed_config"])
 def test_generated_remote_lifecycle_and_independent_cleanup(monkeypatch, capsys, fault):
     run = "adr0151-"+"b"*12
     clock = [0]
@@ -155,6 +156,13 @@ def test_generated_remote_lifecycle_and_independent_cleanup(monkeypatch, capsys,
         if args[:2] == ["docker", "inspect"]:
             row = pool if args[2] == "pool" else {"Id": bridge[0], "Name": "/cce-pooler-"+run,
                    "Image": cce.INDEX, "Config": {"Labels": {"codex-owner": "wrong" if fault == "bridge_owner" else run}}}
+            row = copy.deepcopy(row)
+            if args[2] == "pool":
+                count = sum(c[:2] == ["docker", "inspect"] for c in calls if isinstance(c,list))
+                if fault == "mount_order":
+                    row["Mounts"] = [{"Destination":"/one"},{"Destination":"/two"}]
+                    if count % 2 == 0:row["Mounts"].reverse()
+                if fault == "changed_config" and count > 2:row["Config"]["changed"] = True
             return json.dumps([row])
         if args[:2] == ["docker", "run"]:
             bridge[0] = "c"*64
@@ -218,10 +226,10 @@ def test_generated_remote_lifecycle_and_independent_cleanup(monkeypatch, capsys,
     report = json.loads(capsys.readouterr().out)
     assert report["customer_writes"] == report["capacity_stages_started"] == 0
     assert report["temporary_credentials_removed"] is True
-    assert report["existing_runtime_unchanged"] is True
+    assert report["existing_runtime_unchanged"] is (fault != "changed_config")
     assert report["namespace_removed"] is (fault not in {"namespace_uid", "namespace_create_lost_response"})
     assert report["bridge_removed"] is (fault != "bridge_owner")
-    assert report["pass"] is (fault is None or fault in {"namespace_uid", "bridge_owner"})
+    assert report["pass"] is (fault is None or fault in {"namespace_uid", "bridge_owner", "mount_order", "changed_config"})
     assert not any("rm" in c and "pool" in c for c in calls if isinstance(c, list))
 
 
@@ -270,4 +278,12 @@ def test_entrypoint_maps_generator_ack_and_records_attempt_before_remote_call(ar
 def test_mismatched_run_cannot_close_current_scope():
     report = restored_report()
     binding = {"run_id": "adr0151-"+"b"*12}
+    assert cce.outcome(report, {"binding":binding,"cce_result_sha256":policy.digest(report)}, binding) == (False,False,False)
+
+
+@pytest.mark.parametrize("field", ["runtime_fingerprint_before", "runtime_fingerprint_after", "runtime_drift"])
+def test_runtime_proof_is_mandatory(field):
+    report = restored_report()
+    report[field] = None
+    binding = {"run_id": report["run"]}
     assert cce.outcome(report, {"binding":binding,"cce_result_sha256":policy.digest(report)}, binding) == (False,False,False)

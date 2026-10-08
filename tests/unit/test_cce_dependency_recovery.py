@@ -79,3 +79,13 @@ def test_paid_or_different_failure_cannot_use_exception(case):
     with pytest.raises(ValueError):
         recovery.close(report, path)
     assert policy.read(policy.JOURNAL)["experiments"][0] == original
+
+
+def test_second_case_is_exact_and_independent_of_first():
+    report = {"run": "adr0151-"+"c"*12,"generator_idle_after":True}
+    case = ("bounded_cce_dependency_probe__"+"c"*12,report["run"],policy.digest(report))
+    from unittest.mock import patch
+    with patch.object(recovery,"RETRY_CASE",case):
+        assert recovery.case_identity(report) == case
+        report["customer_writes"] = 1
+        with pytest.raises(ValueError):recovery.case_identity(report)

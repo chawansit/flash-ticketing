@@ -83,7 +83,11 @@ def outcome(report, scope, binding):
     valid = (report.get("run") == binding.get("run_id") and binding.get("run_id") is not None
              and type(report.get("customer_writes")) is int and type(report.get("capacity_stages_started")) is int
              and scope.get("binding") == binding and scope.get("cce_result_sha256") == policy.digest(report)
-             and report.get("customer_writes") == 0 and report.get("capacity_stages_started") == 0)
+             and report.get("customer_writes") == 0 and report.get("capacity_stages_started") == 0
+             and isinstance(report.get("runtime_fingerprint_before"), str)
+             and re.fullmatch(r"[0-9a-f]{64}", report["runtime_fingerprint_before"]) is not None
+             and report.get("runtime_fingerprint_before") == report.get("runtime_fingerprint_after")
+             and report.get("runtime_drift") == [])
     restored = valid and all(report.get(k) is True for k in (
         "namespace_removed", "bridge_removed", "existing_runtime_unchanged",
         "generator_idle_after", "temporary_credentials_removed"))
@@ -97,7 +101,7 @@ def remote_program(material, run, username, password):
 
 
 REMOTE = r"""
-import base64,json,os,socket,ssl,subprocess,tempfile,time,urllib.request,urllib.error
+import base64,hashlib,json,os,socket,ssl,subprocess,tempfile,time,urllib.request,urllib.error
 from pathlib import Path
 run=payload['run'];namespace=payload['namespace'];name='cce-pooler-'+run
 result={'run':run,'customer_writes':0,'capacity_stages_started':0}
@@ -105,8 +109,10 @@ namespace_uid=None;bridge_id=None;namespace_attempted=False;bridge_attempted=Fal
 def runtime():
  ids=subprocess.check_output(['docker','ps','-aq','--no-trunc','--filter','label=com.docker.compose.project=flash-ticketing'],text=True).split()
  rows=json.loads(subprocess.check_output(['docker','inspect',*ids],text=True)) if ids else []
- return sorted([{'id':r['Id'],'image':r['Image'],'state':{k:r['State'].get(k) for k in ('Running','Paused','Restarting','Dead','StartedAt','FinishedAt')},'restart_count':r.get('RestartCount'),'config':r['Config'],'host_config':r['HostConfig'],'mounts':r['Mounts']} for r in rows],key=lambda r:r['id'])
+ return sorted([{'id':r['Id'],'image':r['Image'],'state':{k:r['State'].get(k) for k in ('Running','Paused','Restarting','Dead','StartedAt','FinishedAt')},'restart_count':r.get('RestartCount'),'config':r['Config'],'host_config':r['HostConfig'],'mounts':sorted(r['Mounts'],key=lambda v:json.dumps(v,sort_keys=True))} for r in rows],key=lambda r:r['id'])
 before=runtime()
+def fingerprint(value):return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+result['runtime_fingerprint_before']=fingerprint(before)
 with tempfile.TemporaryDirectory(prefix='codex-cce-') as directory:
  os.chmod(directory,0o700)
  for cert,content in payload.pop('material').items():
@@ -232,7 +238,11 @@ HTTPServer(('0.0.0.0',8000),Handler).serve_forever()
     result['bridge_removed']=not subprocess.check_output(['docker','ps','-aq','--filter','name=^/'+name+'$'],text=True).strip()
   except Exception as error:result['bridge_cleanup_failure_type']=type(error).__name__
 result['temporary_credentials_removed']=not Path(directory).exists()
-result['existing_runtime_unchanged']=before==runtime()
+after=runtime()
+result['runtime_fingerprint_after']=fingerprint(after)
+result['existing_runtime_unchanged']=before==after
+old={r['id']:r for r in before};new={r['id']:r for r in after}
+result['runtime_drift']=[{'container_id':cid,'fields':[k for k in sorted(set(old.get(cid,{}))|set(new.get(cid,{}))) if old.get(cid,{}).get(k)!=new.get(cid,{}).get(k)]} for cid in sorted(set(old)|set(new)) if old.get(cid)!=new.get(cid)]
 print(json.dumps(result))
 """
 

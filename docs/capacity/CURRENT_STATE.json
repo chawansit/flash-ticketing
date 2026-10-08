@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-08",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "cce_dependency_probe_network_blocked_cleanup_verified",
+  "status": "cce_connectivity_passed_independent_cleanup_verified",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -10,10 +10,10 @@
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "One1CPU/1Gi CCE probe pulled exact API platform image and reached RDS/Redis; ECS pooler6432 timed out. Owned namespace/bridge removed; saved original ECS runtime semantics independently verified, audit identities stable, generator idle, duplicates0, all queues/Kafka0. No CCE application or paid load remains.",
+  "last_checked_topology": "Corrected CCE pod pulled exact API image, reached Redis and completed PostgreSQL negotiation with RDS/private ECS pooler. ECS reached CCE. Owned namespace/bridge/certificates removed. Independent saved runtime semantics and two audit identities stable; generator idle, duplicates0, global queues/Kafka0. No CCE paid load.",
   "schema_state": "Receipt migration009 retained; valid public.orders_event_id index intentionally retained under ADR0224. Ordinary migration010 respects migration search path; concurrent cloud build explicitly uses public.orders. No financial/TTL schema changes.",
   "current_run": null,
-  "revision_note": "Git HEAD identifies the published checkpoint; ADR0228 adds only qualified zero-customer dependency probing. Initial failed receipt and counters preserved; independent cleanup closes recovery, not performance gates.",
+  "revision_note": "The failed raw-runtime gate is preserved; independent recovery is verified. CCE connectivity is cleared. Future fingerprint/field diagnostics are locally tested but not cloud-retested. Git HEAD identifies this published checkpoint.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -72,8 +72,8 @@
     "ADR0196 dependency and financial-recovery retention components passed 446 affected tests in 58.43s. Two real local Docker probe lifecycle cases and eight generated Linux faults passed; dependency clients were mocked, so live private readiness is unverified. Worker startup requires fresh complete bound readiness. Failed financial/drain/journal gates retain recovery files. No cloud calls, load or capacity gain; full audited runner and registration pending.",
     "ADR0225 isolated writer transport at unchanged 84/s for 300s: 25200 scheduled, 25196 dispatched and paid-issued, four configured-cap drops, zero dispatched errors/payment loss/double bookings; complete queues zero and original runtime restored. Durable p95 8273.36 -> 2036.15 ms; hold-to-ticket 9648.02 -> 5425.29 ms. Payment-to-ticket 1616.08 -> 3970.27 ms and polling increased. Independent post-TTL recovery passed; short 84/s and hourly 300000 target not qualified."
   ],
-  "unresolved": "CCE to private ECS pooler6432 TCP timeout; infrastructure rule/route verification required. Corrected PostgreSQL upstream/protocol probe is locally tested only. Paid CCE adapter remains unimplemented;84 paid-issued/s and300000/hour remain unqualified.",
-  "next_on_resume": "Verify CCE pooler access after security-group action with a fresh registered dependency probe; implement and qualify hybrid CCE paid comparison using exact latest ECS baseline. No old-scope replay.",
+  "unresolved": "CCE paid deployment/observation adapter remains unimplemented. Initial raw runtime mismatch was not reproduced; exact old differences unavailable.84 successful paid-issued tickets/s and300000/hour remain unqualified.",
+  "next_on_resume": "Implement and locally qualify the CCE paid adapter with same frozen images, corrected generator, database/HTTP budgets, payment timing and current gates; perform fresh application/safety qualification before84/s300s paid comparison.",
   "authorization": "ADR0172 existing ECS sizes and exact registered experiment gates; reviewed publication to codex branch only. ADR0220 direct user exception: bounded CCE pilot with no additional spending cap on 2026-10-08 Bangkok only; ask for new spending boundary tomorrow.",
   "scope": "Unpaused standing envelope; latest consumed scope remains failed with hash-bound independent ADR0227 recovery verified. No old-scope replay.",
   "bounded_control": {
@@ -2420,12 +2420,12 @@
     "hourly_qualified": false
   },
   "standing_experiment_accounting": {
-    "experiments": 34,
-    "actual_experiment_seconds": 36806.65400000001,
-    "reserved_seconds": 122400,
+    "experiments": 35,
+    "actual_experiment_seconds": 36930.37200000003,
+    "reserved_seconds": 126000,
     "additional_recovery_verification_seconds": 764.4230000000098,
-    "measured_total_seconds": 37571.07700000002,
-    "note": "CCE successful independent recovery is included in its experiment entry. Earlier aborted read-only recovery elapsed time was not captured; measured total is not a complete wall-clock total."
+    "measured_total_seconds": 37694.79500000004,
+    "note": "Each CCE independent recovery is included in its experiment entry. Earlier aborted read-only recovery elapsed time was not captured; measured total is not a complete wall-clock total."
   },
   "last_engineering_checkpoint": {
     "decision": "ADR0226",
@@ -4477,12 +4477,45 @@
   },
   "cce_comparison_checkpoint": {
     "decision": "ADR0228",
-    "evidence": "docs/capacity/cce/dependency-probe-2026-10-08.json",
-    "status": "NETWORK_BLOCKED_RESTORED",
+    "evidence": "docs/capacity/cce/dependency-retry-2026-10-08.json",
+    "status": "CONNECTIVITY_PASSED_RESTORED",
     "pod_deployed_and_removed": true,
     "cloud_paid_load_started": false,
     "capacity_improvement_measured": false,
-    "pending_infrastructure_action": "Private inbound ECS TCP6432 from CCE pod network",
+    "pending_infrastructure_action": null,
     "paid_runner_implemented": false
+  },
+  "bounded_cce_dependency_probe__b14e8117a3ba": {
+    "authorization_id": "work-envelope-b14e8117a3ba",
+    "binding": {
+      "run_id": "adr0151-752abd03b92f",
+      "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+      "cce_sources": {
+        "scripts/cce_dependency_probe.py": "42a275cad843f6fa04991ee25b79c970c365605ea9a464e8be7e8dc882ae04dc",
+        "scripts/work_envelope.py": "029eb5a9ad50e5bb016ca6f57c8bebdf2c3aa62eecfbb32fac2a73a8470056ca",
+        "scripts/run_work_envelope.py": "e8f49904dcca50a42012dddde64898a0ac3c20aa8a8b595dc9690194e4d4bb9d"
+      },
+      "image_proof_sha256": "c18ccce10b538e24d21663ad37a0783765fdf45b998838021d6dce4aecd17f7f"
+    },
+    "standing_envelope": {
+      "ledger": "bounded_cce_dependency_probe__b14e8117a3ba",
+      "envelope_sha256": "146c45e39cb471ffd8c10b8cbd851ff0d8562efd2955e249ef062a1f8d80c6df"
+    },
+    "qualification_runs_authorized": 1,
+    "paid_runs_authorized": 0,
+    "safety_tickets_authorized": 0,
+    "qualification_protocols_started": 1,
+    "paid_runs_started": 0,
+    "paid_protocols_started": 0,
+    "safety_protocols_started": 0,
+    "active_run": null,
+    "scope": "Fresh ADR0228 experiment under ADR0172 standing boundaries; exact registered rate only, no replay",
+    "cce_result_sha256": "e133ac47b2f78536a2b7e6f75a59912c1bbb3748e3294c2947a9f833557ec1ef",
+    "cce_recovery": {
+      "decision": "ADR0228",
+      "evidence": "tmp\\adr0153-parents-82f18bd180f6\\cce-independent-recovery.json",
+      "sha256": "efb9fb4e608edb0c7ef213f604cf5627110ede83543bbe195b9a7db4f667a950",
+      "actual_elapsed_seconds": 42.296000000002095
+    }
   }
 }

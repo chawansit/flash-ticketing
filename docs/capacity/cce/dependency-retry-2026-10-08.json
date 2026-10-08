@@ -1,0 +1,68 @@
+{
+  "decision": "ADR0228",
+  "status": "CONNECTIVITY_PASSED_INDEPENDENT_RESTORATION_VERIFIED",
+  "run": "adr0151-752abd03b92f",
+  "ledger": "bounded_cce_dependency_probe__b14e8117a3ba",
+  "scope": "One corrected dependency pod on CCE. No customer writes, application load or paid capacity comparison.",
+  "image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:2fdad0b429603e01ce28eb0a578e8e0c87d98401868e389c1d92350c8969c38d",
+  "resources_requested_and_admitted": {
+    "limits": {
+      "cpu": "1",
+      "memory": "1Gi"
+    },
+    "requests": {
+      "cpu": "1",
+      "memory": "1Gi"
+    }
+  },
+  "billing_specification": "Not independently verified.",
+  "checks": {
+    "image_pulled_exactly": true,
+    "ecs_to_cce_pod_reachable": true,
+    "cce_to_rds_postgresql_negotiation": true,
+    "cce_to_redis_tcp": true,
+    "cce_to_private_ecs_pooler_postgresql_negotiation": true
+  },
+  "customer_writes": 0,
+  "paid_runs_started": 0,
+  "capacity_improvement_measured": false,
+  "original_probe_pass": false,
+  "original_failed_gate": "Raw runtime equality; exact before/after differences were not retained by that version.",
+  "recovery": {
+    "runtime_unchanged": true,
+    "audit_ids_starts_stable": true,
+    "namespace_absent": true,
+    "bridge_absent": true,
+    "generator_idle": true,
+    "zero_double_booking": true,
+    "all_queues_zero": true,
+    "kafka_drained": true,
+    "temporary_credentials_removed": true,
+    "queue_counts": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "pending_callback_deliveries": 0,
+      "pending_refunds": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "kafka_total_lag": 0,
+      "kafka_members": 1,
+      "pass": true,
+      "pending_confirmation_receipts": 0,
+      "review_confirmation_receipts": 0,
+      "confirmation_capacity_outstanding": 0,
+      "confirmation_capacity_mismatches": 0
+    }
+  },
+  "runtime_diagnosis": "No Config/HostConfig/Mounts differences reproduced in two bounded read-only samples. Original mismatch cause remains unconfirmed; mount ordering is a tested representation risk, not the asserted live cause.",
+  "future_probe_changes": "Canonicalize unordered mount metadata, retain before/after fingerprints and changed-field identities, and require matching fingerprints for restoration. Locally tested; not rerun on cloud in this checkpoint.",
+  "probe_elapsed_seconds": 81.42200000002049,
+  "independent_recovery_elapsed_seconds": 42.296000000002095,
+  "local_validation": {
+    "tests_passed": 104,
+    "seconds": 9.75,
+    "ruff_pass": true
+  },
+  "next": "Implement and locally qualify the hybrid CCE paid adapter, then compare identical84/s300s traffic against the latest ECS evidence. Do not claim backend capacity from TCP/protocol checks."
+}
