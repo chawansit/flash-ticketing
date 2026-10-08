@@ -60,7 +60,8 @@
     "worker_separation",
     "callback_routing",
     "shared_callback_placement",
-    "shared_callback_rate_probe"
+    "shared_callback_rate_probe",
+    "interleaved_refresh_probe"
   ],
   "escalate": [
     "new spending or infrastructure action",

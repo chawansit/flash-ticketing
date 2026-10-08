@@ -138,7 +138,7 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
             worker_env = environment(row)
             if contract is not None:
                 contract.verify_worker_settings(role, worker_env)
-            proof = session.call("primary", container_identity_program(row, role, expected), 50)
+            proof = session.call("primary", container_identity_program(row, role, contract.source_map(role) if contract is not None else expected), 50)
             setting_keys = contract.settings(role) if contract is not None else ("ORDER_STATUS_CACHE_MS", "ORDER_STATUS_EVENT_REFRESH")
             proof["settings"] = {k: worker_env.get(k, "0") for k in setting_keys}
             worker_sources.append(proof)
@@ -146,7 +146,7 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
     for route in routes:
         row = by_id[route["container_id"]]
         env = environment(row)
-        source_check = container_identity_program(row, "api", expected, readiness=True)
+        source_check = container_identity_program(row, "api", contract.source_map("api") if contract is not None else expected, readiness=True)
         identity = session.call(route["host_role"], source_check, 50)
         proof = identity["source_identity"]
         url = urlsplit(env["DATABASE_URL"])

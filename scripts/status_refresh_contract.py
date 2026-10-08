@@ -224,10 +224,19 @@ class StatusRefreshContract:
         if any(a.get("ORDER_STATUS_EVENT_REFRESH", "0") != "0" for a in data["apis"]):
             raise ValueError("Only consumer refresh may change")
 
+    def source_map(self, role):
+        if role not in self.roles:
+            raise ValueError("Unknown source role")
+        return copy.deepcopy(self.sources)
+
+    def image_manifest(self, role):
+        self.source_map(role)
+        return self.source_manifest
+
     def image_program(self, roles):
         if not set(roles) <= set(self.roles):
             raise ValueError("Unknown artifact role")
-        values = {r: {"image": self.images[r], "parent": self.parents[r]} for r in roles}
+        values = {r: {"image": self.images[r], "parent": self.parents[r], "manifest": self.image_manifest(r)} for r in roles}
         return (
             r"""import json,subprocess
 values=VALUES
@@ -236,13 +245,12 @@ for role,value in values.items():
  parent=json.loads(subprocess.check_output(['docker','image','inspect',value['parent']],text=True,timeout=10))[0]
  layers=parent['RootFS']['Layers']
  if candidate['Id']!=value['image'] or parent['Id']!=value['parent'] or not layers or candidate['RootFS']['Layers'][:len(layers)]!=layers:raise ValueError('Artifact parent layers differ')
- if candidate['Config']['Labels'].get(LABEL)!=MANIFEST:raise ValueError('Artifact source manifest label differs')
+ if candidate['Config']['Labels'].get(LABEL)!=value['manifest']:raise ValueError('Artifact source manifest label differs')
  for key in ('Env','Cmd','Entrypoint','User','WorkingDir'):
   if candidate['Config'].get(key)!=parent['Config'].get(key):raise ValueError('Artifact inherited runtime config differs')
 print(json.dumps({'artifact_roles_verified':list(values)}))
 """.replace("VALUES", repr(values))
             .replace("LABEL", repr(LABEL))
-            .replace("MANIFEST", repr(self.source_manifest))
         )
 
     def pre_mutation(self, session, saved):

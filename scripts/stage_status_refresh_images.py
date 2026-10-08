@@ -187,7 +187,7 @@ def cleanup_verified_archive(session, role, seal, host):
 def stage(config, artifact, output, password):
     validate_config(config)
     sources = source_contract()
-    contract = StatusRefreshContract(artifact, "control", sources)
+    contract = StatusRefreshContract(artifact, globals().get("STAGING_ARM", "control"), sources)
     contracts = contract.staging_contracts() if hasattr(contract, "staging_contracts") else (contract,)
     if len(contracts) not in {1, 2} or any(c.parents != contract.parents for c in contracts):
         raise ValueError("One receipt or exact-parent arm pair required")

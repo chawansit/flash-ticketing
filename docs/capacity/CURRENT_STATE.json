@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-08",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0222_consumer_correction_locally_verified_recovery_resolved_cloud_comparison_pending",
+  "status": "adr0222_consumer_image_runner_locally_qualified_fresh_84_probe_pending",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -1095,7 +1095,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Bind the verified ADR0222 consumer-only frozen overlay into the existing bounded paid runner, locally qualify role/image/source identity, and run a fresh 84/s correction probe against the identified failed baseline under unchanged workload/budgets/gates. Diagnose failure before any progression; writer capacity and original metric sampling gap remain unresolved. Do not substitute the unrelated SWR application image. CCE pilot remains undeployed; today-only spending exception expires 2026-10-08T23:59:59+07:00.",
+  "next_action": "Run a fresh registered interleaved_refresh_probe: stage consumer-only pinned image, mandatory safety, 84 journeys/s 300-second paid stage, post-TTL durability/full queues/restoration. Existing failed ADR0219 reference stays failed; no CCE or higher load.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -3798,6 +3798,10 @@
       "recovery_verification_seconds": 120.57800000000861,
       "actual_elapsed_seconds": 28046.575999999943,
       "reserved_seconds": 97200
-    }
+    },
+    "runner_integration_locally_qualified": true,
+    "runner_tests_passed": 121,
+    "runner_evidence": "docs/capacity/flash-sale-opening/interleaved-refresh-runner-local-2026-10-08.json",
+    "consumer_candidate_image": "sha256:67706c35f9b4cf299b97e5e7583436e03647a7105667b13a3bd9e3a831376b83"
   }
 }

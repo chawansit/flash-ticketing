@@ -149,7 +149,7 @@ def expected_allocation(inventory):
     """Resolve exact coverage from the qualified placement policy, never a guessed count."""
     counts = {"primary": 2, "secondary": 2}
     marker = inventory.get("status_refresh_contract", {})
-    placement = marker.get("decision") in ("ADR0174", "ADR0177", "ADR0216", "ADR0217", "ADR0219")
+    placement = marker.get("decision") in ("ADR0174", "ADR0177", "ADR0216", "ADR0217", "ADR0219", "ADR0222")
     if placement:
         if marker["decision"] == "ADR0174":
             import api_placement_contract as policy
@@ -160,6 +160,9 @@ def expected_allocation(inventory):
         elif marker["decision"] == "ADR0216":
             import callback_routing_contract as policy
             contract_type = policy.CallbackRoutingContract
+        elif marker["decision"] == "ADR0222":
+            import interleaved_refresh_probe_contract as policy
+            contract_type = policy.InterleavedRefreshProbeContract
         elif marker["decision"] == "ADR0219":
             import shared_callback_rate_probe_contract as policy
             contract_type = policy.SharedCallbackRateProbeContract
