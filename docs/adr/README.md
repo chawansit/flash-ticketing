@@ -376,3 +376,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0216: Shared callback routing comparison](0216-shared-callback-routing-comparison.md)
 
 - [ADR0217: Shared callback API placement comparison](0217-shared-callback-api-placement-comparison.md)
+
+- [ADR0218: Safety-only diagnostic abort recovery](0218-safety-only-diagnostic-abort-recovery.md)

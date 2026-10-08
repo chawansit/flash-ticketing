@@ -149,14 +149,20 @@ def expected_allocation(inventory):
     """Resolve exact coverage from the qualified placement policy, never a guessed count."""
     counts = {"primary": 2, "secondary": 2}
     marker = inventory.get("status_refresh_contract", {})
-    placement = marker.get("decision") in ("ADR0174", "ADR0177")
+    placement = marker.get("decision") in ("ADR0174", "ADR0177", "ADR0216", "ADR0217")
     if placement:
         if marker["decision"] == "ADR0174":
             import api_placement_contract as policy
             contract_type = policy.ApiPlacementContract
-        else:
+        elif marker["decision"] == "ADR0177":
             import application_role_rebalance_contract as policy
             contract_type = policy.ApplicationRoleRebalanceContract
+        elif marker["decision"] == "ADR0216":
+            import callback_routing_contract as policy
+            contract_type = policy.CallbackRoutingContract
+        else:
+            import shared_callback_placement_contract as policy
+            contract_type = policy.SharedCallbackPlacementContract
         plan = policy.plan()
         contract = contract_type(plan["artifact_receipt"], marker.get("arm"), plan["expected_runtime_source_sha256"])
         if json.dumps(marker, sort_keys=True) != json.dumps(contract.inventory_marker(), sort_keys=True):

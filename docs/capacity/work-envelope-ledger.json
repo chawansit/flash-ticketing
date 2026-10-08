@@ -657,6 +657,25 @@
         }
       ],
       "finished_at_utc": "2026-10-07T18:40:43.333655+00:00"
+    },
+    {
+      "ledger": "bounded_shared_callback_placement__e71e05f76ac7",
+      "authorization_id": "work-envelope-e71e05f76ac7",
+      "envelope_sha256": "37756317673e88243db68f44e152232f8580170fefcd7aa229c4f0b6e16250f3",
+      "binding_sha256": "91782cacd5ad386dc28515c4b05aac699cbaf569f5cc625aebf72f28895e71b6",
+      "plan_sha256": "4cd93e4a2d6802eb62c9447117f6ae60dafc19a15f61331a29fdb3ed508133b8",
+      "profile": "shared_callback_placement",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 756.4210000000021,
+      "started_at_utc": "2026-10-08T00:46:36.392188+00:00",
+      "status": "RECOVERY_REQUIRED",
+      "reports": [
+        {
+          "run": "adr0151-e63b87f19898",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-08T00:59:12.912007+00:00"
     }
   ],
   "verified_aborts": {
@@ -676,6 +695,13 @@
       "entry_sha256": "a55723b9869fb7e8f0fb968a3b32b3e28d0ec0ff61cfd0297c1ab80d49dc9bc0",
       "receipt_path": "docs/capacity/flash-sale-opening/historical-paid-fixture-exception-2026-10-06.json",
       "receipt_sha256": "4d749265b84fcea2caa4f1039dbb07525a87d6878164191d846952f3e1c11488"
+    }
+  },
+  "verified_safety_aborts": {
+    "bounded_shared_callback_placement__e71e05f76ac7": {
+      "entry_sha256": "a9950e2c180ac61b70f0baa4fbe1ecf29a968b3530124d9db3de02a73eba7a2e",
+      "receipt_path": "docs/capacity/flash-sale-opening/shared-callback-placement-recovery-2026-10-08.json",
+      "receipt_sha256": "1299df786a0320ccab542f9000fbb61fb143bb5d203de52acb025a72b512213b"
     }
   }
 }

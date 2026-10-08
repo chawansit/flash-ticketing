@@ -22,3 +22,5 @@ Reject route, actual placement, source/image, budget or observer drift before di
 
 ## Validation evidence
 234 focused unit tests passed, covering exact route/placement, real constructor and observer checks, protected diagnostics, fresh scope accounting and existing failure/restoration gates. Ruff, canonical naming and whitespace checks passed. The existing native Nginx forwarding integration from ADR0216 is unchanged; it was not rerun. Cloud comparison pending. Reference: [ADR0216 measured routing evidence](../capacity/flash-sale-opening/callback-routing-comparison-2026-10-08.json).
+
+Safety scope bounded_shared_callback_placement__e71e05f76ac7 failed qualification before paid dispatch: the diagnostic collector did not resolve ADR0217 and rejected candidate 1+3 as 2+2. Both arms passed one-owner, payment replay, authorization, post-TTL financial and final queue/restoration audits. Failure retained and resolved separately under [ADR0218](0218-safety-only-diagnostic-abort-recovery.md); exact collector correction and 130 regression checks passed. Fresh qualification is required; no placement capacity result yet.

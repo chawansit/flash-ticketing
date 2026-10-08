@@ -23,9 +23,13 @@ from test_slow_database_evidence import trace
 
 
 def inventory(decision, arm):
-    policy = placement if decision == "ADR0174" else scoped
+    import callback_routing_contract as routing
+    import shared_callback_placement_contract as shared
+    policy, cls = {"ADR0174": (placement, placement.ApiPlacementContract),
+                   "ADR0177": (scoped, scoped.ApplicationRoleRebalanceContract),
+                   "ADR0216": (routing, routing.CallbackRoutingContract),
+                   "ADR0217": (shared, shared.SharedCallbackPlacementContract)}[decision]
     data = policy.plan()
-    cls = policy.ApiPlacementContract if decision == "ADR0174" else policy.ApplicationRoleRebalanceContract
     contract = cls(data["artifact_receipt"], arm, data["expected_runtime_source_sha256"])
     rows = []
     for host, count in contract.measured_api_counts.items():
@@ -36,7 +40,7 @@ def inventory(decision, arm):
             "status_refresh_contract": contract.inventory_marker()}
 
 
-@pytest.mark.parametrize("decision", ["ADR0174", "ADR0177"])
+@pytest.mark.parametrize("decision", ["ADR0174", "ADR0177", "ADR0216", "ADR0217"])
 @pytest.mark.parametrize("arm", ["control", "candidate"])
 @pytest.mark.parametrize("collector", [failure, slow])
 def test_real_collectors_execute_exact_generated_streams(monkeypatch, tmp_path, decision, arm, collector):
