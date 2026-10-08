@@ -378,3 +378,7 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0217: Shared callback API placement comparison](0217-shared-callback-api-placement-comparison.md)
 
 - [ADR0218: Safety-only diagnostic abort recovery](0218-safety-only-diagnostic-abort-recovery.md)
+
+- [ADR0219: Shared callback 84 ticket rate probe](0219-shared-callback-84-ticket-rate-probe.md)
+
+- [ADR0220: Bounded CCE Autopilot pilot](0220-bounded-cce-autopilot-pilot.md)

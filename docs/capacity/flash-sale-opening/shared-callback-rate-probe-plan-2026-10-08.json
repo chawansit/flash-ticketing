@@ -1,0 +1,212 @@
+{
+  "decision": "ADR0219",
+  "factor": "paid_offered_rate_60_to_84_shared_1_3",
+  "common": {
+    "primary_apis": 1,
+    "secondary_apis": 3,
+    "api_pool": 4,
+    "api_waiters": 12,
+    "payment_pool": 2,
+    "pool_wait_ms": 500,
+    "async_intake": "0",
+    "callback_reserve": "0",
+    "cache_age_ms": 1000,
+    "consumer_event_refresh": "1",
+    "consumer_dedup": "0",
+    "poll_ms": 500,
+    "simulator_pool": 10,
+    "confirmation_pool": 2,
+    "buyer_journeys_per_second": 84,
+    "duration_seconds": 300
+  },
+  "artifact_receipt": {
+    "images": {
+      "api": "sha256:18ddd5d6faee7673eefa39eab39b3579eb66766f474a82768caa58852e31122c",
+      "consumer": "sha256:3b270fa78ff8f238718677f459ae2d869ae7dd57b7bf019af7855fd0700f9483",
+      "publisher": "sha256:8edabce06ffba4b048ae0bf227b307e3e3780bf76541f66b7e57365f772ca937",
+      "simulator": "sha256:271e1a8f91505d06e208c680ee479f38b5acc9641f6089aef61e3d070257a159",
+      "maintenance": "sha256:8dccec500560fcf754483f910f59ed40b6f1ac1ffd3355353276dc518e9f609e",
+      "reconciler": "sha256:2d7a341af33992c1213c2ee84a6de496a168750527d434cc7ad0dbc43c5ad366",
+      "reservation-writer": "sha256:18ddd5d6faee7673eefa39eab39b3579eb66766f474a82768caa58852e31122c",
+      "confirmation": "sha256:271e1a8f91505d06e208c680ee479f38b5acc9641f6089aef61e3d070257a159"
+    },
+    "parent_images": {
+      "api": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e",
+      "consumer": "sha256:ce59e827156b470a81b98c2dbc68cb9c69fed03e50ccc2f516ef30b64e0e21fd",
+      "publisher": "sha256:e575802519ce7b70b42a87f8e92159f42ddac653b8d489b401fe4ad1785a53e2",
+      "simulator": "sha256:22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452",
+      "maintenance": "sha256:51b1e282b277e6b34d5f55442a82912fa406c91e808d71394e7da479b12ad83e",
+      "reconciler": "sha256:57a12dd4be6303ca8dea3daa4bcf2d8201a93976c6df2af51c0f751a9cbcf1a6",
+      "reservation-writer": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e",
+      "confirmation": "sha256:22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452"
+    },
+    "source_manifest_sha256": "13d78bdf41e7d442f87ee04d1bb4f357d648789adf0e5270a23b06d74c55ccd2"
+  },
+  "expected_runtime_source_sha256": {
+    "src/ticketing/api.py": "62754c889f1a832330930fdc28fa34644a95d810512fc7f7245a202a3859570e",
+    "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+    "src/ticketing/config.py": "6361a281dd86f73dd6fbd79dccdb5ea05a307cbdc14ee2cf76d1c045e90392aa",
+    "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+    "src/ticketing/http.py": "2711b3810f2f2f94fdeddba682ebeab3536832a4c0269586f9777e111dbe7223",
+    "src/ticketing/observability.py": "3bb9d042ee01469abdd8e2b630ca6f05ee3a318f96991ab9a867d74dc88244d2",
+    "src/ticketing/workers.py": "42073129f3b3e9735edb468b50f15b274d7d5c7ac8bbda52a6e85c6d6bc752ce",
+    "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+    "src/ticketing/application/ports.py": "3a562c947a28d8a63a257e361707041d41894f6374eba2702078d2bd39f9a98a",
+    "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+    "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+    "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+    "src/ticketing/infrastructure/order_status_projector.py": "8e89ce45e57123f5fc1499e5d2bf57752395e57374f50729a975f402cd31ac88",
+    "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "329cf2e1e7526a21ae76dbaf2832128518a0be94961537c8c8ea72ef405622a2",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/reservations.py": "543ab9a9bb15a6b8f10874563a33f1fc450bf43795040280f7c137c6e7f3374d",
+    "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "isolated_source_directory": "tmp/adr0163-offline-images/source",
+  "arms": [
+    "candidate"
+  ],
+  "allowance": {
+    "qualification_runs_authorized": 1,
+    "paid_runs_authorized": 1,
+    "safety_tickets_authorized": 2
+  },
+  "arm_settings": {
+    "candidate": {
+      "api": {
+        "ORDER_STATUS_CACHE_MS": "1000",
+        "ORDER_STATUS_EVENT_REFRESH": "0",
+        "ORDER_STATUS_EVENT_REFRESH_DEDUP": "0",
+        "ORDER_STATUS_POLL_MS": "500",
+        "PAYMENT_CALLBACK_PROVIDER": "simulator",
+        "CONFIRMATION_MAX_PENDING": "10000",
+        "CONFIRMATION_LEASE_SECONDS": "30",
+        "CONFIRMATION_MAX_ATTEMPTS": "8",
+        "CONFIRMATION_RETRY_MS": "100",
+        "PAYMENT_CONFIRMATION_ASYNC": "0",
+        "API_PARTIAL_TIMEOUT_RECLAIM": "0",
+        "API_CALLBACK_ACQUISITION_RESERVE": "0"
+      },
+      "consumer": {
+        "ORDER_STATUS_CACHE_MS": "1000",
+        "ORDER_STATUS_EVENT_REFRESH": "1",
+        "ORDER_STATUS_EVENT_REFRESH_DEDUP": "0",
+        "ORDER_STATUS_POLL_MS": "500",
+        "PAYMENT_CALLBACK_PROVIDER": "simulator",
+        "CONFIRMATION_MAX_PENDING": "10000",
+        "CONFIRMATION_LEASE_SECONDS": "30",
+        "CONFIRMATION_MAX_ATTEMPTS": "8",
+        "CONFIRMATION_RETRY_MS": "100",
+        "PAYMENT_CONFIRMATION_ASYNC": "0",
+        "API_PARTIAL_TIMEOUT_RECLAIM": "0",
+        "API_CALLBACK_ACQUISITION_RESERVE": "0"
+      },
+      "reservation-writer": {
+        "ORDER_STATUS_CACHE_MS": "0",
+        "ORDER_STATUS_EVENT_REFRESH": "0",
+        "ORDER_STATUS_EVENT_REFRESH_DEDUP": "0",
+        "ORDER_STATUS_POLL_MS": "500",
+        "PAYMENT_CALLBACK_PROVIDER": "simulator",
+        "CONFIRMATION_MAX_PENDING": "10000",
+        "CONFIRMATION_LEASE_SECONDS": "30",
+        "CONFIRMATION_MAX_ATTEMPTS": "8",
+        "CONFIRMATION_RETRY_MS": "100",
+        "PAYMENT_CONFIRMATION_ASYNC": "0",
+        "API_PARTIAL_TIMEOUT_RECLAIM": "0",
+        "API_CALLBACK_ACQUISITION_RESERVE": "0"
+      },
+      "maintenance": {
+        "ORDER_STATUS_CACHE_MS": "0",
+        "ORDER_STATUS_EVENT_REFRESH": "0",
+        "ORDER_STATUS_EVENT_REFRESH_DEDUP": "0",
+        "ORDER_STATUS_POLL_MS": "500",
+        "PAYMENT_CALLBACK_PROVIDER": "simulator",
+        "CONFIRMATION_MAX_PENDING": "10000",
+        "CONFIRMATION_LEASE_SECONDS": "30",
+        "CONFIRMATION_MAX_ATTEMPTS": "8",
+        "CONFIRMATION_RETRY_MS": "100",
+        "PAYMENT_CONFIRMATION_ASYNC": "0",
+        "API_PARTIAL_TIMEOUT_RECLAIM": "0",
+        "API_CALLBACK_ACQUISITION_RESERVE": "0"
+      },
+      "publisher": {
+        "ORDER_STATUS_CACHE_MS": "0",
+        "ORDER_STATUS_EVENT_REFRESH": "0",
+        "ORDER_STATUS_EVENT_REFRESH_DEDUP": "0",
+        "ORDER_STATUS_POLL_MS": "500",
+        "PAYMENT_CALLBACK_PROVIDER": "simulator",
+        "CONFIRMATION_MAX_PENDING": "10000",
+        "CONFIRMATION_LEASE_SECONDS": "30",
+        "CONFIRMATION_MAX_ATTEMPTS": "8",
+        "CONFIRMATION_RETRY_MS": "100",
+        "PAYMENT_CONFIRMATION_ASYNC": "0",
+        "API_PARTIAL_TIMEOUT_RECLAIM": "0",
+        "API_CALLBACK_ACQUISITION_RESERVE": "0"
+      },
+      "reconciler": {
+        "ORDER_STATUS_CACHE_MS": "0",
+        "ORDER_STATUS_EVENT_REFRESH": "0",
+        "ORDER_STATUS_EVENT_REFRESH_DEDUP": "0",
+        "ORDER_STATUS_POLL_MS": "500",
+        "PAYMENT_CALLBACK_PROVIDER": "simulator",
+        "CONFIRMATION_MAX_PENDING": "10000",
+        "CONFIRMATION_LEASE_SECONDS": "30",
+        "CONFIRMATION_MAX_ATTEMPTS": "8",
+        "CONFIRMATION_RETRY_MS": "100",
+        "PAYMENT_CONFIRMATION_ASYNC": "0",
+        "API_PARTIAL_TIMEOUT_RECLAIM": "0",
+        "API_CALLBACK_ACQUISITION_RESERVE": "0"
+      },
+      "simulator": {
+        "ORDER_STATUS_CACHE_MS": "0",
+        "ORDER_STATUS_EVENT_REFRESH": "0",
+        "ORDER_STATUS_EVENT_REFRESH_DEDUP": "0",
+        "ORDER_STATUS_POLL_MS": "500",
+        "PAYMENT_CALLBACK_PROVIDER": "simulator",
+        "CONFIRMATION_MAX_PENDING": "10000",
+        "CONFIRMATION_LEASE_SECONDS": "30",
+        "CONFIRMATION_MAX_ATTEMPTS": "8",
+        "CONFIRMATION_RETRY_MS": "100",
+        "PAYMENT_CONFIRMATION_ASYNC": "0",
+        "API_PARTIAL_TIMEOUT_RECLAIM": "0",
+        "API_CALLBACK_ACQUISITION_RESERVE": "0",
+        "DB_POOL_MAX": "10",
+        "API_URL": "http://load-balancer:8000"
+      },
+      "confirmation": {
+        "ORDER_STATUS_CACHE_MS": "0",
+        "ORDER_STATUS_EVENT_REFRESH": "0",
+        "ORDER_STATUS_EVENT_REFRESH_DEDUP": "0",
+        "ORDER_STATUS_POLL_MS": "500",
+        "PAYMENT_CALLBACK_PROVIDER": "simulator",
+        "CONFIRMATION_MAX_PENDING": "10000",
+        "CONFIRMATION_LEASE_SECONDS": "30",
+        "CONFIRMATION_MAX_ATTEMPTS": "8",
+        "CONFIRMATION_RETRY_MS": "100",
+        "PAYMENT_CONFIRMATION_ASYNC": "1",
+        "API_PARTIAL_TIMEOUT_RECLAIM": "0",
+        "API_CALLBACK_ACQUISITION_RESERVE": "0",
+        "DB_POOL_MAX": "2",
+        "CONFIRMATION_CONCURRENCY": "2",
+        "SIMULATOR_CONCURRENCY": "1"
+      }
+    }
+  },
+  "placements": {
+    "candidate": {
+      "primary": 1,
+      "secondary": 3
+    }
+  },
+  "diagnostic_connection_decision": "ADR0180",
+  "callback_routes": {
+    "candidate": "http://load-balancer:8000"
+  },
+  "baseline_evidence": "docs/capacity/flash-sale-opening/shared-callback-placement-comparison-2026-10-08.json",
+  "baseline_sha256": "67b2706601f487040971497ebe0be995af396c01c1f4b394b55304e22c766b03",
+  "status": "LOCALLY_QUALIFIED_NOT_CLOUD_STARTED",
+  "scope": "One bounded 84/s 300-second probe; all correctness, drain and restoration gates retained. Not hour-qualified."
+}

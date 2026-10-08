@@ -25,7 +25,8 @@ PROFILES = {PROFILE: (BASE_LEDGER, "ADR0171"),
             "atomic_payment_claim": ("bounded_atomic_payment_claim", "ADR0193"),
             "worker_separation": ("bounded_worker_separation", "ADR0201"),
             "callback_routing": ("bounded_callback_routing", "ADR0216"),
-            "shared_callback_placement": ("bounded_shared_callback_placement", "ADR0217")}
+            "shared_callback_placement": ("bounded_shared_callback_placement", "ADR0217"),
+            "shared_callback_rate_probe": ("bounded_shared_callback_rate_probe", "ADR0219")}
 SCOPE = re.compile("(?:" + "|".join(v[0] for v in PROFILES.values()) + r")__(?:[0-9a-f]{12})$")
 
 
@@ -129,8 +130,10 @@ def reserve(binding, plan, *, profile=PROFILE):
         raise ValueError("Unknown diagnostic profile")
     base, decision = PROFILES[profile]
     expected_arms = ["control", "candidate"] if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement", "atomic_payment_claim", "worker_separation", "callback_routing", "shared_callback_placement"} else ["control"]
+    if profile == "shared_callback_rate_probe":
+        expected_arms = ["candidate"]
     if (plan.get("decision") != decision or plan.get("arms") != expected_arms
-            or plan.get("common", {}).get("buyer_journeys_per_second") != 60
+            or plan.get("common", {}).get("buyer_journeys_per_second") != (84 if profile == "shared_callback_rate_probe" else 60)
             or plan["common"].get("duration_seconds") != 300):
         raise ValueError("Only locally qualified unchanged diagnostic control permitted")
     if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement"} and (
@@ -142,10 +145,15 @@ def reserve(binding, plan, *, profile=PROFILE):
     if profile == "application_role_rebalance" and (
             plan.get("diagnostic_scope") != "application_role" or plan.get("diagnostic_decision") != "ADR0176"):
         raise ValueError("Exact registered application diagnostic scope required")
-    if profile in {"diagnostic_placement", "callback_routing", "shared_callback_placement"} and (
+    if profile in {"diagnostic_placement", "callback_routing", "shared_callback_placement", "shared_callback_rate_probe"} and (
             plan.get("diagnostic_connection_decision") != "ADR0180"
             or not re.fullmatch(r"[0-9a-f]{64}", binding.get("diagnostic_target_sha256", ""))):
         raise ValueError("Exact diagnostic target binding required")
+    if profile == "shared_callback_rate_probe":
+        import shared_callback_rate_probe_contract as probe
+
+        if plan != probe.plan():
+            raise ValueError("Exact locally qualified 84/s shared-callback probe required")
     if profile == "shared_callback_placement":
         import shared_callback_placement_contract as placement
 
@@ -184,7 +192,7 @@ def reserve(binding, plan, *, profile=PROFILE):
         "qualification_runs_authorized": 1, "paid_runs_authorized": len(expected_arms), "safety_tickets_authorized": 2 * len(expected_arms),
         "qualification_protocols_started": 0, "paid_runs_started": 0,
         "paid_protocols_started": 0, "safety_protocols_started": 0, "active_run": None,
-        "scope": "Fresh " + decision + " experiment under ADR0172 standing boundaries; no replay or higher load"}
+        "scope": "Fresh " + decision + " experiment under ADR0172 standing boundaries; exact registered rate only, no replay"}
     if profile == "worker_separation":
         state[key].update(qualification_runs_authorized=0, safety_tickets_authorized=0)
     write(STATE, state)

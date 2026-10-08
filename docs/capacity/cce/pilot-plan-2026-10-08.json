@@ -1,0 +1,119 @@
+{
+  "decision": "ADR0220",
+  "status": "PREPARATION_ONLY_NOT_DEPLOYED",
+  "access_evidence": "docs/capacity/cce/access-preflight-2026-10-08.json",
+  "spending_exception_expires_bangkok": "2026-10-08T23:59:59+07:00",
+  "maximum_new_spend_today": null,
+  "resource_limits": {
+    "pods": 20,
+    "vcpu": 9.0,
+    "memory_gib": 14.0,
+    "automatic_scaling": false
+  },
+  "roles": [
+    {
+      "role": "api",
+      "replicas": 4,
+      "cpu_request_and_limit_millicores": 1000,
+      "memory_request_and_limit_mib": 1024,
+      "status": "proposed_not_applied"
+    },
+    {
+      "role": "consumer",
+      "replicas": 6,
+      "cpu_request_and_limit_millicores": 250,
+      "memory_request_and_limit_mib": 512,
+      "status": "proposed_not_applied"
+    },
+    {
+      "role": "reservation-writer",
+      "replicas": 3,
+      "cpu_request_and_limit_millicores": 500,
+      "memory_request_and_limit_mib": 1024,
+      "status": "proposed_not_applied"
+    },
+    {
+      "role": "publisher",
+      "replicas": 1,
+      "cpu_request_and_limit_millicores": 250,
+      "memory_request_and_limit_mib": 512,
+      "status": "proposed_not_applied"
+    },
+    {
+      "role": "maintenance",
+      "replicas": 1,
+      "cpu_request_and_limit_millicores": 250,
+      "memory_request_and_limit_mib": 512,
+      "status": "proposed_not_applied"
+    },
+    {
+      "role": "reconciler",
+      "replicas": 1,
+      "cpu_request_and_limit_millicores": 250,
+      "memory_request_and_limit_mib": 512,
+      "status": "proposed_not_applied"
+    },
+    {
+      "role": "simulator",
+      "replicas": 1,
+      "cpu_request_and_limit_millicores": 500,
+      "memory_request_and_limit_mib": 1024,
+      "status": "proposed_not_applied"
+    },
+    {
+      "role": "confirmation",
+      "replicas": 1,
+      "cpu_request_and_limit_millicores": 250,
+      "memory_request_and_limit_mib": 512,
+      "status": "proposed_not_applied"
+    },
+    {
+      "role": "pgbouncer",
+      "replicas": 1,
+      "cpu_request_and_limit_millicores": 250,
+      "memory_request_and_limit_mib": 512,
+      "status": "proposed_not_applied"
+    },
+    {
+      "role": "load-balancer",
+      "replicas": 1,
+      "cpu_request_and_limit_millicores": 250,
+      "memory_request_and_limit_mib": 512,
+      "status": "proposed_not_applied"
+    }
+  ],
+  "existing_dependencies": [
+    "RDS PostgreSQL",
+    "DCS Redis",
+    "ECS Kafka"
+  ],
+  "database_budgets": {
+    "api_general_connections_total": 16,
+    "api_payment_connections_included": 8,
+    "pgbouncer_server_pool": 24,
+    "reserve_pool": 0,
+    "simulator_pool": 10,
+    "confirmation_pool": 2
+  },
+  "image_policy": {
+    "benchmark_image_source": "ADR0217 frozen per-role images; require SWR manifest digest verification before CCE deployment",
+    "existing_swr_candidate_manifest": "docs/capacity/swr/candidate-096f68d73618-2026-10-07.json",
+    "existing_swr_candidate_matches_benchmark_binaries": false,
+    "do_not_substitute_candidate_silently": true
+  },
+  "qualification": {
+    "functional_pilot_capacity_claim": false,
+    "requires_registered_bounded_profile": true,
+    "requires_exact_budgets_and_measured_resources": true,
+    "requires_post_ttl_durability_and_zero_double_booking": true,
+    "requires_complete_queue_drain_and_original_runtime_restoration": true,
+    "baseline_84_probe_independent": true
+  },
+  "remaining_before_deployment": [
+    "Publish exact frozen per-role images to SWR with verified manifest digests, or separately qualify the newer candidate against an identical ECS image baseline",
+    "Render and validate Kubernetes resources, including networking, secrets, readiness and graceful shutdown",
+    "Register and locally qualify bounded CCE pilot with cleanup before spending exception expiry",
+    "Confirm dependency connectivity from a disposable owned pod before enabling workload processing"
+  ],
+  "note": "Resource proposal is not a measured match to ECS utilization or a pricing quote. No extra ELB or storage is provisioned. Never delete the user-created cluster."
+}

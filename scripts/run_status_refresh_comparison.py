@@ -190,7 +190,8 @@ def reserve_arm(run_id, arm, *, execute):
 
 class RefreshStages(comparison.Stages):
     def __init__(self, execute, bundle, contract, run_id):
-        super().__init__(execute, bundle, ledger_key=LEDGER, stage_limit=1, contract=contract)
+        super().__init__(execute, bundle, rate=json.loads(PLAN.read_text())["common"]["buyer_journeys_per_second"],
+                         ledger_key=LEDGER, stage_limit=1, contract=contract)
         self.run_id = run_id
 
     def __call__(self, session, physical_arm, routes, saved, owner, output):

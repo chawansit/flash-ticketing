@@ -41,7 +41,7 @@ def summarize_callbacks(rows, inventory, *, offered_start_utc, offered_end_utc, 
     arm = inventory.get("arm")
     from observe_two_host_pipeline import verify_admission_factor_evidence
     verify_admission_factor_evidence(inventory)
-    if marker.get("decision") != expected_decision or expected_decision not in {"ADR0216", "ADR0217"}:
+    if marker.get("decision") != expected_decision or expected_decision not in {"ADR0216", "ADR0217", "ADR0219"}:
         raise ValueError("Callback evidence requires the exact routing contract")
     secondary = {k: v for k, v in successful.items() if k.startswith("secondary:")}
     primary = {k: v for k, v in successful.items() if k.startswith("primary:")}
@@ -58,10 +58,10 @@ def summarize_callbacks(rows, inventory, *, offered_start_utc, offered_end_utc, 
 
 def create_runner(*, policy_module=policy, ledger=LEDGER, authorization=AUTHORIZATION,
                   decision="ADR0216", profile_name="callback_routing",
-                  runner_filename="run_callback_routing_comparison.py", extra_identity=()):
+                  runner_filename="run_callback_routing_comparison.py", extra_identity=(), arms=("control", "candidate")):
     engine = protected_runner(policy_module=policy_module, ledger=ledger, authorization=authorization,
                               decision=decision, profile_name=profile_name,
-                              runner_filename=runner_filename,
+                              runner_filename=runner_filename, arms=arms,
                               extra_identity=("run_diagnostic_placement_comparison.py", *extra_identity))
     original_measurements, original_arm = engine.measurements, engine.run_arm
 

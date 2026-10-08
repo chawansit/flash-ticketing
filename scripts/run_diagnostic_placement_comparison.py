@@ -12,11 +12,11 @@ AUTHORIZATION = "adr0181-diagnostic-placement-pair-2026-10-06"
 
 def create_runner(*, policy_module=policy, ledger=LEDGER, authorization=AUTHORIZATION,
                   decision="ADR0181", profile_name="diagnostic_placement",
-                  runner_filename="run_diagnostic_placement_comparison.py", extra_identity=()):
+                  runner_filename="run_diagnostic_placement_comparison.py", extra_identity=(), arms=("control", "candidate")):
     engine = shared_runner(policy_module=policy_module, ledger=ledger, authorization=authorization,
                            decision=decision, profile_name=profile_name,
                            artifact_directory="partial-timeout-reclamation", patch_name="adr0163.patch",
-                           arms=("control", "candidate"), runner_filename=runner_filename, extra_identity=extra_identity)
+                           arms=arms, runner_filename=runner_filename, extra_identity=extra_identity)
     original_binding = engine.binding_for
     original_contract = engine.StatusRefreshContract
     engine.diagnostic_context = None

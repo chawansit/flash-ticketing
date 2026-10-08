@@ -25,10 +25,12 @@ from test_slow_database_evidence import trace
 def inventory(decision, arm):
     import callback_routing_contract as routing
     import shared_callback_placement_contract as shared
+    import shared_callback_rate_probe_contract as probe
     policy, cls = {"ADR0174": (placement, placement.ApiPlacementContract),
                    "ADR0177": (scoped, scoped.ApplicationRoleRebalanceContract),
                    "ADR0216": (routing, routing.CallbackRoutingContract),
-                   "ADR0217": (shared, shared.SharedCallbackPlacementContract)}[decision]
+                   "ADR0217": (shared, shared.SharedCallbackPlacementContract),
+                   "ADR0219": (probe, probe.SharedCallbackRateProbeContract)}[decision]
     data = policy.plan()
     contract = cls(data["artifact_receipt"], arm, data["expected_runtime_source_sha256"])
     rows = []
@@ -40,8 +42,7 @@ def inventory(decision, arm):
             "status_refresh_contract": contract.inventory_marker()}
 
 
-@pytest.mark.parametrize("decision", ["ADR0174", "ADR0177", "ADR0216", "ADR0217"])
-@pytest.mark.parametrize("arm", ["control", "candidate"])
+@pytest.mark.parametrize("decision,arm", [(d,a) for d in ("ADR0174", "ADR0177", "ADR0216", "ADR0217") for a in ("control", "candidate")] + [("ADR0219", "candidate")])
 @pytest.mark.parametrize("collector", [failure, slow])
 def test_real_collectors_execute_exact_generated_streams(monkeypatch, tmp_path, decision, arm, collector):
     inv = inventory(decision, arm)

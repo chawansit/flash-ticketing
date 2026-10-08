@@ -1,0 +1,27 @@
+{
+  "read_only": true,
+  "cloud_mutations": 0,
+  "tls_verification_enabled": true,
+  "kubernetes_version": "v1.36.2-r0-36.0.3",
+  "namespace_names": [
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "monitoring"
+  ],
+  "namespace_list_complete": true,
+  "cluster_access_pass": true,
+  "transferred_credentials_removed": true,
+  "decision": "ADR0220",
+  "kubeconfig_access_pass": true,
+  "kubeconfig_client_key_matches_certificate": true,
+  "kubeconfig_client_material_differs_from_separate_download": true,
+  "kubeconfig_ca_matches_separate_download": true,
+  "workstation_cluster_access": false,
+  "workstation_failure": "TimeoutError",
+  "cluster_deployed": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "spending_exception_expires_bangkok": "2026-10-08T23:59:59+07:00"
+}

@@ -7,7 +7,17 @@
   "spending": {
     "maximum_new_infrastructure_spend": 0,
     "existing_service_charges": "Continue at existing sizes; no total bill cap specified.",
-    "allow_new_resources_or_resize": false
+    "allow_new_resources_or_resize": false,
+    "temporary_cce_pilot_exception": {
+      "decision": "ADR0220",
+      "authorized_date_bangkok": "2026-10-08",
+      "expires_at_bangkok": "2026-10-08T23:59:59+07:00",
+      "maximum_additional_spend": null,
+      "no_spending_cap_explicitly_authorized": true,
+      "scope": "Bounded CCE pilot only; ECS profiles unchanged. New spending decision required tomorrow. Preserve user-created cluster; clean up owned pilot workloads before expiry.",
+      "authorization": "Direct user reply: No limit for today. Ask me again tomorrow.",
+      "status": "Preparation and read-only access checks; no deployment or cloud load yet"
+    }
   },
   "time": {
     "cumulative_experiment_seconds_limit": null,
@@ -49,7 +59,8 @@
     "atomic_payment_claim",
     "worker_separation",
     "callback_routing",
-    "shared_callback_placement"
+    "shared_callback_placement",
+    "shared_callback_rate_probe"
   ],
   "escalate": [
     "new spending or infrastructure action",
