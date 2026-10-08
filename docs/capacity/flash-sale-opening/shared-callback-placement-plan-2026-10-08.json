@@ -330,6 +330,6 @@
     "control": "http://load-balancer:8000",
     "candidate": "http://load-balancer:8000"
   },
-  "status": "LOCALLY_QUALIFIED_FRESH_SCOPE_REQUIRED",
+  "status": "MATCHED_60_JOURNEY_PAIR_PASSED_RESTORED",
   "scope": "ADR0217 exact placement-only pair with fixed shared callbacks; 60 journeys/s for 300 seconds each, mandatory financial/drain/restoration gates."
 }
