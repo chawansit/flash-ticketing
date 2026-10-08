@@ -6,3 +6,7 @@ artifacts/interleaved-seat-refresh/*.patch text eol=lf whitespace=-blank-at-eol
 migrations/010_orders_event_index.sql text eol=lf
 docs/capacity/flash-sale-opening/interleaved-refresh-timing-recovery-2026-10-08.json -text whitespace=cr-at-eol
 docs/capacity/flash-sale-opening/orders-event-index-recovery-2026-10-08.json -text whitespace=cr-at-eol
+
+artifacts/writer-write-pipeline/*.patch text eol=lf whitespace=-blank-at-eol
+docs/capacity/flash-sale-opening/writer-write-pipeline-safety-recovery-2026-10-08.json -text whitespace=cr-at-eol
+docs/capacity/flash-sale-opening/writer-write-pipeline-recovery-2026-10-08.json -text whitespace=cr-at-eol

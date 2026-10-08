@@ -94,3 +94,41 @@ def test_append_and_tamper_recheck(area, monkeypatch):  # noqa: F811
     damaged.write_text(damaged.read_text() + " ")
     assert recovery.resolved(records, entry, root) is False
     with pytest.raises(ValueError, match="recovery"): envelope.check_available(envelope.envelope(), records, prior)
+
+
+@pytest.mark.parametrize("drift", [None, "unknown_scope", "diagnostic_cause", "index", "dispatch", "paid", "financial", "restore"])
+def test_exact_writer_safety_case_preserves_all_recovery_gates(tmp_path, monkeypatch, drift):
+    entry, state, report = artifacts(tmp_path)
+    old_key = entry["ledger"]
+    saved_dir = tmp_path / report["arms"]["candidate"]["evidence_directory"]
+    saved = json.loads((saved_dir / "state.json").read_text())
+    stage = json.loads((saved_dir / "candidate/stage.private.json").read_text())
+    key, run, arm, _ = recovery.WRITER_ABORT
+    monkeypatch.setattr(recovery, "WRITER_ABORT", (key, run, arm, entry["binding_sha256"]))
+    entry.update(ledger=key, profile="writer_write_pipeline_probe", reports=[{"run": run, "pass": False}])
+    state = {key: state[old_key]}
+    report.update(run=run, experiment_decision="ADR0225")
+    directory = tmp_path / "tmp" / run / arm
+    report["arms"] = {"candidate": {**report["arms"]["candidate"], "evidence_directory": directory.relative_to(tmp_path).as_posix()}}
+    index = {"pass": True, "verification_only": True, "index": {"oid": 123, "valid": True, "ready": True, "unique": False, "method": "btree", "key": "event_id", "predicate": None, "columns": 1, "expected_table": True, "pass": True}}
+    saved.update(orders_event_index_before=index, orders_event_index_after=json.loads(json.dumps(index)))
+    stage["admission_failure_capture"] = {"complete": False, "failure_type": "UnboundLocalError"}
+    if drift == "unknown_scope":
+        entry["ledger"] = key[:-1] + "f"
+        state = {entry["ledger"]: state[key]}
+    elif drift == "diagnostic_cause": stage["admission_failure_capture"]["failure_type"] = "TimeoutError"
+    elif drift == "index": saved["orders_event_index_after"]["index"]["oid"] += 1
+    elif drift == "dispatch": stage["customers_dispatched"] = True
+    elif drift == "paid": state[key]["paid_runs_started"] = 1
+    elif drift == "financial": saved["post_ttl_financial"]["tickets"] = 0
+    elif drift == "restore": saved["primary_runtime_semantics_restored"] = False
+    write(directory / "state.json", saved)
+    write(directory / "candidate/stage.private.json", stage)
+    write(tmp_path / "tmp" / run / "comparison-summary.json", report)
+    if drift:
+        with pytest.raises(ValueError): recovery.verify(tmp_path, entry, state)
+    else:
+        proof = recovery.verify(tmp_path, entry, state)
+        assert len(proof["retained_artifact_sha256"]) == 3
+        assert proof["gates"] == dict.fromkeys(recovery.GATES, True)
+        assert entry["status"] == "RECOVERY_REQUIRED" and report["pass"] is False

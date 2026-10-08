@@ -65,6 +65,8 @@ def index_program(*, verify_only):
 
 
 class OrdersEventIndexProbeContract(parent.InterleavedRefreshProbeContract):
+    index_verify_only = False
+
     def __init__(self, artifact, arm, sources):
         if artifact != plan()["artifact_receipt"]:
             raise ValueError("Index correction must retain every application image")
@@ -83,8 +85,8 @@ class OrdersEventIndexProbeContract(parent.InterleavedRefreshProbeContract):
             raise ValueError("Index deployment requires complete original queue drain")
         session.state["orders_event_index_intent"] = plan()["database_index"]
         session.checkpoint()  # Before an ambiguous DDL outcome.
-        session.phase("orders-event-index-concurrent-preflight")
-        self.index_before = session.api(cid, index_program(verify_only=False), 160)
+        session.phase("orders-event-index-read-only-preflight" if self.index_verify_only else "orders-event-index-concurrent-preflight")
+        self.index_before = session.api(cid, index_program(verify_only=self.index_verify_only), 30 if self.index_verify_only else 160)
         session.state["orders_event_index_before"] = self.index_before
         session.checkpoint()
         if self.index_before.get("pass") is not True:

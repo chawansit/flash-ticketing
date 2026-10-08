@@ -95,3 +95,60 @@ def test_tamper_blocks_resolution(cohort):
     assert recovery.resolved(records, entry, root)
     path.write_text("{}")
     assert not recovery.resolved(records, entry, root)
+
+
+@pytest.fixture
+def writer_cohort(cohort):
+    root, entry, state, report, path, fresh = cohort
+    case = recovery.CASES["bounded_writer_write_pipeline_probe__eb7ff590f16c"]
+    old = root / "tmp" / recovery.RUN / recovery.ARM
+    saved = json.loads((old / "state.json").read_text())
+    stage = json.loads((old / "candidate/stage.private.json").read_text())
+    fixture = json.loads((old / "candidate/fixture-identity.json").read_text())
+    def recount(value):
+        if isinstance(value, dict): return {k: recount(v) for k, v in value.items()}
+        if isinstance(value, list): return [recount(v) for v in value]
+        return case.expected if type(value) is int and value == 24331 else value
+    stage, fresh = recount(stage), recount(fresh)
+    stage["customer"]["generator_drops"] = case.drops
+    entry.update(ledger=case.key, profile=case.profile)
+    entry["reports"][1]["run"] = case.run
+    state = {case.key: state[recovery.KEY]}
+    report.update(run=case.run, experiment_decision=case.decision)
+    index = {"pass": True, "verification_only": True, "index": {
+        "valid": True, "ready": True, "unique": False, "method": "btree",
+        "key": "event_id", "predicate": None, "columns": 1,
+        "expected_table": True, "pass": True, "oid": 53133}}
+    saved.update(orders_event_index_before=copy.deepcopy(index), orders_event_index_after=copy.deepcopy(index))
+    fresh.update(ledger=case.key, original_result_sha256=policy.digest(report), orders_event_index=copy.deepcopy(index))
+    directory = root / "tmp" / case.run / case.arm
+    write(directory.parent / "comparison-summary.json", report)
+    write(directory / "state.json", saved)
+    write(directory / "candidate/stage.private.json", stage)
+    write(directory / "candidate/fixture-identity.json", fixture)
+    write(path, fresh)
+    return root, entry, state, report, path, fresh
+
+
+def test_exact_writer_cohort_preserves_failed_target(writer_cohort):
+    root, entry, state, report, path, _fresh = writer_cohort
+    before = copy.deepcopy((entry, report))
+    receipt = recovery.verify(root, entry, state, path)
+    assert receipt["dispatched_paid_tickets"] == 25196 and receipt["undispatched"] == 4
+    assert not receipt["capacity_qualified"] and not receipt["original_experiment_pass"]
+    assert (entry, report) == before
+
+
+@pytest.mark.parametrize("drift", ["unknown_scope", "profile", "count", "index_oid", "index_missing", "loss", "queue", "restore"])
+def test_writer_cohort_rejects_uncertain_recovery(writer_cohort, drift):
+    root, entry, state, _report, path, fresh = writer_cohort
+    if drift == "unknown_scope": entry["ledger"] = "bounded_writer_write_pipeline_probe__" + "f" * 12
+    elif drift == "profile": entry["profile"] = "orders_event_index_probe"
+    elif drift == "count": fresh["fixture_financial_audit"]["counts"]["expected"] = 25200
+    elif drift == "index_oid": fresh["orders_event_index"]["index"]["oid"] += 1
+    elif drift == "index_missing": fresh.pop("orders_event_index")
+    elif drift == "loss": fresh["fixture_financial_audit"]["counts"]["succeeded_payments"] -= 1
+    elif drift == "queue": fresh["queue_counts"]["pending_callback_deliveries"] = 1
+    else: fresh["runtime_unchanged"] = False
+    write(path, fresh)
+    with pytest.raises(ValueError): recovery.verify(root, entry, state, path)

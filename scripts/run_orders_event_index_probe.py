@@ -6,17 +6,19 @@ LEDGER = "bounded_orders_event_index_probe"
 AUTHORIZATION = "adr0224-orders-event-index-84-probe-2026-10-08"
 
 
-def create_runner():
-    engine = parent_runner(policy_module=policy, ledger=LEDGER, authorization=AUTHORIZATION,
-        decision="ADR0224", profile_name="orders_event_index_probe",
-        runner_filename="run_orders_event_index_probe.py",
+def create_runner(*, policy_module=policy, ledger=LEDGER, authorization=AUTHORIZATION,
+                  decision="ADR0224", profile_name="orders_event_index_probe",
+                  runner_filename="run_orders_event_index_probe.py", extra_identity=()):
+    engine = parent_runner(policy_module=policy_module, ledger=ledger, authorization=authorization,
+        decision=decision, profile_name=profile_name,
+        runner_filename=runner_filename,
         extra_identity=("run_interleaved_refresh_probe.py", "interleaved_refresh_probe_contract.py",
-                        "apply_orders_event_index.py"))
+                        "apply_orders_event_index.py", *extra_identity))
     original_identity, original_gates = engine.identity, engine.stage_gates
 
     def identity():
-        return {**original_identity(), policy.MIGRATION: engine.comparison.source_sha256(
-            (policy.ROOT / policy.MIGRATION).read_bytes())}
+        return {**original_identity(), policy_module.MIGRATION: engine.comparison.source_sha256(
+            (policy_module.ROOT / policy_module.MIGRATION).read_bytes())}
 
     def stage_gates(record, inventory, restored, contract):
         result = original_gates(record, inventory, restored, contract)

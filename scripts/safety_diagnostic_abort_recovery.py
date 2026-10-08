@@ -10,6 +10,8 @@ from work_envelope import digest
 
 GATES = ("zero_paid_dispatch", "safety_financial_durable", "zero_double_booking",
          "full_queue_drain", "exact_runtime_restored", "owned_resources_removed", "credentials_removed")
+WRITER_ABORT = ("bounded_writer_write_pipeline_probe__bd6a3461abd9", "adr0151-3a1e553acc1c",
+                "adr0151-arm-4c250bd06e90", "a13e8bc95695726e6193238edc0acc921c1a75ee9b6d317b34660895827bf58b")
 QUEUE_KEYS = ("unpublished_outbox", "pending_refresh", "dead_letters", "pending_callback_deliveries",
               "pending_refunds", "reservation_stream_entries", "reservation_stream_pending", "kafka_total_lag",
               "pending_confirmation_receipts", "review_confirmation_receipts", "confirmation_capacity_outstanding",
@@ -36,8 +38,12 @@ def verify(root, entry, state):
     root = Path(root).resolve()
     key = entry.get("ledger", "")
     scope = state.get(key, {})
-    if (entry.get("profile") != "shared_callback_placement" or entry.get("status") != "RECOVERY_REQUIRED"
-            or not re.fullmatch(r"bounded_shared_callback_placement__[0-9a-f]{12}", key)
+    writer_case = key == WRITER_ABORT[0]
+    profile = "writer_write_pipeline_probe" if writer_case else "shared_callback_placement"
+    decision = "ADR0225" if writer_case else "ADR0217"
+    expected_arms = {"candidate"} if writer_case else {"control", "candidate"}
+    if (entry.get("profile") != profile or entry.get("status") != "RECOVERY_REQUIRED"
+            or (not writer_case and not re.fullmatch(r"bounded_shared_callback_placement__[0-9a-f]{12}", key))
             or len(entry.get("reports", [])) != 1 or entry["reports"][0].get("pass") is not False
             or state.get("current_run") or scope.get("active_run")
             or scope.get("paid_runs_started") != 0 or scope.get("paid_protocols_started") != 0
@@ -45,12 +51,14 @@ def verify(root, entry, state):
         raise ValueError("Exact consumed safety-only scope required")
     run = entry["reports"][0]["run"]
     if not re.fullmatch(r"adr0151-[0-9a-f]{12}", run): raise ValueError("Owned report identity required")
+    if writer_case and (run != WRITER_ABORT[1] or entry["binding_sha256"] != WRITER_ABORT[3]):
+        raise ValueError("Exact known writer safety abort identity required")
     owned = root / "tmp" / run
     path = regular(owned, owned / "comparison-summary.json")
     report = read(owned, path)
-    if (report.get("run") != run or report.get("experiment_decision") != "ADR0217"
+    if (report.get("run") != run or report.get("experiment_decision") != decision
             or report.get("pass") is not False or report.get("capacity_stages_started") != 0
-            or set(report.get("arms", {})) != {"control", "candidate"}
+            or set(report.get("arms", {})) != expected_arms
             or digest(report.get("binding")) != entry["binding_sha256"]):
         raise ValueError("Exact retained failed safety report required")
     artifacts = [path]
@@ -65,6 +73,16 @@ def verify(root, entry, state):
         sp, tp = directory / "state.json", directory / arm / "stage.private.json"
         saved, stage = read(owned, sp), read(owned, tp)
         artifacts.extend((sp, tp))
+        if writer_case:
+            from orders_event_index_probe_contract import OrdersEventIndexProbeContract
+            proof = object.__new__(OrdersEventIndexProbeContract)
+            proof.index_before = saved.get("orders_event_index_before")
+            proof.index_after = saved.get("orders_event_index_after")
+            if (directory.name != WRITER_ABORT[2]
+                    or stage.get("admission_failure_capture") != {"complete": False, "failure_type": "UnboundLocalError"}
+                    or not proof.index_verified() or proof.index_before.get("verification_only") is not True):
+                raise ValueError("Exact missing diagnostic selector and unchanged read-only index required")
+
         flags = ("pass", "restore_pass", "qualification_checks_pass", "secondary_resources_removed",
                  "confirmation_worker_removed_after_drain", "primary_runtime_semantics_restored",
                  "generator_idle_after", "credential_snapshots_removed", "candidate_pre_safety_sources_verified", "frozen_audit_harness_match")
@@ -99,7 +117,7 @@ def resolved(records, entry, root):
         if (hashlib.sha256(path.read_bytes()).hexdigest() != item["receipt_sha256"]
                 or receipt.get("decision") != "ADR0218" or receipt.get("ledger") != entry["ledger"]
                 or receipt.get("binding_sha256") != entry["binding_sha256"] or receipt.get("gates") != dict.fromkeys(GATES, True)
-                or len(receipt.get("retained_artifact_sha256", {})) != 5): return False
+                or len(receipt.get("retained_artifact_sha256", {})) != (3 if entry["ledger"] == WRITER_ABORT[0] else 5)): return False
         owned = Path(root).resolve() / "tmp" / entry["reports"][0]["run"]
         return all(hashlib.sha256(regular(owned, Path(root) / name).read_bytes()).hexdigest() == fingerprint
                    for name, fingerprint in receipt["retained_artifact_sha256"].items())

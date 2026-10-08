@@ -35,6 +35,9 @@ CASES = MappingProxyType({
     "bounded_orders_event_index_probe__c9a9ead76625": RecoveryCase(
         "bounded_orders_event_index_probe__c9a9ead76625", "adr0151-bb1154096e30",
         "adr0151-arm-a977076bad22", 24423, 777, "orders_event_index_probe", "ADR0224"),
+    "bounded_writer_write_pipeline_probe__eb7ff590f16c": RecoveryCase(
+        "bounded_writer_write_pipeline_probe__eb7ff590f16c", "adr0151-4988723f04a7",
+        "adr0151-arm-3000e8c3419a", 25196, 4, "writer_write_pipeline_probe", "ADR0225"),
 })
 
 
@@ -87,7 +90,7 @@ def retained(root, entry, state):
             or fixture.get("fixture_identity", {}).get("shows") != 84
             or len(set(fixture.get("fixture_identity", {}).get("show_ids", []))) != 84):
         raise ValueError("Retained paid failure, exact fixture and restoration proof required")
-    if case.decision == "ADR0224":
+    if case.decision in {"ADR0224", "ADR0225"}:
         from types import SimpleNamespace
 
         from orders_event_index_probe_contract import OrdersEventIndexProbeContract
@@ -128,7 +131,7 @@ def verify(root, entry, state, fresh_path, *, now=None):
             or any(relationships.get(k) != 0 for k in ("hold_relationship_errors", "booking_relationship_errors",
                 "order_item_relationship_errors", "inventory_relationship_errors", "fulfilled_ticket_relationship_errors"))):
         raise ValueError("Fresh independent financial, relationship and runtime verification required")
-    if case.decision == "ADR0224":
+    if case.decision in {"ADR0224", "ADR0225"}:
         from types import SimpleNamespace
 
         from orders_event_index_probe_contract import OrdersEventIndexProbeContract
