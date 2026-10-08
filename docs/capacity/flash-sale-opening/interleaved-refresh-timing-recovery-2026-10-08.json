@@ -1,0 +1,30 @@
+{
+  "decision": "ADR0221",
+  "ledger": "bounded_interleaved_refresh_probe__380556ea4230",
+  "binding_sha256": "0ee918423dadd4acd722896aed3edb3df03ca1ab19546f802d34a60eb6d36cb8",
+  "verified_at_utc": "2026-10-08T05:16:33.008217+00:00",
+  "gates": {
+    "dispatched_cohort_durable": true,
+    "post_ttl_relationships": true,
+    "zero_double_booking": true,
+    "full_queue_drain": true,
+    "exact_runtime_restored": true,
+    "generator_idle": true,
+    "owned_cleanup": true,
+    "original_failure_preserved": true
+  },
+  "scheduled": 25200,
+  "dispatched_paid_tickets": 25168,
+  "undispatched": 32,
+  "original_experiment_pass": false,
+  "capacity_qualified": false,
+  "verification_elapsed_seconds": 119.59299999999348,
+  "retained_artifact_sha256": {
+    "tmp/adr0151-cac068bf517e/comparison-summary.json": "d88c71f332f538fe3e304f0ccb87a1d931d4404cce9ad961ad2fd1c01c13c6c4",
+    "tmp/adr0151-cac068bf517e/adr0151-arm-1189895a697f/state.json": "50b8729f9f16beea8eaf945a5d7a65b13a2cfc30b8c309558abb722bedf70786",
+    "tmp/adr0151-cac068bf517e/adr0151-arm-1189895a697f/candidate/stage.private.json": "91f53715f9f7cf8fc9206958bbd33f72c9167973dfab2dd717678c0ffe9a4828",
+    "tmp/adr0151-cac068bf517e/adr0151-arm-1189895a697f/candidate/fixture-identity.json": "58769f5b2c5458439849d4e1c53f68ac212f888fd79b857a5477a09fb66256fd",
+    "tmp/adr0153-parents-675bf952e1d3/recovery-verification.json": "527187ad7c70f7c741f5376c53065f689c8e8fc9acb6918b1ef3776e138cf0d3"
+  },
+  "scope": "Only recovery cleared; original throughput, latency and diagnostic gates remain failed. Fresh experiment identity required."
+}

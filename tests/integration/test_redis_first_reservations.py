@@ -15,15 +15,15 @@ from ticketing.workers import persist_reservation_batch, snapshot
 pytestmark = pytest.mark.integration
 
 
-@pytest.fixture
-def redis_first(system):
+@pytest.fixture(params=[False, True], ids=["sequential", "pipelined"])
+def redis_first(system, request):
     _service, db, event_id = system
     url = os.getenv("TEST_REDIS_URL")
     if not url:
         pytest.skip("TEST_REDIS_URL not configured")
     cache = RedisSeats(url)
     intake = RedisReservationIntake(cache, hold_seconds=120)
-    store = PostgresReservations(db, cache, 120)
+    store = PostgresReservations(db, cache, 120, persist_write_pipeline=request.param)
     snapshot(db, cache, event_id)
     try:
         yield store, intake, cache, db, event_id
@@ -669,3 +669,54 @@ def test_fair_continuation_after_commit_failure_reset_and_replay(redis_first, mo
             if keys:
                 cache.redis.delete(*keys)
             cache.redis.srem("reservation-stream-registry", stream)
+
+
+@pytest.mark.parametrize("failure", ["queued_sql", "commit"])
+def test_write_pipeline_failure_rolls_back_and_keeps_stream_replayable(redis_first, monkeypatch, failure):
+    import psycopg
+
+    import ticketing.infrastructure.reservations as persistence
+
+    store, intake, _cache, db, event_id = redis_first
+    first = intake.enqueue("pipeline-first", event_id, ["A"], "pipeline-first")
+    second = intake.enqueue("pipeline-second", event_id, ["B"], "pipeline-second")
+    original_event = persistence.event
+
+    def failed_event(conn, *args):
+        original_event(conn, *args)
+        conn.execute("SELECT 1/0")  # Fail after earlier writes were submitted.
+
+    def failed_commit(_conn):
+        raise RuntimeError("injected commit failure")
+
+    expected = psycopg.errors.DivisionByZero if failure == "queued_sql" else RuntimeError
+    with monkeypatch.context() as patch:
+        if failure == "queued_sql":
+            patch.setattr(persistence, "event", failed_event)
+        else:
+            patch.setattr(psycopg.Connection, "commit", failed_commit)
+        with pytest.raises(expected):
+            persist_reservation_batch(store, intake, "pipeline-failed-writer", 8)
+
+    stream = intake.stream_key(event_id)
+    assert intake.redis.xpending(stream, intake.group)["pending"] == 2
+    assert intake.status(event_id, first["command_id"])["persistence_status"] == "PENDING"
+    assert intake.status(event_id, second["command_id"])["persistence_status"] == "PENDING"
+    with db.transaction() as conn:
+        for table in ("holds", "orders", "order_items", "reservation_commands", "outbox_events", "idempotency_records"):
+            assert conn.execute(f"SELECT count(*) AS n FROM {table}").fetchone()["n"] == 0
+        assert conn.execute("SELECT count(*) AS n FROM event_seats WHERE hold_id IS NOT NULL").fetchone()["n"] == 0
+
+    original_messages = intake.messages
+
+    def immediate_reclaim(consumer, count=8):
+        yield from original_messages(consumer, count=count, reclaim_idle_ms=0)
+
+    monkeypatch.setattr(intake, "messages", immediate_reclaim)
+    assert persist_reservation_batch(store, intake, "pipeline-recovered-writer", 8)
+    assert intake.redis.xpending(stream, intake.group)["pending"] == 0
+    assert intake.redis.xlen(stream) == 0
+    with db.transaction() as conn:
+        for table in ("holds", "orders", "reservation_commands", "outbox_events"):
+            assert conn.execute(f"SELECT count(*) AS n FROM {table}").fetchone()["n"] == 2
+        assert conn.execute("SELECT count(DISTINCT id) AS n FROM orders").fetchone()["n"] == 2

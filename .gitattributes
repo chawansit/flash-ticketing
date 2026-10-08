@@ -3,3 +3,6 @@ artifacts/status-refresh-dedup/*.patch text eol=lf whitespace=-blank-at-eol
 artifacts/async-payment-confirmation/*.patch text eol=lf whitespace=-blank-at-eol
 .githooks/* text eol=lf
 artifacts/interleaved-seat-refresh/*.patch text eol=lf whitespace=-blank-at-eol
+migrations/010_orders_event_index.sql text eol=lf
+docs/capacity/flash-sale-opening/interleaved-refresh-timing-recovery-2026-10-08.json -text whitespace=cr-at-eol
+docs/capacity/flash-sale-opening/orders-event-index-recovery-2026-10-08.json -text whitespace=cr-at-eol

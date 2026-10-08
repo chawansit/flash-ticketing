@@ -386,3 +386,9 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0221: Dispatched cohort recovery classification](0221-dispatched-cohort-recovery-classification.md)
 
 - [ADR0222: Coalesce interleaved seat refresh intents](0222-coalesce-interleaved-seat-refresh-intents.md)
+
+- [ADR0223: Attribute paid observer sampling delay](0223-attribute-paid-observer-sampling-delay.md)
+
+- [ADR0224: Index orders by event for paid cohort queries](0224-index-orders-by-event-for-paid-cohort-queries.md)
+
+- [ADR0225: Pipeline reservation command writes](0225-pipeline-reservation-command-writes.md)

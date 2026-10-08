@@ -19,9 +19,9 @@ def create_runner(*, policy_module=None, ledger=None, authorization=None, decisi
         raise ValueError("Exact ordered pair or single control required")
     if arms == ("control",) and decision not in {"ADR0170", "ADR0171", "ADR0173"}:
         raise ValueError("Single-control scope is restricted to qualified diagnostic profiles")
-    if arms == ("candidate",) and decision not in {"ADR0219", "ADR0222"}:
+    if arms == ("candidate",) and decision not in {"ADR0219", "ADR0222", "ADR0224"}:
         raise ValueError("Candidate-only scope requires the registered 84/s profile")
-    if decision in {"ADR0219", "ADR0222"} and arms != ("candidate",):
+    if decision in {"ADR0219", "ADR0222", "ADR0224"} and arms != ("candidate",):
         raise ValueError("The 84/s profile permits exactly one candidate stage")
     policy = policy_module or default_policy
     # Load a private namespace; never mutate the imported historical runner or copy its engine.
@@ -45,15 +45,15 @@ def create_runner(*, policy_module=None, ledger=None, authorization=None, decisi
         return {**original_identity(), **{
             "scripts/" + name: engine.comparison.source_sha256((ROOT / "scripts" / name).read_bytes())
             for name in (runner_filename or "run_" + profile_name + "_comparison.py", profile_name + "_contract.py",
-                         preparer_filename or "prepare_" + ("partial_timeout_reclamation" if decision in {"ADR0164", "ADR0165", "ADR0170", "ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222"} else "async_confirmation") + ".py", "prepare_status_refresh_artifacts.py",
+                         preparer_filename or "prepare_" + ("partial_timeout_reclamation" if decision in {"ADR0164", "ADR0165", "ADR0170", "ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"} else "async_confirmation") + ".py", "prepare_status_refresh_artifacts.py",
                          "status_refresh_image_install.py", "stage_status_refresh_images.py", "run_async_confirmation_comparison.py",
                          "checkout_journey_probe.py", "fetch_status_refresh_parents.py",
-                         *( ("admission_failure_evidence.py",) if decision in {"ADR0164", "ADR0165", "ADR0170", "ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222"} else () ),
-                         *( ("slow_database_evidence.py",) if decision in {"ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222"} else () ),
-                         *( ("database_wait_evidence.py",) if decision in {"ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0216", "ADR0217", "ADR0219", "ADR0222"} else () ),
+                         *( ("admission_failure_evidence.py",) if decision in {"ADR0164", "ADR0165", "ADR0170", "ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"} else () ),
+                         *( ("slow_database_evidence.py",) if decision in {"ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"} else () ),
+                         *( ("database_wait_evidence.py",) if decision in {"ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"} else () ),
                          *( ("application_database_wait_evidence.py", "application_role_runner_diagnostics.py", "api_placement_contract.py") if decision == "ADR0177" else () ),
-                         *( ("diagnostic_connection.py", "diagnostic_runner_connection.py", "api_placement_contract.py") if decision in {"ADR0181", "ADR0216", "ADR0217", "ADR0219", "ADR0222"} else () ),
-                         *( ("partial_timeout_profile.py",) if decision in {"ADR0164", "ADR0165", "ADR0170", "ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222"} else () ))},
+                         *( ("diagnostic_connection.py", "diagnostic_runner_connection.py", "api_placement_contract.py") if decision in {"ADR0181", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"} else () ),
+                         *( ("partial_timeout_profile.py",) if decision in {"ADR0164", "ADR0165", "ADR0170", "ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"} else () ))},
             **{"scripts/" + name: engine.comparison.source_sha256((ROOT / "scripts" / name).read_bytes()) for name in extra_identity},
             **{"artifacts/" + artifact_directory + "/" + name: engine.comparison.source_sha256(
                 (ROOT / "artifacts" / artifact_directory / name).read_bytes())
@@ -79,12 +79,12 @@ def create_runner(*, policy_module=None, ledger=None, authorization=None, decisi
                                    execute=execute, qualification=qualification)
         report.update(experiment_decision=decision, factor=policy.FACTOR,
                       scope=("Fixed2+2API, identical images/cache/refresh/dedup-off/500ms polling and aggregate budgets; "
-                             + ("only partial timeout reclamation0->1;synchronous intake both arms." if decision in {"ADR0164", "ADR0165", "ADR0170", "ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222"}
+                             + ("only partial timeout reclamation0->1;synchronous intake both arms." if decision in {"ADR0164", "ADR0165", "ADR0170", "ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"}
                                 else "only durable callback intake0->1.") + "60journeys/s300s each; no hourly capacity claim."))
         if decision in {"ADR0170", "ADR0171", "ADR0173"}:
             report.update(scope="Unchanged frozen ADR0163 synchronous control, reclamation off, fixed 2+2 APIs and budgets; one safety protocol then one 60 journeys/s 300s stage. Failure capture and all financial/drain/restoration gates retained. No capacity improvement or hourly claim.",
                           kind=profile_name + "_paid_control" if execute else "status_refresh_dry_control")
-        if decision in {"ADR0174", "ADR0177", "ADR0181", "ADR0216", "ADR0217", "ADR0219", "ADR0222"}:
+        if decision in {"ADR0174", "ADR0177", "ADR0181", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"}:
             report.update(scope="Same frozen control images/settings/budgets and diagnostics; API placement 2+2 versus 1+3 only; 60 journeys/s for 300 seconds per arm. No hourly qualification or higher load.")
         if decision == "ADR0216":
             report.update(scope="Only simulator callback destination changes from local APIs to the shared load balancer. Fixed 2+2 APIs, frozen images, settings and budgets; 60 journeys/s for 300 seconds per arm. No hourly qualification or higher load.")
@@ -94,9 +94,11 @@ def create_runner(*, policy_module=None, ledger=None, authorization=None, decisi
             report.update(scope="One 84 journeys/s 300-second candidate-only probe; measured 1+3 APIs and shared callbacks, frozen images/settings/budgets and complete diagnostics. 25200 unique-seat journeys; comparison reference ADR0217 candidate at 60/s. Completion grace retained; no exact-hour qualification.")
         if decision == "ADR0222":
             report.update(scope="Consumer-only frozen correction versus retained failed ADR0219 84/s reference. Fixed 1+3 APIs, shared callbacks, unchanged images for other roles, workload, budgets and gates; one 84/s 300-second probe. No hourly qualification.")
+        if decision == "ADR0224":
+            report.update(scope="One orders(event_id) index versus retained ADR0223 timed reference; identical ADR0222 images, 1+3 APIs, shared callbacks, workload and budgets; 84/s for 300 seconds with every original gate. Index persists as an explicit schema correction; no hourly claim.")
         if decision == "ADR0193":
             report.update(scope="Arm-specific pinned images and sources; only atomic callback claim changes. Fixed 2+2 APIs, concurrency, polling and aggregate budgets; 60 journeys/s for 300 seconds per arm. Full financial/drain/restoration gates; no hourly claim.")
-        if decision in {"ADR0181", "ADR0216", "ADR0217", "ADR0219", "ADR0222"}:
+        if decision in {"ADR0181", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"}:
             report.update(diagnostic_connection_decision="ADR0180", scope=report["scope"] + " Separate read-only verified-TLS full-visibility observer in both arms; unchanged application transport and budgets.")
         if decision == "ADR0177":
             report.update(diagnostic_scope="application_role", diagnostic_decision="ADR0176",
@@ -141,7 +143,7 @@ def create_runner(*, policy_module=None, ledger=None, authorization=None, decisi
             result.update(confirmation_observed=True, confirmation_backlog_peak=maximum)
         except (OSError, ValueError, KeyError, TypeError) as exc:
             result.update(confirmation_observed=False, confirmation_failure_type=type(exc).__name__)
-        if decision in {"ADR0164", "ADR0165", "ADR0170", "ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222"}:
+        if decision in {"ADR0164", "ADR0165", "ADR0170", "ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"}:
             try:
                 from observe_two_host_pipeline import admission_failure_metrics
                 keys = set(admission_failure_metrics("# TYPE ticketing_db_acquisition_failures_total counter"))
@@ -168,9 +170,9 @@ def create_runner(*, policy_module=None, ledger=None, authorization=None, decisi
                               admission_counter_window="observer lifetime;not exact offered window")
             except (ValueError, KeyError, TypeError, UnboundLocalError) as exc:
                 result.update(admission_diagnostics_observed=False, admission_failure_type=type(exc).__name__)
-        if decision in {"ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222"}:
+        if decision in {"ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"}:
             result["slow_database_capture"] = record.get("slow_database_capture")
-        if decision in {"ADR0173", "ADR0174", "ADR0181", "ADR0216", "ADR0217", "ADR0219", "ADR0222"}:
+        if decision in {"ADR0173", "ADR0174", "ADR0181", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"}:
             result["database_wait_capture"] = record.get("database_wait_capture")
         if decision == "ADR0177":
             result["application_database_wait_capture"] = record.get("application_database_wait_capture")
@@ -182,13 +184,13 @@ def create_runner(*, policy_module=None, ledger=None, authorization=None, decisi
         queues = record.get("global_queues", {})
         required = {"durable_confirmation_receipts_complete": receipt.get("pass") is True,
                     "durable_confirmation_global_drain": policy.receipt_drained(queues)}
-        if decision in {"ADR0164", "ADR0165", "ADR0170", "ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222"}:
+        if decision in {"ADR0164", "ADR0165", "ADR0170", "ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"}:
             required["admission_failure_evidence_complete"] = record.get("admission_failure_capture", {}).get("complete") is True
-        if decision in {"ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222"}:
+        if decision in {"ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"}:
             required["slow_database_evidence_complete"] = record.get("slow_database_capture", {}).get("complete") is True
-        if decision in {"ADR0173", "ADR0174", "ADR0181", "ADR0216", "ADR0217", "ADR0219", "ADR0222"}:
+        if decision in {"ADR0173", "ADR0174", "ADR0181", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"}:
             required["database_wait_evidence_complete"] = record.get("database_wait_capture", {}).get("complete") is True
-        if decision in {"ADR0181", "ADR0216", "ADR0217", "ADR0219", "ADR0222"}:
+        if decision in {"ADR0181", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"}:
             proof = record.get("diagnostic_connection_preflight", {})
             required["diagnostic_connection_verified"] = all(proof.get(k) is True for k in ("pass", "diagnostic_helpers_verified", "read_only_connection_verified", "verified_tls", "one_data_connection"))
             required["diagnostic_credentials_removed"] = record.get("diagnostic_credentials_removed") is True
@@ -209,7 +211,7 @@ def create_runner(*, policy_module=None, ledger=None, authorization=None, decisi
             result["pass"] = False
             result["gates"]["all_required_gates_pass"] = False
             result["gates"]["failed_gates"].append("confirmation_worker_metrics_coverage")
-        if kwargs.get("execute") and decision in {"ADR0164", "ADR0165", "ADR0170", "ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222"} and (not measured or measured.get("admission_diagnostics_observed") is not True):
+        if kwargs.get("execute") and decision in {"ADR0164", "ADR0165", "ADR0170", "ADR0171", "ADR0173", "ADR0174", "ADR0177", "ADR0181", "ADR0193", "ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224"} and (not measured or measured.get("admission_diagnostics_observed") is not True):
             result["pass"] = False
             result["gates"]["all_required_gates_pass"] = False
             result["gates"]["failed_gates"].append("admission_diagnostics_coverage")

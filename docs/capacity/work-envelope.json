@@ -61,7 +61,8 @@
     "callback_routing",
     "shared_callback_placement",
     "shared_callback_rate_probe",
-    "interleaved_refresh_probe"
+    "interleaved_refresh_probe",
+    "orders_event_index_probe"
   ],
   "escalate": [
     "new spending or infrastructure action",

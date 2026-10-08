@@ -1065,7 +1065,10 @@ def main():
     signal.signal(signal.SIGINT, stop)
     start_http_server(settings.worker_port)
     db, cache = Postgres(settings.database_url, settings.pool_max), RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
-    store = PostgresReservations(db, cache, settings.hold_seconds)
+    store = PostgresReservations(
+        db, cache, settings.hold_seconds,
+        persist_write_pipeline=role == "reservation-writer" and settings.reservation_write_pipeline,
+    )
     service = Reservations(store)
     order_status_projector = (
         CommittedOrderStatusProjector(

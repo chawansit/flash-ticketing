@@ -1,5 +1,6 @@
 import hashlib
 import json
+from contextlib import nullcontext
 from datetime import datetime, timedelta
 from uuid import uuid4
 
@@ -58,8 +59,9 @@ class PostgresReservations:
     No gateway, Redis, or Kafka calls occur while database locks are held.
     """
 
-    def __init__(self, db: Database, cache: SeatCache, hold_seconds=120):
+    def __init__(self, db: Database, cache: SeatCache, hold_seconds=120, *, persist_write_pipeline=False):
         self.db, self.cache, self.hold_seconds = db, cache, hold_seconds
+        self.persist_write_pipeline = persist_write_pipeline
 
     def reserve(self, actor, event_id, seat_ids, key):
         seats = sorted(set(seat_ids))
@@ -223,75 +225,77 @@ class PostgresReservations:
             "expires_at": expires_at.isoformat(),
             "persistence_status": "DURABLE",
         }
-        conn.execute(
-            "INSERT INTO holds VALUES (%s,%s,%s,%s,'ACTIVE')",
-            (
-                payload["hold_id"],
-                payload["actor"],
-                payload["event_id"],
-                payload["expires_at"],
-            ),
-        )
-        conn.execute(
-            """INSERT INTO orders(id,actor,hold_id,event_id,total,currency,status)
-            VALUES (%s,%s,%s,%s,%s,%s,'PENDING')""",
-            (
-                payload["order_id"],
-                payload["actor"],
-                payload["hold_id"],
-                payload["event_id"],
-                total,
-                sale["currency"],
-            ),
-        )
-        conn.execute(
-            """UPDATE event_seats SET hold_id=%s,reserved_until=%s,version=version+1
-            WHERE event_id=%s AND seat_id=ANY(%s)""",
-            (
-                payload["hold_id"],
-                payload["expires_at"],
-                payload["event_id"],
-                sorted(payload["seat_ids"]),
-            ),
-        )
-        for row in rows:
+        # Synchronize writes before the savepoint exits or any durable outcome is returned.
+        with conn.pipeline() if self.persist_write_pipeline else nullcontext():
             conn.execute(
-                "INSERT INTO order_items VALUES (%s,%s,%s,%s)",
+                "INSERT INTO holds VALUES (%s,%s,%s,%s,'ACTIVE')",
                 (
-                    payload["order_id"],
+                    payload["hold_id"],
+                    payload["actor"],
                     payload["event_id"],
-                    row["seat_id"],
-                    row["price"],
+                    payload["expires_at"],
                 ),
             )
-        event(
-            conn,
-            payload["order_id"],
-            "SeatsChanged",
-            {"event_id": payload["event_id"], "seats": sorted(payload["seat_ids"])},
-        )
-        remember(
-            conn,
-            payload["actor"],
-            "hold",
-            payload["idempotency_key"],
-            durable,
-        )
-        conn.execute(
-            """INSERT INTO reservation_commands
+            conn.execute(
+                """INSERT INTO orders(id,actor,hold_id,event_id,total,currency,status)
+            VALUES (%s,%s,%s,%s,%s,%s,'PENDING')""",
+                (
+                    payload["order_id"],
+                    payload["actor"],
+                    payload["hold_id"],
+                    payload["event_id"],
+                    total,
+                    sale["currency"],
+                ),
+            )
+            conn.execute(
+                """UPDATE event_seats SET hold_id=%s,reserved_until=%s,version=version+1
+            WHERE event_id=%s AND seat_id=ANY(%s)""",
+                (
+                    payload["hold_id"],
+                    payload["expires_at"],
+                    payload["event_id"],
+                    sorted(payload["seat_ids"]),
+                ),
+            )
+            for row in rows:
+                conn.execute(
+                    "INSERT INTO order_items VALUES (%s,%s,%s,%s)",
+                    (
+                        payload["order_id"],
+                        payload["event_id"],
+                        row["seat_id"],
+                        row["price"],
+                    ),
+                )
+            event(
+                conn,
+                payload["order_id"],
+                "SeatsChanged",
+                {"event_id": payload["event_id"], "seats": sorted(payload["seat_ids"])},
+            )
+            remember(
+                conn,
+                payload["actor"],
+                "hold",
+                payload["idempotency_key"],
+                durable,
+            )
+            conn.execute(
+                """INSERT INTO reservation_commands
             (command_id,actor,idempotency_key,request_hash,event_id,hold_id,order_id,status,response)
             VALUES (%s,%s,%s,%s,%s,%s,%s,'DURABLE',%s)""",
-            (
-                payload["command_id"],
-                payload["actor"],
-                payload["idempotency_key"],
-                payload["request_hash"],
-                payload["event_id"],
-                payload["hold_id"],
-                payload["order_id"],
-                Jsonb(durable),
-            ),
-        )
+                (
+                    payload["command_id"],
+                    payload["actor"],
+                    payload["idempotency_key"],
+                    payload["request_hash"],
+                    payload["event_id"],
+                    payload["hold_id"],
+                    payload["order_id"],
+                    Jsonb(durable),
+                ),
+            )
         return durable
 
     def checkout(self, actor, hold_id, key):

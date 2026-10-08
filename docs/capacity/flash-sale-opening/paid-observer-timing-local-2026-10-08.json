@@ -1,0 +1,14 @@
+{
+  "decision": "ADR0223",
+  "status": "LOCALLY_TESTED_CLOUD_PENDING",
+  "tests_passed": 115,
+  "test_seconds": 385.74,
+  "lint_passed": true,
+  "scope": "Serial phase timings only, opt-in ADR0222; unchanged application images, SQL, collection order, requests/connections and gates. Fresh 84/s 300-second repeat uses existing registered runner.",
+  "source_sha256": {
+    "scripts/observe_two_host_pipeline.py": "9510ecefb9d1c5eb4fddc2f494c61340d52576d2409520677306beb4c168b442",
+    "tests/unit/test_paid_observer_phase_timings.py": "e255019921e541b565ec685e693d2b3c5a5d1f6e74c66ce4f7991e977790398a"
+  },
+  "cloud_load_started": false,
+  "hourly_qualified": false
+}

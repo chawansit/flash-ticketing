@@ -1,0 +1,38 @@
+{
+  "decision": "ADR0225",
+  "implementation": "Default-disabled, reservation-writer-only per-command write pipeline; unchanged validations, writes, savepoints and outer transaction.",
+  "default_enabled": false,
+  "native_test_result": {
+    "decision": "ADR0225",
+    "pass": true,
+    "cloud_load": false,
+    "test_returncode": 0,
+    "owned_test_databases_removed": true,
+    "actual_elapsed_seconds": 26.625
+  },
+  "native_test_cases_passed": 60,
+  "native_junit": "tmp/adr0225-native-writer.xml",
+  "queued_write_sql_ast_unchanged": true,
+  "validation_sql_ast_unchanged": true,
+  "regression_tests": {
+    "passed": 46,
+    "seconds": 48.94,
+    "junit": "tmp/adr0225-final-regression.xml"
+  },
+  "controls": [
+    "100-way atomic contention",
+    "both sequential and pipeline modes",
+    "deterministic savepoint failure",
+    "queued SQL failure rollback",
+    "commit failure rollback",
+    "commit-before-marker replay",
+    "Redis pending ownership and complete drain"
+  ],
+  "setup_failure_retained": "tmp/adr0225-native-setup-failure.json",
+  "setup_failure_seconds": 1.5320000000065193,
+  "prior_native_verification_seconds": 28.71799999999348,
+  "cloud_deployed": false,
+  "cloud_capacity_improvement_measured": false,
+  "hourly_qualified": false,
+  "next_action": "Prepare isolated frozen writer artifact and register/locally qualify one 84/s comparison against ADR0224. Other images, index, workload, placement and budgets must remain fixed."
+}

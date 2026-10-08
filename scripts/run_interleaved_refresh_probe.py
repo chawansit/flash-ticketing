@@ -12,13 +12,15 @@ LEDGER = "bounded_interleaved_refresh_probe"
 AUTHORIZATION = "adr0222-interleaved-refresh-84-probe-2026-10-08"
 
 
-def create_runner():
-    engine = routing_runner(policy_module=policy, ledger=LEDGER, authorization=AUTHORIZATION,
-                            decision="ADR0222", profile_name="interleaved_refresh_probe",
-                            runner_filename="run_interleaved_refresh_probe.py", arms=("candidate",),
+def create_runner(*, policy_module=policy, ledger=LEDGER, authorization=AUTHORIZATION,
+                  decision="ADR0222", profile_name="interleaved_refresh_probe",
+                  runner_filename="run_interleaved_refresh_probe.py", extra_identity=()):
+    engine = routing_runner(policy_module=policy_module, ledger=ledger, authorization=authorization,
+                            decision=decision, profile_name=profile_name,
+                            runner_filename=runner_filename, arms=("candidate",),
                             extra_identity=("run_callback_routing_comparison.py", "callback_routing_contract.py",
                                             "shared_callback_placement_contract.py", "shared_callback_rate_probe_contract.py",
-                                            "prepare_interleaved_refresh.py"))
+                                            "prepare_interleaved_refresh.py", *extra_identity))
     original_identity = engine.identity
 
     def identity():

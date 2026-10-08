@@ -1,0 +1,47 @@
+{
+  "decision": "ADR0224",
+  "pass": true,
+  "postgres_version": "17.6 (Debian 17.6-2.pgdg13+1)",
+  "history_orders": 50000,
+  "target_orders": 100,
+  "cohort_counts_before_after_identical": true,
+  "cohort_counts": {
+    "pending_orders": 10,
+    "paid_unfulfilled": 10,
+    "fulfilled_orders": 80,
+    "pending_callback_deliveries": 20,
+    "pending_payment_attempts": 10,
+    "delivered_callbacks": 80,
+    "issued_tickets": 80,
+    "unpublished_outbox": 0,
+    "db_lock_waiters": 0
+  },
+  "orders_full_scan_removed": true,
+  "orders_scan_nodes": [
+    {
+      "type": "Index Scan",
+      "rows": 100
+    }
+  ],
+  "migration_idempotent": true,
+  "status_update_preserves_index": true,
+  "query_execution_ms": 0.708,
+  "cloud_capacity_claim": false,
+  "owned_database_removed": true,
+  "elapsed_seconds": 5.64100000000326,
+  "harness_tests": {
+    "runner_suite": {
+      "passed": 127,
+      "seconds": 57.28,
+      "junit": "tmp/adr0224-index-runner-local.xml"
+    },
+    "strict_index_proof": {
+      "passed": 6,
+      "seconds": 0.41,
+      "junit": "tmp/adr0224-index-proof-local.xml"
+    }
+  },
+  "cloud_index_deployed": false,
+  "cloud_paid_probe_started": false,
+  "hourly_qualified": false
+}

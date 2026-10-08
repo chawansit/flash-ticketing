@@ -745,6 +745,52 @@
         }
       ],
       "finished_at_utc": "2026-10-08T04:10:13.430045+00:00"
+    },
+    {
+      "ledger": "bounded_interleaved_refresh_probe__380556ea4230",
+      "authorization_id": "work-envelope-380556ea4230",
+      "envelope_sha256": "bbe8f2b4456892201624427e0c0aca06a0f24a64822a70731706ca023db16ab4",
+      "binding_sha256": "0ee918423dadd4acd722896aed3edb3df03ca1ab19546f802d34a60eb6d36cb8",
+      "plan_sha256": "41422eb45fa7443e0fc324b63842fd67dc0db0df90559b5184e35ed609239817",
+      "profile": "interleaved_refresh_probe",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1466.890000000014,
+      "started_at_utc": "2026-10-08T04:43:07.275206+00:00",
+      "status": "RECOVERY_REQUIRED",
+      "reports": [
+        {
+          "run": "adr0151-c28497e64c70",
+          "pass": true
+        },
+        {
+          "run": "adr0151-cac068bf517e",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-08T05:07:34.249704+00:00"
+    },
+    {
+      "ledger": "bounded_orders_event_index_probe__c9a9ead76625",
+      "authorization_id": "work-envelope-c9a9ead76625",
+      "envelope_sha256": "a4bd995bf78abc50818097f83f59941e49d6f4043c9f8d31c7b9c7b97b73a57e",
+      "binding_sha256": "b9ada279bac2412baf4e581363286b16cceddb5cfc20b778bfe3aa3fbdce3c89",
+      "plan_sha256": "87dba033f4343822789e6f9a81b4e50f040630258de0edbaba9bc47c18087d10",
+      "profile": "orders_event_index_probe",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1532.8600000000151,
+      "started_at_utc": "2026-10-08T05:34:25.483861+00:00",
+      "status": "RECOVERY_REQUIRED",
+      "reports": [
+        {
+          "run": "adr0151-383395a4c444",
+          "pass": true
+        },
+        {
+          "run": "adr0151-bb1154096e30",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-08T05:59:58.436709+00:00"
     }
   ],
   "verified_aborts": {
@@ -778,6 +824,16 @@
       "entry_sha256": "b30281b9ed2dec37368bb0bde0f3796ba393ac7e8c4b27ea08725d2232a39be3",
       "receipt_path": "docs/capacity/flash-sale-opening/shared-callback-rate-probe-recovery-2026-10-08.json",
       "receipt_sha256": "5cbc8b92fdf35687c96359e3bdb837240768b1ebbd26f94dc022a87393fcbd3a"
+    },
+    "bounded_interleaved_refresh_probe__380556ea4230": {
+      "entry_sha256": "4c72b9832039efd998cd0fd988602b11a40f116403d30114056b3287c7aa9a67",
+      "receipt_path": "docs/capacity/flash-sale-opening/interleaved-refresh-timing-recovery-2026-10-08.json",
+      "receipt_sha256": "cc7193c86aed4e1672d9f198dfa102f17d2ea817627b7fcc79487a0e6ebeca54"
+    },
+    "bounded_orders_event_index_probe__c9a9ead76625": {
+      "entry_sha256": "b2bec5b4ebabbef255e68a3e73308bc86dbebcc77c1976f21d4862f8cda7bcf8",
+      "receipt_path": "docs/capacity/flash-sale-opening/orders-event-index-recovery-2026-10-08.json",
+      "receipt_sha256": "29bd5a5f69c44e8b256dbf87477d7d9f7547ff01d638c1782e53cfa63617827d"
     }
   },
   "recovery_verifications": [
@@ -785,6 +841,23 @@
       "ledger": "bounded_shared_callback_rate_probe__aea04bbd86e2",
       "evidence": "docs/capacity/flash-sale-opening/shared-callback-rate-probe-recovery-2026-10-08.json",
       "actual_elapsed_seconds": 120.57800000000861
+    },
+    {
+      "ledger": "bounded_interleaved_refresh_probe__380556ea4230",
+      "evidence": "tmp/adr0153-parents-33c8ea589a1a/recovery-intent.json",
+      "actual_elapsed_seconds": 115.0789999999979,
+      "status": "INTERRUPTED_READ_ONLY_NO_MUTATION",
+      "verification_passed": false
+    },
+    {
+      "ledger": "bounded_interleaved_refresh_probe__380556ea4230",
+      "evidence": "docs/capacity/flash-sale-opening/interleaved-refresh-timing-recovery-2026-10-08.json",
+      "actual_elapsed_seconds": 119.59299999999348
+    },
+    {
+      "ledger": "bounded_orders_event_index_probe__c9a9ead76625",
+      "evidence": "docs/capacity/flash-sale-opening/orders-event-index-recovery-2026-10-08.json",
+      "actual_elapsed_seconds": 125.56299999999464
     }
   ]
 }
