@@ -1,0 +1,41 @@
+{
+  "decision": "ADR0228",
+  "date_bangkok": "2026-10-08",
+  "base_revision": "555d6dba9872b59cbe68f75e72b63fb8945585f3",
+  "status": "API_ADAPTER_LOCALLY_VERIFIED_PAID_INTEGRATION_PENDING",
+  "implemented": [
+    "Four native API pod manifests with exact Linux manifest, API settings and controlled pooler routing",
+    "Owned Secrets, startup source/installed import/bytecode/environment proof, pod UID/admitted-spec/readiness verification",
+    "All-four API observer endpoint and process-start checks; existing worker discovery retained",
+    "Verified-TLS certificate transport via existing SSH session and UID-guarded partial-failure cleanup",
+    "Dependency-only scopes and unregistered paid scopes cannot deploy application pods; full experiment window must precede spending expiry"
+  ],
+  "validation": {
+    "focused_tests_passed": 168,
+    "focused_elapsed_seconds": 7.66,
+    "exact_image_docker_tests_passed": 4,
+    "exact_image_elapsed_seconds": 6.85,
+    "docker_network": "none",
+    "docker_faults": [
+      "changed environment",
+      "changed copied-source expectation",
+      "changed loaded bytecode"
+    ],
+    "owned_local_test_containers_removed": true,
+    "ruff_passed": true,
+    "kubernetes_lifecycle": "simulated only; not cloud-executed"
+  },
+  "cloud_calls_this_checkpoint": 0,
+  "cloud_paid_stages_started": 0,
+  "customer_journeys_dispatched": 0,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "paid_runner_registered": false,
+  "remaining": [
+    "Integrate native adapter with the existing paid generator, safety protocol, financial audits, diagnostics and exact ECS restoration",
+    "Register and locally qualify the full CCE paid profile before application pods or paid dispatch",
+    "Run fresh 100-way cross-pod hold/replay safety and matching 84 offered journeys/s for 300 seconds; preserve post-TTL, durability, duplicates and full queue gates"
+  ],
+  "baseline": "docs/capacity/flash-sale-opening/generator-completion-probe-2026-10-08.json",
+  "comparison_limit": "The original ECS CPUs remain provisioned alongside extra CCE compute. This is API isolation including the network route, not equal total hardware or cost."
+}

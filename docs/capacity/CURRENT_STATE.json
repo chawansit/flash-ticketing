@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-08",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "cce_connectivity_passed_independent_cleanup_verified",
+  "status": "cce_api_adapter_locally_verified_paid_integration_pending",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "Corrected CCE pod pulled exact API image, reached Redis and completed PostgreSQL negotiation with RDS/private ECS pooler. ECS reached CCE. Owned namespace/bridge/certificates removed. Independent saved runtime semantics and two audit identities stable; generator idle, duplicates0, global queues/Kafka0. No CCE paid load.",
   "schema_state": "Receipt migration009 retained; valid public.orders_event_id index intentionally retained under ADR0224. Ordinary migration010 respects migration search path; concurrent cloud build explicitly uses public.orders. No financial/TTL schema changes.",
   "current_run": null,
-  "revision_note": "The failed raw-runtime gate is preserved; independent recovery is verified. CCE connectivity is cleared. Future fingerprint/field diagnostics are locally tested but not cloud-retested. Git HEAD identifies this published checkpoint.",
+  "revision_note": "Git HEAD identifies this checkpoint. Native CCE adapter validated locally and exact Docker image startup tested without networking. Original failed cloud gates and independent recovery preserved; no additional cloud experiment.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -70,10 +70,11 @@
     "Fresh registered control adr0151-c8bb0a476b4c: 18000/18000 paid-and-issued customer confirmations, zero customer errors/drops/double-booking/payment loss, post-TTL and global/Kafka queues passed, original runtime restored. No ADR0189 or hourly improvement claim.",
     "ADR0195 guarded common infrastructure, fixed worker starts, exact-ID partial cleanup and original restoration components passed 390 affected tests in 45.76s; 11 generated-operation Linux cases use simulated Docker and 1 real Compose literal probe passed. Literal escaping corrected before startup; owned local test containers absent. Full readiness/financial/observer lifecycle and worker profile registration remain pending; 0 cloud calls or capacity improvement.",
     "ADR0196 dependency and financial-recovery retention components passed 446 affected tests in 58.43s. Two real local Docker probe lifecycle cases and eight generated Linux faults passed; dependency clients were mocked, so live private readiness is unverified. Worker startup requires fresh complete bound readiness. Failed financial/drain/journal gates retain recovery files. No cloud calls, load or capacity gain; full audited runner and registration pending.",
-    "ADR0225 isolated writer transport at unchanged 84/s for 300s: 25200 scheduled, 25196 dispatched and paid-issued, four configured-cap drops, zero dispatched errors/payment loss/double bookings; complete queues zero and original runtime restored. Durable p95 8273.36 -> 2036.15 ms; hold-to-ticket 9648.02 -> 5425.29 ms. Payment-to-ticket 1616.08 -> 3970.27 ms and polling increased. Independent post-TTL recovery passed; short 84/s and hourly 300000 target not qualified."
+    "ADR0225 isolated writer transport at unchanged 84/s for 300s: 25200 scheduled, 25196 dispatched and paid-issued, four configured-cap drops, zero dispatched errors/payment loss/double bookings; complete queues zero and original runtime restored. Durable p95 8273.36 -> 2036.15 ms; hold-to-ticket 9648.02 -> 5425.29 ms. Payment-to-ticket 1616.08 -> 3970.27 ms and polling increased. Independent post-TTL recovery passed; short 84/s and hourly 300000 target not qualified.",
+    "ADR0228 native four-pod deployment, observation and TLS adapter implemented: 168 focused checks and four exact-image startup/drift tests with networking disabled passed. Ruff passed. Owned local containers removed. No cloud calls, pods, safety or paid dispatch; full paid runner integration and registration pending."
   ],
-  "unresolved": "CCE paid deployment/observation adapter remains unimplemented. Initial raw runtime mismatch was not reproduced; exact old differences unavailable.84 successful paid-issued tickets/s and300000/hour remain unqualified.",
-  "next_on_resume": "Implement and locally qualify the CCE paid adapter with same frozen images, corrected generator, database/HTTP budgets, payment timing and current gates; perform fresh application/safety qualification before84/s300s paid comparison.",
+  "unresolved": "CCE native deployment/observation adapter locally verified, but full paid runner registration and safety/financial/restoration integration remain pending. The raw prior runtime mismatch root cause remains unconfirmed. 84 successful paid-and-issued tickets/s and 300,000/hour remain unqualified.",
+  "next_on_resume": "Integrate the native CCE adapter with the proven corrected paid generator, safety/financial/diagnostic gates and exact ECS restoration; register and locally qualify the complete paid profile, then execute a fresh 84/s300s CCE comparison. No new load started.",
   "authorization": "ADR0172 existing ECS sizes and exact registered experiment gates; reviewed publication to codex branch only. ADR0220 direct user exception: bounded CCE pilot with no additional spending cap on 2026-10-08 Bangkok only; ask for new spending boundary tomorrow.",
   "scope": "Unpaused standing envelope; latest consumed scope remains failed with hash-bound independent ADR0227 recovery verified. No old-scope replay.",
   "bounded_control": {
@@ -1092,7 +1093,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Keep hourly qualification blocked. Use retained consumer/refresh contention and status-cache/polling evidence to select one ticket-latency or polling-amplification correction; preserve budgets and correctness gates. No additional load started.",
+  "next_action": "Integrate the native CCE adapter with the proven corrected paid generator, safety/financial/diagnostic gates and exact ECS restoration; register and locally qualify the complete paid profile, then execute a fresh 84/s300s CCE comparison. No new load started.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -4483,7 +4484,10 @@
     "cloud_paid_load_started": false,
     "capacity_improvement_measured": false,
     "pending_infrastructure_action": null,
-    "paid_runner_implemented": false
+    "paid_runner_implemented": false,
+    "adapter_implemented": true,
+    "adapter_locally_verified": true,
+    "adapter_evidence": "docs/capacity/cce/api-adapter-validation-2026-10-08.json"
   },
   "bounded_cce_dependency_probe__b14e8117a3ba": {
     "authorization_id": "work-envelope-b14e8117a3ba",
