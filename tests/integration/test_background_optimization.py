@@ -498,3 +498,93 @@ def test_pooled_callback_failure_preserves_lease_then_duplicate_delivery_is_idem
         server.shutdown()
         server.server_close()
         thread.join(3)
+
+
+@pytest.mark.parametrize("full", [False, True])
+def test_interleaved_refresh_coalesces_without_changing_business_order(system, full):
+    svc, db, event_id = system
+    hold = svc.reserve("buyer", event_id, ["A"], "hold")
+    attempt = svc.initiate_payment("buyer", hold["order_id"], "pay", "SUCCEEDED", 0, 1)
+    svc.callback({"callback_id": str(uuid4()), "payment_id": attempt["payment_id"],
+        "order_id": hold["order_id"], "amount": hold["total"], "currency": hold["currency"], "outcome": "SUCCEEDED"})
+    paid = {"event_id": str(uuid4()), "schema_version": 1, "event_type": "OrderPaid", "payload": {"order_id": hold["order_id"]}}
+    issued = {**paid, "event_id": str(uuid4()), "event_type": "TicketsIssued"}
+    first, second = changed(event_id), changed(event_id)
+    first["payload"]["seats"] = ["A"]
+    if not full:
+        second["payload"]["seats"] = ["B"]
+    projector = Mock()
+    batch = [first, paid, second, issued]
+    workers.consume_events(db, None, batch, order_status_projector=projector)
+    assert [c.kwargs["event_type"] for c in projector.refresh.call_args_list] == ["OrderPaid", "TicketsIssued"]
+    assert svc.get_order("buyer", hold["order_id"])["status"] == "FULFILLED"
+    row = refresh_row(db)
+    assert row["generation"] == 1
+    assert row["seat_ids"] is None if full else set(row["seat_ids"]) == {"A", "B"}
+    workers.consume_events(db, None, batch, order_status_projector=projector)
+    assert refresh_row(db)["generation"] == 1
+    with db.transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM tickets").fetchone()["n"] == 1
+        assert conn.execute("SELECT count(*) AS n FROM consumer_inbox").fetchone()["n"] == 4
+        assert conn.execute("SELECT count(*) AS n FROM outbox_events WHERE event_type='TicketsIssued'").fetchone()["n"] == 1
+
+
+def test_deferred_refresh_failure_replays_after_committed_ticket_without_duplicates(system, monkeypatch):
+    svc, db, event_id = system
+    hold = svc.reserve("buyer", event_id, ["A"], "hold")
+    attempt = svc.initiate_payment("buyer", hold["order_id"], "pay", "SUCCEEDED", 0, 1)
+    svc.callback({"callback_id": str(uuid4()), "payment_id": attempt["payment_id"],
+        "order_id": hold["order_id"], "amount": hold["total"], "currency": hold["currency"], "outcome": "SUCCEEDED"})
+    paid = {"event_id": str(uuid4()), "schema_version": 1, "event_type": "OrderPaid", "payload": {"order_id": hold["order_id"]}}
+    first, second = changed(event_id), changed(event_id)
+    first["payload"]["seats"] = ["A"]
+    second["payload"]["seats"] = ["B"]
+    batch = [first, paid, second]
+    original = workers.request_refresh
+
+    def fail(conn, target, seats):
+        original(conn, target, seats)
+        raise RuntimeError("crash before deferred refresh commit")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(workers, "request_refresh", fail)
+        with pytest.raises(RuntimeError, match="deferred refresh commit"):
+            workers.consume_events(db, None, batch)
+    assert svc.get_order("buyer", hold["order_id"])["status"] == "FULFILLED"
+    with db.transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM consumer_inbox").fetchone()["n"] == 1
+        assert conn.execute("SELECT count(*) AS n FROM seat_refresh_requests").fetchone()["n"] == 0
+    workers.consume_events(db, None, batch)
+    workers.consume_events(db, None, batch)
+    assert refresh_row(db)["generation"] == 1
+    assert set(refresh_row(db)["seat_ids"]) == {"A", "B"}
+    with db.transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM tickets").fetchone()["n"] == 1
+        assert conn.execute("SELECT count(*) AS n FROM bookings").fetchone()["n"] == 1
+        assert conn.execute("SELECT count(*) AS n FROM consumer_inbox").fetchone()["n"] == 3
+        assert conn.execute("SELECT count(*) AS n FROM outbox_events WHERE event_type='TicketsIssued'").fetchone()["n"] == 1
+
+
+def test_overlapping_refresh_batches_with_opposite_show_order_make_progress(system):
+    _, db, first = system
+    second = uuid4()
+    with db.transaction() as conn:
+        conn.execute("INSERT INTO events VALUES (%s,'Second','THB',clock_timestamp()-interval '1 day',clock_timestamp()+interval '1 day')", (second,))
+    barrier = Barrier(2)
+
+    def process(show_ids):
+        completed = 0
+        for _ in range(20):
+            batch = [changed(show) for show in show_ids]
+            barrier.wait(timeout=10)
+            workers.consume_refresh_batch(db, batch)
+            completed += 1
+        return completed
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [executor.submit(process, ids) for ids in ((first, second), (second, first))]
+        assert [f.result(timeout=30) for f in futures] == [20, 20]
+    with db.transaction() as conn:
+        rows = conn.execute("SELECT generation FROM seat_refresh_requests ORDER BY event_id").fetchall()
+        assert [r["generation"] for r in rows] == [40, 40]
+        assert conn.execute("SELECT count(*) AS n FROM consumer_inbox").fetchone()["n"] == 80

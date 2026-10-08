@@ -17,7 +17,9 @@ def status():
             "production_qualified": False, "human_pause": records["human_pause"] or policy.PAUSE.exists(),
             "profile": policy.PROFILE, "qualified_profiles": data["qualified_profiles"],
             "reserved_seconds": sum(r["reserved_seconds"] for r in records["experiments"]),
-            "actual_elapsed_seconds": sum(r["actual_elapsed_seconds"] for r in records["experiments"]),
+            "actual_elapsed_seconds": sum(r["actual_elapsed_seconds"] for r in records["experiments"])
+                + sum(r["actual_elapsed_seconds"] for r in records.get("recovery_verifications", [])),
+            "recovery_verification_seconds": sum(r["actual_elapsed_seconds"] for r in records.get("recovery_verifications", [])),
             "cumulative_seconds_limit": data["time"]["cumulative_experiment_seconds_limit"],
             "maximum_new_infrastructure_spend": 0,
             "existing_service_charges_continue": True}

@@ -35,6 +35,8 @@ def identity():
                 "two_host_topology.py",
                 "work_envelope.py",
                 "pre_dispatch_abort_recovery.py",
+                "safety_diagnostic_abort_recovery.py",
+                "dispatched_cohort_recovery.py",
                 "historical_recovery_exception.py",
                 "run_work_envelope.py",
             )

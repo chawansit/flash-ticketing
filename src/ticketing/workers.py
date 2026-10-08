@@ -826,7 +826,10 @@ def consume_refresh_batch(db, envelopes):
                     refreshes[target] = None
                 else:
                     refreshes[target].update(seats)
-        for event_id, seats in refreshes.items():
+        # Mixed batches can touch several shows from different Kafka partitions.
+        # A stable lock order prevents opposite input orders from deadlocking.
+        for event_id in sorted(refreshes, key=str):
+            seats = refreshes[event_id]
             request_refresh(conn, event_id, None if seats is None else sorted(seats))
     return len(inserted_ids)
 
@@ -844,7 +847,8 @@ def consume_events(db, cache, envelopes, order_status_projector=None):
         if envelope.get("event_type") == "SeatsChanged":
             pending_refresh.append(envelope)
             continue
-        flush_refresh()
+        # Refresh intents project the latest committed inventory. Defer them
+        # within this bounded partition batch; business event order is unchanged.
         if order_status_projector is None:
             consume_event(db, cache, envelope)
         else:

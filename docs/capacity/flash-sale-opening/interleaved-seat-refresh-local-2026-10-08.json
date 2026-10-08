@@ -1,0 +1,305 @@
+{
+  "decision": "ADR0222",
+  "recorded_at_utc": "2026-10-08T03:18:46.947468+00:00",
+  "baseline_run": "adr0151-ee1f1f1716f5",
+  "baseline_pass": false,
+  "diagnostic_coverage_qualified": false,
+  "interpretation": "Retained diagnostic samples identify saturation hypotheses; the original sampling gap remains a failed evidence gate. No full-coverage or cloud speedup claim.",
+  "diagnosis": {
+    "metric_sampling_gaps": [
+      {
+        "utc": "2026-10-08T02:30:03.035327+00:00",
+        "gap_seconds": 2.106624,
+        "pending_orders": 46,
+        "paid_unfulfilled": 160,
+        "waits": [
+          {
+            "type": "Client",
+            "event": "ClientRead",
+            "count": 3
+          },
+          {
+            "type": "IO",
+            "event": "WalSync",
+            "count": 1
+          }
+        ]
+      }
+    ],
+    "minute_windows": {
+      "0": {
+        "samples": 58,
+        "pending_orders_peak": 80,
+        "paid_unfulfilled_peak": 125,
+        "callback_peak": 32,
+        "db_lock_waiters_peak": 1,
+        "pgbouncer_wait_peak": 0
+      },
+      "1": {
+        "samples": 51,
+        "pending_orders_peak": 90,
+        "paid_unfulfilled_peak": 231,
+        "callback_peak": 38,
+        "db_lock_waiters_peak": 1,
+        "pgbouncer_wait_peak": 0.003442
+      },
+      "2": {
+        "samples": 51,
+        "pending_orders_peak": 96,
+        "paid_unfulfilled_peak": 329,
+        "callback_peak": 39,
+        "db_lock_waiters_peak": 0,
+        "pgbouncer_wait_peak": 0.00243
+      },
+      "3": {
+        "samples": 50,
+        "pending_orders_peak": 99,
+        "paid_unfulfilled_peak": 374,
+        "callback_peak": 36,
+        "db_lock_waiters_peak": 1,
+        "pgbouncer_wait_peak": 0.010622
+      },
+      "4": {
+        "samples": 49,
+        "pending_orders_peak": 98,
+        "paid_unfulfilled_peak": 331,
+        "callback_peak": 50,
+        "db_lock_waiters_peak": 1,
+        "pgbouncer_wait_peak": 0.004947
+      }
+    },
+    "phase_costs": {
+      "window_seconds": 300.884025,
+      "roles": {
+        "writer": {
+          "busy_seconds": 898.5096361591714,
+          "calls": 6164.0,
+          "db_transactions": 6112.0,
+          "connection_hold_mean_ms": 125.16684544531226,
+          "commit_total_seconds": 29.18857135687722,
+          "cpu_cores": 0.26395552239770786,
+          "phases": {
+            "redis_claim:ok": {
+              "count": 6164.0,
+              "rate": 20.48629866607242,
+              "mean_ms": 12.901544319696924,
+              "total_seconds": 79.52511918661185
+            },
+            "postgres_batch:ok": {
+              "count": 6112.0,
+              "rate": 20.31347460204974,
+              "mean_ms": 125.26600046914314,
+              "total_seconds": 765.6257948674029
+            },
+            "redis_mark_durable:ok": {
+              "count": 24315.0,
+              "rate": 80.81186762906405,
+              "mean_ms": 1.0713871713583505,
+              "total_seconds": 26.05077907157829
+            },
+            "redis_acknowledge:ok": {
+              "count": 24315.0,
+              "rate": 80.81186762906405,
+              "mean_ms": 1.065295358183088,
+              "total_seconds": 25.902656634221785
+            },
+            "command_age:ok": {
+              "count": 24315.0,
+              "rate": 80.81186762906405,
+              "mean_ms": 1586.634420196436,
+              "total_seconds": 38579.01592707634
+            }
+          }
+        },
+        "consumer": {
+          "busy_seconds": 1294.4629654431483,
+          "calls": 47882.0,
+          "db_transactions": 128618.0,
+          "connection_hold_mean_ms": 12.809893276521274,
+          "commit_total_seconds": 384.41411111928755,
+          "cpu_cores": 0.5403078478493499,
+          "phases": {
+            "poll:all:ok": {
+              "count": 3178.0,
+              "rate": 10.562209143539608,
+              "mean_ms": 9.967981122713711,
+              "total_seconds": 31.678244007984176
+            },
+            "event_SeatsChanged:all:ok": {
+              "count": 32849.0,
+              "rate": 109.17495536693913,
+              "mean_ms": 14.4545462256539,
+              "total_seconds": 474.81738896650495
+            },
+            "partition:0:ok": {
+              "count": 568.0,
+              "rate": 1.8877705454784446,
+              "mean_ms": 514.7061744428356,
+              "total_seconds": 292.35310708353063
+            },
+            "commit:all:ok": {
+              "count": 3170.0,
+              "rate": 10.535620825997658,
+              "mean_ms": 1.1836214330560038,
+              "total_seconds": 3.7520799427875318
+            },
+            "event_OrderPaid:all:ok": {
+              "count": 24098.0,
+              "rate": 80.09065951573866,
+              "mean_ms": 20.587106223685254,
+              "total_seconds": 496.10808577836724
+            },
+            "event_TicketsIssued:all:ok": {
+              "count": 23786.0,
+              "rate": 79.05371513160262,
+              "mean_ms": 11.186287782441116,
+              "total_seconds": 266.0770411931444
+            },
+            "event_SeatsChanged:all:error": {
+              "count": 2.0,
+              "rate": 0.0066470793854874815,
+              "mean_ms": 88.10660202289,
+              "total_seconds": 0.17621320404578
+            },
+            "partition:3:ok": {
+              "count": 558.0,
+              "rate": 1.8545351485510073,
+              "mean_ms": 527.825385852847,
+              "total_seconds": 294.52656530588865
+            },
+            "partition:5:ok": {
+              "count": 559.0,
+              "rate": 1.857858688243751,
+              "mean_ms": 527.3723204467947,
+              "total_seconds": 294.80112712975824
+            },
+            "partition:1:ok": {
+              "count": 242.0,
+              "rate": 0.8042966056439852,
+              "mean_ms": 1225.9479855848208,
+              "total_seconds": 296.6794125115266
+            },
+            "partition:2:ok": {
+              "count": 831.0,
+              "rate": 2.7618614846700487,
+              "mean_ms": 352.8860564203961,
+              "total_seconds": 293.24831288534915
+            },
+            "partition:4:ok": {
+              "count": 413.0,
+              "rate": 1.3726218931031648,
+              "mean_ms": 719.54195263269,
+              "total_seconds": 297.170826437301
+            }
+          }
+        },
+        "publisher": {
+          "busy_seconds": 296.94170449103694,
+          "calls": 9716.0,
+          "db_transactions": 19391.0,
+          "connection_hold_mean_ms": 13.22363595124494,
+          "commit_total_seconds": 72.02534562087385,
+          "cpu_cores": 0.15534224523884244,
+          "phases": {}
+        },
+        "simulator": {
+          "busy_seconds": 1923.2211920650443,
+          "calls": 28311.0,
+          "db_transactions": 52683.0,
+          "connection_hold_mean_ms": 12.043900924532121,
+          "commit_total_seconds": 194.91966608294751,
+          "cpu_cores": 0.17385436132742507,
+          "phases": {
+            "claim:ok": {
+              "count": 28358.0,
+              "rate": 94.248938606827,
+              "mean_ms": 13.020071855414132,
+              "total_seconds": 369.22319767583394
+            },
+            "delivery:ok": {
+              "count": 24325.0,
+              "rate": 80.84510302599149,
+              "mean_ms": 52.635806094884266,
+              "total_seconds": 1280.3659832580597
+            },
+            "ack:ok": {
+              "count": 24325.0,
+              "rate": 80.84510302599149,
+              "mean_ms": 11.046957146591255,
+              "total_seconds": 268.7172325908323
+            },
+            "delivery:error": {
+              "count": 47.0,
+              "rate": 0.1562063655589558,
+              "mean_ms": 13.943041747861958,
+              "total_seconds": 0.655322962149512
+            },
+            "due_to_claim:ok": {
+              "count": 24372.0,
+              "rate": 81.00130939155045,
+              "mean_ms": 121.95720634334428,
+              "total_seconds": 2972.341032999987
+            }
+          }
+        },
+        "maintenance": {
+          "busy_seconds": 237.8364115842851,
+          "calls": 6067.0,
+          "db_transactions": 24213.0,
+          "connection_hold_mean_ms": 11.586512447287534,
+          "commit_total_seconds": 65.41148350038566,
+          "cpu_cores": 0.08072877913674546,
+          "phases": {}
+        },
+        "reconciler": {
+          "busy_seconds": 66.39026960951742,
+          "calls": 2924.0,
+          "db_transactions": 5813.0,
+          "connection_hold_mean_ms": 10.930290985555684,
+          "commit_total_seconds": 13.457850792561658,
+          "cpu_cores": 0.029014501517652856,
+          "phases": {}
+        }
+      },
+      "unpublished_outbox_end": 13,
+      "unpublished_outbox_start": 0
+    }
+  },
+  "implemented": "Coalesce interleaved SeatsChanged intents at bounded partition-batch end and lock refresh rows in stable show order; retain business event order/transactions and Kafka commit-after-durability.",
+  "local_validation": {
+    "current_code_tests_passed": 131,
+    "current_code_test_seconds": 14.72,
+    "frozen_candidate_tests_passed": 50,
+    "frozen_candidate_test_seconds": 8.36,
+    "postgresql_version": "17.6",
+    "test_databases_removed": true,
+    "candidate_import_verified": true,
+    "changed_runtime_paths": [
+      "src/ticketing/workers.py"
+    ],
+    "artifact": "artifacts/interleaved-seat-refresh/manifest.json",
+    "final_recovery_and_profile_tests_passed": 78,
+    "final_recovery_and_profile_test_seconds": 83.42
+  },
+  "recovery": {
+    "decision": "ADR0221",
+    "pass": true,
+    "unique_dispatched_paid_tickets": 24331,
+    "original_scheduled": 25200,
+    "undispatched": 869,
+    "original_experiment_pass": false,
+    "elapsed_seconds": 120.57800000000861,
+    "evidence": "docs/capacity/flash-sale-opening/shared-callback-rate-probe-recovery-2026-10-08.json"
+  },
+  "cloud_candidate_deployed": false,
+  "cloud_load_started_this_followup": false,
+  "capacity_improvement_measured": false,
+  "hourly_qualified": false,
+  "remaining": [
+    "Writer capacity is independently saturated; consumer correction may not suffice.",
+    "One sampling interval exceeded the unchanged two-second diagnostic gate.",
+    "Consumer-only candidate is not yet registered in the bounded cloud profile; do not use the unrelated newer SWR application image.",
+    "CCE pilot remains undeployed and today-only spending permission expires tonight."
+  ],
+  "next_action": "Bind the verified consumer-only overlay to the existing bounded paid runner under ADR0222, locally qualify source/image/role binding, then run a fresh 84/s correction probe against the identified failed baseline with unchanged budgets, workload, correctness and diagnostic gates. Stop progression on failure."
+}

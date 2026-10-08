@@ -382,3 +382,7 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0219: Shared callback 84 ticket rate probe](0219-shared-callback-84-ticket-rate-probe.md)
 
 - [ADR0220: Bounded CCE Autopilot pilot](0220-bounded-cce-autopilot-pilot.md)
+
+- [ADR0221: Dispatched cohort recovery classification](0221-dispatched-cohort-recovery-classification.md)
+
+- [ADR0222: Coalesce interleaved seat refresh intents](0222-coalesce-interleaved-seat-refresh-intents.md)

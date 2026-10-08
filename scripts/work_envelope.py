@@ -95,12 +95,13 @@ def journal(data):
 
 
 def check_available(data, records, state):
+    from dispatched_cohort_recovery import resolved as paid_resolved
     from historical_recovery_exception import accepted
     from pre_dispatch_abort_recovery import resolved
     from safety_diagnostic_abort_recovery import resolved as safety_resolved
 
     if (PAUSE.exists() or records["human_pause"] or state.get("human_pause") is True or state.get("current_run")
-            or any(r["status"] == "ACTIVE" or (r["status"] == "RECOVERY_REQUIRED" and not resolved(records, r, ROOT) and not safety_resolved(records, r, ROOT) and not accepted(records, r, ROOT))
+            or any(r["status"] == "ACTIVE" or (r["status"] == "RECOVERY_REQUIRED" and not resolved(records, r, ROOT) and not safety_resolved(records, r, ROOT) and not paid_resolved(records, r, ROOT) and not accepted(records, r, ROOT))
                    for r in records["experiments"])):
         raise ValueError("Human pause, active scope or unresolved recovery blocks new experiments")
     # A legacy flag may mean an actual pause. Only the explicit migration marker permits exhaustion.

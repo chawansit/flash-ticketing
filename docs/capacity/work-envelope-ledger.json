@@ -749,5 +749,19 @@
       "receipt_path": "docs/capacity/flash-sale-opening/shared-callback-placement-recovery-2026-10-08.json",
       "receipt_sha256": "1299df786a0320ccab542f9000fbb61fb143bb5d203de52acb025a72b512213b"
     }
-  }
+  },
+  "verified_paid_recoveries": {
+    "bounded_shared_callback_rate_probe__aea04bbd86e2": {
+      "entry_sha256": "b30281b9ed2dec37368bb0bde0f3796ba393ac7e8c4b27ea08725d2232a39be3",
+      "receipt_path": "docs/capacity/flash-sale-opening/shared-callback-rate-probe-recovery-2026-10-08.json",
+      "receipt_sha256": "5cbc8b92fdf35687c96359e3bdb837240768b1ebbd26f94dc022a87393fcbd3a"
+    }
+  },
+  "recovery_verifications": [
+    {
+      "ledger": "bounded_shared_callback_rate_probe__aea04bbd86e2",
+      "evidence": "docs/capacity/flash-sale-opening/shared-callback-rate-probe-recovery-2026-10-08.json",
+      "actual_elapsed_seconds": 120.57800000000861
+    }
+  ]
 }
