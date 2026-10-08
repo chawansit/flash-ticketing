@@ -25,7 +25,22 @@ def status():
             "existing_service_charges_continue": True}
 
 
-def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROFILE, diagnostic_target=None, worker_inputs=None, worker_ca=None):
+def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROFILE, diagnostic_target=None, worker_inputs=None, worker_ca=None, cce_kubeconfig=None):
+    if profile_name == 'cce_dependency_probe':
+        import cce_dependency_probe as cce
+        if cce_kubeconfig is None or artifact_path is None or not sys.stdin.isatty():
+            raise ValueError('CCE kubeconfig, exact image proof and protected terminal required')
+        if diagnostic_target or worker_inputs or worker_ca:
+            raise ValueError('CCE probe rejects unrelated profile inputs')
+        import subprocess
+        subprocess.run([sys.executable, str(policy.ROOT / 'scripts/check_repository_names.py')],
+                       cwd=policy.ROOT, check=True, stdout=subprocess.DEVNULL)
+        ecs = bytes.fromhex(getpass.getpass('Protected encoded ECS password: ')).decode()
+        swr = bytes.fromhex(getpass.getpass('Protected encoded SWR password: ')).decode()
+        return cce.execute(config_path, artifact_path, ssh_runtime, cce_kubeconfig, ecs,
+                           getpass.getpass('Protected SWR registry username: '), swr)
+    if cce_kubeconfig is not None:
+        raise ValueError('CCE kubeconfig restricted to the CCE probe')
     if profile_name == 'worker_separation':
         import worker_separation_profile as worker
         prepared = worker.prepare_files(config_path, worker_inputs, artifact_path, worker_ca, diagnostic_target)
@@ -179,6 +194,7 @@ def main():
     parser.add_argument("--ssh-runtime", type=Path)
     parser.add_argument("--worker-inputs", type=Path)
     parser.add_argument("--worker-ca", type=Path)
+    parser.add_argument("--cce-kubeconfig", type=Path)
     parser.add_argument("--worker-evidence", type=Path)
     parser.add_argument("--worker-scope")
     args = parser.parse_args()
@@ -206,7 +222,7 @@ def main():
     elif args.execute:
         if any(v is None for v in (args.config, args.ssh_runtime)):
             parser.error("Execution needs protected configuration and SSH runtime; default artifact is the exact profile receipt")
-        result = execute(args.config, args.artifact, args.ssh_runtime, profile_name=args.profile, diagnostic_target=args.diagnostic_target, worker_inputs=args.worker_inputs, worker_ca=args.worker_ca)
+        result = execute(args.config, args.artifact, args.ssh_runtime, profile_name=args.profile, diagnostic_target=args.diagnostic_target, worker_inputs=args.worker_inputs, worker_ca=args.worker_ca, cce_kubeconfig=args.cce_kubeconfig)
         if result["status"] != "PASSED_RESTORED":
             raise SystemExit(1)
         return

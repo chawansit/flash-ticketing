@@ -396,3 +396,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0226: Reap completed generator tasks before admission](0226-reap-completed-generator-tasks-before-admission.md)
 
 - [ADR0227: Reconcile expired unpaid orders in a failed cohort](0227-reconcile-expired-unpaid-orders-in-failed-cohort.md)
+
+- [ADR0228: Bounded CCE API isolation comparison](0228-bounded-cce-api-isolation-comparison.md)

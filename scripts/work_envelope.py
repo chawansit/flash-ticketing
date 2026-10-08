@@ -30,7 +30,8 @@ PROFILES = {PROFILE: (BASE_LEDGER, "ADR0171"),
             "interleaved_refresh_probe": ("bounded_interleaved_refresh_probe", "ADR0222"),
             "orders_event_index_probe": ("bounded_orders_event_index_probe", "ADR0224"),
             "writer_write_pipeline_probe": ("bounded_writer_write_pipeline_probe", "ADR0225"),
-            "generator_completion_probe": ("bounded_generator_completion_probe", "ADR0226")}
+            "generator_completion_probe": ("bounded_generator_completion_probe", "ADR0226"),
+            "cce_dependency_probe": ("bounded_cce_dependency_probe", "ADR0228")}
 SCOPE = re.compile("(?:" + "|".join(v[0] for v in PROFILES.values()) + r")__(?:[0-9a-f]{12})$")
 
 
@@ -137,9 +138,16 @@ def reserve(binding, plan, *, profile=PROFILE):
     expected_arms = ["control", "candidate"] if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement", "atomic_payment_claim", "worker_separation", "callback_routing", "shared_callback_placement"} else ["control"]
     if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe'}:
         expected_arms = ["candidate"]
+    if profile == "cce_dependency_probe":
+        from cce_dependency_probe import authorized_today, identity
+        from cce_dependency_probe import plan as cce_plan
+        authorized_today(data)
+        if plan != cce_plan() or binding.get("cce_sources") != identity():
+            raise ValueError("Exact qualified CCE dependency probe required")
+        expected_arms = []
     if (plan.get("decision") != decision or plan.get("arms") != expected_arms
-            or plan.get("common", {}).get("buyer_journeys_per_second") != (84 if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe'} else 60)
-            or plan["common"].get("duration_seconds") != 300):
+            or plan.get("common", {}).get("buyer_journeys_per_second") != (0 if profile == "cce_dependency_probe" else 84 if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe'} else 60)
+            or plan["common"].get("duration_seconds") != (0 if profile == "cce_dependency_probe" else 300)):
         raise ValueError("Only locally qualified unchanged diagnostic control permitted")
     if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement"} and (
             digest(plan.get("placements")) != digest({"control": {"primary": 2, "secondary": 2},
@@ -259,6 +267,11 @@ class ActionGuard:
 
     def check(self, timeout=0):
         entry = scope_authorized(read(STATE), self.key, self.binding)
+        if entry["profile"] == "cce_dependency_probe":
+            from cce_dependency_probe import authorized_today, identity
+            authorized_today(envelope())
+            if self.binding.get("cce_sources") != identity():
+                raise ValueError("CCE probe sources changed")
         if entry["profile"] == "worker_separation":
             from worker_separation_profile import entry_identity
             if self.binding.get("worker_entrypoint_sources_sha256") != entry_identity():
@@ -276,6 +289,21 @@ class ActionGuard:
         if type(elapsed) not in {int, float} or not math.isfinite(elapsed) or elapsed < 0:
             raise ValueError("Valid actual elapsed time required")
         state = read(STATE)
+        if entry['profile'] == 'cce_dependency_probe':
+            from cce_dependency_probe import outcome
+            restored, integrity, passed = outcome(reports[0], state[self.key], self.binding) if len(reports) == 1 else (False, False, False)
+            if state.get('current_run') or state[self.key].get('active_run'):
+                restored = False
+            if elapsed >= 3600 or records['human_pause'] or PAUSE.exists():
+                passed = False
+            entry.update(actual_elapsed_seconds=elapsed, finished_at_utc=datetime.now(UTC).isoformat(),
+                         status=('PASSED_RESTORED' if passed else 'FAILED_RESTORED')
+                         if restored and integrity else 'RECOVERY_REQUIRED',
+                         reports=[{'run': r.get('run'), 'pass': r.get('pass') is True} for r in reports],
+                         result_sha256=digest(reports[0]) if len(reports) == 1 else None,
+                         paid_runs_started=0)
+            write(JOURNAL, records)
+            return entry
         if entry['profile'] == 'worker_separation':
             from worker_separation_profile import entry_identity, outcome
             scope = state[self.key]

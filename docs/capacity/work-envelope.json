@@ -16,7 +16,7 @@
       "no_spending_cap_explicitly_authorized": true,
       "scope": "Bounded CCE pilot only; ECS profiles unchanged. New spending decision required tomorrow. Preserve user-created cluster; clean up owned pilot workloads before expiry.",
       "authorization": "Direct user reply: No limit for today. Ask me again tomorrow.",
-      "status": "Preparation and read-only access checks; no deployment or cloud load yet"
+      "status": "One bounded dependency pod deployed and removed; private pooler connectivity failed; no paid CCE load. Independent cleanup passed."
     }
   },
   "time": {
@@ -64,7 +64,8 @@
     "interleaved_refresh_probe",
     "orders_event_index_probe",
     "writer_write_pipeline_probe",
-    "generator_completion_probe"
+    "generator_completion_probe",
+    "cce_dependency_probe"
   ],
   "escalate": [
     "new spending or infrastructure action",

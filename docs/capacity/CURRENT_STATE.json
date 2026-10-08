@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-08",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "adr0226_failed_target_restored_independent_recovery_verified",
+  "status": "cce_dependency_probe_network_blocked_cleanup_verified",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -10,10 +10,10 @@
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "Independent ADR0225 audit: exact original four-primary API runtime restored, secondary test resources removed, generator idle, 25196 dispatched payments/bookings/tickets durable after TTL, duplicate bookings zero, full queues/Kafka zero. Valid orders(event_id) index retained; pipeline default off outside experiment; CCE undeployed.",
+  "last_checked_topology": "One1CPU/1Gi CCE probe pulled exact API platform image and reached RDS/Redis; ECS pooler6432 timed out. Owned namespace/bridge removed; saved original ECS runtime semantics independently verified, audit identities stable, generator idle, duplicates0, all queues/Kafka0. No CCE application or paid load remains.",
   "schema_state": "Receipt migration009 retained; valid public.orders_event_id index intentionally retained under ADR0224. Ordinary migration010 respects migration search path; concurrent cloud build explicitly uses public.orders. No financial/TTL schema changes.",
   "current_run": null,
-  "revision_note": "This checkpoint records the isolated frozen ADR0225 writer artifact, executed paid comparison, and independent dispatched-cohort recovery. Git HEAD identifies the published checkpoint. The failed full target is preserved; generator occupancy correction and fresh short qualification are next; hourly qualification remains unimplemented.",
+  "revision_note": "Git HEAD identifies the published checkpoint; ADR0228 adds only qualified zero-customer dependency probing. Initial failed receipt and counters preserved; independent cleanup closes recovery, not performance gates.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -72,8 +72,8 @@
     "ADR0196 dependency and financial-recovery retention components passed 446 affected tests in 58.43s. Two real local Docker probe lifecycle cases and eight generated Linux faults passed; dependency clients were mocked, so live private readiness is unverified. Worker startup requires fresh complete bound readiness. Failed financial/drain/journal gates retain recovery files. No cloud calls, load or capacity gain; full audited runner and registration pending.",
     "ADR0225 isolated writer transport at unchanged 84/s for 300s: 25200 scheduled, 25196 dispatched and paid-issued, four configured-cap drops, zero dispatched errors/payment loss/double bookings; complete queues zero and original runtime restored. Durable p95 8273.36 -> 2036.15 ms; hold-to-ticket 9648.02 -> 5425.29 ms. Payment-to-ticket 1616.08 -> 3970.27 ms and polling increased. Independent post-TTL recovery passed; short 84/s and hourly 300000 target not qualified."
   ],
-  "unresolved": "Current zero-dispatch fixture recovery and private artifact cleanup block more load. ADR0213 is recorded but not implemented or tested. Matched worker separation comparison, 84 paid-issued tickets/s, 18000-seat projection and 300000 tickets/hour remain unqualified.",
-  "next_on_resume": "Keep hourly qualification blocked. Use retained consumer/refresh contention and status-cache/polling evidence to select one ticket-latency or polling-amplification correction; preserve budgets and correctness gates. No additional load started.",
+  "unresolved": "CCE to private ECS pooler6432 TCP timeout; infrastructure rule/route verification required. Corrected PostgreSQL upstream/protocol probe is locally tested only. Paid CCE adapter remains unimplemented;84 paid-issued/s and300000/hour remain unqualified.",
+  "next_on_resume": "Verify CCE pooler access after security-group action with a fresh registered dependency probe; implement and qualify hybrid CCE paid comparison using exact latest ECS baseline. No old-scope replay.",
   "authorization": "ADR0172 existing ECS sizes and exact registered experiment gates; reviewed publication to codex branch only. ADR0220 direct user exception: bounded CCE pilot with no additional spending cap on 2026-10-08 Bangkok only; ask for new spending boundary tomorrow.",
   "scope": "Unpaused standing envelope; latest consumed scope remains failed with hash-bound independent ADR0227 recovery verified. No old-scope replay.",
   "bounded_control": {
@@ -2420,13 +2420,12 @@
     "hourly_qualified": false
   },
   "standing_experiment_accounting": {
-    "registered_experiments": 33,
-    "actual_elapsed_seconds": 36683.23299999998,
-    "reserved_seconds": 118800,
-    "read_only_recovery_seconds": 764.4230000000098,
-    "total_experiment_and_recovery_seconds": 37447.65599999999,
-    "maximum_new_infrastructure_spend": 0,
-    "cumulative_time_cap": null
+    "experiments": 34,
+    "actual_experiment_seconds": 36806.65400000001,
+    "reserved_seconds": 122400,
+    "additional_recovery_verification_seconds": 764.4230000000098,
+    "measured_total_seconds": 37571.07700000002,
+    "note": "CCE successful independent recovery is included in its experiment entry. Earlier aborted read-only recovery elapsed time was not captured; measured total is not a complete wall-clock total."
   },
   "last_engineering_checkpoint": {
     "decision": "ADR0226",
@@ -4443,5 +4442,47 @@
     "attempted_paid_arms": [
       "candidate"
     ]
+  },
+  "bounded_cce_dependency_probe__2a7b5311601a": {
+    "authorization_id": "work-envelope-2a7b5311601a",
+    "binding": {
+      "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+      "cce_sources": {
+        "scripts/cce_dependency_probe.py": "931b4cbba63af15138eb1716dedf5f4ae26c1afcc2ec33f3aeb0043a4c4d51ad",
+        "scripts/work_envelope.py": "c2b73666cf43a84250e2386f6e563108cc73141e8952a756ee570c38c2500cc9",
+        "scripts/run_work_envelope.py": "23a4372ad0d4f3f22ddeb4f6ff880480a0c17cfe01cebc35588a2e5981b007ee"
+      },
+      "image_proof_sha256": "c18ccce10b538e24d21663ad37a0783765fdf45b998838021d6dce4aecd17f7f"
+    },
+    "standing_envelope": {
+      "ledger": "bounded_cce_dependency_probe__2a7b5311601a",
+      "envelope_sha256": "12949e8448302d1cdd137da5afc107cfb1dcb17367db42525b2290e1e494bce1"
+    },
+    "qualification_runs_authorized": 1,
+    "paid_runs_authorized": 0,
+    "safety_tickets_authorized": 0,
+    "qualification_protocols_started": 0,
+    "paid_runs_started": 0,
+    "paid_protocols_started": 0,
+    "safety_protocols_started": 0,
+    "active_run": null,
+    "scope": "Fresh ADR0228 experiment under ADR0172 standing boundaries; exact registered rate only, no replay",
+    "cce_result_sha256": "d030ca037671ddd16a92f9b168cb23e0e719b0d1a756a7239200b196cd685127",
+    "cce_recovery": {
+      "decision": "ADR0228",
+      "evidence": "tmp\\adr0153-parents-9410872edffd\\cce-independent-recovery.json",
+      "sha256": "7be8f5170f0947e4767a173374132ed3d47a3e3d2437936f9745c8fb89e4e51c",
+      "actual_elapsed_seconds": 38.26500000001397
+    }
+  },
+  "cce_comparison_checkpoint": {
+    "decision": "ADR0228",
+    "evidence": "docs/capacity/cce/dependency-probe-2026-10-08.json",
+    "status": "NETWORK_BLOCKED_RESTORED",
+    "pod_deployed_and_removed": true,
+    "cloud_paid_load_started": false,
+    "capacity_improvement_measured": false,
+    "pending_infrastructure_action": "Private inbound ECS TCP6432 from CCE pod network",
+    "paid_runner_implemented": false
   }
 }

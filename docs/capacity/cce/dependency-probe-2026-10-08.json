@@ -1,0 +1,74 @@
+{
+  "decision": "ADR0228",
+  "status": "NETWORK_BLOCKED_CLEANUP_INDEPENDENTLY_VERIFIED",
+  "scope": "One real CCE dependency pod; no customer traffic or paid performance comparison.",
+  "run": "adr0151-ab5fe14d1c72",
+  "ledger": "bounded_cce_dependency_probe__2a7b5311601a",
+  "image_publication": {
+    "decision": "ADR0228",
+    "pass": true,
+    "role": "api",
+    "original_local_image_index_digest": "sha256:18ddd5d6faee7673eefa39eab39b3579eb66766f474a82768caa58852e31122c",
+    "docker_configuration_digest": "sha256:56adbbcd473749b8cfe23da9decf7a6d4a0538fb2409fe40eb081218325287cf",
+    "single_platform_publication": true,
+    "platform": "linux/amd64",
+    "registry_reference": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:2fdad0b429603e01ce28eb0a578e8e0c87d98401868e389c1d92350c8969c38d",
+    "registry_tag": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing:adr0228-api-18ddd5d6faee",
+    "manifest_config_verified": true,
+    "temporary_credentials_removed_on_exit": true,
+    "cloud_load_started": false
+  },
+  "pod_resources_requested_and_admitted": {
+    "limits": {
+      "cpu": "1",
+      "memory": "1Gi"
+    },
+    "requests": {
+      "cpu": "1",
+      "memory": "1Gi"
+    }
+  },
+  "effective_billing_specification": "Not independently verified; admitted requests are not a billing claim.",
+  "checks": {
+    "correct_registry_image_pulled": true,
+    "ecs_to_cce_pod_reachable": true,
+    "cce_to_rds_tcp": true,
+    "cce_to_redis_tcp": true,
+    "cce_to_ecs_pooler_tcp": false
+  },
+  "failed_gate": "CCE pod to private ECS port6432 timed out. Security-group/network filtering is a hypothesis, not a confirmed diagnosis.",
+  "customer_writes": 0,
+  "paid_runs_started": 0,
+  "capacity_improvement_measured": false,
+  "cleanup": {
+    "namespace_removed": true,
+    "bridge_removed": true,
+    "temporary_credentials_removed": true,
+    "runtime_semantics_restored": true,
+    "audit_ids_starts_stable": true,
+    "generator_idle": true,
+    "zero_double_booking": true,
+    "all_queues_zero": true,
+    "kafka_drained": true
+  },
+  "verification_corrections": [
+    "Exclude volatile Docker health log timestamps from identity comparisons.",
+    "Map generator_idle acknowledgement explicitly to generator_idle_after.",
+    "Forward private bridge6432 to verified PgBouncer listener5432; future probes validate PostgreSQL SSL negotiation, not only TCP.",
+    "Persist future qualification attempt counters before mutation."
+  ],
+  "original_probe_result_preserved": true,
+  "pre_probe_exact_container_id_capture": "Not retained by initial probe; independent audit verified saved runtime semantics and stable identities across two fresh samples.",
+  "probe_elapsed_seconds": 85.15600000001723,
+  "independent_recovery_elapsed_seconds": 38.26500000001397,
+  "first_aborted_readonly_recovery_attempt": "Exact-start comparison incorrectly used a pre-benchmark snapshot; no cloud mutation. Its elapsed time was not captured and is not claimed in measured totals.",
+  "local_validation": {
+    "focused_tests": 98,
+    "ruff_pass": true,
+    "naming_checked_documents": 1632,
+    "focused_seconds": 6.97,
+    "broader_tests_before_final_cce_only_corrections": 94,
+    "broader_seconds": 709.83
+  },
+  "next": "Allow private ECS6432 from CCE pod network; rerun corrected dependency qualification with a fresh scope. Paid CCE adapter and profile still need implementation before84/s300s comparison."
+}
