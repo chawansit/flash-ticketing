@@ -11,7 +11,7 @@ AUTHORIZATION = "adr0216-callback-routing-pair-2026-10-08"
 PREFIX = "business_http:/v1/webhooks/payments:POST:"
 
 
-def summarize_callbacks(rows, inventory, *, offered_start_utc, offered_end_utc):
+def summarize_callbacks(rows, inventory, *, offered_start_utc, offered_end_utc, expected_decision="ADR0216", routes=None):
     """Strict offered-window HTTP evidence; not counts of distinct paid tickets."""
     verified = summarize_distribution(rows, inventory, offered_start_utc=offered_start_utc,
                                       offered_end_utc=offered_end_utc)
@@ -41,24 +41,28 @@ def summarize_callbacks(rows, inventory, *, offered_start_utc, offered_end_utc):
     arm = inventory.get("arm")
     from observe_two_host_pipeline import verify_admission_factor_evidence
     verify_admission_factor_evidence(inventory)
-    if marker.get("decision") != "ADR0216":
+    if marker.get("decision") != expected_decision or expected_decision not in {"ADR0216", "ADR0217"}:
         raise ValueError("Callback evidence requires the exact routing contract")
     secondary = {k: v for k, v in successful.items() if k.startswith("secondary:")}
     primary = {k: v for k, v in successful.items() if k.startswith("primary:")}
-    passed = (all(v > 0 for v in successful.values()) if arm == "candidate"
+    routes = policy.ROUTES if routes is None else routes
+    shared = routes[arm] == "http://load-balancer:8000"
+    passed = (all(v > 0 for v in successful.values()) if shared
               else all(v == 0 for v in secondary.values()) and sum(primary.values()) > 0)
     return {"callback_routing_verified": passed, "successful_callback_request_deltas": successful,
-            "callback_request_deltas": attempts, "callback_url": policy.ROUTES[arm],
+            "callback_request_deltas": attempts, "callback_url": routes[arm],
             "observed_start_utc": verified["observed_start_utc"],
             "observed_end_utc": verified["observed_end_utc"],
             "scope": "Bracketing callback HTTP counters; duplicates and replays may be included, not unique paid tickets."}
 
 
-def create_runner():
-    engine = protected_runner(policy_module=policy, ledger=LEDGER, authorization=AUTHORIZATION,
-                              decision="ADR0216", profile_name="callback_routing",
-                              runner_filename="run_callback_routing_comparison.py",
-                              extra_identity=("run_diagnostic_placement_comparison.py",))
+def create_runner(*, policy_module=policy, ledger=LEDGER, authorization=AUTHORIZATION,
+                  decision="ADR0216", profile_name="callback_routing",
+                  runner_filename="run_callback_routing_comparison.py", extra_identity=()):
+    engine = protected_runner(policy_module=policy_module, ledger=ledger, authorization=authorization,
+                              decision=decision, profile_name=profile_name,
+                              runner_filename=runner_filename,
+                              extra_identity=("run_diagnostic_placement_comparison.py", *extra_identity))
     original_measurements, original_arm = engine.measurements, engine.run_arm
 
     def measurements(record, trace_path, inventory):
@@ -66,7 +70,8 @@ def create_runner():
         try:
             rows = [json.loads(line) for line in trace_path.read_text().splitlines() if line.strip()]
             result["callback_routing"] = summarize_callbacks(rows, inventory,
-                offered_start_utc=record["offered_start_utc"], offered_end_utc=record["offered_end_utc"])
+                offered_start_utc=record["offered_start_utc"], offered_end_utc=record["offered_end_utc"],
+                expected_decision=decision, routes=policy_module.ROUTES)
         except (OSError, ValueError, KeyError, TypeError) as exc:
             result["callback_routing"] = {"callback_routing_verified": False, "failure_type": type(exc).__name__}
         return result

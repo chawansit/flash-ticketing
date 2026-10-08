@@ -48,7 +48,8 @@
     "diagnostic_placement",
     "atomic_payment_claim",
     "worker_separation",
-    "callback_routing"
+    "callback_routing",
+    "shared_callback_placement"
   ],
   "escalate": [
     "new spending or infrastructure action",

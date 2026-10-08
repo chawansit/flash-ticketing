@@ -374,3 +374,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0215: Digest-pinned SWR image publication](0215-digest-pinned-swr-image-publication.md)
 
 - [ADR0216: Shared callback routing comparison](0216-shared-callback-routing-comparison.md)
+
+- [ADR0217: Shared callback API placement comparison](0217-shared-callback-api-placement-comparison.md)

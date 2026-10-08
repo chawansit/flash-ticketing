@@ -24,7 +24,8 @@ PROFILES = {PROFILE: (BASE_LEDGER, "ADR0171"),
             "diagnostic_placement": ("bounded_diagnostic_placement", "ADR0181"),
             "atomic_payment_claim": ("bounded_atomic_payment_claim", "ADR0193"),
             "worker_separation": ("bounded_worker_separation", "ADR0201"),
-            "callback_routing": ("bounded_callback_routing", "ADR0216")}
+            "callback_routing": ("bounded_callback_routing", "ADR0216"),
+            "shared_callback_placement": ("bounded_shared_callback_placement", "ADR0217")}
 SCOPE = re.compile("(?:" + "|".join(v[0] for v in PROFILES.values()) + r")__(?:[0-9a-f]{12})$")
 
 
@@ -126,7 +127,7 @@ def reserve(binding, plan, *, profile=PROFILE):
     if profile not in PROFILES or profile not in data["qualified_profiles"]:
         raise ValueError("Unknown diagnostic profile")
     base, decision = PROFILES[profile]
-    expected_arms = ["control", "candidate"] if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement", "atomic_payment_claim", "worker_separation", "callback_routing"} else ["control"]
+    expected_arms = ["control", "candidate"] if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement", "atomic_payment_claim", "worker_separation", "callback_routing", "shared_callback_placement"} else ["control"]
     if (plan.get("decision") != decision or plan.get("arms") != expected_arms
             or plan.get("common", {}).get("buyer_journeys_per_second") != 60
             or plan["common"].get("duration_seconds") != 300):
@@ -140,10 +141,15 @@ def reserve(binding, plan, *, profile=PROFILE):
     if profile == "application_role_rebalance" and (
             plan.get("diagnostic_scope") != "application_role" or plan.get("diagnostic_decision") != "ADR0176"):
         raise ValueError("Exact registered application diagnostic scope required")
-    if profile in {"diagnostic_placement", "callback_routing"} and (
+    if profile in {"diagnostic_placement", "callback_routing", "shared_callback_placement"} and (
             plan.get("diagnostic_connection_decision") != "ADR0180"
             or not re.fullmatch(r"[0-9a-f]{64}", binding.get("diagnostic_target_sha256", ""))):
         raise ValueError("Exact diagnostic target binding required")
+    if profile == "shared_callback_placement":
+        import shared_callback_placement_contract as placement
+
+        if plan != placement.plan():
+            raise ValueError("Exact locally qualified shared-callback placement pair required")
     if profile == "callback_routing":
         import callback_routing_contract as routing
 

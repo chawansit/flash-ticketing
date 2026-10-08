@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-08",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "shared_callback_routing_comparison_passed_runtime_restored",
+  "status": "shared_callback_placement_locally_qualified_cloud_comparison_next",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -1095,7 +1095,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Compare fixed shared callback routing with 2+2 versus 1+3 API placement, keeping workload and aggregate budgets unchanged; create and locally qualify the exact registered profile first. Then attempt 84 tickets/s if the measured gates pass.",
+  "next_action": "Execute fresh ADR0217 shared_callback_placement safety pair then matched 60 journeys/s 300-second paid pair; fixed shared callbacks, 2+2 versus 1+3, unchanged sources/budgets; failed control stops candidate. Attempt 84 tickets/s only after measured gates pass and exact profile qualification.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -3426,5 +3426,23 @@
       "control",
       "candidate"
     ]
+  },
+  "shared_callback_placement_checkpoint": {
+    "decision": "docs/adr/0217-shared-callback-api-placement-comparison.md",
+    "plan": "docs/capacity/flash-sale-opening/shared-callback-placement-plan-2026-10-08.json",
+    "status": "locally_qualified_cloud_pending",
+    "local_unit_tests_passed": 234,
+    "cloud_load_started": false,
+    "capacity_improvement_measured": false,
+    "new_spending": 0,
+    "profile": "shared_callback_placement",
+    "factor": "API placement only; shared callback route in both arms",
+    "placements": {
+      "control": "2+2",
+      "candidate": "1+3"
+    },
+    "experiment_ceiling_seconds": 3600,
+    "offered_journeys_per_second": 60,
+    "duration_seconds_per_arm": 300
   }
 }
