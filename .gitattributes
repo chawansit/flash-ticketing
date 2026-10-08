@@ -10,3 +10,6 @@ docs/capacity/flash-sale-opening/orders-event-index-recovery-2026-10-08.json -te
 artifacts/writer-write-pipeline/*.patch text eol=lf whitespace=-blank-at-eol
 docs/capacity/flash-sale-opening/writer-write-pipeline-safety-recovery-2026-10-08.json -text whitespace=cr-at-eol
 docs/capacity/flash-sale-opening/writer-write-pipeline-recovery-2026-10-08.json -text whitespace=cr-at-eol
+artifacts/generator-completion/*.patch text eol=lf whitespace=-blank-at-eol
+
+docs/capacity/flash-sale-opening/generator-completion-recovery-2026-10-08.json -text whitespace=cr-at-eol

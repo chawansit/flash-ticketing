@@ -25,6 +25,21 @@ class RecoveryCase:
     drops: int
     profile: str
     decision: str
+    paid: int | None = None
+    confirmed: int | None = None
+    failed_outcomes: tuple = ()
+
+    @property
+    def paid_count(self):
+        return self.expected if self.paid is None else self.paid
+
+    @property
+    def confirmed_count(self):
+        return self.expected if self.confirmed is None else self.confirmed
+
+    @property
+    def outcomes(self):
+        return {"fulfilled": self.confirmed_count, **dict(self.failed_outcomes)}
 
 
 CASES = MappingProxyType({
@@ -38,6 +53,10 @@ CASES = MappingProxyType({
     "bounded_writer_write_pipeline_probe__eb7ff590f16c": RecoveryCase(
         "bounded_writer_write_pipeline_probe__eb7ff590f16c", "adr0151-4988723f04a7",
         "adr0151-arm-3000e8c3419a", 25196, 4, "writer_write_pipeline_probe", "ADR0225"),
+    "bounded_generator_completion_probe__8d5499f7111a": RecoveryCase(
+        "bounded_generator_completion_probe__8d5499f7111a", "adr0151-7cd8ed0b7083",
+        "adr0151-arm-7157e6875382", 23545, 1655, "generator_completion_probe", "ADR0226",
+        paid=23533, confirmed=23435, failed_outcomes=(("order_http_503", 98), ("payment_http_503", 12))),
 })
 
 
@@ -74,12 +93,15 @@ def retained(root, entry, state):
             or arm.get("restoration_complete") is not True or arm.get("capacity_stages_started") != 1
             or stage.get("customers_dispatched") is not True or stage.get("retired_shows") != 84
             or customer.get("scheduled") != 25200 or customer.get("generator_drops") != case.drops
-            or any(customer.get(k) != case.expected for k in ("dispatched", "completed", "fulfilled", "distinct_orders", "distinct_tickets"))
-            or customer.get("retry_attempts") != 0 or customer.get("outcomes") != {"fulfilled": case.expected}
+            or any(customer.get(k) != case.expected for k in ("dispatched", "completed"))
+            or any(customer.get(k) != case.confirmed_count for k in ("fulfilled", "distinct_orders", "distinct_tickets"))
+            or customer.get("retry_attempts") != 0 or customer.get("outcomes") != case.outcomes
             or financial.get("pass") is not False or financial.get("expected") != 25200
             or financial.get("expected_paid") != 25200 or financial.get("hold_deadlines_elapsed") is not True
-            or any(financial.get(k) != case.expected for k in ("orders", "fulfilled_orders", "succeeded_payments", "bookings", "tickets"))
-            or any(financial.get(k) != 0 for k in ("pending_orders", "expired_orders", "pending_payment_attempts",
+            or financial.get("orders") != case.expected
+            or financial.get("expired_orders") != case.expected - case.paid_count
+            or any(financial.get(k) != case.paid_count for k in ("fulfilled_orders", "succeeded_payments", "bookings", "tickets"))
+            or any(financial.get(k) != 0 for k in ("pending_orders", "pending_payment_attempts",
                 "incomplete_callback_deliveries", "duplicate_booked_seats", "multi_booking_orders", "unpublished_outbox", "dead_letters"))
             or any(saved.get(k) is not True for k in ("restore_pass", "primary_runtime_semantics_restored",
                 "secondary_resources_removed", "generator_idle_after", "credential_snapshots_removed"))
@@ -90,7 +112,7 @@ def retained(root, entry, state):
             or fixture.get("fixture_identity", {}).get("shows") != 84
             or len(set(fixture.get("fixture_identity", {}).get("show_ids", []))) != 84):
         raise ValueError("Retained paid failure, exact fixture and restoration proof required")
-    if case.decision in {"ADR0224", "ADR0225"}:
+    if case.decision in {"ADR0224", "ADR0225", "ADR0226"}:
         from types import SimpleNamespace
 
         from orders_event_index_probe_contract import OrdersEventIndexProbeContract
@@ -122,16 +144,25 @@ def verify(root, entry, state, fresh_path, *, now=None):
                 "zero_double_booking", "all_queues_zero", "kafka_drained", "generator_idle", "original_failed_gate_preserved"))
             or not queue_pass(fresh.get("queue_counts", {}))
             or financial.get("pass") is not True or not financial.get("checks") or not all(financial["checks"].values())
-            or counts.get("pass") is not True or counts.get("expected") != case.expected or counts.get("expected_paid") != case.expected
-            or any(counts.get(k) != case.expected for k in ("orders", "fulfilled_orders", "succeeded_payments", "bookings", "tickets"))
+            or counts.get("pass") is not True or counts.get("expected") != case.expected or counts.get("expected_paid") != case.paid_count
+            or counts.get("orders") != case.expected
+            or counts.get("expired_orders") != case.expected - case.paid_count
+            or any(counts.get(k) != case.paid_count for k in ("fulfilled_orders", "succeeded_payments", "bookings", "tickets"))
             or any(counts.get(k) != 0 for k in ("duplicate_booked_seats", "multi_booking_orders", "pending_orders",
                 "pending_payment_attempts", "incomplete_callback_deliveries", "unpublished_outbox", "dead_letters"))
             or financial.get("fixture_hold_rows") != case.expected
-            or relationships.get("unique_issued_tickets") != case.expected or relationships.get("holds_not_past_ttl") != 0
+            or relationships.get("unique_issued_tickets") != case.paid_count or relationships.get("holds_not_past_ttl") != 0
             or any(relationships.get(k) != 0 for k in ("hold_relationship_errors", "booking_relationship_errors",
                 "order_item_relationship_errors", "inventory_relationship_errors", "fulfilled_ticket_relationship_errors"))):
         raise ValueError("Fresh independent financial, relationship and runtime verification required")
-    if case.decision in {"ADR0224", "ADR0225"}:
+    if case.decision == "ADR0226":
+        unpaid = financial.get("expired_unpaid_relationships", {})
+        if (unpaid.get("expired_orders") != 12
+                or unpaid.get("expired_hold_rows") != 12
+                or unpaid.get("financial_or_inventory_errors") != 0
+                or counts.get("payment_attempts") != case.paid_count):
+            raise ValueError("Exact expired unpaid relationship proof required")
+    if case.decision in {"ADR0224", "ADR0225", "ADR0226"}:
         from types import SimpleNamespace
 
         from orders_event_index_probe_contract import OrdersEventIndexProbeContract
@@ -145,7 +176,10 @@ def verify(root, entry, state, fresh_path, *, now=None):
     paths.append(fresh_path)
     return {"decision": "ADR0221", "ledger": case.key, "binding_sha256": entry["binding_sha256"],
             "verified_at_utc": at.isoformat(), "gates": dict.fromkeys(GATES, True),
-            "scheduled": 25200, "dispatched_paid_tickets": case.expected, "undispatched": case.drops,
+            "scheduled": 25200, "dispatched_paid_tickets": case.paid_count, "undispatched": case.drops,
+            **({"dispatched_orders": case.expected, "expired_unpaid_orders": 12,
+                "confirmed_customer_tickets": case.confirmed_count, "customer_failed_journeys": 110,
+                "recovery_extension_decision": "ADR0227"} if case.decision == "ADR0226" else {}),
             "original_experiment_pass": False, "capacity_qualified": False,
             "verification_elapsed_seconds": fresh["actual_elapsed_seconds"],
             "retained_artifact_sha256": {p.relative_to(Path(root)).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},
@@ -163,8 +197,12 @@ def resolved(records, entry, root):
                 or receipt.get("decision") != "ADR0221" or receipt.get("ledger") != case.key
                 or receipt.get("binding_sha256") != entry["binding_sha256"] or receipt.get("gates") != dict.fromkeys(GATES, True)
                 or receipt.get("original_experiment_pass") is not False or receipt.get("capacity_qualified") is not False
-                or receipt.get("dispatched_paid_tickets") != case.expected or receipt.get("undispatched") != case.drops
+                or receipt.get("dispatched_paid_tickets") != case.paid_count or receipt.get("undispatched") != case.drops
                 or len(receipt.get("retained_artifact_sha256", {})) != 5): return False
+        if case.decision == "ADR0226" and any(receipt.get(k) != v for k, v in {
+                "dispatched_orders": 23545, "expired_unpaid_orders": 12,
+                "confirmed_customer_tickets": 23435, "customer_failed_journeys": 110,
+                "recovery_extension_decision": "ADR0227"}.items()): return False
         return all(hashlib.sha256(regular(Path(root) / "tmp", Path(root) / name).read_bytes()).hexdigest() == value
                    for name, value in receipt["retained_artifact_sha256"].items())
     except (OSError, ValueError, TypeError, KeyError):

@@ -41,7 +41,7 @@ def summarize_callbacks(rows, inventory, *, offered_start_utc, offered_end_utc, 
     arm = inventory.get("arm")
     from observe_two_host_pipeline import verify_admission_factor_evidence
     verify_admission_factor_evidence(inventory)
-    if marker.get("decision") != expected_decision or expected_decision not in {"ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224", 'ADR0225'}:
+    if marker.get("decision") != expected_decision or expected_decision not in {"ADR0216", "ADR0217", "ADR0219", "ADR0222", "ADR0224", 'ADR0225', 'ADR0226'}:
         raise ValueError("Callback evidence requires the exact routing contract")
     secondary = {k: v for k, v in successful.items() if k.startswith("secondary:")}
     primary = {k: v for k, v in successful.items() if k.startswith("primary:")}

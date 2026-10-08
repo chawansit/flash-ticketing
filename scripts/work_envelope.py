@@ -29,7 +29,8 @@ PROFILES = {PROFILE: (BASE_LEDGER, "ADR0171"),
             "shared_callback_rate_probe": ("bounded_shared_callback_rate_probe", "ADR0219"),
             "interleaved_refresh_probe": ("bounded_interleaved_refresh_probe", "ADR0222"),
             "orders_event_index_probe": ("bounded_orders_event_index_probe", "ADR0224"),
-            "writer_write_pipeline_probe": ("bounded_writer_write_pipeline_probe", "ADR0225")}
+            "writer_write_pipeline_probe": ("bounded_writer_write_pipeline_probe", "ADR0225"),
+            "generator_completion_probe": ("bounded_generator_completion_probe", "ADR0226")}
 SCOPE = re.compile("(?:" + "|".join(v[0] for v in PROFILES.values()) + r")__(?:[0-9a-f]{12})$")
 
 
@@ -134,10 +135,10 @@ def reserve(binding, plan, *, profile=PROFILE):
         raise ValueError("Unknown diagnostic profile")
     base, decision = PROFILES[profile]
     expected_arms = ["control", "candidate"] if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement", "atomic_payment_claim", "worker_separation", "callback_routing", "shared_callback_placement"} else ["control"]
-    if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe'}:
+    if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe'}:
         expected_arms = ["candidate"]
     if (plan.get("decision") != decision or plan.get("arms") != expected_arms
-            or plan.get("common", {}).get("buyer_journeys_per_second") != (84 if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe'} else 60)
+            or plan.get("common", {}).get("buyer_journeys_per_second") != (84 if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe'} else 60)
             or plan["common"].get("duration_seconds") != 300):
         raise ValueError("Only locally qualified unchanged diagnostic control permitted")
     if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement"} and (
@@ -149,10 +150,15 @@ def reserve(binding, plan, *, profile=PROFILE):
     if profile == "application_role_rebalance" and (
             plan.get("diagnostic_scope") != "application_role" or plan.get("diagnostic_decision") != "ADR0176"):
         raise ValueError("Exact registered application diagnostic scope required")
-    if profile in {"diagnostic_placement", "callback_routing", "shared_callback_placement", "shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe'} and (
+    if profile in {"diagnostic_placement", "callback_routing", "shared_callback_placement", "shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe'} and (
             plan.get("diagnostic_connection_decision") != "ADR0180"
             or not re.fullmatch(r"[0-9a-f]{64}", binding.get("diagnostic_target_sha256", ""))):
         raise ValueError("Exact diagnostic target binding required")
+    if profile == "generator_completion_probe":
+        import generator_completion_probe_contract as completion_probe
+
+        if plan != completion_probe.plan():
+            raise ValueError("Exact generator-only bookkeeping correction probe required")
     if profile == "writer_write_pipeline_probe":
         import writer_write_pipeline_probe_contract as writer_probe
 

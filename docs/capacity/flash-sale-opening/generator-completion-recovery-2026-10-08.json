@@ -1,0 +1,35 @@
+{
+  "decision": "ADR0221",
+  "ledger": "bounded_generator_completion_probe__8d5499f7111a",
+  "binding_sha256": "e422cf7a84ede4b24ff00e3b5e11d78ddaaeec31b4a6666ddb98332ef09fa7cb",
+  "verified_at_utc": "2026-10-08T08:50:04.051821+00:00",
+  "gates": {
+    "dispatched_cohort_durable": true,
+    "post_ttl_relationships": true,
+    "zero_double_booking": true,
+    "full_queue_drain": true,
+    "exact_runtime_restored": true,
+    "generator_idle": true,
+    "owned_cleanup": true,
+    "original_failure_preserved": true
+  },
+  "scheduled": 25200,
+  "dispatched_paid_tickets": 23533,
+  "undispatched": 1655,
+  "dispatched_orders": 23545,
+  "expired_unpaid_orders": 12,
+  "confirmed_customer_tickets": 23435,
+  "customer_failed_journeys": 110,
+  "recovery_extension_decision": "ADR0227",
+  "original_experiment_pass": false,
+  "capacity_qualified": false,
+  "verification_elapsed_seconds": 157.71900000001187,
+  "retained_artifact_sha256": {
+    "tmp/adr0151-7cd8ed0b7083/comparison-summary.json": "ca6f2181bd88d75d00b89b6542edb8a1aa04579030953ad598dbf8fcb8ffc981",
+    "tmp/adr0151-7cd8ed0b7083/adr0151-arm-7157e6875382/state.json": "b6a8c9a2e0a9edd69ca8618adc60d63cfe17e9b6d28d0b2533172ae594717722",
+    "tmp/adr0151-7cd8ed0b7083/adr0151-arm-7157e6875382/candidate/stage.private.json": "45063ab577230872121f6517bbd59085fa860b0f6f395186603ae45344c33de1",
+    "tmp/adr0151-7cd8ed0b7083/adr0151-arm-7157e6875382/candidate/fixture-identity.json": "eee48cb320480b2812e443e99d6b54f006c26d67b21a4e156e989bf23d436724",
+    "tmp/adr0153-parents-c77bd1b63767/recovery-verification.json": "d6757fca14d66ce4e1dec92f7e77ae22ef39b43cb9dbb42f63cd801659853f2b"
+  },
+  "scope": "Only recovery cleared; original throughput, latency and diagnostic gates remain failed. Fresh experiment identity required."
+}

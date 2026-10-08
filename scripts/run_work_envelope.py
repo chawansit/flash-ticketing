@@ -39,6 +39,9 @@ def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROF
     if profile_name == "atomic_payment_claim":
         import atomic_payment_claim_contract as contract_policy
         import run_atomic_payment_claim_comparison as profile
+    elif profile_name == "generator_completion_probe":
+        import generator_completion_probe_contract as contract_policy
+        import run_generator_completion_probe as profile
     elif profile_name == "writer_write_pipeline_probe":
         import run_writer_write_pipeline_probe as profile
         import writer_write_pipeline_probe_contract as contract_policy
@@ -77,7 +80,7 @@ def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROF
     from run_status_refresh_comparison import RunLock
 
     engine = profile.create_runner()
-    if profile_name in {"diagnostic_placement", "callback_routing", "shared_callback_placement", "shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe'}:
+    if profile_name in {"diagnostic_placement", "callback_routing", "shared_callback_placement", "shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe'}:
         from diagnostic_runner_connection import validate_target
         if diagnostic_target is None or not sys.stdin.isatty():
             raise ValueError("Protected target file and credential terminal required")
@@ -111,7 +114,7 @@ def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROF
     sys.path.insert(0, str(ssh_runtime.resolve()))
     reports, started = [], time.monotonic()
     try:
-        if profile_name in {"diagnostic_placement", "callback_routing", "shared_callback_placement", "shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe'}:
+        if profile_name in {"diagnostic_placement", "callback_routing", "shared_callback_placement", "shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe'}:
             engine.configure_diagnostic(target, getpass.getpass("Diagnostic administrator password: "))
         if hasattr(engine, "stage_images"):
             engine.stage_images(config, artifact, getpass.getpass("Image staging SSH password: "), guard)

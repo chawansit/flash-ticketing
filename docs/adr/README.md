@@ -392,3 +392,7 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0224: Index orders by event for paid cohort queries](0224-index-orders-by-event-for-paid-cohort-queries.md)
 
 - [ADR0225: Pipeline reservation command writes](0225-pipeline-reservation-command-writes.md)
+
+- [ADR0226: Reap completed generator tasks before admission](0226-reap-completed-generator-tasks-before-admission.md)
+
+- [ADR0227: Reconcile expired unpaid orders in a failed cohort](0227-reconcile-expired-unpaid-orders-in-failed-cohort.md)

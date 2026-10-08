@@ -206,6 +206,8 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
             occupancy_last = now
 
         def completed_task(task):
+            if task not in active:
+                return
             update_occupancy()
             active.discard(task)
             active_started.pop(task, None)
@@ -260,6 +262,9 @@ async def scheduled_journeys(args, manifest, journey_fn=journey):
             due = started + index / args.rate
             await asyncio.sleep(max(0.0, due - perf_counter()))
             dispatch_lags.append(max(0.0, (perf_counter() - due) * 1000))
+            for finished_task in tuple(active):
+                if finished_task.done():
+                    completed_task(finished_task)
             if len(active) >= args.concurrency:
                 dropped += 1
                 if diagnostics and len(drop_snapshots) < 8:

@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "decision": "ADR0226",
+  "parent_sha256": "0dec129dec0aa122bcb3642013b22e7c0d5127eb42023a7ddc8905f184b83c8f",
+  "candidate_sha256": "dd84d979bfd993c2833bb7c3cfbb01366774f17fdf591e98cb9cdfa1fecbb7f1",
+  "patch_sha256": "a1debad55a44d35677944b11848b3257037fe42b3687020ca76845c8aaa87f77",
+  "changed_paths": [
+    "scripts/paid_ticket_load_generator.py"
+  ],
+  "scope": "Only idempotent completion cleanup and pre-admission completed-task reaping; frozen workload/backend/budgets unchanged."
+}

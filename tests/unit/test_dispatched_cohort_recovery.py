@@ -152,3 +152,96 @@ def test_writer_cohort_rejects_uncertain_recovery(writer_cohort, drift):
     else: fresh["runtime_unchanged"] = False
     write(path, fresh)
     with pytest.raises(ValueError): recovery.verify(root, entry, state, path)
+
+
+@pytest.fixture
+def partial_cohort(writer_cohort):
+    root, entry, state, report, path, fresh = writer_cohort
+    old_case = recovery.CASES[entry["ledger"]]
+    case = recovery.CASES["bounded_generator_completion_probe__8d5499f7111a"]
+    old = root / "tmp" / old_case.run / old_case.arm
+    saved = json.loads((old / "state.json").read_text())
+    stage = json.loads((old / "candidate/stage.private.json").read_text())
+    fixture = stage["fixture_identity"]
+    state = {case.key: state[old_case.key]}
+    entry.update(ledger=case.key, profile=case.profile)
+    entry["reports"][1]["run"] = case.run
+    report.update(run=case.run, experiment_decision=case.decision)
+    stage["customer"].update(dispatched=23545, completed=23545, fulfilled=23435,
+        distinct_orders=23435, distinct_tickets=23435, generator_drops=1655,
+        outcomes={"fulfilled": 23435, "order_http_503": 98, "payment_http_503": 12})
+    for financial in (stage["financial"], fresh["fixture_financial_audit"]["counts"]):
+        financial.update(orders=23545, expired_orders=12, payment_attempts=23533,
+            fulfilled_orders=23533, succeeded_payments=23533, bookings=23533, tickets=23533)
+    audit = fresh["fixture_financial_audit"]
+    audit["counts"].update(expected=23545, expected_paid=23533)
+    audit["fixture_hold_rows"] = 23545
+    audit["relationships"]["unique_issued_tickets"] = 23533
+    audit["expired_unpaid_relationships"] = {"expired_orders": 12,
+        "expired_hold_rows": 12, "financial_or_inventory_errors": 0}
+    fresh.update(ledger=case.key, original_result_sha256=policy.digest(report))
+    directory = root / "tmp" / case.run / case.arm
+    write(directory.parent / "comparison-summary.json", report)
+    write(directory / "state.json", saved)
+    write(directory / "candidate/stage.private.json", stage)
+    write(directory / "candidate/fixture-identity.json", fixture)
+    write(path, fresh)
+    return root, entry, state, report, path, fresh
+
+
+def test_exact_partial_cohort_preserves_customer_failure(partial_cohort):
+    root, entry, state, report, path, _fresh = partial_cohort
+    before = copy.deepcopy((entry, report))
+    receipt = recovery.verify(root, entry, state, path)
+    assert receipt["dispatched_orders"] == 23545
+    assert receipt["dispatched_paid_tickets"] == 23533
+    assert receipt["expired_unpaid_orders"] == 12
+    assert receipt["confirmed_customer_tickets"] == 23435
+    assert receipt["customer_failed_journeys"] == 110
+    assert receipt["undispatched"] == 1655
+    assert not receipt["capacity_qualified"] and not receipt["original_experiment_pass"]
+    assert (entry, report) == before
+
+
+@pytest.mark.parametrize("drift", ["paid_loss", "unpaid_count", "unpaid_hold", "expired_contamination",
+    "missing_expired_proof", "extra_payment", "confirmed", "outcome", "retained_expired", "index", "restore"])
+def test_partial_cohort_uncertainty_blocks(partial_cohort, drift):
+    root, entry, state, _report, path, fresh = partial_cohort
+    audit = fresh["fixture_financial_audit"]
+    if drift == "paid_loss": audit["counts"]["tickets"] -= 1
+    elif drift == "unpaid_count": audit["counts"]["expired_orders"] = 11
+    elif drift == "unpaid_hold": audit["expired_unpaid_relationships"]["expired_hold_rows"] = 11
+    elif drift == "expired_contamination": audit["expired_unpaid_relationships"]["financial_or_inventory_errors"] = 1
+    elif drift == "missing_expired_proof": audit.pop("expired_unpaid_relationships")
+    elif drift == "extra_payment": audit["counts"]["payment_attempts"] += 1
+    elif drift == "index": fresh["orders_event_index"]["index"]["oid"] += 1
+    elif drift == "restore": fresh["runtime_unchanged"] = False
+    else:
+        case = recovery.CASES[entry["ledger"]]
+        stage_path = root / "tmp" / case.run / case.arm / "candidate/stage.private.json"
+        stage = json.loads(stage_path.read_text())
+        if drift == "confirmed": stage["customer"]["fulfilled"] += 1
+        elif drift == "outcome": stage["customer"]["outcomes"]["order_http_503"] -= 1
+        else: stage["financial"]["expired_orders"] = 0
+        write(stage_path, stage)
+    write(path, fresh)
+    with pytest.raises(ValueError): recovery.verify(root, entry, state, path)
+
+
+def test_partial_receipt_resolution_requires_unchanged_artifacts(partial_cohort):
+    import hashlib
+
+    root, entry, state, _report, path, _fresh = partial_cohort
+    receipt = recovery.verify(root, entry, state, path)
+    target = root / "docs/capacity/flash-sale-opening/partial-recovery.json"
+    write(target, receipt)
+    records = {"verified_paid_recoveries": {entry["ledger"]: {
+        "entry_sha256": policy.digest(entry), "receipt_path": target.relative_to(root).as_posix(),
+        "receipt_sha256": hashlib.sha256(target.read_bytes()).hexdigest()}}}
+    assert recovery.resolved(records, entry, root)
+    receipt["confirmed_customer_tickets"] += 1
+    write(target, receipt)
+    records["verified_paid_recoveries"][entry["ledger"]]["receipt_sha256"] = hashlib.sha256(target.read_bytes()).hexdigest()
+    assert not recovery.resolved(records, entry, root)
+    path.write_text("{}")
+    assert not recovery.resolved(records, entry, root)
