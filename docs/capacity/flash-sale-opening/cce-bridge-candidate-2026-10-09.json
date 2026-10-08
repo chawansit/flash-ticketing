@@ -1,0 +1,58 @@
+{
+  "decision": "ADR0230",
+  "implemented": true,
+  "cloud_candidate_executed": true,
+  "capacity_improvement_measured": true,
+  "plan": {
+    "decision": "ADR0228",
+    "arms": [
+      "candidate"
+    ],
+    "common": {
+      "buyer_journeys_per_second": 84,
+      "duration_seconds": 300
+    },
+    "diagnostic_connection_decision": "ADR0180",
+    "kind": "fixed_native_api_isolation",
+    "candidate_decision": "ADR0230",
+    "single_changed_factor": "database_bridge_cpu_limit",
+    "bridge_cpu_limit": 1,
+    "baseline_bridge_cpu_limit": 0.125,
+    "baseline_evidence": "docs/capacity/flash-sale-opening/cce-paid-comparison-2026-10-09.json",
+    "baseline_sha256": "9b509d7c895d060d34fa8070c48d9cc104f5c85e1b4282c9642aba2d1aa6de2a",
+    "pod_resources": {
+      "requests": {
+        "cpu": "1",
+        "memory": "1Gi"
+      },
+      "limits": {
+        "cpu": "1",
+        "memory": "1Gi"
+      }
+    },
+    "replicas": 4,
+    "pooler_server_connections": 24,
+    "qualification_runs_authorized": 1,
+    "paid_runs_authorized": 1,
+    "safety_tickets_authorized": 2,
+    "duration_reason": "Match the retained five-minute paid baseline; required TTL, drain and exact restoration remain outside the offered window."
+  },
+  "baseline_bridge_cpu": {
+    "samples": 61,
+    "sample_errors": 0,
+    "mean_cores": 0.1295425463164668,
+    "intervals_above_0_11_cores": 59,
+    "intervals": 60
+  },
+  "validation": {
+    "tests_passed": 253,
+    "tests_skipped": 1,
+    "pytest_seconds": 18.13,
+    "initial_failed_test_fixture_seconds": 18.4,
+    "ruff_pass": true
+  },
+  "authorization": "User instructed continuation until 84/s; fresh one-stage correction authorization, uncapped approved comparison spending. No old scope or counters reset.",
+  "comparison_evidence": "docs/capacity/flash-sale-opening/cce-bridge-comparison-2026-10-09.json",
+  "original_runner_pass": false,
+  "independent_final_recovery_pass": true
+}

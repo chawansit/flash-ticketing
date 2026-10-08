@@ -1,0 +1,134 @@
+{
+  "decision": "ADR0228",
+  "recovery_decision": "ADR0229",
+  "run": "adr0151-5db81bfa8ec2",
+  "ledger": "bounded_cce_paid_comparison__cfd706a87a52",
+  "status": "FAILED_RESTORED",
+  "original_result_sha256": "77d9869de0de950e0b427e0f67ca5dc874c335148bffe75e2073e80747fcb539",
+  "capacity_qualified": false,
+  "hourly_qualified": false,
+  "configuration": {
+    "api_pods": 4,
+    "vcpu_per_pod": 1,
+    "memory_gib_per_pod": 1,
+    "offered_journeys_per_second": 84,
+    "offered_seconds": 300,
+    "resources_workload_and_gates_changed": false
+  },
+  "customer": {
+    "scheduled": 25200,
+    "dispatched": 25200,
+    "generator_drops": 0,
+    "completed": 25200,
+    "fulfilled": 92,
+    "fulfilled_by_deadline": 92,
+    "distinct_orders": 92,
+    "distinct_tickets": 92,
+    "outcomes": {
+      "fulfilled": 92,
+      "payment_http_503": 13312,
+      "order_http_503": 11639,
+      "ticket_timeout": 157
+    },
+    "retry_attempts": 0,
+    "hold_http_p95_ms": 10.815300978720188,
+    "durable_p95_ms": 1025.0468669692054,
+    "payment_http_p95_ms": 582.0888679591008,
+    "payment_to_ticket_p95_ms": 11211.949626042042,
+    "hold_to_ticket_p95_ms": 12234.904339013156
+  },
+  "customer_error_percent": 99.63492063492063,
+  "terminal_financial": {
+    "counts": {
+      "orders": 25200,
+      "fulfilled_orders": 2250,
+      "expired_orders": 13312,
+      "pending_orders": 0,
+      "payment_attempts": 11888,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 11888,
+      "bookings": 2250,
+      "tickets": 2250,
+      "payment_callbacks": 11888,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 11888,
+      "callback_delivery_target": 11888,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 25200,
+      "expected_paid": 11888,
+      "expected_callback_deliveries_per_payment": 1,
+      "pass": false
+    },
+    "order_states": {
+      "EXPIRED": 13312,
+      "FULFILLED": 2250,
+      "REFUNDED": 9638
+    },
+    "refund_states": {
+      "REFUNDED": 9638
+    },
+    "unaccounted_succeeded_payments": 0,
+    "invalid_fulfilled_relationships": 0,
+    "invalid_refunded_relationships": 0,
+    "hold_deadlines_elapsed": true,
+    "pass": true
+  },
+  "recovery_gates": {
+    "saved_runtime_semantics_restored": true,
+    "runtime_ids_starts_stable": true,
+    "namespace_absent": true,
+    "owned_helpers_absent": true,
+    "secondary_empty": true,
+    "generator_idle": true,
+    "safety_payment_durable": true,
+    "zero_double_booking": true,
+    "all_queues_zero": true,
+    "temporary_transport_credentials_cleared": true
+  },
+  "verified_owned_events": 86,
+  "owned_fixture_sale_windows_closed": true,
+  "metrics": {
+    "aggregate_api_process_cpu_cores": 1.150725703470696,
+    "api_pool_acquire_mean_ms": 109.55767756614327,
+    "api_connection_hold_mean_ms": 82.68582706465592,
+    "api_pool_errors": 26256.0,
+    "api_admission_errors": 25361.0,
+    "api_pool_timeouts": 895.0,
+    "api_select_mean_ms": 9.560819188437696,
+    "consumer_select_mean_ms": 1.372809063515424,
+    "pgbouncer_server_active_peak": 24.0,
+    "pgbouncer_maxwait_peak_ms": 120.147
+  },
+  "observation_failures": [
+    {
+      "operation": "primary_cpu",
+      "type": "ValueError"
+    },
+    {
+      "operation": "cpu_window",
+      "type": "KeyError"
+    }
+  ],
+  "interpretation": "Paid stage failed despite zero generator drops. API DB acquisition and admission pressure dominated; API CPU remained below four allocated cores. Investigate CCE-to-PgBouncer transport and per-request connection occupancy before scaling pods. This is a hypothesis, not proven root cause.",
+  "limitations": [
+    "Original primary CPU observation gate failed; native API process CPU and separate resource samples are available.",
+    "Only 92 customers confirmed within deadline; 2250 tickets issued after settlement do not establish sustained throughput.",
+    "9638 late payments produced durable simulated refunds; not real banking refunds.",
+    "CCE adds compute to the retained ECS baseline; no equal-cost efficiency or production capacity claim.",
+    "Actual monetary spend was not measured."
+  ],
+  "local_validation": {
+    "cpu_path_tests_passed": 179,
+    "cpu_path_tests_skipped": 1,
+    "cpu_path_pytest_seconds": 15.59,
+    "final_recovery_tests_passed": 63,
+    "final_recovery_pytest_seconds": 0.42,
+    "ruff_pass": true
+  },
+  "baseline_evidence": "docs/capacity/flash-sale-opening/generator-completion-probe-2026-10-08.json",
+  "next_action": "Profile CCE database network/bridge latency and connection occupancy with a predeclared bounded diagnostic. Correct one measured factor before another paid comparison.",
+  "publication": "Local checkpoint only; not committed or pushed."
+}

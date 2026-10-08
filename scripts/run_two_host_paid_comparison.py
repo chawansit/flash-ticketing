@@ -83,6 +83,31 @@ def api_upload(session, cid, owner, directory, name, content):
     return target
 
 
+def api_upload_runtime_owned(session, cid, owner, directory, name, content):
+    """Stream private input into the existing non-root process without chown."""
+    source, target = owner + "/" + name, directory + "/" + name
+    session.put("primary", source, content, True)
+    writer = (
+        "import json,os,sys;from pathlib import Path;p=Path("
+        + repr(target)
+        + ")\nwith p.open('xb') as f:\n os.chmod(p,0o600);f.write(sys.stdin.buffer.read())\n"
+        + "assert os.getuid()==10001 and p.stat().st_uid==10001;print(json.dumps({'uploaded':True}))"
+    )
+    result = session.call(
+        "primary",
+        "import json,subprocess\nwith open("
+        + repr(source)
+        + ",'rb') as source:\n result=subprocess.run("
+        + repr(["docker", "exec", "-i", cid, "python", "-c", writer])
+        + ",stdin=source,stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=True,timeout=45)\n"
+        + "print(result.stdout.decode())",
+        60,
+    )
+    if result != {"uploaded": True}:
+        raise ValueError("Runtime-owned input upload unverified")
+    return target
+
+
 def job_program(args, directory, *, database=False):
     name = Path(args[1]).stem
     status_path = directory + "/job-" + name + "-exit.json"

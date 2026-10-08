@@ -4,6 +4,7 @@ Component only: caller must qualify safety/observers, own the CCE and audit
 resources, and stop/audit customer traffic before retiring the topology.
 """
 
+import json
 import math
 import re
 
@@ -65,7 +66,9 @@ def receipt_gate(receipts, run):
 
 
 def execution_identity(row):
-    return {key: row[key] for key in ("Id", "Image", "Config", "HostConfig", "Mounts")}
+    result = {key: row[key] for key in ("Id", "Image", "Config", "HostConfig", "Mounts")}
+    result["Mounts"] = sorted(result["Mounts"], key=lambda value: json.dumps(value, sort_keys=True))
+    return result
 
 
 def change_program(rows, verb):
@@ -140,15 +143,21 @@ class Transition:
         self.session.checkpoint()
 
     def capture(self):
+        self.record["capture_phase"] = "authorization"
+        self.checkpoint()
         self.check()
         if self.rows:
             raise ValueError("Fresh transition capture required")
         for role, program in (("primary", INSPECT), ("secondary", SECONDARY_INSPECT)):
+            self.record["capture_phase"] = role + "_inventory"
+            self.checkpoint()
             rows = self.session.call(role, program, 45)
             expected = {r["container_id"] for r in self.routes if r["host_role"] == role}
             apis = [r for r in rows if r["Config"]["Labels"].get("com.docker.compose.service") == "api"]
             if {r["Id"] for r in apis} != expected or len(apis) != len(expected):
                 raise ValueError("Candidate API inventory changed")
+            self.record["capture_phase"] = role + "_image_settings"
+            self.checkpoint()
             for row in apis:
                 env = dict(value.split("=", 1) for value in row["Config"]["Env"])
                 if (
@@ -157,9 +166,18 @@ class Transition:
                     or not row["State"]["Running"]
                     or any(env.get(k) != v for k, v in cce.contract()["api_settings"].items())
                 ):
+                    self.record["admission_mismatch"] = {
+                        "configured_image_matches": row["Config"]["Image"] == cce.dependency.INDEX,
+                        "runtime_image_matches": row["Image"] == cce.dependency.INDEX,
+                        "running": row["State"]["Running"],
+                        "setting_names": [k for k, v in cce.contract()["api_settings"].items() if env.get(k) != v],
+                    }
+                    self.checkpoint()
                     raise ValueError("Candidate API image/settings changed")
             self.rows[role] = apis
             if role == "primary":
+                self.record["capture_phase"] = "load_balancer_mount"
+                self.checkpoint()
                 lbs = [
                     r
                     for r in rows
@@ -173,6 +191,8 @@ class Transition:
                 ):
                     raise ValueError("Owned load-balancer mount required")
                 self.lb = lbs[0]
+        self.record["capture_phase"] = "route_content"
+        self.checkpoint()
         current = self.session.call(
             "primary",
             "import json;from pathlib import Path;print(json.dumps(Path("

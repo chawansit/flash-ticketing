@@ -1,0 +1,190 @@
+{
+  "decision": "ADR0228",
+  "experiment_start_date_bangkok": "2026-10-08",
+  "run": "adr0151-eaf7b12b6381",
+  "original_pass": false,
+  "status": "native_admission_mismatch_identified_and_corrected_not_paid_capacity_measured",
+  "experiment_seconds": 410.405999999959,
+  "paid_capacity_stages_started": 0,
+  "pod_failure": {
+    "pod_name": "api-0",
+    "phase": "Running",
+    "container_count": 1,
+    "different_container_fields": [
+      "readinessProbe"
+    ],
+    "different_pod_fields": [
+      "securityContext"
+    ],
+    "resources": {
+      "limits": {
+        "cpu": "1",
+        "memory": "1Gi"
+      },
+      "requests": {
+        "cpu": "1",
+        "memory": "1Gi"
+      }
+    },
+    "container_states": [
+      {
+        "name": "api",
+        "ready": true,
+        "restart_count": 0,
+        "image_id": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:2fdad0b429603e01ce28eb0a578e8e0c87d98401868e389c1d92350c8969c38d",
+        "state_kinds": [
+          "running"
+        ],
+        "exit_code": null
+      }
+    ],
+    "verification_gate": "admitted_pod_receipt",
+    "startup_sources_match": true,
+    "startup_identity_matches": true
+  },
+  "namespace_removed": true,
+  "owned_helpers_removed": true,
+  "restoration_complete": true,
+  "integrity_verified": true,
+  "queues_drained": true,
+  "raw_result_sha256": "f66fb5d063a5f4134461621a6d4a11fa692a7d93b2dcaf840e992dc8c294f271",
+  "verified_cause": "Strict manifest comparison rejected omitted zero initialDelaySeconds and CCE-added RuntimeDefault seccompProfile. Live server-side dry runs reproduced both fields.",
+  "correction": "Omit redundant initialDelaySeconds0; explicitly declare seccompProfile.type RuntimeDefault. Strict receipt verification remains unchanged.",
+  "admission_before": {
+    "kind": "server_side_dry_run_only",
+    "resources_created": 0,
+    "paid_load_started": false,
+    "pod_absence_verified": true,
+    "summary": {
+      "pod_name": "codex-readonly-admission-proof",
+      "phase": "Pending",
+      "container_count": 1,
+      "different_container_fields": [
+        "readinessProbe"
+      ],
+      "different_pod_fields": [
+        "securityContext"
+      ],
+      "resources": {
+        "limits": {
+          "cpu": "1",
+          "memory": "1Gi"
+        },
+        "requests": {
+          "cpu": "1",
+          "memory": "1Gi"
+        }
+      },
+      "container_states": [],
+      "actual_readiness_probe": {
+        "httpGet": {
+          "path": "/health/ready",
+          "port": 8000,
+          "scheme": "HTTP"
+        },
+        "timeoutSeconds": 5,
+        "periodSeconds": 10,
+        "successThreshold": 1,
+        "failureThreshold": 1
+      },
+      "expected_readiness_probe": {
+        "httpGet": {
+          "path": "/health/ready",
+          "port": 8000,
+          "scheme": "HTTP"
+        },
+        "periodSeconds": 10,
+        "timeoutSeconds": 5,
+        "failureThreshold": 1,
+        "successThreshold": 1,
+        "initialDelaySeconds": 0
+      },
+      "actual_security_context": {
+        "runAsUser": 10001,
+        "runAsNonRoot": true,
+        "seccompProfile": {
+          "type": "RuntimeDefault"
+        }
+      },
+      "expected_security_context": {
+        "runAsUser": 10001,
+        "runAsNonRoot": true
+      }
+    },
+    "elapsed_seconds": 28.95299999997951
+  },
+  "admission_after": {
+    "kind": "server_side_dry_run_only",
+    "resources_created": 0,
+    "paid_load_started": false,
+    "pod_absence_verified": true,
+    "summary": {
+      "pod_name": "codex-readonly-admission-proof",
+      "phase": "Pending",
+      "container_count": 1,
+      "different_container_fields": [],
+      "different_pod_fields": [],
+      "resources": {
+        "limits": {
+          "cpu": "1",
+          "memory": "1Gi"
+        },
+        "requests": {
+          "cpu": "1",
+          "memory": "1Gi"
+        }
+      },
+      "container_states": [],
+      "actual_readiness_probe": {
+        "httpGet": {
+          "path": "/health/ready",
+          "port": 8000,
+          "scheme": "HTTP"
+        },
+        "timeoutSeconds": 5,
+        "periodSeconds": 10,
+        "successThreshold": 1,
+        "failureThreshold": 1
+      },
+      "expected_readiness_probe": {
+        "httpGet": {
+          "path": "/health/ready",
+          "port": 8000,
+          "scheme": "HTTP"
+        },
+        "periodSeconds": 10,
+        "timeoutSeconds": 5,
+        "failureThreshold": 1,
+        "successThreshold": 1
+      },
+      "actual_security_context": {
+        "runAsUser": 10001,
+        "runAsNonRoot": true,
+        "seccompProfile": {
+          "type": "RuntimeDefault"
+        }
+      },
+      "expected_security_context": {
+        "runAsUser": 10001,
+        "runAsNonRoot": true,
+        "seccompProfile": {
+          "type": "RuntimeDefault"
+        }
+      }
+    },
+    "elapsed_seconds": 29.46799999999348
+  },
+  "validation": {
+    "final_regression_tests_passed": 111,
+    "final_regression_pytest_seconds": 1.38,
+    "affected_component_tests_passed": 159,
+    "affected_component_pytest_seconds": 3.16,
+    "test_counts_overlap": true,
+    "ruff": "passed"
+  },
+  "backend_changed": false,
+  "resources_changed": false,
+  "capacity_improvement_measured": false,
+  "source_reference": "https://raw.githubusercontent.com/kubernetes/api/master/core/v1/types.go",
+  "next_action": "One new bounded paid comparison needs fresh CCE authorization; consumed attempts remain closed."
+}

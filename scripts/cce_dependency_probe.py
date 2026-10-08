@@ -32,6 +32,29 @@ def plan():
 def authorized_today(envelope, now=None):
     now = now or datetime.now(UTC)
     exception = envelope.get("spending", {}).get("temporary_cce_pilot_exception", {})
+    mode = exception.get("boundary_mode", "calendar_expiry")
+    if mode == "goal_bounded":
+        goal = exception.get("goal_bounded_authorization", {})
+        budget = goal.get("spending_allowance", {})
+        expected = {
+            "profile": "cce_paid_comparison", "maximum_paid_stages": 1,
+            "maximum_pods": 4, "pod_vcpu": 1, "pod_memory_gib": 1,
+            "offered_journeys_per_second": 84, "offered_seconds": 300,
+            "maximum_experiment_seconds": 3600,
+        }
+        if (
+            now.tzinfo is None or exception.get("decision") != "ADR0220"
+            or goal.get("decision") != "ADR0228"
+            or any(type(goal.get(k)) is not type(v) or goal.get(k) != v for k, v in expected.items())
+            or goal.get("unlimited_cumulative_time_explicitly_authorized") is not True
+            or budget.get("status") != "APPROVED"
+            or budget.get("no_spending_cap_explicitly_authorized") is not True
+            or budget.get("maximum_additional_spend") is not None
+        ):
+            raise ValueError("Explicit qualified CCE spending allowance and fixed goal required")
+        return
+    if mode != "calendar_expiry":
+        raise ValueError("Unknown CCE authorization boundary")
     try:
         expiry = datetime.fromisoformat(exception["expires_at_bangkok"])
         start = datetime.fromisoformat(exception["authorized_date_bangkok"] + "T00:00:00+07:00")

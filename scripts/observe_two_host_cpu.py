@@ -80,7 +80,11 @@ def validate_spec(spec):
         if dict(Counter(r["role"] for r in rows)) != expected:
             raise ValueError("Exact native background and helper counts required")
         for entry in rows:
-            project = None if entry["role"].startswith("cce-") else "flash-ticketing"
+            helper = entry["role"].startswith("cce-")
+            owner = entry.get("owner")
+            if helper and (not isinstance(owner, str) or not re.fullmatch(r"adr0151-[0-9a-f]{12}", owner)):
+                raise ValueError("Owned native helper identity required")
+            project = "cce-" + owner if helper else "flash-ticketing"
             if (not re.fullmatch(r"sha256:[0-9a-f]{64}", entry.get("image_id", ""))
                     or entry.get("project") != project or not isinstance(entry.get("started_at"), str)):
                 raise ValueError("Native background CPU identity required")
@@ -132,6 +136,8 @@ def inspect_containers(entries):
             not row["State"]["Running"]
             or (row["Config"]["Labels"].get("codex-purpose") != entry["role"]
                 or row["Config"]["Labels"].get("codex-owner") != entry.get("owner")
+                or row["Config"]["Labels"].get("com.docker.compose.service")
+                != {"cce-audit": "audit-helper", "cce-pooler": "pooler-bridge"}[entry["role"]]
                 if entry["role"] in {"cce-audit", "cce-pooler"}
                 else row["Config"]["Labels"].get("com.docker.compose.service") != entry["role"])
         ):
@@ -150,7 +156,7 @@ def inspect_containers(entries):
             raise ValueError("Missing unified cgroup")
         result[entry["id"]] = {
             "role": entry["role"],
-            **{k: entry[k] for k in ("image_id", "started_at", "project") if k in entry},
+            **{k: entry[k] for k in ("image_id", "started_at", "project", "owner") if k in entry},
             "pid": pid,
             "process_start_ticks": proc_identity(pid),
             "path": path,

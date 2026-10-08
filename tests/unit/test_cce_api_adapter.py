@@ -199,6 +199,7 @@ def test_dependency_scope_cannot_create_paid_pods(lifecycle):
 
 
 def test_unregistered_paid_profile_cannot_mutate(monkeypatch):
+    monkeypatch.setattr(policy, "PROFILES", {k:v for k,v in policy.PROFILES.items() if k != cce.PROFILE})
     events = []
     deployment = cce.Deployment(lambda *args: events.append(args),
         SimpleNamespace(key='bounded_cce_paid_comparison__'+'c'*12), lambda value: None)
@@ -329,6 +330,53 @@ def test_generated_tls_transport_is_syntax_valid_and_verifies_server():
     ('2026-10-08T16:00:00+00:00',False),('2026-10-09T01:00:00+00:00',False)])
 def test_creation_reserves_full_cleanup_window_before_spending_expiry(stamp,allowed):
     now=datetime.fromisoformat(stamp)
-    if allowed:cce.authorized_creation(policy.envelope(),now)
+    envelope = copy.deepcopy(policy.envelope())
+    envelope['spending']['temporary_cce_pilot_exception']['expires_at_bangkok'] = '2026-10-08T23:59:59+07:00'
+    envelope['spending']['temporary_cce_pilot_exception'].update(boundary_mode='calendar_expiry', authorized_date_bangkok='2026-10-08', no_spending_cap_explicitly_authorized=True)
+    if allowed:cce.authorized_creation(envelope,now)
     else:
-        with pytest.raises(ValueError):cce.authorized_creation(policy.envelope(),now)
+        with pytest.raises(ValueError):cce.authorized_creation(envelope,now)
+
+
+def test_failed_verification_context_does_not_publish_configuration_values():
+    expected = {'metadata': {'name': 'api-0'}, 'spec': {
+        'containers': [{'name': 'api', 'command': ['private-command-value'],
+            'env': [{'name': 'PASSWORD', 'value': 'private-env-value'}],
+            'resources': {'requests': {'cpu': '1', 'memory': '1Gi'}}}],
+        'restartPolicy': 'Never', 'activeDeadlineSeconds': 3000,
+        'automountServiceAccountToken': False, 'enableServiceLinks': False,
+        'imagePullSecrets': [{'name': 'private-secret-name'}],
+        'securityContext': {'runAsUser': 10001}}}
+    pod = copy.deepcopy(expected)
+    pod['spec']['containers'][0]['resources']['requests']['memory'] = '2Gi'
+    pod['spec']['securityContext']['runAsNonRoot'] = True
+    pod['status'] = {'phase': 'Running', 'containerStatuses': [{'name': 'api',
+        'ready': True, 'restartCount': 0, 'imageID': 'containerd://sha256:example',
+        'state': {'running': {'startedAt': 'time'}}}]}
+    summary = cce.verification_summary(pod, expected)
+    assert summary['different_container_fields'] == ['resources']
+    assert summary['different_pod_fields'] == ['securityContext']
+    assert summary['resources']['requests']['memory'] == '2Gi'
+    text = json.dumps(summary)
+    assert all(value not in text for value in ('private-command-value', 'private-env-value', 'private-secret-name'))
+
+
+def test_exact_live_cce_defaulting_keeps_strict_receipt_valid():
+    expected, pod, proof = live_pod()
+    pod['spec']['containers'][0]['readinessProbe'] = {
+        'httpGet': {'path': '/health/ready', 'port': 8000, 'scheme': 'HTTP'},
+        'timeoutSeconds': 5, 'periodSeconds': 10, 'successThreshold': 1, 'failureThreshold': 1}
+    pod['spec']['securityContext'] = {
+        'runAsUser': 10001, 'runAsNonRoot': True, 'seccompProfile': {'type': 'RuntimeDefault'}}
+    assert cce.receipt(pod, expected, pod['metadata']['uid'], RUN, proof)['pod_uid'] == pod['metadata']['uid']
+
+
+@pytest.mark.parametrize('mutation', ['root_user', 'unconfined', 'probe_timeout', 'probe_path'])
+def test_admission_correction_still_rejects_real_security_and_probe_changes(mutation):
+    expected, pod, proof = live_pod()
+    if mutation == 'root_user': pod['spec']['securityContext']['runAsUser'] = 0
+    if mutation == 'unconfined': pod['spec']['securityContext']['seccompProfile']['type'] = 'Unconfined'
+    if mutation == 'probe_timeout': pod['spec']['containers'][0]['readinessProbe']['timeoutSeconds'] = 100
+    if mutation == 'probe_path': pod['spec']['containers'][0]['readinessProbe']['httpGet']['path'] = '/wrong'
+    with pytest.raises(ValueError, match='admitted specification drift'):
+        cce.receipt(pod, expected, pod['metadata']['uid'], RUN, proof)

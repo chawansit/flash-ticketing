@@ -9,6 +9,8 @@ import work_envelope as policy
 from cce_ecs_transition import execution_identity
 from qualify_two_host_deployment import INSPECT
 
+BRIDGE_CPU_LIMIT = 1
+
 PROXY = r"""
 import asyncio
 async def copy(src,dst):
@@ -38,11 +40,16 @@ def owned_receipt(row, name, run, command, *, pool_network, bridge, require_runn
         or row.get("Name") != "/" + name
         or row.get("Image") != cce.dependency.INDEX
         or cfg.get("Image") != cce.dependency.INDEX
+        or labels.get("com.docker.compose.project") != "cce-" + run
+        or labels.get("com.docker.compose.service") != ("pooler-bridge" if bridge else "audit-helper")
         or labels.get("codex-owner") != run
         or labels.get("codex-purpose") != ("cce-pooler" if bridge else "cce-audit")
         or cfg.get("Entrypoint") != ["python"]
         or cfg.get("Cmd") != command
         or host.get("PortBindings", {}) != expected_ports
+        or (bridge and (host.get("NanoCpus") != BRIDGE_CPU_LIMIT * 1_000_000_000
+                        or host.get("Memory") != 64 * 1024 * 1024
+                        or host.get("ReadonlyRootfs") is not True))
         or set(row.get("NetworkSettings", {}).get("Networks", {})) != {pool_network}
         or (require_running and not row.get("State", {}).get("Running"))
         or not row.get("State", {}).get("StartedAt")
@@ -88,6 +95,7 @@ class Resources:
             or cce.PROFILE not in policy.PROFILES
             or cce.PROFILE not in policy.envelope()["qualified_profiles"]
             or self.guard.binding.get("configuration_sha256") != policy.digest(self.session.config)
+            or self.guard.binding.get("cce_bridge_cpu_limit") != BRIDGE_CPU_LIMIT
             or self.guard.binding.get("cce_resource_source_sha256")
             != paid.sha((policy.ROOT / "scripts/cce_paid_resources.py").read_bytes())
         ):
@@ -151,6 +159,10 @@ class Resources:
                 "--label",
                 "codex-owner=" + self.run,
                 "--label",
+                "com.docker.compose.project=cce-" + self.run,
+                "--label",
+                "com.docker.compose.service=" + ("pooler-bridge" if role == "bridge" else "audit-helper"),
+                "--label",
                 "codex-purpose=cce-" + ("pooler" if role == "bridge" else "audit"),
                 "--network",
                 self.network,
@@ -169,7 +181,7 @@ class Resources:
                 options += [
                     "--read-only",
                     "--cpus",
-                    "0.125",
+                    str(BRIDGE_CPU_LIMIT),
                     "--memory",
                     "64m",
                     "-p",

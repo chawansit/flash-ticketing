@@ -1,0 +1,72 @@
+{
+  "decision": "ADR0228",
+  "run": "adr0151-75ccf7395822",
+  "ledger": "bounded_cce_paid_comparison__3dcaff0ecfd1",
+  "status": "FAILED_RESTORED",
+  "original_result_sha256": "38ec032c5bb429c83d039b9a66982c53bcfee2a9ea338f57d8df7d5e26cee16d",
+  "paid_runs_started": 0,
+  "capacity_improvement_measured": false,
+  "native_safety_gates": {
+    "all_four_pods_exercised": true,
+    "exactly_one_hold": true,
+    "one_durable_owner": true,
+    "cross_pod_hold_replay": true,
+    "cross_pod_payment_replay": true,
+    "other_actor_denied": true,
+    "customer_ticket_confirmed": true,
+    "post_ttl_durable": true,
+    "duplicate_callbacks_durable": true,
+    "zero_double_booking": true,
+    "full_queue_drain": true
+  },
+  "independent_recovery_gates": {
+    "saved_runtime_semantics_restored": true,
+    "runtime_ids_starts_stable": true,
+    "namespace_absent": true,
+    "owned_helpers_absent": true,
+    "secondary_empty": true,
+    "generator_idle": true,
+    "safety_payment_durable": true,
+    "zero_double_booking": true,
+    "all_queues_zero": true,
+    "temporary_transport_credentials_cleared": true
+  },
+  "actual_experiment_and_recovery_seconds": 671.1089999999967,
+  "verified_cause": {
+    "pipeline_exit_code": 2,
+    "observer_seconds_requested": 840,
+    "frozen_maximum_seconds": 480,
+    "known_parser_error": "Bounded duration, interval and fresh output required",
+    "private_startup_outputs_retained": true
+  },
+  "correction": "Use shared paid_observer_seconds(300)=480 for both observers, matching proven ECS runner. Backend, workload, resources and financial/drain/TTL gates unchanged.",
+  "actual_frozen_cli_proof": {
+    "pass": true,
+    "cases": {
+      "840": {
+        "parser_exit": 2,
+        "bounded_error": true
+      },
+      "480": {
+        "passed_cli_and_fixture_validation": true,
+        "database_connected": false
+      }
+    },
+    "source_sha256": "1890ac0302507fc81a3c451351521684aa92b00b47316ab320af44b592dacaf2",
+    "computed_observer_seconds": 480,
+    "network": "none",
+    "api_or_database_started": false,
+    "container_removed": true,
+    "immutable_local_index": "sha256:18ddd5d6faee7673eefa39eab39b3579eb66766f474a82768caa58852e31122c"
+  },
+  "local_validation": {
+    "affected_tests_passed": 124,
+    "affected_tests_skipped": 1,
+    "pytest_seconds": 4.78,
+    "exact_recovery_tests_passed": 20,
+    "recovery_pytest_seconds": 0.26,
+    "ruff_pass": true
+  },
+  "cloud_corrected_command_verified": false,
+  "spending_boundary": "Explicit uncapped comparison/scaling; no rolling wall-clock cutoff; per-experiment3600s and one fixed paid stage."
+}

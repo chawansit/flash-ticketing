@@ -242,3 +242,42 @@ def test_snapshot_refuses_uncaptured_or_changed_helpers(area, fault):
         value.session.call = lambda role, *args: snapshots() if role == "primary" else []
     with pytest.raises(ValueError):
         value.snapshots()
+
+
+@pytest.mark.parametrize("failure", [False, True])
+def test_fresh_inventory_capture_precedes_ecs_stop_and_cannot_be_skipped(area, failure):
+    value, calls, _, _ = area
+
+    def refresh():
+        calls.append("refresh_inventory")
+        if failure:
+            raise ValueError("stale or changed admission")
+        return {"captured_at": "source-verified", "sha256": "proof"}
+
+    value.refresh_inventory = refresh
+    if failure:
+        with pytest.raises(ValueError, match="admission"):
+            value.run(None, None, "global audit")
+        assert "activate" not in calls and "dispatch" not in calls
+        assert value.record["cleanup_complete"] is True
+    else:
+        value.run(None, None, "global audit")
+        assert calls.index("observe") < calls.index("refresh_inventory") < calls.index("activate")
+        assert value.record["transition_inventory_refresh"]["sha256"] == "proof"
+
+
+
+def test_original_failure_is_retained_before_independent_cleanup_errors(area, tmp_path):
+    import json
+
+    value, calls, fail, _ = area
+    value.stage.output = tmp_path
+    fail.update({"observers", "restore"})
+    with pytest.raises(ValueError, match="observers"):
+        value.run(None, None, "global audit")
+    evidence = json.loads((tmp_path / "original-lifecycle-failure.private.json").read_text())
+    assert evidence["failure_type"] == "ValueError"
+    assert "ValueError: observers" in evidence["traceback"]
+    assert value.record["original_failure_retained"] is True
+    assert "resource_cleanup" in calls
+    assert any(row["operation"] == "candidate_restore" for row in value.record["cleanup_failures"])

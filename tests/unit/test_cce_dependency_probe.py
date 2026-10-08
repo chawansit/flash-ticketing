@@ -38,16 +38,25 @@ def test_exact_image_mapping_preserves_frozen_platform():
             cce.validate_proof(invalid)
 
 
+def legacy_envelope():
+    value = copy.deepcopy(policy.envelope())
+    value["spending"]["temporary_cce_pilot_exception"].update(
+        boundary_mode="calendar_expiry", authorized_date_bangkok="2026-10-08",
+        expires_at_bangkok="2026-10-08T23:59:59+07:00", no_spending_cap_explicitly_authorized=True,
+    )
+    return value
+
+
 @pytest.mark.parametrize("stamp", ["2026-10-07T12:00:00+00:00", "2026-10-08T16:55:00+00:00",
                                   "2026-10-09T00:00:00+00:00", "2026-10-08T10:00:00"])
 def test_spending_expiry_and_cleanup_margin(stamp):
     with pytest.raises(ValueError):
-        cce.authorized_today(policy.envelope(), datetime.fromisoformat(stamp))
+        cce.authorized_today(legacy_envelope(), datetime.fromisoformat(stamp))
 
 
 def test_spending_valid_only_with_exact_exception():
-    cce.authorized_today(policy.envelope(), datetime(2026, 10, 8, 10, tzinfo=UTC))
-    value = copy.deepcopy(policy.envelope())
+    cce.authorized_today(legacy_envelope(), datetime(2026, 10, 8, 10, tzinfo=UTC))
+    value = legacy_envelope()
     value["spending"]["temporary_cce_pilot_exception"]["no_spending_cap_explicitly_authorized"] = False
     with pytest.raises(ValueError):
         cce.authorized_today(value, datetime(2026, 10, 8, 10, tzinfo=UTC))
@@ -287,3 +296,70 @@ def test_runtime_proof_is_mandatory(field):
     report[field] = None
     binding = {"run_id": report["run"]}
     assert cce.outcome(report, {"binding":binding,"cce_result_sha256":policy.digest(report)}, binding) == (False,False,False)
+
+
+def goal_envelope():
+    value = legacy_envelope()
+    exception = value["spending"]["temporary_cce_pilot_exception"]
+    exception.pop("expires_at_bangkok")
+    exception.update(boundary_mode="goal_bounded", goal_bounded_authorization={
+        "decision": "ADR0228", "profile": "cce_paid_comparison", "maximum_paid_stages": 1,
+        "maximum_pods": 4, "pod_vcpu": 1, "pod_memory_gib": 1,
+        "offered_journeys_per_second": 84, "offered_seconds": 300,
+        "maximum_experiment_seconds": 3600, "unlimited_cumulative_time_explicitly_authorized": True,
+        "ledger_start_index": 0,
+        "spending_allowance": {"status": "APPROVED", "maximum_additional_spend": None,
+                               "no_spending_cap_explicitly_authorized": True},
+    })
+    return value
+
+
+@pytest.mark.parametrize("stamp", ["2026-10-09T00:00:00+00:00", "2040-01-01T00:00:00+00:00"])
+def test_goal_boundary_has_no_calendar_cutoff(stamp):
+    cce.authorized_today(goal_envelope(), datetime.fromisoformat(stamp))
+
+
+@pytest.mark.parametrize("fault", ["pending", "cap_unspecified", "finite_cap", "pod_count", "duration", "paid_stages", "naive", "unknown_mode"])
+def test_goal_boundary_rejects_unapproved_spend_or_changed_scope(fault):
+    value = goal_envelope()
+    exception = value["spending"]["temporary_cce_pilot_exception"]
+    goal = exception["goal_bounded_authorization"]
+    now = datetime(2026, 10, 9, tzinfo=UTC)
+    if fault == "pending":
+        goal["spending_allowance"]["status"] = "PENDING"
+    elif fault == "cap_unspecified":
+        goal["spending_allowance"]["no_spending_cap_explicitly_authorized"] = False
+    elif fault == "finite_cap":
+        goal["spending_allowance"]["maximum_additional_spend"] = 10
+    elif fault == "pod_count":
+        goal["maximum_pods"] = 8
+    elif fault == "duration":
+        goal["maximum_experiment_seconds"] = 7200
+    elif fault == "paid_stages":
+        goal["maximum_paid_stages"] = 2
+    elif fault == "naive":
+        now = now.replace(tzinfo=None)
+    else:
+        exception["boundary_mode"] = "unknown"
+    with pytest.raises(ValueError):
+        cce.authorized_today(value, now)
+
+
+@pytest.mark.parametrize("consumed_source", ["none", "journal", "scope", "unknown"])
+def test_goal_creation_checks_single_paid_stage_across_fresh_attempts(monkeypatch, consumed_source):
+    import cce_api_adapter as adapter
+
+    value = goal_envelope()
+    key = "bounded_cce_paid_comparison__" + "a" * 12
+    entry = {"profile": "cce_paid_comparison", "ledger": key, "paid_runs_started": int(consumed_source == "journal")}
+    state = {key: {"paid_runs_started": int(consumed_source == "scope")}}
+    if consumed_source == "unknown":
+        state[key]["paid_runs_started"] = "unknown"
+    monkeypatch.setattr(policy, "journal", lambda _: {"experiments": [entry]})
+    monkeypatch.setattr(policy, "read", lambda _: state)
+    now = datetime(2040, 1, 1, tzinfo=UTC)
+    if consumed_source == "none":
+        adapter.authorized_creation(value, now)
+    else:
+        with pytest.raises(ValueError):
+            adapter.authorized_creation(value, now)

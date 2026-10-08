@@ -398,3 +398,7 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0227: Reconcile expired unpaid orders in a failed cohort](0227-reconcile-expired-unpaid-orders-in-failed-cohort.md)
 
 - [ADR0228: Bounded CCE API isolation comparison](0228-bounded-cce-api-isolation-comparison.md)
+
+- [ADR0229: Reconcile failed CCE paid and refunded cohort](0229-reconcile-failed-cce-paid-and-refunded-cohort.md)
+
+- [ADR0230: Remove CCE database bridge CPU bottleneck](0230-remove-cce-database-bridge-cpu-bottleneck.md)

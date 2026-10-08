@@ -175,7 +175,13 @@ class Session:
         status = o.channel.recv_exit_status()
         if status:
             name = re.sub(r"[^a-zA-Z0-9_-]", "_", self.state["phases"][-1])
-            (self.output / (role + "-" + name + ".private-error.log")).write_text(err)
+            prefix = role + "-" + name
+            attempt = 1
+            while (self.output / (prefix + "-" + str(attempt) + ".private-error.log")).exists():
+                attempt += 1
+            with (self.output / (prefix + "-" + str(attempt) + ".private-error.log")).open("x") as log:
+                log.write(err)
+            (self.output / (prefix + ".private-error.log")).write_text(err)
             raise RuntimeError("Remote step failed; private error retained")
         return json.loads(payload)
 
@@ -244,7 +250,7 @@ def cleanup_program(owner, secondary_owner):
     return r"""import json,re
 from pathlib import Path
 owner=Path(OWNER)
-if not owner.is_absolute() or not re.fullmatch(r'(?:adr0147-topology|adr0148-rate|adr0151-arm)-[0-9a-f]{12}',owner.name) or owner.is_symlink():
+if not owner.is_absolute() or not re.fullmatch(r'(?:adr0147-topology|adr0148-rate|adr0151-arm|adr0151)-[0-9a-f]{12}',owner.name) or owner.is_symlink():
  raise ValueError('Owned protocol directory required')
 names=NAMES
 for name in names:

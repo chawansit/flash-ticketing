@@ -51,7 +51,9 @@ def snapshots():
     for role, count in counts.items():
         for _ in range(count):
             labels = (
-                {"codex-purpose": role, "codex-owner": bundle()["run"]}
+                {"codex-purpose": role, "codex-owner": bundle()["run"],
+                 "com.docker.compose.project": "cce-" + bundle()["run"],
+                 "com.docker.compose.service": "audit-helper" if role == "cce-audit" else "pooler-bridge"}
                 if role.startswith("cce-")
                 else {"com.docker.compose.service": role, "com.docker.compose.project": "flash-ticketing"}
             )
@@ -187,6 +189,9 @@ def test_helper_identity_is_observed_without_compose_emulation(monkeypatch):
     monkeypatch.setattr(cpu.Path, "is_file", lambda *args: True)
     result = cpu.inspect_containers(entries)
     assert len(result) == 2
+    assert all(result[e["id"]]["owner"] == e["owner"] for e in entries)
+    serialized = [{"id": cid, **{k: v for k, v in data.items() if k != "path"}} for cid, data in result.items()]
+    assert {e["id"]: e["owner"] for e in serialized} == {e["id"]: e["owner"] for e in entries}
     rows[0]["Config"]["Labels"]["codex-owner"] = "foreign"
     with pytest.raises(ValueError):
         cpu.inspect_containers(entries)
@@ -281,6 +286,10 @@ def test_observer_start_transfers_all_helpers_once_and_blocks_bad_startup(monkey
         assert observer.started is True
         assert len(launched) == 2
         assert "--backend" in launched[1] and "--expected-members" not in launched[1]
+        from observe_paid_pipeline import paid_observer_seconds
+
+        for command in launched:
+            assert command[command.index("--seconds") + 1] == str(paid_observer_seconds(300)) == "480"
         assert observer.record["diagnostic_connection_preflight"]["pass"] is True
     else:
         with pytest.raises(ValueError):
@@ -338,7 +347,10 @@ def test_cpu_preflight_must_pass_before_any_sampler_launch(fault):
         return {"fresh": True}
 
     session = SimpleNamespace(
-        config={role: {"repo": "/root/flash-ticketing"} for role in ("primary", "secondary")},
+        config={
+            "primary": {"repo": "/root/flash-ticketing"},
+            "secondary": {"prepared_directory": "/root/prepared-secondary"},
+        },
         call=call,
         put=lambda *args: None,
     )
@@ -369,6 +381,8 @@ def test_cpu_preflight_must_pass_before_any_sampler_launch(fault):
             dict.fromkeys(("primary", "secondary"), "a" * 64),
         )
         assert calls == ["launch", "launch"]
+        assert any("/root/flash-ticketing/tmp/" + stage.run + "-cce-cpu" in code for code in programs)
+        assert any("/root/prepared-secondary/" + stage.run + "-cce-cpu" in code for code in programs)
         assert observer.record["primary_cpu_preflight_verified"] is True
         assert observer.record["secondary_cpu_preflight_verified"] is True
     assert any("module.inspect_containers(module.validate_spec(value))" in code for code in programs)
@@ -401,3 +415,124 @@ def test_cpu_host_receipt_mismatch_is_rejected():
         cpu.compare_windows(
             primary, secondary, offered_start_utc=common["start_utc"], offered_end_utc=common["end_utc"]
         )
+
+
+@pytest.mark.parametrize("ack", [{"uploaded": True}, {"uploaded": False}, {}])
+def test_runtime_transfer_keeps_payload_out_of_command_arguments(ack):
+    from run_two_host_paid_comparison import api_upload_runtime_owned
+    put, calls = [], []
+    content = "private-cohort-data-" * 300000
+    session = SimpleNamespace(
+        put=lambda *args: put.append(args),
+        call=lambda *args: calls.append(args) or ack,
+    )
+    if ack == {"uploaded": True}:
+        assert api_upload_runtime_owned(session, "cid", "/owned", "/runtime", "manifest.private.json", content) == "/runtime/manifest.private.json"
+    else:
+        with pytest.raises(ValueError, match="upload unverified"):
+            api_upload_runtime_owned(session, "cid", "/owned", "/runtime", "manifest.private.json", content)
+    assert put == [("primary", "/owned/manifest.private.json", content, True)]
+    assert len(calls[0][1]) < 2000 and "private-cohort-data" not in calls[0][1]
+    assert "chown" not in calls[0][1] and "--user" not in calls[0][1]
+    assert "stdin=source" in calls[0][1] and "'xb'" in calls[0][1]
+
+
+@pytest.mark.parametrize("fault", [None, "first_capture", "foreign", "symlink", "hardlink"])
+def test_startup_failure_retains_bounded_owned_logs_independently(tmp_path, fault):
+    import base64
+    import contextlib
+    import io
+    import os
+
+    directory = tmp_path / "remote"
+    directory.mkdir()
+    output = tmp_path / "private"
+    output.mkdir()
+    stage = SimpleNamespace(
+        session=None, run=bundle()["run"], cid="c" * 64,
+        output=output, record={}, checkpoint=lambda: None,
+    )
+    observer = observations.Observers(stage, {}, None, None, "/owned")
+    observer.directory = str(directory)
+    for label, name in (("pipeline", "observe_cce_paid_pipeline"), ("kafka", "kafka_lag_observe")):
+        job = {"identity_path": str(directory), "name": name, "pid": 123}
+        observer.record[label + "_job"] = job
+        (directory / ("job-" + name + "-identity.json")).write_text(json.dumps(job))
+        (directory / ("job-" + name + ".log")).write_bytes(b"x" * 70000 + b"startup failure")
+        (directory / ("job-" + name + "-exit.json")).write_text('{"returncode":1}')
+    log = directory / "job-observe_cce_paid_pipeline.log"
+    if fault == "foreign":
+        observer.record["pipeline_job"]["identity_path"] = "/foreign"
+    elif fault == "symlink":
+        target = directory / "foreign.log"
+        log.rename(target)
+        try:
+            log.symlink_to(target)
+        except OSError:
+            pytest.skip("Symlink creation unavailable on this host")
+    elif fault == "hardlink":
+        os.link(log, directory / "linked.log")
+
+    def api(cid, code, timeout):
+        assert cid == stage.cid and timeout == 45
+        if fault == "first_capture" and "observe_cce_paid_pipeline" in code:
+            raise RuntimeError("capture unavailable")
+        text = io.StringIO()
+        with contextlib.redirect_stdout(text):
+            exec(compile(code, "startup-retention", "exec"), {})  # noqa: S102 - Execute the generated owned-file collector regression.
+        return json.loads(text.getvalue())
+
+    observer.session = SimpleNamespace(api=api)
+    result = observer.retain_startup_failure()
+    assert result["kafka"]["retained"] is True
+    retained = json.loads((output / "kafka-startup.private.json").read_text())
+    assert retained["truncated"] is True
+    assert len(base64.b64decode(retained["log_tail_base64"])) == 65536
+    assert retained["exit_receipt"] == {"returncode": 1}
+    assert result["pipeline"]["retained"] is (fault is None)
+    assert stage.record["observation"]["startup_failure_capture"] == result
+    assert (output / "pipeline-startup.private.json").exists() is (fault is None)
+
+
+def test_cleanup_captures_failure_before_removing_credentials(monkeypatch, tmp_path):
+    import diagnostic_runner_connection as diagnostics
+
+    order = []
+    stage = SimpleNamespace(
+        session=SimpleNamespace(begin_cleanup=lambda: order.append("begin")),
+        run=bundle()["run"], cid="c" * 64,
+        stop_jobs=lambda: order.append("stop"), record={}, checkpoint=lambda: None,
+    )
+    observer = observations.Observers(stage, {}, None, None, "/owned")
+    observer.diagnostic_attempted = True
+    observer.retain_startup_failure = lambda: order.append("capture")
+    monkeypatch.setattr(diagnostics, "cleanup", lambda *args: order.append("secrets") or {})
+    observer.cleanup()
+    assert order == ["begin", "stop", "capture", "secrets"]
+
+
+@pytest.mark.parametrize("role", ["cce-audit", "cce-pooler"])
+@pytest.mark.parametrize("fault", ["project_missing", "project_api", "project_foreign", "service_api", "service_foreign", "owner_missing", "purpose_foreign"])
+def test_real_generated_helper_labels_reject_identity_drift(monkeypatch, role, fault):
+    rows = snapshots()
+    spec = observations.background_spec("primary", rows, "a" * 64, "b" * 64)
+    helper = next(row for row in rows if row["Config"]["Labels"].get("codex-purpose") == role)
+    labels = helper["Config"]["Labels"]
+    if fault == "project_missing":
+        labels.pop("com.docker.compose.project")
+    elif fault == "project_api":
+        labels["com.docker.compose.project"] = "flash-ticketing"
+    elif fault == "project_foreign":
+        labels["com.docker.compose.project"] = "cce-foreign"
+    elif fault == "service_api":
+        labels["com.docker.compose.service"] = "api"
+    elif fault == "service_foreign":
+        labels["com.docker.compose.service"] = "other"
+    elif fault == "owner_missing":
+        labels.pop("codex-owner")
+    else:
+        labels["codex-purpose"] = "foreign"
+    entries = [entry for entry in spec["containers"] if entry["role"] == role]
+    monkeypatch.setattr(cpu.subprocess, "check_output", lambda *args, **kwargs: json.dumps([helper]))
+    with pytest.raises(ValueError):
+        cpu.inspect_containers(entries)

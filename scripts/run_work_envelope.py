@@ -25,7 +25,24 @@ def status():
             "existing_service_charges_continue": True}
 
 
-def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROFILE, diagnostic_target=None, worker_inputs=None, worker_ca=None, cce_kubeconfig=None):
+def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROFILE, diagnostic_target=None, worker_inputs=None, worker_ca=None, cce_kubeconfig=None, cce_snapshot=None):
+    if profile_name == 'cce_paid_comparison':
+        import run_cce_paid_comparison as cce
+        if any(v is None for v in (cce_kubeconfig, artifact_path, diagnostic_target, cce_snapshot)) or not sys.stdin.isatty():
+            raise ValueError('Protected CCE paid inputs and credential terminal required')
+        if worker_inputs or worker_ca:
+            raise ValueError('CCE paid comparison rejects unrelated worker inputs')
+        import subprocess
+        subprocess.run([sys.executable, str(policy.ROOT / 'scripts/check_repository_names.py')],
+                       cwd=policy.ROOT, check=True, stdout=subprocess.DEVNULL)
+        ecs = bytes.fromhex(getpass.getpass('Protected encoded ECS password: ')).decode()
+        diagnostic = bytes.fromhex(getpass.getpass('Protected encoded diagnostic password: ')).decode()
+        swr = bytes.fromhex(getpass.getpass('Protected encoded SWR password: ')).decode()
+        username = getpass.getpass('Protected SWR registry username: ')
+        return cce.execute(config_path, artifact_path, ssh_runtime, cce_kubeconfig,
+                           diagnostic_target, cce_snapshot, ecs, diagnostic, username, swr)
+    if cce_snapshot is not None:
+        raise ValueError('CCE snapshot restricted to the native paid comparison')
     if profile_name == 'cce_dependency_probe':
         import cce_dependency_probe as cce
         if cce_kubeconfig is None or artifact_path is None or not sys.stdin.isatty():
@@ -195,6 +212,7 @@ def main():
     parser.add_argument("--worker-inputs", type=Path)
     parser.add_argument("--worker-ca", type=Path)
     parser.add_argument("--cce-kubeconfig", type=Path)
+    parser.add_argument("--cce-snapshot", type=Path)
     parser.add_argument("--worker-evidence", type=Path)
     parser.add_argument("--worker-scope")
     args = parser.parse_args()
@@ -222,7 +240,7 @@ def main():
     elif args.execute:
         if any(v is None for v in (args.config, args.ssh_runtime)):
             parser.error("Execution needs protected configuration and SSH runtime; default artifact is the exact profile receipt")
-        result = execute(args.config, args.artifact, args.ssh_runtime, profile_name=args.profile, diagnostic_target=args.diagnostic_target, worker_inputs=args.worker_inputs, worker_ca=args.worker_ca, cce_kubeconfig=args.cce_kubeconfig)
+        result = execute(args.config, args.artifact, args.ssh_runtime, profile_name=args.profile, diagnostic_target=args.diagnostic_target, worker_inputs=args.worker_inputs, worker_ca=args.worker_ca, cce_kubeconfig=args.cce_kubeconfig, cce_snapshot=args.cce_snapshot)
         if result["status"] != "PASSED_RESTORED":
             raise SystemExit(1)
         return

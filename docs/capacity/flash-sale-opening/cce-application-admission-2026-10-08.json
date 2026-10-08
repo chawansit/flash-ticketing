@@ -1,0 +1,41 @@
+{
+  "decision": "ADR0228",
+  "date_bangkok": "2026-10-08",
+  "run": "adr0151-b757db2721ab",
+  "status": "failed_before_paid_dispatch_restored",
+  "original_pass": false,
+  "paid_capacity_stages_started": 0,
+  "cce_pods_created": 4,
+  "helper_label_admission_passed": true,
+  "failed_native_verification_type": "ValueError",
+  "exact_failed_condition": "Not retained by the original live attempt; no root-cause claim.",
+  "restoration_complete": true,
+  "integrity_verified": true,
+  "native_cleanup_complete": true,
+  "namespace_removed": true,
+  "queues_drained": true,
+  "raw_result_sha256": "7e24afc6c98ce2e06f4019d9484270e1efd595afd6e8cb0f6b73449c624d5ad0",
+  "experiment_seconds": 394.76500000001397,
+  "new_validation": {
+    "real_image_bootstrap": {
+      "returncode": 0,
+      "startup_proof_emitted": true,
+      "api_not_started": true,
+      "cloud_calls": 0,
+      "stderr_excerpt": ""
+    },
+    "focused_tests": {
+      "passed": 159,
+      "seconds": 2.8
+    },
+    "final_adapter_entry_checks": {
+      "passed": 106,
+      "seconds": 1.43
+    },
+    "test_counts_overlap": true,
+    "ruff": "passed"
+  },
+  "diagnostic_correction": "Before cleanup retain nonsecret pod field differences, image/resource/state identities and the exact verification gate; no secret values or raw logs.",
+  "capacity_improvement_measured": false,
+  "next_action": "One additional fresh comparison requires approval; the single-run extension is consumed."
+}

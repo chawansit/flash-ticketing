@@ -1,0 +1,42 @@
+{
+  "decision": "ADR0228",
+  "run": "adr0151-5ef264b39180",
+  "ledger": "bounded_cce_paid_comparison__90a4d6b3c702",
+  "status": "FAILED_RESTORED",
+  "original_result_sha256": "d9dba3b58aa724f68e7f752b0fcb3821b33e299af3db4bfd7e3a39c450b44c6b",
+  "paid_runs_started": 0,
+  "capacity_improvement_measured": false,
+  "monitoring_startup_gates_passed": true,
+  "primary_cpu_preflight_passed": true,
+  "original_exception_retained": true,
+  "verified_failure": {
+    "type": "KeyError",
+    "missing_field": "repo",
+    "source": "cce_paid_observers.py",
+    "function": "launch_cpu",
+    "line": 343,
+    "host": "secondary"
+  },
+  "correction": "Use primary repo/tmp and secondary prepared_directory, matching the proven ECS runner. Test the real configuration shape without an invented secondary repo.",
+  "local_validation": {
+    "passed": 179,
+    "skipped": 1,
+    "pytest_seconds": 15.59,
+    "ruff_pass": true
+  },
+  "independent_recovery_gates": {
+    "saved_runtime_semantics_restored": true,
+    "runtime_ids_starts_stable": true,
+    "namespace_absent": true,
+    "owned_helpers_absent": true,
+    "secondary_empty": true,
+    "generator_idle": true,
+    "safety_payment_durable": true,
+    "zero_double_booking": true,
+    "all_queues_zero": true,
+    "temporary_transport_credentials_cleared": true
+  },
+  "actual_experiment_and_recovery_seconds": 641.25,
+  "cloud_corrected_path_verified": false,
+  "resources_workload_and_gates_changed": false
+}

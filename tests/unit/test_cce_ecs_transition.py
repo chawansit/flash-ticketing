@@ -158,7 +158,7 @@ def test_capture_pause_route_and_restore_exact_candidate(area):
     transition.activate(pod_receipts())
     assert transition.record["all_four_ecs_apis_stopped"] is True
     assert route["text"] == topology.native_route(pod_receipts())
-    assert persisted[1]["api_stop_attempted"] is True
+    assert any(value.get("api_stop_attempted") is True for value in persisted)
     restored = transition.restore()
     assert restored["candidate_restored"] is True
     assert route["text"] == transition.original_route

@@ -10,7 +10,8 @@ import observe_two_host_cpu as cpu
 import observe_two_host_pipeline as pipeline
 import work_envelope as policy
 from cce_ecs_transition import execution_identity
-from run_two_host_paid_comparison import api_upload, copy_out, fetch, kafka_pass, pipeline_pass
+from run_two_host_paid_comparison import api_upload_runtime_owned as api_upload
+from run_two_host_paid_comparison import copy_out, fetch, kafka_pass, pipeline_pass
 
 
 def receipt_bundle(run, receipts):
@@ -243,11 +244,14 @@ class Observers:
         qualify_bound_inventory(self.contract, self.inventory, self.record, self.stage.output)
         self.upload("inventory.private.json", json.dumps(self.inventory))
         self.upload("native-receipts.json", json.dumps(self.native))
+        from observe_paid_pipeline import paid_observer_seconds
+
+        observation_seconds = str(paid_observer_seconds(300))
         common = [
             "--manifest",
             self.directory + "/manifest.private.json",
             "--seconds",
-            "840",
+            observation_seconds,
             "--interval",
             "1",
         ]
@@ -280,7 +284,7 @@ class Observers:
                 "--output",
                 self.directory + "/kafka.jsonl",
                 "--seconds",
-                "840",
+                observation_seconds,
                 "--interval",
                 "1",
                 "--backend",
@@ -336,7 +340,11 @@ class Observers:
         self.end_utc = (datetime.fromtimestamp(start, UTC) + timedelta(seconds=300)).isoformat()
         for role in ("primary", "secondary"):
             spec = background_spec(role, snapshots[role], identities[role], policy.digest(self.native))
-            location = self.session.config[role]["repo"] + "/tmp/" + self.stage.run + "-cce-cpu"
+            location = (
+                self.session.config["primary"]["repo"] + "/tmp/"
+                if role == "primary"
+                else self.session.config["secondary"]["prepared_directory"] + "/"
+            ) + self.stage.run + "-cce-cpu"
             self.session.call(
                 role,
                 "from pathlib import Path;import json;p=Path("
@@ -451,12 +459,57 @@ class Observers:
             raise ValueError("Native observation incomplete; original failure and available traces retained")
         return self.record
 
+    def retain_startup_failure(self):
+        """Keep bounded private diagnostics before the stopped helper is removed."""
+        results = {}
+        for label, name in (("pipeline", "observe_cce_paid_pipeline"), ("kafka", "kafka_lag_observe")):
+            job = self.record.get(label + "_job")
+            if job is None:
+                continue
+            try:
+                if job.get("identity_path") != self.directory or job.get("name") != name:
+                    raise ValueError("Foreign observer job receipt")
+                code = (
+                    "import base64,json;from pathlib import Path;p=Path("
+                    + repr(self.directory)
+                    + ");job=" + repr(job) + ";name=" + repr(name) + "\n"
+                    + "assert not p.is_symlink()\n"
+                    + "identity=p/('job-'+name+'-identity.json')\n"
+                    + "assert not identity.is_symlink() and identity.stat().st_nlink==1\n"
+                    + "assert json.loads(identity.read_text())==job\n"
+                    + "result={'log_present':False,'exit_receipt':None}\n"
+                    + "log=p/('job-'+name+'.log')\n"
+                    + "if log.exists():\n"
+                    + " assert not log.is_symlink() and log.is_file() and log.stat().st_nlink==1\n"
+                    + " size=log.stat().st_size\n"
+                    + " with log.open('rb') as stream:stream.seek(max(0,size-65536));raw=stream.read(65536)\n"
+                    + " result.update(log_present=True,total_bytes=size,truncated=size>65536,log_tail_base64=base64.b64encode(raw).decode())\n"
+                    + "exit_file=p/('job-'+name+'-exit.json')\n"
+                    + "if exit_file.exists():\n"
+                    + " assert not exit_file.is_symlink() and exit_file.stat().st_nlink==1 and exit_file.stat().st_size<=4096\n"
+                    + " result['exit_receipt']=json.loads(exit_file.read_text())\n"
+                    + "print(json.dumps(result))"
+                )
+                evidence = self.session.api(self.stage.cid, code, 45)
+                path = self.stage.output / (label + "-startup.private.json")
+                if path.exists() or path.is_symlink():
+                    raise ValueError("Startup failure evidence already exists")
+                policy.write(path, evidence)
+                results[label] = {"retained": True, "log_present": evidence.get("log_present") is True}
+            except Exception as error:  # noqa: BLE001 - Diagnostics cannot skip mandatory cleanup.
+                results[label] = {"retained": False, "failure_type": type(error).__name__}
+        self.record["startup_failure_capture"] = results
+        self.checkpoint()
+        return results
+
     def cleanup(self):
         from diagnostic_runner_connection import cleanup
 
         self.session.begin_cleanup()
         # Keep inputs for recovery if an observer or generator may still be running.
         self.stage.stop_jobs()
+        if not self.started:
+            self.retain_startup_failure()
         if self.diagnostic_attempted:
             self.record.update(cleanup(self.session, self.stage.cid, self.owner, self.directory))
         if self.record.get("observer_directory_attempted"):
@@ -470,5 +523,16 @@ class Observers:
             if result.get("observer_manifest_removed") is not True:
                 raise ValueError("Observer manifest cleanup unverified")
             self.record.update(result)
+        if self.record.get("observer_directory_attempted"):
+            host_receipt = self.session.call(
+                "primary",
+                "from pathlib import Path;import json;p=Path("
+                + repr(self.owner)
+                + ");f=p/'manifest.private.json'\nif p.is_symlink() or not p.is_dir() or f.is_symlink():raise ValueError('Unknown observer secret path')\nif f.exists():\n if not f.is_file() or f.stat().st_nlink!=1:raise ValueError('Unknown observer secret ownership')\n f.unlink()\nprint(json.dumps({'observer_host_manifest_removed':not f.exists()}))",
+                45,
+            )
+            if host_receipt.get("observer_host_manifest_removed") is not True:
+                raise ValueError("Observer host manifest cleanup unverified")
+            self.record.update(host_receipt)
         self.checkpoint()
         return self.record

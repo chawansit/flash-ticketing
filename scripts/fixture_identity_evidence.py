@@ -38,7 +38,7 @@ def fixture_identity(fixture, expected_shows, *, now=None, producer_sha256=None)
     return {k: list(fixture[k]) if k == "show_ids" else fixture[k] for k in keys}
 
 
-def retain_fixture_identity(local, record, fixture, expected_shows, *, now=None, producer_sha256=None):
+def retain_fixture_identity(local, record, fixture, expected_shows, *, now=None, producer_sha256=None, persist_stage=True):
     local = Path(local)
     if (record.get("arm") not in {"control", "candidate"} or local.name != record["arm"]
             or local.is_symlink() or not local.is_dir() or local.absolute() != local.resolve()
@@ -57,8 +57,9 @@ def retain_fixture_identity(local, record, fixture, expected_shows, *, now=None,
         target.flush()
         os.fsync(target.fileno())
     record["fixture_identity"] = receipt
-    with (local / "stage.private.json").open("x", encoding="utf-8") as target:
-        target.write(json.dumps(record, indent=2) + "\n")
-        target.flush()
-        os.fsync(target.fileno())
+    if persist_stage:
+        with (local / "stage.private.json").open("x", encoding="utf-8") as target:
+            target.write(json.dumps(record, indent=2) + "\n")
+            target.flush()
+            os.fsync(target.fileno())
     return receipt

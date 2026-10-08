@@ -27,13 +27,19 @@ def row(role):
             "Image": cce.dependency.INDEX,
             "Entrypoint": ["python"],
             "Cmd": command,
-            "Labels": {"codex-owner": RUN, "codex-purpose": "cce-" + ("pooler" if bridge else "audit")},
+            "Labels": {
+                "codex-owner": RUN,
+                "codex-purpose": "cce-" + ("pooler" if bridge else "audit"),
+                "com.docker.compose.project": "cce-" + RUN,
+                "com.docker.compose.service": "pooler-bridge" if bridge else "audit-helper",
+            },
             "Env": [
                 "DATABASE_URL=postgresql://test@pgbouncer:5432/ticketing",
                 *[k + "=" + v for k, v in cce.contract()["api_settings"].items()],
             ],
         },
         "HostConfig": {
+            **({"NanoCpus": 1_000_000_000, "Memory": 64 * 1024 * 1024, "ReadonlyRootfs": True} if bridge else {}),
             "PortBindings": {"6432/tcp": [{"HostIp": "10.1.137.69", "HostPort": "6432"}]} if bridge else {}
         },
         "Mounts": [],
@@ -49,6 +55,7 @@ def area(monkeypatch):
         key="bounded_cce_paid_comparison__" + "f" * 12,
         binding={
             "configuration_sha256": policy.digest(cfg),
+            "cce_bridge_cpu_limit": resources.BRIDGE_CPU_LIMIT,
             "cce_resource_source_sha256": paid.sha(
                 (policy.ROOT / "scripts/cce_paid_resources.py").read_bytes()
             ),
@@ -200,3 +207,37 @@ def test_unregistered_resources_do_not_call_remote(area, monkeypatch):
     with pytest.raises(ValueError):
         value.create()
     assert calls == []
+
+
+@pytest.mark.parametrize("role", ["audit", "bridge"])
+def test_inherited_api_labels_are_rejected(role):
+    value = row(role)
+    value["Config"]["Labels"].update({"com.docker.compose.project": "flash-ticketing", "com.docker.compose.service": "api"})
+    with pytest.raises(ValueError, match="Owned helper identity"):
+        resources.owned_receipt(value, value["Name"][1:], RUN, value["Config"]["Cmd"], pool_network="flash-ticketing_default", bridge=role == "bridge")
+
+
+def test_run_commands_override_inherited_api_labels(area):
+    value, _active, calls, _persisted = area
+    value.create()
+    commands = [code for code in calls if "args=" in code]
+    assert len(commands) == 2
+    assert all("com.docker.compose.project=cce-" + RUN in code for code in commands)
+    assert "com.docker.compose.service=audit-helper" in commands[0]
+    assert "com.docker.compose.service=pooler-bridge" in commands[1]
+
+
+@pytest.mark.parametrize("field,value", [("NanoCpus",125_000_000),("NanoCpus",2_000_000_000),("Memory",32*1024*1024),("ReadonlyRootfs",False)])
+def test_bridge_allocation_is_exactly_verified(field,value):
+    value_row=row("bridge");value_row["HostConfig"][field]=value
+    with pytest.raises(ValueError):
+        resources.owned_receipt(value_row,value_row["Name"][1:],RUN,value_row["Config"]["Cmd"],pool_network="flash-ticketing_default",bridge=True)
+
+
+def test_bridge_run_command_and_binding_use_measured_correction(area):
+    value,_active,calls,_persisted=area
+    value.create()
+    bridge=next(code for code in calls if "args=" in code and "cce-pooler-" in code)
+    assert "'--cpus', '1'" in bridge and "'0.125'" not in bridge
+    value.guard.binding["cce_bridge_cpu_limit"]=0.125
+    with pytest.raises(ValueError):value.check()

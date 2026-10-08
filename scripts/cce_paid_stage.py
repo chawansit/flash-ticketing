@@ -35,6 +35,8 @@ def sha(raw):
 def identity():
     paths = (
         "scripts/cce_paid_stage.py",
+        "scripts/fixture_identity_evidence.py",
+        "scripts/cce_paid_inputs.py",
         "scripts/cce_paid_resources.py",
         "scripts/cce_paid_lifecycle.py",
         "scripts/cce_paid_observers.py",
@@ -186,7 +188,9 @@ class PaidStage:
             fixture,
             84,
             producer_sha256=sha(self.bundle["scripts/prepare_capacity_fixture.py"]),
+            persist_stage=False,
         )
+        self.checkpoint()
         self.events = list(fixture["show_ids"])
         expiry = datetime.fromisoformat(manifest["expires_at"])
         if (

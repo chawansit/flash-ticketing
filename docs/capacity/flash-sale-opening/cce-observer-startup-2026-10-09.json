@@ -1,0 +1,52 @@
+{
+  "decision": "ADR0228",
+  "run": "adr0151-ff50e8d4005b",
+  "ledger": "bounded_cce_paid_comparison__6000678b67e2",
+  "status": "FAILED_RESTORED",
+  "original_result_sha256": "784fc1a017b4a6f14d022a7c03bb3dcaa1f258bd5e58d389093080f9a853f2f5",
+  "cloud_paid_load_started": false,
+  "capacity_improvement_measured": false,
+  "native_api_pods_verified": 4,
+  "native_safety_gates": {
+    "all_four_pods_exercised": true,
+    "exactly_one_hold": true,
+    "one_durable_owner": true,
+    "cross_pod_hold_replay": true,
+    "cross_pod_payment_replay": true,
+    "other_actor_denied": true,
+    "customer_ticket_confirmed": true,
+    "post_ttl_durable": true,
+    "duplicate_callbacks_durable": true,
+    "zero_double_booking": true,
+    "full_queue_drain": true
+  },
+  "inventory_refresh_cloud_verified": true,
+  "inventory_qualification_passed": true,
+  "native_helpers_verified": true,
+  "diagnostic_helpers_verified": true,
+  "failure_type": "TimeoutError",
+  "failure_context": "Both monitoring jobs launched but startup receipts were not qualified before timeout; original job output was removed with the helper. Precise startup cause unproven. Intermediate candidate-readiness restoration failure preserved; outer restoration and independent recovery passed.",
+  "independent_recovery_gates": {
+    "saved_runtime_semantics_restored": true,
+    "runtime_ids_starts_stable": true,
+    "namespace_absent": true,
+    "owned_helpers_absent": true,
+    "secondary_empty": true,
+    "generator_idle": true,
+    "safety_payment_durable": true,
+    "zero_double_booking": true,
+    "all_queues_zero": true,
+    "temporary_transport_credentials_cleared": true
+  },
+  "actual_experiment_and_recovery_seconds": 703.6879999999655,
+  "local_validation": {
+    "passed": 144,
+    "skipped": 1,
+    "pytest_seconds": 5.4,
+    "skip_reason": "Windows symlink creation unavailable; hardlink/foreign-identity/failure ordering tests executed.",
+    "ruff_pass": true
+  },
+  "correction": "Bounded private job-log and exit-receipt retention after verified stop, before secret/helper cleanup; no gate changes.",
+  "correction_cloud_verified": false,
+  "next_action": "Inspect retained startup failure on a fresh bounded diagnostic attempt before further paid dispatch. New CCE creation requires renewed cleanup deadline because the current full-hour margin has elapsed."
+}

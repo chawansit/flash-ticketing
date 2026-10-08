@@ -37,9 +37,28 @@ def contract():
 
 
 def authorized_creation(envelope, now=None):
-    """Leave the entire bounded experiment before today's spending expiry."""
+    """Require explicit spending and remaining goal scope, or a legacy cleanup window."""
     now = now or datetime.now(UTC)
     dependency.authorized_today(envelope, now)
+    exception = envelope['spending']['temporary_cce_pilot_exception']
+    if exception.get('boundary_mode') == 'goal_bounded':
+        goal = exception['goal_bounded_authorization']
+        entries = policy.journal(envelope)['experiments']
+        start = goal.get('ledger_start_index')
+        if type(start) is not int or not 0 <= start <= len(entries):
+            raise ValueError('Exact CCE goal accounting boundary required')
+        state = policy.read(policy.STATE)
+        consumed = 0
+        for entry in entries[start:]:
+            if entry.get('profile') != 'cce_paid_comparison':
+                continue
+            counts = (entry.get('paid_runs_started', 0), state.get(entry['ledger'], {}).get('paid_runs_started', 0))
+            if any(type(count) is not int or count < 0 for count in counts):
+                raise ValueError('Unknown CCE paid-stage consumption')
+            consumed += max(counts)
+        if consumed >= goal['maximum_paid_stages']:
+            raise ValueError('CCE goal paid-stage allowance already consumed')
+        return
     expiry = datetime.fromisoformat(envelope['spending']['temporary_cce_pilot_exception']['expires_at_bangkok'])
     if now + timedelta(seconds=3600) >= expiry:
         raise ValueError('Full CCE experiment and cleanup window must precede spending expiry')
@@ -132,7 +151,7 @@ def objects(run, service, primary_ip, registry_username, registry_password):
             'spec': {'restartPolicy': 'Never', 'activeDeadlineSeconds': 3000,
                 'automountServiceAccountToken': False, 'enableServiceLinks': False,
                 'imagePullSecrets': [{'name': 'swr-pull'}],
-                'securityContext': {'runAsUser': 10001, 'runAsNonRoot': True},
+                'securityContext': {'runAsUser': 10001, 'runAsNonRoot': True, 'seccompProfile': {'type': 'RuntimeDefault'}},
                 'containers': [{'name': 'api', 'image': dependency.IMAGE, 'imagePullPolicy': 'Always',
                     'command': ['python', '-u', '-c', program], 'workingDir': '/app',
                     'envFrom': [{'secretRef': {'name': 'api-env'}}],
@@ -140,7 +159,7 @@ def objects(run, service, primary_ip, registry_username, registry_password):
                     'securityContext': {'allowPrivilegeEscalation': False, 'capabilities': {'drop': ['ALL']}},
                     'resources': copy.deepcopy(contract()['resources']),
                     'readinessProbe': {'httpGet': {'path': '/health/ready', 'port': 8000, 'scheme': 'HTTP'},
-                        'periodSeconds': 10, 'timeoutSeconds': 5, 'failureThreshold': 1, 'successThreshold': 1, 'initialDelaySeconds': 0},
+                        'periodSeconds': 10, 'timeoutSeconds': 5, 'failureThreshold': 1, 'successThreshold': 1},
                     'ports': [{'containerPort': 8000, 'protocol': 'TCP'}]}]}})
     return result
 
@@ -182,6 +201,30 @@ def receipt(pod, expected, uid, run, startup_proof):
     return {'pod_uid': uid, 'pod_name': meta['name'], 'private_ipv4': private_ip(status['podIP']),
         'image_id': statuses[0]['imageID'], 'started_at': statuses[0]['state']['running']['startedAt'],
         'resources': container['resources'], 'startup_proof': startup_proof}
+
+
+def verification_summary(pod, expected):
+    """Bounded nonsecret failed-admission context; never emit environment or logs."""
+    spec = pod.get('spec', {})
+    status = pod.get('status', {})
+    container = spec.get('containers', [{}])[0]
+    wanted = expected['spec']['containers'][0]
+    return {
+        'pod_name': expected['metadata']['name'],
+        'phase': status.get('phase'),
+        'container_count': len(spec.get('containers', [])),
+        'different_container_fields': sorted(k for k, v in wanted.items() if container.get(k) != v),
+        'different_pod_fields': sorted(k for k in ('restartPolicy', 'activeDeadlineSeconds',
+            'automountServiceAccountToken', 'enableServiceLinks', 'imagePullSecrets', 'securityContext')
+            if spec.get(k) != expected['spec'][k]),
+        'resources': container.get('resources'),
+        'container_states': [{
+            'name': row.get('name'), 'ready': row.get('ready'),
+            'restart_count': row.get('restartCount'), 'image_id': row.get('imageID'),
+            'state_kinds': sorted(row.get('state', {})),
+            'exit_code': row.get('state', {}).get('terminated', {}).get('exitCode'),
+        } for row in status.get('containerStatuses', [])[:4]],
+    }
 
 
 def endpoints(receipts):
@@ -279,19 +322,35 @@ class Deployment:
                 raise ValueError('Owned API pod missing')
             log = self.request('GET', path + '/log?container=api&limitBytes=65536', None)
             annotations = expected['metadata']['annotations']
-            proof = parse_startup(log, annotations['codex-environment-sha256'],
-                ['uvicorn', 'ticketing.api:app', '--host', '0.0.0.0', '--port', '8000',
-                 '--limit-concurrency', '256', '--timeout-keep-alive', '10'])
-            view = receipt(pod, expected, self.pod_uids[name], self.run, proof)
+            context = verification_summary(pod, expected)
+            context['verification_gate'] = 'startup_proof'
+            try:
+                proof = parse_startup(log, annotations['codex-environment-sha256'],
+                    ['uvicorn', 'ticketing.api:app', '--host', '0.0.0.0', '--port', '8000',
+                     '--limit-concurrency', '256', '--timeout-keep-alive', '10'])
+                context['startup_sources_match'] = proof.get('sources') == contract()['api_sources']
+                context['startup_identity_matches'] = proof.get('run') == self.run and proof.get('pod_uid') == self.pod_uids[name]
+                context['verification_gate'] = 'admitted_pod_receipt'
+                view = receipt(pod, expected, self.pod_uids[name], self.run, proof)
+            except (ValueError, KeyError, TypeError):
+                self.persist({'failed_pod_verification': context})
+                raise
             address = view['private_ipv4']
+            context['verification_gate'] = 'application_readiness'
             if http_ready(address) != {'status': 'ready'}:
+                self.persist({'failed_pod_verification': context})
                 raise ValueError('Authenticated database/Redis application readiness failed')
             metrics = http_metrics(address)
             started = metrics.get('process_start_time_seconds')
             cpu = metrics.get('process_cpu_seconds_total')
-            if type(started) not in (int, float) or not math.isfinite(started) or started <= 0:
+            context['verification_gate'] = 'process_metrics'
+            context['process_start_present'] = type(started) in (int, float) and math.isfinite(started) and started > 0
+            context['process_cpu_present'] = type(cpu) in (int, float) and math.isfinite(cpu) and cpu >= 0
+            if not context['process_start_present']:
+                self.persist({'failed_pod_verification': context})
                 raise ValueError('API process-start identity required')
-            if type(cpu) not in (int, float) or not math.isfinite(cpu) or cpu < 0:
+            if not context['process_cpu_present']:
+                self.persist({'failed_pod_verification': context})
                 raise ValueError('API CPU counter required')
             view['process_start_time_seconds'] = started
             views.append(view)

@@ -1,0 +1,67 @@
+{
+  "decision": "ADR0228",
+  "date_bangkok": "2026-10-09",
+  "run": "adr0151-6b8f809a403c",
+  "status": "FAILED_RESTORED",
+  "original_pass": false,
+  "experiment_seconds": 440.28100000001723,
+  "independent_recovery_seconds": 40.32900000002701,
+  "paid_capacity_stages_started": 0,
+  "verified_native_api_pods": 4,
+  "native_routing_activated": true,
+  "native_fixture_creation_attempted": false,
+  "native_helper_prepare_completed": false,
+  "native_failure_type": "RuntimeError",
+  "original_native_error_detail": "Original private error was overwritten by an intermediate restoration error; precise original exception remains unconfirmed.",
+  "intermediate_cleanup_failures": [
+    {
+      "operation": "candidate_restore",
+      "type": "ValueError"
+    }
+  ],
+  "outer_restoration_complete": true,
+  "integrity_verified": true,
+  "independent_recovery_gates": {
+    "saved_runtime_semantics_restored": true,
+    "runtime_ids_starts_stable": true,
+    "namespace_absent": true,
+    "owned_helpers_absent": true,
+    "secondary_empty": true,
+    "generator_idle": true,
+    "safety_payment_durable": true,
+    "zero_double_booking": true,
+    "all_queues_zero": true,
+    "temporary_transport_credentials_cleared": true
+  },
+  "local_failure_reproduction": {
+    "root_chown_denied_under_cap_drop_all": true,
+    "streamed_upload": {
+      "owned_by_runtime_uid": true,
+      "content_verified": true
+    },
+    "network": "none",
+    "application_started": false,
+    "owned_local_container_removed": true
+  },
+  "full_corrected_helper_preparation": {
+    "full_actual_prepare_pass": true,
+    "helpers_verified": 6,
+    "network": "none",
+    "application_started": false,
+    "runtime_uid": 10001,
+    "capabilities_added": false,
+    "owned_local_container_removed": true
+  },
+  "correction": "Write helpers exclusively as the existing non-root runtime user and verify ownership and exact hashes; retain separate private logs for every failed remote action. No added capabilities, backend or resource changes.",
+  "validation": {
+    "affected_tests_passed": 96,
+    "affected_pytest_seconds": 4.55,
+    "recovery_and_entry_tests_passed": 63,
+    "recovery_pytest_seconds": 3.22,
+    "counts_overlap": true,
+    "ruff": "passed"
+  },
+  "raw_result_sha256": "ca8a98883a40a7ad356d10bc559a72dc168775d57717d44727b8c3e966cf8208",
+  "capacity_improvement_measured": false,
+  "next_action": "A fresh bounded paid comparison requires renewed single-attempt CCE authorization. Preserve the failed result; never replay this scope."
+}

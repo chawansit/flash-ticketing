@@ -53,6 +53,7 @@ class Lifecycle:
         identities,
         background_before,
         persist,
+        refresh_inventory=None,
     ):
         self.stage, self.session = stage, stage.session
         self.resources, self.deployment, self.transition = resources, deployment, transition
@@ -60,6 +61,7 @@ class Lifecycle:
         self.qualify_safety, self.prepare_fixture = qualify_safety, prepare_fixture
         self.cleanup_safety = cleanup_safety
         self.identities, self.background_before, self.persist = identities, background_before, persist
+        self.refresh_inventory = refresh_inventory
         self.record = {"pass": False, "cleanup_complete": False, "customers_dispatched": False}
 
     def checkpoint(self):
@@ -107,6 +109,9 @@ class Lifecycle:
             # before supplying successful HTTP/readiness evidence; no customer retry.
             receipts = self.deployment.observe(self.manifests, http_ready, http_metrics)
             self.record["native_receipts"] = receipts
+            if self.refresh_inventory is not None:
+                self.record["transition_inventory_refresh"] = self.refresh_inventory()
+                self.checkpoint()
             self.transition.activate(receipts)
             self.record["safety"] = self.qualify_safety(receipts)
             require_safety(self.record["safety"])
@@ -150,6 +155,25 @@ class Lifecycle:
         except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Always restore independently owned resources.
             original_error = error
             self.record["failure_type"] = type(error).__name__
+            try:
+                import traceback
+
+                path = self.stage.output / "original-lifecycle-failure.private.json"
+                if path.exists() or path.is_symlink():
+                    raise ValueError("Original failure evidence already exists")
+                policy.write(path, {"failure_type": type(error).__name__, "traceback": traceback.format_exc()[-65536:]})
+                self.record["original_failure_retained"] = True
+            except Exception as capture_error:  # noqa: BLE001 - Failure capture cannot prevent owned cleanup.
+                self.record["original_failure_capture_error"] = type(capture_error).__name__
+            safe_messages = {
+                "Qualified exactly bound native transition required",
+                "Candidate API inventory changed",
+                "Candidate API image/settings changed",
+                "Owned load-balancer mount required",
+                "Candidate route policy changed",
+            }
+            if str(error) in safe_messages:
+                self.record["failure_reason"] = str(error)
         finally:
             self.record["customers_dispatched"] = self.stage.record.get("customers_dispatched") is True
             failures = []
@@ -171,8 +195,10 @@ class Lifecycle:
                     failures.append({"operation": name, "type": type(error).__name__})
                 self.checkpoint()
             # Unknown jobs keep audit/inputs and pods recoverable; never claim cleanup.
-            if self.stage.record.get("generator_idle_after_stop") is True and not self.stage.record.get(
-                "job_cleanup_errors"
+            if (
+                self.stage.record.get("generator_idle_after_stop") is True
+                and not self.stage.record.get("job_cleanup_errors")
+                and not self.stage.record.get("recovery_identity_unknown")
             ):
                 for name, operation in (
                     ("namespace_cleanup", self.deployment.cleanup),

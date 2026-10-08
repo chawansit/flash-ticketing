@@ -1,0 +1,191 @@
+{
+  "decision": "ADR0228",
+  "date_bangkok": "2026-10-09",
+  "status": "pre_dispatch_corrections_verified_capacity_unmeasured",
+  "runs": [
+    {
+      "run": "adr0151-c95a1c214e51",
+      "ledger": "bounded_cce_paid_comparison__98227cf43a6b",
+      "status": "FAILED_RESTORED",
+      "original_result_sha256": "db1f27fe417164be4798d4ebcf7faacce3b0d0a2f994b9efab01ddb703fefc9c",
+      "original_pass": false,
+      "actual_elapsed_seconds_including_verified_recovery": 632.3120000000345,
+      "paid_stages_started": 0,
+      "native_api_pods_verified": 4,
+      "native_safety_gates": {
+        "all_four_pods_exercised": true,
+        "exactly_one_hold": true,
+        "one_durable_owner": true,
+        "cross_pod_hold_replay": true,
+        "cross_pod_payment_replay": true,
+        "other_actor_denied": true,
+        "customer_ticket_confirmed": true,
+        "post_ttl_durable": true,
+        "duplicate_callbacks_durable": true,
+        "zero_double_booking": true,
+        "full_queue_drain": true
+      },
+      "paid_fixture_created": true,
+      "native_failure_type": "RuntimeError",
+      "intermediate_cleanup_failures": [
+        {
+          "operation": "candidate_restore",
+          "type": "ValueError"
+        }
+      ],
+      "outer_restoration_complete": true,
+      "integrity_verified": true,
+      "independent_recovery_gates": {
+        "saved_runtime_semantics_restored": true,
+        "runtime_ids_starts_stable": true,
+        "namespace_absent": true,
+        "owned_helpers_absent": true,
+        "secondary_empty": true,
+        "generator_idle": true,
+        "safety_payment_durable": true,
+        "zero_double_booking": true,
+        "all_queues_zero": true,
+        "temporary_transport_credentials_cleared": true
+      },
+      "native_safety_financial": {
+        "orders": 1,
+        "fulfilled_orders": 1,
+        "expired_orders": 0,
+        "pending_orders": 0,
+        "payment_attempts": 1,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 1,
+        "bookings": 1,
+        "tickets": 1,
+        "payment_callbacks": 1,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 3,
+        "callback_delivery_target": 3,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 1,
+        "expected_paid": 1,
+        "expected_callback_deliveries_per_payment": 3,
+        "pass": true,
+        "hold_deadlines_elapsed": true
+      },
+      "native_fixture_cleanup": {
+        "safety_retired": true,
+        "paid_retired": true,
+        "cleanup_errors": [],
+        "unknown_fixture_identity": null
+      }
+    },
+    {
+      "run": "adr0151-7f92bec3c3d5",
+      "ledger": "bounded_cce_paid_comparison__4852f25a20b6",
+      "status": "FAILED_RESTORED",
+      "original_result_sha256": "fd000b3036dfef2a3efad7f14687a5f692a4a063612cfb44623593c40463ebd1",
+      "original_pass": false,
+      "actual_elapsed_seconds_including_verified_recovery": 650.3429999999935,
+      "paid_stages_started": 0,
+      "native_api_pods_verified": 4,
+      "native_safety_gates": {
+        "all_four_pods_exercised": true,
+        "exactly_one_hold": true,
+        "one_durable_owner": true,
+        "cross_pod_hold_replay": true,
+        "cross_pod_payment_replay": true,
+        "other_actor_denied": true,
+        "customer_ticket_confirmed": true,
+        "post_ttl_durable": true,
+        "duplicate_callbacks_durable": true,
+        "zero_double_booking": true,
+        "full_queue_drain": true
+      },
+      "paid_fixture_created": true,
+      "native_failure_type": "ValueError",
+      "intermediate_cleanup_failures": [
+        {
+          "operation": "candidate_restore",
+          "type": "ValueError"
+        }
+      ],
+      "outer_restoration_complete": true,
+      "integrity_verified": true,
+      "independent_recovery_gates": {
+        "saved_runtime_semantics_restored": true,
+        "runtime_ids_starts_stable": true,
+        "namespace_absent": true,
+        "owned_helpers_absent": true,
+        "secondary_empty": true,
+        "generator_idle": true,
+        "safety_payment_durable": true,
+        "zero_double_booking": true,
+        "all_queues_zero": true,
+        "temporary_transport_credentials_cleared": true
+      },
+      "native_safety_financial": {
+        "orders": 1,
+        "fulfilled_orders": 1,
+        "expired_orders": 0,
+        "pending_orders": 0,
+        "payment_attempts": 1,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 1,
+        "bookings": 1,
+        "tickets": 1,
+        "payment_callbacks": 1,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 3,
+        "callback_delivery_target": 3,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 1,
+        "expected_paid": 1,
+        "expected_callback_deliveries_per_payment": 3,
+        "pass": true,
+        "hold_deadlines_elapsed": true
+      },
+      "native_fixture_cleanup": {
+        "safety_retired": true,
+        "paid_retired": true,
+        "cleanup_errors": [],
+        "unknown_fixture_identity": null
+      }
+    }
+  ],
+  "observer_transfer_failure": "Preserved docker exec chown failure under cap-drop ALL; corrected all CCE monitoring and diagnostic transfers to stream private bytes into exclusive runtime-owned files.",
+  "actual_image_observer_transfer_proof": {
+    "file_count": 6,
+    "all_runtime_owned": true,
+    "all_mode600": true,
+    "manifest_viewers": 25200,
+    "full_actual_observer_transfers_pass": true,
+    "manifest_bytes": 5154909,
+    "network": "none",
+    "application_started": false,
+    "capabilities_added": false,
+    "owned_local_container_removed": true
+  },
+  "inventory_qualification_diagnosis": {
+    "live_failure_type": "ValueError",
+    "exact_live_exception_message_retained": false,
+    "retained_inventory_captured_at": "2026-10-08T17:50:10.616123+00:00",
+    "local_replay_error": "Observation is stale or future dated",
+    "freshness_limit_seconds": 300,
+    "correction": "Use the same executed source-verified inventory capture after native pod verification immediately before ECS stop. Preserve the original snapshot, validate machine identities, retain the freshness limit and re-observe current native pods before scheduling.",
+    "cloud_correction_verified": false
+  },
+  "validation": {
+    "observer_transfer_and_recovery_tests_passed": 98,
+    "admission_placement_tests_passed": 119,
+    "final_recovery_tests_passed": 20,
+    "counts_overlap": true,
+    "ruff": "passed",
+    "naming": "passed: 1642 documents, zero errors"
+  },
+  "backend_changed": false,
+  "resources_changed": false,
+  "capacity_improvement_measured": false,
+  "next_action": "Obtain a later CCE cleanup deadline; current 02:00 Bangkok window requires a full-hour creation margin and its cutoff has passed. Then continue the already approved fixed 84 offered journeys/s300s paid goal with fresh scope."
+}

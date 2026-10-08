@@ -1,0 +1,67 @@
+{
+  "decision": "ADR0228",
+  "date_bangkok": "2026-10-08",
+  "status": "implemented_and_locally_verified_not_capacity_measured",
+  "baseline_evidence": "docs/capacity/flash-sale-opening/generator-completion-probe-2026-10-08.json",
+  "planned_offered_journeys_per_second": 84,
+  "planned_duration_seconds": 300,
+  "backend_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "backend_changed": false,
+  "cce_paid_load_started": false,
+  "capacity_improvement_measured": false,
+  "failed_attempts": [
+    {
+      "run": "adr0151-98586075f718",
+      "original_pass": false,
+      "paid_capacity_stages_started": 0,
+      "restoration_complete": true,
+      "integrity_verified": true,
+      "native_cleanup_complete": null,
+      "native_failure_reason": null,
+      "raw_result_sha256": "135b818f8f1aa9907081380374f8f87371ec8565042aff13f90f731178cbf1d4"
+    },
+    {
+      "run": "adr0151-a4390d0bcdbc",
+      "original_pass": false,
+      "paid_capacity_stages_started": 0,
+      "restoration_complete": true,
+      "integrity_verified": true,
+      "native_cleanup_complete": true,
+      "native_failure_reason": null,
+      "raw_result_sha256": "74da90b72c84579e2ba6eb6751267c5aee481217972a043cb5f3c83c556f936f"
+    },
+    {
+      "run": "adr0151-cfd1654a1d8f",
+      "original_pass": false,
+      "paid_capacity_stages_started": 0,
+      "restoration_complete": true,
+      "integrity_verified": true,
+      "native_cleanup_complete": true,
+      "native_failure_reason": "Candidate API inventory changed",
+      "raw_result_sha256": "848490abbf66d28790801122f7d12bae62ef4811d0ba03dcc808dfdb73046b6d"
+    }
+  ],
+  "verified_blocker": "Frozen API image inherits production Compose project/service labels. Helper containers inherited those labels and contaminated primary API discovery.",
+  "correction": "Explicit owned helper project and service labels; strict owned-receipt validation.",
+  "validation": {
+    "focused_affected_tests": {
+      "passed": 123,
+      "seconds": 2.73
+    },
+    "real_cached_image_label_override_proof": {
+      "pass": true,
+      "gates": {
+        "real_image_inherits_api_labels": true,
+        "project_overridden": true,
+        "service_overridden": true,
+        "excluded_from_api_inventory": true,
+        "container_never_started": true,
+        "owned_container_removed": true
+      },
+      "cloud_calls": 0,
+      "paid_load_started": false
+    },
+    "ruff": "passed"
+  },
+  "pending": "Renewed SWR credential, then a fresh bounded comparison; preserve required safety, durability, zero double-booking, queue drain and restoration gates."
+}

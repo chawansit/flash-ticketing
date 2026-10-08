@@ -1,0 +1,40 @@
+{
+  "decision": "ADR0228",
+  "run": "adr0151-687c7f581371",
+  "ledger": "bounded_cce_paid_comparison__0343d38b322a",
+  "status": "FAILED_RESTORED",
+  "original_result_sha256": "1c6fdad2b38f6d05ef994d26088281c19757a5c914c5e830dd943a81aa79dd4b",
+  "paid_runs_started": 0,
+  "capacity_improvement_measured": false,
+  "monitoring_startup_gates_passed": true,
+  "independent_recovery_gates": {
+    "saved_runtime_semantics_restored": true,
+    "runtime_ids_starts_stable": true,
+    "namespace_absent": true,
+    "owned_helpers_absent": true,
+    "secondary_empty": true,
+    "generator_idle": true,
+    "safety_payment_durable": true,
+    "zero_double_booking": true,
+    "all_queues_zero": true,
+    "temporary_transport_credentials_cleared": true
+  },
+  "actual_experiment_and_recovery_seconds": 640.8899999999558,
+  "attribution": {
+    "actual_helper_project": "cce-<canonical run>",
+    "old_cpu_validator_expected_project": null,
+    "local_reproduction_error": "Native background CPU identity required",
+    "original_live_exception_message_retained": false,
+    "live_phase": "CPU preparation before paid dispatch"
+  },
+  "correction": "Require canonical isolated helper project and exact audit-helper/pooler-bridge services; preserve image, start, owner, purpose, PID and cgroup verification. Retain original private lifecycle traceback before cleanup.",
+  "local_validation": {
+    "tests_passed": 159,
+    "tests_skipped": 1,
+    "skip_reason": "Windows symlink permissions",
+    "pytest_seconds": 6.47,
+    "ruff_pass": true
+  },
+  "cloud_cpu_correction_verified": false,
+  "resources_and_customer_gates_changed": false
+}
