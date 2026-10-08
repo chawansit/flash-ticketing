@@ -414,10 +414,16 @@ def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, app
 
 def summarize_distribution(rows, inventory, *, offered_start_utc, offered_end_utc):
     """Require complete, restart-free replica counters bracketing actual dispatch."""
+    labels = {f"{a['host_role']}:{a['container_id']}" for a in inventory["apis"]}
+    return summarize_endpoint_distribution(rows, labels, offered_start_utc=offered_start_utc,
+                                          offered_end_utc=offered_end_utc)
+
+
+def summarize_endpoint_distribution(rows, labels, *, offered_start_utc, offered_end_utc):
+    """Same coverage gates for actual metric endpoint identities, including native pods."""
     start, end = [datetime.fromisoformat(v) for v in (offered_start_utc, offered_end_utc)]
     if start.tzinfo is None or end.tzinfo is None or not 0 < (end - start).total_seconds() <= 300:
         raise ValueError("Bounded aware offered window required")
-    labels = {f"{a['host_role']}:{a['container_id']}" for a in inventory["apis"]}
     if len(labels) != 4:
         raise ValueError("Four distinct replicas required")
     parsed = []

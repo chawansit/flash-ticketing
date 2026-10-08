@@ -1,0 +1,66 @@
+{
+  "decision": "ADR0228",
+  "date_bangkok": "2026-10-08",
+  "base_revision": "b80621aa9bb675819ed028e5dff8e83dac869238",
+  "status": "NATIVE_OBSERVATION_AND_LIFECYCLE_LOCALLY_VERIFIED_ENTRYPOINT_PENDING",
+  "implemented": [
+    "Exact owned private bridge and audit-helper creation/cleanup, with persisted intent and unknown-identity rejection",
+    "Native API metric discovery with admitted pod/process receipts and counter-reset rejection",
+    "Strict four-endpoint traffic coverage and offered-window native process CPU; ECS background CPU remains separate",
+    "Protected database diagnostics and unchanged Kafka/worker observers; all supporting transfers retained and verified",
+    "CPU source, specification, host and live container preflight before scheduling",
+    "Composed safety admission, paid-stage observation and independent financial/queue/resource restoration; caller must supply executed native safety and fixture lifecycle",
+    "ECS Docker image identity corrected to retained OCI image ID rather than registry configuration digest"
+  ],
+  "verification": {
+    "broader": {
+      "passed": 418,
+      "failed": 0,
+      "seconds": 380.84,
+      "runner_elapsed_seconds": 383.031,
+      "raw_log": "tmp/cce-native-lifecycle-local-2026-10-08/pytest.log",
+      "scope": "CCE components, native observer, existing ECS observers/recovery, protected diagnostics, standing envelope and generator completion profiles"
+    },
+    "final_focused": {
+      "passed": 141,
+      "failed": 0,
+      "seconds": 12.7,
+      "source": "Executed tool output after final CPU preflight/receipt and helper-discovery changes",
+      "tests": [
+        "tests/unit/test_cce_paid_lifecycle.py",
+        "tests/unit/test_cce_paid_observers.py",
+        "tests/unit/test_cce_paid_stage.py",
+        "tests/unit/test_two_host_observers.py"
+      ]
+    },
+    "ruff_pass": true,
+    "working_tree_naming_checks_pass": true,
+    "naming_documents_checked_before_this_evidence": 1636
+  },
+  "runtime_source_sha256": {
+    "scripts/cce_ecs_transition.py": "a69de15d6ef88bbbeabf1c08ddcc78e1eac91b92bc5191c8bf3241885a89d0bb",
+    "scripts/cce_paid_stage.py": "5cce3255a5fa8e0a03c06adaee4130618422b5b4067a021f1369179190d94ff5",
+    "scripts/cce_paid_resources.py": "7d2b756bc6eeea48e6eabbe52ad0cdfc66ff60a66b7b4b4e9913f6409d56726d",
+    "scripts/cce_paid_observers.py": "3131b77dd558b505c5e16434ccb052406e347ff56f7809aab8f8340092f97eb6",
+    "scripts/cce_paid_lifecycle.py": "81c76db841b02ef3c502d812c721d94b3a37745f142d430f58d69f97369987d7",
+    "scripts/observe_cce_paid_pipeline.py": "9abdfea27ebd21d1c4cc03a43ed9b526381827296b93a1929be07bbc42159294",
+    "scripts/observe_two_host_cpu.py": "f1ced7d5573c94b1b9df714fb4cd9ac9797a210434247902db5bd5130f74c6ae",
+    "scripts/observe_two_host_pipeline.py": "0731e9de48a8bc764c4424ac3a56d21a02f86d1e89b00f2eee61d3411ef735de",
+    "tests/unit/test_cce_ecs_transition.py": "2485ef5cef829230b710a6799f968089286e61b9c2672dcbcf38efc585930d68",
+    "tests/unit/test_cce_paid_resources.py": "2f944b344ce106e84fe1961fe4a378456d050a7e1c308bb38d7f81b841127e5e",
+    "tests/unit/test_cce_paid_observers.py": "eb765559ae8d749284d37de276484769e7efcff9cfcd92f26ce0e0d74d4a3e2d",
+    "tests/unit/test_cce_paid_lifecycle.py": "d70576fe1f0e0c688cca2f2f76e43cda944d2b7b94898e13c553eea94975b7f2",
+    "tests/unit/test_observe_cce_paid_pipeline.py": "38e3d71df187e6627b7aa82efaf0076ddd728e6f58c7959271d1c86ce5267f44"
+  },
+  "limitations": [
+    "All new native lifecycle/observation fault tests were offline; no native application safety or paid cloud traffic executed",
+    "Complete native fixture/safety caller, outer-run entry point, independent dispatched-cohort outcome classification and work-envelope registration remain pending",
+    "Cleanup completion alone is not financial integrity or production qualification",
+    "Native CPU is process CPU; CCE node CPU was not measured"
+  ],
+  "cloud_calls_this_checkpoint": 0,
+  "cloud_paid_load_started": false,
+  "capacity_improvement_measured": false,
+  "paid_runner_registered": false,
+  "next_action": "Finish the complete guarded entry point and native fixture/safety post-TTL accounting; locally qualify and register it before the bounded 84 offered journeys/s for 300s CCE comparison."
+}

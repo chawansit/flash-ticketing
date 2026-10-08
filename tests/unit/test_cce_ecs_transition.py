@@ -56,7 +56,7 @@ def pod_receipts():
 def api_row(index):
     return {
         "Id": str(index) * 64,
-        "Image": cce.dependency.CONFIG,
+        "Image": cce.dependency.INDEX,
         "Config": {
             "Image": cce.dependency.INDEX,
             "Labels": {"com.docker.compose.service": "api"},

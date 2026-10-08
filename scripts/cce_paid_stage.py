@@ -35,6 +35,12 @@ def sha(raw):
 def identity():
     paths = (
         "scripts/cce_paid_stage.py",
+        "scripts/cce_paid_resources.py",
+        "scripts/cce_paid_lifecycle.py",
+        "scripts/cce_paid_observers.py",
+        "scripts/observe_cce_paid_pipeline.py",
+        "scripts/observe_two_host_cpu.py",
+        "scripts/observe_two_host_pipeline.py",
         "scripts/cce_paid_safety.py",
         "scripts/cce_api_adapter.py",
         "scripts/cce_ecs_transition.py",
@@ -198,6 +204,7 @@ class PaidStage:
         ):
             raise ValueError("Fresh complete private paid manifest required")
         UUID(manifest["id"])
+        self.manifest = manifest
         expected_helpers = {
             name: sha(self.bundle["scripts/" + name])
             for name in (

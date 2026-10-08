@@ -153,7 +153,7 @@ class Transition:
                 env = dict(value.split("=", 1) for value in row["Config"]["Env"])
                 if (
                     row["Config"]["Image"] != cce.dependency.INDEX
-                    or row["Image"] != cce.dependency.CONFIG
+                    or row["Image"] != cce.dependency.INDEX
                     or not row["State"]["Running"]
                     or any(env.get(k) != v for k, v in cce.contract()["api_settings"].items())
                 ):

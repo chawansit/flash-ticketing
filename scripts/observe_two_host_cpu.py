@@ -37,6 +37,11 @@ def placement(spec):
     if arm not in {"control", "candidate"}:
         raise ValueError("Unknown logical CPU arm")
     value = spec.get("placement", "four-primary" if arm == "control" else "two-plus-two")
+    if value == "cce-api-isolation":
+        if (arm != "candidate" or spec.get("decision") != "ADR0228"
+                or not re.fullmatch(r"[0-9a-f]{64}", spec.get("inventory_sha256", ""))):
+            raise ValueError("Explicit native CCE receipt binding required")
+        return value
     if value == "worker-separation":
         if spec.get("decision") != "ADR0184" or not re.fullmatch(r"[0-9a-f]{64}", spec.get("inventory_sha256", "")):
             raise ValueError("Explicit worker-placement inventory binding required")
@@ -54,18 +59,35 @@ def validate_spec(spec):
     physical = placement(spec)
     rows = spec.get("containers", [])
     if not isinstance(rows, list) or (
-        not rows and not (spec["host_role"] == "secondary" and (physical == "four-primary" or (physical == "worker-separation" and spec["arm"] == "control")))
+        not rows and not (spec["host_role"] == "secondary" and (physical in {"four-primary", "cce-api-isolation"} or (physical == "worker-separation" and spec["arm"] == "control")))
     ):
         raise ValueError("Observed containers required")
     ids = set()
     for entry in rows:
         if not re.fullmatch(r"[0-9a-f]{64}", entry.get("id", "")) or entry["id"] in ids:
             raise ValueError("Distinct full container IDs required")
-        if entry.get("role") not in {"api", *BACKGROUND_ROLES}:
+        if entry.get("role") not in ({"cce-audit", "cce-pooler", *BACKGROUND_ROLES} if physical == "cce-api-isolation" else {"api", *BACKGROUND_ROLES}):
             raise ValueError("Unexpected container role")
         if spec["host_role"] == "secondary" and entry["role"] != "api" and physical != "worker-separation":
             raise ValueError("Secondary must be API-only")
         ids.add(entry["id"])
+    if physical == "cce-api-isolation":
+        from collections import Counter
+        expected = ({"consumer": 6, "reservation-writer": 3, "maintenance": 1,
+                     "publisher": 1, "reconciler": 1, "simulator": 1, "confirmation": 1,
+                     "kafka": 1, "pgbouncer": 1, "load-balancer": 1,
+                     "cce-audit": 1, "cce-pooler": 1} if spec["host_role"] == "primary" else {})
+        if dict(Counter(r["role"] for r in rows)) != expected:
+            raise ValueError("Exact native background and helper counts required")
+        for entry in rows:
+            project = None if entry["role"].startswith("cce-") else "flash-ticketing"
+            if (not re.fullmatch(r"sha256:[0-9a-f]{64}", entry.get("image_id", ""))
+                    or entry.get("project") != project or not isinstance(entry.get("started_at"), str)):
+                raise ValueError("Native background CPU identity required")
+            timestamp(entry["started_at"])
+            if entry["role"].startswith("cce-") and not re.fullmatch(r"adr0151-[0-9a-f]{12}", entry.get("owner", "")):
+                raise ValueError("Owned native helper identity required")
+        return rows
     if physical == "worker-separation":
         from collections import Counter
 
@@ -108,7 +130,10 @@ def inspect_containers(entries):
         row = by_id[entry["id"]]
         if (
             not row["State"]["Running"]
-            or row["Config"]["Labels"].get("com.docker.compose.service") != entry["role"]
+            or (row["Config"]["Labels"].get("codex-purpose") != entry["role"]
+                or row["Config"]["Labels"].get("codex-owner") != entry.get("owner")
+                if entry["role"] in {"cce-audit", "cce-pooler"}
+                else row["Config"]["Labels"].get("com.docker.compose.service") != entry["role"])
         ):
             raise ValueError("Observed container disappeared or changed role")
         if any(key in entry for key in ("image_id", "started_at", "project")) and (
@@ -271,7 +296,7 @@ def compare_windows(primary, secondary, *, offered_start_utc, offered_end_utc):
         or secondary["host_role"] != "secondary"
         or primary["arm"] != secondary["arm"]
         or placement(primary) != placement(secondary)
-        or (placement(primary) == "worker-separation" and primary["inventory_sha256"] != secondary["inventory_sha256"])
+        or (placement(primary) in {"worker-separation", "cce-api-isolation"} and primary["inventory_sha256"] != secondary["inventory_sha256"])
         or primary["instance_uuid_sha256"] == secondary["instance_uuid_sha256"]
     ):
         raise ValueError("Distinct matched host roles required")

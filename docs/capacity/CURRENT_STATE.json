@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-08",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "cce_paid_stage_components_locally_verified_full_runner_pending",
+  "status": "cce_native_observation_and_lifecycle_locally_verified_entrypoint_pending",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -13,7 +13,7 @@
   "last_checked_topology": "Corrected CCE pod pulled exact API image, reached Redis and completed PostgreSQL negotiation with RDS/private ECS pooler. ECS reached CCE. Owned namespace/bridge/certificates removed. Independent saved runtime semantics and two audit identities stable; generator idle, duplicates0, global queues/Kafka0. No CCE paid load.",
   "schema_state": "Receipt migration009 retained; valid public.orders_event_id index intentionally retained under ADR0224. Ordinary migration010 respects migration search path; concurrent cloud build explicitly uses public.orders. No financial/TTL schema changes.",
   "current_run": null,
-  "revision_note": "Git HEAD identifies this checkpoint. Native safety, paid-stage and ECS traffic-transition components verified offline; complete CCE paid runner is still unregistered. No new cloud experiment.",
+  "revision_note": "Git HEAD identifies the published checkpoint. Native observation and component lifecycle verified offline; complete CCE paid entry point remains unregistered. No cloud calls/load in this checkpoint.",
   "confirmed": [
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",
@@ -1094,7 +1094,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Compose the native CCE stage with owned audit/bridge resources, safety post-TTL checks, native observers/protected diagnostics and exact outer ECS restoration. Qualify and register the full profile before a fresh 84/s300s comparison.",
+  "next_action": "Finish the complete guarded entry point and native fixture/safety post-TTL accounting; locally qualify and register it before the bounded 84 offered journeys/s for 300s CCE comparison.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -4494,7 +4494,12 @@
     "ecs_traffic_transition_implemented": true,
     "component_tests_passed": 231,
     "component_evidence": "docs/capacity/cce/paid-stage-components-validation-2026-10-08.json",
-    "paid_runner_registered": false
+    "paid_runner_registered": false,
+    "native_observation_implemented": true,
+    "native_lifecycle_composed": true,
+    "native_lifecycle_evidence": "docs/capacity/cce/native-lifecycle-validation-2026-10-08.json",
+    "native_fixture_safety_caller_pending": true,
+    "paid_entrypoint_pending": true
   },
   "bounded_cce_dependency_probe__b14e8117a3ba": {
     "authorization_id": "work-envelope-b14e8117a3ba",
