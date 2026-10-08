@@ -138,10 +138,10 @@ def test_real_cli_constructor_reaches_reservation_without_cloud(monkeypatch, tmp
     with pytest.raises(RuntimeError, match="local-reservation-boundary-reached"):
         cli.execute(config_path, None, tmp_path, profile_name="interleaved_refresh_probe", diagnostic_target=target_path)
 
-@pytest.mark.parametrize("role", ["api", "simulator", "reservation-writer", "consumer"])
+@pytest.mark.parametrize("role", ["publisher", "simulator", "reservation-writer", "consumer"])
 def test_inspected_role_map_drift_rejected(role):
     data = probe_inventory()
-    row = next(w for w in data["worker_sources"] if w["role"] == ("publisher" if role == "api" else role))
+    row = next(w for w in data["worker_sources"] if w["role"] == role)
     row["source_identity"]["resolved_imports"]["src/ticketing/workers.py"]["sha256"] = "0" * 64
     with pytest.raises(ValueError, match="per-role"):
         contract().verify_inventory(data)

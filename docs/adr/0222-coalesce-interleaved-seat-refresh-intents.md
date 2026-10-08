@@ -44,3 +44,11 @@ Image staging uses a fresh owned directory under the same reservation; it change
 Integration verification and cloud results remain pending until executed. Rollback retains the original per-role runtime images.
 
 Integration implemented and locally qualified: 121 runner/profile/staging/envelope tests passed in 512.40 seconds. Offline consumer image dependency, installed import/bytecode and all eight role image metadata checks passed. Naming checks passed. See [integration evidence](../capacity/flash-sale-opening/interleaved-refresh-runner-local-2026-10-08.json). Cloud correction probe pending; no throughput or hourly claim.
+
+## Cloud correction probe result
+
+The fresh 84/s, 300-second probe completed on 2026-10-08: 25,200 scheduled, dispatched and unique paid-and-issued tickets confirmed by the deadline; no generator drops or failed customer journeys. Financial/post-TTL, zero-double-booking, full queue drain, Kafka drain, source identity, cleanup and restoration gates passed. Worst-shard payment-to-ticket p95 fell from 7,971.05 to 989.00 ms and hold-to-ticket p95 from 9,907.11 to 3,639.98 ms. Status checks fell from 6.9346 to 2.0975 per dispatched journey. All other role images/settings, workloads and budgets were retained.
+
+The overall result is FAILED_RESTORED: a 2.574944-second metrics sampling gap fails the unchanged continuous coverage checks and dependent diagnostic gates. Original and candidate failures remain intact; no gate relaxation. Database counters did not reset or decrease. The largest delay precedes wait collection (2.35083 seconds), whose own collection took 49.97 ms. Resource/PgBouncer/cohort timings must distinguish the cause. Both gaps occur near a half-hour boundary; correlation is not causal proof. WAL I/O timing was unavailable and remains explicit.
+
+The matching bracketing window recorded 25,104 issuances over 300.746168 seconds (83.472/s), with 96 additional tickets finishing after that bracketed window; this is not an exact 300-second issuance count. Writers remain near full occupancy. This is a promising short correction probe, not an hour-long capacity qualification or acceptance for production. Status stays Proposed. See [sanitized cloud evidence](../capacity/flash-sale-opening/interleaved-refresh-probe-2026-10-08.json).

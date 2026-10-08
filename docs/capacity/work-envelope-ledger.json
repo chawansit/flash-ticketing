@@ -722,6 +722,29 @@
         }
       ],
       "finished_at_utc": "2026-10-08T02:39:01.885855+00:00"
+    },
+    {
+      "ledger": "bounded_interleaved_refresh_probe__83c2a4e8dd23",
+      "authorization_id": "work-envelope-83c2a4e8dd23",
+      "envelope_sha256": "bbe8f2b4456892201624427e0c0aca06a0f24a64822a70731706ca023db16ab4",
+      "binding_sha256": "566304160ad8548b6de492d76efcea7d2904533a75f96203f850828c079caf57",
+      "plan_sha256": "41422eb45fa7443e0fc324b63842fd67dc0db0df90559b5184e35ed609239817",
+      "profile": "interleaved_refresh_probe",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1454.4850000000151,
+      "started_at_utc": "2026-10-08T03:45:58.860807+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-09c70a20ff8c",
+          "pass": true
+        },
+        {
+          "run": "adr0151-513396baac41",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-08T04:10:13.430045+00:00"
     }
   ],
   "verified_aborts": {
