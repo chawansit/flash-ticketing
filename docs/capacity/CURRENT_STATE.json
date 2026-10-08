@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-08",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "shared_callback_84_probe_failed_restored_recovery_classification_pending",
+  "status": "adr0222_consumer_correction_locally_verified_recovery_resolved_cloud_comparison_pending",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -10,7 +10,7 @@
   "generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "backend_checkout_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
   "tested_generator_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
-  "last_checked_topology": "ADR0216 restored original four-primary APIs and load-balancer/configuration; secondary test resources removed, generator idle, diagnostic credentials removed, full queues/Kafka drained. No permanent routing or placement adoption.",
+  "last_checked_topology": "Independent live read-only audit: original four-primary API runtime verified, secondary resources removed, generator idle, exact 24331 dispatched paid tickets and relationships valid after TTL, global queues/Kafka empty. No cloud load or deployment this follow-up. CCE remains undeployed.",
   "schema_state": "Additive receipt migration009 installed and checksum recorded;original financial schema/TTL retained. All unresolved receipt queues/counters0 after restoration.",
   "current_run": null,
   "revision_note": "ADR0217 exact collector correction and recovery verifier committed 6200b207ab16004d76bc1d335bd7115d666f37e8; measured result follows in this checkpoint commit. Git HEAD identifies the latest published checkpoint. Application/generator images remain frozen ADR0163 benchmark inputs, not local bank-like/SWR candidate images.",
@@ -1095,7 +1095,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Before any new load, independently reconcile the exact owned 84-show cohort against the 24331 dispatched unique paid tickets and classify restoration without changing the failed original scope/gates. Diagnose reservation/ticket waits and metric sampling gap; fixed generator active cap caused 869 drops and polling rose to 6.93/journey. CCE kubeconfig/TLS access verified; proposed bounded pilot remains undeployed, requires exact immutable benchmark image publication and locally qualified ownership/cleanup profile. Today-only CCE spending exception expires 2026-10-08T23:59:59+07:00; ask for new boundary tomorrow. Hourly goal remains unqualified.",
+  "next_action": "Bind the verified ADR0222 consumer-only frozen overlay into the existing bounded paid runner, locally qualify role/image/source identity, and run a fresh 84/s correction probe against the identified failed baseline under unchanged workload/budgets/gates. Diagnose failure before any progression; writer capacity and original metric sampling gap remain unresolved. Do not substitute the unrelated SWR application image. CCE pilot remains undeployed; today-only spending exception expires 2026-10-08T23:59:59+07:00.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -3664,14 +3664,18 @@
     "metric_sampling_gap": true,
     "queues_drained": true,
     "restoration_complete": true,
-    "recovery_classification_pending": true,
+    "recovery_classification_pending": false,
     "actual_elapsed_seconds": 1382.1879999999946,
     "evidence": "docs/capacity/flash-sale-opening/shared-callback-rate-probe-2026-10-08.json",
     "accounting": {
       "experiments": 27,
-      "actual_elapsed_seconds": 27925.997999999934,
+      "experiment_elapsed_seconds": 27925.997999999934,
+      "recovery_verification_seconds": 120.57800000000861,
+      "actual_elapsed_seconds": 28046.575999999943,
       "reserved_seconds": 97200
-    }
+    },
+    "recovery_evidence": "docs/capacity/flash-sale-opening/shared-callback-rate-probe-recovery-2026-10-08.json",
+    "original_failed_result_preserved": true
   },
   "cce_pilot_checkpoint": {
     "decision": "docs/adr/0220-bounded-cce-autopilot-pilot.md",
@@ -3766,5 +3770,34 @@
     "attempted_paid_arms": [
       "candidate"
     ]
+  },
+  "last_checked_revision": "0f826723214021b8f6fadbb9dcb5d1cde348e698",
+  "last_checked_at_utc": "2026-10-08T03:21:01.606946+00:00",
+  "interleaved_refresh_checkpoint": {
+    "decision": "docs/adr/0222-coalesce-interleaved-seat-refresh-intents.md",
+    "implementation_revision": "0f826723214021b8f6fadbb9dcb5d1cde348e698",
+    "evidence": "docs/capacity/flash-sale-opening/interleaved-seat-refresh-local-2026-10-08.json",
+    "status": "IMPLEMENTED_LOCALLY_TESTED_NOT_CLOUD_QUALIFIED",
+    "current_code_tests_passed": 131,
+    "frozen_candidate_tests_passed": 50,
+    "recovery_profile_tests_passed": 78,
+    "isolated_runtime_change": "src/ticketing/workers.py consumer refresh coalescing and deterministic show lock order only",
+    "cloud_candidate_deployed": false,
+    "cloud_load_started_this_followup": false,
+    "capacity_improvement_measured": false,
+    "hourly_qualified": false,
+    "recovery_resolved": true,
+    "known_remaining_bottlenecks": [
+      "Writer lanes near full occupancy; PostgreSQL batch mean 125.266 ms.",
+      "Consumer lanes near full occupancy; refresh correction impact remains unmeasured.",
+      "Original diagnostic gap 2.106624 seconds remains failed; no gate relaxation."
+    ],
+    "accounting": {
+      "experiments": 27,
+      "experiment_elapsed_seconds": 27925.997999999934,
+      "recovery_verification_seconds": 120.57800000000861,
+      "actual_elapsed_seconds": 28046.575999999943,
+      "reserved_seconds": 97200
+    }
   }
 }
