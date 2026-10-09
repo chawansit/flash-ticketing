@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-09",
   "branch": "codex/standing-work-envelope",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "hourly_failed_restored_local_transaction_candidate_tested_cloud_follow_up_pending",
+  "status": "hourly_failed_restored_diagnostics_ci_passed_images_published_cloud_binding_pending",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -6314,7 +6314,7 @@
   "approved_hourly_failure_follow_up": {
     "recorded_at_utc": "2026-10-09T06:17:11.108445+00:00",
     "authorization": "Direct user instruction after PR preparation: analyze latest hourly payment503 and diagnostic gaps, make one evidence-based correction, compare short control/candidate using unchanged workload/connection budgets, then run hourly qualification only after all short gates pass.",
-    "status": "APPROVED_PLAN_OFFLINE_ANALYSIS_IN_PROGRESS_NOT_YET_REGISTERED",
+    "status": "LOCAL_CORRECTION_DIAGNOSTICS_AND_SWR_IMAGES_TESTED_REGISTRATION_PENDING",
     "short_profile": {
       "offered_journeys_per_second": 84,
       "offered_seconds": 300,
@@ -6337,58 +6337,59 @@
       "Customer payment timeout interval includes2463.18ms paid_cohort observation; correlation does not establish payment slot ownership.",
       "Three pod log captures reached8MiB ceiling and retained no failure events; absence does not establish no failures."
     ],
-    "next_action": "Complete common failure-time diagnostic retention and observation continuity, qualify and register fresh matched 84/s five-minute control/candidate profiles with unchanged budgets, publish exact source-pinned images after SWR authentication refresh, then run control first. Hourly 300000 unique-ticket qualification only after all short gates pass."
+    "next_action": "Extend the registered paid profile using immutable SWR arm digests, common diagnostics and legacy worker identities. Run matched84/s300s control/candidate only with fresh bindings; failed control stops progression. Hourly remains conditional."
   },
   "hourly_slot_candidate_checkpoint": {
+    "updated_at_utc": "2026-10-09T08:01:46.322658+00:00",
     "decisions": [
       "ADR0239",
-      "ADR0240"
+      "ADR0240",
+      "ADR0241"
     ],
-    "status": "LOCAL_CANDIDATE_TESTED_CLOUD_COMPARISON_PENDING",
+    "status": "DIAGNOSTICS_CI_PASSED_SWR_IMAGES_QUALIFIED_CLOUD_PROFILE_BINDING_PENDING",
     "branch": "codex/hourly-slot-attribution-2026-10-09",
-    "revision": "c200ddf5af0ef4257716ff98518a8f798db7bcbf",
+    "revision": "f8c786a93cddba1aadf2949cdffeaa35f054b1f8",
     "pull_request": "https://github.com/chawansit/flash-ticketing/pull/8",
     "pull_request_draft": true,
     "base_pull_request": 7,
-    "evidence": "https://github.com/chawansit/flash-ticketing/blob/c200ddf5af0ef4257716ff98518a8f798db7bcbf/docs/capacity/cce/hourly-slot-candidate-2026-10-09.json",
-    "unit_passed": 1827,
-    "unit_windows_symlink_skipped": 2,
-    "real_postgresql_transaction_passed": 9,
-    "owned_local_test_container_removal_verified": true,
-    "ci_checks": [
-      {
-        "id": 113705695416,
-        "status": "completed",
-        "conclusion": "success",
-        "url": "https://github.com/chawansit/flash-ticketing/actions/runs/37895462899/job/113705695416",
-        "test_summaries": [
-          "1829 passed, 2 warnings in 34.51s",
-          "261 passed, 2 warnings in 43.60s"
-        ]
-      },
-      {
-        "id": 113705846557,
-        "status": "completed",
-        "conclusion": "success",
-        "url": "https://github.com/chawansit/flash-ticketing/actions/runs/37895510090/job/113705846557",
-        "test_summaries": [
-          "1829 passed, 2 warnings in 44.98s",
-          "261 passed, 2 warnings in 54.36s"
-        ]
-      }
+    "evidence": "https://github.com/chawansit/flash-ticketing/blob/f8c786a93cddba1aadf2949cdffeaa35f054b1f8/docs/capacity/cce/slot-diagnostics-local-2026-10-09.json",
+    "image_proof": "https://github.com/chawansit/flash-ticketing/blob/f8c786a93cddba1aadf2949cdffeaa35f054b1f8/docs/capacity/cce/slot-comparison-images-2026-10-09.json",
+    "ci_source_revision": "bb70572dcb49646ac484671884e823e2d02347e0",
+    "ci_unit_runner_passed": 1867,
+    "ci_integration_end_to_end_passed": 263,
+    "ci_jobs": [
+      113722603884,
+      113722585346
     ],
+    "ci_passed": true,
+    "local_full_unit": {
+      "passed": 1859,
+      "failed": 1,
+      "skipped": 2,
+      "failure": "Existing Windows50ms idle timer woke at49.3092ms; retained full-suite failure. Isolated follow-up including new tests passed39."
+    },
+    "real_postgresql_transaction_passed": 11,
+    "local_postgresql_version": "17.6",
     "performance_correction_count": 1,
-    "diagnostic_transport_byte_preservation_verified": true,
+    "runtime_modules_per_arm": 22,
+    "unchanged_historical_api_modules": 17,
+    "swr_latest_user_credentials_verified": true,
+    "cached_docker_username_differed": true,
+    "swr_format_correction": "Single-platform Docker schema2 with provenance/SBOM attestations disabled; actual manifest/configuration blobs verified separately. Original OCI index rejection retained.",
+    "registry_images_published": true,
+    "registry_pulled_runtime_import_record_verification_passed": true,
+    "temporary_publication_credentials_removed": true,
+    "observer_entry_implemented": true,
+    "observer_entry_registered": false,
     "diagnostic_transport_integrated": false,
     "historical_timeout_cause_confirmed": false,
+    "cohort_sampling_gaps_fixed": false,
     "fresh_scope_registered": false,
     "cloud_load_started": false,
     "capacity_improvement_measured": false,
     "hourly_qualification_passed": false,
     "main_merge_executed": false,
-    "blocker": "SWR rejected cached authentication during read-only manifest inspection; user refresh requested. Independent local diagnostic work remains unfinished, so credentials alone do not make cloud load ready.",
-    "ci_unit_runner_passed": 1829,
-    "ci_integration_end_to_end_passed": 261,
-    "ci_passed": true
+    "blocker": "Existing cloud profile accepts historical21-module API only. Bind and locally qualify the22-module matched image pair and observer/transport before new cloud load.",
+    "next_action": "Extend the registered paid profile using immutable SWR arm digests, common diagnostics and legacy worker identities. Run matched84/s300s control/candidate only with fresh bindings; failed control stops progression. Hourly remains conditional."
   }
 }
