@@ -48,6 +48,8 @@ def identity():
         "scripts/cce_slot_trace_transport.py",
         "scripts/prepare_slot_comparison_sources.py",
         "scripts/prepare_payment_context_sources.py",
+        "scripts/cce_payment_context_images.py",
+        "docs/capacity/cce/payment-context-images-2026-10-09.json",
         "scripts/observe_slot_paid_pipeline.py",
         "scripts/slot_failure_evidence.py",
         "scripts/bounded_trace_transport.py",

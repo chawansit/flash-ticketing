@@ -91,17 +91,19 @@ def test_registry_proof_drift_rejected_before_source_admission(monkeypatch, tmp_
         profile.image_pair()
 
 
-@pytest.mark.parametrize("extension", ["ADR0242", "ADR0245"])
+@pytest.mark.parametrize("extension", ["ADR0242", "ADR0245", "ADR0249"])
 @pytest.mark.parametrize("fault", [None, "failed", "cleanup", "source", "budget", "digest", "gate", "active", "partition"])
 def test_candidate_requires_complete_same_runner_restored_control(monkeypatch, tmp_path, fault, extension):
-    chosen = goal("candidate") if extension == "ADR0242" else partition_goal("candidate")
+    chosen = {"ADR0242": goal, "ADR0245": partition_goal, "ADR0249": payment_goal}[extension]("candidate")
     value = envelope(chosen)
     ledger = "bounded_cce_paid_comparison__" + "b" * 12
-    binding = {"cce_transaction_arm": "control", "cce_transaction_pair_sha256": profile.PROOF_SHA256,
+    binding = {"cce_transaction_arm": "control", "cce_transaction_pair_sha256": profile.proof_digest(chosen),
                "cce_paid_entry_sources": core.identity(), "cce_paid_core_sources": core.paid.identity(),
                "configuration_sha256": value["existing_resource_configuration_sha256"], "cce_acquisition_budget": 20}
     if extension == "ADR0245":
         binding.update(cce_partition_decision="ADR0245", cce_payment_pool_max=2)
+    if extension == "ADR0249":
+        binding.update(cce_payment_context_decision="ADR0249", cce_payment_pool_max=2)
     if fault == "partition":
         binding.update(cce_partition_decision="ADR0245", cce_payment_pool_max=3)
     report = {"pass": True, "binding_sha256": policy.digest(binding), "capacity_stages_started": 1,
@@ -227,19 +229,20 @@ def test_compression_requires_stopped_jobs_and_keeps_slot_evidence_on_cpu_failur
 
 
 
-def test_registered_control_reservation_and_guard_keep_exact_source_binding(tmp_path, monkeypatch):
+@pytest.mark.parametrize("extension", ["ADR0242", "ADR0249"])
+def test_registered_control_reservation_and_guard_keep_exact_source_binding(tmp_path, monkeypatch, extension):
     from test_work_envelope import area
     binding, _, _ = area.__wrapped__(tmp_path, monkeypatch)
     value = policy.read(policy.ENVELOPE)
     new_goal = copy.deepcopy(value["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"])
-    new_goal.update(goal(), maximum_paid_stages=1, maximum_pods=4, pod_vcpu=1, pod_memory_gib=1,
+    new_goal.update(payment_goal("control") if extension == "ADR0249" else goal(), maximum_paid_stages=1, maximum_pods=4, pod_vcpu=1, pod_memory_gib=1,
                     offered_journeys_per_second=84, offered_seconds=300, maximum_experiment_seconds=3600,
                     ledger_start_index=0, unlimited_cumulative_time_explicitly_authorized=True)
     value["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"] = new_goal
     policy.write(policy.ENVELOPE, value)
     chosen = core.plan()
     binding.update(cce_paid_entry_sources=core.identity(), cce_paid_core_sources=core.paid.identity(),
-                   cce_transaction_arm="control", cce_transaction_pair_sha256=profile.PROOF_SHA256,
+                   cce_transaction_arm="control", cce_transaction_pair_sha256=profile.proof_digest(new_goal),
                    baseline_sha256=chosen["baseline_sha256"], cce_acquisition_budget=20)
     binding.update({k: "a" * 64 for k in ("cce_manifest_sha256", "diagnostic_target_sha256",
                    "saved_api_service_sha256", "image_proof_sha256", "cce_resource_source_sha256",
@@ -369,5 +372,54 @@ def test_partition_changes_only_existing_payment_share(monkeypatch, arm, payment
 def test_partition_rejects_other_resource_or_transaction_factors(field, value):
     chosen = partition_goal("candidate")
     chosen["candidate_factor"][field] = value
+    with pytest.raises(ValueError, match="discriminator"):
+        profile.active(envelope(chosen))
+
+
+
+def payment_goal(arm):
+    from cce_payment_context_images import PROOF_SHA256
+    return {"decision": "ADR0228", "profile": "cce_paid_comparison", "extension_decision": "ADR0249",
+        "comparison_arm": arm, "acquisition_budget": 20,
+        "candidate_factor": {"name": "post_lock_payment_context", "comparison_arm": arm,
+            "image_pair_receipt_sha256": PROOF_SHA256, "database_connections_unchanged": True}}
+
+
+@pytest.mark.parametrize("arm", ["control", "candidate"])
+def test_payment_context_pair_changes_only_method_and_keeps_all_budgets(monkeypatch, arm):
+    from cce_payment_context_images import image_pair
+    selected = payment_goal(arm)
+    value = envelope(selected)
+    monkeypatch.setattr(policy, "envelope", lambda: value)
+    proof = image_pair()
+    assert profile.active() == selected
+    assert api.api_image() == proof["images"][arm]["registry_image"]
+    assert api.admission_budget() == 20
+    baseline_env = api.api_environment(service(), "10.1.137.69", acquisition_budget=20)
+    assert baseline_env["DB_POOL_MAX"] == "4"
+    assert baseline_env["API_PAYMENT_POOL_MAX"] == "2"
+    assert api.contract()["backend_images"] == api.legacy_contract()["backend_images"]
+    if arm == "candidate":
+        monkeypatch.setattr(profile, "control_receipt", lambda _: ("tmp/control/cce-comparison.private.json", {"pass": True}))
+    chosen = core.plan()
+    assert chosen["single_changed_factor"] == "post_lock_payment_context"
+    assert chosen["common"] == {"buyer_journeys_per_second": 84, "duration_seconds": 300}
+    assert chosen["connections_per_api"] == 4 and chosen["payment_connections_per_api"] == 2
+    assert chosen["pooler_server_connections"] == 24 and chosen["replicas"] == 4
+    assert chosen["arm_manifest_digest"] == proof["images"][arm]["registry_manifest_digest"]
+    changed = [k for k in proof["images"]["control"]["runtime_sources_sha256"]
+        if proof["images"]["control"]["runtime_sources_sha256"][k] != proof["images"]["candidate"]["runtime_sources_sha256"][k]]
+    assert changed == ["src/ticketing/infrastructure/reservations.py"]
+
+
+@pytest.mark.parametrize("damage", ["digest", "budget", "factor"])
+def test_payment_context_discriminator_rejects_drift(damage):
+    chosen = payment_goal("control")
+    if damage == "digest":
+        chosen["candidate_factor"]["image_pair_receipt_sha256"] = profile.PROOF_SHA256
+    elif damage == "budget":
+        chosen["acquisition_budget"] = 24
+    else:
+        chosen["candidate_factor"]["name"] = "api_payment_pool_partition"
     with pytest.raises(ValueError, match="discriminator"):
         profile.active(envelope(chosen))

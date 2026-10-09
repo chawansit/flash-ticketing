@@ -87,11 +87,13 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
 
     import cce_transaction_profile as transaction
     extra = ({"cce_transaction_arm": transaction.active()["comparison_arm"],
-              "cce_transaction_pair_sha256": transaction.PROOF_SHA256}
+              "cce_transaction_pair_sha256": transaction.proof_digest(transaction.active())}
              if transaction.active() is not None else {})
     goal = transaction.active()
     if goal is not None and goal["extension_decision"] == "ADR0245":
         extra.update(cce_partition_decision="ADR0245", cce_payment_pool_max=transaction.payment_connections(goal))
+    if goal is not None and goal["extension_decision"] == "ADR0249":
+        extra.update(cce_payment_context_decision="ADR0249", cce_payment_pool_max=2)
     return {
         **extra,
         "configuration_sha256": policy.digest(config),

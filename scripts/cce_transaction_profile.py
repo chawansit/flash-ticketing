@@ -44,7 +44,7 @@ def image_pair():
 def active(envelope=None):
     envelope = policy.envelope() if envelope is None else envelope
     goal = envelope.get("spending", {}).get("temporary_cce_pilot_exception", {}).get("goal_bounded_authorization", {})
-    if goal.get("extension_decision") not in {"ADR0242", "ADR0245"}:
+    if goal.get("extension_decision") not in {"ADR0242", "ADR0245", "ADR0249"}:
         return None
     arm = goal.get("comparison_arm")
     expected = {"name": "redundant_explicit_begin", "comparison_arm": arm,
@@ -54,18 +54,35 @@ def active(envelope=None):
                     "baseline_payment_connections": 2, "candidate_payment_connections": 3,
                     "connections_per_api": 4, "image_pair_receipt_sha256": PROOF_SHA256,
                     "database_connections_unchanged": True}
+    if goal.get("extension_decision") == "ADR0249":
+        expected = {"name": "post_lock_payment_context", "comparison_arm": arm,
+                    "image_pair_receipt_sha256": proof_digest(goal), "database_connections_unchanged": True}
     if (arm not in {"control", "candidate"} or goal.get("decision") != "ADR0228"
             or goal.get("profile") != "cce_paid_comparison" or goal.get("acquisition_budget") != 20
             or goal.get("candidate_factor") != expected):
         raise ValueError("Exact short transaction comparison discriminator required")
-    image_pair()
+    pair_receipt(goal)
     return goal
+
+
+def proof_digest(goal):
+    if goal["extension_decision"] == "ADR0249":
+        from cce_payment_context_images import PROOF_SHA256 as payment_digest
+        return payment_digest
+    return PROOF_SHA256
+
+
+def pair_receipt(goal):
+    if goal["extension_decision"] == "ADR0249":
+        from cce_payment_context_images import image_pair as payment_pair
+        return payment_pair()
+    return image_pair()
 
 
 def image_for(goal):
     """ADR0245 holds the accepted control binary fixed across both partitions."""
     arm = "control" if goal["extension_decision"] == "ADR0245" else goal["comparison_arm"]
-    return image_pair()["images"][arm]
+    return pair_receipt(goal)["images"][arm]
 
 
 def payment_connections(goal):
@@ -97,7 +114,12 @@ def control_receipt(goal):
                 binding.get("cce_partition_decision") != "ADR0245"
                 or binding.get("cce_payment_pool_max") != 2))
             or (goal["extension_decision"] == "ADR0242" and binding.get("cce_partition_decision") is not None)
-            or binding.get("cce_transaction_pair_sha256") != PROOF_SHA256
+            or (goal["extension_decision"] == "ADR0249" and (
+                binding.get("cce_payment_context_decision") != "ADR0249"
+                or binding.get("cce_partition_decision") is not None
+                or binding.get("cce_payment_pool_max") != 2))
+            or (goal["extension_decision"] != "ADR0249" and binding.get("cce_payment_context_decision") is not None)
+            or binding.get("cce_transaction_pair_sha256") != proof_digest(goal)
             or binding.get("cce_paid_entry_sources") != core.identity()
             or binding.get("cce_paid_core_sources") != core.paid.identity()
             or binding.get("configuration_sha256") != policy.envelope()["existing_resource_configuration_sha256"]
@@ -126,12 +148,13 @@ def plan():
         baseline, evidence = BASELINE, policy.read(policy.ROOT / BASELINE)
     image = image_for(goal)
     partition = goal["extension_decision"] == "ADR0245"
+    payment_context = goal["extension_decision"] == "ADR0249"
     return {"decision": "ADR0228", "arms": ["candidate"],
             "extension_decision": goal["extension_decision"], "comparison_arm": goal["comparison_arm"],
             "common": {"buyer_journeys_per_second": 84, "duration_seconds": 300},
-            "kind": "matched_payment_partition" if partition else "matched_transaction_begin", "diagnostic_connection_decision": "ADR0180",
-            "single_changed_factor": "api_payment_pool_partition" if partition else "redundant_explicit_begin", "baseline_evidence": baseline,
-            "baseline_sha256": policy.digest(evidence), "image_pair_receipt_sha256": PROOF_SHA256,
+            "kind": "matched_payment_context" if payment_context else ("matched_payment_partition" if partition else "matched_transaction_begin"), "diagnostic_connection_decision": "ADR0180",
+            "single_changed_factor": "post_lock_payment_context" if payment_context else ("api_payment_pool_partition" if partition else "redundant_explicit_begin"), "baseline_evidence": baseline,
+            "baseline_sha256": policy.digest(evidence), "image_pair_receipt_sha256": proof_digest(goal),
             "arm_manifest_digest": image["registry_manifest_digest"],
             "arm_configuration_digest": image["registry_configuration_digest"],
             "arm_api_source_sha256": image["runtime_sources_sha256"],
