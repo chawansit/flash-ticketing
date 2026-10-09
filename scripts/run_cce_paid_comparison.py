@@ -44,8 +44,12 @@ def identity():
 
 def plan(*, profile=SHORT):
     import cce_transaction_profile as transaction
-    if transaction.active() is not None:
-        if profile != SHORT:
+    goal = transaction.active()
+    if goal is not None:
+        if profile == HOURLY and goal.get("extension_decision") == "ADR0251":
+            from run_cce_hourly_qualification import plan as hourly_plan
+            return hourly_plan()
+        if profile != SHORT or goal.get("profile") != SHORT.name:
             raise ValueError("New transaction images require separate hourly qualification binding")
         return transaction.plan()
     if profile == HOURLY:

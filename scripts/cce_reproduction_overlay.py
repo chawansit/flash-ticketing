@@ -5,14 +5,16 @@ from pathlib import Path
 
 OVERLAID = {
     "scripts/cce_api_adapter.py", "scripts/cce_paid_stage.py", "scripts/cce_paid_observers.py",
-    "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py"}
+    "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py",
+    "scripts/run_cce_hourly_qualification.py"}
 ADDITIONAL = {
     "scripts/cce_transaction_profile.py", "scripts/cce_slot_trace_transport.py",
     "scripts/cce_reproduction_overlay.py", "scripts/prepare_slot_comparison_sources.py",
     "scripts/observe_slot_paid_pipeline.py", "scripts/slot_failure_evidence.py",
     "scripts/bounded_trace_transport.py", "scripts/prepare_payment_context_sources.py", "scripts/cce_payment_context_images.py",
-        "scripts/observe_slot_paid_pipeline.py", "scripts/cce_simulator_dispatch_profile.py", "scripts/prepare_simulator_dispatch_sources.py",
+        "scripts/cce_simulator_dispatch_profile.py", "scripts/prepare_simulator_dispatch_sources.py",
         "docs/capacity/cce/simulator-dispatch-image-2026-10-09.json",
+    "docs/capacity/cce/simulator-dispatch-comparison-2026-10-10.json",
     "docs/capacity/cce/payment-context-images-2026-10-09.json",
     "docs/capacity/cce/slot-comparison-images-2026-10-09.json"}
 MANIFEST = "artifacts/cce-transaction-runner/manifest.json"

@@ -11,6 +11,8 @@ PROOF = "docs/capacity/cce/simulator-dispatch-image-2026-10-09.json"
 PROOF_SHA256 = "aede238a4a8f56a565fac1003633d6df8947f42d9a9aa8704240ac5f1857bc4b"
 BASELINE = "docs/capacity/cce/payment-context-control-2026-10-09.json"
 FACTOR = "callback_dispatch_concurrency"
+HOURLY_BASELINE = 'docs/capacity/cce/simulator-dispatch-comparison-2026-10-10.json'
+HOURLY_BASELINE_SHA256 = '47bc9c0038fb80df9b6b0eba7b7f004786f15ea156b7efafad3ff6c1e296ff48'
 
 
 def receipt():
@@ -44,8 +46,9 @@ def active(goal):
     expected = {"name": FACTOR, "comparison_arm": "correction", "baseline": 8, "candidate": 12,
                 "simulator_database_pool_max": 10, "image_pair_receipt_sha256": api_proof,
                 "simulator_image_receipt_sha256": PROOF_SHA256, "database_connections_unchanged": True}
-    if (goal.get("comparison_arm") != "correction" or goal.get("decision") != "ADR0228"
-            or goal.get("profile") != "cce_paid_comparison" or goal.get("acquisition_budget") != 20
+    decisions = {"cce_paid_comparison": "ADR0228", "cce_hourly_qualification": "ADR0232"}
+    if (goal.get("comparison_arm") != "correction" or goal.get("profile") not in decisions
+            or goal.get("decision") != decisions.get(goal.get("profile")) or goal.get("acquisition_budget") != 20
             or goal.get("candidate_factor") != expected):
         raise ValueError("Exact simulator correction discriminator required")
     receipt()
@@ -122,3 +125,51 @@ def worker_contract(goal=None):
         active(goal)
     data = baseline.plan()
     return SimulatorDispatchContract(data["artifact_receipt"], "candidate", legacy_contract()["api_sources"])
+
+
+def hourly_baseline():
+    """Require the exact reconciled short evidence; never substitute an old image's pass."""
+    path = policy.ROOT / HOURLY_BASELINE
+    if path.is_symlink() or hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest() != HOURLY_BASELINE_SHA256:
+        raise ValueError("Exact passing simulator correction evidence required")
+    data = policy.read(path)
+    config = data["configuration"]
+    if (data.get("pass") is not True or data.get("status") != "PASSED_RESTORED"
+            or data.get("original_report_sha256") != "f65809964486de89d7d3a24b01311c62c730f0b167804c53f8c697dbb48fd860"
+            or data.get("offered_journeys_per_second") != 84 or data.get("offered_seconds") != 300
+            or config.get("simulator_concurrency") != 12 or config.get("simulator_database_pool_max") != 10
+            or config.get("simulator_image_id") != receipt()["local_image_id"]
+            or config.get("api_shared_acquisition_budget") != 20 or config.get("api_replicas") != 4
+            or config.get("connections_per_api") != 4 or config.get("payment_connections_per_api") != 2
+            or config.get("general_connections_per_api") != 2 or config.get("pooler_connections") != 24
+            or data.get("customer", {}).get("fulfilled") != 25200
+            or data.get("customer", {}).get("generator_drops") != 0
+            or data.get("financial", {}).get("pass") is not True
+            or data.get("financial", {}).get("hold_deadlines_elapsed") is not True
+            or data.get("global_queues", {}).get("pass") is not True
+            or not data.get("measurement_gates") or any(v is not True for v in data["measurement_gates"].values())
+            or any(data.get("restoration", {}).get(k) is not True for k in (
+                "restoration_complete", "integrity_verified", "namespace_removed", "helpers_removed", "transport_credentials_cleared", "generator_idle"))
+            or data["restoration"].get("cleanup_failures") != []):
+        raise ValueError("Fully passing and restored simulator correction required")
+    return data
+
+
+def hourly_plan(goal):
+    if active(goal).get("profile") != "cce_hourly_qualification":
+        raise ValueError("Separate hourly simulator goal required")
+    evidence = hourly_baseline()
+    if goal.get("baseline_sha256") != policy.digest(evidence):
+        raise ValueError("Hourly prerequisite binding differs")
+    data = plan(goal)
+    if data["arm_manifest_digest"] != evidence["configuration"]["api_manifest_digest"]:
+        raise ValueError("Hourly API must match the passing simulator correction")
+    data.update(decision="ADR0232", qualification_decision="ADR0252",
+                common={"buyer_journeys_per_second": 84, "duration_seconds": 3600},
+                kind="fixed_simulator_correction_hourly_qualification", baseline_evidence=HOURLY_BASELINE,
+                baseline_sha256=policy.digest(evidence), baseline_is_passing_control=True,
+                published_baseline_evidence=HOURLY_BASELINE,
+                expected_terminal_tickets=302400, minimum_issued_inside_hour=300000,
+                cohort_observer_interval_seconds=10, experiment_seconds_limit=5400,
+                duration_reason="Qualify the same passing runtime for one continuous hour; mandatory durability, drain and restoration follow the offered window.")
+    return data

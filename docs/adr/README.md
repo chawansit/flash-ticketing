@@ -169,3 +169,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0250: Reconcile the failed payment-context control](0250-reconcile-failed-payment-context-control.md)
 
 - [ADR0251: Decouple callback dispatch concurrency from the database pool](0251-decouple-callback-dispatch-concurrency-from-db-pool.md)
+
+- [ADR0252: Qualify the accepted simulator correction for one hour](0252-qualify-simulator-correction-for-one-hour.md)

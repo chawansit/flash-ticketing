@@ -25,12 +25,17 @@
     "scripts/run_cce_paid_comparison.py": {
       "historical_sha256": "cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
-      "current_sha256": "3901524fc26f029ee439faa1b780efcc4a3aaf43cb3b41230ead349f03fdc5ec"
+      "current_sha256": "7d6226b9f2228a8bf71c8d00a511721e181c336ec674e0bd55f99933b1a90629"
     },
     "scripts/check_cce_reproducibility.py": {
       "historical_sha256": "ca8920447ef5fee85d7f8316fae6defae81c96c715352fd31b5545f25d5e2278",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/ca8920447ef5fee85d7f8316fae6defae81c96c715352fd31b5545f25d5e2278",
       "current_sha256": "fc0062d21e6c2a6b7a7fd031a2c787d4eb13176b6ac56a5df9a56e86ce9777ad"
+    },
+    "scripts/run_cce_hourly_qualification.py": {
+      "historical_sha256": "c5bada5a5d99360f0b8ab823e086b4459ed4b3c5701f3c862396862944f9ee8d",
+      "historical_blob": "artifacts/cce-transaction-runner/blobs/c5bada5a5d99360f0b8ab823e086b4459ed4b3c5701f3c862396862944f9ee8d",
+      "current_sha256": "9d05a4a00055849216efa21c1bf9c0c4294f546531c1fb60230c509ca281fd9c"
     }
   },
   "additional_inputs": {
@@ -39,14 +44,15 @@
     "docs/capacity/cce/slot-comparison-images-2026-10-09.json": "255b4d2de1cb356b9b48b0ac7025b0cff5194a961d4c94f179c5ec87f189d0c1",
     "scripts/bounded_trace_transport.py": "3456993bacbfd93227bac0bdb28ce532c2f97365310b88338297a175d4c3d21f",
     "scripts/cce_payment_context_images.py": "cbc80a6226ea255766d23159c7a488c8cbbc69f9604eb94dbc3e55a55fbee160",
-    "scripts/cce_reproduction_overlay.py": "7dfe16ad1c8761f35feaa501815d437d1bd8854b07f922ab3790761e4b3ea5c2",
-    "scripts/cce_simulator_dispatch_profile.py": "e9e400f7cf7348d4da93c88b52b4214b8ebcaba5a26afc99f4083b94d6698861",
+    "scripts/cce_reproduction_overlay.py": "63cf9187d1a0e62c3e0f25895b08b5b853cb9910c5f6e25a151571d13b7704db",
+    "scripts/cce_simulator_dispatch_profile.py": "e3c7e6bdcbbde3317493f95e5ab6e5e4b87fda219c6462e9e8f8ebe55b0647b7",
     "scripts/cce_slot_trace_transport.py": "3286f3395ff573f555af9080f95f43ca1d83e920b75026cb8679a8a646e2fa11",
     "scripts/cce_transaction_profile.py": "5bfcab19e098ccc9175f9711c38e61a1d107d43dc54d43c74ed3d0ef4e6327af",
     "scripts/observe_slot_paid_pipeline.py": "a44eb0acdc83cd4d4df41e2e3bad77138deff1353a5c21203c861aca15f69f6a",
     "scripts/prepare_payment_context_sources.py": "7c0f192e30a12843c8658918afee574507b514eb51d54e5fc588b56f78ce136c",
     "scripts/prepare_simulator_dispatch_sources.py": "620107eff675fb18aa18fb307cf44e90dca75af212efad30a0a7418ba42ca669",
     "scripts/prepare_slot_comparison_sources.py": "17779ca2df84be37a108f7b135c9c3f1efc8583d8293b63a01e53bbd00758356",
-    "scripts/slot_failure_evidence.py": "c80d99e0edf371f5298a10749dcecb96c38f4668d4fa0a0cb24f1ee0136eeaec"
+    "scripts/slot_failure_evidence.py": "c80d99e0edf371f5298a10749dcecb96c38f4668d4fa0a0cb24f1ee0136eeaec",
+    "docs/capacity/cce/simulator-dispatch-comparison-2026-10-10.json": "47bc9c0038fb80df9b6b0eba7b7f004786f15ea156b7efafad3ff6c1e296ff48"
   }
 }

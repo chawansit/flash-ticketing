@@ -140,3 +140,49 @@ def test_worker_preparation_still_requires_complete_source_plan(monkeypatch):
     monkeypatch.setattr(builder, "source_plan", lambda: (None, {"runtime_source_sha256": {}, "parent_runtime_source_sha256": {}}))
     with pytest.raises(ValueError, match="prepared simulator source plan"):
         simulator.worker_contract()
+
+
+def hourly_selected(monkeypatch):
+    value = goal()
+    value.update(decision="ADR0232", profile="cce_hourly_qualification",
+                 baseline_sha256=policy.digest(simulator.hourly_baseline()))
+    envelope = copy.deepcopy(policy.envelope())
+    envelope["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"] = value
+    monkeypatch.setattr(policy, "envelope", lambda: envelope)
+    return value
+
+
+def test_hourly_uses_exact_passing_simulator_and_api_with_separate_bounds(monkeypatch):
+    import run_cce_hourly_qualification as hourly
+    from cce_paid_profiles import HOURLY
+    value = hourly_selected(monkeypatch)
+    data = hourly.plan()
+    assert data == core.plan(profile=HOURLY)
+    assert data["common"] == {"buyer_journeys_per_second": 84, "duration_seconds": 3600}
+    assert data["expected_terminal_tickets"] == 302400
+    assert data["minimum_issued_inside_hour"] == 300000
+    assert data["experiment_seconds_limit"] == 5400
+    assert data["baseline_is_passing_control"] is True
+    assert data["baseline_sha256"] == value["baseline_sha256"]
+    assert data["qualification_decision"] == "ADR0252"
+    assert core.worker_contract().settings("simulator")["SIMULATOR_CONCURRENCY"] == "12"
+    assert api.api_manifest() == simulator.hourly_baseline()["configuration"]["api_manifest_digest"]
+    assert api.admission_budget() == 20
+    with pytest.raises(ValueError): core.plan()
+
+
+@pytest.mark.parametrize("fault", ["proof", "profile", "decision"])
+def test_hourly_rejects_changed_prerequisite_or_wrong_goal(monkeypatch, fault):
+    value = hourly_selected(monkeypatch)
+    if fault == "proof": value["baseline_sha256"] = "0" * 64
+    elif fault == "profile": value["profile"] = "cce_paid_comparison"
+    else: value["decision"] = "ADR0228"
+    with pytest.raises(ValueError): simulator.hourly_plan(value)
+
+
+def test_hourly_missing_or_changed_short_evidence_fails_closed(monkeypatch, tmp_path):
+    p = tmp_path / simulator.HOURLY_BASELINE
+    p.parent.mkdir(parents=True)
+    p.write_bytes(b"{}")
+    monkeypatch.setattr(policy, "ROOT", tmp_path)
+    with pytest.raises(ValueError, match="passing simulator"): simulator.hourly_baseline()
