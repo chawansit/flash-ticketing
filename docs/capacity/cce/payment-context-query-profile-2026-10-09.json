@@ -1,0 +1,206 @@
+{
+  "decision": "ADR0248",
+  "implemented": true,
+  "cloud_paid_load_started": false,
+  "runtime_unchanged": true,
+  "production_qualified": false,
+  "read_only_profile": {
+    "scope": "Idle original unpaid, expired order; only post-lock lookup statements, no locks or payment writes executed. One read-only transaction; alternating baseline/candidate order, twenty pairs. Excludes checkout, order locking, idempotency, commit and customer response time.",
+    "duration_limit_seconds": 15,
+    "actual_total_profile_seconds": 14.422000000020489,
+    "pairs": 20,
+    "mean_ms": {
+      "baseline": 4.14149085409008,
+      "candidate": 1.3682941149454564
+    },
+    "lookup_elapsed_change_percent": -66.96131506377353,
+    "statements": {
+      "baseline": 3,
+      "candidate": 1
+    },
+    "all_contexts_equal": true,
+    "pairs_ms": [
+      {
+        "baseline_ms": 4.829100915230811,
+        "candidate_ms": 1.453174976631999,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 6.237943074665964,
+        "candidate_ms": 1.3645950239151716,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.4839679719880223,
+        "candidate_ms": 1.2624859809875488,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.7694990169256926,
+        "candidate_ms": 1.2538810260593891,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.436206025071442,
+        "candidate_ms": 1.2730989838019013,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.5508909495547414,
+        "candidate_ms": 1.2603270588442683,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.5483300453051925,
+        "candidate_ms": 1.308578997850418,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.6030609626322985,
+        "candidate_ms": 1.3399890158325434,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 4.79615805670619,
+        "candidate_ms": 2.7970699593424797,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 6.141174002550542,
+        "candidate_ms": 1.3281890423968434,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 8.016453008167446,
+        "candidate_ms": 1.3818669831380248,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.554821014404297,
+        "candidate_ms": 1.3131690211594105,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.4587490372359753,
+        "candidate_ms": 1.2289340374991298,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.5262220771983266,
+        "candidate_ms": 1.1696190340444446,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.609186038374901,
+        "candidate_ms": 1.2551440158858895,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.7377530243247747,
+        "candidate_ms": 1.2990219984203577,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.56669700704515,
+        "candidate_ms": 1.1747180251404643,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.245744970627129,
+        "candidate_ms": 1.169534050859511,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.26604291331023,
+        "candidate_ms": 1.3216061051934958,
+        "context_equal": true
+      },
+      {
+        "baseline_ms": 3.4518169704824686,
+        "candidate_ms": 1.410878961905837,
+        "context_equal": true
+      }
+    ]
+  },
+  "regression_validation": {
+    "new_and_existing_reservation_tests": {
+      "passed": 24,
+      "seconds": 6.12
+    },
+    "accepted_control_transaction_financial_suites": {
+      "passed": 69,
+      "seconds": 18.19,
+      "initial_attempt": "66 passed, 3 environment failures because TEST_REDIS_URL was not set; supplied an owned local Redis and reran the same suites successfully."
+    },
+    "accepted_baseline_payment_method_ast_equal": true,
+    "transaction_startup_matches_accepted_image_for_financial_suites": true,
+    "ruff_passed": true,
+    "naming_check_passed": true,
+    "owned_local_postgres_and_redis_removed": true
+  },
+  "candidate_source_proof": {
+    "decision": "ADR0248",
+    "accepted_control_manifest": "sha256:e30471a8eee19f9757f9d6acbaf2545f9f1001b6e46ae227cc3b9baa29237ad1",
+    "accepted_control_sources_match": true,
+    "only_changed_module": "src/ticketing/infrastructure/reservations.py",
+    "all_other_method_asts_unchanged": true,
+    "control_runtime_sources_sha256": {
+      "src/ticketing/api.py": "4eac2d307b164877368b72a6ed9c28c83248abd8047acdbc003c59d4562f55ae",
+      "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+      "src/ticketing/config.py": "7fa80efedb38317060b5c5c4f7e5c47f88da21bd4cc02191a6efd62016b115e9",
+      "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+      "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
+      "src/ticketing/observability.py": "3bb9d042ee01469abdd8e2b630ca6f05ee3a318f96991ab9a867d74dc88244d2",
+      "src/ticketing/workers.py": "42073129f3b3e9735edb468b50f15b274d7d5c7ac8bbda52a6e85c6d6bc752ce",
+      "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+      "src/ticketing/application/ports.py": "3a562c947a28d8a63a257e361707041d41894f6374eba2702078d2bd39f9a98a",
+      "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+      "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+      "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+      "src/ticketing/infrastructure/order_status_projector.py": "8e89ce45e57123f5fc1499e5d2bf57752395e57374f50729a975f402cd31ac88",
+      "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+      "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+      "src/ticketing/infrastructure/postgres.py": "4e8a1d208fcb9c1feee166e2cd0003698e0c8116bffd621b2ce3306d6f054724",
+      "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+      "src/ticketing/infrastructure/reservations.py": "543ab9a9bb15a6b8f10874563a33f1fc450bf43795040280f7c137c6e7f3374d",
+      "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a"
+    },
+    "candidate_runtime_sources_sha256": {
+      "src/ticketing/api.py": "4eac2d307b164877368b72a6ed9c28c83248abd8047acdbc003c59d4562f55ae",
+      "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+      "src/ticketing/config.py": "7fa80efedb38317060b5c5c4f7e5c47f88da21bd4cc02191a6efd62016b115e9",
+      "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+      "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
+      "src/ticketing/observability.py": "3bb9d042ee01469abdd8e2b630ca6f05ee3a318f96991ab9a867d74dc88244d2",
+      "src/ticketing/workers.py": "42073129f3b3e9735edb468b50f15b274d7d5c7ac8bbda52a6e85c6d6bc752ce",
+      "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+      "src/ticketing/application/ports.py": "3a562c947a28d8a63a257e361707041d41894f6374eba2702078d2bd39f9a98a",
+      "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+      "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+      "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+      "src/ticketing/infrastructure/order_status_projector.py": "8e89ce45e57123f5fc1499e5d2bf57752395e57374f50729a975f402cd31ac88",
+      "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+      "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+      "src/ticketing/infrastructure/postgres.py": "4e8a1d208fcb9c1feee166e2cd0003698e0c8116bffd621b2ce3306d6f054724",
+      "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+      "src/ticketing/infrastructure/reservations.py": "7fd8bd30e5ce2c96daaea9d3cb616dc8613f56f26f98a9278c2a807d43629be3",
+      "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a"
+    },
+    "candidate_image_built": false,
+    "cloud_paid_load_started": false
+  },
+  "unresolved": [
+    "Root cause of shared commit/acquisition stalls remains unproven.",
+    "Lookup reduction does not establish customer error reduction, sustained 84 tickets/s or hourly capacity.",
+    "Failure-time observation completeness still needs correction without weakening its gate.",
+    "Candidate immutable image and fresh matched paid-runner profile are not yet qualified.",
+    "Rejected explicit-BEGIN optimization remains on the draft branch and must not enter the accepted candidate source."
+  ],
+  "next_action": "Use the accepted image sources plus only this payment-method correction, retain the exact budgets/workload, qualify a fresh profile and control before candidate execution. Old failed controls remain consumed."
+}

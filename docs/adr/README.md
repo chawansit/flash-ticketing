@@ -161,3 +161,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0246: Reconcile the failed fixed-budget payment control](0246-reconcile-failed-fixed-budget-payment-control.md)
 
 - [ADR0247: Batch paid-cohort observer lookups](0247-batch-paid-cohort-observer-lookups.md)
+
+- [ADR0248: Batch payment context after locking the order](0248-batch-payment-context-after-order-lock.md)
