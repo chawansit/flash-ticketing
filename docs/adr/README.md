@@ -157,3 +157,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0244: Reconcile failed matched transaction candidate](0244-reconcile-failed-matched-transaction-candidate.md)
 
 - [ADR0245: Rebalance API payment connections within a fixed budget](0245-rebalance-api-payment-connections-within-fixed-budget.md)
+
+- [ADR0246: Reconcile the failed fixed-budget payment control](0246-reconcile-failed-fixed-budget-payment-control.md)
