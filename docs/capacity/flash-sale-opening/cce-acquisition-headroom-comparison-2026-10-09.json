@@ -1,0 +1,140 @@
+{
+  "decision": "ADR0234",
+  "run": "adr0151-555e1c2469d4",
+  "qualification": "PASSED_RESTORED short-stage comparison; no hourly qualification",
+  "original_report_sha256": "8d53302985cc0cd072edb62eb1f6caf4cda4507d65171728c235a839a16f2def",
+  "pass": true,
+  "hourly_qualified": false,
+  "issued_inside_exact_offered_window_measured": false,
+  "offered_journeys_per_second": 84,
+  "offered_seconds": 300,
+  "backend_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "baseline_evidence": "https://github.com/chawansit/flash-ticketing/blob/750ad8a4bf680a8440c001f2300b7fa8d56d8e77/docs/capacity/flash-sale-opening/cce-admission-control-2026-10-09.json",
+  "baseline_sha256": "247d1c2087dbfdd7b9d22de84697189497b5aeb8dce57e1e2419cc0bb7f4b647",
+  "configuration": {
+    "api_pods": 4,
+    "api_pod_cpu": 1,
+    "api_pod_memory_gib": 1,
+    "bridge_cpu": 1,
+    "pooler_server_connections": 24,
+    "api_pool_size": 4,
+    "api_shared_acquisition_budget": 20,
+    "customer_retries": 0,
+    "api_role_acquisition_ceiling": 18,
+    "acquisition_deadline_ms": 500
+  },
+  "single_changed_factor": {
+    "name": "DB_POOL_MAX_WAITING",
+    "baseline": 12,
+    "candidate": 20,
+    "database_connections_unchanged": true
+  },
+  "customer": {
+    "scheduled": 25200,
+    "dispatched": 25200,
+    "completed": 25200,
+    "fulfilled": 25200,
+    "fulfilled_by_deadline": 25200,
+    "distinct_orders": 25200,
+    "distinct_tickets": 25200,
+    "generator_drops": 0,
+    "retry_attempts": 0,
+    "outcomes": {
+      "fulfilled": 25200
+    },
+    "hold_http_p95_ms": 10.353846999350935,
+    "durable_p95_ms": 1094.5170560153201,
+    "payment_http_p95_ms": 61.14014994818717,
+    "payment_to_ticket_p95_ms": 1112.4490210204385,
+    "hold_to_ticket_p95_ms": 2628.480525978375,
+    "pass": true
+  },
+  "customer_error_percentage": 0,
+  "measurement_gates": {
+    "customer_load": true,
+    "post_ttl_financial": true,
+    "zero_double_booking": true,
+    "payment_durability": true,
+    "full_queue_drain": true,
+    "native_observer": true,
+    "native_cpu": true,
+    "unchanged_background": true,
+    "unchanged_native_pods": true
+  },
+  "financial": {
+    "orders": 25200,
+    "fulfilled_orders": 25200,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 25200,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 25200,
+    "bookings": 25200,
+    "tickets": 25200,
+    "payment_callbacks": 25200,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 25200,
+    "callback_delivery_target": 25200,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 25200,
+    "expected_paid": 25200,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true,
+    "hold_deadlines_elapsed": true
+  },
+  "restoration": {
+    "candidate_restored": true,
+    "published_ports_changed": true,
+    "restoration_complete": true,
+    "integrity_verified": true,
+    "cleanup_failures": [],
+    "namespace_removed": true
+  },
+  "aggregate_api_cpu_cores": 1.081818835130617,
+  "database_duration_mean_ms": {
+    "db_pool_acquire:ok": 2.3457818301754796,
+    "db_commit:all": 3.4695127189718518,
+    "db_query:INSERT": 2.07233038449759,
+    "db_query:BEGIN": 3.7823279378297943,
+    "db_connection_hold:all": 24.314343131581158,
+    "event_loop_lag:all": 0.559401937150607,
+    "db_query:UPDATE": 2.025502503969919,
+    "db_query:SELECT": 2.0215137186279404
+  },
+  "admission_diagnostics": {
+    "sha256": "bb42c1348a9d5931bda2c9f40af4977174bdd69ca42c9cbc96ac72e501d38fd4",
+    "all_pods_captured": true,
+    "failure_events": 0,
+    "capture_incomplete": true
+  },
+  "comparison": {
+    "baseline_customer_errors": 22,
+    "candidate_customer_errors": 0,
+    "baseline_hold_to_ticket_p95_ms": 3647.510723967571,
+    "candidate_hold_to_ticket_p95_ms": 2628.480525978375,
+    "hold_to_ticket_p95_improvement_percentage": 27.937688881713502
+  },
+  "local_validation": {
+    "cce_tests_passed": 627,
+    "platform_skips": 1,
+    "cohort_seconds": 20.09,
+    "naming_check_passed": true
+  },
+  "limitations": [
+    "One five-minute candidate cannot establish an hourly ceiling or eliminate intermittent failure risk.",
+    "All 25,200 tickets were confirmed within the completion deadline; no exact 300-second issuance-time count was collected.",
+    "All four pod log reads reached byte ceilings; zero retained snapshots is not proof of complete failure-log coverage.",
+    "CCE node CPU and monetary spend were not measured."
+  ],
+  "next_action": "Locally qualify and register the bounded hourly runner with the passing 20-slot configuration, then perform the approved hour-long qualification. Require at least 300000 unique tickets issued within the measured hour, and complete terminal financial/queue/restoration checks.",
+  "publication_provenance": {
+    "scope": "Evidence only; experimental implementation is not integrated into main.",
+    "source_revision": "750ad8a4bf680a8440c001f2300b7fa8d56d8e77",
+    "source_document_url": "https://github.com/chawansit/flash-ticketing/blob/750ad8a4bf680a8440c001f2300b7fa8d56d8e77/docs/capacity/flash-sale-opening/cce-acquisition-headroom-comparison-2026-10-09.json",
+    "source_document_sha256": "fb25a597671c46dc90cd3621455c43db682139d077d41deed0dfecab718c18a0",
+    "modifications": "Added provenance and made the historical baseline reference a pinned source URL; measured results and original experiment fingerprints unchanged."
+  }
+}
