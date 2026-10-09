@@ -5,6 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from cce_paid_profiles import SHORT
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 import cce_paid_lifecycle as lifecycle
@@ -41,6 +42,7 @@ def area(monkeypatch, tmp_path):
 
     session = SimpleNamespace(call=lambda role, *args: snapshots()[:-2] if role == "primary" else [])
     stage = SimpleNamespace(
+        profile=SHORT,
         session=session,
         output=tmp_path,
         cid="c" * 64,

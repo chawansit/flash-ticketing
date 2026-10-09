@@ -17,6 +17,7 @@ HELPERS = (
     "work_envelope.py",
     "prepare_two_host_scaling.py",
     "probe_two_host_safety.py",
+    "cce_paid_profiles.py",
 )
 
 
@@ -36,7 +37,7 @@ def helper_upload_program(directory, name, raw):
 
 
 def fixture_program(directory, shows, producer_sha):
-    if shows not in (1, 84):
+    if shows not in (1, 84, 1008):
         raise ValueError("Only the fixed safety or paid fixture is supported")
     return (
         """import hashlib,json,os,subprocess
@@ -46,11 +47,13 @@ f=Path('/app/scripts/prepare_capacity_fixture.py')
 assert hashlib.sha256(f.read_bytes().replace(b'\\r\\n',b'\\n')).hexdigest()==PRODUCER
 (p/'creation-intent.json').write_text(json.dumps({'shows':SHOWS,'producer':PRODUCER}))
 env=dict(os.environ,TEST_DATABASE_URL=os.environ['DATABASE_URL'],TEST_REDIS_URL=os.environ['REDIS_URL'])
-subprocess.run(['python',str(f),'--output',str(p/'fixture.json'),'--shows',str(SHOWS),'--seats','300','--sale-hours','1'],env=env,cwd='/app',check=True,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,timeout=90)
+subprocess.run(['python',str(f),'--output',str(p/'fixture.json'),'--shows',str(SHOWS),'--seats','300','--sale-hours',SALE_HOURS],env=env,cwd='/app',check=True,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,timeout=PREPARE_TIMEOUT)
 print((p/'fixture.json').read_text())
 """.replace("DIRECTORY", repr(directory))
         .replace("SHOWS", str(shows))
         .replace("PRODUCER", repr(producer_sha))
+        .replace("SALE_HOURS", repr("2" if shows == 1008 else "1"))
+        .replace("PREPARE_TIMEOUT", str(240 if shows == 1008 else 90))
     )
 
 
@@ -168,7 +171,7 @@ class Inputs:
         directory = self.directory + "/" + name
         producer = sha(self.stage.bundle["scripts/prepare_capacity_fixture.py"])
         try:
-            fixture = self.session.api(self.stage.cid, fixture_program(directory, shows, producer), 115)
+            fixture = self.session.api(self.stage.cid, fixture_program(directory, shows, producer), 265 if shows == 1008 else 115)
         except (Exception, KeyboardInterrupt):
             # Recover the exact producer receipt after a lost acknowledgement. A
             # failure before the receipt is written remains unknown; never recreate.
@@ -216,17 +219,17 @@ class Inputs:
         return result
 
     def paid(self):
-        fixture = self.fixture("paid", 84)
+        fixture = self.fixture("paid", self.stage.profile.shows)
         program = """import json,os,jwt,time
 from pathlib import Path
 from uuid import uuid4
 from datetime import UTC,datetime
-p=Path(DIRECTORY);fixture=json.loads((p/'fixture.json').read_text());identity=str(uuid4());expiry=time.time()+3600
-manifest={'schema_version':1,'environment':'development','id':identity,'origin':'http://10.1.137.69:8000','expires_at':datetime.fromtimestamp(expiry,UTC).isoformat(),'show_ids':fixture['show_ids'],'viewer_tokens':[jwt.encode({'sub':'load-'+identity+'-'+str(i),'aud':'ticketing','iss':'ticketing','exp':expiry},os.environ['JWT_SECRET'],algorithm='HS256') for i in range(25200)],'seat_offset':0,'seats_per_show':300,'fixture_layout':'distributed'}
+p=Path(DIRECTORY);fixture=json.loads((p/'fixture.json').read_text());identity=str(uuid4());expiry=time.time()+TOKEN_LIFETIME
+manifest={'schema_version':1,'environment':'development','id':identity,'origin':'http://10.1.137.69:8000','expires_at':datetime.fromtimestamp(expiry,UTC).isoformat(),'show_ids':fixture['show_ids'],'viewer_tokens':[jwt.encode({'sub':'load-'+identity+'-'+str(i),'aud':'ticketing','iss':'ticketing','exp':expiry},os.environ['JWT_SECRET'],algorithm='HS256') for i in range(EXPECTED)],'seat_offset':0,'seats_per_show':300,'fixture_layout':'distributed'}
 (p/'manifest.private.json').write_text(json.dumps(manifest));os.chmod(p/'manifest.private.json',0o600);print(json.dumps({'viewers':len(manifest['viewer_tokens'])}))
-""".replace("DIRECTORY", repr(self.directory + "/paid"))
+""".replace("DIRECTORY", repr(self.directory + "/paid")).replace("TOKEN_LIFETIME", str(self.stage.profile.token_lifetime)).replace("EXPECTED", str(self.stage.profile.expected))
         result = self.session.api(self.stage.cid, program, 45)
-        if result.get("viewers") != 25200:
+        if result.get("viewers") != self.stage.profile.expected:
             raise ValueError("Incomplete private paid cohort")
         raw = copy_out(
             self.session,

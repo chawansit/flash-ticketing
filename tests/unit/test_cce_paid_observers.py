@@ -11,6 +11,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 import cce_paid_observers as observations
 import observe_two_host_cpu as cpu
+from cce_paid_profiles import SHORT
 from test_observe_cce_paid_pipeline import bundle
 
 
@@ -174,7 +175,7 @@ def test_cpu_parser_accepts_the_actual_generated_arguments(monkeypatch, tmp_path
             "300",
         ]
     )
-    assert received[0][2] == {"seconds": 300}
+    assert received[0][2] == {"seconds": 300, "hourly": False}
 
 
 def test_helper_identity_is_observed_without_compose_emulation(monkeypatch):
@@ -200,6 +201,7 @@ def test_helper_identity_is_observed_without_compose_emulation(monkeypatch):
 def test_cleanup_retains_inputs_when_job_stop_is_unknown():
     calls = []
     stage = SimpleNamespace(
+        profile=SHORT,
         session=SimpleNamespace(begin_cleanup=lambda: calls.append("begin")),
         run=bundle()["run"],
         cid="c" * 64,
@@ -259,10 +261,11 @@ def test_observer_start_transfers_all_helpers_once_and_blocks_bad_startup(monkey
 
     session = SimpleNamespace(api=api, call=lambda *args: {"fresh": True})
     stage = SimpleNamespace(
+        profile=SHORT,
         session=session,
         run=bundle()["run"],
         cid="c" * 64,
-        manifest={"private_fixture": True},
+        manifest={"environment": "development", "show_ids": ["owned"], "viewer_tokens": ["test-secret"]},
         output=tmp_path,
         record={},
         job_list=[],
@@ -307,6 +310,7 @@ def test_failed_pipeline_trace_does_not_skip_kafka_evidence(monkeypatch, tmp_pat
 
     calls = []
     stage = SimpleNamespace(
+        profile=SHORT,
         session=SimpleNamespace(),
         run=bundle()["run"],
         cid="c" * 64,
@@ -355,6 +359,7 @@ def test_cpu_preflight_must_pass_before_any_sampler_launch(fault):
         put=lambda *args: None,
     )
     stage = SimpleNamespace(
+        profile=SHORT,
         session=session,
         run=bundle()["run"],
         cid="c" * 64,
@@ -449,6 +454,7 @@ def test_startup_failure_retains_bounded_owned_logs_independently(tmp_path, faul
     output = tmp_path / "private"
     output.mkdir()
     stage = SimpleNamespace(
+        profile=SHORT,
         session=None, run=bundle()["run"], cid="c" * 64,
         output=output, record={}, checkpoint=lambda: None,
     )
@@ -499,6 +505,7 @@ def test_cleanup_captures_failure_before_removing_credentials(monkeypatch, tmp_p
 
     order = []
     stage = SimpleNamespace(
+        profile=SHORT,
         session=SimpleNamespace(begin_cleanup=lambda: order.append("begin")),
         run=bundle()["run"], cid="c" * 64,
         stop_jobs=lambda: order.append("stop"), record={}, checkpoint=lambda: None,

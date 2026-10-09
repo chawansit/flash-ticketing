@@ -124,18 +124,19 @@
       ],
       "boundary_mode": "goal_bounded",
       "goal_bounded_authorization": {
-        "decision": "ADR0228",
-        "profile": "cce_paid_comparison",
+        "decision": "ADR0232",
+        "profile": "cce_hourly_qualification",
         "maximum_paid_stages": 1,
         "maximum_pods": 4,
         "pod_vcpu": 1,
         "pod_memory_gib": 1,
         "offered_journeys_per_second": 84,
-        "offered_seconds": 300,
-        "maximum_experiment_seconds": 3600,
+        "offered_seconds": 3600,
+        "maximum_experiment_seconds": 5400,
+        "ledger_start_index": 52,
+        "acquisition_budget": 20,
+        "baseline_sha256": "52a5d5a3a1e516461bd23413f7bd1a355d6f51064b21fd0f91c5554d70b3ed06",
         "unlimited_cumulative_time_explicitly_authorized": true,
-        "ledger_start_index": 51,
-        "authorized_at_bangkok": "2026-10-09T07:40:33.752513+07:00",
         "spending_allowance": {
           "status": "APPROVED",
           "maximum_additional_spend": null,
@@ -143,14 +144,8 @@
           "no_spending_cap_explicitly_authorized": true,
           "authorization": "Direct user reply: No monetary cap for this comparison and scaling."
         },
-        "extension_decision": "ADR0234",
-        "authorization": "Continuing user Proceed and Continue until finish84/second; one fresh evidence-based CCE-only admission-budget candidate. Prior failed stages remain consumed. Hourly progression requires full short-stage pass.",
-        "candidate_factor": {
-          "name": "api_shared_acquisition_budget",
-          "baseline": 12,
-          "candidate": 20,
-          "database_connections_unchanged": true
-        }
+        "authorization": "Direct user Proceed and Continue after passing short comparison; previously approved 90-minute hourly qualification and no monetary cap for this comparison and scaling.",
+        "stop_conditions": "One fresh hourly paid stage only; preserve exact profile gates and mandatory recovery. No consumed reservation may be reopened."
       },
       "bounded_scaling_permission": {
         "authorized": true,
@@ -273,6 +268,35 @@
           "status": "CONSUMED_FAILED_RESTORED",
           "consumed_ledger": "bounded_cce_paid_comparison__d17725c2400a",
           "evidence": "docs/capacity/flash-sale-opening/cce-admission-control-2026-10-09.json"
+        },
+        {
+          "decision": "ADR0228",
+          "profile": "cce_paid_comparison",
+          "maximum_paid_stages": 1,
+          "maximum_pods": 4,
+          "pod_vcpu": 1,
+          "pod_memory_gib": 1,
+          "offered_journeys_per_second": 84,
+          "offered_seconds": 300,
+          "maximum_experiment_seconds": 3600,
+          "unlimited_cumulative_time_explicitly_authorized": true,
+          "ledger_start_index": 51,
+          "authorized_at_bangkok": "2026-10-09T07:40:33.752513+07:00",
+          "spending_allowance": {
+            "status": "APPROVED",
+            "maximum_additional_spend": null,
+            "currency": null,
+            "no_spending_cap_explicitly_authorized": true,
+            "authorization": "Direct user reply: No monetary cap for this comparison and scaling."
+          },
+          "extension_decision": "ADR0234",
+          "authorization": "Continuing user Proceed and Continue until finish84/second; one fresh evidence-based CCE-only admission-budget candidate. Prior failed stages remain consumed. Hourly progression requires full short-stage pass.",
+          "candidate_factor": {
+            "name": "api_shared_acquisition_budget",
+            "baseline": 12,
+            "candidate": 20,
+            "database_connections_unchanged": true
+          }
         }
       ]
     }
@@ -290,7 +314,7 @@
       "authorization": "Direct user reply: Allow 90 minutes for hourly qualification",
       "approved_date_bangkok": "2026-10-07",
       "spending_or_size_changes": false,
-      "status": "approval recorded; hourly runner not yet registered or locally qualified"
+      "status": "locally qualified and registered; cloud hourly load unexecuted"
     }
   },
   "customer_gates": {
@@ -324,7 +348,8 @@
     "writer_write_pipeline_probe",
     "generator_completion_probe",
     "cce_dependency_probe",
-    "cce_paid_comparison"
+    "cce_paid_comparison",
+    "cce_hourly_qualification"
   ],
   "escalate": [
     "new spending or infrastructure action",

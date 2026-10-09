@@ -104,6 +104,7 @@ def test_selector_rejects_mislabeled_factor(monkeypatch):
     envelope = copy.deepcopy(policy.envelope())
     goal = envelope["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"]
     goal.update(
+        profile="cce_paid_comparison",
         extension_decision="ADR0234",
         candidate_factor={
             "name": "api_shared_acquisition_budget",

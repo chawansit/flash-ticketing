@@ -142,6 +142,7 @@ def composed(tmp_path, monkeypatch):
     monkeypatch.setattr(runner, "restoration_complete", lambda r: r.get("restore_pass") is True)
     runner.REGISTRY_CREDENTIALS.update(username="fake", password="fake")
     guard = SimpleNamespace(
+        key="bounded_cce_paid_comparison__" + "f" * 12,
         check=lambda _: None,
         binding={
             "saved_api_service_sha256": policy.digest(saved["model"]["services"]["api"]),

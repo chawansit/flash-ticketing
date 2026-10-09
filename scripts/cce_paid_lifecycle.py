@@ -119,7 +119,7 @@ class Lifecycle:
         return rows
 
     def run(self, http_ready, http_metrics, global_audit):
-        self.stage.check(1200)
+        self.stage.check(self.stage.profile.duration + 900)
         if self.record.get("started"):
             raise ValueError("Fresh native lifecycle required; no ambiguous replay")
         if self.stage.cid != self.resources.record.get("audit", {}).get("container_id"):
@@ -176,6 +176,8 @@ class Lifecycle:
                 "unchanged_background": True,
                 "unchanged_native_pods": True,
             }
+            if self.stage.profile.duration == 3600:
+                self.record["measurement_gates"]["hourly_issuance"] = self.stage.record.get("hourly_issuance", {}).get("pass") is True
             self.record["pass"] = all(self.record["measurement_gates"].values())
             self.checkpoint()
         except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Always restore independently owned resources.

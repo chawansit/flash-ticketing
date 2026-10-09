@@ -50,6 +50,17 @@ def fetch(session, role, remote):
     transport = session.clients[role].open_sftp()
     try:
         with transport.open(remote, "rb") as f:
+            guard = getattr(session, "action_guard", None)
+            hourly = guard is not None and guard.key.split("__")[0] == "bounded_cce_hourly_qualification"
+            if hourly:
+                size = f.stat().st_size
+                if not 0 <= size <= 128 * 2**20:
+                    raise ValueError("Hourly private artifact exceeds transfer bound")
+                f.prefetch(file_size=size, max_concurrent_requests=16)
+                raw = f.read(128 * 2**20 + 1)
+                if len(raw) != size:
+                    raise ValueError("Hourly private artifact changed during transfer")
+                return raw
             return f.read()
     finally:
         transport.close()
@@ -108,12 +119,14 @@ def api_upload_runtime_owned(session, cid, owner, directory, name, content):
     return target
 
 
-def job_program(args, directory, *, database=False):
+def job_program(args, directory, *, database=False, hourly=False):
+    if type(hourly) is not bool:
+        raise ValueError("Explicit hourly job mode required")
     name = Path(args[1]).stem
     status_path = directory + "/job-" + name + "-exit.json"
     supervisor = (
         "import json,os,subprocess;from pathlib import Path;"
-        + "r=subprocess.run(" + repr(args) + ",stdin=subprocess.DEVNULL,timeout=600);"
+        + "r=subprocess.run(" + repr(args) + ",stdin=subprocess.DEVNULL,timeout=" + str(3780 if hourly else 600) + ");"
         + "p=Path(" + repr(status_path) + ");p.write_text(json.dumps({'returncode':r.returncode}));os.chmod(p,0o600)"
     )
     command = [args[0], "-c", supervisor]
@@ -234,7 +247,8 @@ def adapter_identity():
 
 
 def financial_audit_program(event_ids, expected_tickets=18000):
-    if type(expected_tickets) is not int or expected_tickets not in (18000, 25200):
+    if (type(expected_tickets) is not int or expected_tickets not in (18000, 25200, 302400)
+            or expected_tickets == 302400 and (len(event_ids) != 1008 or len(set(event_ids)) != 1008)):
         raise ValueError("Unsupported bounded financial expectation")
     return r"""import json,os,time,sys,psycopg
 sys.path.insert(0,'/app/scripts')
@@ -893,7 +907,11 @@ print(json.dumps({'viewers':len(manifest['viewer_tokens']),'shows':len(manifest[
 
     def launch(self, session, role, cid, arguments, directory, jobs, record, *, database=False):
         try:
-            code = job_program(arguments, directory, database=database)
+            guard = getattr(session, "action_guard", None)
+            hourly = guard is not None and guard.key.split("__")[0] == "bounded_cce_hourly_qualification"
+            if hourly:
+                guard.check(45)
+            code = job_program(arguments, directory, database=database, hourly=hourly)
             job = session.api(cid, code, 45) if role == "container" else session.call(role, code, 45)
             jobs.append((role, job))
             return job

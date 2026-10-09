@@ -42,9 +42,17 @@ def authorized_today(envelope, now=None):
             "offered_journeys_per_second": 84, "offered_seconds": 300,
             "maximum_experiment_seconds": 3600,
         }
+        decision = "ADR0228"
+        if goal.get("profile") == "cce_hourly_qualification":
+            decision = "ADR0232"
+            expected.update(profile="cce_hourly_qualification", offered_seconds=3600,
+                            maximum_experiment_seconds=5400)
+            from run_cce_hourly_qualification import plan as hourly_plan
+            if goal.get("acquisition_budget") != 20 or goal.get("baseline_sha256") != hourly_plan()["baseline_sha256"]:
+                raise ValueError("Passing short baseline and unchanged hourly configuration required")
         if (
             now.tzinfo is None or exception.get("decision") != "ADR0220"
-            or goal.get("decision") != "ADR0228"
+            or goal.get("decision") != decision
             or any(type(goal.get(k)) is not type(v) or goal.get(k) != v for k, v in expected.items())
             or goal.get("unlimited_cumulative_time_explicitly_authorized") is not True
             or budget.get("status") != "APPROVED"

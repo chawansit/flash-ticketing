@@ -12,6 +12,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 import cce_dependency_probe as dependency
 import work_envelope as policy
+from cce_paid_profiles import for_guard
 from prepare_two_host_scaling import API_SETTINGS
 
 CONTRACT = policy.ROOT / "docs/capacity/cce/api-adapter-contract-2026-10-08.json"
@@ -62,7 +63,7 @@ def authorized_creation(envelope, now=None):
         state = policy.read(policy.STATE)
         consumed = 0
         for entry in entries[start:]:
-            if entry.get("profile") != "cce_paid_comparison":
+            if entry.get("profile") != goal["profile"]:
                 continue
             counts = (
                 entry.get("paid_runs_started", 0),
@@ -85,6 +86,10 @@ def admission_budget():
     """One declared bounded factor; old profiles retain the immutable baseline."""
     exception = policy.envelope()["spending"]["temporary_cce_pilot_exception"]
     goal = exception.get("goal_bounded_authorization", {})
+    if goal.get("profile") == "cce_hourly_qualification":
+        if goal.get("decision") != "ADR0232" or goal.get("acquisition_budget") != 20:
+            raise ValueError("Exact passing hourly acquisition configuration required")
+        return 20
     if goal.get("extension_decision") != "ADR0234":
         return 12
     if goal.get("candidate_factor") != {
@@ -199,7 +204,11 @@ os.execvp(command[0],command)
 """
 
 
-def objects(run, service, primary_ip, registry_username, registry_password, *, acquisition_budget=12):
+def objects(run, service, primary_ip, registry_username, registry_password, *, acquisition_budget=12, profile=None):
+    from cce_paid_profiles import HOURLY, SHORT
+    profile = SHORT if profile is None else profile
+    if profile not in (SHORT, HOURLY):
+        raise ValueError("Exact native lifetime profile required")
     """Private payloads: never publish returned Secrets."""
     namespace = dependency.namespace_for(run)
     env = api_environment(service, primary_ip, acquisition_budget=acquisition_budget)
@@ -244,7 +253,7 @@ def objects(run, service, primary_ip, registry_username, registry_password, *, a
                 },
                 "spec": {
                     "restartPolicy": "Never",
-                    "activeDeadlineSeconds": 3000,
+                    "activeDeadlineSeconds": 5400 if profile == HOURLY else 3000,
                     "automountServiceAccountToken": False,
                     "enableServiceLinks": False,
                     "imagePullSecrets": [{"name": "swr-pull"}],
@@ -445,9 +454,11 @@ class Deployment:
         self.pod_uids, self.attempted = {}, False
 
     def authorize(self):
-        if self.guard is None or self.guard.key.split("__")[0] != "bounded_cce_paid_comparison":
+        if self.guard is None:
             raise ValueError("Separate registered CCE paid profile required before application deployment")
-        if PROFILE not in policy.PROFILES or PROFILE not in policy.envelope()["qualified_profiles"]:
+        if for_guard(self.guard).name not in policy.PROFILES:
+            raise ValueError("CCE paid profile has not been registered and qualified")
+        if for_guard(self.guard).name not in policy.envelope()["qualified_profiles"]:
             raise ValueError("CCE paid profile has not been registered and qualified")
         dependency.authorized_today(policy.envelope())
         self.guard.check(15)
@@ -675,9 +686,9 @@ class KubernetesTransport:
             guard = getattr(self.session, "action_guard", None)
             if (
                 guard is None
-                or guard.key.split("__")[0] != "bounded_cce_paid_comparison"
-                or PROFILE not in policy.PROFILES
-                or PROFILE not in policy.envelope()["qualified_profiles"]
+                or for_guard(guard).name not in policy.PROFILES
+                or for_guard(guard).name not in policy.PROFILES
+                or for_guard(guard).name not in policy.envelope()["qualified_profiles"]
             ):
                 raise ValueError("Paid CCE mutation requires the qualified registered profile")
             dependency.authorized_today(policy.envelope())

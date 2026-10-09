@@ -1,0 +1,88 @@
+{
+  "decision": "ADR0232",
+  "run": "adr0151-b166e473c60c",
+  "status": "FAILED_RESTORED before paid dispatch",
+  "original_report_sha256": "8a52a02cee6926f3287a1feae66226ede35d6f1af94d9b59d4835f4e304d4aeb",
+  "actual_elapsed_seconds": 722.0620000000345,
+  "paid_stages_started": 0,
+  "customer_paid_capacity_measured": false,
+  "failure": "Hourly fixture age 170 seconds exceeded inherited 120-second limit during preparation of 302400-token manifest.",
+  "restoration_complete": true,
+  "integrity_verified": true,
+  "owned_cleanup_complete": true,
+  "correction": "Hourly-only maximum creation age 600 seconds plus minimum 4200-second remaining sale window; bounded SFTP prefetch and acknowledged pipelined writes; observer manifests exclude customer tokens.",
+  "local_validation": {
+    "passed": 805,
+    "platform_skips": 1,
+    "seconds": 24.01,
+    "lint_pass": true,
+    "naming_check_pass": true
+  },
+  "entry_source_sha256": {
+    "scripts/cce_paid_stage.py": "9bd94cd4234e37a1d854c6e237b3fbc34eab2a078082b4d8dec9fbd31be08207",
+    "scripts/cce_paid_profiles.py": "1d0a635360784e824278aa2109f50a8b2da9d0170f5689deb2de9972570f1a9c",
+    "scripts/fixture_identity_evidence.py": "dfe4ccea42819e1aa90144153a89bf0e7755cf6f64a788ced0ed656291d38902",
+    "scripts/cce_paid_inputs.py": "0888283b385ccdecbb7cc69840fc6f88efbd5def7643aec2d9e6cfb6c10e7cbb",
+    "scripts/cce_paid_resources.py": "42235326c5ed3a51cf0ad7b072bb7ad699fa93ef134bbe7cec630cbb7f70c79c",
+    "scripts/cce_paid_lifecycle.py": "0fed16ed4aeb02c22a277c9b81bfc8efce29eeaaefa3c1165eb1e3216a22cd12",
+    "scripts/cce_paid_observers.py": "e5e712961d9f6725d45468f0feac95ad50f6591c4f5ee095ac41074257e63257",
+    "scripts/observe_cce_paid_pipeline.py": "b0e0a7aa5142a517301ba7314ca3cdda83529e32f5864c2a9d6dd2aeb3c048a8",
+    "scripts/observe_two_host_cpu.py": "06af5e118608925c9c6e2934cbaecd8bef5848c7de222fe90f071f780039c906",
+    "scripts/observe_two_host_pipeline.py": "88e1902b8591f8f7a1d95e181c4bf1224f3adfdcb3faac79e2c1df8b20e80ff5",
+    "scripts/cce_paid_safety.py": "d8c97685832e3e0b4c20a944c1a789799831589bae789ca8b635e60ce6f433b5",
+    "scripts/cce_api_adapter.py": "ea265e7e9e160713b0c92d22bd8069d9b5e6aac921cb3be20bea8d419c83686f",
+    "scripts/cce_dependency_probe.py": "0eaa401200576c3b82f9f4a5bae919b4843b3f8ff7895ef2f043b7f9c91d9e65",
+    "scripts/cce_ecs_transition.py": "bf22c4cc8a1ec2db5224d97df3aead9ec693dea6296e548e25e6dcbb25d4af15",
+    "scripts/run_two_host_paid_comparison.py": "c1c01d5111f4d3ce49958edee782e72d4a04d6466a21ae1102b493b640a0ee14",
+    "scripts/run_synchronized_paid_generator.py": "04ede8745c5eb9f724f11fde01a429f572f2f8af2d2cfde610e3bfc1e19bd036",
+    "scripts/prepare_generator_completion.py": "4ad90f94bbd53108cb01b805037e6aeb7a227a3032defa2c86d5193678a912b4",
+    "docs/capacity/cce/api-adapter-contract-2026-10-08.json": "ed6eeeeb718768d73de2f719c93fb17ff322de1ae450ab8872cc53b828ee4379",
+    "scripts/run_cce_paid_comparison.py": "cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
+    "scripts/run_work_envelope.py": "43fd66eb9e9c45fe50b9e9fed552730146ece85fbbac590e306f3cd74786e9ae",
+    "scripts/work_envelope.py": "8e0e442e61a6a93c4b85c1badbe45546caba2ea6312c0d3052e70bda1836321a",
+    "scripts/diagnostic_runner_connection.py": "078f85b4d3653d9342f9f9d0ee5fe933c8737eef790f20d48e67e95f18cb39a7",
+    "scripts/qualify_two_host_deployment.py": "2dc3f2081430d136100d0bc4e94f2e2533f77bb960e4e62596daa3a597c08894",
+    "scripts/cce_hourly_paid_generator.py": "abe53dcb73b4b221f7a9b2b29e8812c88e0a11751d160f656da5d623155a0d0f",
+    "scripts/cce_hourly_paid_leaf.py": "abcb6aec285d0e007effbcd23bcdebd858b8ff7102b38c29eea6cdeb2e6aba04",
+    "scripts/cce_hourly_window.py": "4382f506d0bba174d3746310c7c9e8b0b9d9b265c6fd51432270a66553b03ac8",
+    "scripts/run_cce_hourly_qualification.py": "e65a92bb2166dc2a0661a481df298e482a81677aba082316d39f602b442f7814"
+  },
+  "plan": {
+    "decision": "ADR0232",
+    "arms": [
+      "candidate"
+    ],
+    "common": {
+      "buyer_journeys_per_second": 84,
+      "duration_seconds": 3600
+    },
+    "kind": "fixed_native_hourly_qualification",
+    "diagnostic_connection_decision": "ADR0180",
+    "baseline_evidence": "docs/capacity/flash-sale-opening/cce-acquisition-headroom-comparison-2026-10-09.json",
+    "baseline_sha256": "52a5d5a3a1e516461bd23413f7bd1a355d6f51064b21fd0f91c5554d70b3ed06",
+    "acquisition_budget": 20,
+    "replicas": 4,
+    "pod_resources": {
+      "requests": {
+        "cpu": "1",
+        "memory": "1Gi"
+      },
+      "limits": {
+        "cpu": "1",
+        "memory": "1Gi"
+      }
+    },
+    "bridge_cpu_limit": 1,
+    "pooler_server_connections": 24,
+    "qualification_runs_authorized": 1,
+    "paid_runs_authorized": 1,
+    "safety_tickets_authorized": 2,
+    "expected_terminal_tickets": 302400,
+    "minimum_issued_inside_hour": 300000,
+    "cohort_observer_interval_seconds": 10,
+    "experiment_seconds_limit": 5400,
+    "duration_reason": "One continuous measured hour is necessary to qualify 300000 tickets/hour; mandatory TTL, durability, queues and restoration remain outside the offered window."
+  },
+  "hourly_qualified": false,
+  "next_action": "Fresh reservation under the same unconsumed one-stage hourly goal; no old scope replay."
+}

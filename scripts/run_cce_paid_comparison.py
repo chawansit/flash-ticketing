@@ -16,6 +16,7 @@ from cce_ecs_transition import Transition
 from cce_paid_inputs import Inputs
 from cce_paid_lifecycle import Lifecycle
 from cce_paid_observers import Observers
+from cce_paid_profiles import HOURLY, SHORT, for_guard
 from cce_paid_resources import BRIDGE_CPU_LIMIT, Resources
 from diagnostic_runner_connection import ProtectedContext, validate_target
 from run_status_refresh_comparison import RunLock, restoration_complete
@@ -41,7 +42,12 @@ def identity():
     }
 
 
-def plan():
+def plan(*, profile=SHORT):
+    if profile == HOURLY:
+        from run_cce_hourly_qualification import plan as hourly_plan
+        return hourly_plan()
+    if profile != SHORT:
+        raise ValueError("Exact registered native profile required")
 
     return {
         "decision": "ADR0228",
@@ -67,7 +73,8 @@ def plan():
     }
 
 
-def binding_for(config, proof, manifests, target, snapshot):
+def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
+    entry = entry_for(profile)
 
     native.dependency.validate_proof(proof)
 
@@ -76,7 +83,7 @@ def binding_for(config, proof, manifests, target, snapshot):
     return {
         "configuration_sha256": policy.digest(config),
         "cce_acquisition_budget": native.admission_budget(),
-        "cce_paid_entry_sources": identity(),
+        "cce_paid_entry_sources": entry.identity(),
         "cce_paid_core_sources": paid.identity(),
         "cce_manifest_sha256": policy.digest(manifests),
         "cce_bridge_cpu_limit": BRIDGE_CPU_LIMIT,
@@ -87,9 +94,18 @@ def binding_for(config, proof, manifests, target, snapshot):
         "diagnostic_target_sha256": policy.digest(target),
         "image_proof_sha256": policy.digest(proof),
         "saved_api_service_sha256": policy.digest(api_semantics(service_for(snapshot))),
-        "baseline_sha256": plan()["baseline_sha256"],
+        "baseline_sha256": entry.plan()["baseline_sha256"],
     }
 
+
+
+def entry_for(profile):
+    if profile == SHORT:
+        return sys.modules[__name__]
+    if profile == HOURLY:
+        import run_cce_hourly_qualification
+        return run_cce_hourly_qualification
+    raise ValueError("Exact registered native profile required")
 
 def service_for(saved):
 
@@ -197,7 +213,8 @@ class ReadyDeployment(native.Deployment):
 
 def activate_scope(guard, run):
 
-    guard.check(1200)
+    profile = for_guard(guard)
+    guard.check(profile.duration + 900)
 
     state = policy.read(policy.STATE)
 
@@ -232,6 +249,7 @@ def activate_scope(guard, run):
 
 
 def run(config, output, guard, manifests, kubeconfig, context):
+    profile = for_guard(guard)
 
     output = Path(output)
 
@@ -241,7 +259,7 @@ def run(config, output, guard, manifests, kubeconfig, context):
         "run": run_id,
         "pass": False,
         "capacity_stages_started": 0,
-        "baseline_evidence": BASELINE,
+        "baseline_evidence": plan(profile=profile)["baseline_evidence"],
         "binding_sha256": policy.digest(guard.binding),
         "native_resources_creation_attempted": False,
         "transport_creation_attempted": False,
@@ -266,7 +284,7 @@ def run(config, output, guard, manifests, kubeconfig, context):
         if arm == "control":
             return
 
-        guard.check(1200)
+        guard.check(profile.duration + 900)
 
         service = service_for(saved)
 
@@ -280,6 +298,7 @@ def run(config, output, guard, manifests, kubeconfig, context):
                     registry_username,
                     registry_password,
                     acquisition_budget=native.admission_budget(),
+                    profile=profile,
                 )
             )
             != guard.binding["cce_manifest_sha256"]
@@ -440,7 +459,9 @@ def execute(
     diagnostic_password,
     registry_username,
     registry_password,
+    *, profile=SHORT,
 ):
+    entry_module = entry_for(profile)
 
     native.authorized_creation(policy.envelope())
 
@@ -469,9 +490,10 @@ def execute(
         registry_username,
         registry_password,
         acquisition_budget=native.admission_budget(),
+        profile=profile,
     )
 
-    binding = binding_for(config, proof, manifests, target, snapshot)
+    binding = binding_for(config, proof, manifests, target, snapshot, profile=profile)
 
     lock = RunLock(run_id)
 
@@ -490,7 +512,7 @@ def execute(
     original_prompt = getpass.getpass
 
     try:
-        entry = policy.reserve(binding, plan(), profile=native.PROFILE)
+        entry = policy.reserve(binding, entry_module.plan(), profile=profile.name)
 
         guard = policy.ActionGuard(entry["ledger"], binding)
 
@@ -533,7 +555,8 @@ def execute(
     return receipt
 
 
-def outcome(report, scope, binding):
+def outcome(report, scope, binding, *, profile=SHORT):
+    entry = entry_for(profile)
 
     valid = (
         isinstance(report, dict)
@@ -543,7 +566,7 @@ def outcome(report, scope, binding):
         and scope.get("paid_protocols_started") == 1
         and scope.get("safety_protocols_started") == 2
         and report.get("binding_sha256") == policy.digest(binding)
-        and binding.get("cce_paid_entry_sources") == identity()
+        and binding.get("cce_paid_entry_sources") == entry.identity()
     )
 
     native_result = report.get("native", {}) if isinstance(report, dict) else {}

@@ -410,3 +410,5 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0233: Retain CCE admission failure evidence before cleanup](0233-retain-cce-admission-failure-evidence.md)
 
 - [ADR0234: Bounded CCE acquisition headroom with unchanged connections](0234-bounded-cce-acquisition-headroom.md)
+
+- [ADR0235: Hourly terminal audit and independent recovery](0235-hourly-terminal-audit-and-recovery.md)

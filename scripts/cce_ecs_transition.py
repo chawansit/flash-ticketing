@@ -11,6 +11,7 @@ import re
 import cce_api_adapter as cce
 import cce_paid_stage as paid
 import work_envelope as policy
+from cce_paid_profiles import for_guard
 from prepare_two_host_scaling import nginx_config
 from qualify_two_host_deployment import INSPECT
 
@@ -128,9 +129,9 @@ class Transition:
     def check(self):
         if (
             self.session.action_guard is not self.guard
-            or self.guard.key.split("__")[0] != "bounded_cce_paid_comparison"
-            or cce.PROFILE not in policy.PROFILES
-            or cce.PROFILE not in policy.envelope()["qualified_profiles"]
+            or for_guard(self.guard).name not in policy.PROFILES
+            or for_guard(self.guard).name not in policy.PROFILES
+            or for_guard(self.guard).name not in policy.envelope()["qualified_profiles"]
             or self.guard.binding.get("configuration_sha256") != policy.digest(self.session.config)
             or self.guard.binding.get("cce_transition_source_sha256")
             != paid.sha((policy.ROOT / "scripts/cce_ecs_transition.py").read_bytes())

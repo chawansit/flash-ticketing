@@ -30,7 +30,7 @@ for p in Path('/proc').iterdir():
  if not p.name.isdigit():continue
  try:args=(p/'cmdline').read_bytes().split(b'\0')
  except OSError:continue
- if any(arg==b'ticketing.api:app' or Path(arg.decode(errors='replace')).name in {'paid_ticket_sharded_generator.py','paid_ticket_load_generator.py','run_synchronized_paid_generator.py'} for arg in args):active.append(p.name)
+ if any(arg==b'ticketing.api:app' or Path(arg.decode(errors='replace')).name in {'paid_ticket_sharded_generator.py','paid_ticket_load_generator.py','run_synchronized_paid_generator.py','cce_hourly_paid_generator.py','cce_hourly_paid_leaf.py'} for arg in args):active.append(p.name)
 print(json.dumps({'generator_idle':not active}))
 """
 
@@ -191,7 +191,14 @@ class Session:
         try:
             with s.open(path, "wx" if fresh else "w") as f:
                 s.chmod(path, 0o600)
-                f.write(content.encode())
+                raw = content.encode()
+                guard = getattr(self, "action_guard", None)
+                hourly = guard is not None and guard.key.split("__")[0] == "bounded_cce_hourly_qualification"
+                if hourly:
+                    if len(raw) > 128 * 2**20:
+                        raise ValueError("Hourly private input exceeds transfer bound")
+                    f.set_pipelined(True)
+                f.write(raw)
         finally:
             s.close()
 

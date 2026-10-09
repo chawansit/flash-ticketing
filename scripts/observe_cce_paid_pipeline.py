@@ -45,7 +45,11 @@ def validate_receipts(value):
     return {r["private_ipv4"]: r["process_start_time_seconds"] for r in entries}
 
 
-def install(module, value, *, fetch=urlopen):
+def install(module, value, *, fetch=urlopen, hourly=False):
+    if type(hourly) is not bool:
+        raise ValueError("Explicit hourly observer mode required")
+    if hourly:
+        install_hourly_sampling(module)
     starts = validate_receipts(value)
     discover = module.api_replicas
     previous = {}
@@ -76,8 +80,33 @@ def install(module, value, *, fetch=urlopen):
     return starts
 
 
+
+def install_hourly_sampling(module, *, now=None):
+    """Keep full cohort scans at ten seconds; global queue/lock reads remain fresh."""
+    import time
+    now = time.monotonic if now is None else now
+    original = module.sample
+    module.MAX_PAID_OBSERVER_SECONDS = 3780
+    cache, refreshed = {}, float("-inf")
+
+    def sample(conn, shows):
+        nonlocal cache, refreshed
+        at = now()
+        if at - refreshed >= 10:
+            cache = dict(original(conn, shows))
+            refreshed = at
+        else:
+            row = conn.execute("SELECT (SELECT count(*) FROM outbox_events WHERE published_at IS NULL),"
+                               "(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock')").fetchone()
+            cache.update(unpublished_outbox=row[0], db_lock_waiters=row[1])
+        return {**cache, "cohort_sample_age_seconds": at - refreshed,
+                "cohort_sample_interval_seconds": 10}
+
+    module.sample = sample
+
 def main(argv=None):
     parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--hourly", action="store_true")
     parser.add_argument("--native-receipts", type=Path, required=True)
     parser.add_argument("--native-receipts-sha256", required=True)
     args, remaining = parser.parse_known_args(argv)
@@ -94,8 +123,12 @@ def main(argv=None):
 
     def adapter(module, *params, **kwargs):
         original(module, *params, **kwargs)  # Retain workers, diagnostics, budgets and metric parsing.
-        return install(module, value)
+        return install(module, value, hourly=args.hourly)
 
+    if args.hourly:
+        index = remaining.index("--seconds") if "--seconds" in remaining else -1
+        if index < 0 or remaining[index + 1] != "3780":
+            raise ValueError("Exact hourly observer duration required")
     observer.install_adapter = adapter
     try:
         observer.main(remaining)

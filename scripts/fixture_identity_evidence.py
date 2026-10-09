@@ -13,7 +13,7 @@ def fixture_identity(fixture, expected_shows, *, now=None, producer_sha256=None)
     if "fixture_layout" not in fixture and producer_sha256 == LEGACY_DISTRIBUTED_PRODUCER:
         fixture = {**fixture, "fixture_layout": "distributed"}
     now = now or datetime.now(UTC)
-    if type(expected_shows) is not int or expected_shows not in {1, 60, 84}:
+    if type(expected_shows) is not int or expected_shows not in {1, 60, 84, 1008}:
         raise ValueError("Exact bounded stage show count required")
     if (fixture.get("schema_version") != 1 or type(fixture.get("schema_version")) is not int
             or fixture.get("environment") != "development" or fixture.get("fixture_layout") != "distributed"
@@ -30,8 +30,8 @@ def fixture_identity(fixture, expected_shows, *, now=None, producer_sha256=None)
         raise ValueError("Distinct show identities required")
     created, end = (datetime.fromisoformat(fixture[k]) for k in ("created_at", "sale_ends"))
     if (created.tzinfo is None or end.tzinfo is None or now.tzinfo is None
-            or not 0 <= (now - created).total_seconds() <= 120
-            or not 0 < (end - created).total_seconds() <= 3600 or end <= now):
+            or not 0 <= (now - created).total_seconds() <= (600 if expected_shows == 1008 else 120)
+            or not 0 < (end - created).total_seconds() <= (7200 if expected_shows == 1008 else 3600) or end <= now):
         raise ValueError("Fresh open fixture window required")
     keys = ("schema_version", "environment", "fixture_id", "created_at", "sale_ends", "shows",
             "seats_per_show", "fixture_layout", "show_ids")

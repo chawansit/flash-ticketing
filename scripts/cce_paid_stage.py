@@ -15,6 +15,7 @@ from uuid import UUID
 
 import cce_api_adapter as cce
 import work_envelope as policy
+from cce_paid_profiles import for_guard
 from fixture_identity_evidence import retain_fixture_identity
 from prepare_generator_completion import ARTIFACTS, PATH, corrected_bundle
 from qualify_two_host_deployment import GENERATOR_IDLE
@@ -35,6 +36,7 @@ def sha(raw):
 def identity():
     paths = (
         "scripts/cce_paid_stage.py",
+        "scripts/cce_paid_profiles.py",
         "scripts/fixture_identity_evidence.py",
         "scripts/cce_paid_inputs.py",
         "scripts/cce_paid_resources.py",
@@ -45,6 +47,7 @@ def identity():
         "scripts/observe_two_host_pipeline.py",
         "scripts/cce_paid_safety.py",
         "scripts/cce_api_adapter.py",
+        "scripts/cce_dependency_probe.py",
         "scripts/cce_ecs_transition.py",
         "scripts/run_two_host_paid_comparison.py",
         "scripts/run_synchronized_paid_generator.py",
@@ -66,7 +69,11 @@ def generator_bundle():
     return {**bundle, "scripts/checkout_journey_probe.py": raw}
 
 
-def generator_arguments(directory, origin, start_at_epoch):
+def generator_arguments(directory, origin, start_at_epoch, *, profile=None):
+    from cce_paid_profiles import HOURLY, SHORT
+    profile = SHORT if profile is None else profile
+    if profile not in (SHORT, HOURLY):
+        raise ValueError("Exact CCE stage profile required")
     if not re.fullmatch(r"/[^\x00\r\n]*?/tmp/adr0151-[0-9a-f]{12}-cce-candidate", directory):
         raise ValueError("Canonical owned generator directory required")
     if origin != "http://10.1.137.69:8000":
@@ -75,9 +82,8 @@ def generator_arguments(directory, origin, start_at_epoch):
         raise ValueError("Finite synchronized start required")
     return [
         "/root/http-load-venv/bin/python",
-        directory + "/run_synchronized_paid_generator.py",
-        "--frozen-generator",
-        directory + "/paid_ticket_sharded_generator.py",
+        directory + ("/cce_hourly_paid_generator.py" if profile == HOURLY else "/run_synchronized_paid_generator.py"),
+        *([] if profile == HOURLY else ["--frozen-generator", directory + "/paid_ticket_sharded_generator.py"]),
         "--start-at-epoch",
         str(start_at_epoch),
         "--manifest",
@@ -89,9 +95,9 @@ def generator_arguments(directory, origin, start_at_epoch):
         "--rate",
         "84",
         "--seconds",
-        "300",
+        str(profile.duration),
         "--completion-deadline-seconds",
-        "420",
+        str(profile.completion_deadline),
         "--concurrency",
         "500",
         "--http-client-count",
@@ -125,6 +131,7 @@ class PaidStage:
             audit_container,
             output,
         )
+        self.profile = for_guard(guard)
         self.bundle = bundle if bundle is not None else generator_bundle()
         parent = policy.read(
             policy.ROOT
@@ -155,7 +162,7 @@ class PaidStage:
         }
         self.gen = session.config["generator"]["repo"] + "/tmp/" + run + "-cce-candidate"
         self.origin = "http://10.1.137.69:8000"
-        generator_arguments(self.gen, self.origin, 0)
+        generator_arguments(self.gen, self.origin, 0, profile=self.profile)
         self.events = []
         self.prepared = False
 
@@ -163,9 +170,9 @@ class PaidStage:
         if (
             self.guard is None
             or self.session.action_guard is not self.guard
-            or self.guard.key.split("__")[0] != "bounded_cce_paid_comparison"
-            or cce.PROFILE not in policy.PROFILES
-            or cce.PROFILE not in policy.envelope()["qualified_profiles"]
+            or for_guard(self.guard).name not in policy.PROFILES
+            or for_guard(self.guard).name not in policy.PROFILES
+            or for_guard(self.guard).name not in policy.envelope()["qualified_profiles"]
             or self.guard.binding.get("cce_paid_core_sources") != identity()
             or self.guard.binding.get("configuration_sha256") != policy.digest(self.session.config)
         ):
@@ -186,12 +193,14 @@ class PaidStage:
             self.output,
             self.record,
             fixture,
-            84,
+            self.profile.shows,
             producer_sha256=sha(self.bundle["scripts/prepare_capacity_fixture.py"]),
             persist_stage=False,
         )
         self.checkpoint()
         self.events = list(fixture["show_ids"])
+        if self.profile.duration == 3600 and (datetime.fromisoformat(fixture["sale_ends"]) - datetime.now(UTC)).total_seconds() < 4200:
+            raise ValueError("Hourly sale window must cover offered traffic and mandatory audit headroom")
         expiry = datetime.fromisoformat(manifest["expires_at"])
         if (
             manifest.get("schema_version") != 1
@@ -201,10 +210,10 @@ class PaidStage:
             or manifest.get("show_ids") != self.events
             or manifest.get("seat_offset") != 0
             or manifest.get("seats_per_show") != 300
-            or len(manifest.get("viewer_tokens", [])) != 25200
-            or len(set(manifest["viewer_tokens"])) != 25200
+            or len(manifest.get("viewer_tokens", [])) != self.profile.expected
+            or len(set(manifest["viewer_tokens"])) != self.profile.expected
             or expiry.tzinfo is None
-            or (expiry - datetime.now(UTC)).total_seconds() < 900
+            or (expiry - datetime.now(UTC)).total_seconds() < self.profile.duration + 600
         ):
             raise ValueError("Fresh complete private paid manifest required")
         UUID(manifest["id"])
@@ -245,8 +254,8 @@ class PaidStage:
         self.session.put("generator", self.gen + "/manifest.private.json", json.dumps(manifest), True)
         self.record["private_manifest_uploaded"] = True
         transferred = {}
-        for name in CORE:
-            raw = self.bundle["scripts/" + name]
+        for name in (*CORE, *(("cce_hourly_paid_generator.py", "cce_hourly_paid_leaf.py") if self.profile.duration == 3600 else ())):
+            raw = self.bundle["scripts/" + name] if name in CORE else (policy.ROOT / "scripts" / name).read_bytes()
             self.session.put("generator", self.gen + "/" + name, raw.decode(), True)
             transferred[name] = sha(raw)
         raw = (policy.ROOT / "scripts/run_synchronized_paid_generator.py").read_bytes()
@@ -268,7 +277,7 @@ class PaidStage:
         self.checkpoint()
 
     def dispatch(self, admission, *, start_at_epoch=None):
-        self.check(900)
+        self.check(self.profile.duration + 600)
         if not self.prepared or self.record["customers_dispatched"]:
             raise ValueError("Fresh prepared paid stage required")
         receipts = admission.get("cce_api_receipts", [])
@@ -288,7 +297,7 @@ class PaidStage:
         start = time.time() + 30 if start_at_epoch is None else start_at_epoch
         if type(start) not in (int, float) or not math.isfinite(start) or not 3 <= start - time.time() <= 60:
             raise ValueError("Synchronized start must remain 3 to 60 seconds ahead")
-        arguments = generator_arguments(self.gen, self.origin, start)
+        arguments = generator_arguments(self.gen, self.origin, start, profile=self.profile)
         state = policy.read(policy.STATE)
         scope = state[self.guard.key]
         if (
@@ -317,7 +326,7 @@ class PaidStage:
         job = self.jobs.launch(
             self.session, "generator", self.cid, arguments, self.gen, self.job_list, self.record
         )
-        self.jobs.wait(self.session, job, "generator", 480, allowed_returncodes={0, 1})
+        self.jobs.wait(self.session, job, "generator", self.profile.job_timeout, allowed_returncodes={0, 1})
         self.record["customer"] = json.loads(fetch(self.session, "generator", self.gen + "/customer.json"))
         self.checkpoint()
         return self.record["customer"]
@@ -330,7 +339,7 @@ class PaidStage:
         for name, operation in (
             (
                 "financial",
-                lambda: self.session.api(self.cid, financial_audit_program(self.events, 25200), 175),
+                lambda: self.session.api(self.cid, financial_audit_program(self.events, self.profile.expected), 175),
             ),
             ("global_queues", lambda: drain(self.session, self.cid, global_audit)),
         ):
@@ -339,6 +348,15 @@ class PaidStage:
             except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Preserve independent mandatory recovery operations.
                 self.record[name + "_failure_type"] = type(error).__name__
                 errors.append(name)
+            self.checkpoint()
+        if self.profile.duration == 3600:
+            try:
+                from cce_hourly_window import program
+                start = datetime.fromisoformat(self.record["scheduled_offered_start_utc"]).timestamp()
+                self.record["hourly_issuance"] = self.session.api(self.cid, program(self.events, start), 90)
+            except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Keep mandatory terminal audit independent.
+                self.record["hourly_issuance_failure_type"] = type(error).__name__
+                errors.append("hourly_issuance")
             self.checkpoint()
         if errors:
             raise ValueError("Mandatory native financial/queue audit failed")
@@ -396,7 +414,7 @@ class PaidStage:
                     45,
                 )
                 self.record["retired_shows"] = receipt["retired_shows"]
-                if receipt["retired_shows"] != 84:
+                if receipt["retired_shows"] != self.profile.shows:
                     raise ValueError("Incomplete owned fixture retirement")
             except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Retain independent mandatory recovery failures.
                 errors.append({"operation": "retire_fixture", "type": type(error).__name__})
@@ -415,7 +433,7 @@ def remove(path):
   if path.is_symlink() or not path.is_file():raise ValueError('Unexpected manifest path')
   path.unlink()
 remove(p/'manifest.private.json')
-for child in p.glob('paid-shards-*'):
+for child in [*p.glob('paid-shards-*'),*p.glob('paid-hourly-shards-*')]:
  if child.is_symlink() or not child.is_dir() or child.resolve().parent!=p.resolve():raise ValueError('Unknown shard ownership')
  for file in child.iterdir():
   if file.name not in {'manifest-0.json','manifest-1.json','result-0.json','result-1.json'}:raise ValueError('Unknown shard artifact')

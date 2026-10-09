@@ -26,8 +26,10 @@ def status():
 
 
 def execute(config_path, artifact_path, ssh_runtime, *, profile_name=policy.PROFILE, diagnostic_target=None, worker_inputs=None, worker_ca=None, cce_kubeconfig=None, cce_snapshot=None):
-    if profile_name == 'cce_paid_comparison':
+    if profile_name in {'cce_paid_comparison', 'cce_hourly_qualification'}:
         import run_cce_paid_comparison as cce
+        if profile_name == "cce_hourly_qualification":
+            import run_cce_hourly_qualification as cce
         if any(v is None for v in (cce_kubeconfig, artifact_path, diagnostic_target, cce_snapshot)) or not sys.stdin.isatty():
             raise ValueError('Protected CCE paid inputs and credential terminal required')
         if worker_inputs or worker_ca:

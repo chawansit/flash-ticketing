@@ -164,12 +164,14 @@ def inspect_containers(entries):
     return result
 
 
-def collect(spec, start_at, *, seconds=300, interval=5):
+def collect(spec, start_at, *, seconds=300, interval=5, hourly=False):
+    if type(hourly) is not bool or (hourly and placement(spec) != "cce-api-isolation"):
+        raise ValueError("Hourly CPU mode requires the native CCE profile")
     entries = validate_spec(spec)
     start = timestamp(start_at)
     if (
         type(seconds) is not int
-        or not 1 <= seconds <= 300
+        or not (seconds == 3600 if hourly else 1 <= seconds <= 300)
         or not 0.25 <= interval <= 10
         or seconds % interval
     ):
@@ -214,6 +216,7 @@ def collect(spec, start_at, *, seconds=300, interval=5):
         "instance_uuid_sha256": actual,
         "requested_start_utc": start.isoformat(),
         "seconds": seconds,
+        "hourly": hourly,
         "interval": interval,
         "containers": [
             {"id": cid, **{k: v for k, v in entry.items() if k != "path"}}
@@ -225,9 +228,12 @@ def collect(spec, start_at, *, seconds=300, interval=5):
 
 def summarize(data):
     seconds, interval = data["seconds"], data["interval"]
+    hourly = data.get("hourly", False)
+    if type(hourly) is not bool or (hourly and placement(data) != "cce-api-isolation"):
+        raise ValueError("Hourly CPU mode requires the native CCE profile")
     if (
         type(seconds) is not int
-        or not 1 <= seconds <= 300
+        or not (seconds == 3600 if hourly else 1 <= seconds <= 300)
         or not 0.25 <= interval <= 10
         or seconds % interval
     ):
@@ -296,7 +302,9 @@ def summarize(data):
     }
 
 
-def compare_windows(primary, secondary, *, offered_start_utc, offered_end_utc):
+def compare_windows(primary, secondary, *, offered_start_utc, offered_end_utc, hourly=False):
+    if type(hourly) is not bool or (hourly and any(placement(h) != "cce-api-isolation" for h in (primary, secondary))):
+        raise ValueError("Exact hourly native CPU mode required")
     if (
         primary["host_role"] != "primary"
         or secondary["host_role"] != "secondary"
@@ -312,7 +320,7 @@ def compare_windows(primary, secondary, *, offered_start_utc, offered_end_utc):
     ):
         raise ValueError("Host sampling windows differ")
     offered_start, offered_end = timestamp(offered_start_utc), timestamp(offered_end_utc)
-    if not 0 < (offered_end - offered_start).total_seconds() <= 300:
+    if not ((offered_end - offered_start).total_seconds() == 3600 if hourly else 0 < (offered_end - offered_start).total_seconds() <= 300):
         raise ValueError("Bounded offered interval required")
     if any(
         abs((timestamp(h["start_utc"]) - offered_start).total_seconds()) > 1
@@ -336,10 +344,11 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--start-at", required=True)
     parser.add_argument("--seconds", type=int, default=300)
+    parser.add_argument("--hourly", action="store_true")
     args = parser.parse_args(argv)
     if args.output.exists():
         parser.error("Fresh owned output required")
-    data = collect(json.loads(args.spec.read_text()), args.start_at, seconds=args.seconds)
+    data = collect(json.loads(args.spec.read_text()), args.start_at, seconds=args.seconds, hourly=args.hourly)
     with args.output.open("x", encoding="utf-8") as f:
         f.write(json.dumps(data) + "\n")
     summarize(data)

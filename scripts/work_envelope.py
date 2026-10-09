@@ -32,7 +32,8 @@ PROFILES = {PROFILE: (BASE_LEDGER, "ADR0171"),
             "writer_write_pipeline_probe": ("bounded_writer_write_pipeline_probe", "ADR0225"),
             "generator_completion_probe": ("bounded_generator_completion_probe", "ADR0226"),
             "cce_dependency_probe": ("bounded_cce_dependency_probe", "ADR0228"),
-            "cce_paid_comparison": ("bounded_cce_paid_comparison", "ADR0228")}
+            "cce_paid_comparison": ("bounded_cce_paid_comparison", "ADR0228"),
+            "cce_hourly_qualification": ("bounded_cce_hourly_qualification", "ADR0232")}
 SCOPE = re.compile("(?:" + "|".join(v[0] for v in PROFILES.values()) + r")__(?:[0-9a-f]{12})$")
 
 
@@ -82,6 +83,16 @@ def envelope():
     return data
 
 
+
+def validate_hourly_allowance(data):
+    allowance = data.get("time", {}).get("hourly_qualification_exception", {})
+    if allowance.get("experiment_seconds_limit") != 5400 or allowance.get("authorization") != "Direct user reply: Allow 90 minutes for hourly qualification":
+        raise ValueError("Explicit 90-minute hourly exception required")
+    if data.get("spending", {}).get("temporary_cce_pilot_exception", {}).get("goal_bounded_authorization", {}).get("profile") != "cce_hourly_qualification":
+        raise ValueError("A fresh hourly goal is required")
+    from cce_dependency_probe import authorized_today
+    authorized_today(data)
+
 def journal(data):
     result = read(JOURNAL)
     if result.get("schema_version") != 1 or result.get("envelope_id") != data["envelope_id"]:
@@ -91,7 +102,7 @@ def journal(data):
     seen = set()
     for item in result["experiments"]:
         if (not isinstance(item, dict) or not SCOPE.fullmatch(item.get("ledger", ""))
-                or item["ledger"] in seen or item.get("reserved_seconds") != 3600
+                or item["ledger"] in seen or item.get("reserved_seconds") != (5400 if item.get("profile") == "cce_hourly_qualification" else 3600)
                 or item.get("status") not in {"ACTIVE", "PASSED_RESTORED", "FAILED_RESTORED", "RECOVERY_REQUIRED"}
                 or type(item.get("actual_elapsed_seconds")) not in {int, float}
                 or not math.isfinite(item["actual_elapsed_seconds"]) or item["actual_elapsed_seconds"] < 0):
@@ -139,11 +150,14 @@ def reserve(binding, plan, *, profile=PROFILE):
     expected_arms = ["control", "candidate"] if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement", "atomic_payment_claim", "worker_separation", "callback_routing", "shared_callback_placement"} else ["control"]
     if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe'}:
         expected_arms = ["candidate"]
-    if profile == 'cce_paid_comparison':
+    if profile in {'cce_paid_comparison', 'cce_hourly_qualification'}:
         import run_cce_paid_comparison as cce
-        cce.native.authorized_creation(data)
+        if profile == "cce_hourly_qualification":
+            import run_cce_hourly_qualification as cce
+            validate_hourly_allowance(data)
+        (cce.core if profile == "cce_hourly_qualification" else cce).native.authorized_creation(data)
         if (plan != cce.plan() or binding.get('cce_paid_entry_sources') != cce.identity()
-                or binding.get('cce_paid_core_sources') != cce.paid.identity()
+                or binding.get('cce_paid_core_sources') != (cce.core if profile == 'cce_hourly_qualification' else cce).paid.identity()
                 or not all(re.fullmatch(r'[0-9a-f]{64}', binding.get(k,'')) for k in (
                     'cce_manifest_sha256','diagnostic_target_sha256','saved_api_service_sha256',
                     'image_proof_sha256','cce_resource_source_sha256','cce_transition_source_sha256'))):
@@ -157,8 +171,8 @@ def reserve(binding, plan, *, profile=PROFILE):
             raise ValueError("Exact qualified CCE dependency probe required")
         expected_arms = []
     if (plan.get("decision") != decision or plan.get("arms") != expected_arms
-            or plan.get("common", {}).get("buyer_journeys_per_second") != (0 if profile == "cce_dependency_probe" else 84 if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe', 'cce_paid_comparison'} else 60)
-            or plan["common"].get("duration_seconds") != (0 if profile == "cce_dependency_probe" else 300)):
+            or plan.get("common", {}).get("buyer_journeys_per_second") != (0 if profile == "cce_dependency_probe" else 84 if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe', 'cce_paid_comparison', 'cce_hourly_qualification'} else 60)
+            or plan["common"].get("duration_seconds") != (0 if profile == "cce_dependency_probe" else 3600 if profile == "cce_hourly_qualification" else 300)):
         raise ValueError("Only locally qualified unchanged diagnostic control permitted")
     if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement"} and (
             digest(plan.get("placements")) != digest({"control": {"primary": 2, "secondary": 2},
@@ -225,7 +239,7 @@ def reserve(binding, plan, *, profile=PROFILE):
     stamp = datetime.now(UTC)
     entry = {"ledger": key, "authorization_id": "work-envelope-" + identity,
              "envelope_sha256": digest(data), "binding_sha256": digest(binding),
-             "plan_sha256": digest(plan), "profile": profile, "reserved_seconds": 3600,
+             "plan_sha256": digest(plan), "profile": profile, "reserved_seconds": 5400 if profile == "cce_hourly_qualification" else 3600,
              "actual_elapsed_seconds": 0, "started_at_utc": stamp.isoformat(),
              "status": "ACTIVE", "reports": []}
     records["experiments"].append(entry)
@@ -274,7 +288,7 @@ def base_ledger(key):
 class ActionGuard:
     def __init__(self, key, binding):
         self.key, self.binding = key, binding
-        self.deadline = time.monotonic() + 3600
+        self.deadline = time.monotonic() + (5400 if base_ledger(key) == "bounded_cce_hourly_qualification" else 3600)
 
     def check(self, timeout=0):
         entry = scope_authorized(read(STATE), self.key, self.binding)
@@ -283,11 +297,14 @@ class ActionGuard:
             authorized_today(envelope())
             if self.binding.get("cce_sources") != identity():
                 raise ValueError("CCE probe sources changed")
-        if entry['profile'] == 'cce_paid_comparison':
+        if entry['profile'] in {'cce_paid_comparison', 'cce_hourly_qualification'}:
             import run_cce_paid_comparison as cce
-            cce.native.dependency.authorized_today(envelope())
+            if entry["profile"] == "cce_hourly_qualification":
+                import run_cce_hourly_qualification as cce
+                validate_hourly_allowance(envelope())
+            (cce.core if entry["profile"] == "cce_hourly_qualification" else cce).native.dependency.authorized_today(envelope())
             if (self.binding.get('cce_paid_entry_sources') != cce.identity()
-                    or self.binding.get('cce_paid_core_sources') != cce.paid.identity()
+                    or self.binding.get('cce_paid_core_sources') != (cce.core if entry['profile'] == 'cce_hourly_qualification' else cce).paid.identity()
                     or self.binding.get('baseline_sha256') != cce.plan()['baseline_sha256']):
                 raise ValueError('Native paid source or baseline drift')
         if entry["profile"] == "worker_separation":
@@ -312,7 +329,7 @@ class ActionGuard:
             restored, integrity, passed = outcome(reports[0], state[self.key], self.binding) if len(reports) == 1 else (False, False, False)
             if state.get('current_run') or state[self.key].get('active_run'):
                 restored = False
-            if elapsed >= 3600 or records['human_pause'] or PAUSE.exists():
+            if elapsed >= entry['reserved_seconds'] or records['human_pause'] or PAUSE.exists():
                 passed = False
             entry.update(actual_elapsed_seconds=elapsed, finished_at_utc=datetime.now(UTC).isoformat(),
                          status=('PASSED_RESTORED' if passed else 'FAILED_RESTORED')
@@ -322,11 +339,13 @@ class ActionGuard:
                          paid_runs_started=0)
             write(JOURNAL, records)
             return entry
-        if entry['profile'] == 'cce_paid_comparison':
+        if entry['profile'] in {'cce_paid_comparison', 'cce_hourly_qualification'}:
             from run_cce_paid_comparison import outcome
+            if entry["profile"] == "cce_hourly_qualification":
+                from run_cce_hourly_qualification import outcome
             restored, integrity, passed = outcome(reports[0], state[self.key], self.binding) if len(reports)==1 else (False, False, False)
             ambiguous = state.get('current_run') or state[self.key].get('active_run')
-            if elapsed >= 3600 or records['human_pause'] or PAUSE.exists():
+            if elapsed >= entry['reserved_seconds'] or records['human_pause'] or PAUSE.exists():
                 passed = False
             entry.update(actual_elapsed_seconds=elapsed, finished_at_utc=datetime.now(UTC).isoformat(),
                          status=('PASSED_RESTORED' if passed else 'FAILED_RESTORED')

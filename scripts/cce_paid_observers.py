@@ -79,11 +79,11 @@ def background_unchanged(before, after):
     return True
 
 
-def api_cpu(rows, receipts, start, end):
+def api_cpu(rows, receipts, start, end, *, hourly=False):
     """Strict offered-window CPU from native process counters, not node capacity."""
     labels = set(native.validate_receipts(receipts))
     distribution = pipeline.summarize_endpoint_distribution(
-        rows, labels, offered_start_utc=start, offered_end_utc=end
+        rows, labels, offered_start_utc=start, offered_end_utc=end, hourly=hourly
     )
     if (
         distribution.get("all_four_replicas_observed") is not True
@@ -244,9 +244,7 @@ class Observers:
         qualify_bound_inventory(self.contract, self.inventory, self.record, self.stage.output)
         self.upload("inventory.private.json", json.dumps(self.inventory))
         self.upload("native-receipts.json", json.dumps(self.native))
-        from observe_paid_pipeline import paid_observer_seconds
-
-        observation_seconds = str(paid_observer_seconds(300))
+        observation_seconds = str(self.stage.profile.observer_seconds)
         common = [
             "--manifest",
             self.directory + "/manifest.private.json",
@@ -256,7 +254,7 @@ class Observers:
             "1",
         ]
         # An observer-only copy remains owned until all jobs stop.
-        self.upload("manifest.private.json", json.dumps(self.stage.manifest))
+        self.upload("manifest.private.json", json.dumps({k: self.stage.manifest[k] for k in ("environment", "show_ids")}))
         commands = {
             "pipeline": [
                 "python",
@@ -277,6 +275,7 @@ class Observers:
                 "--output",
                 self.directory + "/pipeline.jsonl",
                 *common,
+                *(["--hourly"] if self.stage.profile.duration == 3600 else []),
             ],
             "kafka": [
                 "python",
@@ -337,7 +336,7 @@ class Observers:
         if not self.started or self.cpu_jobs:
             raise ValueError("Qualified fresh native observations required")
         self.start_utc = datetime.fromtimestamp(start, UTC).isoformat()
-        self.end_utc = (datetime.fromtimestamp(start, UTC) + timedelta(seconds=300)).isoformat()
+        self.end_utc = (datetime.fromtimestamp(start, UTC) + timedelta(seconds=self.stage.profile.duration)).isoformat()
         for role in ("primary", "secondary"):
             spec = background_spec(role, snapshots[role], identities[role], policy.digest(self.native))
             location = (
@@ -392,7 +391,8 @@ class Observers:
                 "--start-at",
                 self.start_utc,
                 "--seconds",
-                "300",
+                str(self.stage.profile.duration),
+                *(["--hourly"] if self.stage.profile.duration == 3600 else []),
             ]
             job = self.stage.jobs.launch(
                 self.session, role, self.stage.cid, args, location, self.stage.job_list, self.stage.record
@@ -404,7 +404,7 @@ class Observers:
         failures = []
         for role, job, location in self.cpu_jobs:
             try:
-                self.stage.jobs.wait(self.session, job, role, 365)
+                self.stage.jobs.wait(self.session, job, role, self.stage.profile.duration + 65)
                 self.record[role + "_cpu"] = cpu.summarize(
                     json.loads(fetch(self.session, role, location + "/cpu.json"))
                 )
@@ -416,6 +416,7 @@ class Observers:
                 self.record["secondary_cpu"],
                 offered_start_utc=self.start_utc,
                 offered_end_utc=self.end_utc,
+                hourly=self.stage.profile.duration == 3600,
             )
             # Native API CPU is reported independently, rather than invented for ECS.
             self.record["cpu_window"].pop("aggregate_api_cpu_cores", None)
@@ -444,7 +445,7 @@ class Observers:
                     from database_wait_evidence import summarize as summarize_waits
 
                     self.record["database_wait_capture"] = summarize_waits(path)
-                    self.record["native_api_cpu"] = api_cpu(rows, self.native, self.start_utc, self.end_utc)
+                    self.record["native_api_cpu"] = api_cpu(rows, self.native, self.start_utc, self.end_utc, hourly=self.stage.profile.duration == 3600)
             except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - One missing trace cannot skip the other.
                 failures.append({"operation": name + "_trace", "type": type(error).__name__})
         self.record["collection_failures"] = failures

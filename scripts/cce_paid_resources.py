@@ -7,6 +7,7 @@ import cce_api_adapter as cce
 import cce_paid_stage as paid
 import work_envelope as policy
 from cce_ecs_transition import execution_identity
+from cce_paid_profiles import for_guard
 from qualify_two_host_deployment import INSPECT
 
 BRIDGE_CPU_LIMIT = 1
@@ -86,14 +87,14 @@ class Resources:
         self.rows = {}
         self.record = {"create_attempted": [], "owned_resources_removed": False}
         self.names = {"bridge": "cce-pooler-" + run, "audit": "cce-audit-" + run}
-        self.commands = {"bridge": ["-u", "-c", PROXY], "audit": ["-u", "-c", "import time;time.sleep(3600)"]}
+        self.commands = {"bridge": ["-u", "-c", PROXY], "audit": ["-u", "-c", "import time;time.sleep(" + str(for_guard(guard).experiment_limit) + ")"]}
 
     def check(self):
         if (
             self.session.action_guard is not self.guard
-            or self.guard.key.split("__")[0] != "bounded_cce_paid_comparison"
-            or cce.PROFILE not in policy.PROFILES
-            or cce.PROFILE not in policy.envelope()["qualified_profiles"]
+            or for_guard(self.guard).name not in policy.PROFILES
+            or for_guard(self.guard).name not in policy.PROFILES
+            or for_guard(self.guard).name not in policy.envelope()["qualified_profiles"]
             or self.guard.binding.get("configuration_sha256") != policy.digest(self.session.config)
             or self.guard.binding.get("cce_bridge_cpu_limit") != BRIDGE_CPU_LIMIT
             or self.guard.binding.get("cce_resource_source_sha256")

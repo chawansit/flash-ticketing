@@ -419,10 +419,12 @@ def summarize_distribution(rows, inventory, *, offered_start_utc, offered_end_ut
                                           offered_end_utc=offered_end_utc)
 
 
-def summarize_endpoint_distribution(rows, labels, *, offered_start_utc, offered_end_utc):
+def summarize_endpoint_distribution(rows, labels, *, offered_start_utc, offered_end_utc, hourly=False):
+    if type(hourly) is not bool:
+        raise ValueError("Explicit hourly measurement mode required")
     """Same coverage gates for actual metric endpoint identities, including native pods."""
     start, end = [datetime.fromisoformat(v) for v in (offered_start_utc, offered_end_utc)]
-    if start.tzinfo is None or end.tzinfo is None or not 0 < (end - start).total_seconds() <= 300:
+    if start.tzinfo is None or end.tzinfo is None or not ((end - start).total_seconds() == 3600 if hourly else 0 < (end - start).total_seconds() <= 300):
         raise ValueError("Bounded aware offered window required")
     if len(labels) != 4:
         raise ValueError("Four distinct replicas required")
