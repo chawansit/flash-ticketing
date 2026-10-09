@@ -20,7 +20,7 @@ def receipt_bundle(run, receipts):
         "run": run,
         "api_sources": cce.contract()["api_sources"],
         "resources": cce.contract()["resources"],
-        "manifest_digest": cce.api_manifest(),
+        "manifest_digest": cce.dependency.MANIFEST,
         "receipts": receipts,
     }
     native.validate_receipts(value)
@@ -184,15 +184,12 @@ class Observers:
             + ");p.mkdir(mode=0o700,parents=True,exist_ok=False);print(json.dumps({'fresh':True}))",
             45,
         )
-        import cce_transaction_profile as transaction
-        extended = transaction.active() is not None
         helpers = (
             "observe_cce_paid_pipeline.py",
             "observe_two_host_pipeline.py",
             "prepare_two_host_scaling.py",
             "database_wait_evidence.py",
             "diagnostic_connection.py",
-            *(("observe_slot_paid_pipeline.py", "slot_failure_evidence.py", "bounded_trace_transport.py") if extended else ()),
         )
         expected = {}
         for name in helpers:
@@ -261,7 +258,7 @@ class Observers:
         commands = {
             "pipeline": [
                 "python",
-                self.directory + ("/observe_slot_paid_pipeline.py" if extended else "/observe_cce_paid_pipeline.py"),
+                self.directory + "/observe_cce_paid_pipeline.py",
                 "--native-receipts",
                 self.directory + "/native-receipts.json",
                 "--native-receipts-sha256",
@@ -425,10 +422,8 @@ class Observers:
             self.record["cpu_window"].pop("aggregate_api_cpu_cores", None)
         except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Never infer successful host coverage.
             failures.append({"operation": "cpu_window", "type": type(error).__name__})
-        stopped = False
         try:
             self.stage.stop_jobs()
-            stopped = True
         except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Retain bounded partial traces even when stop is unknown.
             failures.append({"operation": "stop_jobs", "type": type(error).__name__})
         from summarize_paid_kafka_lag import summarize as summarize_kafka
@@ -436,31 +431,21 @@ class Observers:
 
         for name, summarize in (("pipeline", summarize_pipeline), ("kafka", summarize_kafka)):
             try:
-                import cce_transaction_profile as transaction
-                if transaction.active() is not None:
-                    if not stopped:
-                        raise ValueError("Stopped observer identity required before compression")
-                    from cce_slot_trace_transport import collect
-                    raw, transport = collect(self.stage, self.directory, self.owner, name, copy_out)
-                    self.record[name + "_transport"] = transport
-                else:
-                    raw = copy_out(
-                        self.session, self.stage.cid, self.directory + "/" + name + ".jsonl",
-                        self.owner + "/" + name + ".jsonl",
-                    )
+                raw = copy_out(
+                    self.session,
+                    self.stage.cid,
+                    self.directory + "/" + name + ".jsonl",
+                    self.owner + "/" + name + ".jsonl",
+                )
                 path = self.stage.output / (name + ".jsonl")
                 path.write_bytes(raw)
                 rows = [json.loads(line) for line in raw.decode().splitlines() if line.strip()]
-                if name == "pipeline" and transaction.active() is not None:
-                    from slot_failure_evidence import summarize as summarize_slots
-                    self.record["slot_failure_capture"] = summarize_slots(rows, native.validate_receipts(self.native))
                 self.record[name + "_summary"] = summarize(rows)
                 if name == "pipeline":
                     from database_wait_evidence import summarize as summarize_waits
 
                     self.record["database_wait_capture"] = summarize_waits(path)
                     self.record["native_api_cpu"] = api_cpu(rows, self.native, self.start_utc, self.end_utc, hourly=self.stage.profile.duration == 3600)
-
             except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - One missing trace cannot skip the other.
                 failures.append({"operation": name + "_trace", "type": type(error).__name__})
         self.record["collection_failures"] = failures
@@ -478,9 +463,7 @@ class Observers:
     def retain_startup_failure(self):
         """Keep bounded private diagnostics before the stopped helper is removed."""
         results = {}
-        import cce_transaction_profile as transaction
-        helper = "observe_slot_paid_pipeline" if transaction.active() is not None else "observe_cce_paid_pipeline"
-        for label, name in (("pipeline", helper), ("kafka", "kafka_lag_observe")):
+        for label, name in (("pipeline", "observe_cce_paid_pipeline"), ("kafka", "kafka_lag_observe")):
             job = self.record.get(label + "_job")
             if job is None:
                 continue

@@ -149,3 +149,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0240: Bounded compressed diagnostic traces](0240-bounded-compressed-diagnostic-traces.md)
 
 - [ADR0241: Bounded failure-time slot ownership](0241-bounded-failure-time-slot-ownership.md)
+
+- [ADR0242: Bind matched CCE transaction comparison](0242-bind-matched-cce-transaction-comparison.md)

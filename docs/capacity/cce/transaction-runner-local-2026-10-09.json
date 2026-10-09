@@ -1,0 +1,50 @@
+{
+  "decision": "ADR0242",
+  "status": "MATCHED_SHORT_RUNNER_LOCAL_QUALIFICATION_COMPLETE_NOT_EXECUTED",
+  "image_pair_receipt": "docs/capacity/cce/slot-comparison-images-2026-10-09.json",
+  "logical_arms": [
+    "control",
+    "candidate"
+  ],
+  "one_changed_performance_factor": "redundant_explicit_begin",
+  "common_diagnostics": true,
+  "offered_journeys_per_second": 84,
+  "offered_seconds": 300,
+  "expected_journeys": 25200,
+  "local_validation": {
+    "new_regressions_passed": 28,
+    "targeted_runner_and_idle_regressions_passed": 268,
+    "targeted_windows_skip": 1,
+    "full_unit_passed": 1892,
+    "full_unit_failed": 1,
+    "full_unit_skipped": 2,
+    "retained_full_failure": "Existing Windows idle-boundary timing assertion; subsequent targeted runner/idle checks passed. Full-suite failure retained, not reclassified.",
+    "historical_reproduction_inputs_verified": 535,
+    "explicit_working_overlay_files": 6,
+    "frozen_generator_files": 78,
+    "ruff_passed": true,
+    "naming_passed": true
+  },
+  "source_admission": {
+    "api_modules_per_arm": 22,
+    "historical_worker_api_modules": 21,
+    "background_images_unchanged": true,
+    "four_api_pods": true,
+    "api_connections_per_pod": 4,
+    "payment_connections_per_pod": 2,
+    "shared_acquisition_budget": 20,
+    "pooler_server_connections": 24
+  },
+  "transport": {
+    "compression_only_after_jobs_stop": true,
+    "exact_decompressed_sha_and_size_required": true,
+    "missing_evidence_fails_gate": true,
+    "slot_evidence_retained_before_cpu_summarization": true
+  },
+  "candidate_requires_passed_restored_same_pair_control": true,
+  "hourly_new_image_profile_enabled": false,
+  "fresh_scope_registered": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false
+}

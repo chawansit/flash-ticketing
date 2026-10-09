@@ -1,0 +1,46 @@
+{
+  "decision": "ADR0242",
+  "historical_lock_sha256": "3dabc984d879e7d59699ad74d9b26d5259a83ce338c60c2620536e7456d48fcd",
+  "overlays": {
+    "scripts/cce_api_adapter.py": {
+      "historical_sha256": "634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e",
+      "historical_blob": "artifacts/cce-transaction-runner/blobs/634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e",
+      "current_sha256": "9ff3061a8c5af15708abff8e1e9e22a9a8284ac5185b545eb645e94195b6897d"
+    },
+    "scripts/cce_paid_stage.py": {
+      "historical_sha256": "c1acf89ae4544674f179f4615c10f359e3899bfd5dae8421c30e22f29e60c57a",
+      "historical_blob": "artifacts/cce-transaction-runner/blobs/c1acf89ae4544674f179f4615c10f359e3899bfd5dae8421c30e22f29e60c57a",
+      "current_sha256": "47cd50413bf815f073e2189e27440f0e9642d2e0fc9c5e4ef552fff99087925c"
+    },
+    "scripts/cce_paid_observers.py": {
+      "historical_sha256": "e5e712961d9f6725d45468f0feac95ad50f6591c4f5ee095ac41074257e63257",
+      "historical_blob": "artifacts/cce-transaction-runner/blobs/e5e712961d9f6725d45468f0feac95ad50f6591c4f5ee095ac41074257e63257",
+      "current_sha256": "53848dc5f83ebd9e4bc342132dc87a098b8e13e3302692f288c33a72c18fd98b"
+    },
+    "scripts/cce_ecs_transition.py": {
+      "historical_sha256": "bf22c4cc8a1ec2db5224d97df3aead9ec693dea6296e548e25e6dcbb25d4af15",
+      "historical_blob": "artifacts/cce-transaction-runner/blobs/bf22c4cc8a1ec2db5224d97df3aead9ec693dea6296e548e25e6dcbb25d4af15",
+      "current_sha256": "103efef9d9bdb709641a1f556474e577ee858902150c3fa0f7dccb79f8953977"
+    },
+    "scripts/run_cce_paid_comparison.py": {
+      "historical_sha256": "cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
+      "historical_blob": "artifacts/cce-transaction-runner/blobs/cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
+      "current_sha256": "95a8eae74a9cb06c9462253547b8f32ada8f8ed392a0c68570cbc6d5cc63b557"
+    },
+    "scripts/check_cce_reproducibility.py": {
+      "historical_sha256": "ca8920447ef5fee85d7f8316fae6defae81c96c715352fd31b5545f25d5e2278",
+      "historical_blob": "artifacts/cce-transaction-runner/blobs/ca8920447ef5fee85d7f8316fae6defae81c96c715352fd31b5545f25d5e2278",
+      "current_sha256": "fc0062d21e6c2a6b7a7fd031a2c787d4eb13176b6ac56a5df9a56e86ce9777ad"
+    }
+  },
+  "additional_inputs": {
+    "docs/capacity/cce/slot-comparison-images-2026-10-09.json": "255b4d2de1cb356b9b48b0ac7025b0cff5194a961d4c94f179c5ec87f189d0c1",
+    "scripts/bounded_trace_transport.py": "3456993bacbfd93227bac0bdb28ce532c2f97365310b88338297a175d4c3d21f",
+    "scripts/cce_reproduction_overlay.py": "a96796efbefbe9fe4491d00388c7b7c83430638be067a03e43870b7e5b698fc0",
+    "scripts/cce_slot_trace_transport.py": "3286f3395ff573f555af9080f95f43ca1d83e920b75026cb8679a8a646e2fa11",
+    "scripts/cce_transaction_profile.py": "1d61a369264d715985a67393ee08896b92db02b6465838556e717947e93f10cd",
+    "scripts/observe_slot_paid_pipeline.py": "4d57e7649aa9b2c4e41ab398f58c31291449a7add10e9adf1384d95f7ea8288e",
+    "scripts/prepare_slot_comparison_sources.py": "ad8edffaf0a84803141c9c1938e0b65bb583d7eba60e7ac537233d82328590e5",
+    "scripts/slot_failure_evidence.py": "124b82268808f278f506a7bfd3760f2daf7c54d6b04d69abae89e4d421a5dce8"
+  }
+}

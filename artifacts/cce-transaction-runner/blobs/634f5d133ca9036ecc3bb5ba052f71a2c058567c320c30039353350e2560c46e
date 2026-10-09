@@ -20,7 +20,7 @@ PROFILE = "cce_paid_comparison"
 PROOF_PREFIX = "CCE_API_STARTUP "
 
 
-def legacy_contract():
+def contract():
     data = policy.read(CONTRACT)
     parent = policy.read(
         policy.ROOT / "docs/capacity/flash-sale-opening/generator-completion-probe-plan-2026-10-08.json"
@@ -47,28 +47,6 @@ def legacy_contract():
     ):
         raise ValueError("Exact retained paid baseline contract required")
     return data
-
-
-def contract():
-    import cce_transaction_profile as transaction
-    data = legacy_contract()
-    goal = transaction.active()
-    if goal is not None:
-        data = copy.deepcopy(data)
-        data["api_sources"] = transaction.image_pair()["images"][goal["comparison_arm"]]["runtime_sources_sha256"]
-        data["api_settings"]["DB_FAILURE_DIAGNOSTICS"] = "1"
-    return data
-
-
-def api_image():
-    import cce_transaction_profile as transaction
-    goal = transaction.active()
-    return (transaction.image_pair()["images"][goal["comparison_arm"]]["registry_image"]
-            if goal is not None else dependency.IMAGE)
-
-
-def api_manifest():
-    return api_image().split("@", 1)[1]
 
 
 def authorized_creation(envelope, now=None):
@@ -108,10 +86,6 @@ def admission_budget():
     """One declared bounded factor; old profiles retain the immutable baseline."""
     exception = policy.envelope()["spending"]["temporary_cce_pilot_exception"]
     goal = exception.get("goal_bounded_authorization", {})
-    if goal.get("extension_decision") == "ADR0242":
-        import cce_transaction_profile as transaction
-        transaction.active()
-        return 20
     if goal.get("profile") == "cce_hourly_qualification":
         if goal.get("decision") != "ADR0232" or goal.get("acquisition_budget") != 20:
             raise ValueError("Exact passing hourly acquisition configuration required")
@@ -291,7 +265,7 @@ def objects(run, service, primary_ip, registry_username, registry_password, *, a
                     "containers": [
                         {
                             "name": "api",
-                            "image": api_image(),
+                            "image": dependency.IMAGE,
                             "imagePullPolicy": "Always",
                             "command": ["python", "-u", "-c", program],
                             "workingDir": "/app",
@@ -376,7 +350,7 @@ def receipt(pod, expected, uid, run, startup_proof):
         or statuses[0]["restartCount"] != 0
         or statuses[0].get("ready") is not True
         or not statuses[0].get("state", {}).get("running", {}).get("startedAt")
-        or statuses[0].get("imageID", "").split("@")[-1] != api_manifest()
+        or statuses[0].get("imageID", "").split("@")[-1] != dependency.MANIFEST
     ):
         raise ValueError("CCE API identity, readiness or admitted specification drift")
     if (

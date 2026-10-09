@@ -200,11 +200,12 @@ def test_dependency_scope_cannot_create_paid_pods(lifecycle):
 
 
 def test_unregistered_paid_profile_cannot_mutate(monkeypatch):
+    values = manifests()
     monkeypatch.setattr(policy, "PROFILES", {k:v for k,v in policy.PROFILES.items() if k != cce.PROFILE})
     events = []
     deployment = cce.Deployment(lambda *args: events.append(args),
         SimpleNamespace(key='bounded_cce_paid_comparison__'+'c'*12), lambda value: None)
-    with pytest.raises(ValueError,match='not been registered'): deployment.create(manifests())
+    with pytest.raises(ValueError,match='not been registered'): deployment.create(values)
     assert events == []
 
 

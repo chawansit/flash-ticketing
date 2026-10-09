@@ -27,7 +27,7 @@ def sha(raw):
 
 
 def pairs():
-    legacy = native.contract()["api_sources"]
+    legacy = native.legacy_contract()["api_sources"]
     candidate = {name: historical.blob(digest) for name, digest in legacy.items()}
     export = historical.manifest()["exports"][EXPORT]
     if any(export.get(name) != digest for name, digest in legacy.items()):

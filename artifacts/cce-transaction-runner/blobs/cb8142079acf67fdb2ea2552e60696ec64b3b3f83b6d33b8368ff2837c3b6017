@@ -43,11 +43,6 @@ def identity():
 
 
 def plan(*, profile=SHORT):
-    import cce_transaction_profile as transaction
-    if transaction.active() is not None:
-        if profile != SHORT:
-            raise ValueError("New transaction images require separate hourly qualification binding")
-        return transaction.plan()
     if profile == HOURLY:
         from run_cce_hourly_qualification import plan as hourly_plan
         return hourly_plan()
@@ -85,12 +80,7 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
 
     validate_target(target)
 
-    import cce_transaction_profile as transaction
-    extra = ({"cce_transaction_arm": transaction.active()["comparison_arm"],
-              "cce_transaction_pair_sha256": transaction.PROOF_SHA256}
-             if transaction.active() is not None else {})
     return {
-        **extra,
         "configuration_sha256": policy.digest(config),
         "cce_acquisition_budget": native.admission_budget(),
         "cce_paid_entry_sources": entry.identity(),
@@ -276,7 +266,7 @@ def run(config, output, guard, manifests, kubeconfig, context):
     }
 
     contract = baseline.GeneratorCompletionProbeContract(
-        baseline.plan()["artifact_receipt"], "candidate", native.legacy_contract()["api_sources"]
+        baseline.plan()["artifact_receipt"], "candidate", native.contract()["api_sources"]
     )
 
     contract.diagnostic_context = context

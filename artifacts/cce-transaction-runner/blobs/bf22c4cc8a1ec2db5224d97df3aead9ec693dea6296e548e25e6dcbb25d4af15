@@ -36,7 +36,7 @@ def receipt_gate(receipts, run):
     for row in receipts:
         proof = row.get("startup_proof", {})
         if (
-            row.get("image_id", "").split("@")[-1] != cce.api_manifest()
+            row.get("image_id", "").split("@")[-1] != cce.dependency.MANIFEST
             or row.get("resources") != data["resources"]
             or proof.get("run") != run
             or proof.get("pod_uid") != row["pod_uid"]
