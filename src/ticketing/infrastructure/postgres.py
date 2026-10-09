@@ -1,12 +1,14 @@
 import logging
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
+from threading import Lock
 from time import perf_counter as monotonic
 
 from psycopg import Cursor
 from psycopg.rows import dict_row
-from psycopg_pool import ConnectionPool
+from psycopg_pool import ConnectionPool, PoolTimeout, TooManyRequests
 
 from ticketing.observability import (
+    DB_ACQUISITION_FAILURES,
     DB_COMMIT_SECONDS,
     DB_CONNECTION_HOLD_SECONDS,
     DB_ERRORS,
@@ -19,6 +21,7 @@ from ticketing.observability import (
     DB_ROLLBACK_SECONDS,
     DB_SECONDS,
     DB_TRANSACTION_BODY_SECONDS,
+    REQUEST_ID,
 )
 
 logger = logging.getLogger(__name__)
@@ -29,12 +32,14 @@ def record_slow_db_phase(phase: str, duration: float, outcome: str = "ok") -> No
     if duration >= SLOW_DB_PHASE_SECONDS:
         logger.warning(
             "slow_db_phase",
-            extra={"fields": {
-                "event": "slow_db_phase",
-                "phase": phase,
-                "duration_ms": round(duration * 1000, 3),
-                "outcome": outcome,
-            }},
+            extra={
+                "fields": {
+                    "event": "slow_db_phase",
+                    "phase": phase,
+                    "duration_ms": round(duration * 1000, 3),
+                    "outcome": outcome,
+                }
+            },
         )
 
 
@@ -53,14 +58,14 @@ class MeasuredCursor(Cursor):
 
 
 class Postgres:
-    def __init__(self, url: str, maximum: int = 12, wait_ms: int = 150):
+    def __init__(self, url: str, maximum: int = 12, wait_ms: int = 150, maximum_waiting: int | None = None):
         self.pool = ConnectionPool(
             url,
             open=True,
             min_size=1,
             max_size=maximum,
             timeout=wait_ms / 1000,
-            max_waiting=maximum,
+            max_waiting=maximum if maximum_waiting is None else maximum_waiting,
             kwargs={"row_factory": dict_row, "prepare_threshold": None, "cursor_factory": MeasuredCursor},
         )
 
@@ -80,10 +85,12 @@ class Postgres:
                 transaction_started = False
                 try:
                     conn.execute("BEGIN")
-                    conn.execute("SET LOCAL lock_timeout = '75ms'")
-                    conn.execute("SET LOCAL statement_timeout = '1500ms'")
-                    conn.execute("SET LOCAL idle_in_transaction_session_timeout = '3s'")
                     transaction_started = True
+                    conn.execute(
+                        "SELECT set_config('lock_timeout', '75ms', true), "
+                        "set_config('statement_timeout', '1500ms', true), "
+                        "set_config('idle_in_transaction_session_timeout', '3s', true)"
+                    )
 
                     yield conn
 
@@ -155,6 +162,16 @@ class Postgres:
                 if conn is not None:
                     DB_POOL_IN_USE.dec()
                 self.sample_pool()
+        except (PoolTimeout, TooManyRequests) as exc:
+            evidence = getattr(exc, "acquisition_failure", None)
+            if evidence is not None:
+                try:
+                    logger.warning("db_acquisition_failure", extra={"fields": {
+                        "event": "db_acquisition_failure", "request_id": REQUEST_ID.get(), **evidence,
+                    }})
+                except Exception:  # noqa: BLE001, S110 - logs must not mask the original DB failure.
+                    pass
+            raise
         finally:
             if outcome == "error":
                 DB_POOL_SECONDS.labels(outcome).observe(monotonic() - start)
@@ -166,9 +183,241 @@ class Postgres:
                 pass
 
     def sample_pool(self):
-        stats = self.pool.get_stats()
+        roles = getattr(self, "_metric_pool_roles", None)
+        waiter_limits = getattr(self, "_metric_waiter_limits", {})
+        pools = roles if roles is not None else {"general": self.pool}
+        states = {role: pool.get_stats() for role, pool in pools.items()}
         for name in ("pool_size", "pool_available", "requests_waiting", "pool_max"):
-            DB_POOL_STATE.labels(name).set(stats.get(name, 0))
+            DB_POOL_STATE.labels(name).set(sum(stats.get(name, 0) for stats in states.values()))
+            if roles is not None:
+                for role in ("general", "payment"):
+                    DB_POOL_STATE.labels(f"{role}_{name}").set(states.get(role, {}).get(name, 0))
+        if roles is not None:
+            shared = getattr(self, "_shared_acquisition_budget", None)
+            DB_POOL_STATE.labels("pool_max_waiting").set(shared.maximum if shared else sum(waiter_limits.values()))
+            budget_state = shared.snapshot() if shared else {"used": 0, "acquiring": 0, "retained": 0}
+            DB_POOL_STATE.labels("shared_acquisition_limit").set(shared.maximum if shared else 0)
+            for name in ("used", "acquiring", "retained"):
+                DB_POOL_STATE.labels(f"shared_acquisition_{name}").set(budget_state[name])
+            for role in ("general", "payment"):
+                DB_POOL_STATE.labels(f"{role}_max_waiting").set(waiter_limits.get(role, 0))
 
     def close(self):
         self.pool.close()
+
+
+
+class SharedAcquisitionBudget:
+    """Bound live checkout attempts and conservatively retained timeout slots."""
+
+    def __init__(self, maximum, limits, pools, reclaim_partial_timeouts=False):
+        self.reclaim_partial_timeouts = reclaim_partial_timeouts
+        self.maximum = maximum
+        self.limits = limits
+        self.pools = pools
+        self._lock = Lock()
+        self._counts = {role: 0 for role in limits}
+        self._retained = {role: 0 for role in limits}
+        self._rejected = {role: 0 for role in limits}
+
+    def _refresh(self):
+        # Public FIFO length bounds remaining expired positions. Never subtract
+        # active checkouts: they may hold admission but not yet be queued.
+        for role, pool in self.pools.items():
+            if self._retained[role]:
+                waiting = pool.get_stats().get("requests_waiting", 0)
+                retained = min(self._retained[role], waiting) if self.reclaim_partial_timeouts else (
+                    self._retained[role] if waiting else 0
+                )
+                self._counts[role] -= self._retained[role] - retained
+                self._retained[role] = retained
+
+    def acquire(self, role):
+        with self._lock:
+            self._refresh()
+            if sum(self._counts.values()) >= self.maximum or self._counts[role] >= self.limits[role]:
+                self._rejected[role] += 1
+                reason = "global_limit" if sum(self._counts.values()) >= self.maximum else "role_limit"
+                exc = TooManyRequests("API shared acquisition budget exhausted")
+                exc.acquisition_failure = self._failure_snapshot_unlocked(role, reason, "guard_rejection")
+                raise exc
+            self._counts[role] += 1
+
+    def _failure_snapshot_unlocked(self, role, reason, capture):
+        # This runs only on failure. Do not serialize connection info or errors.
+        try:
+            stats = self.pools[role].get_stats()
+            native = {key: stats.get(key, 0) for key in (
+                "pool_size", "pool_available", "requests_waiting", "pool_max"
+            )}
+        except Exception:  # noqa: BLE001 - diagnostic snapshot failure must preserve the driver error.
+            native = None
+        return {
+            "role": role,
+            "reason": reason,
+            "capture": capture,
+            "native_pool": native,
+            "guard": {
+                "maximum": self.maximum,
+                "used": sum(self._counts.values()),
+                "acquiring": sum(self._counts.values()) - sum(self._retained.values()),
+                "retained": sum(self._retained.values()),
+                "counts": dict(self._counts),
+                "retained_by_role": dict(self._retained),
+                "limits": dict(self.limits),
+                "callback_reserved": 0,
+                "partial_timeout_reclaim": self.reclaim_partial_timeouts,
+            },
+        }
+
+
+    def failure_snapshot(self, role, reason):
+        with self._lock:
+            return self._failure_snapshot_unlocked(role, reason, "native_failure_before_release")
+
+
+    def release(self, role, timed_out=False):
+        with self._lock:
+            if timed_out and self.pools[role].get_stats().get("requests_waiting", 0):
+                self._retained[role] += 1
+            else:
+                self._counts[role] -= 1
+            self._refresh()
+
+    def snapshot(self):
+        with self._lock:
+            self._refresh()
+            return {
+                "used": sum(self._counts.values()),
+                "retained": sum(self._retained.values()),
+                "acquiring": sum(self._counts.values()) - sum(self._retained.values()),
+                "counts": dict(self._counts),
+                "rejected": dict(self._rejected),
+            }
+
+
+class AcquisitionLimitedPool:
+    """Apply one shared guard to the public checkout surface of a native pool."""
+
+    def __init__(self, pool, budget, role):
+        self._native = pool
+        self._budget = budget
+        self._role = role
+
+    def __getattr__(self, name):
+        return getattr(self._native, name)
+
+    def getconn(self, timeout=None):
+        started = monotonic()
+        timeout = self._native.timeout if timeout is None else timeout
+        try:
+            self._budget.acquire(self._role)
+        except TooManyRequests as exc:
+            self._record_failure(exc, started)
+            raise
+        timed_out = False
+        try:
+            return self._native.getconn(timeout=timeout - (monotonic() - started))
+        except (PoolTimeout, TooManyRequests) as exc:
+            timed_out = isinstance(exc, PoolTimeout)
+            self._record_failure(exc, started)
+            raise
+        finally:
+            self._budget.release(self._role, timed_out)
+
+    def _record_failure(self, exc, started):
+        try:
+            evidence = getattr(exc, "acquisition_failure", None)
+            if evidence is None:
+                reason = "native_timeout" if isinstance(exc, PoolTimeout) else "native_limit"
+                evidence = self._budget.failure_snapshot(self._role, reason)
+            evidence = {**evidence, "elapsed_ms": round((monotonic() - started) * 1000, 3)}
+            exc.acquisition_failure = evidence
+            DB_ACQUISITION_FAILURES.labels(self._role, evidence["reason"]).inc()
+        except Exception:  # noqa: BLE001 - diagnostic failure cannot prevent finally-release.
+            return
+
+
+    def putconn(self, conn):
+        try:
+            return self._native.putconn(conn)
+        finally:
+            self._budget.snapshot()
+
+    @contextmanager
+    def connection(self, timeout=None):
+        conn = self.getconn(timeout)
+        try:
+            with conn:
+                yield conn
+        finally:
+            self.putconn(conn)
+
+    def get_stats(self):
+        stats = self._native.get_stats()
+        rejected = self._budget.snapshot()["rejected"][self._role]
+        if rejected:
+            stats["requests_num"] = stats.get("requests_num", 0) + rejected
+            stats["requests_errors"] = stats.get("requests_errors", 0) + rejected
+        return stats
+
+    def close(self, *args, **kwargs):
+        try:
+            return self._native.close(*args, **kwargs)
+        finally:
+            self._budget.snapshot()
+
+
+def api_pool_budgets(maximum: int, maximum_waiting: int | None, payment_maximum: int = 0, shared_waiting: bool = False):
+    """Partition existing API ceilings; no zero (unlimited) enabled queue."""
+    waiting = maximum if maximum_waiting is None else maximum_waiting
+    if maximum < 1 or waiting < 1 or not 0 <= payment_maximum < maximum:
+        raise ValueError("Invalid API pool budget")
+    if shared_waiting and (not payment_maximum or waiting < maximum):
+        raise ValueError("Shared acquisition budget requires a partition and waiter budget at least total connections")
+    if not payment_maximum:
+        return {"general": {"maximum": maximum, "maximum_waiting": waiting}, "payment": None}
+    if waiting < 2:
+        raise ValueError("Payment partition requires at least two total waiter slots")
+    if shared_waiting:
+        return {
+            "general": {"maximum": maximum - payment_maximum, "maximum_waiting": waiting - payment_maximum},
+            "payment": {"maximum": payment_maximum, "maximum_waiting": waiting - (maximum - payment_maximum)},
+        }
+    payment_waiting = max(1, waiting * payment_maximum // maximum)
+    return {
+        "general": {"maximum": maximum - payment_maximum, "maximum_waiting": waiting - payment_waiting},
+        "payment": {"maximum": payment_maximum, "maximum_waiting": payment_waiting},
+    }
+
+
+def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum=0, shared_waiting=False, reclaim_partial_timeouts=False):
+    """Return general/payment adapters, sharing one pool when disabled."""
+    if reclaim_partial_timeouts and not shared_waiting:
+        raise ValueError("Partial timeout reclamation requires shared acquisition admission")
+    budgets = api_pool_budgets(maximum, maximum_waiting, payment_maximum, shared_waiting)
+    with ExitStack() as resources:
+        general = Postgres(url, wait_ms=wait_ms, **budgets["general"])
+        resources.callback(general.close)
+        payment = general
+        if budgets["payment"] is not None:
+            payment = Postgres(url, wait_ms=wait_ms, **budgets["payment"])
+            resources.callback(payment.close)
+        shared = None
+        if shared_waiting:
+            native = {"general": general.pool, "payment": payment.pool}
+            shared = SharedAcquisitionBudget(
+                maximum if maximum_waiting is None else maximum_waiting,
+                {role: budget["maximum_waiting"] for role, budget in budgets.items()}, native, reclaim_partial_timeouts,
+            )
+            general.pool = AcquisitionLimitedPool(general.pool, shared, "general")
+            payment.pool = AcquisitionLimitedPool(payment.pool, shared, "payment")
+        general._shared_acquisition_budget = payment._shared_acquisition_budget = shared
+        roles = {"general": general.pool}
+        if payment is not general:
+            roles["payment"] = payment.pool
+        general._metric_pool_roles = payment._metric_pool_roles = roles
+        limits = {role: budget["maximum_waiting"] for role, budget in budgets.items() if budget is not None}
+        general._metric_waiter_limits = payment._metric_waiter_limits = limits
+        resources.pop_all()
+        return general, payment

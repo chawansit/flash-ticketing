@@ -160,3 +160,5 @@ Latest diagnosis: [connection reuse and generator timing under seat contention](
 ## Measured CCE hourly milestone
 
 See the [9 October 2026 hourly ticket-sales evidence](docs/capacity/flash-sale-opening/cce-hourly-milestone-2026-10-09.md): 302,262 unique paid-and-issued tickets within one hour, with failed customer/telemetry gates and independently verified financial recovery recorded explicitly. This documentation milestone does not integrate or deploy the experimental backend.
+
+Reviewed backend/worker defaults, source provenance and optional feature activation: [runtime promotion](docs/backend-runtime-promotion.md).

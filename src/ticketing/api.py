@@ -3,7 +3,7 @@ import hashlib
 import hmac
 import logging
 import time
-from contextlib import asynccontextmanager, suppress
+from contextlib import ExitStack, asynccontextmanager, suppress
 from typing import Annotated, Literal
 from uuid import UUID
 
@@ -18,12 +18,15 @@ from psycopg.errors import DeadlockDetected, LockNotAvailable, QueryCanceled
 from psycopg_pool import PoolTimeout, TooManyRequests
 from pydantic import BaseModel, Field
 
+from ticketing.application.payment_confirmation import PaymentConfirmation
 from ticketing.application.reservations import Reservations
 from ticketing.config import Settings
 from ticketing.domain import Failure
 from ticketing.http import RequestInstrumentation
 from ticketing.infrastructure.cache import RedisSeats
-from ticketing.infrastructure.postgres import Postgres
+from ticketing.infrastructure.order_status_cache import RedisOrderStatusCache
+from ticketing.infrastructure.payment_confirmation import PostgresPaymentConfirmation
+from ticketing.infrastructure.postgres import create_api_databases
 from ticketing.infrastructure.redis_reservations import RedisReservationIntake
 from ticketing.infrastructure.reservations import PostgresReservations, RedisFirstReservations
 from ticketing.observability import (
@@ -55,29 +58,45 @@ async def observe_event_loop_lag(interval_seconds: float = 0.05):
 async def lifespan(app):
     settings.validate()
     configure_logging()
-    db = Postgres(settings.database_url, settings.pool_max, settings.pool_wait_ms)
-    cache = RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
-    app.state.db, app.state.cache = db, cache
-    durable = PostgresReservations(db, cache, settings.hold_seconds)
-    intake = RedisReservationIntake(
-        cache,
-        hold_seconds=settings.hold_seconds,
-        replica_acks=settings.redis_reservation_replica_acks,
-        wait_ms=settings.redis_reservation_wait_ms,
-        max_backlog=settings.redis_reservation_max_backlog,
+    db, payment_db = create_api_databases(
+        settings.database_url, settings.pool_max, settings.pool_wait_ms,
+        settings.pool_max_waiting, settings.api_payment_pool_max, settings.api_pool_shared_waiting,
+        settings.api_partial_timeout_reclaim,
     )
-    store = RedisFirstReservations(durable, intake) if settings.reservation_mode == "redis-first" else durable
-    app.state.reservation_intake = intake
-    app.state.reservations = Reservations(store)
-    loop_observer = asyncio.create_task(observe_event_loop_lag())
-    try:
-        yield
-    finally:
-        loop_observer.cancel()
-        with suppress(asyncio.CancelledError):
-            await loop_observer
-        db.close()
-        cache.redis.close()
+    with ExitStack() as resources:
+        resources.callback(db.close)
+        if payment_db is not db:
+            resources.callback(payment_db.close)
+        cache = RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
+        resources.callback(cache.redis.close)
+        app.state.db, app.state.payment_db, app.state.cache = db, payment_db, cache
+        durable = PostgresReservations(db, cache, settings.hold_seconds)
+        intake = RedisReservationIntake(
+            cache,
+            hold_seconds=settings.hold_seconds,
+            replica_acks=settings.redis_reservation_replica_acks,
+            wait_ms=settings.redis_reservation_wait_ms,
+            max_backlog=settings.redis_reservation_max_backlog,
+            max_command_age_seconds=settings.redis_reservation_max_command_age_seconds,
+        )
+        store = RedisFirstReservations(durable, intake) if settings.reservation_mode == "redis-first" else durable
+        app.state.reservation_intake = intake
+        order_cache = (RedisOrderStatusCache(cache.redis, settings.order_status_cache_ms)
+                       if settings.order_status_cache_ms else None)
+        app.state.reservations = Reservations(store, order_cache)
+        app.state.payment_reservations = (
+            app.state.reservations if payment_db is db
+            else Reservations(PostgresReservations(payment_db, cache, settings.hold_seconds))
+        )
+        callback_db = payment_db
+        app.state.payment_confirmation = PaymentConfirmation(PostgresPaymentConfirmation(callback_db, settings))
+        loop_observer = asyncio.create_task(observe_event_loop_lag())
+        try:
+            yield
+        finally:
+            loop_observer.cancel()
+            with suppress(asyncio.CancelledError):
+                await loop_observer
 
 
 app = FastAPI(
@@ -87,8 +106,9 @@ app = FastAPI(
     description="Assigned-seat reservations with database-enforced durable ownership. "
     "Default holds create pending orders synchronously; opt-in Redis-first intake returns "
     "an explicit provisional command until its PostgreSQL writer commits. All amounts are "
-    "integer minor units. Seat contention returns immediately; clients must not blindly "
-    "retry. Cached availability is advisory. No waiting room or frontend.",
+    "integer minor units. Seat contention returns immediately; ambiguous Redis-first "
+    "outcomes may be replayed only with the same idempotency key. Cached availability is "
+    "advisory. No waiting room or frontend.",
 )
 app.state.reserve_inflight = 0
 
@@ -101,7 +121,10 @@ class Error(BaseModel):
 ERRORS = {code: {"model": Error} for code in (401, 403, 404, 409, 422, 429, 503)}
 
 
-def service(request: Request):
+async def service(request: Request):
+    route_name = getattr(request.scope.get("route"), "name", None)
+    if request.method == "POST" and route_name in {"payment", "callback"}:
+        return request.app.state.payment_reservations
     return request.app.state.reservations
 
 
@@ -186,6 +209,9 @@ async def unavailable_error(request, exc):
     else:
         cause = "OperationalError"
     request.state.db_failure_type = cause
+    evidence = getattr(exc, "acquisition_failure", None)
+    if evidence is not None:
+        request.state.db_acquisition_failure = evidence
     DB_UNAVAILABLE.labels(cause).inc()
     return await business_error(request, Failure("DATABASE_UNAVAILABLE", 503))
 
@@ -203,8 +229,13 @@ def live():
 
 @app.get("/health/ready", tags=["Operations"], responses=ERRORS)
 def ready(request: Request):
-    with request.app.state.db.transaction() as conn:
-        conn.execute("SELECT 1")
+    databases = [request.app.state.db]
+    payment_db = getattr(request.app.state, "payment_db", request.app.state.db)
+    if payment_db is not request.app.state.db:
+        databases.append(payment_db)
+    for database in databases:
+        with database.transaction() as conn:
+            conn.execute("SELECT 1")
     try:
         request.app.state.cache.redis.ping()
     except Exception as exc:
@@ -248,6 +279,16 @@ class AvailableSeat(BaseModel):
 class Availability(BaseModel):
     event_id: UUID
     version: int
+    incarnation: str
+    seats: list[AvailableSeat]
+
+
+class AvailabilityDelta(BaseModel):
+    event_id: UUID
+    from_version: int
+    version: int
+    incarnation: str
+    reset_required: bool
     seats: list[AvailableSeat]
 
 
@@ -293,13 +334,15 @@ def availability(event_id: UUID, request: Request, if_none_match: Conditional = 
     return browse_response(request, event_id, "availability", if_none_match)
 
 
-@app.get("/v1/events/{event_id}/seat-deltas", tags=["Browse"], responses=ERRORS)
-def deltas(event_id: UUID, request: Request, since: int = 0):
-    """Current states changed since a snapshot version; use version from the response next time."""
-    snapshot = request.app.state.cache.read(str(event_id))
-    if since < 0 or since > snapshot["version"]:
-        raise Failure("INVALID_VERSION", 422)
-    return {**snapshot, "seats": [s for s in snapshot["seats"] if s["version"] > since]}
+@app.get(
+    "/v1/events/{event_id}/seat-deltas",
+    tags=["Browse"],
+    response_model=AvailabilityDelta,
+    responses=ERRORS,
+)
+def deltas(event_id: UUID, request: Request, since: int = 0, incarnation: str | None = None):
+    """Changes since a composite snapshot cursor; reuse incarnation and version."""
+    return JSONResponse(content=request.app.state.cache.deltas(str(event_id), since, incarnation))
 
 
 HOLD_RESPONSES = {
@@ -310,7 +353,12 @@ HOLD_RESPONSES = {
 
 @app.post("/v1/holds", tags=["Reservations"], responses=HOLD_RESPONSES, status_code=201)
 def hold(body: HoldInput, who: Actor, svc: Service, key: Key, request: Request):
-    """Hold 1-8 seats idempotently. Redis-first mode returns 202 until PostgreSQL is durable."""
+    """Hold 1-8 seats idempotently.
+
+    Redis-first mode returns 202 until PostgreSQL is durable. A
+    RESERVATION_DURABILITY_UNKNOWN response may be replayed only with the identical
+    actor, payload and Idempotency-Key.
+    """
     observe_hold_phase("dispatch", time.monotonic() - request.state.hold_admitted_at)
     with hold_phase("rate_limit"):
         request.app.state.cache.rate_limit(who)
@@ -329,6 +377,7 @@ def reservation_command(event_id: UUID, command_id: UUID, who: Actor, request: R
     """Poll provisional Redis-first intake until it becomes DURABLE or FAILED."""
     return request.app.state.reservation_intake.status(event_id, command_id, who)
 
+
 @app.get("/v1/holds/{hold_id}", tags=["Reservations"], responses=ERRORS)
 def get_hold(hold_id: UUID, who: Actor, svc: Service):
     return svc.get_hold(who, hold_id)
@@ -346,7 +395,17 @@ def checkout(body: OrderInput, who: Actor, svc: Service, key: Key):
 
 
 @app.get("/v1/orders/{order_id}", tags=["Checkout"], responses=ERRORS)
-def get_order(order_id: UUID, who: Actor, svc: Service):
+def get_order(order_id: UUID, who: Actor, svc: Service, response: Response):
+    """Actor-owned order and tickets. Opt-in snapshots may be up to 3 seconds old.
+
+    Advisory display only; payment/booking authorization always uses PostgreSQL.
+    Cache misses and errors retain the bounded database fallback behavior.
+    """
+    response.headers["Cache-Control"] = "private, no-store"
+    response.headers["Vary"] = "Authorization"
+    if settings.order_status_poll_ms:
+        response.headers["X-Poll-Interval-Ms"] = str(settings.order_status_poll_ms)
+        response.headers["X-Poll-Jitter-Percent"] = "20"
     return svc.get_order(who, order_id)
 
 
@@ -368,6 +427,11 @@ async def callback(
 ):
     """HMAC-SHA256 over timestamp + '.' + raw JSON body. Signature expires after 5 minutes.
 
+    With PAYMENT_CONFIRMATION_ASYNC=1, HTTP200/status=received acknowledges a durable
+    receipt only. Financial confirmation and ticket issuance happen in workers.
+    Acknowledged receipts remain durable across restarts; monitor REVIEW states.
+
+
     Payload schema: callback_id, payment_id, order_id (UUID), amount (minor units), currency,
     outcome (SUCCEEDED or FAILED). Duplicate callback IDs and semantic duplicates are safe.
     """
@@ -382,4 +446,7 @@ async def callback(
     # The database adapter is synchronous; do not block FastAPI's event loop.
     from starlette.concurrency import run_in_threadpool
 
-    return await run_in_threadpool(svc.callback, body.model_dump(mode="json"))
+    payload = body.model_dump(mode="json")
+    if settings.payment_confirmation_async:
+        return await run_in_threadpool(request.app.state.payment_confirmation.receive, payload)
+    return await run_in_threadpool(svc.callback, payload)

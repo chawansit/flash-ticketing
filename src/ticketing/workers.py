@@ -8,22 +8,27 @@ import signal
 import socket
 import time
 import urllib.request
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from uuid import uuid4
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, as_completed, wait
+from uuid import UUID, uuid4
 
 from kafka import KafkaConsumer, KafkaProducer, TopicPartition
 from prometheus_client import start_http_server
 from psycopg.types.json import Jsonb
+from redis.exceptions import RedisError
 
 from ticketing.application.reservations import Reservations
 from ticketing.config import Settings
-from ticketing.domain import Failure
 from ticketing.infrastructure.cache import RedisSeats
+from ticketing.infrastructure.order_status_cache import RedisOrderStatusCache
+from ticketing.infrastructure.order_status_projector import ORDER_EVENTS, CommittedOrderStatusProjector
+from ticketing.infrastructure.payment_confirmation import PostgresPaymentConfirmation
+from ticketing.infrastructure.payment_transport import CallbackTransport
 from ticketing.infrastructure.postgres import Postgres
 from ticketing.infrastructure.redis_reservations import RedisReservationIntake
 from ticketing.infrastructure.reservations import PostgresReservations, event
 from ticketing.observability import (
     CACHE_ROWS,
+    EVENT_CONSUMER_BATCH_SIZE,
     OUTBOX_AGE,
     RECONCILE_BACKLOG,
     RECONCILE_EVENTS,
@@ -32,13 +37,23 @@ from ticketing.observability import (
     RECONCILE_RECOVERED,
     RECONCILE_SECONDS,
     RECONCILE_TRACKED,
+    REFRESH_ACK_BATCH_SIZE,
     REFRESH_AGE,
     REFRESH_PENDING,
     RESERVATION_COMMAND_AGE_SECONDS,
     RESERVATION_PERSISTENCE,
+    RESERVATION_PERSISTENCE_BATCH_SIZE,
+    RESERVATION_PERSISTENCE_FAILURES,
+    RESERVATION_PERSISTENCE_PHASE_SECONDS,
+    SIMULATOR_BATCH_BARRIER_SECONDS,
+    SIMULATOR_DUE_TO_CLAIM_SECONDS,
     WORKER_ERRORS,
     configure_logging,
+    consumer_phase,
+    measured_consumer_event,
     measured_work,
+    observe_consumer_batch_error,
+    simulator_phase,
 )
 
 log = logging.getLogger("ticketing.worker")
@@ -51,41 +66,141 @@ def stop(*_):
 
 
 @measured_work("reservation_write")
-def persist_reservation_batch(store, intake, consumer, limit=8):
-    handled = False
-    for stream, message_id, fields in intake.messages(consumer, count=limit):
-        handled = True
+def persist_reservation_batch(store, intake, consumer, limit=1):
+    claim_started = time.perf_counter()
+    try:
+        messages = list(intake.messages(consumer, count=limit))
+    except Exception:
+        RESERVATION_PERSISTENCE_PHASE_SECONDS.labels("redis_claim", "error").observe(
+            time.perf_counter() - claim_started
+        )
+        raise
+    RESERVATION_PERSISTENCE_PHASE_SECONDS.labels("redis_claim", "ok").observe(
+        time.perf_counter() - claim_started
+    )
+    RESERVATION_PERSISTENCE_BATCH_SIZE.observe(len(messages))
+    if not messages:
+        return False
+
+    commands = []
+    for stream, message_id, fields in messages:
         payload = json.loads(fields["payload"])
         response = json.loads(fields["response"])
         created_at = float(fields.get("created_at_epoch", time.time()))
-        RESERVATION_COMMAND_AGE_SECONDS.observe(max(0.0, time.time() - created_at))
-        try:
-            store.persist_reservation_command(payload, response)
-        except Failure as exc:
-            intake.mark_failed(
-                payload["event_id"],
-                payload["command_id"],
-                payload["seat_ids"],
-                exc.code,
-            )
+        command_age = max(0.0, time.time() - created_at)
+        RESERVATION_COMMAND_AGE_SECONDS.observe(command_age)
+        commands.append(
+            {
+                "stream": stream,
+                "message_id": message_id,
+                "payload": payload,
+                "response": response,
+                "command_age": command_age,
+            }
+        )
+
+    started = time.perf_counter()
+    try:
+        outcomes = store.persist_reservation_commands(
+            [(command["payload"], command["response"]) for command in commands]
+        )
+    except Exception:
+        RESERVATION_PERSISTENCE_PHASE_SECONDS.labels("postgres_batch", "error").observe(
+            time.perf_counter() - started
+        )
+        RESERVATION_PERSISTENCE.labels("transient_error").inc(len(commands))
+        raise
+    RESERVATION_PERSISTENCE_PHASE_SECONDS.labels("postgres_batch", "ok").observe(
+        time.perf_counter() - started
+    )
+    if len(outcomes) != len(commands):
+        RESERVATION_PERSISTENCE.labels("outcome_mismatch").inc(len(commands))
+        raise RuntimeError("reservation persistence batch returned the wrong outcome count")
+
+    failed_events = set()
+    for command, (outcome, value) in zip(commands, outcomes, strict=True):
+        payload = command["payload"]
+        if outcome == "failed":
+            error_code = str(value.code or "UNKNOWN")
             RESERVATION_PERSISTENCE.labels("failed").inc()
+            RESERVATION_PERSISTENCE_FAILURES.labels(error_code).inc()
+            compensate_started = time.perf_counter()
+            try:
+                intake.mark_failed(
+                    payload["event_id"],
+                    payload["command_id"],
+                    payload["seat_ids"],
+                    error_code,
+                )
+            except Exception:
+                RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+                    "redis_compensate", "error"
+                ).observe(time.perf_counter() - compensate_started)
+                RESERVATION_PERSISTENCE.labels("compensation_error").inc()
+                raise
+            RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+                "redis_compensate", "ok"
+            ).observe(time.perf_counter() - compensate_started)
+            failed_events.add(payload["event_id"])
             log.warning(
                 "reservation_command_failed",
                 extra={"fields": {
                     "event": "reservation_command_failed",
                     "command_id": payload["command_id"],
-                    "error_code": exc.code,
+                    "error_code": error_code,
+                    "command_age_seconds": round(command["command_age"], 6),
                 }},
             )
-            snapshot(store.db, intake.cache, payload["event_id"])
-            intake.acknowledge(stream, message_id)
             continue
-        if intake.mark_durable(payload["event_id"], payload["command_id"]) != 1:
-            raise RuntimeError("reservation command metadata expired before durable acknowledgement")
-        intake.acknowledge(stream, message_id)
-        RESERVATION_PERSISTENCE.labels("durable").inc()
-    return handled
 
+        if outcome != "durable":
+            RESERVATION_PERSISTENCE.labels("outcome_invalid").inc()
+            raise RuntimeError(f"unknown reservation persistence outcome: {outcome}")
+        mark_started = time.perf_counter()
+        try:
+            marked = intake.mark_durable(payload["event_id"], payload["command_id"])
+        except Exception:
+            RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+                "redis_mark_durable", "error"
+            ).observe(time.perf_counter() - mark_started)
+            RESERVATION_PERSISTENCE.labels("mark_durable_error").inc()
+            raise
+        RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+            "redis_mark_durable", "ok"
+        ).observe(time.perf_counter() - mark_started)
+        if marked != 1:
+            RESERVATION_PERSISTENCE.labels("metadata_expired").inc()
+            log.error(
+                "reservation_command_metadata_expired",
+                extra={"fields": {
+                    "event": "reservation_command_metadata_expired",
+                    "command_id": payload["command_id"],
+                    "command_age_seconds": round(command["command_age"], 6),
+                    "mark_result": marked,
+                }},
+            )
+            raise RuntimeError(
+                "reservation command metadata expired before durable acknowledgement"
+            )
+        RESERVATION_PERSISTENCE.labels("durable").inc()
+
+    for event_id in failed_events:
+        snapshot(store.db, intake.cache, event_id)
+
+    for command in commands:
+        acknowledge_started = time.perf_counter()
+        try:
+            intake.acknowledge(command["stream"], command["message_id"])
+        except Exception:
+            RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+                "redis_acknowledge", "error"
+            ).observe(time.perf_counter() - acknowledge_started)
+            RESERVATION_PERSISTENCE.labels("acknowledgement_error").inc()
+            raise
+        RESERVATION_PERSISTENCE_PHASE_SECONDS.labels(
+            "redis_acknowledge", "ok"
+        ).observe(time.perf_counter() - acknowledge_started)
+    return True
 
 @measured_work("snapshot")
 def snapshot(db, cache, event_id):
@@ -108,6 +223,7 @@ def snapshot(db, cache, event_id):
             "seat_id": r["seat_id"],
             "price": r["price"],
             "status": "SOLD" if r["booked_order_id"] else "HELD" if r["hold_id"] else "AVAILABLE",
+            "hold_id": str(r["hold_id"]) if r["hold_id"] else None,
             "reserved_until": r["reserved_until"],
             "reserved_until_epoch": (
                 r["reserved_until"].timestamp() if r["reserved_until"] is not None else None
@@ -219,6 +335,132 @@ def changed_snapshot(db, cache, event_id, seat_ids):
         snapshot(db, cache, event_id)
 
 
+def full_snapshot_batch(db, cache, event_ids):
+    event_ids = list(dict.fromkeys(UUID(str(event_id)) for event_id in event_ids))
+    if not event_ids:
+        return set(), []
+    if len(event_ids) == 1:
+        try:
+            snapshot(db, cache, event_ids[0])
+            return {event_ids[0]}, []
+        except Exception as exc:  # noqa: BLE001 - the durable lease remains retryable
+            return set(), [exc]
+
+    with db.transaction() as conn:
+        rows = conn.execute(
+            """SELECT event.id AS event_id,event.sale_starts,event.sale_ends,event.currency,
+                seat.seat_id,seat.price,seat.hold_id,seat.reserved_until,
+                seat.booked_order_id,seat.version
+            FROM events AS event
+            LEFT JOIN event_seats AS seat ON seat.event_id=event.id
+            WHERE event.id=ANY(%s)
+            ORDER BY event.id,seat.seat_id""",
+            (event_ids,),
+        ).fetchall()
+
+    grouped = {
+        event_id: {"metadata": None, "seats": []}
+        for event_id in event_ids
+    }
+    for row in rows:
+        group = grouped[row["event_id"]]
+        group["metadata"] = row
+        if row["seat_id"] is not None:
+            group["seats"].append(seat_state(row))
+    CACHE_ROWS.labels("full").inc(sum(len(group["seats"]) for group in grouped.values()))
+
+    updates, errors = [], []
+    for event_id in event_ids:
+        group = grouped[event_id]
+        metadata = group["metadata"]
+        if metadata is None:
+            errors.append(RuntimeError(f"event {event_id} disappeared during refresh"))
+            continue
+        seats = group["seats"]
+        version = sum(seat["source_version"] for seat in seats)
+        updates.append(
+            (
+                str(event_id),
+                version,
+                {
+                    "event_id": str(event_id),
+                    "version": version,
+                    "sale_starts_epoch": metadata["sale_starts"].timestamp(),
+                    "sale_ends_epoch": metadata["sale_ends"].timestamp(),
+                    "currency": metadata["currency"],
+                    "seats": seats,
+                },
+            )
+        )
+    try:
+        outcomes = cache.put_many(updates)
+    except Exception as exc:  # noqa: BLE001 - the complete batch remains retryable
+        return set(), [*errors, exc]
+    if len(outcomes) != len(updates):
+        return set(), [*errors, RuntimeError("cache full batch returned the wrong outcome count")]
+
+    completed = set()
+    event_by_key = {str(event_id): event_id for event_id in event_ids}
+    for update, outcome in zip(updates, outcomes, strict=True):
+        if isinstance(outcome, Exception):
+            errors.append(outcome)
+        elif outcome:
+            completed.add(event_by_key[update[0]])
+        else:
+            errors.append(RuntimeError(f"cache rejected full snapshot for event {update[0]}"))
+    return completed, errors
+
+
+def changed_snapshot_batch(db, cache, requests):
+    event_ids = []
+    seat_ids = []
+    for request in requests:
+        for seat_id in request["seat_ids"]:
+            event_ids.append(request["event_id"])
+            seat_ids.append(seat_id)
+
+    rows = []
+    if event_ids:
+        with db.transaction() as conn:
+            rows = conn.execute(
+                """WITH wanted(event_id,seat_id) AS (
+                    SELECT * FROM unnest(%s::uuid[],%s::text[])
+                )
+                SELECT seat.event_id,seat.seat_id,seat.price,seat.hold_id,
+                    seat.reserved_until,seat.booked_order_id,seat.version
+                FROM event_seats AS seat
+                JOIN wanted USING(event_id,seat_id)
+                ORDER BY seat.event_id,seat.seat_id""",
+                (event_ids, seat_ids),
+            ).fetchall()
+
+    grouped = {request["event_id"]: [] for request in requests}
+    for row in rows:
+        grouped[row["event_id"]].append(seat_state(row))
+    CACHE_ROWS.labels("patch").inc(len(rows))
+
+    try:
+        outcomes = cache.patch_many(
+            (str(request["event_id"]), grouped[request["event_id"]]) for request in requests
+        )
+    except Exception as exc:  # noqa: BLE001 - the lease remains retryable
+        return set(), [exc]
+    if len(outcomes) != len(requests):
+        return set(), [RuntimeError("cache patch batch returned the wrong outcome count")]
+
+    completed, errors = set(), []
+    for request, patched in zip(requests, outcomes, strict=True):
+        if patched:
+            completed.add(request["event_id"])
+            continue
+        try:
+            snapshot(db, cache, request["event_id"])
+            completed.add(request["event_id"])
+        except Exception as exc:  # noqa: BLE001 - preserve other successful projections
+            errors.append(exc)
+    return completed, errors
+
+
 def seat_state(row):
     return {
         "seat_id": row["seat_id"],
@@ -260,35 +502,49 @@ def refresh_batch(db, cache, limit=2, cooldown_ms=250):
         )
     # No SQL locks while writing Redis. Every snapshot is fenced by inventory version.
     completed, errors = [], []
-    for row in rows:
-        try:
-            if row["seat_ids"] is None:
-                snapshot(db, cache, row["event_id"])
-            else:
-                changed_snapshot(db, cache, row["event_id"], row["seat_ids"])
-            completed.append(row)
-        except Exception as exc:  # noqa: BLE001 - preserve successes, then re-raise
-            errors.append(exc)
+    partial = [row for row in rows if row["seat_ids"] is not None]
+    if partial:
+        projected, projection_errors = changed_snapshot_batch(db, cache, partial)
+        completed.extend(row for row in partial if row["event_id"] in projected)
+        errors.extend(projection_errors)
+    full = [row for row in rows if row["seat_ids"] is None]
+    if full:
+        projected, projection_errors = full_snapshot_batch(
+            db, cache, [row["event_id"] for row in full]
+        )
+        completed.extend(row for row in full if row["event_id"] in projected)
+        errors.extend(projection_errors)
     if completed:
+        REFRESH_ACK_BATCH_SIZE.observe(len(completed))
+        acknowledgements = [
+            {
+                "event_id": str(row["event_id"]),
+                "generation": row["generation"],
+                "claimed_at": claimed_at.isoformat(),
+            }
+            for row in completed
+        ]
         with db.transaction() as conn:
-            for row in completed:
-                conn.execute(
-                    """UPDATE seat_refresh_requests SET completed_generation=%s,
-                    seat_ids=CASE WHEN generation=%s THEN NULL ELSE seat_ids END,
+            conn.execute(
+                """WITH acknowledged AS (
+                    SELECT * FROM jsonb_to_recordset(%s::jsonb)
+                    AS item(event_id uuid,generation bigint,claimed_at timestamptz)
+                )
+                UPDATE seat_refresh_requests AS request
+                SET completed_generation=acknowledged.generation,
+                    seat_ids=CASE
+                        WHEN request.generation=acknowledged.generation THEN NULL
+                        ELSE request.seat_ids END,
                     lease_until=NULL,lease_token=NULL,
                     next_attempt_at=clock_timestamp()+(%s * interval '1 millisecond'),
-                    requested_at=CASE WHEN generation>%s THEN %s ELSE requested_at END
-                    WHERE event_id=%s AND lease_token=%s""",
-                    (
-                        row["generation"],
-                        row["generation"],
-                        cooldown_ms,
-                        row["generation"],
-                        claimed_at,
-                        row["event_id"],
-                        token,
-                    ),
-                )
+                    requested_at=CASE
+                        WHEN request.generation>acknowledged.generation
+                        THEN acknowledged.claimed_at ELSE request.requested_at END
+                FROM acknowledged
+                WHERE request.event_id=acknowledged.event_id
+                AND request.lease_token=%s""",
+                (Jsonb(acknowledgements), cooldown_ms, token),
+            )
     if errors:
         raise errors[0]
     return len(completed)
@@ -475,7 +731,17 @@ def reconcile_pass(db, cache, settings, deadline):
 
 
 @measured_work("consume_event")
-def consume_event(db, cache, envelope):
+def consume_event(db, cache, envelope, order_status_projector=None):
+    _consume_event_transaction(db, cache, envelope)
+    if order_status_projector is not None and envelope["event_type"] in ORDER_EVENTS:
+        data = envelope.get("payload")
+        order_status_projector.refresh(
+            data.get("order_id") if isinstance(data, dict) else None, event_type=envelope["event_type"]
+        )
+
+
+@measured_consumer_event
+def _consume_event_transaction(db, cache, envelope):
     if envelope["schema_version"] != 1:
         raise ValueError("Unsupported event schema")
     kind, data = envelope["event_type"], envelope["payload"]
@@ -523,11 +789,147 @@ def consume_event(db, cache, envelope):
             raise ValueError("Unknown event type")
 
 
-@measured_work("simulate_one")
-def simulate_one(db, settings):
-    token = uuid4()
+@measured_work("consume_refresh_batch")
+def consume_refresh_batch(db, envelopes):
+    if not envelopes:
+        return 0
+    for envelope in envelopes:
+        if envelope["schema_version"] != 1:
+            raise ValueError("Unsupported event schema")
+        if envelope["event_type"] != "SeatsChanged":
+            raise ValueError("Only SeatsChanged events can be coalesced")
+
     with db.transaction() as conn:
-        row = conn.execute("""SELECT p.*,o.total,o.currency FROM payment_attempts p JOIN orders o ON o.id=p.order_id
+        inserted = conn.execute(
+            """INSERT INTO consumer_inbox(consumer,event_id)
+            SELECT 'fulfillment',event_id FROM unnest(%s::uuid[]) AS event_id
+            ON CONFLICT DO NOTHING RETURNING event_id""",
+            ([envelope["event_id"] for envelope in envelopes],),
+        ).fetchall()
+        inserted_ids = {str(row["event_id"]) for row in inserted}
+        refreshes = {}
+        handled_ids = set()
+        for envelope in envelopes:
+            envelope_id = envelope["event_id"]
+            if envelope_id not in inserted_ids or envelope_id in handled_ids:
+                continue
+            handled_ids.add(envelope_id)
+            data = envelope["payload"]
+            target = data["event_id"]
+            seats = data.get("seats")
+            if target not in refreshes:
+                refreshes[target] = None if seats is None else set(seats)
+            elif refreshes[target] is not None:
+                if seats is None:
+                    refreshes[target] = None
+                else:
+                    refreshes[target].update(seats)
+        # Mixed batches can touch several shows from different Kafka partitions.
+        # A stable lock order prevents opposite input orders from deadlocking.
+        for event_id in sorted(refreshes, key=str):
+            seats = refreshes[event_id]
+            request_refresh(conn, event_id, None if seats is None else sorted(seats))
+    return len(inserted_ids)
+
+
+def consume_events(db, cache, envelopes, order_status_projector=None):
+    pending_refresh = []
+
+    def flush_refresh():
+        if pending_refresh:
+            with consumer_phase("event_SeatsChanged"):
+                consume_refresh_batch(db, pending_refresh)
+            pending_refresh.clear()
+
+    for envelope in envelopes:
+        if envelope.get("event_type") == "SeatsChanged":
+            pending_refresh.append(envelope)
+            continue
+        # Refresh intents project the latest committed inventory. Defer them
+        # within this bounded partition batch; business event order is unchanged.
+        if order_status_projector is None:
+            consume_event(db, cache, envelope)
+        else:
+            consume_event(db, cache, envelope, order_status_projector=order_status_projector)
+    flush_refresh()
+
+
+def dead_letter_message(db, message):
+    with db.transaction() as conn:
+        conn.execute(
+            """INSERT INTO dead_letters(event_id,payload,error)
+            VALUES (%s,%s,%s)""",
+            (
+                uuid4(),
+                Jsonb({"raw": message.value.decode(errors="replace")}),
+                "Processing failed after 5 attempts; inspect worker logs",
+            ),
+        )
+
+
+def consume_kafka_messages(db, cache, messages, order_status_projector=None):
+    EVENT_CONSUMER_BATCH_SIZE.observe(len(messages))
+    for attempt in range(5):
+        try:
+            envelopes = [json.loads(message.value) for message in messages]
+            if order_status_projector is None:
+                consume_events(db, cache, envelopes)
+            else:
+                consume_events(db, cache, envelopes, order_status_projector=order_status_projector)
+            return
+        except Exception as exc:
+            observe_consumer_batch_error(exc)
+            if attempt < 4:
+                time.sleep(0.2 * 2**attempt)
+                continue
+            log.exception("consumer_batch_failed")
+
+    # Isolate a poison message after the bounded batch retries. Already committed
+    # inbox rows make replay of valid records inexpensive and safe.
+    for message in messages:
+        try:
+            envelope = json.loads(message.value)
+            if order_status_projector is None:
+                consume_event(db, cache, envelope)
+            else:
+                consume_event(db, cache, envelope, order_status_projector=order_status_projector)
+        except Exception:
+            dead_letter_message(db, message)
+            log.exception("dead_letter")
+
+def consume_iteration(consumer, db, cache, batch_size, order_status_projector=None):
+    """Time the existing poll/process/rewind/commit sequence without altering its boundaries."""
+    with consumer_phase("poll"):
+        batches = consumer.poll(timeout_ms=500, max_records=batch_size)
+    starts = {
+        TopicPartition(tp.topic, tp.partition): messages[0].offset
+        for tp, messages in batches.items() if messages
+    }
+    try:
+        for tp, messages in batches.items():
+            if messages:
+                with consumer_phase("partition", tp.partition):
+                    if order_status_projector is None:
+                        consume_kafka_messages(db, cache, messages)
+                    else:
+                        consume_kafka_messages(db, cache, messages, order_status_projector=order_status_projector)
+    except Exception:
+        for tp, offset in starts.items():
+            with consumer_phase("rewind", tp.partition):
+                consumer.seek(tp, offset)
+        raise
+    if starts:
+        with consumer_phase("commit"):
+            consumer.commit()
+        return True
+    return False
+
+
+@measured_work("simulate_one")
+def simulate_one(db, settings, transport=None):
+    token = uuid4()
+    with simulator_phase("claim"), db.transaction() as conn:
+        row = conn.execute("""SELECT p.*,o.total,o.currency,clock_timestamp() AS claim_observed_at FROM payment_attempts p JOIN orders o ON o.id=p.order_id
             WHERE p.deliveries<p.target_deliveries AND p.due_at<=clock_timestamp()
             AND (p.lease_until IS NULL OR p.lease_until<clock_timestamp())
             ORDER BY p.due_at LIMIT 1 FOR UPDATE OF p SKIP LOCKED""").fetchone()
@@ -537,6 +939,9 @@ def simulate_one(db, settings):
             "UPDATE payment_attempts SET lease_until=clock_timestamp()+interval '15 seconds',lease_token=%s WHERE id=%s",
             (token, row["id"]),
         )
+    SIMULATOR_DUE_TO_CLAIM_SECONDS.observe(
+        max(0, (row["claim_observed_at"] - row["due_at"]).total_seconds())
+    )
     # Same delivery ID repeated intentionally; tests also exercise different IDs for one payment.
     payload = {
         "callback_id": str(row["id"]),
@@ -560,9 +965,13 @@ def simulate_one(db, settings):
             "X-Payment-Signature": signature,
         },
     )
-    with urllib.request.urlopen(request, timeout=5) as response:
-        response.read()
-    with db.transaction() as conn:
+    with simulator_phase("delivery"):
+        if transport is None:
+            with urllib.request.urlopen(request, timeout=5) as response:
+                response.read()
+        else:
+            transport.post(raw, dict(request.header_items()))
+    with simulator_phase("ack"), db.transaction() as conn:
         conn.execute(
             """UPDATE payment_attempts SET deliveries=deliveries+1,lease_until=NULL
             WHERE id=%s AND lease_token=%s""",
@@ -571,47 +980,109 @@ def simulate_one(db, settings):
     return True
 
 
-def simulate_batch(db, settings, executor):
-    futures = [executor.submit(simulate_one, db, settings) for _ in range(settings.simulator_concurrency)]
+def simulate_batch(db, settings, executor, transport=None):
+    futures = [executor.submit(simulate_one, db, settings, transport) for _ in range(settings.simulator_concurrency)]
     work = False
+    completed_at = []
     for future in as_completed(futures):
+        completed_at.append(time.monotonic())
         try:
             work = future.result() or work
         except Exception:
             WORKER_ERRORS.labels("simulator").inc()
             log.exception("callback_dispatch_failed")
+    batch_end = time.monotonic()
+    SIMULATOR_BATCH_BARRIER_SECONDS.inc(sum(batch_end - stamp for stamp in completed_at))
     return work
+
+
+
+def simulate_refill(db, settings, executor, should_run=None, transport=None):
+    """Keep bounded slots occupied independently; drain outstanding work on stop."""
+    should_run = should_run or (lambda: running)
+    ready_at = [0.0] * settings.simulator_concurrency
+    pending = {}
+
+    def complete(future):
+        try:
+            return bool(future.result())
+        except Exception:
+            WORKER_ERRORS.labels("simulator").inc()
+            log.exception("callback_dispatch_failed")
+            return False
+
+    try:
+        while should_run():
+            now = time.monotonic()
+            occupied = set(pending.values())
+            for slot, eligible_at in enumerate(ready_at):
+                if not should_run():
+                    break
+                if slot not in occupied and eligible_at <= now:
+                    pending[executor.submit(simulate_one, db, settings, transport)] = slot
+            if not pending:
+                delay = max(0, min(.1, min(ready_at) - time.monotonic()))
+                time.sleep(delay)
+                continue
+            done, _ = wait(pending, timeout=.1, return_when=FIRST_COMPLETED)
+            for future in done:
+                slot = pending.pop(future)
+                worked = complete(future)
+                ready_at[slot] = time.monotonic() + (0 if worked else .1)
+    finally:
+        for future in pending:
+            complete(future)
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "role",
-        choices=["publisher", "consumer", "reservation-writer", "maintenance", "refresh", "expiry", "reconciler", "simulator"],
+        choices=["publisher", "consumer", "reservation-writer", "maintenance", "refresh", "expiry", "reconciler", "simulator", "confirmation"],
     )
     role = parser.parse_args().role
     configure_logging()
     settings = Settings()
     settings.validate()
+    if role == "confirmation" and not settings.payment_confirmation_async:
+        raise RuntimeError("Confirmation worker requires PAYMENT_CONFIRMATION_ASYNC=1")
     if role == "simulator" and settings.environment != "development":
         raise RuntimeError("Simulator is development only")
     signal.signal(signal.SIGTERM, stop)
     signal.signal(signal.SIGINT, stop)
     start_http_server(settings.worker_port)
     db, cache = Postgres(settings.database_url, settings.pool_max), RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
-    store = PostgresReservations(db, cache, settings.hold_seconds)
+    store = PostgresReservations(
+        db, cache, settings.hold_seconds,
+        persist_write_pipeline=role == "reservation-writer" and settings.reservation_write_pipeline,
+    )
     service = Reservations(store)
+    order_status_projector = (
+        CommittedOrderStatusProjector(
+            db, RedisOrderStatusCache(cache.redis, settings.order_status_cache_ms),
+            deduplicate=settings.order_status_event_refresh_dedup,
+        )
+        if role == "consumer" and settings.order_status_event_refresh else None
+    )
     intake = RedisReservationIntake(
         cache,
         hold_seconds=settings.hold_seconds,
         replica_acks=settings.redis_reservation_replica_acks,
         wait_ms=settings.redis_reservation_wait_ms,
         max_backlog=settings.redis_reservation_max_backlog,
+        max_command_age_seconds=settings.redis_reservation_max_command_age_seconds,
     )
     reservation_consumer = f"{socket.gethostname()}-{os.getpid()}"
-    producer = consumer = executor = None
+    producer = consumer = executor = callback_transport = None
     try:
+        if role == "confirmation":
+            PostgresPaymentConfirmation(db, settings).run(store, lambda: running)
+            return
         if role == "simulator":
+            callback_transport = CallbackTransport(
+                os.getenv("API_URL", "http://localhost:8000") + "/v1/webhooks/payments",
+                settings.simulator_concurrency,
+            )
             executor = ThreadPoolExecutor(max_workers=settings.simulator_concurrency)
         if role == "publisher":
             producer = KafkaProducer(
@@ -629,8 +1100,12 @@ def main():
                 group_id="ticketing-fulfillment-v1",
                 enable_auto_commit=False,
                 auto_offset_reset="earliest",
-                max_poll_records=1,
+                max_poll_records=settings.consumer_batch_size,
+                fetch_max_wait_ms=settings.consumer_batch_wait_ms,
             )
+        if role == "simulator" and settings.simulator_dispatch_mode == "refill":
+            simulate_refill(db, settings, executor, transport=callback_transport)
+            return
         next_warm = 0
         while running:
             try:
@@ -639,10 +1114,10 @@ def main():
                     work = publish_batch(db, producer, settings.publisher_batch_size)
                 elif role == "reservation-writer":
                     work = persist_reservation_batch(
-                        store, intake, reservation_consumer, settings.publisher_batch_size
+                        store, intake, reservation_consumer, settings.reservation_writer_batch_size
                     )
                 elif role == "simulator":
-                    work = simulate_batch(db, settings, executor)
+                    work = simulate_batch(db, settings, executor, callback_transport)
                 elif role == "maintenance":
                     work = (
                         refresh_batch(db, cache, settings.refresh_batch_size, settings.refresh_cooldown_ms) > 0
@@ -672,50 +1147,22 @@ def main():
                         or work
                     )
                 else:
-                    for messages in consumer.poll(timeout_ms=500, max_records=1).values():
-                        for message in messages:
-                            envelope = None
-                            for attempt in range(5):
-                                try:
-                                    envelope = json.loads(message.value)
-                                    consume_event(db, cache, envelope)
-                                    break
-                                except Exception:
-                                    if attempt == 4:
-                                        # Durable dead letter before committing Kafka offset.
-                                        try:
-                                            with db.transaction() as conn:
-                                                conn.execute(
-                                                    """INSERT INTO dead_letters(event_id,payload,error)
-                                                    VALUES (%s,%s,%s)""",
-                                                    (
-                                                        uuid4(),
-                                                        Jsonb(
-                                                            {"raw": message.value.decode(errors="replace")}
-                                                        ),
-                                                        "Processing failed after 5 attempts; inspect worker logs",
-                                                    ),
-                                                )
-                                        except Exception:
-                                            consumer.seek(
-                                                TopicPartition(message.topic, message.partition),
-                                                message.offset,
-                                            )
-                                            raise
-                                        log.exception("dead_letter")
-                                    else:
-                                        time.sleep(0.2 * 2**attempt)
-                            consumer.commit()
-                            work = True
+                    work = consume_iteration(
+                        consumer, db, cache, settings.consumer_batch_size, order_status_projector=order_status_projector
+                    )
                 if not work:
                     time.sleep(0.1)
-            except Exception:
+            except Exception as exc:
                 WORKER_ERRORS.labels(role).inc()
+                if role == "reservation-writer" and isinstance(exc, RedisError):
+                    intake.reset_connection_state()
                 log.exception("worker_iteration_failed", extra={"fields": {"role": role}})
                 time.sleep(1)
     finally:
         if executor:
             executor.shutdown(wait=True)
+        if callback_transport:
+            callback_transport.close()
         if producer:
             producer.close(timeout=5)
         if consumer:

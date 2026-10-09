@@ -1,0 +1,421 @@
+{
+  "decision": "ADR0237",
+  "status": "LOCALLY_VALIDATED_CI_PENDING",
+  "base_revision": "4b23a5e681354f9c6c387b07e3554c88c46e0695",
+  "historical_source_revision": "750ad8a4bf680a8440c001f2300b7fa8d56d8e77",
+  "role_images": {
+    "api": "sha256:18ddd5d6faee7673eefa39eab39b3579eb66766f474a82768caa58852e31122c",
+    "consumer": "sha256:67706c35f9b4cf299b97e5e7583436e03647a7105667b13a3bd9e3a831376b83",
+    "reservation-writer": "sha256:522aebe81ddf2d0604f2035c3d5658425fa8913d45ecd7b076e4285b73b01a01"
+  },
+  "verified_role_source_sha256": {
+    "api": {
+      "src/ticketing/api.py": "62754c889f1a832330930fdc28fa34644a95d810512fc7f7245a202a3859570e",
+      "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+      "src/ticketing/config.py": "6361a281dd86f73dd6fbd79dccdb5ea05a307cbdc14ee2cf76d1c045e90392aa",
+      "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+      "src/ticketing/http.py": "2711b3810f2f2f94fdeddba682ebeab3536832a4c0269586f9777e111dbe7223",
+      "src/ticketing/observability.py": "3bb9d042ee01469abdd8e2b630ca6f05ee3a318f96991ab9a867d74dc88244d2",
+      "src/ticketing/workers.py": "42073129f3b3e9735edb468b50f15b274d7d5c7ac8bbda52a6e85c6d6bc752ce",
+      "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+      "src/ticketing/application/ports.py": "3a562c947a28d8a63a257e361707041d41894f6374eba2702078d2bd39f9a98a",
+      "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+      "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+      "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+      "src/ticketing/infrastructure/order_status_projector.py": "8e89ce45e57123f5fc1499e5d2bf57752395e57374f50729a975f402cd31ac88",
+      "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+      "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+      "src/ticketing/infrastructure/postgres.py": "329cf2e1e7526a21ae76dbaf2832128518a0be94961537c8c8ea72ef405622a2",
+      "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+      "src/ticketing/infrastructure/reservations.py": "543ab9a9bb15a6b8f10874563a33f1fc450bf43795040280f7c137c6e7f3374d",
+      "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "consumer": {
+      "src/ticketing/api.py": "62754c889f1a832330930fdc28fa34644a95d810512fc7f7245a202a3859570e",
+      "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+      "src/ticketing/config.py": "6361a281dd86f73dd6fbd79dccdb5ea05a307cbdc14ee2cf76d1c045e90392aa",
+      "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+      "src/ticketing/http.py": "2711b3810f2f2f94fdeddba682ebeab3536832a4c0269586f9777e111dbe7223",
+      "src/ticketing/observability.py": "3bb9d042ee01469abdd8e2b630ca6f05ee3a318f96991ab9a867d74dc88244d2",
+      "src/ticketing/workers.py": "8cf69f9495e2a196e842ad076b388c5aabc678c0d4b2ea3874db7eb03600b4fd",
+      "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+      "src/ticketing/application/ports.py": "3a562c947a28d8a63a257e361707041d41894f6374eba2702078d2bd39f9a98a",
+      "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+      "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+      "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+      "src/ticketing/infrastructure/order_status_projector.py": "8e89ce45e57123f5fc1499e5d2bf57752395e57374f50729a975f402cd31ac88",
+      "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+      "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+      "src/ticketing/infrastructure/postgres.py": "329cf2e1e7526a21ae76dbaf2832128518a0be94961537c8c8ea72ef405622a2",
+      "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+      "src/ticketing/infrastructure/reservations.py": "543ab9a9bb15a6b8f10874563a33f1fc450bf43795040280f7c137c6e7f3374d",
+      "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "reservation-writer": {
+      "src/ticketing/api.py": "62754c889f1a832330930fdc28fa34644a95d810512fc7f7245a202a3859570e",
+      "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+      "src/ticketing/config.py": "e3d141654092a7c7f528e11ceb163ec14cf035349f9d9040dd2e617b5f1f2591",
+      "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+      "src/ticketing/http.py": "2711b3810f2f2f94fdeddba682ebeab3536832a4c0269586f9777e111dbe7223",
+      "src/ticketing/observability.py": "3bb9d042ee01469abdd8e2b630ca6f05ee3a318f96991ab9a867d74dc88244d2",
+      "src/ticketing/workers.py": "dec31b79c22f2c3acbd533e768435bac6787ab76a71a197b0ef1aef4a5e0d4a1",
+      "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+      "src/ticketing/application/ports.py": "3a562c947a28d8a63a257e361707041d41894f6374eba2702078d2bd39f9a98a",
+      "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+      "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+      "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+      "src/ticketing/infrastructure/order_status_projector.py": "8e89ce45e57123f5fc1499e5d2bf57752395e57374f50729a975f402cd31ac88",
+      "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+      "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+      "src/ticketing/infrastructure/postgres.py": "329cf2e1e7526a21ae76dbaf2832128518a0be94961537c8c8ea72ef405622a2",
+      "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+      "src/ticketing/infrastructure/reservations.py": "681e6b4f01e5236cb07b0b25c9f874c75d00e1c6c484c432d262a23762ce7c91",
+      "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    }
+  },
+  "combined_source_sha256": {
+    "src/ticketing/api.py": "62754c889f1a832330930fdc28fa34644a95d810512fc7f7245a202a3859570e",
+    "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+    "src/ticketing/config.py": "e3d141654092a7c7f528e11ceb163ec14cf035349f9d9040dd2e617b5f1f2591",
+    "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+    "src/ticketing/http.py": "2711b3810f2f2f94fdeddba682ebeab3536832a4c0269586f9777e111dbe7223",
+    "src/ticketing/observability.py": "3bb9d042ee01469abdd8e2b630ca6f05ee3a318f96991ab9a867d74dc88244d2",
+    "src/ticketing/workers.py": "21b9fb1ca3a11285e5e332f9f1054d47fc01f82c2af40d361355a826e27814c1",
+    "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+    "src/ticketing/application/ports.py": "3a562c947a28d8a63a257e361707041d41894f6374eba2702078d2bd39f9a98a",
+    "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+    "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+    "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+    "src/ticketing/infrastructure/order_status_projector.py": "8e89ce45e57123f5fc1499e5d2bf57752395e57374f50729a975f402cd31ac88",
+    "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "49976ce0d6879bbb9ca289ed9d70931323b074d69b65c20e026122326a182f1a",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/reservations.py": "675dc16f10d6c91330f2a5671a170816e417d3dba91ba581162b469cbf39a92f",
+    "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "assembly": {
+    "config": "exact verified writer source",
+    "reservations": "verified writer source with import order normalized; all non-import syntax and imported names unchanged",
+    "workers": "consumer syntax unchanged except main from writer",
+    "other_sources": "exact verified API source",
+    "syntax_comparison_passed": true,
+    "postgres": "verified API source with import order normalized; all non-import syntax and imported names unchanged"
+  },
+  "cloud_actions": 0,
+  "production_qualified": false,
+  "capacity_improvement_measured": false,
+  "regression_test_sources": [
+    {
+      "path": "tests/unit/test_admission.py",
+      "source": "verified writer export regression suite",
+      "sha256": "32adfa8047fe81399a3737ed7ea58ce70110b89d8fb02c22ba02bdc9e239f4c6",
+      "promoted_sha256": "32adfa8047fe81399a3737ed7ea58ce70110b89d8fb02c22ba02bdc9e239f4c6"
+    },
+    {
+      "path": "tests/unit/test_api.py",
+      "source": "verified writer export regression suite",
+      "sha256": "87ef5dda3c5142fa4243550d086c5c2344daf4f9034b57994c1ba2411684ab80",
+      "promoted_sha256": "87ef5dda3c5142fa4243550d086c5c2344daf4f9034b57994c1ba2411684ab80"
+    },
+    {
+      "path": "tests/unit/test_api_payment_partition.py",
+      "source": "verified writer export regression suite",
+      "sha256": "74c31c38fb7d1780bfdd95795a66602882ebe16d1115f8ca795c820bf3b58479",
+      "promoted_sha256": "74c31c38fb7d1780bfdd95795a66602882ebe16d1115f8ca795c820bf3b58479"
+    },
+    {
+      "path": "tests/unit/test_api_pool_waiting_config.py",
+      "source": "verified writer export regression suite",
+      "sha256": "af49f242dc3e435c55ab7103143a62e1aafef27b853a7740394fffb0c02acd45",
+      "promoted_sha256": "af49f242dc3e435c55ab7103143a62e1aafef27b853a7740394fffb0c02acd45"
+    },
+    {
+      "path": "tests/unit/test_browse_body_cache.py",
+      "source": "verified writer export regression suite",
+      "sha256": "7542fec103eba45591f19a1a22f7c7d1c1f84de7690a414175b21147681eac3d",
+      "promoted_sha256": "7542fec103eba45591f19a1a22f7c7d1c1f84de7690a414175b21147681eac3d"
+    },
+    {
+      "path": "tests/unit/test_callback_transport.py",
+      "source": "verified writer export regression suite",
+      "sha256": "f2f17c248a35b239ea681a08ea6f93ba4ca8bf681af8f5cc173bfcfa91bc0e6d",
+      "promoted_sha256": "f2f17c248a35b239ea681a08ea6f93ba4ca8bf681af8f5cc173bfcfa91bc0e6d"
+    },
+    {
+      "path": "tests/unit/test_consumer_batch_config.py",
+      "source": "verified writer export regression suite",
+      "sha256": "0c9021d6617f1e13d6c82876224a1b12ca4d2e78c8c10f40ded0ba563e178dbe",
+      "promoted_sha256": "0c9021d6617f1e13d6c82876224a1b12ca4d2e78c8c10f40ded0ba563e178dbe"
+    },
+    {
+      "path": "tests/unit/test_consumer_phase_diagnostics.py",
+      "source": "verified writer export regression suite",
+      "sha256": "dc24353d6f470c5c0cce914ab77baa8253677db7677348c17af91ebf1375c7be",
+      "promoted_sha256": "dc24353d6f470c5c0cce914ab77baa8253677db7677348c17af91ebf1375c7be"
+    },
+    {
+      "path": "tests/unit/test_domain.py",
+      "source": "verified writer export regression suite",
+      "sha256": "ca01e926dcd2653261e9e724aa7c4e0ebf40b520ec841bc3e66ff519f2762361",
+      "promoted_sha256": "ca01e926dcd2653261e9e724aa7c4e0ebf40b520ec841bc3e66ff519f2762361"
+    },
+    {
+      "path": "tests/unit/test_expiry_batch.py",
+      "source": "verified writer export regression suite",
+      "sha256": "1825ce082c9c6e420cbf3c63fb972f664208e2a748ef3a67b17313271e402d39",
+      "promoted_sha256": "1825ce082c9c6e420cbf3c63fb972f664208e2a748ef3a67b17313271e402d39"
+    },
+    {
+      "path": "tests/unit/test_http_instrumentation.py",
+      "source": "verified writer export regression suite",
+      "sha256": "67ab9049eed448e5803f04f6c953c910305562ee59dbd7c057c9f919ed8630ba",
+      "promoted_sha256": "67ab9049eed448e5803f04f6c953c910305562ee59dbd7c057c9f919ed8630ba"
+    },
+    {
+      "path": "tests/unit/test_order_status_cache.py",
+      "source": "verified writer export regression suite",
+      "sha256": "97fee698e1632f431a890565fcb35636a37433b2367a3728435c7be1a7afda75",
+      "promoted_sha256": "97fee698e1632f431a890565fcb35636a37433b2367a3728435c7be1a7afda75"
+    },
+    {
+      "path": "tests/unit/test_order_status_projector.py",
+      "source": "verified writer export regression suite",
+      "sha256": "284c2092a127ee64513dc5b395791cffd8d188ade920976704135682ff1e4238",
+      "promoted_sha256": "284c2092a127ee64513dc5b395791cffd8d188ade920976704135682ff1e4238"
+    },
+    {
+      "path": "tests/unit/test_postgres_timing.py",
+      "source": "verified writer export regression suite",
+      "sha256": "0454ff4d883cdac35fa3a9188e46a6dcfefc6ca8ad3304e7a536bb39ef715c8d",
+      "promoted_sha256": "0454ff4d883cdac35fa3a9188e46a6dcfefc6ca8ad3304e7a536bb39ef715c8d"
+    },
+    {
+      "path": "tests/unit/test_redis_first_settings.py",
+      "source": "verified writer export regression suite",
+      "sha256": "a054e6522d72fdd1fd1a5e3f28fd71e93ce702f65ed1d782d4ab57274bc61a3a",
+      "promoted_sha256": "a054e6522d72fdd1fd1a5e3f28fd71e93ce702f65ed1d782d4ab57274bc61a3a"
+    },
+    {
+      "path": "tests/unit/test_redis_writer_recovery.py",
+      "source": "verified writer export regression suite",
+      "sha256": "139cf4bb85526cf9997d702aefb35ef41303388cb0e094144d65968132f8fc61",
+      "promoted_sha256": "139cf4bb85526cf9997d702aefb35ef41303388cb0e094144d65968132f8fc61"
+    },
+    {
+      "path": "tests/unit/test_shared_acquisition_budget.py",
+      "source": "verified writer export regression suite",
+      "sha256": "5bc0cba65664d77db199c9c4918148471517f3a154d766d6acc8c60f8e2a06f5",
+      "promoted_sha256": "0ee0d1a31c529f4015012a619a1cd0749eadf6e7d7865ad8803ecd0f48e63653"
+    },
+    {
+      "path": "tests/unit/test_simulator_dispatch.py",
+      "source": "verified writer export regression suite",
+      "sha256": "0133444ea088012d1775fb739b582ff02644ca67559f42c0df6f8915f59720b2",
+      "promoted_sha256": "0133444ea088012d1775fb739b582ff02644ca67559f42c0df6f8915f59720b2"
+    },
+    {
+      "path": "tests/integration/test_async_payment_confirmation.py",
+      "source": "verified writer export regression suite",
+      "sha256": "34be9baf2b5f2012bbdda3178b2d05c8f1d0dd10e438411e2cf84b19ff687dcb",
+      "promoted_sha256": "34be9baf2b5f2012bbdda3178b2d05c8f1d0dd10e438411e2cf84b19ff687dcb"
+    },
+    {
+      "path": "tests/integration/test_browse.py",
+      "source": "verified writer export regression suite",
+      "sha256": "dd2da315f70cc2d293adcdd70aabe25b5c3da3032c6511dc7a6bb1fe7d1abf38",
+      "promoted_sha256": "dd2da315f70cc2d293adcdd70aabe25b5c3da3032c6511dc7a6bb1fe7d1abf38"
+    },
+    {
+      "path": "tests/integration/test_cache.py",
+      "source": "verified writer export regression suite",
+      "sha256": "eb417f2acf4ed4768aa45d16f899fbf0fabcd730eddd98cf1446f632a4fc5861",
+      "promoted_sha256": "eb417f2acf4ed4768aa45d16f899fbf0fabcd730eddd98cf1446f632a4fc5861"
+    },
+    {
+      "path": "tests/integration/test_callback_order_discovery.py",
+      "source": "verified writer export regression suite",
+      "sha256": "3da0d2162dcce335421ccd48be08aea83313ef4323c15c2beb00487558863174",
+      "promoted_sha256": "3da0d2162dcce335421ccd48be08aea83313ef4323c15c2beb00487558863174"
+    },
+    {
+      "path": "tests/integration/test_incremental.py",
+      "source": "verified writer export regression suite",
+      "sha256": "dd96942ba00f209fbe5d9141abdc41b00df1affe0207422eec2d96dc59cef036",
+      "promoted_sha256": "dd96942ba00f209fbe5d9141abdc41b00df1affe0207422eec2d96dc59cef036"
+    },
+    {
+      "path": "tests/integration/test_order_single_statement.py",
+      "source": "verified writer export regression suite",
+      "sha256": "7474cb99b05531720b3719f5d88c26020782637b783824366c09d2a1a85a0444",
+      "promoted_sha256": "7474cb99b05531720b3719f5d88c26020782637b783824366c09d2a1a85a0444"
+    },
+    {
+      "path": "tests/integration/test_order_status_cache_integration.py",
+      "source": "verified writer export regression suite",
+      "sha256": "7ee57c35eae8af9d54bf6e4fe869e0b5f449d271e5631d4195c2ad61dd661307",
+      "promoted_sha256": "7ee57c35eae8af9d54bf6e4fe869e0b5f449d271e5631d4195c2ad61dd661307"
+    },
+    {
+      "path": "tests/integration/test_order_status_event_refresh.py",
+      "source": "verified writer export regression suite",
+      "sha256": "89905010d10da72b176936215a2e2ff70db68cc4df72d23bc751f1d06b9d6059",
+      "promoted_sha256": "89905010d10da72b176936215a2e2ff70db68cc4df72d23bc751f1d06b9d6059"
+    },
+    {
+      "path": "tests/integration/test_payment_commit_recovery.py",
+      "source": "verified writer export regression suite",
+      "sha256": "5d94d4a1f08c6f79e47c0a2a09049b400dbb8c94571f289be39c33e6eae39ec8",
+      "promoted_sha256": "5d94d4a1f08c6f79e47c0a2a09049b400dbb8c94571f289be39c33e6eae39ec8"
+    },
+    {
+      "path": "tests/integration/test_payment_pool_partition.py",
+      "source": "verified writer export regression suite",
+      "sha256": "5d65c73f735914ac6fc6a1341ee9631a5752daf5d769bd2a645c464adef956e2",
+      "promoted_sha256": "7bd217252f56077261d209b7368ef17891edf9ff6460b432c6d9f2fb2b55111b"
+    },
+    {
+      "path": "tests/integration/test_payment_queue_burst.py",
+      "source": "verified writer export regression suite",
+      "sha256": "904d1e8113b3f073ac13eff9ec528cb539d3aab7818d40dc64a9b1d893f9ac85",
+      "promoted_sha256": "fd317b66bf3a711d815f26b7fdc4a23c06050cedb27b5cf8c4a72f31de53e1a3"
+    },
+    {
+      "path": "tests/integration/test_persistence_failure.py",
+      "source": "verified writer export regression suite",
+      "sha256": "08e1844b347f46a52b559852c7739869c6adb1233983ae8a3c5aec2e41ecbe76",
+      "promoted_sha256": "08e1844b347f46a52b559852c7739869c6adb1233983ae8a3c5aec2e41ecbe76"
+    },
+    {
+      "path": "tests/integration/test_postgres_transaction_safety.py",
+      "source": "verified writer export regression suite",
+      "sha256": "10210597d0017570d23ed2a9847112fa4b9597b38a7c69be6a6ccb7e746a2651",
+      "promoted_sha256": "10210597d0017570d23ed2a9847112fa4b9597b38a7c69be6a6ccb7e746a2651"
+    },
+    {
+      "path": "tests/integration/test_processes.py",
+      "source": "verified writer export regression suite",
+      "sha256": "9078d0338d5663ee5a95a1b14376b196cab23009cd61873b069d4e30eeb5e73a",
+      "promoted_sha256": "9078d0338d5663ee5a95a1b14376b196cab23009cd61873b069d4e30eeb5e73a"
+    },
+    {
+      "path": "tests/integration/test_reconciliation.py",
+      "source": "verified writer export regression suite",
+      "sha256": "533f3f3e14972f4ce6ca803f271fb786e9cd73380faac3188c0ebe6cf42da6c2",
+      "promoted_sha256": "533f3f3e14972f4ce6ca803f271fb786e9cd73380faac3188c0ebe6cf42da6c2"
+    },
+    {
+      "path": "tests/integration/test_recovery.py",
+      "source": "verified writer export regression suite",
+      "sha256": "980e35ab4104d218e445d964b24ad7b1f01398085f323c199553c0b3c48448a1",
+      "promoted_sha256": "980e35ab4104d218e445d964b24ad7b1f01398085f323c199553c0b3c48448a1"
+    },
+    {
+      "path": "tests/integration/test_reservations.py",
+      "source": "verified writer export regression suite",
+      "sha256": "8f4c03e92f3a00b2174d5e92051a1cdb27c38b4eb2bc1035a10feb059441c4e5",
+      "promoted_sha256": "8f4c03e92f3a00b2174d5e92051a1cdb27c38b4eb2bc1035a10feb059441c4e5"
+    },
+    {
+      "path": "tests/integration/test_shared_api_acquisition_budget.py",
+      "source": "verified writer export regression suite",
+      "sha256": "3f9167af505ce4eeed97b828f6a9e8f52b404555e2432611c8b6d1e89829124a",
+      "promoted_sha256": "301776cba421ee48c71150a92ab627b98658a0636a523abd5b4fa4497f92768e"
+    },
+    {
+      "path": "tests/integration/test_background_optimization.py",
+      "source": "current native regressions for ADR0222/0225 corrections",
+      "sha256": "67755c81615798ae225156cab9b168c85c666e80f9f6c52eb97e9afb50f23473",
+      "promoted_sha256": "67755c81615798ae225156cab9b168c85c666e80f9f6c52eb97e9afb50f23473"
+    },
+    {
+      "path": "tests/integration/test_redis_first_reservations.py",
+      "source": "current native regressions for ADR0222/0225 corrections",
+      "sha256": "3cac9391d1e411051dcde56897645bb7346f751e4c8e2e25060ba24ca82e80e7",
+      "promoted_sha256": "3cac9391d1e411051dcde56897645bb7346f751e4c8e2e25060ba24ca82e80e7"
+    }
+  ],
+  "deferred_tests": [
+    "Paid-stage timestamp analyzer requires deferred runner scripts; not part of backend runtime."
+  ],
+  "nonfunctional_adjustments": [
+    "Sort imports in postgres.py and reservations.py to satisfy repository lint; declarations/statements/financial functions unchanged.",
+    "Sort imports in promoted regression tests."
+  ],
+  "validation": {
+    "native_linux": true,
+    "postgresql": "17.6",
+    "redis": "7.4.5",
+    "main_suite_passed": 580,
+    "combined_journey_matrix_passed": 4,
+    "full_stack_tests_skipped_locally": 2,
+    "local_skip_reason": "Full-stack HTTP/Kafka tests require E2E_API_URL and are required in PR CI.",
+    "checkout_imports_verified": true,
+    "source_hash_and_worker_syntax_provenance_passed": true,
+    "all_owned_local_containers_and_networks_removed": true,
+    "simulated_gateway_and_broker_in_matrix": true,
+    "full_stack_ci_passed": false
+  },
+  "attempts": [
+    {
+      "attempt": "local-tests-first",
+      "exit_code": 2,
+      "summary": "3 warnings, 1 error in 4.85s",
+      "elapsed_seconds": 12.39,
+      "cleanup_verified": true
+    },
+    {
+      "attempt": "local-tests-second",
+      "exit_code": 0,
+      "summary": "580 passed, 2 skipped, 3 warnings in 121.66s (0:02:01)",
+      "elapsed_seconds": 128.844,
+      "cleanup_verified": true
+    },
+    {
+      "attempt": "combined-tests",
+      "exit_code": 1,
+      "summary": "4 failed in 1.80s",
+      "elapsed_seconds": 8.64,
+      "cleanup_verified": true
+    },
+    {
+      "attempt": "combined-tests-final",
+      "exit_code": 1,
+      "summary": "4 failed in 2.08s",
+      "elapsed_seconds": 9.016,
+      "cleanup_verified": true
+    },
+    {
+      "attempt": "combined-tests-verified",
+      "exit_code": 0,
+      "summary": "4 passed in 1.90s",
+      "elapsed_seconds": 10.985,
+      "cleanup_verified": true
+    }
+  ],
+  "corrections": [
+    "Deferred an analyzer-dependent test to the runner PR; native collection then passed.",
+    "Applied import sorting only for repository lint.",
+    "New combined test corrected to use persistence_status and the existing stream registry; refresh drain checks use generation>completed_generation and no lease. Backend algorithms unchanged."
+  ],
+  "tracked_local_experiment_seconds": 169.875,
+  "local_correctness": [
+    "100 same-seat contenders exactly one durable owner in sequential and pipeline modes",
+    "Writer fairness and replay after commit-before-marker",
+    "Duplicate callback, signature, expiry, refund and receipt fencing",
+    "Duplicate Kafka business-event delivery produces unique tickets",
+    "Combined sync/async confirmation and sequential/pipelined writers preserve paid tickets after controlled expiry and drain all owned pending work"
+  ],
+  "additional_tests": [
+    "tests/unit/test_backend_runtime_defaults.py",
+    "tests/integration/test_promoted_backend_journey.py"
+  ]
+}
