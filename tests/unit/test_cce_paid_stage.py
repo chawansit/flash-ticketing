@@ -380,3 +380,27 @@ def test_interrupted_financial_audit_still_checks_queue_and_removes_idle_inputs(
     assert paid.record["global_queues"]["pass"] is True
     assert paid.record["private_manifests_removed"] is True
     assert paid.record["private_cleanup_pass"] is False
+
+
+@pytest.fixture(scope="module")
+def recovery_sources():
+    from customer_recovery_bundle import qualify
+    return qualify(stage.generator_bundle())
+
+
+def test_explicit_recovery_stage_transfers_sealed_sdk_and_coordinator(recovery_sources, area, monkeypatch):
+    import cce_transaction_profile as transaction
+    import customer_recovery_bundle as recovery
+    paid, _calls, fixture, manifest, _ = area
+    paid.guard.binding["cce_recovery_max_attempts"] = 3
+    monkeypatch.setattr(transaction, "active", lambda: {"extension_decision": "ADR0255"})
+    monkeypatch.setattr(recovery, "qualify", lambda parent: recovery_sources)
+    candidate = stage.PaidStage(paid.session, paid.guard, paid.run, paid.cid, paid.output,
+                               bundle=stage.generator_bundle(), jobs=paid.jobs)
+    assert candidate.recovery_enabled and candidate.record["pinned_harness_files"] == 80
+    candidate.prepare(fixture, manifest)
+    transferred = candidate.record["transferred_generator_source_sha256"]
+    assert transferred["customer_recovery_client.py"] == stage.sha(recovery_sources[0]["scripts/customer_recovery_client.py"])
+    assert transferred["run_synchronized_paid_generator.py"] == stage.sha(recovery_sources[1])
+    assert candidate.record["customer_recovery_max_attempts"] == 3
+    assert candidate.prepared and not candidate.record["customers_dispatched"]

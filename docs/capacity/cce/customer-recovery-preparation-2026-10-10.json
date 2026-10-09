@@ -1,0 +1,110 @@
+{
+  "decision_records": [
+    "ADR0254",
+    "ADR0255"
+  ],
+  "recorded_at_utc": "2026-10-09T20:15:58.758698+00:00",
+  "status": "LOCAL_VERIFIED_CLOUD_BLOCKED",
+  "branch": "codex/customer-recovery-2026-10-10",
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "plan_status": {
+    "1_recovery_adr": "implemented",
+    "2_recovery_implementation": "locally_verified_including_actual_api_process_restart",
+    "3_status_read_pipeline_correction": "default_off_locally_verified_cloud_benefit_unmeasured",
+    "4_short_84_offered_journeys_per_second": "prepared_not_executed"
+  },
+  "executed_validation": {
+    "unit_suite": {
+      "passed": 2098,
+      "skipped": 2,
+      "elapsed_seconds": 160.76
+    },
+    "final_recovery_runner_suite": {
+      "passed": 67,
+      "elapsed_seconds": 10.49
+    },
+    "recovery_pipeline_integration_suite": {
+      "passed": 22,
+      "elapsed_seconds": 19.12,
+      "actual_os_restart_cases": 2
+    },
+    "selected_correctness_regression_suite": {
+      "passed": 139,
+      "elapsed_seconds": 33.98
+    },
+    "counts_overlap": true,
+    "lint": "passed",
+    "reproduction_guard": {
+      "checked_files": 535,
+      "passed": true
+    },
+    "registry_published": false,
+    "github_ci": "not_yet_executed"
+  },
+  "cloud_blocker": {
+    "operation": "SWR authentication",
+    "safe_error": "denied: Authenticate Error",
+    "required_input": "fresh SWR login credential",
+    "ecs_ssh_verified": true,
+    "cloud_resources_created_by_this_work": 0
+  },
+  "comparison_contract": {
+    "rate_offered_journeys_per_second": 84,
+    "offered_seconds": 300,
+    "scheduled_journeys": 25200,
+    "completion_deadline_seconds": 420,
+    "layout": "distributed",
+    "shows": 84,
+    "seats_per_show": 300,
+    "api_replicas": 4,
+    "cpu_per_api": "1",
+    "memory_per_api": "1Gi",
+    "connections_per_api": 4,
+    "payment_connections_per_api": 2,
+    "general_connections_per_api": 2,
+    "pgbouncer_server_connections": 24,
+    "shared_acquisition_budget": 20,
+    "simulator_concurrency": 12,
+    "simulator_database_pool_max": 10,
+    "generator_shards": 2,
+    "active_journey_budget_total": 500,
+    "http_clients_per_shard": 8,
+    "poll_seconds": 1,
+    "recovery_attempt_limit": 3,
+    "single_candidate_factor": "ORDER_STATUS_READ_PIPELINE",
+    "control_value": "0",
+    "candidate_value": "1",
+    "failed_control_stops_comparison": true,
+    "hourly_run_authorized_by_this_profile": false
+  },
+  "required_reporting": [
+    "first_attempt_errors",
+    "first_attempt_error_journeys",
+    "retry_attempts_by_operation",
+    "payment_operation_checks",
+    "recovered_journeys",
+    "final_customer_failures",
+    "total_journey_p95_ms_including_failures_and_recovery",
+    "generator_drops",
+    "physical_http_attempts",
+    "API_CPU",
+    "database_slot_holders_and_waits",
+    "payment_durability",
+    "zero_double_booking",
+    "complete_queue_drain"
+  ],
+  "remaining_uncertainty": [
+    "Partial historical slot evidence does not attribute every payment timeout or establish WAL/disk causality.",
+    "The optional status-read pipeline has no measured cloud capacity benefit.",
+    "The short distributed test cannot qualify hot-concert contention, 18000-seat projection or one-hour capacity.",
+    "Diagnostic capture retains its existing finite failure ring; an overflow remains a failed evidence gate, not an excused pass."
+  ],
+  "next_actions": [
+    "Publish and pull-verify the already-built image after fresh SWR authentication.",
+    "Reserve a fresh recovery-enabled control scope and run exactly one 84/s five-minute stage with mandatory audits/restoration.",
+    "Run the status-pipeline candidate only after control fully passes; stop and diagnose failed gates.",
+    "Publish actual first/retry/final customer outcomes and performance evidence to the reviewed codex branch."
+  ]
+}

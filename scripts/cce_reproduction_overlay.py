@@ -4,10 +4,16 @@ import json
 from pathlib import Path
 
 OVERLAID = {
+    "scripts/checkout_journey_probe.py", "scripts/paid_ticket_load_generator.py", "scripts/paid_ticket_sharded_generator.py",
     "scripts/cce_api_adapter.py", "scripts/cce_paid_stage.py", "scripts/cce_paid_observers.py",
     "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py",
     "scripts/run_cce_hourly_qualification.py"}
 ADDITIONAL = {
+    "scripts/paid_fixture_layout.py",
+    "scripts/cce_customer_recovery_profile.py", "scripts/customer_recovery_bundle.py",
+    "artifacts/customer-recovery/manifest.json", "artifacts/customer-recovery/coordinator.py",
+    "docs/capacity/cce/customer-recovery-image-2026-10-10.json",
+    'scripts/customer_recovery_client.py', 'scripts/prepare_customer_recovery_image.py', 'artifacts/slot-comparison-baseline/manifest.json', 'artifacts/slot-comparison-baseline/src/ticketing/api.py', 'artifacts/slot-comparison-baseline/src/ticketing/config.py', 'artifacts/slot-comparison-baseline/src/ticketing/http.py', 'artifacts/slot-comparison-baseline/src/ticketing/infrastructure/postgres.py', 'artifacts/slot-comparison-baseline/src/ticketing/infrastructure/slot_diagnostics.py',
     "scripts/cce_transaction_profile.py", "scripts/cce_slot_trace_transport.py",
     "scripts/cce_reproduction_overlay.py", "scripts/prepare_slot_comparison_sources.py",
     "scripts/observe_slot_paid_pipeline.py", "scripts/slot_failure_evidence.py",

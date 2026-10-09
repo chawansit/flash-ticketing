@@ -29,6 +29,9 @@ class Reservations:
             self.order_cache.put(actor, order_id, row, snapshot_start_ms)
         return row
 
+    def get_payment_operation(self, actor, order_id, key):
+        return self.store.get_payment_operation(actor, order_id, key)
+
     def get_hold(self, actor, hold_id):
         return self.store.get_hold(actor, hold_id)
 

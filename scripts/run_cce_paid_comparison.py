@@ -98,7 +98,12 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
         extra.update(cce_partition_decision="ADR0245", cce_payment_pool_max=transaction.payment_connections(goal))
     if goal is not None and goal["extension_decision"] == "ADR0249":
         extra.update(cce_payment_context_decision="ADR0249", cce_payment_pool_max=2)
-    if goal is not None and goal["extension_decision"] == "ADR0251":
+    if goal is not None and goal["extension_decision"] == "ADR0255":
+        from customer_recovery_bundle import MANIFEST_SHA256
+        extra.update(cce_recovery_decision="ADR0254", cce_status_pipeline_decision="ADR0255",
+                     cce_order_status_read_pipeline="1" if goal["comparison_arm"] == "candidate" else "0",
+                     cce_recovery_max_attempts=3, cce_recovery_bundle_sha256=MANIFEST_SHA256)
+    if goal is not None and goal["extension_decision"] in {"ADR0251", "ADR0255"}:
         from cce_simulator_dispatch_profile import receipt
         extra.update(cce_simulator_decision="ADR0251", cce_simulator_concurrency=12,
                      cce_simulator_database_pool_max=10, cce_simulator_image_id=receipt()["local_image_id"])
@@ -279,9 +284,9 @@ def activate_scope(guard, run):
 def worker_contract():
     import cce_transaction_profile as transaction
     goal = transaction.active()
-    if goal is not None and goal["extension_decision"] == "ADR0251":
+    if goal is not None and goal["extension_decision"] in {"ADR0251", "ADR0255"}:
         from cce_simulator_dispatch_profile import worker_contract as simulator_contract
-        return simulator_contract(goal)
+        return simulator_contract(goal if goal["extension_decision"] == "ADR0251" else None)
     return baseline.GeneratorCompletionProbeContract(
         baseline.plan()["artifact_receipt"], "candidate", native.legacy_contract()["api_sources"])
 

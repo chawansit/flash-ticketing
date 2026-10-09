@@ -64,7 +64,6 @@ async def lifespan(app):
         settings.api_partial_timeout_reclaim,
         settings.db_failure_diagnostics,
     )
-    db.order_status_read_pipeline = settings.order_status_read_pipeline
     with ExitStack() as resources:
         resources.callback(db.close)
         if payment_db is not db:
@@ -412,18 +411,6 @@ def get_order(order_id: UUID, who: Actor, svc: Service, response: Response):
         response.headers["X-Poll-Interval-Ms"] = str(settings.order_status_poll_ms)
         response.headers["X-Poll-Jitter-Percent"] = "20"
     return svc.get_order(who, order_id)
-
-
-@app.get("/v1/orders/{order_id}/payment-operation", tags=["Checkout"], responses=ERRORS)
-def payment_operation(order_id: UUID, who: Actor, svc: Service, key: Key, response: Response):
-    """Read the committed operation for this owner/order/key before payment replay.
-
-    NOT_STARTED is a point-in-time observation. Replay only the identical payment
-    payload and Idempotency-Key; never create a new identity after a timeout.
-    """
-    response.headers["Cache-Control"] = "private, no-store"
-    response.headers["Vary"] = "Authorization, Idempotency-Key"
-    return svc.get_payment_operation(who, order_id, key)
 
 
 @app.post("/v1/orders/{order_id}/payments", tags=["Payment simulator"], responses=ERRORS, status_code=202)

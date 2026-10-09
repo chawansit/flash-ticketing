@@ -28,8 +28,8 @@ def test_changed_transaction_factor_fails_before_output_creation(monkeypatch):
 
     def drift(path):
         raw = original(path)
-        return raw.replace(source.CANDIDATE_BEGIN.encode(), b"unexpected") if path == source.ROOT / source.POSTGRES else raw
+        return raw.replace(source.CANDIDATE_BEGIN.encode(), b"unexpected") if path == source.BASELINE_SOURCE / source.POSTGRES else raw
 
     monkeypatch.setattr(Path, "read_bytes", drift)
-    with pytest.raises(ValueError, match="transaction startup"):
+    with pytest.raises(ValueError, match="frozen baseline source"):
         source.pairs()

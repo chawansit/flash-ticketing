@@ -1,5 +1,5 @@
 import logging
-from contextlib import ExitStack, contextmanager, nullcontext
+from contextlib import ExitStack, contextmanager
 from threading import Lock
 from time import perf_counter as monotonic
 
@@ -78,7 +78,7 @@ class Postgres:
         )
 
     @contextmanager
-    def transaction(self, *, pipeline=False):
+    def transaction(self):
         def _record_error(exc):
             state = getattr(exc, "sqlstate", None)
             if state or type(exc).__name__ in {"PoolTimeout", "TooManyRequests"}:
@@ -92,18 +92,20 @@ class Postgres:
                 body_done = None
                 transaction_started = False
                 try:
-                    with conn.pipeline() if pipeline else nullcontext():
-                        phase("setup")
-                        # Preserve the accepted explicit boundary in both read arms and writes.
+                    phase("setup")
+                    # Psycopg starts non-autocommit transactions before the first query.
+                    # A borrowed autocommit adapter still needs an explicit boundary.
+                    if getattr(conn, "autocommit", False):
                         conn.execute("BEGIN")
-                        transaction_started = True
-                        conn.execute(
-                            "SELECT set_config('lock_timeout', '75ms', true), "
-                            "set_config('statement_timeout', '1500ms', true), "
-                            "set_config('idle_in_transaction_session_timeout', '3s', true)"
-                        )
-                        phase("body")
-                        yield conn
+                    transaction_started = True
+                    conn.execute(
+                        "SELECT set_config('lock_timeout', '75ms', true), "
+                        "set_config('statement_timeout', '1500ms', true), "
+                        "set_config('idle_in_transaction_session_timeout', '3s', true)"
+                    )
+
+                    phase("body")
+                    yield conn
 
                     body_done = monotonic()
                     DB_TRANSACTION_BODY_SECONDS.observe(body_done - body_started)

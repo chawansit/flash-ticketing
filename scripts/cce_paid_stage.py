@@ -15,6 +15,7 @@ from uuid import UUID
 
 import cce_api_adapter as cce
 import work_envelope as policy
+from cce_frozen_harness import qualified_helper
 from cce_paid_profiles import for_guard
 from fixture_identity_evidence import retain_fixture_identity
 from prepare_generator_completion import ARTIFACTS, PATH, corrected_bundle
@@ -44,6 +45,9 @@ def identity():
         "docs/capacity/cce/reproduction-lock-2026-10-09.json",
         "scripts/cce_paid_profiles.py",
         "scripts/cce_transaction_profile.py",
+        "scripts/cce_customer_recovery_profile.py", "scripts/customer_recovery_bundle.py",
+        "artifacts/customer-recovery/manifest.json", "artifacts/customer-recovery/coordinator.py",
+        "docs/capacity/cce/customer-recovery-image-2026-10-10.json",
         "scripts/cce_reproduction_overlay.py",
         "scripts/cce_slot_trace_transport.py",
         "scripts/prepare_slot_comparison_sources.py",
@@ -79,16 +83,15 @@ def identity():
 
 def generator_bundle():
     bundle = corrected_bundle(frozen_bundle())
-    from cce_frozen_harness import qualified_helper
     raw = qualified_helper()
-    if raw != (policy.ROOT / "scripts/checkout_journey_probe.py").read_bytes().replace(b"\r\n", b"\n"):
-        raise ValueError("Exact qualified polling helper required")
     return {**bundle, "scripts/checkout_journey_probe.py": raw}
 
 
-def generator_arguments(directory, origin, start_at_epoch, *, profile=None):
+def generator_arguments(directory, origin, start_at_epoch, *, profile=None, recovery_max_attempts=1):
     from cce_paid_profiles import HOURLY, SHORT
     profile = SHORT if profile is None else profile
+    if recovery_max_attempts not in (1, 3) or (recovery_max_attempts == 3 and profile != SHORT):
+        raise ValueError("Recovery is limited to the explicit short comparison")
     if profile not in (SHORT, HOURLY):
         raise ValueError("Exact CCE stage profile required")
     if not re.fullmatch(r"/[^\x00\r\n]*?/tmp/adr0151-[0-9a-f]{12}-cce-candidate", directory):
@@ -124,6 +127,7 @@ def generator_arguments(directory, origin, start_at_epoch, *, profile=None):
         "--duplicates",
         "1",
         "--lifecycle-diagnostics",
+        *(["--recovery-max-attempts", "3"] if recovery_max_attempts == 3 else []),
     ]
 
 
@@ -165,9 +169,17 @@ class PaidStage:
                 if p not in {PATH, "scripts/checkout_journey_probe.py"}
             )
             or self.bundle["scripts/checkout_journey_probe.py"].replace(b"\r\n", b"\n")
-            != (policy.ROOT / "scripts/checkout_journey_probe.py").read_bytes().replace(b"\r\n", b"\n")
+            != qualified_helper()
         ):
             raise ValueError("Exact corrected 78-file workload bundle required")
+        import cce_transaction_profile as transaction
+        from customer_recovery_bundle import enabled, qualify
+        self.recovery_enabled = enabled(transaction.active())
+        self.coordinator = (policy.ROOT / "scripts/run_synchronized_paid_generator.py").read_bytes()
+        if self.recovery_enabled:
+            if self.profile.duration != 300 or guard.binding.get("cce_recovery_max_attempts") != 3:
+                raise ValueError("Explicit short recovery binding required")
+            self.bundle, self.coordinator = qualify(self.bundle)
         self.jobs = jobs or OwnedJobs()
         self.job_list = []
         self.record = {
@@ -175,11 +187,12 @@ class PaidStage:
             "customers_dispatched": False,
             "pass": False,
             "capacity_stages_started": 0,
-            "pinned_harness_files": 78,
+            "pinned_harness_files": len(self.bundle),
+            "customer_recovery_max_attempts": 3 if self.recovery_enabled else 1,
         }
         self.gen = session.config["generator"]["repo"] + "/tmp/" + run + "-cce-candidate"
         self.origin = "http://10.1.137.69:8000"
-        generator_arguments(self.gen, self.origin, 0, profile=self.profile)
+        generator_arguments(self.gen, self.origin, 0, profile=self.profile, recovery_max_attempts=3 if self.recovery_enabled else 1)
         self.events = []
         self.prepared = False
 
@@ -271,11 +284,11 @@ class PaidStage:
         self.session.put("generator", self.gen + "/manifest.private.json", json.dumps(manifest), True)
         self.record["private_manifest_uploaded"] = True
         transferred = {}
-        for name in (*CORE, *(("cce_hourly_paid_generator.py", "cce_hourly_paid_leaf.py") if self.profile.duration == 3600 else ())):
-            raw = self.bundle["scripts/" + name] if name in CORE else (policy.ROOT / "scripts" / name).read_bytes()
+        for name in (*CORE, *(("customer_recovery_client.py", "paid_fixture_layout.py") if self.recovery_enabled else ()), *(("cce_hourly_paid_generator.py", "cce_hourly_paid_leaf.py") if self.profile.duration == 3600 else ())):
+            raw = self.bundle["scripts/" + name] if name in CORE or name in {"customer_recovery_client.py", "paid_fixture_layout.py"} else (policy.ROOT / "scripts" / name).read_bytes()
             self.session.put("generator", self.gen + "/" + name, raw.decode(), True)
             transferred[name] = sha(raw)
-        raw = (policy.ROOT / "scripts/run_synchronized_paid_generator.py").read_bytes()
+        raw = self.coordinator
         self.session.put("generator", self.gen + "/run_synchronized_paid_generator.py", raw.decode(), True)
         transferred["run_synchronized_paid_generator.py"] = sha(raw)
         receipt = self.session.call(
@@ -314,7 +327,7 @@ class PaidStage:
         start = time.time() + 30 if start_at_epoch is None else start_at_epoch
         if type(start) not in (int, float) or not math.isfinite(start) or not 3 <= start - time.time() <= 60:
             raise ValueError("Synchronized start must remain 3 to 60 seconds ahead")
-        arguments = generator_arguments(self.gen, self.origin, start, profile=self.profile)
+        arguments = generator_arguments(self.gen, self.origin, start, profile=self.profile, recovery_max_attempts=3 if self.recovery_enabled else 1)
         state = policy.read(policy.STATE)
         scope = state[self.guard.key]
         if (

@@ -44,6 +44,9 @@ def image_pair():
 def active(envelope=None):
     envelope = policy.envelope() if envelope is None else envelope
     goal = envelope.get("spending", {}).get("temporary_cce_pilot_exception", {}).get("goal_bounded_authorization", {})
+    if goal.get("extension_decision") == "ADR0255":
+        from cce_customer_recovery_profile import active as recovery_active
+        return recovery_active(goal)
     if goal.get("extension_decision") == "ADR0251":
         from cce_simulator_dispatch_profile import active as simulator_active
         simulator_active(goal)
@@ -71,6 +74,9 @@ def active(envelope=None):
 
 
 def proof_digest(goal):
+    if goal["extension_decision"] == "ADR0255":
+        from cce_customer_recovery_profile import PROOF_SHA256 as recovery_digest
+        return recovery_digest
     if goal["extension_decision"] == "ADR0251":
         from cce_simulator_dispatch_profile import PROOF_SHA256 as simulator_digest
         return simulator_digest
@@ -81,6 +87,9 @@ def proof_digest(goal):
 
 
 def pair_receipt(goal):
+    if goal["extension_decision"] == "ADR0255":
+        from cce_customer_recovery_profile import receipt as recovery_receipt
+        return recovery_receipt()
     if goal["extension_decision"] == "ADR0249":
         from cce_payment_context_images import image_pair as payment_pair
         return payment_pair()
@@ -89,7 +98,7 @@ def pair_receipt(goal):
 
 def image_for(goal):
     """ADR0245 holds the accepted control binary fixed across both partitions."""
-    arm = "control" if goal["extension_decision"] in {"ADR0245", "ADR0251"} else goal["comparison_arm"]
+    arm = "control" if goal["extension_decision"] in {"ADR0245", "ADR0251", "ADR0255"} else goal["comparison_arm"]
     return pair_receipt(goal)["images"][arm]
 
 
@@ -127,6 +136,11 @@ def control_receipt(goal):
                 or binding.get("cce_partition_decision") is not None
                 or binding.get("cce_payment_pool_max") != 2))
             or (goal["extension_decision"] != "ADR0249" and binding.get("cce_payment_context_decision") is not None)
+            or (goal["extension_decision"] == "ADR0255" and (
+                binding.get("cce_recovery_decision") != "ADR0254"
+                or binding.get("cce_status_pipeline_decision") != "ADR0255"
+                or binding.get("cce_order_status_read_pipeline") != "0"
+                or binding.get("cce_recovery_max_attempts") != 3))
             or binding.get("cce_transaction_pair_sha256") != proof_digest(goal)
             or binding.get("cce_paid_entry_sources") != core.identity()
             or binding.get("cce_paid_core_sources") != core.paid.identity()
@@ -149,6 +163,9 @@ def plan():
     goal = active()
     if goal is None:
         raise ValueError("Explicit ADR0242 short comparison required")
+    if goal["extension_decision"] == "ADR0255":
+        from cce_customer_recovery_profile import plan as recovery_plan
+        return recovery_plan(goal)
     if goal["extension_decision"] == "ADR0251":
         from cce_simulator_dispatch_profile import plan as simulator_plan
         return simulator_plan(goal)

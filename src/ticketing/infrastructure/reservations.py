@@ -325,7 +325,9 @@ class PostgresReservations:
             )
 
     def get_order(self, actor, order_id):
-        with self.db.transaction() as conn:
+        transaction = (self.db.transaction(pipeline=True)
+                       if getattr(self.db, "order_status_read_pipeline", False) else self.db.transaction())
+        with transaction as conn:
             rows = conn.execute(
                 """SELECT o.*, t.id AS _ticket_id, b.seat_id AS _ticket_seat_id
                 FROM orders o
@@ -345,6 +347,29 @@ class PostgresReservations:
             row.pop("_ticket_seat_id")
             row["tickets"] = tickets
             return row
+
+    def get_payment_operation(self, actor, order_id, key):
+        """Authoritative observation only; NOT_STARTED never authorizes a new identity."""
+        with self.db.transaction() as conn:
+            row = conn.execute(
+                """SELECT o.id AS order_id, o.status AS order_status, h.expires_at,
+                clock_timestamp() AS observed_at, p.id AS payment_id, p.status AS payment_status
+                FROM orders o JOIN holds h ON h.id=o.hold_id
+                LEFT JOIN idempotency_records i ON i.actor=o.actor AND i.operation='payment'
+                    AND i.key=%s AND i.response->>'order_id'=o.id::text
+                LEFT JOIN payment_attempts p ON p.id=(i.response->>'payment_id')::uuid AND p.order_id=o.id
+                WHERE o.id=%s AND o.actor=%s""", (key, order_id, actor),
+            ).fetchone()
+            if row is None:
+                raise Failure("ORDER_NOT_FOUND", 404)
+            return {
+                "order_id": str(row["order_id"]),
+                "payment_id": str(row["payment_id"]) if row["payment_id"] is not None else None,
+                "state": row["payment_status"] if row["payment_id"] is not None else "NOT_STARTED",
+                "order_status": row["order_status"],
+                "expires_at": row["expires_at"], "observed_at": row["observed_at"],
+                "can_initiate": row["order_status"] == "PENDING" and row["expires_at"] > row["observed_at"],
+            }
 
     def get_hold(self, actor, hold_id):
         with self.db.transaction() as conn:

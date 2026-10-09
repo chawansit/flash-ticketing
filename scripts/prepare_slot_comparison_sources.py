@@ -20,6 +20,8 @@ CANDIDATE_BEGIN = """                    # Psycopg starts non-autocommit transac
 """
 CONTROL_BEGIN = '                    conn.execute("BEGIN")\n'
 EXPORT = "tmp/adr0163-offline-images/source"
+BASELINE_SOURCE = ROOT / "artifacts/slot-comparison-baseline"
+BASELINE_MANIFEST_SHA256 = "a6887098db86f893f0f39561c61adc511f095cb8d5993d6de52d63a8befc5b4c"
 
 
 def sha(raw):
@@ -32,11 +34,20 @@ def pairs():
     export = historical.manifest()["exports"][EXPORT]
     if any(export.get(name) != digest for name, digest in legacy.items()):
         raise ValueError("Complete pinned historical API export required")
+    frozen = BASELINE_SOURCE / "manifest.json"
+    if frozen.is_symlink() or sha(frozen.read_bytes()) != BASELINE_MANIFEST_SHA256:
+        raise ValueError("Exact frozen baseline source manifest required")
+    expected = json.loads(frozen.read_text())
+    if set(expected) != set(OVERLAY):
+        raise ValueError("Exact frozen baseline module set required")
     for name in OVERLAY:
-        source = ROOT / name
+        source = BASELINE_SOURCE / name
         if source.is_symlink():
             raise ValueError("Source symlink forbidden")
-        candidate[name] = source.read_bytes().replace(b"\r\n", b"\n")
+        raw = source.read_bytes().replace(b"\r\n", b"\n")
+        if sha(raw) != expected[name]:
+            raise ValueError("Exact frozen baseline source required")
+        candidate[name] = raw
     # This later worker-only setting did not exist in the historical API package.
     # Do not silently include another PR6 change in a matched API comparison.
     config = "src/ticketing/config.py"

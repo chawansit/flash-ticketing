@@ -40,19 +40,7 @@ def status_poll_delay(response, fallback):
     return random.uniform(.8, 1.2) * milliseconds / 1000
 
 
-async def journey(client, manifest, index, run_id, timeout_seconds, poll_seconds, duplicates, *, recovery_policy=None):
-    started = perf_counter()
-    if recovery_policy is None:
-        return await _journey(client, manifest, index, run_id, timeout_seconds, poll_seconds, duplicates)
-    from customer_recovery_client import CustomerRecoveryClient
-    recovering = CustomerRecoveryClient(client, started + timeout_seconds, recovery_policy)
-    row = await _journey(recovering, manifest, index, run_id, timeout_seconds, poll_seconds, duplicates)
-    row.update(recovering.evidence(row["outcome"]))
-    row["total_journey_ms"] = (perf_counter() - started) * 1000
-    return row
-
-
-async def _journey(client, manifest, index, run_id, timeout_seconds, poll_seconds, duplicates):
+async def journey(client, manifest, index, run_id, timeout_seconds, poll_seconds, duplicates):
     started = perf_counter()
     show_ids = manifest["show_ids"]
     show = show_ids[index % len(show_ids)]

@@ -8,12 +8,15 @@ import hmac
 import json
 import os
 import socket
+import subprocess
+import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
-from dataclasses import replace
+from dataclasses import asdict, replace
 from http.client import RemoteDisconnected
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from threading import Event, Thread
 from uuid import uuid4
 
@@ -212,6 +215,11 @@ def test_lost_payment_response_replays_after_pool_restart_without_another_paymen
         assert conn.execute("SELECT response FROM idempotency_records WHERE operation='payment' "
                             "AND key=%s", (key,)).fetchone()["response"] == committed
     process.restart()
+    lookup = process.client.get("/v1/orders/" + order["order_id"] + "/payment-operation",
+        headers={**authorization(), "Idempotency-Key": key})
+    assert lookup.status_code == 200 and lookup.json()["payment_id"] == committed["payment_id"]
+    assert lookup.json()["state"] == "PENDING"
+    assert lookup.headers["Cache-Control"] == "private, no-store"
     recovered = initiate(process, order, key)
     assert recovered.status_code == 202 and recovered.json() == committed
     changed = initiate(process, order, key, duplicates=2)
@@ -407,3 +415,110 @@ def test_expired_hold_payment_replay_preserves_deadline_and_refunds_late_capture
         assert conn.execute("SELECT count(*) AS n FROM event_seats WHERE hold_id IS NOT NULL "
                             "OR booked_order_id IS NOT NULL").fetchone()["n"] == 0
     assert hold_deadline(db) == expired_deadline
+
+
+def test_payment_operation_lookup_is_owned_read_only_and_expiry_aware(system, process):
+    svc, db, show = system
+    order = svc.reserve("owner", show, ["A"], "hold")
+    path = "/v1/orders/" + order["order_id"] + "/payment-operation"
+    headers = {**authorization(), "Idempotency-Key": "payment-key"}
+    before = process.client.get(path, headers=headers)
+    assert before.status_code == 200
+    assert before.json()["state"] == "NOT_STARTED" and before.json()["can_initiate"] is True
+    assert process.client.get(path, headers={**authorization("another"), "Idempotency-Key": "payment-key"}).status_code == 404
+    with db.transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM idempotency_records WHERE operation='payment'").fetchone()["n"] == 0
+        conn.execute("UPDATE holds SET expires_at=clock_timestamp()-interval '1 second'")
+    expired = process.client.get(path, headers=headers)
+    assert expired.json()["can_initiate"] is False
+    assert initiate(process, order, "payment-key").status_code == 409
+
+
+def test_existing_operation_remains_visible_after_expiry_and_duplicate_callbacks(system, process):
+    svc, db, show = system
+    order = svc.reserve("owner", show, ["A"], "hold")
+    attempt = initiate(process, order, "payment-key").json()
+    body = callback_body(order, attempt)
+    assert signed_callback(process, body).json()["status"] == "book"
+    assert signed_callback(process, body).json()["status"] == "duplicate"
+    fulfill(db)
+    with db.transaction() as conn:
+        conn.execute("UPDATE holds SET expires_at=clock_timestamp()-interval '1 second'")
+    process.restart()
+    lookup = process.client.get("/v1/orders/" + order["order_id"] + "/payment-operation",
+        headers={**authorization(), "Idempotency-Key": "payment-key"})
+    assert lookup.status_code == 200 and lookup.json()["state"] == "SUCCEEDED"
+    assert lookup.json()["payment_id"] == attempt["payment_id"] and lookup.json()["can_initiate"] is False
+    with db.transaction() as conn:
+        for table in ("payment_attempts", "payment_callbacks", "bookings", "tickets"):
+            assert conn.execute(f"SELECT count(*) AS n FROM {table}").fetchone()["n"] == 1
+
+
+class OsApiProcess:
+    """Actual uvicorn subprocess; committed data survives termination/restart."""
+
+    def __init__(self, settings, log_path):
+        self.settings, self.log_path = settings, log_path
+        self.client, self.child = None, None
+        self.pids = []
+        self.restart()
+
+    def restart(self):
+        self.close()
+        with socket.socket() as probe:
+            probe.bind(("127.0.0.1", 0))
+            port = probe.getsockname()[1]
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(Path(__file__).resolve().parents[2] / "src")
+        env["LOCAL_API_SETTINGS"] = json.dumps(asdict(self.settings))
+        program = ("import os,json,uvicorn;from ticketing import api;from ticketing.config import Settings;"
+                   "api.settings=Settings(**json.loads(os.environ['LOCAL_API_SETTINGS']));"
+                   "uvicorn.run(api.app,host='127.0.0.1',port=" + str(port) + ",log_level='error')")
+        with self.log_path.open("ab") as log:
+            self.child = subprocess.Popen([sys.executable, "-c", program], env=env, stdout=log, stderr=log,
+                                          creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        self.pids.append(self.child.pid)
+        self.client = httpx.Client(base_url="http://127.0.0.1:" + str(port), timeout=3, trust_env=False)
+        deadline = time.monotonic() + 15
+        while time.monotonic() < deadline:
+            if self.child.poll() is not None:
+                self.close()
+                raise AssertionError("Local API subprocess exited before readiness")
+            try:
+                if self.client.get("/health/ready").status_code == 200:
+                    return
+            except httpx.TransportError:
+                pass
+            time.sleep(0.05)
+        self.close()
+        raise AssertionError("Local API subprocess readiness deadline exceeded")
+
+    def close(self):
+        if self.client is not None:
+            self.client.close()
+            self.client = None
+        if self.child is not None:
+            if self.child.poll() is None:
+                self.child.kill()
+            self.child.wait(timeout=10)
+            self.child = None
+
+
+@pytest.mark.parametrize("pipeline", [False, True])
+def test_lost_response_recovers_across_actual_api_process_restart(system, tmp_path, pipeline):
+    _, db, _ = system
+    redis_url = os.environ.get("TEST_REDIS_URL")
+    if not redis_url:
+        pytest.skip("TEST_REDIS_URL not configured")
+    settings = replace(api.settings, environment="development", database_url=db.pool.conninfo,
+                       redis_url=redis_url, reservation_mode="postgres", order_status_cache_ms=0,
+                       order_status_read_pipeline=pipeline, pool_max=4, api_payment_pool_max=2,
+                       api_pool_shared_waiting=True)
+    process = None
+    try:
+        process = OsApiProcess(settings, tmp_path / "local-api.log")
+        test_lost_payment_response_replays_after_pool_restart_without_another_payment(system, process)
+        assert len(process.pids) == 2 and len(set(process.pids)) == 2
+    finally:
+        if process is not None:
+            process.close()

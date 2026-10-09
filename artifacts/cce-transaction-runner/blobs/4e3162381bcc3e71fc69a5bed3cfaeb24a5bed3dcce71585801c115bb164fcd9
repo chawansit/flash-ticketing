@@ -17,13 +17,12 @@ LATENCIES = (
     "dispatch_lag_p95_ms", "dispatch_lag_max_ms", "hold_http_p95_ms", "hold_app_p95_ms",
     "hold_client_excess_p95_ms", "command_durable_wait_p95_ms", "durable_p95_ms",
     "payment_http_p95_ms", "payment_app_p95_ms", "payment_client_excess_p95_ms",
-    "ticket_wait_p95_ms", "payment_to_ticket_p95_ms", "hold_to_ticket_p95_ms", "total_journey_p95_ms",
+    "ticket_wait_p95_ms", "payment_to_ticket_p95_ms", "hold_to_ticket_p95_ms",
 )
 COUNTS = (
     "scheduled", "dispatched", "generator_drops", "completed", "fulfilled",
     "fulfilled_by_deadline", "distinct_orders", "distinct_tickets", "retry_attempts",
-    "hold_app_timing_samples", "payment_app_timing_samples", "first_attempt_error_journeys",
-    "payment_operation_checks", "recovered_journeys", "final_customer_failures",
+    "hold_app_timing_samples", "payment_app_timing_samples",
 )
 
 
@@ -49,7 +48,7 @@ def split_manifest(manifest, shards, scheduled_per_shard):
     return result
 
 
-def aggregate(shard_results, rate, seconds, concurrency, exit_codes, *, recovery_max_attempts=1):
+def aggregate(shard_results, rate, seconds, concurrency, exit_codes):
     result = {
         "kind": "scheduled_paid_ticket_journeys_sharded",
         "measured_at_utc": datetime.now(UTC).isoformat(),
@@ -62,15 +61,6 @@ def aggregate(shard_results, rate, seconds, concurrency, exit_codes, *, recovery
     }
     for name in COUNTS:
         result[name] = sum(row.get(name, 0) for row in shard_results)
-    if recovery_max_attempts not in {1, 3}:
-        raise ValueError("Explicit bounded recovery profile required")
-    result["recovery_max_attempts"] = recovery_max_attempts
-    result["total_journey_p95_scope"] = "maximum of per-shard p95, including failed journeys and recovery"
-    for name in ("first_attempt_errors", "retry_attempts_by_operation"):
-        combined = Counter()
-        for row in shard_results:
-            combined.update(row.get(name, {}))
-        result[name] = dict(combined)
     outcomes = Counter()
     attempts = Counter()
     for row in shard_results:
@@ -118,8 +108,7 @@ def aggregate(shard_results, rate, seconds, concurrency, exit_codes, *, recovery
         and result["scheduled"] == rate * seconds
         and result["scheduled"] == result["dispatched"] == result["fulfilled_by_deadline"]
         and result["generator_drops"] == 0
-        and (result["retry_attempts"] == 0 if recovery_max_attempts == 1 else
-             all(row.get("recovery_max_attempts") == recovery_max_attempts for row in shard_results))
+        and result["retry_attempts"] == 0
     )
     return result
 
@@ -169,7 +158,6 @@ async def run(args, manifest):
                     "--http-client-count", str(getattr(args, "http_client_count", 1)),
                     "--poll-seconds", str(args.poll_seconds),
                     "--duplicates", str(args.duplicates),
-                    "--recovery-max-attempts", str(getattr(args, "recovery_max_attempts", 1)),
                     "--start-at-epoch", str(start_at),
                     stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL,
                 )
@@ -191,8 +179,7 @@ async def run(args, manifest):
                 await asyncio.gather(*(proc.wait() for proc in processes))
         for output_path in paths:
             results.append(json.loads(output_path.read_text(encoding="utf-8")) if output_path.exists() else {})
-    combined = aggregate(results, args.rate, args.seconds, args.concurrency, exit_codes,
-                         recovery_max_attempts=getattr(args, "recovery_max_attempts", 1))
+    combined = aggregate(results, args.rate, args.seconds, args.concurrency, exit_codes)
     combined["fixture_layout"] = manifest.get("fixture_layout", "distributed")
     if combined["fixture_layout"] == "single-concert":
         combined["seat_allocation"] = {
@@ -216,7 +203,6 @@ def main():
     p.add_argument("--completion-deadline-seconds", required=True, type=int)
     p.add_argument("--concurrency", required=True, type=int)
     p.add_argument("--poll-seconds", required=True, type=float)
-    p.add_argument("--recovery-max-attempts", type=int, choices=(1, 3), default=1)
     p.add_argument("--duplicates", required=True, type=int)
     p.add_argument("--http-client-count", type=int, default=1)
     p.add_argument("--lifecycle-diagnostics", action="store_true")
