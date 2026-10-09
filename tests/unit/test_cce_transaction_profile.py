@@ -243,3 +243,38 @@ def test_registered_control_reservation_and_guard_keep_exact_source_binding(tmp_
     assert policy.read(policy.STATE)[entry["ledger"]]["paid_runs_authorized"] == 1
     binding["cce_paid_core_sources"] = {}
     with pytest.raises(ValueError): guard.check()
+
+
+@pytest.mark.parametrize("arm", ["control", "candidate"])
+def test_full_transition_keeps_ecs_settings_separate_from_native_pod_receipts(monkeypatch, arm):
+    import cce_ecs_transition as topology
+    from test_cce_ecs_transition import area, pod_receipts
+
+    transition, rows, route, _calls, _ = area.__wrapped__(monkeypatch)
+    selected = copy.deepcopy(api.legacy_contract())
+    selected["api_settings"]["DB_FAILURE_DIAGNOSTICS"] = "1"
+    selected["api_sources"] = profile.image_pair()["images"][arm]["runtime_sources_sha256"]
+    monkeypatch.setattr(api, "contract", lambda: selected)
+    monkeypatch.setattr(api, "api_manifest", lambda: profile.image_pair()["images"][arm]["registry_manifest_digest"])
+    transition.capture()
+    assert not any("DB_FAILURE_DIAGNOSTICS=" in item for host in rows.values() for row in host
+                   if row["Config"]["Labels"].get("com.docker.compose.service") == "api"
+                   for item in row["Config"]["Env"])
+    receipts = pod_receipts()
+    for receipt in receipts: receipt["image_id"] = "docker-pullable://example@" + api.api_manifest()
+    transition.activate(receipts)
+    assert transition.record["all_four_ecs_apis_stopped"] is True
+    assert transition.restore()["candidate_restored"] is True
+    assert route["text"] == transition.original_route
+    receipts[0]["startup_proof"]["sources"] = api.legacy_contract()["api_sources"]
+    with pytest.raises(ValueError, match="native API admission"):
+        topology.receipt_gate(receipts, RUN)
+
+
+def test_saved_ecs_service_stays_legacy_while_native_api_adds_common_diagnostics(monkeypatch):
+    value = envelope(goal())
+    monkeypatch.setattr(policy, "envelope", lambda: value)
+    saved = {"model": {"services": {"api": service()}}}
+    original = core.service_for(saved)
+    assert "DB_FAILURE_DIAGNOSTICS" not in original["environment"]
+    assert api.api_environment(original, "10.1.137.69", acquisition_budget=20)["DB_FAILURE_DIAGNOSTICS"] == "1"

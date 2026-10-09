@@ -20,12 +20,12 @@
     "scripts/cce_ecs_transition.py": {
       "historical_sha256": "bf22c4cc8a1ec2db5224d97df3aead9ec693dea6296e548e25e6dcbb25d4af15",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/bf22c4cc8a1ec2db5224d97df3aead9ec693dea6296e548e25e6dcbb25d4af15",
-      "current_sha256": "103efef9d9bdb709641a1f556474e577ee858902150c3fa0f7dccb79f8953977"
+      "current_sha256": "f200a11f65cf1b687eeb647062c82677a92e1e71d06f282867520f07e4c9574e"
     },
     "scripts/run_cce_paid_comparison.py": {
       "historical_sha256": "cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
-      "current_sha256": "95a8eae74a9cb06c9462253547b8f32ada8f8ed392a0c68570cbc6d5cc63b557"
+      "current_sha256": "8559a3753638fdd924346df1b4a85fb2c6034b541def81f76d8997ab3d4ee93d"
     },
     "scripts/check_cce_reproducibility.py": {
       "historical_sha256": "ca8920447ef5fee85d7f8316fae6defae81c96c715352fd31b5545f25d5e2278",

@@ -123,7 +123,7 @@ def service_for(saved):
 
     service["image"] = native.dependency.INDEX
 
-    service["environment"].update(native.contract()["api_settings"])
+    service["environment"].update(native.legacy_contract()["api_settings"])
 
     native.api_environment(service, "10.1.137.69")
 

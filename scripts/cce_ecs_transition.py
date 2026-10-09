@@ -166,14 +166,14 @@ class Transition:
                     row["Config"]["Image"] != cce.dependency.INDEX
                     or row["Image"] != cce.dependency.INDEX
                     or not row["State"]["Running"]
-                    or any(env.get(k) != v for k, v in cce.contract()["api_settings"].items())
+                    or any(env.get(k) != v for k, v in cce.legacy_contract()["api_settings"].items())
                 ):
                     self.record["admission_mismatch"] = {
                         "configured_image_matches": row["Config"]["Image"] == cce.dependency.INDEX,
                         "runtime_image_matches": row["Image"] == cce.dependency.INDEX,
                         "running": row["State"]["Running"],
                         "setting_names": [
-                            k for k, v in cce.contract()["api_settings"].items() if env.get(k) != v
+                            k for k, v in cce.legacy_contract()["api_settings"].items() if env.get(k) != v
                         ],
                     }
                     self.checkpoint()
