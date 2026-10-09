@@ -171,3 +171,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0251: Decouple callback dispatch concurrency from the database pool](0251-decouple-callback-dispatch-concurrency-from-db-pool.md)
 
 - [ADR0252: Qualify the accepted simulator correction for one hour](0252-qualify-simulator-correction-for-one-hour.md)
+
+- [ADR0253: Independently reconcile the failed simulator hourly run](0253-independently-reconcile-failed-simulator-hourly-run.md)
