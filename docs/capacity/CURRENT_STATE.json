@@ -153,7 +153,8 @@
     "source_base_revision": "e1f8a54e6be83e45c003992417b0234ea2d2bb2b",
     "backend_image_changed": false,
     "main_merge_requires_approval": true,
-    "checkpoint_revision_note": "The commit containing this checkpoint identifies reviewed hourly integration/recovery and sanitized evidence; original bound measurement source hashes remain preserved."
+    "checkpoint_revision_note": "The commit containing this checkpoint identifies reviewed hourly integration/recovery and sanitized evidence; original bound measurement source hashes remain preserved.",
+    "scoped_main_pr": "https://github.com/chawansit/flash-ticketing/pull/4"
   },
   "evidence": [
     "docs/capacity/flash-sale-opening/separate-diagnostic-connection-validation-2026-10-06.json",
@@ -3706,7 +3707,7 @@
     "next_spending_decision_required_tomorrow": true,
     "images_need_exact_baseline_registry_publication": true
   },
-  "updated_at_utc": "2026-10-09T03:29:37.275352+00:00",
+  "updated_at_utc": "2026-10-09T03:59:03.699553+00:00",
   "bounded_shared_callback_rate_probe__aea04bbd86e2": {
     "authorization_id": "work-envelope-aea04bbd86e2",
     "binding": {
@@ -6133,5 +6134,42 @@
       "untimed_failed_attempts": 3
     }
   },
-  "cce_hourly_latest_evidence": "docs/capacity/flash-sale-opening/cce-hourly-qualification-2026-10-09.json"
+  "cce_hourly_latest_evidence": "docs/capacity/flash-sale-opening/cce-hourly-qualification-2026-10-09.json",
+  "main_promotion_checkpoint": {
+    "updated_at_utc": "2026-10-09T04:00:35.177279+00:00",
+    "pull_request": "https://github.com/chawansit/flash-ticketing/pull/4",
+    "number": 4,
+    "head_branch": "codex/hourly-capacity-evidence-2026-10-09",
+    "head_sha": "7a126c01299a6862e42e1575d4e267f3d676ead3",
+    "base_branch": "main",
+    "base_sha": "878d364acd4e508150dee25c6eb13af6bc72226f",
+    "scope": "Eight documentation files only: hourly evidence, passing short prerequisite, ADR0232/0234/0235 and numbered sync/async customer flow. No backend, migration, configuration, CI or runner changes.",
+    "dependency_finding": "The experimental branch is 336 commits ahead of main. Main lacks the CCE/work-envelope/two-host runner stack; publishing those implementations requires a separate dependency-complete backend review.",
+    "validation": {
+      "working_staged_outgoing_names_passed": true,
+      "checked_documents": 1023,
+      "report_fields_match_pinned_source": true,
+      "provenance_and_links_passed": true,
+      "credentials_and_private_artifacts_excluded": true,
+      "backend_or_cloud_tests_run_for_documentation_pr": false
+    },
+    "ci": "Both GitHub push and PR backend-check jobs passed.",
+    "merge_approved": false,
+    "main_unchanged": true,
+    "cloud_actions": 0,
+    "checks": [
+      {
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "details_url": "https://github.com/chawansit/flash-ticketing/actions/runs/37881663393/job/113662495127"
+      },
+      {
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "details_url": "https://github.com/chawansit/flash-ticketing/actions/runs/37881610979/job/113662331173"
+      }
+    ]
+  }
 }
