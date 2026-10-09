@@ -159,3 +159,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0245: Rebalance API payment connections within a fixed budget](0245-rebalance-api-payment-connections-within-fixed-budget.md)
 
 - [ADR0246: Reconcile the failed fixed-budget payment control](0246-reconcile-failed-fixed-budget-payment-control.md)
+
+- [ADR0247: Batch paid-cohort observer lookups](0247-batch-paid-cohort-observer-lookups.md)

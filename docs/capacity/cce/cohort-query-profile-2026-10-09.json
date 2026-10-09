@@ -1,0 +1,408 @@
+{
+  "decision": "ADR0247",
+  "source_control_run": "adr0151-4c6657f3e1d1",
+  "scope": "Isolated read-only query plans on the restored RDS and exact retired 84-show cohort; warm cache, no paid traffic.",
+  "implemented": true,
+  "paid_runner_integrated": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "runtime_identity_unchanged": true,
+  "read_only_profiling_seconds": 30.81200000003446,
+  "statement_timeout_seconds": 2,
+  "alternating_plan_order": [
+    "baseline",
+    "candidate",
+    "candidate",
+    "baseline"
+  ],
+  "result_columns": [
+    "pending_orders",
+    "paid_unfulfilled",
+    "fulfilled_orders",
+    "pending_callback_deliveries",
+    "pending_payment_attempts",
+    "delivered_callbacks",
+    "issued_tickets",
+    "unpublished_outbox",
+    "db_lock_waiters"
+  ],
+  "counts": {
+    "baseline": [
+      0,
+      0,
+      23377,
+      0,
+      0,
+      23377,
+      23377,
+      0,
+      0
+    ],
+    "candidate": [
+      0,
+      0,
+      23377,
+      0,
+      0,
+      23377,
+      23377,
+      0,
+      0
+    ]
+  },
+  "counts_equal": true,
+  "plans": [
+    {
+      "arm": "baseline",
+      "execution_ms": 240.593,
+      "planning_ms": 0.859,
+      "shared_hit_blocks": 208770,
+      "shared_read_blocks": 0
+    },
+    {
+      "arm": "candidate",
+      "execution_ms": 199.38,
+      "planning_ms": 0.65,
+      "shared_hit_blocks": 117353,
+      "shared_read_blocks": 0
+    },
+    {
+      "arm": "candidate",
+      "execution_ms": 202.068,
+      "planning_ms": 0.659,
+      "shared_hit_blocks": 117353,
+      "shared_read_blocks": 0
+    },
+    {
+      "arm": "baseline",
+      "execution_ms": 255.017,
+      "planning_ms": 0.854,
+      "shared_hit_blocks": 208770,
+      "shared_read_blocks": 0
+    }
+  ],
+  "mean_execution_ms": {
+    "baseline": 247.805,
+    "candidate": 200.724
+  },
+  "query_execution_change_percent": -18.99921309093845,
+  "shared_buffer_hit_change_percent": -43.788379556449684,
+  "isolated_status_query_execution_ms": 0.083,
+  "matched_retained_trace_windows": {
+    "adr0151-d451a218d696": {
+      "matched_scope": "offered 300-second window",
+      "rows": 300,
+      "cohort_mean_ms": 129.1103784084165,
+      "cohort_p95_ms": 230.2006339887157,
+      "workers": {
+        "consumer": {
+          "db_connection_hold:all": {
+            "count": 121000.0,
+            "mean_ms": 11.58458419016193
+          },
+          "db_query:BEGIN": {
+            "count": 121004.0,
+            "mean_ms": 2.7685735326302336
+          },
+          "db_query:SELECT": {
+            "count": 221462.0,
+            "mean_ms": 1.5402246186026038
+          },
+          "db_commit:all": {
+            "count": 120999.0,
+            "mean_ms": 2.4159359417550923
+          }
+        },
+        "writer": {
+          "db_connection_hold:all": {
+            "count": 7723.0,
+            "mean_ms": 65.39743158166907
+          },
+          "db_query:BEGIN": {
+            "count": 7722.0,
+            "mean_ms": 2.8206587751030323
+          },
+          "db_query:SELECT": {
+            "count": 108371.0,
+            "mean_ms": 1.6353751513272698
+          },
+          "db_commit:all": {
+            "count": 7723.0,
+            "mean_ms": 3.458361522344988
+          }
+        },
+        "simulator": {
+          "db_connection_hold:all": {
+            "count": 55261.0,
+            "mean_ms": 10.174573442397023
+          },
+          "db_query:BEGIN": {
+            "count": 55262.0,
+            "mean_ms": 2.8614449737303698
+          },
+          "db_query:SELECT": {
+            "count": 85403.0,
+            "mean_ms": 1.637232917937816
+          },
+          "db_commit:all": {
+            "count": 55261.0,
+            "mean_ms": 3.102032710566421
+          }
+        },
+        "publisher": {
+          "db_connection_hold:all": {
+            "count": 21346.0,
+            "mean_ms": 12.040667035383079
+          },
+          "db_query:BEGIN": {
+            "count": 21347.0,
+            "mean_ms": 2.7322339998730842
+          },
+          "db_query:SELECT": {
+            "count": 42725.0,
+            "mean_ms": 2.0019679974558597
+          },
+          "db_commit:all": {
+            "count": 21346.0,
+            "mean_ms": 3.0712740184545693
+          }
+        },
+        "maintenance": {
+          "db_connection_hold:all": {
+            "count": 26272.0,
+            "mean_ms": 9.853649160540023
+          },
+          "db_query:BEGIN": {
+            "count": 26273.0,
+            "mean_ms": 2.758669662958046
+          },
+          "db_query:SELECT": {
+            "count": 52712.0,
+            "mean_ms": 1.5382558849910266
+          },
+          "db_commit:all": {
+            "count": 26262.0,
+            "mean_ms": 2.2614493081714966
+          }
+        },
+        "reconciler": {
+          "db_connection_hold:all": {
+            "count": 5927.0,
+            "mean_ms": 9.264139831038634
+          },
+          "db_query:BEGIN": {
+            "count": 5927.0,
+            "mean_ms": 2.87305003009147
+          },
+          "db_query:SELECT": {
+            "count": 11828.0,
+            "mean_ms": 1.6921585869959168
+          },
+          "db_commit:all": {
+            "count": 5927.0,
+            "mean_ms": 1.9933764082452707
+          }
+        }
+      }
+    },
+    "adr0151-4c6657f3e1d1": {
+      "matched_scope": "offered 300-second window",
+      "rows": 300,
+      "cohort_mean_ms": 156.1887461389415,
+      "cohort_p95_ms": 272.50186598394066,
+      "workers": {
+        "consumer": {
+          "db_connection_hold:all": {
+            "count": 101616.0,
+            "mean_ms": 15.15463884310782
+          },
+          "db_query:BEGIN": {
+            "count": 101621.0,
+            "mean_ms": 3.6778689476557065
+          },
+          "db_query:SELECT": {
+            "count": 193311.0,
+            "mean_ms": 1.8976737547557108
+          },
+          "db_commit:all": {
+            "count": 101608.0,
+            "mean_ms": 3.2283027670505504
+          }
+        },
+        "writer": {
+          "db_connection_hold:all": {
+            "count": 6740.0,
+            "mean_ms": 87.24893058523416
+          },
+          "db_query:BEGIN": {
+            "count": 6741.0,
+            "mean_ms": 3.9106592688084474
+          },
+          "db_query:SELECT": {
+            "count": 100097.0,
+            "mean_ms": 2.0145224520512484
+          },
+          "db_commit:all": {
+            "count": 6740.0,
+            "mean_ms": 5.216485408766235
+          }
+        },
+        "simulator": {
+          "db_connection_hold:all": {
+            "count": 45929.0,
+            "mean_ms": 13.598847301900449
+          },
+          "db_query:BEGIN": {
+            "count": 45930.0,
+            "mean_ms": 3.888737212443972
+          },
+          "db_query:SELECT": {
+            "count": 68933.0,
+            "mean_ms": 2.0076660552624226
+          },
+          "db_commit:all": {
+            "count": 45929.0,
+            "mean_ms": 4.395152182441273
+          }
+        },
+        "publisher": {
+          "db_connection_hold:all": {
+            "count": 15143.0,
+            "mean_ms": 16.27925479633498
+          },
+          "db_query:BEGIN": {
+            "count": 15144.0,
+            "mean_ms": 3.664554422858099
+          },
+          "db_query:SELECT": {
+            "count": 30293.0,
+            "mean_ms": 1.922048087089102
+          },
+          "db_commit:all": {
+            "count": 15143.0,
+            "mean_ms": 4.142395300618586
+          }
+        },
+        "maintenance": {
+          "db_connection_hold:all": {
+            "count": 17575.0,
+            "mean_ms": 13.091575693362955
+          },
+          "db_query:BEGIN": {
+            "count": 17576.0,
+            "mean_ms": 3.7350459194005183
+          },
+          "db_query:SELECT": {
+            "count": 35523.0,
+            "mean_ms": 1.9531978799076957
+          },
+          "db_commit:all": {
+            "count": 17554.0,
+            "mean_ms": 3.05064847676586
+          }
+        },
+        "reconciler": {
+          "db_connection_hold:all": {
+            "count": 5965.0,
+            "mean_ms": 12.237688370731293
+          },
+          "db_query:BEGIN": {
+            "count": 5965.0,
+            "mean_ms": 4.0911800723775835
+          },
+          "db_query:SELECT": {
+            "count": 11895.0,
+            "mean_ms": 2.0716530939614217
+          },
+          "db_commit:all": {
+            "count": 5965.0,
+            "mean_ms": 2.596155210430925
+          }
+        }
+      }
+    }
+  },
+  "table_statistics_scope": "Cumulative database statistics observed after the failed run, not per-run deltas. Live/dead rows are estimates; they do not establish the earlier regression cause.",
+  "table_estimates": [
+    {
+      "relname": "bookings",
+      "n_live_tup": 1725908,
+      "n_dead_tup": 0,
+      "table_bytes": 146235392,
+      "index_bytes": 242114560
+    },
+    {
+      "relname": "consumer_inbox",
+      "n_live_tup": 13309484,
+      "n_dead_tup": 4019,
+      "table_bytes": 803545088,
+      "index_bytes": 864485376
+    },
+    {
+      "relname": "event_seats",
+      "n_live_tup": 28387785,
+      "n_dead_tup": 2050959,
+      "table_bytes": 2013495296,
+      "index_bytes": 1645821952
+    },
+    {
+      "relname": "holds",
+      "n_live_tup": 4895069,
+      "n_dead_tup": 116342,
+      "table_bytes": 651476992,
+      "index_bytes": 213401600
+    },
+    {
+      "relname": "idempotency_records",
+      "n_live_tup": 6646727,
+      "n_dead_tup": 154422,
+      "table_bytes": 3091841024,
+      "index_bytes": 1205592064
+    },
+    {
+      "relname": "orders",
+      "n_live_tup": 4894822,
+      "n_dead_tup": 21063,
+      "table_bytes": 829210624,
+      "index_bytes": 442589184
+    },
+    {
+      "relname": "outbox_events",
+      "n_live_tup": 13308784,
+      "n_dead_tup": 158325,
+      "table_bytes": 3342336000,
+      "index_bytes": 588570624
+    },
+    {
+      "relname": "payment_attempts",
+      "n_live_tup": 1747898,
+      "n_dead_tup": 151820,
+      "table_bytes": 229179392,
+      "index_bytes": 150069248
+    },
+    {
+      "relname": "tickets",
+      "n_live_tup": 1725910,
+      "n_dead_tup": 0,
+      "table_bytes": 118235136,
+      "index_bytes": 144318464
+    }
+  ],
+  "local_validation": {
+    "postgresql_version": "17.6",
+    "integration_tests_passed": 3,
+    "cases": [
+      "Empty cohort preserves global outbox count",
+      "Mixed states, multi-seat tickets, partial callbacks, unrelated shows, duplicate/missing cohort IDs",
+      "Absent payment and ticket records remain absent from counters"
+    ],
+    "ruff": "passed",
+    "owned_local_postgres_removed": true
+  },
+  "candidate_source_sha256": "b024b4bf74d26b491342be1f0b8712cba3fd3eea03e1bcdc2ccff6bffe003872",
+  "uncertainty": "One idle warm-cache cohort comparison; no contention qualification and no demonstrated reduction in customer errors or increase in completed tickets/s. Slower shared database acquisition and commit still require causal attribution.",
+  "next_action": "Integrate only as an explicitly bound observer-query factor, preserving historical baseline, all correctness gates and current resources; qualify the registry locally before any fresh matched control.",
+  "public_statement_statistics_view_available": false,
+  "statement_statistics_scope": "Checked public.pg_stat_statements only; extension availability in other schemas was not inspected."
+}
