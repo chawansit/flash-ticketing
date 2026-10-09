@@ -1,0 +1,21 @@
+{
+  "decision": "ADR0242",
+  "run": "adr0151-f1d128f9546a",
+  "ledger": "bounded_cce_paid_comparison__d4fdff74cb7c",
+  "status": "FAILED_RESTORED",
+  "actual_elapsed_seconds": 540.795999999973,
+  "paid_stages_started": 0,
+  "paid_buyer_journeys_dispatched": 0,
+  "all_four_native_image_source_startup_admissions_passed": true,
+  "managed_pull_credentials_validated": true,
+  "failure": "API-only diagnostic comments were incorrectly required by the shared worker metrics parser. All seven unchanged worker roles failed metrics startup.",
+  "correction": "Preserve legacy worker parsing without API-only comments; require complete slot diagnostics at the admitted API metrics boundary.",
+  "local_tests_passed": 118,
+  "local_tests_skipped": 1,
+  "restoration_complete": true,
+  "integrity_verified": true,
+  "temporary_credentials_removed": true,
+  "queue_drain_complete": true,
+  "capacity_improvement_measured": false,
+  "production_qualified": false
+}

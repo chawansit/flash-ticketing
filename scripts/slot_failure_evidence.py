@@ -59,11 +59,24 @@ def parse(payload):
 
 def install(module):
     original = module.parse_api_metrics
+    original_api = module.api_metrics
 
     def metrics(payload):
-        return {**original(payload), "db_failure_diagnostics": parse(payload)}
+        # Legacy worker metrics share this parser but do not expose API slot state.
+        result = original(payload)
+        if any(line.startswith(PREFIX) for line in payload.splitlines()):
+            result = {**result, "db_failure_diagnostics": parse(payload)}
+        return result
+
+    def api_metrics(address):
+        result = original_api(address)
+        if "db_failure_diagnostics" not in result:
+            raise ValueError("Admitted API slot diagnostics missing")
+        validate(result["db_failure_diagnostics"])
+        return result
 
     module.parse_api_metrics = metrics
+    module.api_metrics = api_metrics
 
 
 def summarize(rows, expected_replicas):

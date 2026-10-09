@@ -58,3 +58,17 @@ def test_entry_restores_original_native_hook_even_after_failure(monkeypatch):
     with pytest.raises(ValueError, match="synthetic"):
         entry.main([])
     assert entry.native.install is original
+
+
+def test_legacy_workers_keep_shared_parser_without_api_only_comments():
+    tracker = SlotDiagnostics(4)
+    raw = payload() + tracker.comment().decode()
+    calls = []
+    module = SimpleNamespace(api_replicas=lambda host, port: [host],
+                             parse_api_metrics=lambda raw: {"legacy_metric": 7})
+    entry.install(module, bundle(), fetch=lambda url, **kw: calls.append(url) or io.BytesIO(raw.encode()))
+    for role in ("confirmation", "consumer", "maintenance", "publisher", "reconciler", "simulator", "writer"):
+        assert module.parse_api_metrics("# " + role + " legacy metrics\n") == {"legacy_metric": 7}
+    result = module.api_metrics(module.api_replicas()[0])
+    assert result["db_failure_diagnostics"]["complete"]
+    assert result["legacy_metric"] == 7 and len(calls) == 1

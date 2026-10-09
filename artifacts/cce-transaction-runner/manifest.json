@@ -41,6 +41,6 @@
     "scripts/cce_transaction_profile.py": "1d61a369264d715985a67393ee08896b92db02b6465838556e717947e93f10cd",
     "scripts/observe_slot_paid_pipeline.py": "4d57e7649aa9b2c4e41ab398f58c31291449a7add10e9adf1384d95f7ea8288e",
     "scripts/prepare_slot_comparison_sources.py": "ad8edffaf0a84803141c9c1938e0b65bb583d7eba60e7ac537233d82328590e5",
-    "scripts/slot_failure_evidence.py": "124b82268808f278f506a7bfd3760f2daf7c54d6b04d69abae89e4d421a5dce8"
+    "scripts/slot_failure_evidence.py": "5e4d687a2ebdde69cfc7b3818b4fede87d6ac12cf7bd99125339b53f8f207205"
   }
 }

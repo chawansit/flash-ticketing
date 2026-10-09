@@ -24,8 +24,9 @@ def test_producer_consumer_and_installed_metrics_wrapper():
     tracker.failure({"role": "payment", "reason": "native_timeout"})
     raw = tracker.comment().decode()
     module = SimpleNamespace(parse_api_metrics=lambda payload: {"cpu": 1})
+    module.api_metrics = lambda address: module.parse_api_metrics(raw)
     collector.install(module)
-    assert module.parse_api_metrics(raw) == {"cpu": 1, "db_failure_diagnostics": collector.parse(raw)}
+    assert module.api_metrics("api") == {"cpu": 1, "db_failure_diagnostics": collector.parse(raw)}
 
 
 @pytest.mark.parametrize("damage", ["extra_secret", "nan", "unknown_operation", "missing", "overflow", "wrong_sequence"])
