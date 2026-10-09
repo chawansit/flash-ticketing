@@ -148,3 +148,39 @@ def test_other_image_pair_or_decision_cannot_close_control(monkeypatch, field, v
     entry["binding_sha256"] = evidence["binding_sha256"] = policy.digest(scope["binding"])
     with pytest.raises(ValueError):
         recovery.validate(report, entry, scope, evidence, fixture)
+
+
+def test_relationship_audit_batches_in_one_read_only_snapshot_without_timeout_relaxation():
+    body = recovery.financial_program(SHOWS, 301961)
+    assert "SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY" in body
+    assert "range(0, len(show_ids), 84)" in body
+    assert "SET LOCAL statement_timeout='20s'" in body
+    assert "statement_timeout='60s'" not in body
+    assert "zip(totals, values, strict=True)" in body
+    assert "UNION SELECT" in body
+    compile(body, "same-snapshot-hourly-recovery", "exec")
+
+
+@pytest.mark.parametrize("corrupt_last_batch", [False, True])
+def test_executed_batched_snapshot_covers_every_show_and_preserves_late_corruption(corrupt_last_batch):
+    from contextlib import nullcontext
+    from types import SimpleNamespace
+    namespace = {}
+    body = recovery.financial_program(SHOWS, 301961)
+    exec(body.split("\ncohort=")[0], namespace)
+    namespace["audit"] = lambda *args: {"pass": True}
+    calls = []
+    class Conn:
+        def transaction(self): return nullcontext()
+        def execute(self, sql, args=None):
+            if args is None: return None
+            batch = args[0]
+            assert len(batch) <= 84 and all(v == batch for v in args)
+            calls.append(batch)
+            unique = 25200 - (439 if len(calls) == 12 else 0)
+            row = [0, int(corrupt_last_batch and len(calls) == 12), 0, 0, 0, unique, 0]
+            return SimpleNamespace(fetchone=lambda: row)
+    result = namespace["financial_snapshot"](Conn(), SHOWS, 302028, 301961, 1)
+    assert [value for batch in calls for value in batch] == SHOWS
+    assert result["relationships"]["unique_issued_tickets"] == 301961
+    assert result["pass"] is (not corrupt_last_batch)

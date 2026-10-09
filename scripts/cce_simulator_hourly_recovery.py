@@ -42,9 +42,14 @@ def financial_program(show_ids, expected_paid):
     statement = "        row = conn.execute(RELATIONSHIP_SQL, (show_ids,) * 6).fetchone()"
     if body.count(statement) != 1:
         raise ValueError("Canonical financial snapshot changed")
+    batched = """        totals = [0] * len(RELATIONSHIP_NAMES)
+        for offset in range(0, len(show_ids), 84):
+            batch = show_ids[offset:offset + 84]
+            values = conn.execute(RELATIONSHIP_SQL, (batch,) * 6).fetchone()
+            totals = [left + right for left, right in zip(totals, values, strict=True)]
+        row = tuple(totals)"""
     return body.replace(original, inspect.getsource(expectations), 1).replace(
-        marker, "RELATIONSHIP_SQL=" + repr(RELATIONSHIP_SQL), 1).replace(
-        statement, "        conn.execute(\"SET LOCAL statement_timeout='60s'\")\n" + statement, 1)
+        marker, "RELATIONSHIP_SQL=" + repr(RELATIONSHIP_SQL), 1).replace(statement, batched, 1)
 
 
 

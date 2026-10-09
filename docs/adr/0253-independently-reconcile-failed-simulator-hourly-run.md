@@ -25,3 +25,5 @@ Any missing fixture identity, changed digest/binding, pending queue, duplicate, 
 Original run adr0151-ada3471665ef; ledger bounded_cce_hourly_qualification__17b2158eb19b; original result SHA256 338b88f4716c777240eac9f1a1ec6295121ecce4107698463c87e9aaf2dafb18. Recovery tests and independent cloud checks are pending.
 
 Executed 27 scoped recovery tests; all passed, including forged binding, missing payment/ticket, duplicate booking, invalid relationships, pending queue, wrong namespace, wrong resource partition and replay rejection. Ruff passed. Independent cloud verification remains pending.
+
+The first independent relationship audit hit its 60-second SQL timeout. Retain that failed attempt. Partition the identical scoped relationship query into disjoint batches of at most 84 shows within the same repeatable-read, read-only snapshot, and sum every error/unique-ticket count. Keep the existing 20-second per-statement timeout and exact aggregate cohort totals. No financial rows, gates or original evidence are changed. Cross-event relationships remain tested by the same union and joins; any cross-batch inconsistency prevents closure.
