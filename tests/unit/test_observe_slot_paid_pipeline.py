@@ -42,8 +42,16 @@ def test_slot_entry_fails_closed_without_retry(fault):
     calls = []
     module = SimpleNamespace(api_replicas=lambda *args: [], parse_api_metrics=lambda raw: {})
     entry.install(module, bundle(), fetch=lambda url, **kw: calls.append(url) or io.BytesIO(raw.encode()))
-    with pytest.raises(ValueError):
-        module.api_metrics(module.api_replicas()[0])
+    address = module.api_replicas()[0]
+    if fault == "restarted":
+        with pytest.raises(ValueError):
+            module.api_metrics(address)
+    else:
+        observed = module.api_metrics(address)
+        assert observed["business_http_requests_total"] == 1
+        assert "db_failure_diagnostics_error" in observed
+        with pytest.raises(ValueError, match="Incomplete"):
+            slots.summarize([{"api_replicas": {address: observed}}], [address])
     assert len(calls) == 1
 
 

@@ -1,4 +1,5 @@
 """ADR0241 strict collection of bounded metrics snapshots, without database queries."""
+import hashlib
 import json
 import math
 
@@ -57,6 +58,30 @@ def parse(payload):
     return validate(json.loads(lines[0][len(PREFIX):]))
 
 
+def diagnostic_error(payload):
+    """Retain safe bounded metadata only, never unknown fields or customer data."""
+    lines = [line for line in payload.splitlines() if line.startswith(PREFIX)]
+    result = {"kind": "invalid_or_incomplete_slot_comment", "comment_count": len(lines)}
+    if len(lines) != 1:
+        return result
+    raw = lines[0].encode()
+    result["comment_bytes"] = len(raw) + 1
+    result["payload_prefix_sha256"] = hashlib.sha256(raw[:MAX_PAYLOAD]).hexdigest()
+    if len(raw) + 1 > MAX_PAYLOAD:
+        return result
+    try:
+        value = json.loads(lines[0][len(PREFIX):])
+    except ValueError:
+        return result
+    if isinstance(value, dict):
+        result["header"] = {k: value[k] for k in
+            ("schema_version", "failure_total", "overwritten_total", "diagnostic_errors")
+            if integer(value.get(k))}
+        if type(value.get("complete")) is bool:
+            result["header"]["complete"] = value["complete"]
+    return result
+
+
 def install(module):
     original = module.parse_api_metrics
     original_api = module.api_metrics
@@ -65,14 +90,17 @@ def install(module):
         # Legacy worker metrics share this parser but do not expose API slot state.
         result = original(payload)
         if any(line.startswith(PREFIX) for line in payload.splitlines()):
-            result = {**result, "db_failure_diagnostics": parse(payload)}
+            try:
+                result = {**result, "db_failure_diagnostics": parse(payload)}
+            except ValueError:
+                # Keep CPU/pool telemetry; completeness still fails in summarize().
+                result = {**result, "db_failure_diagnostics_error": diagnostic_error(payload)}
         return result
 
     def api_metrics(address):
         result = original_api(address)
-        if "db_failure_diagnostics" not in result:
-            raise ValueError("Admitted API slot diagnostics missing")
-        validate(result["db_failure_diagnostics"])
+        if "db_failure_diagnostics" not in result and "db_failure_diagnostics_error" not in result:
+            result = {**result, "db_failure_diagnostics_error": {"kind": "missing_slot_comment"}}
         return result
 
     module.parse_api_metrics = metrics
@@ -88,6 +116,8 @@ def summarize(rows, expected_replicas):
         if set(values) != set(replicas) or row.get("api_metrics_error"):
             raise ValueError("Complete admitted API evidence required")
         for name, metrics in values.items():
+            if metrics.get("db_failure_diagnostics_error") or "db_failure_diagnostics" not in metrics:
+                raise ValueError("Incomplete admitted API slot evidence")
             value = validate(metrics["db_failure_diagnostics"])
             if value["failure_total"] < totals[name]:
                 raise ValueError("Failure counter reset")

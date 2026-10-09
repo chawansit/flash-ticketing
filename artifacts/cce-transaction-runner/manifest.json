@@ -10,7 +10,7 @@
     "scripts/cce_paid_stage.py": {
       "historical_sha256": "c1acf89ae4544674f179f4615c10f359e3899bfd5dae8421c30e22f29e60c57a",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/c1acf89ae4544674f179f4615c10f359e3899bfd5dae8421c30e22f29e60c57a",
-      "current_sha256": "47cd50413bf815f073e2189e27440f0e9642d2e0fc9c5e4ef552fff99087925c"
+      "current_sha256": "d4441190d794caf8756ad33ca8ca0405b0b2a306dfd44464b364c677251198f5"
     },
     "scripts/cce_paid_observers.py": {
       "historical_sha256": "e5e712961d9f6725d45468f0feac95ad50f6591c4f5ee095ac41074257e63257",
@@ -36,11 +36,12 @@
   "additional_inputs": {
     "docs/capacity/cce/slot-comparison-images-2026-10-09.json": "255b4d2de1cb356b9b48b0ac7025b0cff5194a961d4c94f179c5ec87f189d0c1",
     "scripts/bounded_trace_transport.py": "3456993bacbfd93227bac0bdb28ce532c2f97365310b88338297a175d4c3d21f",
-    "scripts/cce_reproduction_overlay.py": "a96796efbefbe9fe4491d00388c7b7c83430638be067a03e43870b7e5b698fc0",
+    "scripts/cce_reproduction_overlay.py": "21f4e7353ecd762b3a18924c3338f74daf92683ab05ce6ea8727ff5e50760cdb",
     "scripts/cce_slot_trace_transport.py": "3286f3395ff573f555af9080f95f43ca1d83e920b75026cb8679a8a646e2fa11",
     "scripts/cce_transaction_profile.py": "f6ce0e75775624496ce2af1ff1abf09ad72f6a71fd8ebf0888364c5518233bed",
     "scripts/observe_slot_paid_pipeline.py": "4d57e7649aa9b2c4e41ab398f58c31291449a7add10e9adf1384d95f7ea8288e",
+    "scripts/prepare_payment_context_sources.py": "7c0f192e30a12843c8658918afee574507b514eb51d54e5fc588b56f78ce136c",
     "scripts/prepare_slot_comparison_sources.py": "ad8edffaf0a84803141c9c1938e0b65bb583d7eba60e7ac537233d82328590e5",
-    "scripts/slot_failure_evidence.py": "5e4d687a2ebdde69cfc7b3818b4fede87d6ac12cf7bd99125339b53f8f207205"
+    "scripts/slot_failure_evidence.py": "c80d99e0edf371f5298a10749dcecb96c38f4668d4fa0a0cb24f1ee0136eeaec"
   }
 }

@@ -77,3 +77,37 @@ def test_nonterminal_exposition_race_requires_settled_terminal_coverage():
     assert collector.summarize([unsettled, settled], ["api"])["failure_total"] == 1
     with pytest.raises(ValueError, match="disagree"):
         collector.summarize([unsettled], ["api"])
+
+
+@pytest.mark.parametrize("fault", ["overflow", "missing", "malformed", "extra_secret"])
+def test_invalid_slot_comment_keeps_basic_metrics_but_completeness_still_fails(fault):
+    value = evidence()
+    if fault == "overflow":
+        value.update(failure_total=17, overwritten_total=1, complete=False)
+    elif fault == "extra_secret":
+        value["customer_secret"] = "never-retain-this"
+    raw = collector.PREFIX + json.dumps(value) + "\n"
+    if fault == "missing":
+        raw = "process_cpu_seconds_total 2\n"
+    elif fault == "malformed":
+        raw = collector.PREFIX + "{broken-json}\n"
+    module = SimpleNamespace(parse_api_metrics=lambda _: {"cpu": 2, "payment_requests_waiting": 3})
+    module.api_metrics = lambda _: module.parse_api_metrics(raw)
+    collector.install(module)
+    observed = module.api_metrics("api")
+    assert observed["cpu"] == 2 and observed["payment_requests_waiting"] == 3
+    assert "db_failure_diagnostics_error" in observed
+    assert "never-retain-this" not in json.dumps(observed)
+    with pytest.raises(ValueError, match="Incomplete"):
+        collector.summarize([{"api_replicas": {"api": observed}}], ["api"])
+    if fault == "overflow":
+        assert observed["db_failure_diagnostics_error"]["header"]["overwritten_total"] == 1
+        assert observed["db_failure_diagnostics_error"]["header"]["complete"] is False
+
+
+def test_diagnostic_error_is_bounded_and_omits_arbitrary_payload():
+    payload = collector.PREFIX + json.dumps({"private": "x" * collector.MAX_PAYLOAD})
+    result = collector.diagnostic_error(payload)
+    assert "header" not in result
+    assert len(json.dumps(result)) < 400
+    assert len(result["payload_prefix_sha256"]) == 64

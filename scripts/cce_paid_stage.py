@@ -47,6 +47,7 @@ def identity():
         "scripts/cce_reproduction_overlay.py",
         "scripts/cce_slot_trace_transport.py",
         "scripts/prepare_slot_comparison_sources.py",
+        "scripts/prepare_payment_context_sources.py",
         "scripts/observe_slot_paid_pipeline.py",
         "scripts/slot_failure_evidence.py",
         "scripts/bounded_trace_transport.py",
