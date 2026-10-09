@@ -14,18 +14,21 @@ FACTOR = "callback_dispatch_concurrency"
 
 
 def receipt():
-    from prepare_simulator_dispatch_sources import source_plan
+    from status_refresh_contract import REVISION, digest
     path = policy.ROOT / PROOF
     if path.is_symlink() or hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest() != PROOF_SHA256:
         raise ValueError("Exact reviewed simulator image receipt required")
     data = policy.read(path)
-    _, expected = source_plan()
+    parent = data["parent_runtime_source_sha256"]
+    candidate = data["runtime_source_sha256"]
+    config = "src/ticketing/config.py"
     if (data["decision"] != "ADR0251" or data["pass"] is not True
             or not re.fullmatch(r"sha256:[0-9a-f]{64}", data["local_image_id"])
-            or data["parent_image_id"] != expected["parent_image"]
-            or data["runtime_source_sha256"] != expected["runtime_source_sha256"]
-            or data["parent_runtime_source_sha256"] != expected["parent_runtime_source_sha256"]
-            or data["source_manifest_sha256"] != expected["source_manifest_sha256"]
+            or data["parent_image_id"] != "sha256:271e1a8f91505d06e208c680ee479f38b5acc9641f6089aef61e3d070257a159"
+            or set(parent) != set(candidate) or len(candidate) != 21
+            or [name for name in parent if parent[name] != candidate[name]] != [config]
+            or candidate[config] != "20d35f8e00aed40c60dcfa5482090e0923dd34db35b9b3e6df0b8297b1c9966c"
+            or data["source_manifest_sha256"] != digest({"base_revision": REVISION, "runtime_source_sha256": candidate})
             or data["copied_installed_imported_bytecode_modules"] != 21
             or data["inherited_runtime_configuration_verified"] is not True
             or data["parent_layers_verified"] is not True
@@ -80,6 +83,11 @@ class SimulatorDispatchContract(baseline.GeneratorCompletionProbeContract):
             raise ValueError("Fresh simulator correction only; no replay of an old control")
         super().__init__(artifact, arm, sources)
         self.simulator_receipt = receipt()
+        from prepare_simulator_dispatch_sources import source_plan
+        _, expected = source_plan()
+        if (self.simulator_receipt["runtime_source_sha256"] != expected["runtime_source_sha256"]
+                or self.simulator_receipt["parent_runtime_source_sha256"] != expected["parent_runtime_source_sha256"]):
+            raise ValueError("Complete prepared simulator source plan differs")
         self.background = copy.deepcopy(self.background)
         self.background["simulator"]["concurrency"] = 12
         self.images["simulator"] = self.simulator_receipt["local_image_id"]

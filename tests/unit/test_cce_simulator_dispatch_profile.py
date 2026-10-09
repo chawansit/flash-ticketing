@@ -126,3 +126,17 @@ def test_observer_rejects_unqualified_correction(fault):
     elif fault == "proof": data["status_refresh_contract"]["simulator_receipt_sha256"] = "0" * 64
     approved = "0" * 64 if fault == "digest" else policy.digest(data)
     with pytest.raises(ValueError): correction_inventory(data, approved)
+
+
+def test_per_action_receipt_checks_do_not_reconstruct_historical_plan(monkeypatch):
+    import prepare_simulator_dispatch_sources as builder
+    monkeypatch.setattr(builder, "source_plan", lambda: (_ for _ in ()).throw(AssertionError("historical reconstruction in action guard")))
+    for _ in range(10):
+        assert simulator.receipt()["runtime_settings"]["simulator_concurrency"] == 12
+
+
+def test_worker_preparation_still_requires_complete_source_plan(monkeypatch):
+    import prepare_simulator_dispatch_sources as builder
+    monkeypatch.setattr(builder, "source_plan", lambda: (None, {"runtime_source_sha256": {}, "parent_runtime_source_sha256": {}}))
+    with pytest.raises(ValueError, match="prepared simulator source plan"):
+        simulator.worker_contract()
