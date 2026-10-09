@@ -156,3 +156,7 @@ still requires capacity validation. See [ADR 0016](docs/adr/0016-isolated-reconc
 Latest cloud validation: [concentrated seat-map reads, seat contention and burst recovery](docs/capacity/concentrated-traffic/README.md). Hot reads passed 400 RPS for five minutes; contention retained one durable winner but exposed admission and client-latency limits.
 
 Latest diagnosis: [connection reuse and generator timing under seat contention](docs/capacity/contention-timing/README.md). Sixteen cloud waves retained one durable winner each; client queueing was material, and admission limits remain unresolved.
+
+## Measured CCE hourly milestone
+
+See the [9 October 2026 hourly ticket-sales evidence](docs/capacity/flash-sale-opening/cce-hourly-milestone-2026-10-09.md): 302,262 unique paid-and-issued tickets within one hour, with failed customer/telemetry gates and independently verified financial recovery recorded explicitly. This documentation milestone does not integrate or deploy the experimental backend.

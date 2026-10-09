@@ -92,3 +92,11 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [0057: Isolate refresh and expiry maintenance lanes](0057-isolate-refresh-expiry-maintenance.md)
 - [0058: Redis-first durable reservation intake](0058-redis-first-durable-reservation-intake.md)
 - [0059: Scale Redis reservation persistence writers](0059-scale-redis-reservation-writers.md)
+
+## Imported CCE experiment decisions
+
+These entries record experiments implemented on the pinned experimental branch; this documentation PR does not integrate their runner, backend or migrations into main. See the [hourly milestone](../capacity/flash-sale-opening/cce-hourly-milestone-2026-10-09.md) for source provenance and qualification limits.
+
+- [0232: Bounded hourly paid ticket qualification](0232-bounded-hourly-paid-ticket-qualification.md)
+- [0234: Bounded CCE acquisition headroom with unchanged connections](0234-bounded-cce-acquisition-headroom.md)
+- [0235: Hourly terminal audit and independent recovery](0235-hourly-terminal-audit-and-recovery.md)
