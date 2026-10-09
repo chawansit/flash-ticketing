@@ -19,6 +19,8 @@ def verify():
     lock = json.loads(LOCK.read_text(encoding="utf-8"))
     if lock.get("decision") != "ADR0238" or lock.get("cloud_execution_authorized") is not False:
         raise ValueError("Offline promotion contract required")
+    from cce_reproduction_overlay import verify as verify_overlay
+    overlay = verify_overlay(ROOT, lock)
     for relative, expected in lock["files"].items():
         parts = Path(relative)
         if parts.is_absolute() or ".." in parts.parts or "\\" in relative:
@@ -26,10 +28,12 @@ def verify():
         path = ROOT / relative
         if path.is_symlink() or not path.resolve().is_relative_to(ROOT.resolve()):
             raise ValueError("Promotion input escapes checkout")
+        archived = overlay["overlays"].get(relative)
+        path = ROOT / archived["historical_blob"] if archived else path
         raw = path.read_bytes().replace(b"\r\n", b"\n")
         if hashlib.sha256(raw).hexdigest() != expected:
             raise ValueError("Promotion identity drift: " + relative)
-    contract = adapter.contract()
+    contract = adapter.legacy_contract()
     historical_plan = historical.plan()
     runtime_contract = historical.GeneratorCompletionProbeContract(
         historical_plan["artifact_receipt"], "candidate", contract["api_sources"]
@@ -51,7 +55,7 @@ def verify():
     if hourly_plan["acquisition_budget"] != 20 or hourly_plan["pooler_server_connections"] != 24:
         raise ValueError("Historical hourly budget differs")
     return {"decision": "ADR0238", "pass": True, "checked_files": len(lock["files"]),
-            "frozen_parent_files": 78, "runtime_generator_files": len(bundle),
+            "approved_working_overlay_files": len(overlay["overlays"]), "frozen_parent_files": 78, "runtime_generator_files": len(bundle),
             "historical_contract_constructor_verified": True, "historical_role_count": len(runtime_contract.images),
             "cce_api_image": dependency.IMAGE, "workload_profiles": expected,
             "historical_images_match_pr6_combined_source": False,

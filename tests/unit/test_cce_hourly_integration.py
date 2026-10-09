@@ -40,6 +40,8 @@ def test_generated_arguments_do_not_relax_short_profile():
 
 
 def test_hourly_plan_requires_full_passing_short_control(monkeypatch):
+    import cce_transaction_profile
+    monkeypatch.setattr(cce_transaction_profile, "active", lambda: None)
     value = copy.deepcopy(policy.read(policy.ROOT / entry.BASELINE))
     assert entry.plan()["expected_terminal_tickets"] == 302400
     value["measurement_gates"]["full_queue_drain"] = False

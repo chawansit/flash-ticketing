@@ -52,6 +52,7 @@ def test_four_pods_share_exact_budget_without_literal_secrets():
         assert 'test-jwt' not in json.dumps(pod)
         assert 'test-webhook' not in json.dumps(pod)
         assert 'registry-test-password' not in json.dumps(pod)
+        assert pod['spec']['imagePullSecrets'] == [{'name': 'swr-pull'}]
         assert pod['spec']['automountServiceAccountToken'] is False
         assert container['readinessProbe']['httpGet']['path'] == '/health/ready'
         compile(container['command'][3], '<cce-startup>', 'exec')
@@ -200,11 +201,12 @@ def test_dependency_scope_cannot_create_paid_pods(lifecycle):
 
 
 def test_unregistered_paid_profile_cannot_mutate(monkeypatch):
+    values = manifests()
     monkeypatch.setattr(policy, "PROFILES", {k:v for k,v in policy.PROFILES.items() if k != cce.PROFILE})
     events = []
     deployment = cce.Deployment(lambda *args: events.append(args),
         SimpleNamespace(key='bounded_cce_paid_comparison__'+'c'*12), lambda value: None)
-    with pytest.raises(ValueError,match='not been registered'): deployment.create(manifests())
+    with pytest.raises(ValueError,match='not been registered'): deployment.create(values)
     assert events == []
 
 

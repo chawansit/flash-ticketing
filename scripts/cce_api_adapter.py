@@ -20,7 +20,7 @@ PROFILE = "cce_paid_comparison"
 PROOF_PREFIX = "CCE_API_STARTUP "
 
 
-def contract():
+def legacy_contract():
     data = policy.read(CONTRACT)
     parent = policy.read(
         policy.ROOT / "docs/capacity/flash-sale-opening/generator-completion-probe-plan-2026-10-08.json"
@@ -47,6 +47,30 @@ def contract():
     ):
         raise ValueError("Exact retained paid baseline contract required")
     return data
+
+
+def contract():
+    import cce_transaction_profile as transaction
+    data = legacy_contract()
+    goal = transaction.active()
+    if goal is not None:
+        data = copy.deepcopy(data)
+        data["api_sources"] = transaction.image_for(goal)["runtime_sources_sha256"]
+        data["api_settings"]["DB_FAILURE_DIAGNOSTICS"] = "1"
+        if goal["extension_decision"] == "ADR0245":
+            data["api_settings"]["API_PAYMENT_POOL_MAX"] = str(transaction.payment_connections(goal))
+    return data
+
+
+def api_image():
+    import cce_transaction_profile as transaction
+    goal = transaction.active()
+    return (transaction.image_for(goal)["registry_image"]
+            if goal is not None else dependency.IMAGE)
+
+
+def api_manifest():
+    return api_image().split("@", 1)[1]
 
 
 def authorized_creation(envelope, now=None):
@@ -86,6 +110,10 @@ def admission_budget():
     """One declared bounded factor; old profiles retain the immutable baseline."""
     exception = policy.envelope()["spending"]["temporary_cce_pilot_exception"]
     goal = exception.get("goal_bounded_authorization", {})
+    if goal.get("extension_decision") in {"ADR0242", "ADR0245", "ADR0249", "ADR0251"}:
+        import cce_transaction_profile as transaction
+        transaction.active()
+        return 20
     if goal.get("profile") == "cce_hourly_qualification":
         if goal.get("decision") != "ADR0232" or goal.get("acquisition_budget") != 20:
             raise ValueError("Exact passing hourly acquisition configuration required")
@@ -210,6 +238,9 @@ def objects(run, service, primary_ip, registry_username, registry_password, *, a
     if profile not in (SHORT, HOURLY):
         raise ValueError("Exact native lifetime profile required")
     """Private payloads: never publish returned Secrets."""
+    import cce_transaction_profile as transaction
+    pull_secrets = ([{"name": "default-secret"}, {"name": "swr-pull"}]
+                    if transaction.active() is not None else [{"name": "swr-pull"}])
     namespace = dependency.namespace_for(run)
     env = api_environment(service, primary_ip, acquisition_budget=acquisition_budget)
     program = (
@@ -256,7 +287,7 @@ def objects(run, service, primary_ip, registry_username, registry_password, *, a
                     "activeDeadlineSeconds": 5400 if profile == HOURLY else 3000,
                     "automountServiceAccountToken": False,
                     "enableServiceLinks": False,
-                    "imagePullSecrets": [{"name": "swr-pull"}],
+                    "imagePullSecrets": copy.deepcopy(pull_secrets),
                     "securityContext": {
                         "runAsUser": 10001,
                         "runAsNonRoot": True,
@@ -265,7 +296,7 @@ def objects(run, service, primary_ip, registry_username, registry_password, *, a
                     "containers": [
                         {
                             "name": "api",
-                            "image": dependency.IMAGE,
+                            "image": api_image(),
                             "imagePullPolicy": "Always",
                             "command": ["python", "-u", "-c", program],
                             "workingDir": "/app",
@@ -350,7 +381,7 @@ def receipt(pod, expected, uid, run, startup_proof):
         or statuses[0]["restartCount"] != 0
         or statuses[0].get("ready") is not True
         or not statuses[0].get("state", {}).get("running", {}).get("startedAt")
-        or statuses[0].get("imageID", "").split("@")[-1] != dependency.MANIFEST
+        or statuses[0].get("imageID", "").split("@")[-1] != api_manifest()
     ):
         raise ValueError("CCE API identity, readiness or admitted specification drift")
     if (
@@ -397,6 +428,8 @@ def verification_summary(pod, expected):
             if spec.get(k) != expected["spec"][k]
         ),
         "resources": container.get("resources"),
+        "readiness_conditions": [{k: str(row.get(k, ""))[:64] for k in ("type", "status", "reason")}
+                                 for row in status.get("conditions", [])[:8]],
         "container_states": [
             {
                 "name": row.get("name"),
@@ -404,6 +437,7 @@ def verification_summary(pod, expected):
                 "restart_count": row.get("restartCount"),
                 "image_id": row.get("imageID"),
                 "state_kinds": sorted(row.get("state", {})),
+                "waiting_reason": str(row.get("state", {}).get("waiting", {}).get("reason", ""))[:64],
                 "exit_code": row.get("state", {}).get("terminated", {}).get("exitCode"),
             }
             for row in status.get("containerStatuses", [])[:4]

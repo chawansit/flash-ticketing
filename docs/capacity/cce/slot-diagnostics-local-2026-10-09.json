@@ -1,0 +1,49 @@
+{
+  "decision": "ADR0241",
+  "status": "DIAGNOSTICS_CI_PASSED_IMAGES_PUBLISHED_CLOUD_BINDING_PENDING",
+  "latest_swr_credential_read_only_auth_passed": true,
+  "cached_docker_credential_is_different_username": true,
+  "default_enabled": false,
+  "common_comparison_flag": {
+    "DB_FAILURE_DIAGNOSTICS": "1"
+  },
+  "targeted_tests_passed": 83,
+  "full_unit_tests_before_final_four_added": 1856,
+  "full_unit_windows_symlink_skips": 2,
+  "local_postgresql_transaction_tests_passed": 11,
+  "local_postgresql_version": "17.6",
+  "local_owned_database_container_removed": true,
+  "runtime_source_modules_per_arm": 22,
+  "unchanged_historical_api_modules": 17,
+  "different_source_file_between_arms": "src/ticketing/infrastructure/postgres.py",
+  "correction": "Remove redundant BEGIN only; no connection, waiting, retry, payment-mode or topology changes.",
+  "cloud_profile_registered": false,
+  "diagnostic_transport_integrated": false,
+  "cohort_sampling_gaps_fixed": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "historical_timeout_cause_confirmed": false,
+  "full_unit_latest": {
+    "passed": 1859,
+    "failed": 1,
+    "skipped": 2,
+    "failure": "Existing 50ms idle timer woke after49.3092ms on Windows; original full-suite failure retained.",
+    "isolated_follow_up_passed": true
+  },
+  "focused_final_tests_passed": 39,
+  "observer_entry_implemented": true,
+  "observer_entry_registered": false,
+  "local_images_qualified": true,
+  "local_image_proof": "docs/capacity/cce/slot-comparison-images-2026-10-09.json",
+  "registry_published": true,
+  "linux_ci": {
+    "source_revision": "bb70572dcb49646ac484671884e823e2d02347e0",
+    "unit_runner_passed": 1867,
+    "integration_end_to_end_passed": 263,
+    "jobs": [
+      113722603884,
+      113722585346
+    ],
+    "all_checks_passed": true
+  }
+}

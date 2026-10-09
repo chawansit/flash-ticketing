@@ -161,3 +161,10 @@ def test_pool_checkout_timeout_is_bounded_and_configurable(monkeypatch):
     assert [pool["timeout"] for pool in captured] == [0.15, 0.5, 0.5]
     assert all(pool["max_size"] == 3 for pool in captured)
     assert [pool["max_waiting"] for pool in captured] == [3, 3, 12]
+
+
+def test_native_pool_explicitly_disables_autocommit(monkeypatch):
+    captured = []
+    monkeypatch.setattr(postgres_module, "ConnectionPool", lambda url, **kwargs: captured.append(kwargs))
+    Postgres("postgresql://test-only")
+    assert captured[0]["kwargs"]["autocommit"] is False

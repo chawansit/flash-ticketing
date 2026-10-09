@@ -9,6 +9,7 @@ from starlette.datastructures import MutableHeaders
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from ticketing.infrastructure.slot_diagnostics import OPERATION, operation_category
 from ticketing.observability import (
     HOLD_ADMISSION,
     HOLD_INFLIGHT,
@@ -52,6 +53,7 @@ class RequestInstrumentation:
         request.state.request_id = str(uuid4())
         request.state.error_code = None
         context = REQUEST_ID.set(request.state.request_id)
+        operation_context = OPERATION.set(operation_category(request.method, request.url.path))
         reservation = request.method == 'POST' and request.url.path == '/v1/holds'
         trace = {} if reservation else None
         trace_context = HOLD_TRACE.set(trace)
@@ -204,4 +206,5 @@ class RequestInstrumentation:
                     state = _connection_state.get(key_string)
                     if state is not None:
                         state['last_seen'] = time.monotonic()
+            OPERATION.reset(operation_context)
             REQUEST_ID.reset(context)

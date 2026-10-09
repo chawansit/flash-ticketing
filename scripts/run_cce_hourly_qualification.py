@@ -15,6 +15,13 @@ def identity():
 
 
 def plan():
+    import cce_transaction_profile as transaction
+    goal = transaction.active()
+    if goal is not None:
+        if goal.get("extension_decision") != "ADR0251":
+            raise ValueError("Separate exact hourly runtime binding required")
+        from cce_simulator_dispatch_profile import hourly_plan
+        return hourly_plan(goal)
     evidence = core.policy.read(core.policy.ROOT / BASELINE)
     if (evidence.get("original_report_sha256") != BASELINE_REPORT
             or evidence.get("pass") is not True

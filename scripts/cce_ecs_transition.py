@@ -36,7 +36,7 @@ def receipt_gate(receipts, run):
     for row in receipts:
         proof = row.get("startup_proof", {})
         if (
-            row.get("image_id", "").split("@")[-1] != cce.dependency.MANIFEST
+            row.get("image_id", "").split("@")[-1] != cce.api_manifest()
             or row.get("resources") != data["resources"]
             or proof.get("run") != run
             or proof.get("pod_uid") != row["pod_uid"]
@@ -166,14 +166,14 @@ class Transition:
                     row["Config"]["Image"] != cce.dependency.INDEX
                     or row["Image"] != cce.dependency.INDEX
                     or not row["State"]["Running"]
-                    or any(env.get(k) != v for k, v in cce.contract()["api_settings"].items())
+                    or any(env.get(k) != v for k, v in cce.legacy_contract()["api_settings"].items())
                 ):
                     self.record["admission_mismatch"] = {
                         "configured_image_matches": row["Config"]["Image"] == cce.dependency.INDEX,
                         "runtime_image_matches": row["Image"] == cce.dependency.INDEX,
                         "running": row["State"]["Running"],
                         "setting_names": [
-                            k for k, v in cce.contract()["api_settings"].items() if env.get(k) != v
+                            k for k, v in cce.legacy_contract()["api_settings"].items() if env.get(k) != v
                         ],
                     }
                     self.checkpoint()

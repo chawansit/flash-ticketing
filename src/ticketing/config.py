@@ -29,6 +29,7 @@ class Settings:
     api_payment_pool_max: int = int(os.getenv("API_PAYMENT_POOL_MAX", "0"))
     api_pool_shared_waiting: bool = os.getenv("API_POOL_SHARED_WAITING", "0") == "1"
     api_partial_timeout_reclaim: bool = os.getenv("API_PARTIAL_TIMEOUT_RECLAIM", "0") == "1"
+    db_failure_diagnostics: bool = os.getenv("DB_FAILURE_DIAGNOSTICS", "0") == "1"
     pool_wait_ms: int = int(os.getenv("DB_POOL_WAIT_MS", "150"))
     seatmap_ttl_seconds: int = int(os.getenv("SEATMAP_TTL_SECONDS", "120"))
     reserve_concurrency: int = int(os.getenv("RESERVE_CONCURRENCY", "12"))
@@ -153,8 +154,9 @@ class Settings:
             raise RuntimeError("CONSUMER_BATCH_WAIT_MS must be between 1 and 100")
         if self.simulator_dispatch_mode not in {"batch", "refill"}:
             raise RuntimeError("SIMULATOR_DISPATCH_MODE must be batch or refill")
-        if not 1 <= self.simulator_concurrency <= self.pool_max:
-            raise RuntimeError("SIMULATOR_CONCURRENCY must fit DB_POOL_MAX")
+        # HTTP delivery runs outside SQL transactions; bound its slots separately.
+        if type(self.simulator_concurrency) is not int or not 1 <= self.simulator_concurrency <= 32:
+            raise RuntimeError("SIMULATOR_CONCURRENCY must be an integer between 1 and 32")
         if not 1 <= self.refresh_cooldown_ms <= 5000:
             raise RuntimeError("REFRESH_COOLDOWN_MS must be between 1 and 5000")
         if not 1 <= self.refresh_batch_size <= 100:

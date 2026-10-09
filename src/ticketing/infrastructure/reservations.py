@@ -422,15 +422,19 @@ class PostgresReservations:
             ).fetchone()
             if not order:
                 raise Failure("ORDER_NOT_FOUND", 404)
-            existing = conn.execute(
-                "SELECT id FROM payment_attempts WHERE order_id=%s", (order_id,)
+            # Use a fresh snapshot after the order lock; an initial lock/join can
+            # miss a payment committed while that statement acquired its order.
+            context = conn.execute(
+                """SELECT p.id AS payment_id, h.expires_at, clock_timestamp() AS now
+                FROM holds h LEFT JOIN payment_attempts p ON p.order_id=%s
+                WHERE h.id=%s""",
+                (order_id, order["hold_id"]),
             ).fetchone()
-            if existing:
-                result = {"payment_id": str(existing["id"]), "order_id": str(order_id)}
+            if context["payment_id"] is not None:
+                result = {"payment_id": str(context["payment_id"]), "order_id": str(order_id)}
             else:
-                hold = conn.execute("SELECT * FROM holds WHERE id=%s", (order["hold_id"],)).fetchone()
-                now = conn.execute("SELECT clock_timestamp() AS now").fetchone()["now"]
-                if order["status"] != "PENDING" or hold["expires_at"] <= now:
+                now = context["now"]
+                if order["status"] != "PENDING" or context["expires_at"] <= now:
                     raise Failure("ORDER_NOT_PAYABLE")
                 payment_id = uuid4()
                 conn.execute(

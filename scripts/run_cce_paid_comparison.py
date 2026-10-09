@@ -43,6 +43,15 @@ def identity():
 
 
 def plan(*, profile=SHORT):
+    import cce_transaction_profile as transaction
+    goal = transaction.active()
+    if goal is not None:
+        if profile == HOURLY and goal.get("extension_decision") == "ADR0251":
+            from run_cce_hourly_qualification import plan as hourly_plan
+            return hourly_plan()
+        if profile != SHORT or goal.get("profile") != SHORT.name:
+            raise ValueError("New transaction images require separate hourly qualification binding")
+        return transaction.plan()
     if profile == HOURLY:
         from run_cce_hourly_qualification import plan as hourly_plan
         return hourly_plan()
@@ -80,7 +89,21 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
 
     validate_target(target)
 
+    import cce_transaction_profile as transaction
+    extra = ({"cce_transaction_arm": transaction.active()["comparison_arm"],
+              "cce_transaction_pair_sha256": transaction.proof_digest(transaction.active())}
+             if transaction.active() is not None else {})
+    goal = transaction.active()
+    if goal is not None and goal["extension_decision"] == "ADR0245":
+        extra.update(cce_partition_decision="ADR0245", cce_payment_pool_max=transaction.payment_connections(goal))
+    if goal is not None and goal["extension_decision"] == "ADR0249":
+        extra.update(cce_payment_context_decision="ADR0249", cce_payment_pool_max=2)
+    if goal is not None and goal["extension_decision"] == "ADR0251":
+        from cce_simulator_dispatch_profile import receipt
+        extra.update(cce_simulator_decision="ADR0251", cce_simulator_concurrency=12,
+                     cce_simulator_database_pool_max=10, cce_simulator_image_id=receipt()["local_image_id"])
     return {
+        **extra,
         "configuration_sha256": policy.digest(config),
         "cce_acquisition_budget": native.admission_budget(),
         "cce_paid_entry_sources": entry.identity(),
@@ -113,7 +136,7 @@ def service_for(saved):
 
     service["image"] = native.dependency.INDEX
 
-    service["environment"].update(native.contract()["api_settings"])
+    service["environment"].update(native.legacy_contract()["api_settings"])
 
     native.api_environment(service, "10.1.137.69")
 
@@ -176,6 +199,7 @@ class ReadyDeployment(native.Deployment):
                 self.authorize()
 
                 ready = True
+                pending_views = []
 
                 for item in manifests[3:]:
                     pod = self.request("GET", self.path() + "/pods/" + item["metadata"]["name"], None)
@@ -185,6 +209,7 @@ class ReadyDeployment(native.Deployment):
                     ):
                         raise ValueError("Owned pod disappeared or was replaced before readiness")
 
+                    pending_views.append((pod, item))
                     statuses = pod.get("status", {}).get("containerStatuses", [])
 
                     if any(
@@ -204,6 +229,9 @@ class ReadyDeployment(native.Deployment):
                     break
 
                 if time.monotonic() >= deadline:
+                    self.persist({"readiness_timeout_views": [
+                        native.verification_summary(pod, item) for pod, item in pending_views
+                    ]})
                     raise TimeoutError("Bounded four-pod readiness expired")
 
                 time.sleep(2)
@@ -248,6 +276,16 @@ def activate_scope(guard, run):
     policy.write(policy.STATE, state)
 
 
+def worker_contract():
+    import cce_transaction_profile as transaction
+    goal = transaction.active()
+    if goal is not None and goal["extension_decision"] == "ADR0251":
+        from cce_simulator_dispatch_profile import worker_contract as simulator_contract
+        return simulator_contract(goal)
+    return baseline.GeneratorCompletionProbeContract(
+        baseline.plan()["artifact_receipt"], "candidate", native.legacy_contract()["api_sources"])
+
+
 def run(config, output, guard, manifests, kubeconfig, context):
     profile = for_guard(guard)
 
@@ -265,9 +303,7 @@ def run(config, output, guard, manifests, kubeconfig, context):
         "transport_creation_attempted": False,
     }
 
-    contract = baseline.GeneratorCompletionProbeContract(
-        baseline.plan()["artifact_receipt"], "candidate", native.contract()["api_sources"]
-    )
+    contract = worker_contract()
 
     contract.diagnostic_context = context
 

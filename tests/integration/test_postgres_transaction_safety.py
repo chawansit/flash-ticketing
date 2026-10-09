@@ -157,3 +157,94 @@ def test_idle_timeout_discards_connection_then_allows_new_transaction(single_db)
         assert conn.execute("SELECT to_regclass('pg_temp.idle_timeout_probe') AS t").fetchone()["t"] is None
     with db.connection() as conn:
         assert settings(conn) == original
+
+
+
+def test_automatic_startup_avoids_duplicate_begin_notice(single_db):
+    notices = []
+    db = single_db
+    with db.connection() as conn:
+        conn.add_notice_handler(lambda notice: notices.append(notice.sqlstate))
+    with db.transaction() as conn:
+        assert conn.autocommit is False
+        assert conn.info.transaction_status == TransactionStatus.INTRANS
+        assert settings(conn) == {"lock": "75ms", "statement": "1500ms", "idle": "3s"}
+    assert "25001" not in notices  # Server warning: already in a transaction.
+
+
+@pytest.mark.parametrize("fail", [False, True])
+def test_borrowed_autocommit_retains_atomic_boundary_and_pool_reuse(single_db, fail):
+    db = single_db
+    pid, original = baseline(db)
+    with db.connection() as conn:
+        conn.autocommit = True
+    try:
+        with pytest.raises(DivisionByZero) if fail else nullcontext(), db.transaction() as conn:
+            assert conn.info.transaction_status == TransactionStatus.INTRANS
+            assert settings(conn) == {"lock": "75ms", "statement": "1500ms", "idle": "3s"}
+            conn.execute("CREATE TEMP TABLE autocommit_boundary_probe(n int) ON COMMIT DROP")
+            conn.execute("INSERT INTO autocommit_boundary_probe VALUES (1)")
+            if fail:
+                conn.execute("SELECT 1/0")
+        assert_reusable(db, pid, original)
+        with db.transaction() as conn:
+            assert conn.execute("SELECT to_regclass('pg_temp.autocommit_boundary_probe') AS t").fetchone()["t"] is None
+    finally:
+        with db.connection() as conn:
+            conn.autocommit = False
+
+
+def test_real_query_ownership_and_local_boundary_with_diagnostics(single_db):
+    from ticketing.infrastructure.slot_diagnostics import ACTIVE_LEASE, SlotDiagnostics
+
+    db = single_db
+    db._slot_diagnostics = SlotDiagnostics(1)
+    db._diagnostic_role = "payment"
+    with db.transaction() as conn:
+        assert ACTIVE_LEASE.get() is not None
+        assert conn.info.transaction_status == TransactionStatus.INTRANS
+        assert settings(conn) == {"lock": "75ms", "statement": "1500ms", "idle": "3s"}
+        assert db._slot_diagnostics.failure({"role": "payment", "reason": "native_timeout"})[
+            "holders"][0]["phase"] == "body"
+    assert not db._slot_diagnostics.active
+    assert ACTIVE_LEASE.get() is None
+    with db.connection() as conn:
+        assert conn.info.transaction_status == TransactionStatus.IDLE
+
+
+def test_real_inflight_query_is_retained_at_checkout_timeout(single_db, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+
+    from psycopg_pool import PoolTimeout
+
+    from ticketing.infrastructure.slot_diagnostics import SlotDiagnostics
+
+    db = single_db
+    db._slot_diagnostics = SlotDiagnostics(1)
+    db._diagnostic_role = "payment"
+    entered = Event()
+    original_execute = psycopg.Cursor.execute
+
+    def observed_execute(cursor, query, *args, **kwargs):
+        if query == "SELECT pg_sleep(0.4)":
+            entered.set()
+        return original_execute(cursor, query, *args, **kwargs)
+
+    monkeypatch.setattr(psycopg.Cursor, "execute", observed_execute)
+
+    def query():
+        with db.transaction() as conn:
+            conn.execute("SELECT pg_sleep(0.4)")
+
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        future = pool.submit(query)
+        assert entered.wait(3)
+        with pytest.raises(PoolTimeout) as error, db.transaction():
+            pytest.fail("checkout must not yield while occupied")
+        owners = error.value.acquisition_failure["slot_ownership"]["holders"]
+        assert len(owners) == 1 and owners[0]["phase"] == "query_SELECT"
+        future.result(timeout=3)
+    assert not db._slot_diagnostics.active
+    with db.transaction() as conn:
+        assert conn.execute("SELECT 1 AS n").fetchone()["n"] == 1

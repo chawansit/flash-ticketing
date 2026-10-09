@@ -143,3 +143,33 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [0149: committed event order status refresh](0149-committed-event-order-status-refresh.md)
 
 - [0170: single control payment stall diagnostics](0170-single-control-payment-stall-diagnostics.md)
+
+- [ADR0239: Remove redundant transaction BEGIN](0239-remove-redundant-transaction-begin.md)
+
+- [ADR0240: Bounded compressed diagnostic traces](0240-bounded-compressed-diagnostic-traces.md)
+
+- [ADR0241: Bounded failure-time slot ownership](0241-bounded-failure-time-slot-ownership.md)
+
+- [ADR0242: Bind matched CCE transaction comparison](0242-bind-matched-cce-transaction-comparison.md)
+
+- [ADR0243: Use managed CCE SWR pull credentials](0243-use-managed-cce-swr-pull-credentials.md)
+
+- [ADR0244: Reconcile failed matched transaction candidate](0244-reconcile-failed-matched-transaction-candidate.md)
+
+- [ADR0245: Rebalance API payment connections within a fixed budget](0245-rebalance-api-payment-connections-within-fixed-budget.md)
+
+- [ADR0246: Reconcile the failed fixed-budget payment control](0246-reconcile-failed-fixed-budget-payment-control.md)
+
+- [ADR0247: Batch paid-cohort observer lookups](0247-batch-paid-cohort-observer-lookups.md)
+
+- [ADR0248: Batch payment context after locking the order](0248-batch-payment-context-after-order-lock.md)
+
+- [ADR0249: Compare post-lock payment context with fixed budgets](0249-compare-post-lock-payment-context-with-fixed-budgets.md)
+
+- [ADR0250: Reconcile the failed payment-context control](0250-reconcile-failed-payment-context-control.md)
+
+- [ADR0251: Decouple callback dispatch concurrency from the database pool](0251-decouple-callback-dispatch-concurrency-from-db-pool.md)
+
+- [ADR0252: Qualify the accepted simulator correction for one hour](0252-qualify-simulator-correction-for-one-hour.md)
+
+- [ADR0253: Independently reconcile the failed simulator hourly run](0253-independently-reconcile-failed-simulator-hourly-run.md)

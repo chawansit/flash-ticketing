@@ -7,6 +7,13 @@ from psycopg import Cursor
 from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool, PoolTimeout, TooManyRequests
 
+from ticketing.infrastructure.slot_diagnostics import (
+    ACTIVE_LEASE,
+    SlotDiagnostics,
+    phase,
+    query_phase,
+    safely,
+)
 from ticketing.observability import (
     DB_ACQUISITION_FAILURES,
     DB_COMMIT_SECONDS,
@@ -52,7 +59,8 @@ class MeasuredCursor(Cursor):
             command = "OTHER"
         started = monotonic()
         try:
-            return super().execute(query, params, **kwargs)
+            with query_phase(command):
+                return super().execute(query, params, **kwargs)
         finally:
             DB_QUERY_SECONDS.labels(command).observe(monotonic() - started)
 
@@ -66,7 +74,7 @@ class Postgres:
             max_size=maximum,
             timeout=wait_ms / 1000,
             max_waiting=maximum if maximum_waiting is None else maximum_waiting,
-            kwargs={"row_factory": dict_row, "prepare_threshold": None, "cursor_factory": MeasuredCursor},
+            kwargs={"row_factory": dict_row, "prepare_threshold": None, "cursor_factory": MeasuredCursor, "autocommit": False},
         )
 
     @contextmanager
@@ -84,7 +92,11 @@ class Postgres:
                 body_done = None
                 transaction_started = False
                 try:
-                    conn.execute("BEGIN")
+                    phase("setup")
+                    # Psycopg starts non-autocommit transactions before the first query.
+                    # A borrowed autocommit adapter still needs an explicit boundary.
+                    if getattr(conn, "autocommit", False):
+                        conn.execute("BEGIN")
                     transaction_started = True
                     conn.execute(
                         "SELECT set_config('lock_timeout', '75ms', true), "
@@ -92,11 +104,13 @@ class Postgres:
                         "set_config('idle_in_transaction_session_timeout', '3s', true)"
                     )
 
+                    phase("body")
                     yield conn
 
                     body_done = monotonic()
                     DB_TRANSACTION_BODY_SECONDS.observe(body_done - body_started)
 
+                    phase("commit")
                     commit_started = monotonic()
                     commit_outcome = "error"
                     try:
@@ -111,6 +125,7 @@ class Postgres:
                     body_done = body_done or monotonic()
                     DB_TRANSACTION_BODY_SECONDS.observe(body_done - body_started)
 
+                    phase("rollback")
                     rollback_started = monotonic()
                     try:
                         if transaction_started:
@@ -135,10 +150,15 @@ class Postgres:
         start, outcome = monotonic(), "error"
         conn = None
         acquired_at = None
+        diagnostics = getattr(self, "_slot_diagnostics", None)
+        lease = context = None
         DB_POOL_ACQUIRING.inc()
         try:
             conn = self.pool.getconn()
             acquired_at = monotonic()
+            if diagnostics is not None:
+                lease = safely(diagnostics, "checkout", self._diagnostic_role, conn)
+                context = ACTIVE_LEASE.set((diagnostics, lease))
             outcome = "ok"
             DB_POOL_SECONDS.labels(outcome).observe(acquired_at - start)
             DB_POOL_ACQUIRING.dec()
@@ -146,8 +166,12 @@ class Postgres:
             DB_POOL_IN_USE.inc()
             try:
                 with conn:
-                    yield conn
+                    try:
+                        yield conn
+                    finally:
+                        phase("context_exit")
             finally:
+                phase("pool_return")
                 return_started = monotonic()
                 return_outcome = "error"
                 try:
@@ -155,6 +179,9 @@ class Postgres:
                         self.pool.putconn(conn)
                     return_outcome = "ok"
                 finally:
+                    if diagnostics is not None:
+                        safely(diagnostics, "returned", lease, return_outcome == "ok")
+                        ACTIVE_LEASE.reset(context)
                     return_duration = monotonic() - return_started
                     DB_POOL_RETURN_SECONDS.observe(return_duration)
                     record_slow_db_phase("pool_return", return_duration, return_outcome)
@@ -164,6 +191,15 @@ class Postgres:
                 self.sample_pool()
         except (PoolTimeout, TooManyRequests) as exc:
             evidence = getattr(exc, "acquisition_failure", None)
+            if diagnostics is not None:
+                if evidence is None:
+                    reason = "native_timeout" if isinstance(exc, PoolTimeout) else "native_limit"
+                    evidence = {"role": self._diagnostic_role, "reason": reason}
+                    DB_ACQUISITION_FAILURES.labels(self._diagnostic_role, reason).inc()
+                captured = safely(diagnostics, "failure", evidence)
+                if captured is not None:
+                    evidence = {**evidence, "slot_ownership": captured}
+                    exc.acquisition_failure = evidence
             if evidence is not None:
                 try:
                     logger.warning("db_acquisition_failure", extra={"fields": {
@@ -391,7 +427,7 @@ def api_pool_budgets(maximum: int, maximum_waiting: int | None, payment_maximum:
     }
 
 
-def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum=0, shared_waiting=False, reclaim_partial_timeouts=False):
+def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum=0, shared_waiting=False, reclaim_partial_timeouts=False, failure_diagnostics=False):
     """Return general/payment adapters, sharing one pool when disabled."""
     if reclaim_partial_timeouts and not shared_waiting:
         raise ValueError("Partial timeout reclamation requires shared acquisition admission")
@@ -419,5 +455,11 @@ def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum
         general._metric_pool_roles = payment._metric_pool_roles = roles
         limits = {role: budget["maximum_waiting"] for role, budget in budgets.items() if budget is not None}
         general._metric_waiter_limits = payment._metric_waiter_limits = limits
+        if failure_diagnostics:
+            diagnostics = SlotDiagnostics(maximum)
+            general._slot_diagnostics = payment._slot_diagnostics = diagnostics
+            general._diagnostic_role = "general"
+            if payment is not general:
+                payment._diagnostic_role = "payment"
         resources.pop_all()
         return general, payment

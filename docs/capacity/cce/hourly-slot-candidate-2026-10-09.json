@@ -1,0 +1,49 @@
+{
+  "decisions": [
+    "ADR0239",
+    "ADR0240"
+  ],
+  "status": "LOCAL_CANDIDATE_TESTED_CLOUD_COMPARISON_PENDING",
+  "historical_hourly_result_unchanged": true,
+  "application_correction": "Remove redundant explicit BEGIN only on non-autocommit pooled connections; preserve autocommit fallback and existing transaction boundaries.",
+  "historical_payment_timeout_cause_confirmed": false,
+  "historical_diagnostic_findings": {
+    "pipeline_samples": 3419,
+    "gaps_over_two_seconds": 77,
+    "gaps_with_paid_cohort_as_largest_phase": 77,
+    "paid_cohort_queries_over_one_second": 273,
+    "customer_timeout_window_cohort_ms": 2463.18,
+    "api_log_reads_at_byte_ceiling": 3,
+    "failure_snapshots_retained_in_capped_logs": 0
+  },
+  "tests": {
+    "unit_passed": 1827,
+    "unit_windows_symlink_skipped": 2,
+    "real_postgresql_transaction_passed": 9,
+    "real_postgresql_version": "17.6",
+    "owned_postgresql_test_container_removed_verified": true
+  },
+  "transport": {
+    "decision": "ADR0240",
+    "historical_raw_bytes": 264435078,
+    "compressed_bytes": 26625958,
+    "raw_sha256": "644e54f07607053beb0591be7bc635693a6ba96d9e92690113c11f57f4102a06",
+    "roundtrip_pass": true,
+    "pack_seconds": 12.172000000020489,
+    "unpack_seconds": 1.9849999999860302,
+    "cloud_calls": 0,
+    "runner_integrated": false,
+    "sampling_gaps_fixed": false
+  },
+  "cloud_calls": 0,
+  "customer_dispatches": 0,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "remaining": [
+    "Capture and retain failure-time slot ownership without adding database connections.",
+    "Integrate and qualify bounded complete trace collection and correct sampling continuity.",
+    "Build exact source-pinned baseline and candidate images; refresh SWR authentication.",
+    "Register fresh matched short scopes under the newly approved plan; do not replay consumed runs.",
+    "Run short control first; stop on any failed gate. Hourly qualification only after every short comparison gate passes."
+  ]
+}
