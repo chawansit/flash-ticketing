@@ -402,3 +402,11 @@ Create or update an ADR whenever selecting or changing an architectural pattern.
 - [ADR0229: Reconcile failed CCE paid and refunded cohort](0229-reconcile-failed-cce-paid-and-refunded-cohort.md)
 
 - [ADR0230: Remove CCE database bridge CPU bottleneck](0230-remove-cce-database-bridge-cpu-bottleneck.md)
+
+- [ADR0231: Refresh owned API ports after restart](0231-refresh-owned-api-ports-after-restart.md)
+
+- [ADR0232: Bounded hourly paid ticket qualification](0232-bounded-hourly-paid-ticket-qualification.md)
+
+- [ADR0233: Retain CCE admission failure evidence before cleanup](0233-retain-cce-admission-failure-evidence.md)
+
+- [ADR0234: Bounded CCE acquisition headroom with unchanged connections](0234-bounded-cce-acquisition-headroom.md)

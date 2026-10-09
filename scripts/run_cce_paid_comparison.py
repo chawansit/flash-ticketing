@@ -20,7 +20,7 @@ from cce_paid_resources import BRIDGE_CPU_LIMIT, Resources
 from diagnostic_runner_connection import ProtectedContext, validate_target
 from run_status_refresh_comparison import RunLock, restoration_complete
 
-BASELINE = "docs/capacity/flash-sale-opening/cce-paid-comparison-2026-10-09.json"
+BASELINE = "docs/capacity/flash-sale-opening/cce-admission-control-2026-10-09.json"
 
 
 def identity():
@@ -49,10 +49,12 @@ def plan():
         "common": {"buyer_journeys_per_second": 84, "duration_seconds": 300},
         "diagnostic_connection_decision": "ADR0180",
         "kind": "fixed_native_api_isolation",
-        "candidate_decision": "ADR0230",
-        "single_changed_factor": "database_bridge_cpu_limit",
+        "candidate_decision": "ADR0234",
+        "single_changed_factor": "api_shared_acquisition_budget",
+        "baseline_acquisition_budget": 12,
+        "candidate_acquisition_budget": native.admission_budget(),
         "bridge_cpu_limit": BRIDGE_CPU_LIMIT,
-        "baseline_bridge_cpu_limit": 0.125,
+        "baseline_bridge_cpu_limit": 1,
         "baseline_evidence": BASELINE,
         "baseline_sha256": policy.digest(policy.read(policy.ROOT / BASELINE)),
         "pod_resources": native.contract()["resources"],
@@ -73,6 +75,7 @@ def binding_for(config, proof, manifests, target, snapshot):
 
     return {
         "configuration_sha256": policy.digest(config),
+        "cce_acquisition_budget": native.admission_budget(),
         "cce_paid_entry_sources": identity(),
         "cce_paid_core_sources": paid.identity(),
         "cce_manifest_sha256": policy.digest(manifests),
@@ -271,7 +274,12 @@ def run(config, output, guard, manifests, kubeconfig, context):
             policy.digest(api_semantics(service)) != guard.binding["saved_api_service_sha256"]
             or policy.digest(
                 native.objects(
-                    run_id, service, config["primary"]["private_ipv4"], registry_username, registry_password
+                    run_id,
+                    service,
+                    config["primary"]["private_ipv4"],
+                    registry_username,
+                    registry_password,
+                    acquisition_budget=native.admission_budget(),
                 )
             )
             != guard.binding["cce_manifest_sha256"]
@@ -324,8 +332,7 @@ def run(config, output, guard, manifests, kubeconfig, context):
             def refresh_inventory():
                 fresh = contract.pre_safety(session, routes, saved)
                 if any(
-                    fresh["hosts"][role]["machine_id_sha256"]
-                    != inventory["hosts"][role]["machine_id_sha256"]
+                    fresh["hosts"][role]["machine_id_sha256"] != inventory["hosts"][role]["machine_id_sha256"]
                     for role in ("primary", "secondary")
                 ):
                     raise ValueError("Transition inventory machine identity changed")
@@ -456,7 +463,12 @@ def execute(
     run_id = output.name
 
     manifests = native.objects(
-        run_id, service_for(snapshot), config["primary"]["private_ipv4"], registry_username, registry_password
+        run_id,
+        service_for(snapshot),
+        config["primary"]["private_ipv4"],
+        registry_username,
+        registry_password,
+        acquisition_budget=native.admission_budget(),
     )
 
     binding = binding_for(config, proof, manifests, target, snapshot)

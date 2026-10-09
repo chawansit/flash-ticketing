@@ -39,6 +39,12 @@ COUNTS = {
 BRIDGE_RUN = "adr0151-73e82b8d5210"
 BRIDGE_LEDGER = "bounded_cce_paid_comparison__33bd91855dcc"
 BRIDGE_RESULT = "d99b0754805fe5a3df109d1fbfddde367bcf62a4e66891052773e8a835810a02"
+CONTROL_RUN = "adr0151-c5edbd09ed73"
+CONTROL_LEDGER = "bounded_cce_paid_comparison__6c2d3e4257b9"
+CONTROL_RESULT = "323979cf0e2cfb4f40e241fd35a8e3c16fe9eb969303d312d0f20e61a7b76c0e"
+DIAGNOSTIC_RUN = "adr0151-11edb3936dcc"
+DIAGNOSTIC_LEDGER = "bounded_cce_paid_comparison__d17725c2400a"
+DIAGNOSTIC_RESULT = "26fd430d7d3facb8b2f0294691cb9bba540626bf591d61782be8e630d9503279"
 MEASUREMENT_GATES = (
     "customer_load",
     "post_ttl_financial",
@@ -53,6 +59,36 @@ MEASUREMENT_GATES = (
 
 
 def recovery_case(run):
+    if run == DIAGNOSTIC_RUN:
+        counts = recovery_case(BRIDGE_RUN)[3]
+        for key, value in counts.items():
+            if value == 25200:
+                counts[key] = 25198
+        counts.update(orders=25200, expired_orders=2)
+        return (
+            DIAGNOSTIC_RUN,
+            DIAGNOSTIC_LEDGER,
+            DIAGNOSTIC_RESULT,
+            counts,
+            {"fulfilled": 25178, "payment_http_503": 2, "order_http_503": 20},
+            {"FULFILLED": 25198, "EXPIRED": 2},
+            {},
+        )
+    if run == CONTROL_RUN:
+        counts = recovery_case(BRIDGE_RUN)[3]
+        for key, value in counts.items():
+            if value == 25200:
+                counts[key] = 25199
+        counts.update(orders=25200, expired_orders=1)
+        return (
+            CONTROL_RUN,
+            CONTROL_LEDGER,
+            CONTROL_RESULT,
+            counts,
+            {"fulfilled": 25198, "payment_http_503": 1, "order_http_503": 1},
+            {"FULFILLED": 25199, "EXPIRED": 1},
+            {},
+        )
     if run == BRIDGE_RUN:
         counts = {
             key: (
@@ -152,6 +188,20 @@ def validate(report, entry, scope, evidence, fixture):
         or c.get("distinct_tickets") != 25200
     ):
         raise ValueError("Exact measured bridge case and isolated intermediate recovery failure required")
+    if run in {CONTROL_RUN, DIAGNOSTIC_RUN} and (
+        report.get("integrity_verified") is not False
+        or report.get("native", {}).get("measurement_gates")
+        != {
+            key: key
+            not in {"customer_load", "post_ttl_financial", "zero_double_booking", "payment_durability"}
+            for key in MEASUREMENT_GATES
+        }
+        or report.get("native", {}).get("cleanup_failures") != []
+        or c.get("pass") is not False
+        or c.get("distinct_orders") != outcomes["fulfilled"]
+        or c.get("distinct_tickets") != outcomes["fulfilled"]
+    ):
+        raise ValueError("Exact failed control and successful restoration required")
     t = evidence.get("paid_terminal_financial", {})
     counts = t.get("counts", {})
     if (

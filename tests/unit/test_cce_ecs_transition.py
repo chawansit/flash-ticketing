@@ -64,6 +64,16 @@ def api_row(index):
         },
         "HostConfig": {},
         "Mounts": [],
+        "NetworkSettings": {
+            "Ports": {
+                "8000/tcp": [
+                    {
+                        "HostIp": "10.1.137.69" if index == 1 else "10.1.207.148",
+                        "HostPort": str(8100 + index),
+                    }
+                ]
+            }
+        },
         "State": {"Running": True},
     }
 
@@ -121,7 +131,22 @@ def area(monkeypatch):
             return route["text"]
         if "verb=" in program or "verb =" in program:
             verb = "stop" if "verb='stop'" in program else "start"
-            return {"owned_api_transition_verified": True, "running": verb == "start"}
+            return {
+                "owned_api_transition_verified": True,
+                "running": verb == "start",
+                "container_ids": [
+                    r["Id"]
+                    for r in rows[role]
+                    if r["Config"]["Labels"].get("com.docker.compose.service") == "api"
+                ],
+                "published_ports": {
+                    r["Id"]: r["NetworkSettings"]["Ports"]["8000/tcp"]
+                    for r in rows[role]
+                    if r["Config"]["Labels"].get("com.docker.compose.service") == "api"
+                }
+                if verb == "start"
+                else {},
+            }
         if "all_four_candidate_apis_ready" in program:
             return {"all_four_candidate_apis_ready": True}
         return {"owned_load_balancer_verified": True, "owned_nginx_reload_verified": True}
@@ -265,7 +290,7 @@ def test_replaced_api_fails_recovery_but_other_host_and_route_are_attempted(area
         transition.restore()
     assert transition.record["candidate_restored"] is False
     assert any(role == "secondary" and "verb='start'" in program for role, program in calls)
-    assert route["text"] == transition.original_route
+    assert route["text"] == topology.native_route(pod_receipts())
 
 
 @pytest.mark.parametrize("fault", ["scope", "source", "configuration", "unregistered"])
@@ -340,3 +365,68 @@ def test_actual_load_balancer_identity_check_does_not_parse_partial_route(area, 
         assert result["owned_load_balancer_verified"] is True
         assert result["owned_nginx_reload_verified"] is False
     assert commands == []
+
+
+def test_restoration_refreshes_range_ports_and_readiness_addresses(area):
+    transition, rows, route, calls, _persisted = area
+    transition.capture()
+    transition.activate(pod_receipts())
+    rows["primary"][0]["NetworkSettings"]["Ports"]["8000/tcp"][0]["HostPort"] = "8104"
+    for row, port in zip(rows["secondary"], [8103, 8101, 8102], strict=True):
+        row["NetworkSettings"]["Ports"]["8000/tcp"][0]["HostPort"] = str(port)
+    proof = transition.restore()
+    assert proof["candidate_restored"] and proof["published_ports_changed"]
+    assert route["text"] == topology.nginx_config(proof["restored_routes"])
+    assert route["text"] != transition.original_route
+    readiness = next(program for _role, program in calls if "all_four_candidate_apis_ready" in program)
+    assert "http://10.1.137.69:8104/health/ready" in readiness
+    assert "http://10.1.137.69:8101/health/ready" not in readiness
+
+
+@pytest.mark.parametrize("fault", ["missing", "foreign", "duplicate", "address", "range"])
+def test_invalid_restart_publication_never_reloads_route(area, fault):
+    transition, _rows, route, calls, _persisted = area
+    transition.capture()
+    transition.activate(pod_receipts())
+    old = transition.session.call
+
+    def call(role, program, timeout):
+        result = old(role, program, timeout)
+        if role == "secondary" and "verb='start'" in program:
+            ids = list(result["published_ports"])
+            if fault == "missing":
+                result["published_ports"].pop(ids[0])
+            elif fault == "foreign":
+                result["published_ports"]["f" * 64] = result["published_ports"].pop(ids[0])
+            elif fault == "duplicate":
+                result["published_ports"][ids[1]] = result["published_ports"][ids[0]]
+            elif fault == "address":
+                result["published_ports"][ids[0]][0]["HostIp"] = "0.0.0.0"
+            else:
+                result["published_ports"][ids[0]][0]["HostPort"] = "8000"
+        return result
+
+    transition.session.call = call
+    with pytest.raises(ValueError):
+        transition.restore()
+    assert not transition.record["candidate_restored"]
+    assert route["text"] == topology.native_route(pod_receipts())
+    assert not any("all_four_candidate_apis_ready" in program for _role, program in calls)
+
+
+def test_generated_start_retains_actual_publication_from_final_owned_inspection(monkeypatch, capsys):
+    import subprocess
+
+    row = api_row(1)
+    row["State"]["Running"] = False
+    expected = copy.deepcopy([row])
+    monkeypatch.setattr(subprocess, "check_output", lambda *args, **kwargs: json.dumps([row]))
+
+    def start(*args, **kwargs):
+        row["State"]["Running"] = True
+        row["NetworkSettings"]["Ports"]["8000/tcp"][0]["HostPort"] = "8104"
+
+    monkeypatch.setattr(subprocess, "run", start)
+    exec(topology.change_program(expected, "start"), {})  # noqa: S102 - Generated inspection, mocked Docker.
+    result = json.loads(capsys.readouterr().out)
+    assert result["published_ports"] == {row["Id"]: [{"HostIp": "10.1.137.69", "HostPort": "8104"}]}

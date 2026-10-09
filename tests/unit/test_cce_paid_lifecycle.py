@@ -14,7 +14,7 @@ from test_observe_cce_paid_pipeline import bundle
 
 
 @pytest.fixture
-def area(monkeypatch):
+def area(monkeypatch, tmp_path):
     calls, saved = [], []
     fail = set()
     record = {"customers_dispatched": False, "financial": {"pass": True, "duplicate_booked_seats": 0}}
@@ -42,6 +42,7 @@ def area(monkeypatch):
     session = SimpleNamespace(call=lambda role, *args: snapshots()[:-2] if role == "primary" else [])
     stage = SimpleNamespace(
         session=session,
+        output=tmp_path,
         cid="c" * 64,
         run=bundle()["run"],
         guard=SimpleNamespace(binding={}),
@@ -65,6 +66,7 @@ def area(monkeypatch):
         create=op("create"),
         observe=op("observe", bundle()["receipts"]),
         cleanup=op("namespace_cleanup", {"namespace_removed": True}),
+        admission_diagnostics=op("diagnostics", {"all_pods_captured": True, "errors": {}, "pods": {}}),
     )
     transition = SimpleNamespace(
         capture=op("capture"), activate=op("activate"), restore=op("restore", {"candidate_restored": True})
@@ -266,7 +268,6 @@ def test_fresh_inventory_capture_precedes_ecs_stop_and_cannot_be_skipped(area, f
         assert value.record["transition_inventory_refresh"]["sha256"] == "proof"
 
 
-
 def test_original_failure_is_retained_before_independent_cleanup_errors(area, tmp_path):
     import json
 
@@ -281,3 +282,32 @@ def test_original_failure_is_retained_before_independent_cleanup_errors(area, tm
     assert value.record["original_failure_retained"] is True
     assert "resource_cleanup" in calls
     assert any(row["operation"] == "candidate_restore" for row in value.record["cleanup_failures"])
+
+
+def test_failure_context_is_retained_before_observer_and_cleanup(area):
+    value, calls, _, _ = area
+    result = value.run(None, None, "global audit")
+    assert calls.index("dispatch") < calls.index("diagnostics") < calls.index("collect")
+    assert calls.index("diagnostics") < calls.index("namespace_cleanup")
+    assert result["admission_diagnostics"]["all_pods_captured"] is True
+    assert (value.stage.output / "admission-failures.private.json").is_file()
+
+
+def test_diagnostic_failure_never_skips_financial_or_cleanup(area):
+    value, calls, fail, _ = area
+    fail.add("diagnostics")
+    result = value.run(None, None, "global audit")
+    assert result["admission_diagnostics"]["capture_error"] == "ValueError"
+    assert result["admission_diagnostics"]["capture_incomplete"] is True
+    assert all(
+        name in calls
+        for name in ("audit", "restore", "stage_cleanup", "drain", "namespace_cleanup", "resource_cleanup")
+    )
+
+
+def test_dispatch_exception_preserves_failure_context_before_restore(area):
+    value, calls, fail, _ = area
+    fail.add("dispatch")
+    with pytest.raises(ValueError, match="dispatch"):
+        value.run(None, None, "global audit")
+    assert calls.index("dispatch") < calls.index("diagnostics") < calls.index("restore")

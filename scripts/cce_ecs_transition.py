@@ -93,7 +93,8 @@ if len(final)!=len(ids) or {r['Id'] for r in final}!=set(ids):raise ValueError('
 for row in final:
  if {k:row[k] for k in expected[row['Id']]}!=expected[row['Id']]:raise ValueError('Owned API changed during transition')
  if row['State']['Running'] is not (verb=='start'):raise ValueError('API transition incomplete')
-print(json.dumps({'owned_api_transition_verified':True,'container_ids':ids,'running':verb=='start'}))
+ports={r['Id']:r['NetworkSettings']['Ports'].get('8000/tcp') for r in final} if verb=='start' else {}
+print(json.dumps({'owned_api_transition_verified':True,'container_ids':ids,'running':verb=='start','published_ports':ports}))
 """
 
 
@@ -170,7 +171,9 @@ class Transition:
                         "configured_image_matches": row["Config"]["Image"] == cce.dependency.INDEX,
                         "runtime_image_matches": row["Image"] == cce.dependency.INDEX,
                         "running": row["State"]["Running"],
-                        "setting_names": [k for k, v in cce.contract()["api_settings"].items() if env.get(k) != v],
+                        "setting_names": [
+                            k for k, v in cce.contract()["api_settings"].items() if env.get(k) != v
+                        ],
                     }
                     self.checkpoint()
                     raise ValueError("Candidate API image/settings changed")
@@ -250,9 +253,41 @@ print(json.dumps({'owned_load_balancer_verified':True,'owned_nginx_reload_verifi
         self.record["cce_routing_active"] = True
         self.checkpoint()
 
+    def restored_routes(self, receipts):
+        routes = []
+        for role, rows in self.rows.items():
+            proof = receipts[role]
+            expected = {row["Id"] for row in rows}
+            ports = proof.get("published_ports", {})
+            if set(proof.get("container_ids", [])) != expected or set(ports) != expected:
+                raise ValueError("Exact restarted API port receipts required")
+            for cid in sorted(expected):
+                bindings = ports[cid]
+                address = self.session.config[role]["private_ipv4"]
+                if (
+                    not isinstance(bindings, list)
+                    or len(bindings) != 1
+                    or bindings[0].get("HostIp") != address
+                    or not re.fullmatch(r"810[1-4]", str(bindings[0].get("HostPort", "")))
+                ):
+                    raise ValueError("Restarted private API publication differs")
+                routes.append(
+                    {
+                        "container_id": cid,
+                        "host_role": role,
+                        "private_ipv4": address,
+                        "port": int(bindings[0]["HostPort"]),
+                    }
+                )
+        if len(routes) != 4 or len({(r["private_ipv4"], r["port"]) for r in routes}) != 4:
+            raise ValueError("Four distinct restored API endpoints required")
+        return routes
+
     def restore(self):
         self.session.begin_cleanup()
         errors = []
+        receipts = {}
+        restored_routes = self.routes
         if self.record["api_stop_attempted"]:
             for role, rows in self.rows.items():
                 try:
@@ -262,21 +297,34 @@ print(json.dumps({'owned_load_balancer_verified':True,'owned_nginx_reload_verifi
                         or result.get("running") is not True
                     ):
                         raise ValueError("Candidate restart unverified")
+                    receipts[role] = result
                 except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Restore every captured host independently.
                     errors.append({"operation": "restart_" + role, "type": type(error).__name__})
-        if self.record["route_write_attempted"]:
+        if self.record["api_stop_attempted"] and not errors:
+            try:
+                restored_routes = self.restored_routes(receipts)
+                self.record["restored_routes"] = restored_routes
+                self.record["published_ports_changed"] = {
+                    r["container_id"]: r["port"] for r in restored_routes
+                } != {r["container_id"]: r["port"] for r in self.routes}
+                self.checkpoint()
+            except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Never route to unverified publications.
+                errors.append({"operation": "restart_ports", "type": type(error).__name__})
+        if self.record["route_write_attempted"] and not errors:
             try:
                 # Verify the captured mount before replacing a partially transferred route.
                 if self.reload(validate_only=True).get("owned_load_balancer_verified") is not True:
                     raise ValueError("Load balancer ownership unverified")
-                self.session.put("primary", self.route_path, self.original_route)
+                restored_route = nginx_config(restored_routes)
+                self.record["restored_route_sha256"] = paid.sha(restored_route.encode())
+                self.session.put("primary", self.route_path, restored_route)
                 if self.reload().get("owned_nginx_reload_verified") is not True:
                     raise ValueError("Original route reload unverified")
             except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Preserve route failure after attempting API restoration.
                 errors.append({"operation": "route_restore", "type": type(error).__name__})
         if self.record["api_stop_attempted"] and not errors:
             try:
-                urls = [f"http://{r['private_ipv4']}:{r['port']}/health/ready" for r in self.routes]
+                urls = [f"http://{r['private_ipv4']}:{r['port']}/health/ready" for r in restored_routes]
                 result = self.session.call(
                     "primary",
                     "urls="

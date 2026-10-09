@@ -68,6 +68,31 @@ class Lifecycle:
         self.persist(copy.deepcopy(self.record))
         self.stage.checkpoint()
 
+    def capture_admission_diagnostics(self):
+        """Retain bounded failure-time context without masking customer results."""
+        try:
+            evidence = self.deployment.admission_diagnostics()
+            path = self.stage.output / "admission-failures.private.json"
+            if path.exists() or path.is_symlink():
+                raise ValueError("Admission evidence already exists")
+            policy.write(path, evidence)
+            self.record["admission_diagnostics"] = {
+                "sha256": policy.digest(evidence),
+                "all_pods_captured": evidence["all_pods_captured"],
+                "failure_events": sum(p["failure_events"] for p in evidence["pods"].values()),
+                "capture_incomplete": bool(evidence["errors"])
+                or any(
+                    p["byte_limit_reached"] or p["overflow_events"] or p["malformed_events"]
+                    for p in evidence["pods"].values()
+                ),
+            }
+        except Exception as error:  # noqa: BLE001 - Diagnosis cannot prevent financial verification and cleanup.
+            self.record["admission_diagnostics"] = {
+                "capture_error": type(error).__name__,
+                "capture_incomplete": True,
+            }
+        self.checkpoint()
+
     def snapshots(self):
         rows = {
             role: self.session.call(role, program, 45)
@@ -133,6 +158,7 @@ class Lifecycle:
             self.record["dispatch_attempted"] = True
             self.checkpoint()
             customer = self.stage.dispatch(admission, start_at_epoch=start)
+            self.capture_admission_diagnostics()
             observed = self.observers.collect()
             financial = self.stage.audit(global_audit)
             self.deployment.observe(self.manifests, http_ready, http_metrics, previous=receipts)
@@ -161,7 +187,9 @@ class Lifecycle:
                 path = self.stage.output / "original-lifecycle-failure.private.json"
                 if path.exists() or path.is_symlink():
                     raise ValueError("Original failure evidence already exists")
-                policy.write(path, {"failure_type": type(error).__name__, "traceback": traceback.format_exc()[-65536:]})
+                policy.write(
+                    path, {"failure_type": type(error).__name__, "traceback": traceback.format_exc()[-65536:]}
+                )
                 self.record["original_failure_retained"] = True
             except Exception as capture_error:  # noqa: BLE001 - Failure capture cannot prevent owned cleanup.
                 self.record["original_failure_capture_error"] = type(capture_error).__name__
@@ -177,6 +205,8 @@ class Lifecycle:
         finally:
             self.record["customers_dispatched"] = self.stage.record.get("customers_dispatched") is True
             failures = []
+            if self.record["customers_dispatched"] and "admission_diagnostics" not in self.record:
+                self.capture_admission_diagnostics()
             # Restore the exact ECS candidate first: outer cleanup uses its captured CID.
             from run_two_host_paid_comparison import drain
 

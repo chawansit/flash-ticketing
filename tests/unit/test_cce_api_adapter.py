@@ -156,6 +156,7 @@ def test_all_four_endpoints_are_required(fault):
 
 @pytest.fixture
 def lifecycle(monkeypatch):
+    monkeypatch.setattr(cce, "admission_budget", lambda:12)
     # Synthetic qualification only; never modifies the on-disk registry or cloud.
     monkeypatch.setattr(policy, 'PROFILES', {**policy.PROFILES, cce.PROFILE:('bounded_cce_paid_comparison','ADR0228')})
     envelope = copy.deepcopy(policy.envelope()); envelope['qualified_profiles'].append(cce.PROFILE)
@@ -322,7 +323,8 @@ def test_generated_tls_transport_is_syntax_valid_and_verifies_server():
     compile(cce.REQUEST,'<verified-cce-transport>','exec')
     assert 'ssl.create_default_context(cafile=' in cce.REQUEST
     assert 'load_cert_chain' in cce.REQUEST
-    assert '1048577' in cce.REQUEST
+    assert 'limit=8388608 if diagnostic else 1048576' in cce.REQUEST
+    assert 'response.read(limit+1)' in cce.REQUEST
     assert 'TemporaryDirectory' in cce.REQUEST
 
 

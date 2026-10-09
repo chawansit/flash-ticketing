@@ -137,7 +137,7 @@ def composed(tmp_path, monkeypatch):
     monkeypatch.setattr(runner.baseline, "source_contract", dict)
     monkeypatch.setattr(runner, "service_for", lambda s: s["model"]["services"]["api"])
     monkeypatch.setattr(runner, "api_semantics", lambda service: service)
-    monkeypatch.setattr(runner.native, "objects", lambda *a: [{}])
+    monkeypatch.setattr(runner.native, "objects", lambda *a, **kw: [{}])
     monkeypatch.setattr(runner, "activate_scope", lambda *a: calls.append("scope"))
     monkeypatch.setattr(runner, "restoration_complete", lambda r: r.get("restore_pass") is True)
     runner.REGISTRY_CREDENTIALS.update(username="fake", password="fake")

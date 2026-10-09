@@ -39,3 +39,19 @@ Extend this same exact-result-bound recovery classifier with a second immutable 
 Validation evidence: tmp/adr0151-73e82b8d5210/independent-paid-recovery.private.json. Local fault tests for both immutable cases must pass before ledger closure; executed results will be recorded in the checkpoint.
 
 Second-case validation: 81 recovery fault tests passed in 0.67 s; Ruff passed. The initial closure test lacked an elapsed-time fixture field (80 passed, 1 failed in 1.62 s); corrected before closure. The second ledger is FAILED_RESTORED. Its original report and one consumed paid stage remain unchanged.
+
+## Exact third recovery case (2026-10-09)
+
+ADR0231 control adr0151-c5edbd09ed73 restored the candidate and original ECS services successfully, including reassigned published ports. The unchanged five-minute workload dispatched all 25,200 journeys. Two customer journeys failed with HTTP503: one payment request and one order-status read. Independent post-TTL recovery accounts for 25,199 successful payments and distinct issued tickets, one expired unpaid order, zero duplicate bookings and no refunds or outstanding financial work. All ten independent recovery gates passed; all 86 owned sale windows are closed.
+
+Extend the immutable classifier only for ledger bounded_cce_paid_comparison__6c2d3e4257b9 and original result digest 323979cf0e2cfb4f40e241fd35a8e3c16fe9eb969303d312d0f20e61a7b76c0e. Require the original failed customer and financial qualification gates, passing observation and queue gates, empty cleanup failures, 25,198 customer-confirmed tickets and the exact terminal relationships above. Preserve integrity_verified=false, pass=false and the one consumed paid stage. Recovery closure permits further diagnosis; it does not qualify this control or authorize hourly progression. This uses the same alternatives, failure rejection rules and accounting as the first two cases and changes no financial records or SLOs.
+
+Evidence: tmp/adr0151-c5edbd09ed73/independent-paid-recovery.private.json. Execute local fault tests before classification. No hourly load has started.
+
+Third-case validation: 114 recovery tests passed in 0.71 s. Ruff passed after fixing one unused fixture binding. Exact closure marked FAILED_RESTORED and preserved the original failed report and one consumed stage.
+
+## Exact fourth recovery case (2026-10-09)
+
+ADR0233 diagnostic control adr0151-11edb3936dcc (ledger bounded_cce_paid_comparison__d17725c2400a, original result digest 26fd430d7d3facb8b2f0294691cb9bba540626bf591d61782be8e630d9503279) dispatched all 25,200 journeys. Preserve its 25,178 customer confirmations, 20 status HTTP503s and two payment HTTP503s; terminal financial counts are 25,198 paid issued tickets and two unpaid expired orders. It has the same failed customer/financial qualification gates and passing observation, queue and restoration gates as the third case, with empty cleanup failures. Extend only the immutable case table; require independent payment relationships, all ten recovery gates, closed owned sale windows and original report preservation before closure. No hourly admission is allowed. Diagnostic logs retained four general-role global-limit snapshots but reached byte limits; they do not account for all 22 errors. Local tests and independent proof must pass before classification.
+
+Fourth-case validation: 142 recovery fault tests passed in 0.59 s; independent read-only financial/restoration/ownership proof passed all 10 gates. Closure preserved the failed report and one consumed stage.

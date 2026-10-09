@@ -268,3 +268,113 @@ def test_bridge_close_preserves_original_result_and_cannot_repeat(bridge_case, m
     assert entry["initial_status"] == "RECOVERY_REQUIRED"
     with pytest.raises(ValueError):
         recovery.close(path)
+
+
+@pytest.fixture
+def control_case(bridge_case, monkeypatch):
+    report, entry, scope, evidence, fixture = copy.deepcopy(bridge_case)
+    report.update(run=recovery.CONTROL_RUN, integrity_verified=False)
+    report["native"] = {
+        "measurement_gates": {
+            key: key
+            not in {"customer_load", "post_ttl_financial", "zero_double_booking", "payment_durability"}
+            for key in recovery.MEASUREMENT_GATES
+        },
+        "cleanup_failures": [],
+    }
+    counts, outcomes, states, refunds = recovery.recovery_case(recovery.CONTROL_RUN)[3:]
+    report["paid_stage"]["customer"].update(outcomes=outcomes, distinct_orders=25198, distinct_tickets=25198)
+    report["paid_stage"]["customer"]["pass"] = False
+    result = policy.digest(report)
+    monkeypatch.setattr(recovery, "CONTROL_RESULT", result)
+    entry.update(ledger=recovery.CONTROL_LEDGER, result_sha256=result)
+    scope["cce_paid_result_sha256"] = result
+    evidence.update(
+        ledger=recovery.CONTROL_LEDGER,
+        run=recovery.CONTROL_RUN,
+        namespace=recovery.aborted.namespace_for(recovery.CONTROL_RUN),
+        original_result_sha256=result,
+    )
+    evidence["paid_terminal_financial"].update(counts=counts, order_states=states, refund_states=refunds)
+    return report, entry, scope, evidence, fixture
+
+
+def test_failed_control_recovers_without_qualifying_capacity(control_case):
+    assert recovery.validate(*control_case)
+    assert control_case[0]["pass"] is False
+    assert control_case[0]["integrity_verified"] is False
+    assert control_case[2]["paid_runs_started"] == 1
+
+
+@pytest.mark.parametrize("field", list(recovery.COUNTS))
+def test_failed_control_requires_every_financial_count(control_case, field):
+    control_case[3]["paid_terminal_financial"]["counts"][field] += 1
+    with pytest.raises(ValueError):
+        recovery.validate(*control_case)
+
+
+@pytest.mark.parametrize("gate", recovery.aborted.GATES)
+def test_failed_control_requires_every_recovery_gate(control_case, gate):
+    control_case[3]["gates"][gate] = False
+    with pytest.raises(ValueError):
+        recovery.validate(*control_case)
+
+
+@pytest.mark.parametrize("fault", ["promote", "gate", "cleanup", "customer", "outcome"])
+def test_failed_control_rejects_rewritten_result(control_case, monkeypatch, fault):
+    report, entry, scope, evidence, _fixture = control_case
+    if fault == "promote":
+        report["integrity_verified"] = True
+    elif fault == "gate":
+        report["native"]["measurement_gates"]["customer_load"] = True
+    elif fault == "cleanup":
+        report["native"]["cleanup_failures"] = [{"operation": "candidate_restore", "type": "ValueError"}]
+    elif fault == "customer":
+        report["paid_stage"]["customer"]["distinct_tickets"] = 25199
+    else:
+        report["paid_stage"]["customer"]["outcomes"]["fulfilled"] = 25199
+    result = policy.digest(report)
+    monkeypatch.setattr(recovery, "CONTROL_RESULT", result)
+    entry["result_sha256"] = scope["cce_paid_result_sha256"] = evidence["original_result_sha256"] = result
+    with pytest.raises(ValueError):
+        recovery.validate(*control_case)
+
+
+@pytest.fixture
+def diagnostic_case(control_case, monkeypatch):
+    report, entry, scope, evidence, fixture = copy.deepcopy(control_case)
+    report["run"] = recovery.DIAGNOSTIC_RUN
+    counts, outcomes, states, refunds = recovery.recovery_case(recovery.DIAGNOSTIC_RUN)[3:]
+    report["paid_stage"]["customer"].update(outcomes=outcomes, distinct_orders=25178, distinct_tickets=25178)
+    result = policy.digest(report)
+    monkeypatch.setattr(recovery, "DIAGNOSTIC_RESULT", result)
+    entry.update(ledger=recovery.DIAGNOSTIC_LEDGER, result_sha256=result)
+    scope["cce_paid_result_sha256"] = result
+    evidence.update(
+        ledger=recovery.DIAGNOSTIC_LEDGER,
+        run=recovery.DIAGNOSTIC_RUN,
+        namespace=recovery.aborted.namespace_for(recovery.DIAGNOSTIC_RUN),
+        original_result_sha256=result,
+    )
+    evidence["paid_terminal_financial"].update(counts=counts, order_states=states, refund_states=refunds)
+    return report, entry, scope, evidence, fixture
+
+
+def test_diagnostic_recovery_keeps_original_customer_failures(diagnostic_case):
+    assert recovery.validate(*diagnostic_case)
+    assert diagnostic_case[0]["paid_stage"]["customer"]["outcomes"]["order_http_503"] == 20
+    assert diagnostic_case[0]["integrity_verified"] is False
+
+
+@pytest.mark.parametrize("field", list(recovery.COUNTS))
+def test_diagnostic_recovery_requires_every_financial_count(diagnostic_case, field):
+    diagnostic_case[3]["paid_terminal_financial"]["counts"][field] += 1
+    with pytest.raises(ValueError):
+        recovery.validate(*diagnostic_case)
+
+
+@pytest.mark.parametrize("gate", recovery.aborted.GATES)
+def test_diagnostic_recovery_requires_every_independent_gate(diagnostic_case, gate):
+    diagnostic_case[3]["gates"][gate] = False
+    with pytest.raises(ValueError):
+        recovery.validate(*diagnostic_case)

@@ -1,0 +1,116 @@
+{
+  "decision": "ADR0231",
+  "run": "adr0151-c5edbd09ed73",
+  "qualification": "FAILED_RESTORED; hourly progression blocked",
+  "original_report_sha256": "323979cf0e2cfb4f40e241fd35a8e3c16fe9eb969303d312d0f20e61a7b76c0e",
+  "pass": false,
+  "hourly_qualified": false,
+  "offered_journeys_per_second": 84,
+  "offered_seconds": 300,
+  "backend_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "configuration": {
+    "api_pods": 4,
+    "api_pod_cpu": 1,
+    "api_pod_memory_gib": 1,
+    "bridge_cpu": 1,
+    "pooler_server_connections": 24,
+    "api_pool_size": 4,
+    "api_shared_acquisition_budget": 12,
+    "customer_retries": 0
+  },
+  "customer": {
+    "scheduled": 25200,
+    "dispatched": 25200,
+    "completed": 25200,
+    "fulfilled": 25198,
+    "fulfilled_by_deadline": 25198,
+    "distinct_orders": 25198,
+    "distinct_tickets": 25198,
+    "generator_drops": 0,
+    "retry_attempts": 0,
+    "outcomes": {
+      "fulfilled": 25198,
+      "payment_http_503": 1,
+      "order_http_503": 1
+    },
+    "hold_http_p95_ms": 10.947861999738961,
+    "durable_p95_ms": 1038.0300999968313,
+    "payment_http_p95_ms": 67.47839401941746,
+    "payment_to_ticket_p95_ms": 1785.64389096573,
+    "hold_to_ticket_p95_ms": 3040.0954480282962,
+    "pass": false
+  },
+  "customer_error_percentage": 0.007936507936507936,
+  "measurement_gates": {
+    "customer_load": false,
+    "post_ttl_financial": false,
+    "zero_double_booking": false,
+    "payment_durability": false,
+    "full_queue_drain": true,
+    "native_observer": true,
+    "native_cpu": true,
+    "unchanged_background": true,
+    "unchanged_native_pods": true
+  },
+  "independent_recovery_gates": {
+    "saved_runtime_semantics_restored": true,
+    "runtime_ids_starts_stable": true,
+    "namespace_absent": true,
+    "owned_helpers_absent": true,
+    "secondary_empty": true,
+    "generator_idle": true,
+    "safety_payment_durable": true,
+    "zero_double_booking": true,
+    "all_queues_zero": true,
+    "temporary_transport_credentials_cleared": true
+  },
+  "terminal_financial": {
+    "counts": {
+      "orders": 25200,
+      "fulfilled_orders": 25199,
+      "expired_orders": 1,
+      "pending_orders": 0,
+      "payment_attempts": 25199,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 25199,
+      "bookings": 25199,
+      "tickets": 25199,
+      "payment_callbacks": 25199,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 25199,
+      "callback_delivery_target": 25199,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 25200,
+      "expected_paid": 25199,
+      "expected_callback_deliveries_per_payment": 1,
+      "pass": true
+    },
+    "order_states": {
+      "EXPIRED": 1,
+      "FULFILLED": 25199
+    },
+    "refund_states": {},
+    "unaccounted_succeeded_payments": 0,
+    "invalid_fulfilled_relationships": 0,
+    "invalid_refunded_relationships": 0,
+    "hold_deadlines_elapsed": true,
+    "pass": true
+  },
+  "restoration": {
+    "candidate_restored": true,
+    "published_ports_changed": true,
+    "restoration_complete": true,
+    "cleanup_failures": []
+  },
+  "aggregate_api_cpu_cores": 1.239987040781842,
+  "admission_findings": {
+    "failures": 2,
+    "acquisition_error_mean_ms": 0.2109115,
+    "exact_failure_time_snapshot_retained": false,
+    "reason": "Immediate admission rejection; exact global/role/native guard reason not proven."
+  },
+  "next_action": "ADR0233 unchanged five-minute diagnostic control with bounded failure-time snapshots. Do not start hourly load."
+}

@@ -13,7 +13,7 @@
       "authorized_date_bangkok": "2026-10-09",
       "maximum_additional_spend": null,
       "no_spending_cap_explicitly_authorized": true,
-      "scope": "One fresh four-pod CCE bridge correction comparison, 84 offered journeys/s for 300s, bridge1vCPU on existing ECS, 3600s ceiling and all correctness/TTL/drain/restoration gates. Historical scopes remain consumed. No rolling expiry or unrelated infrastructure.",
+      "scope": "One fresh unchanged four-pod, 1-vCPU bridge, 84/s for 300 seconds short control after verified port restoration correction. Maximum 3600 seconds; all existing correctness, TTL, drain and restoration gates. Historical scopes remain consumed. Hourly follow-up must be separately registered and qualified.",
       "authorization": "User agreed to remove rolling clock deadlines and explicitly authorized: No monetary cap for this comparison and scaling.",
       "status": "APPROVED_GOAL_BOUNDED",
       "prior_expires_at_bangkok": "2026-10-08T23:59:59+07:00",
@@ -134,8 +134,8 @@
         "offered_seconds": 300,
         "maximum_experiment_seconds": 3600,
         "unlimited_cumulative_time_explicitly_authorized": true,
-        "ledger_start_index": 48,
-        "authorized_at_bangkok": "2026-10-09T03:53:31.902946+07:00",
+        "ledger_start_index": 51,
+        "authorized_at_bangkok": "2026-10-09T07:40:33.752513+07:00",
         "spending_allowance": {
           "status": "APPROVED",
           "maximum_additional_spend": null,
@@ -143,11 +143,13 @@
           "no_spending_cap_explicitly_authorized": true,
           "authorization": "Direct user reply: No monetary cap for this comparison and scaling."
         },
-        "extension_decision": "ADR0230",
-        "authorization": "Direct user instruction: Continue until finish 84/second. One fresh bridge correction comparison; preserve consumed historical scope.",
+        "extension_decision": "ADR0234",
+        "authorization": "Continuing user Proceed and Continue until finish84/second; one fresh evidence-based CCE-only admission-budget candidate. Prior failed stages remain consumed. Hourly progression requires full short-stage pass.",
         "candidate_factor": {
-          "bridge_cpu_limit": 1,
-          "baseline_bridge_cpu_limit": 0.125
+          "name": "api_shared_acquisition_budget",
+          "baseline": 12,
+          "candidate": 20,
+          "database_connections_unchanged": true
         }
       },
       "bounded_scaling_permission": {
@@ -181,6 +183,96 @@
           "status": "CONSUMED_FAILED_RESTORED",
           "consumed_ledger": "bounded_cce_paid_comparison__cfd706a87a52",
           "evidence": "docs/capacity/flash-sale-opening/cce-paid-comparison-2026-10-09.json"
+        },
+        {
+          "decision": "ADR0228",
+          "profile": "cce_paid_comparison",
+          "maximum_paid_stages": 1,
+          "maximum_pods": 4,
+          "pod_vcpu": 1,
+          "pod_memory_gib": 1,
+          "offered_journeys_per_second": 84,
+          "offered_seconds": 300,
+          "maximum_experiment_seconds": 3600,
+          "unlimited_cumulative_time_explicitly_authorized": true,
+          "ledger_start_index": 48,
+          "authorized_at_bangkok": "2026-10-09T03:53:31.902946+07:00",
+          "spending_allowance": {
+            "status": "APPROVED",
+            "maximum_additional_spend": null,
+            "currency": null,
+            "no_spending_cap_explicitly_authorized": true,
+            "authorization": "Direct user reply: No monetary cap for this comparison and scaling."
+          },
+          "extension_decision": "ADR0230",
+          "authorization": "Direct user instruction: Continue until finish 84/second. One fresh bridge correction comparison; preserve consumed historical scope.",
+          "candidate_factor": {
+            "bridge_cpu_limit": 1,
+            "baseline_bridge_cpu_limit": 0.125
+          },
+          "status": "CONSUMED_FAILED_RESTORED",
+          "consumed_ledger": "bounded_cce_paid_comparison__33bd91855dcc",
+          "evidence": "docs/capacity/flash-sale-opening/cce-bridge-comparison-2026-10-09.json"
+        },
+        {
+          "decision": "ADR0228",
+          "profile": "cce_paid_comparison",
+          "maximum_paid_stages": 1,
+          "maximum_pods": 4,
+          "pod_vcpu": 1,
+          "pod_memory_gib": 1,
+          "offered_journeys_per_second": 84,
+          "offered_seconds": 300,
+          "maximum_experiment_seconds": 3600,
+          "unlimited_cumulative_time_explicitly_authorized": true,
+          "ledger_start_index": 49,
+          "authorized_at_bangkok": "2026-10-09T03:53:31.902946+07:00",
+          "spending_allowance": {
+            "status": "APPROVED",
+            "maximum_additional_spend": null,
+            "currency": null,
+            "no_spending_cap_explicitly_authorized": true,
+            "authorization": "Direct user reply: No monetary cap for this comparison and scaling."
+          },
+          "extension_decision": "ADR0231",
+          "authorization": "Direct user Proceed to diagnose restoration, run unchanged 84/s short control, then hourly qualification only after every control gate passes.",
+          "candidate_factor": {
+            "name": "refresh_verified_restart_ports",
+            "backend_and_resources_unchanged": true
+          },
+          "status": "CONSUMED_FAILED_RESTORED",
+          "consumed_ledger": "bounded_cce_paid_comparison__6c2d3e4257b9",
+          "evidence": "docs/capacity/flash-sale-opening/cce-restoration-control-2026-10-09.json"
+        },
+        {
+          "decision": "ADR0228",
+          "profile": "cce_paid_comparison",
+          "maximum_paid_stages": 1,
+          "maximum_pods": 4,
+          "pod_vcpu": 1,
+          "pod_memory_gib": 1,
+          "offered_journeys_per_second": 84,
+          "offered_seconds": 300,
+          "maximum_experiment_seconds": 3600,
+          "unlimited_cumulative_time_explicitly_authorized": true,
+          "ledger_start_index": 50,
+          "authorized_at_bangkok": "2026-10-09T07:15:39.644482+07:00",
+          "spending_allowance": {
+            "status": "APPROVED",
+            "maximum_additional_spend": null,
+            "currency": null,
+            "no_spending_cap_explicitly_authorized": true,
+            "authorization": "Direct user reply: No monetary cap for this comparison and scaling."
+          },
+          "extension_decision": "ADR0233",
+          "authorization": "Continuing direct user Proceed and Continue until finish84/second; one fresh unchanged diagnostic control, preserved prior consumption and no hourly progression on failed gates.",
+          "candidate_factor": {
+            "name": "retain_failure_time_snapshots",
+            "backend_and_resources_unchanged": true
+          },
+          "status": "CONSUMED_FAILED_RESTORED",
+          "consumed_ledger": "bounded_cce_paid_comparison__d17725c2400a",
+          "evidence": "docs/capacity/flash-sale-opening/cce-admission-control-2026-10-09.json"
         }
       ]
     }
