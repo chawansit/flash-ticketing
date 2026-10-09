@@ -6177,8 +6177,8 @@
     "implementation_merge_authorized": false
   },
   "implementation_promotion_checkpoint": {
-    "updated_at_utc": "2026-10-09T04:21:53.051863+00:00",
-    "status": "SCHEMA_PR_REVIEW_READY_FULL_STACK_CI_PASSED",
+    "updated_at_utc": "2026-10-09T04:49:13.309249+00:00",
+    "status": "SCHEMA_PR_MERGED",
     "pull_request": "https://github.com/chawansit/flash-ticketing/pull/5",
     "head_branch": "codex/paid-schema-foundation-2026-10-09",
     "head_sha": "6c79718c6e4bf8dd758d4822dc990d572bc4a1d7",
@@ -6193,8 +6193,8 @@
       "full_stack_ci_passed": true
     },
     "runtime_source_finding": "Existing immutable API image matches all 21 retained source hashes. Current checkout and isolated source trees do not fully match; use the immutable image as runtime source authority.",
-    "next_action": "Review and merge schema PR only after full-stack CI and separate user approval, then prepare source-pinned backend/workers and finally CCE/runner PRs.",
-    "main_merge_authorized": false,
+    "next_action": "Prepare source-pinned backend/workers PR based on main after schema PR #5; CCE/runner integration follows separately. No deployment or cloud traffic authorized by this merge.",
+    "main_merge_authorized": true,
     "cloud_actions": 0,
     "new_capacity_measurement": false,
     "ci": [
@@ -6210,6 +6210,8 @@
         "conclusion": "success",
         "details_url": "https://github.com/chawansit/flash-ticketing/actions/runs/37883297689/job/113667622906"
       }
-    ]
+    ],
+    "merge_sha": "4b23a5e681354f9c6c387b07e3554c88c46e0695",
+    "authorization": "Direct user approval: Merge PR #5."
   }
 }
