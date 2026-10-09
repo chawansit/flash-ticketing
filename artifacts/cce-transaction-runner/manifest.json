@@ -5,7 +5,7 @@
     "scripts/cce_api_adapter.py": {
       "historical_sha256": "634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e",
-      "current_sha256": "54c036894411cbf7f0bbdeae332ed52b4b47e3d0149045bee4573e628ec9123d"
+      "current_sha256": "4e120c2849cd1910e9656a11d221100ff7b12f4150a62cebbad599751ae369b8"
     },
     "scripts/cce_paid_stage.py": {
       "historical_sha256": "c1acf89ae4544674f179f4615c10f359e3899bfd5dae8421c30e22f29e60c57a",
@@ -25,7 +25,7 @@
     "scripts/run_cce_paid_comparison.py": {
       "historical_sha256": "cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
-      "current_sha256": "3633647f3ad3a169212f351f1e0f3433794bd5c860371153807481fa77a7f328"
+      "current_sha256": "4641169ad31a2d98bfef66567b9768e56389d265f9d641650609065b9a53d127"
     },
     "scripts/check_cce_reproducibility.py": {
       "historical_sha256": "ca8920447ef5fee85d7f8316fae6defae81c96c715352fd31b5545f25d5e2278",
@@ -38,7 +38,7 @@
     "scripts/bounded_trace_transport.py": "3456993bacbfd93227bac0bdb28ce532c2f97365310b88338297a175d4c3d21f",
     "scripts/cce_reproduction_overlay.py": "a96796efbefbe9fe4491d00388c7b7c83430638be067a03e43870b7e5b698fc0",
     "scripts/cce_slot_trace_transport.py": "3286f3395ff573f555af9080f95f43ca1d83e920b75026cb8679a8a646e2fa11",
-    "scripts/cce_transaction_profile.py": "1d61a369264d715985a67393ee08896b92db02b6465838556e717947e93f10cd",
+    "scripts/cce_transaction_profile.py": "f6ce0e75775624496ce2af1ff1abf09ad72f6a71fd8ebf0888364c5518233bed",
     "scripts/observe_slot_paid_pipeline.py": "4d57e7649aa9b2c4e41ab398f58c31291449a7add10e9adf1384d95f7ea8288e",
     "scripts/prepare_slot_comparison_sources.py": "ad8edffaf0a84803141c9c1938e0b65bb583d7eba60e7ac537233d82328590e5",
     "scripts/slot_failure_evidence.py": "5e4d687a2ebdde69cfc7b3818b4fede87d6ac12cf7bd99125339b53f8f207205"

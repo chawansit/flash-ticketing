@@ -44,17 +44,32 @@ def image_pair():
 def active(envelope=None):
     envelope = policy.envelope() if envelope is None else envelope
     goal = envelope.get("spending", {}).get("temporary_cce_pilot_exception", {}).get("goal_bounded_authorization", {})
-    if goal.get("extension_decision") != "ADR0242":
+    if goal.get("extension_decision") not in {"ADR0242", "ADR0245"}:
         return None
     arm = goal.get("comparison_arm")
     expected = {"name": "redundant_explicit_begin", "comparison_arm": arm,
                 "image_pair_receipt_sha256": PROOF_SHA256, "database_connections_unchanged": True}
+    if goal.get("extension_decision") == "ADR0245":
+        expected = {"name": "api_payment_pool_partition", "comparison_arm": arm,
+                    "baseline_payment_connections": 2, "candidate_payment_connections": 3,
+                    "connections_per_api": 4, "image_pair_receipt_sha256": PROOF_SHA256,
+                    "database_connections_unchanged": True}
     if (arm not in {"control", "candidate"} or goal.get("decision") != "ADR0228"
             or goal.get("profile") != "cce_paid_comparison" or goal.get("acquisition_budget") != 20
             or goal.get("candidate_factor") != expected):
         raise ValueError("Exact short transaction comparison discriminator required")
     image_pair()
     return goal
+
+
+def image_for(goal):
+    """ADR0245 holds the accepted control binary fixed across both partitions."""
+    arm = "control" if goal["extension_decision"] == "ADR0245" else goal["comparison_arm"]
+    return image_pair()["images"][arm]
+
+
+def payment_connections(goal):
+    return 3 if goal["extension_decision"] == "ADR0245" and goal["comparison_arm"] == "candidate" else 2
 
 
 def control_receipt(goal):
@@ -78,6 +93,10 @@ def control_receipt(goal):
             or entry.get("result_sha256") != policy.digest(report)
             or scope.get("cce_paid_result_sha256") != policy.digest(report)
             or binding.get("cce_transaction_arm") != "control"
+            or (goal["extension_decision"] == "ADR0245" and (
+                binding.get("cce_partition_decision") != "ADR0245"
+                or binding.get("cce_payment_pool_max") != 2))
+            or (goal["extension_decision"] == "ADR0242" and binding.get("cce_partition_decision") is not None)
             or binding.get("cce_transaction_pair_sha256") != PROOF_SHA256
             or binding.get("cce_paid_entry_sources") != core.identity()
             or binding.get("cce_paid_core_sources") != core.paid.identity()
@@ -105,17 +124,20 @@ def plan():
         baseline, evidence = control_receipt(goal)
     else:
         baseline, evidence = BASELINE, policy.read(policy.ROOT / BASELINE)
-    image = image_pair()["images"][goal["comparison_arm"]]
+    image = image_for(goal)
+    partition = goal["extension_decision"] == "ADR0245"
     return {"decision": "ADR0228", "arms": ["candidate"],
-            "extension_decision": "ADR0242", "comparison_arm": goal["comparison_arm"],
+            "extension_decision": goal["extension_decision"], "comparison_arm": goal["comparison_arm"],
             "common": {"buyer_journeys_per_second": 84, "duration_seconds": 300},
-            "kind": "matched_transaction_begin", "diagnostic_connection_decision": "ADR0180",
-            "single_changed_factor": "redundant_explicit_begin", "baseline_evidence": baseline,
+            "kind": "matched_payment_partition" if partition else "matched_transaction_begin", "diagnostic_connection_decision": "ADR0180",
+            "single_changed_factor": "api_payment_pool_partition" if partition else "redundant_explicit_begin", "baseline_evidence": baseline,
             "baseline_sha256": policy.digest(evidence), "image_pair_receipt_sha256": PROOF_SHA256,
             "arm_manifest_digest": image["registry_manifest_digest"],
             "arm_configuration_digest": image["registry_configuration_digest"],
             "arm_api_source_sha256": image["runtime_sources_sha256"],
             "common_environment_changes": {"DB_FAILURE_DIAGNOSTICS": "1"},
+            "connections_per_api": 4, "payment_connections_per_api": payment_connections(goal),
+            "general_connections_per_api": 4 - payment_connections(goal),
             "pod_resources": legacy_contract()["resources"], "replicas": 4,
             "pooler_server_connections": 24, "acquisition_budget": 20, "bridge_cpu_limit": 1,
             "qualification_runs_authorized": 1, "paid_runs_authorized": 1, "safety_tickets_authorized": 2,

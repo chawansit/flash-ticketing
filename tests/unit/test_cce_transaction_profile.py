@@ -91,13 +91,19 @@ def test_registry_proof_drift_rejected_before_source_admission(monkeypatch, tmp_
         profile.image_pair()
 
 
-@pytest.mark.parametrize("fault", [None, "failed", "cleanup", "source", "budget", "digest", "gate", "active"])
-def test_candidate_requires_complete_same_runner_restored_control(monkeypatch, tmp_path, fault):
-    value = envelope(goal("candidate"))
+@pytest.mark.parametrize("extension", ["ADR0242", "ADR0245"])
+@pytest.mark.parametrize("fault", [None, "failed", "cleanup", "source", "budget", "digest", "gate", "active", "partition"])
+def test_candidate_requires_complete_same_runner_restored_control(monkeypatch, tmp_path, fault, extension):
+    chosen = goal("candidate") if extension == "ADR0242" else partition_goal("candidate")
+    value = envelope(chosen)
     ledger = "bounded_cce_paid_comparison__" + "b" * 12
     binding = {"cce_transaction_arm": "control", "cce_transaction_pair_sha256": profile.PROOF_SHA256,
                "cce_paid_entry_sources": core.identity(), "cce_paid_core_sources": core.paid.identity(),
                "configuration_sha256": value["existing_resource_configuration_sha256"], "cce_acquisition_budget": 20}
+    if extension == "ADR0245":
+        binding.update(cce_partition_decision="ADR0245", cce_payment_pool_max=2)
+    if fault == "partition":
+        binding.update(cce_partition_decision="ADR0245", cce_payment_pool_max=3)
     report = {"pass": True, "binding_sha256": policy.digest(binding), "capacity_stages_started": 1,
               "restoration_complete": True, "integrity_verified": True, "transport_credentials_cleared": True,
               "native": {"cleanup_complete": True, "measurement_gates": {"paid": True, "durability": True}}}
@@ -307,3 +313,61 @@ def test_readiness_timeout_retains_all_four_owned_pod_reasons_before_cleanup(mon
     assert all(v["container_states"][0]["waiting_reason"] == "ImagePullBackOff" for v in views)
     assert all(v["readiness_conditions"][0]["reason"] == "Unschedulable" for v in views)
     assert "private-message" not in json.dumps(views)
+
+
+def partition_goal(arm):
+    value = goal(arm)
+    value["extension_decision"] = "ADR0245"
+    value["candidate_factor"] = {"name": "api_payment_pool_partition", "comparison_arm": arm,
+        "baseline_payment_connections": 2, "candidate_payment_connections": 3,
+        "connections_per_api": 4, "image_pair_receipt_sha256": profile.PROOF_SHA256,
+        "database_connections_unchanged": True}
+    return value
+
+
+@pytest.mark.parametrize("arm,payment", [("control", 2), ("candidate", 3)])
+def test_partition_changes_only_existing_payment_share(monkeypatch, arm, payment):
+    from ticketing.infrastructure.postgres import api_pool_budgets
+    value = envelope(partition_goal(arm))
+    monkeypatch.setattr(policy, "envelope", lambda: value)
+    base_goal = envelope(goal("control"))
+    monkeypatch.setattr(policy, "envelope", lambda: base_goal)
+    baseline_env = api.api_environment(service(), "10.1.137.69", acquisition_budget=20)
+    baseline_source = api.contract()["api_sources"]
+    monkeypatch.setattr(policy, "envelope", lambda: value)
+    changed_env = api.api_environment(service(), "10.1.137.69", acquisition_budget=20)
+    assert api.api_image() == profile.image_pair()["images"]["control"]["registry_image"]
+    assert api.contract()["api_sources"] == baseline_source
+    assert changed_env == {**baseline_env, "API_PAYMENT_POOL_MAX": str(payment)}
+    manifests = api.objects(RUN, service(), "10.1.137.69", "test", "test", acquisition_budget=20)
+    secret = next(item for item in manifests if item["kind"] == "Secret" and item["metadata"]["name"] == "api-env")
+    import base64
+    assert {key: base64.b64decode(val).decode() for key, val in secret["data"].items()} == changed_env
+    pods = [item for item in manifests if item["kind"] == "Pod"]
+    assert len(pods) == 4
+    assert all(pod["spec"]["containers"][0]["image"] == api.api_image() for pod in pods)
+    assert all(pod["spec"]["containers"][0]["resources"] == api.legacy_contract()["resources"] for pod in pods)
+    budgets = api_pool_budgets(4, 20, payment, True)
+    assert budgets["general"]["maximum"] == 4 - payment
+    assert budgets["payment"]["maximum"] == payment
+    assert sum(role["maximum"] for role in budgets.values()) == 4
+    if arm == "candidate":
+        monkeypatch.setattr(profile, "control_receipt", lambda _: ("tmp/control/cce-comparison.private.json", {"pass": True}))
+    selected = core.plan()
+    assert selected["extension_decision"] == "ADR0245"
+    assert selected["single_changed_factor"] == "api_payment_pool_partition"
+    assert selected["arm_manifest_digest"] == profile.image_pair()["images"]["control"]["registry_manifest_digest"]
+    assert selected["payment_connections_per_api"] == payment
+    assert selected["general_connections_per_api"] == 4 - payment
+    assert selected["pooler_server_connections"] == 24
+    assert selected["acquisition_budget"] == 20
+    assert selected["common"] == {"buyer_journeys_per_second": 84, "duration_seconds": 300}
+
+
+@pytest.mark.parametrize("field,value", [("baseline_payment_connections", 1),
+    ("candidate_payment_connections", 4), ("connections_per_api", 5), ("name", "redundant_explicit_begin")])
+def test_partition_rejects_other_resource_or_transaction_factors(field, value):
+    chosen = partition_goal("candidate")
+    chosen["candidate_factor"][field] = value
+    with pytest.raises(ValueError, match="discriminator"):
+        profile.active(envelope(chosen))

@@ -153,3 +153,7 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0242: Bind matched CCE transaction comparison](0242-bind-matched-cce-transaction-comparison.md)
 
 - [ADR0243: Use managed CCE SWR pull credentials](0243-use-managed-cce-swr-pull-credentials.md)
+
+- [ADR0244: Reconcile failed matched transaction candidate](0244-reconcile-failed-matched-transaction-candidate.md)
+
+- [ADR0245: Rebalance API payment connections within a fixed budget](0245-rebalance-api-payment-connections-within-fixed-budget.md)
