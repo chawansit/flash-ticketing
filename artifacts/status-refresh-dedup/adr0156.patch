@@ -1,0 +1,416 @@
+diff --git a/.env.example b/.env.example
+--- a/.env.example
++++ b/.env.example
+@@ -25,3 +25,4 @@
+ # Opt-in advisory status cache/event refresh (bounded maximum age3000ms).
+ ORDER_STATUS_CACHE_MS=0
+ ORDER_STATUS_EVENT_REFRESH=0
++ORDER_STATUS_EVENT_REFRESH_DEDUP=0
+diff --git a/compose.yaml b/compose.yaml
+--- a/compose.yaml
++++ b/compose.yaml
+@@ -11,6 +11,7 @@
+     WEBHOOK_SECRET: ${WEBHOOK_SECRET:-local-webhook-secret-change-me}
+     ORDER_STATUS_CACHE_MS: ${ORDER_STATUS_CACHE_MS:-0}
+     ORDER_STATUS_EVENT_REFRESH: ${ORDER_STATUS_EVENT_REFRESH:-0}
++    ORDER_STATUS_EVENT_REFRESH_DEDUP: ${ORDER_STATUS_EVENT_REFRESH_DEDUP:-0}
+     HOLD_SECONDS: ${HOLD_SECONDS:-120}
+     DB_POOL_MAX: ${DB_POOL_MAX:-12}
+     RESERVE_CONCURRENCY: ${RESERVE_CONCURRENCY:-12}
+diff --git a/src/ticketing/config.py b/src/ticketing/config.py
+--- a/src/ticketing/config.py
++++ b/src/ticketing/config.py
+@@ -12,6 +12,7 @@
+     environment: str = os.getenv("ENVIRONMENT", "development")
+     order_status_cache_ms: int = int(os.getenv("ORDER_STATUS_CACHE_MS", "0"))
+     order_status_event_refresh: bool = os.getenv("ORDER_STATUS_EVENT_REFRESH", "0") == "1"
++    order_status_event_refresh_dedup: bool = os.getenv("ORDER_STATUS_EVENT_REFRESH_DEDUP", "0") == "1"
+     hold_seconds: int = int(os.getenv("HOLD_SECONDS", "120"))
+     pool_max: int = int(os.getenv("DB_POOL_MAX", "12"))
+     pool_max_waiting: int | None = (
+@@ -74,6 +75,8 @@
+             raise RuntimeError("Invalid positive configuration")
+         if self.order_status_event_refresh and not self.order_status_cache_ms:
+             raise RuntimeError("ORDER_STATUS_EVENT_REFRESH requires ORDER_STATUS_CACHE_MS")
++        if self.order_status_event_refresh_dedup and not self.order_status_event_refresh:
++            raise RuntimeError("ORDER_STATUS_EVENT_REFRESH_DEDUP requires ORDER_STATUS_EVENT_REFRESH")
+         if not 0 <= self.order_status_cache_ms <= 3000:
+             raise RuntimeError("ORDER_STATUS_CACHE_MS must be between 0 and 3000")
+         if self.pool_max_waiting is not None and not 1 <= self.pool_max_waiting <= 64:
+diff --git a/src/ticketing/infrastructure/order_status_cache.py b/src/ticketing/infrastructure/order_status_cache.py
+--- a/src/ticketing/infrastructure/order_status_cache.py
++++ b/src/ticketing/infrastructure/order_status_cache.py
+@@ -171,13 +171,15 @@
+                               'order': row}, default=scalar, separators=(',', ':'))
+             if len(raw.encode()) > MAX_BYTES or not valid_order(json.loads(raw)['order'], actor, order_id):
+                 ORDER_STATUS_CACHE.labels('event_fill_skipped').inc()
+-                return
++                return False
+             result = self.redis.eval(PUBLISH, 1, self.key(actor, order_id), raw,
+                                      snapshot_start_ms, snapshot_start_ms+self.max_age_ms,
+                                      self.max_age_ms, MAX_BYTES)
+             ORDER_STATUS_CACHE.labels({1: 'event_fill', 0: 'event_fill_raced',
+                                        -1: 'event_fill_stale'}[int(result)]).inc()
++            return int(result) == 1
+         except RedisError:
+             ORDER_STATUS_CACHE.labels('redis_error').inc()
+         except (ValueError, TypeError, KeyError):
+             ORDER_STATUS_CACHE.labels('event_fill_skipped').inc()
++        return False
+diff --git a/src/ticketing/infrastructure/order_status_projector.py b/src/ticketing/infrastructure/order_status_projector.py
+--- a/src/ticketing/infrastructure/order_status_projector.py
++++ b/src/ticketing/infrastructure/order_status_projector.py
+@@ -1,21 +1,72 @@
+ """Best-effort advisory snapshots; invoked only after the financial transaction commits."""
+ 
++import hashlib
++import json
+ import logging
++import time
++from collections import OrderedDict
+ from uuid import UUID
+ 
++from ticketing.infrastructure.order_status_cache import scalar
+ from ticketing.observability import ORDER_STATUS_CACHE
+ 
+ log = logging.getLogger("ticketing.order_status_projector")
++MAX_HINTS = 1024
+ ORDER_EVENTS = frozenset({"OrderPaid", "TicketsIssued", "RefundRequested"})
+ 
+ 
+ class CommittedOrderStatusProjector:
+-    def __init__(self, database, cache):
+-        self.database, self.cache = database, cache
++    def __init__(self, database, cache, *, deduplicate=False):
++        if type(deduplicate) is not bool:
++            raise TypeError("Explicit deduplication boolean required")
++        self.database, self.cache, self.deduplicate = database, cache, deduplicate
++        # One existing consumer thread owns this bounded, non-authoritative hint table.
++        self._recent = OrderedDict()
+ 
+-    def refresh(self, order_id):
++    @staticmethod
++    def _fingerprint(snapshot):
++        raw = json.dumps(snapshot, sort_keys=True, separators=(",", ":"), default=scalar)
++        return hashlib.sha256(raw.encode()).digest()
++
++    def _can_reuse(self, identifier):
++        hint = self._recent.get(identifier)
++        if hint is None:
++            return False
++        actor, fingerprint, deadline = hint
++        if time.monotonic() >= deadline:
++            self._recent.pop(identifier)
++            return False
++        try:
++            snapshot, _ = self.cache.lookup(actor, identifier)
++            reusable = (snapshot is not None and self._fingerprint(snapshot) == fingerprint
++                        and time.monotonic() < deadline)
++        except Exception:  # noqa: BLE001 - advisory lookup failure must fall back to a committed read
++            ORDER_STATUS_CACHE.labels("event_dedup_lookup_error").inc()
++            reusable = False
++        if not reusable:
++            self._recent.pop(identifier)
++        return reusable
++
++    def _remember(self, identifier, order, started):
++        deadline = started + self.cache.max_age_ms / 1000
++        now = time.monotonic()
++        while self._recent and next(iter(self._recent.values()))[2] <= now:
++            self._recent.popitem(last=False)
++        if now < deadline:
++            self._recent[identifier] = (order["actor"], self._fingerprint(order), deadline)
++            while len(self._recent) > MAX_HINTS:
++                self._recent.popitem(last=False)
++
++    def refresh(self, order_id, *, event_type=None):
+         try:
+             identifier = UUID(str(order_id))
++            if self.deduplicate:
++                if event_type in {"OrderPaid", "RefundRequested"}:
++                    self._recent.pop(identifier, None)
++                if event_type == "TicketsIssued" and self._can_reuse(identifier):
++                    ORDER_STATUS_CACHE.labels("event_read_deduplicated").inc()
++                    return
++            started = time.monotonic()
+             stamp = self.cache.snapshot_start()
+             with self.database.transaction() as conn:
+                 rows = conn.execute(
+@@ -33,7 +84,10 @@
+                 order["tickets"] = [{"id": row["_ticket_id"], "seat_id": row["_ticket_seat_id"]}
+                                     for row in rows if row["_ticket_id"] is not None]
+             # Never retain a database connection while publishing to Redis.
+-            self.cache.publish(order["actor"], identifier, order, stamp)
++            published = self.cache.publish(order["actor"], identifier, order, stamp)
++            if (self.deduplicate and event_type == "OrderPaid" and published is True
++                    and order["status"] == "FULFILLED" and order["tickets"]):
++                self._remember(identifier, order, started)
+         except Exception:
+             # This boundary is advisory only. Financial transaction failures propagate
+             # before this method is called and are never caught here.
+diff --git a/src/ticketing/workers.py b/src/ticketing/workers.py
+--- a/src/ticketing/workers.py
++++ b/src/ticketing/workers.py
+@@ -734,7 +734,9 @@
+     _consume_event_transaction(db, cache, envelope)
+     if order_status_projector is not None and envelope["event_type"] in ORDER_EVENTS:
+         data = envelope.get("payload")
+-        order_status_projector.refresh(data.get("order_id") if isinstance(data, dict) else None)
++        order_status_projector.refresh(
++            data.get("order_id") if isinstance(data, dict) else None, event_type=envelope["event_type"]
++        )
+ 
+ 
+ @measured_consumer_event
+@@ -1046,7 +1048,10 @@
+     store = PostgresReservations(db, cache, settings.hold_seconds)
+     service = Reservations(store)
+     order_status_projector = (
+-        CommittedOrderStatusProjector(db, RedisOrderStatusCache(cache.redis, settings.order_status_cache_ms))
++        CommittedOrderStatusProjector(
++            db, RedisOrderStatusCache(cache.redis, settings.order_status_cache_ms),
++            deduplicate=settings.order_status_event_refresh_dedup,
++        )
+         if role == "consumer" and settings.order_status_event_refresh else None
+     )
+     intake = RedisReservationIntake(
+diff --git a/tests/integration/test_order_status_event_refresh.py b/tests/integration/test_order_status_event_refresh.py
+--- a/tests/integration/test_order_status_event_refresh.py
++++ b/tests/integration/test_order_status_event_refresh.py
+@@ -168,3 +168,55 @@
+     with db.transaction() as conn:
+         assert conn.execute("SELECT count(*) AS n FROM tickets").fetchone()["n"] == 1
+     drain_outbox(db)
++
++
++@pytest.mark.parametrize("damage", [None, "deleted", "corrupt", "expired"])
++def test_dedup_skips_only_identical_fresh_projection_and_repairs_missing_entries(system, event_cache, damage):
++    _, db, hold, cache, _, _, envelope = prepare(system, event_cache, age=200 if damage == "expired" else 1000)
++    projector = CommittedOrderStatusProjector(db, cache, deduplicate=True)
++    issued = {"event_id": str(uuid4()), "schema_version": 1, "event_type": "TicketsIssued",
++              "payload": {"order_id": hold["order_id"], "actor": "other", "status": "PENDING"}}
++    key = cache.key("owner", hold["order_id"])
++    with (patch.object(db, "transaction", wraps=db.transaction) as transactions,
++          patch.object(cache, "publish", wraps=cache.publish) as publish):
++        consume_event(db, None, envelope, projector)
++        assert transactions.call_count == 2
++        assert projector._recent
++        ttl = cache.redis.pttl(key)
++        if damage == "deleted":
++            cache.redis.delete(key)
++        elif damage == "corrupt":
++            cache.redis.set(key, '{"schema_version":99}', px=1000)
++        elif damage == "expired":
++            time.sleep(ttl/1000+.02)
++        consume_event(db, None, issued, projector)
++        assert transactions.call_count == (3 if damage is None else 4)
++        assert publish.call_count == (1 if damage is None else 2)
++        if damage is None:
++            assert cache.redis.pttl(key) <= ttl
++            consume_event(db, None, issued, projector)
++            assert transactions.call_count == 4 and publish.call_count == 1
++    assert cache.lookup("owner", hold["order_id"])[0]["status"] == "FULFILLED"
++    assert cache.lookup("other", hold["order_id"])[0] is None
++    with db.transaction() as conn:
++        assert conn.execute("SELECT count(*) AS n FROM tickets").fetchone()["n"] == 1
++        assert conn.execute("SELECT count(*) AS n FROM bookings").fetchone()["n"] == 1
++    drain_outbox(db)
++
++
++def test_dedup_failed_publication_does_not_suppress_later_repair_or_replay(system, event_cache):
++    _, db, hold, cache, _, _, envelope = prepare(system, event_cache)
++    projector = CommittedOrderStatusProjector(db, cache, deduplicate=True)
++    with patch.object(cache.redis, "eval", side_effect=TimeoutError("owned projection outage")):
++        consume_event(db, None, envelope, projector)
++    assert not projector._recent
++    issued = {"event_id": str(uuid4()), "schema_version": 1, "event_type": "TicketsIssued",
++              "payload": {"order_id": hold["order_id"]}}
++    consume_event(db, None, issued, projector)
++    assert cache.lookup("owner", hold["order_id"])[0]["status"] == "FULFILLED"
++    cache.redis.delete(cache.key("owner", hold["order_id"]))
++    consume_event(db, None, envelope, projector)
++    assert cache.lookup("owner", hold["order_id"])[0]["status"] == "FULFILLED"
++    with db.transaction() as conn:
++        assert conn.execute("SELECT count(*) AS n FROM tickets").fetchone()["n"] == 1
++    drain_outbox(db)
+diff --git a/tests/unit/test_order_status_projector.py b/tests/unit/test_order_status_projector.py
+--- a/tests/unit/test_order_status_projector.py
++++ b/tests/unit/test_order_status_projector.py
+@@ -80,7 +80,7 @@
+     database, cache, projector, identifier = Mock(), Mock(), Mock(), uuid4()
+     envelope = {"schema_version": 1, "event_type": event_type, "payload": {"order_id": str(identifier)}}
+     committed = []
+-    projector.refresh.side_effect = lambda *_: committed.append("refresh")
++    projector.refresh.side_effect = lambda *_, **__: committed.append("refresh")
+     with patch("ticketing.workers._consume_event_transaction", side_effect=lambda *_: committed.append("commit")):
+         consume_event(database, cache, envelope, projector)
+         consume_event(database, cache, envelope, projector)
+@@ -123,3 +123,168 @@
+     cache.publish(order["actor"], order["id"], order, True)
+     cache.publish("other", order["id"], order, 1000)
+     cache.redis.eval.assert_not_called()
++
++
++def dedup_fixture():
++    import json
++
++    from ticketing.infrastructure.order_status_cache import scalar
++    order, connection, cache, database = row(), Mock(), Mock(), Mock()
++    connection.execute.return_value.fetchall.return_value = [order]
++    database.transaction.return_value.__enter__ = Mock(return_value=connection)
++    database.transaction.return_value.__exit__ = Mock(return_value=False)
++    cache.max_age_ms, cache.snapshot_start.return_value = 1000, 1000
++    cache.publish.return_value = True
++    snapshot = {k: v for k, v in order.items() if k not in {"_ticket_id", "_ticket_seat_id"}}
++    snapshot["tickets"] = [{"id": order["_ticket_id"], "seat_id": "A"}]
++    snapshot = json.loads(json.dumps(snapshot, default=scalar))
++    cache.lookup.return_value = (snapshot, None)
++    return order, connection, cache, database
++
++
++@pytest.mark.parametrize("enabled,reads", [(False, 2), (True, 1)])
++def test_fresh_successful_orderpaid_ticketsissued_pair_deduplicates_only_when_enabled(enabled, reads):
++    order, _, cache, database = dedup_fixture()
++    projector = CommittedOrderStatusProjector(database, cache, deduplicate=enabled)
++    with patch("ticketing.infrastructure.order_status_projector.time.monotonic", return_value=10):
++        projector.refresh(order["id"], event_type="OrderPaid")
++        projector.refresh(order["id"], event_type="TicketsIssued")
++    assert database.transaction.call_count == reads
++    assert cache.publish.call_count == reads
++    if enabled:
++        cache.lookup.assert_called_once_with("actual-owner", order["id"])
++    else:
++        cache.lookup.assert_not_called()
++
++
++@pytest.mark.parametrize("publication", [False, None, 1])
++def test_only_explicit_successful_publication_establishes_hint(publication):
++    order, _, cache, database = dedup_fixture()
++    cache.publish.return_value = publication
++    projector = CommittedOrderStatusProjector(database, cache, deduplicate=True)
++    projector.refresh(order["id"], event_type="OrderPaid")
++    projector.refresh(order["id"], event_type="TicketsIssued")
++    assert database.transaction.call_count == 2 and not projector._recent
++    cache.lookup.assert_not_called()
++
++
++@pytest.mark.parametrize("mutation", ["missing", "owner", "identifier", "status", "tickets", "total", "error"])
++def test_missing_changed_or_failed_cache_lookup_reads_current_database(mutation):
++    order, _, cache, database = dedup_fixture()
++    projector = CommittedOrderStatusProjector(database, cache, deduplicate=True)
++    projector.refresh(order["id"], event_type="OrderPaid")
++    snapshot = cache.lookup.return_value[0]
++    if mutation == "missing":
++        cache.lookup.return_value = (None, None)
++    elif mutation == "owner":
++        snapshot["actor"] = "other"
++    elif mutation == "identifier":
++        snapshot["id"] = str(uuid4())
++    elif mutation == "status":
++        snapshot.update(status="REFUND_PENDING", tickets=[])
++    elif mutation == "tickets":
++        snapshot["tickets"][0]["id"] = str(uuid4())
++    elif mutation == "total":
++        snapshot["total"] += 1
++    else:
++        cache.lookup.side_effect = TimeoutError("lookup unavailable")
++    projector.refresh(order["id"], event_type="TicketsIssued")
++    assert database.transaction.call_count == 2 and not projector._recent
++
++
++@pytest.mark.parametrize("late_lookup", [False, True])
++def test_expired_hint_or_lookup_finishing_after_deadline_cannot_skip(late_lookup):
++    order, _, cache, database = dedup_fixture()
++    projector = CommittedOrderStatusProjector(database, cache, deduplicate=True)
++    clock = [10.0]
++    with patch("ticketing.infrastructure.order_status_projector.time.monotonic", side_effect=lambda: clock[0]):
++        projector.refresh(order["id"], event_type="OrderPaid")
++        if late_lookup:
++            snapshot = cache.lookup.return_value
++            def delayed(*_):
++                clock[0] = 11.0
++                return snapshot
++            cache.lookup.side_effect = delayed
++        else:
++            clock[0] = 11.0
++        projector.refresh(order["id"], event_type="TicketsIssued")
++    assert database.transaction.call_count == 2 and not projector._recent
++
++
++def test_skips_do_not_extend_hint_or_publish_ttl_and_restart_reads_again():
++    order, _, cache, database = dedup_fixture()
++    projector = CommittedOrderStatusProjector(database, cache, deduplicate=True)
++    with patch("ticketing.infrastructure.order_status_projector.time.monotonic", return_value=10):
++        projector.refresh(order["id"], event_type="OrderPaid")
++        original = dict(projector._recent)
++        for _ in range(3):
++            projector.refresh(order["id"], event_type="TicketsIssued")
++        assert dict(projector._recent) == original
++        assert database.transaction.call_count == 1 and cache.publish.call_count == 1
++        CommittedOrderStatusProjector(database, cache, deduplicate=True).refresh(order["id"], event_type="TicketsIssued")
++    assert database.transaction.call_count == 2
++
++
++def test_refund_invalidates_hint_and_orderpaid_replay_always_reads():
++    order, _, cache, database = dedup_fixture()
++    projector = CommittedOrderStatusProjector(database, cache, deduplicate=True)
++    projector.refresh(order["id"], event_type="OrderPaid")
++    projector.refresh(order["id"], event_type="OrderPaid")
++    assert database.transaction.call_count == 2
++    projector.refresh(order["id"], event_type="RefundRequested")
++    assert not projector._recent
++    projector.refresh(order["id"], event_type="TicketsIssued")
++    assert database.transaction.call_count == 4
++
++
++def test_failed_republication_clears_prior_hint_and_replay_can_repair():
++    order, _, cache, database = dedup_fixture()
++    projector = CommittedOrderStatusProjector(database, cache, deduplicate=True)
++    projector.refresh(order["id"], event_type="OrderPaid")
++    cache.publish.side_effect = TimeoutError("publication unavailable")
++    projector.refresh(order["id"], event_type="OrderPaid")
++    assert not projector._recent
++    cache.publish.side_effect = None
++    projector.refresh(order["id"], event_type="TicketsIssued")
++    assert database.transaction.call_count == 3
++
++
++def test_hint_count_and_expiry_cleanup_are_bounded():
++    order, connection, cache, database = dedup_fixture()
++    projector = CommittedOrderStatusProjector(database, cache, deduplicate=True)
++    identifiers = [uuid4() for _ in range(3)]
++    with (patch("ticketing.infrastructure.order_status_projector.MAX_HINTS", 2),
++          patch("ticketing.infrastructure.order_status_projector.time.monotonic", return_value=10)):
++        for identifier in identifiers:
++            connection.execute.return_value.fetchall.return_value = [{**order, "id": identifier}]
++            projector.refresh(identifier, event_type="OrderPaid")
++        assert list(projector._recent) == identifiers[1:]
++    with patch("ticketing.infrastructure.order_status_projector.time.monotonic", return_value=12):
++        identifier = uuid4()
++        connection.execute.return_value.fetchall.return_value = [{**order, "id": identifier}]
++        projector.refresh(identifier, event_type="OrderPaid")
++        assert list(projector._recent) == [identifier]
++
++
++def test_dedup_setting_requires_event_refresh_and_defaults_off():
++    assert not Settings().order_status_event_refresh_dedup
++    with pytest.raises(RuntimeError, match="ORDER_STATUS_EVENT_REFRESH_DEDUP"):
++        replace(Settings(), order_status_event_refresh_dedup=True).validate()
++    replace(Settings(), order_status_event_refresh=True, order_status_event_refresh_dedup=True,
++            order_status_cache_ms=1000).validate()
++    with pytest.raises(TypeError, match="boolean"):
++        CommittedOrderStatusProjector(Mock(), Mock(), deduplicate=1)
++
++
++@pytest.mark.parametrize("result,success", [(1, True), (0, False), (-1, False)])
++def test_publish_returns_success_only_when_redis_accepts_snapshot(result, success):
++    import json
++
++    from ticketing.infrastructure.order_status_cache import scalar
++    order, _, _, _ = dedup_fixture()
++    snapshot = {k: v for k, v in order.items() if k not in {"_ticket_id", "_ticket_seat_id"}}
++    snapshot["tickets"] = [{"id": order["_ticket_id"], "seat_id": "A"}]
++    snapshot = json.loads(json.dumps(snapshot, default=scalar))
++    redis = Mock()
++    redis.eval.return_value = result
++    assert RedisOrderStatusCache(redis, 1000).publish("actual-owner", order["id"], snapshot, 1000) is success

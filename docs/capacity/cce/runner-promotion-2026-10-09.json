@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "decision": "ADR0238",
+  "status": "IMPLEMENTED_LOCAL_OFFLINE_TESTED_CI_PENDING",
+  "backend_dependency": {
+    "pull_request": "https://github.com/chawansit/flash-ticketing/pull/6",
+    "head": "a72d0b5a37bd3732580536c5c8f349f2b7b41712",
+    "merge_required_before_main_retarget": true
+  },
+  "experimental_source_revision": "8c244f033523a2d24aa16717a8c15f321abd113f",
+  "reproduction_lock": "docs/capacity/cce/reproduction-lock-2026-10-09.json",
+  "pinned_inputs": 535,
+  "frozen_generator_parent_files": 78,
+  "historical_roles": 8,
+  "original_temporary_source_exports_packaged": 6,
+  "provided_credentials_and_private_key_scan_matches": 0,
+  "validation": {
+    "unit_passed": 1802,
+    "unit_skipped": [
+      {
+        "test": "tests.unit.test_cce_paid_observers.test_startup_failure_retains_bounded_owned_logs_independently[symlink]",
+        "reason": "Symlink creation unavailable on this host"
+      }
+    ],
+    "unit_failed": 0,
+    "unit_seconds": 79.274,
+    "final_focused_passed": 168,
+    "final_focused_seconds": 16.26,
+    "ruff_pass": true,
+    "repository_names_pass": true,
+    "complete_historical_contract_constructor_pass": true,
+    "ci_status": "pending"
+  },
+  "history": {
+    "earlier_failed_checks_preserved_locally": true,
+    "unrelated_historical_image_export_suite_deferred": true,
+    "historical_hourly_status": "FAILED_RESTORED",
+    "payment_acquisition_failure_unresolved": true,
+    "observer_trace_size_and_sampling_gates_unresolved": true,
+    "hot_18000_seat_projection_unqualified": true
+  },
+  "scope": {
+    "application_source_changes": 0,
+    "migration_changes": 0,
+    "cloud_calls": 0,
+    "customer_dispatches": 0,
+    "main_merge_authorized": false,
+    "capacity_improvement_measured": false,
+    "production_qualified": false
+  },
+  "accounting": {
+    "no_cloud_scope_reserved": true,
+    "completed_local_test_log_seconds": [
+      10.04,
+      2.59,
+      341.69,
+      8.86,
+      76.97,
+      11.39,
+      16.26,
+      77.372,
+      79.274
+    ],
+    "interrupted_legacy_export_suite": "Not a pass; interrupted because unrelated historical image export checks were outside CCE promotion scope."
+  }
+}

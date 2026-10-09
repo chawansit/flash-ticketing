@@ -1,0 +1,621 @@
+{
+  "decision": "ADR0223",
+  "pass": false,
+  "cloud_run": "adr0151-cac068bf517e",
+  "scope": "Unchanged ADR0222 consumer correction at 84 offered journeys/s for 300 seconds; observer phase timings only.",
+  "stage": {
+    "stage_pass": false,
+    "customer_pass": false,
+    "offered_buyers_per_second": 84,
+    "dispatch_seconds": 300,
+    "scheduled": 25200,
+    "dispatched": 25168,
+    "customer_confirmations_by_deadline": 25168,
+    "generator_drops": 32,
+    "failed_dispatched_journeys": 0,
+    "errors_per_dispatched_journey_percent": 0.0,
+    "customer_outcomes": {
+      "fulfilled": 25168
+    },
+    "customer_http_attempts_total": 182662,
+    "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+    "p95_ms": {
+      "hold_http_p95_ms": 14.856056950520724,
+      "durable_p95_ms": 4077.3677219985984,
+      "payment_http_p95_ms": 86.25206199940294,
+      "payment_to_ticket_p95_ms": 1460.1813020417467,
+      "hold_to_ticket_p95_ms": 5548.977216996718
+    },
+    "host_cpu_percent": {
+      "primary": 66.62434370817748,
+      "secondary": 43.40749652624801
+    },
+    "aggregate_api_cpu_cores": 2.0330378914495046,
+    "financial": {
+      "orders": 25168,
+      "fulfilled_orders": 25168,
+      "expired_orders": 0,
+      "pending_orders": 0,
+      "payment_attempts": 25168,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 25168,
+      "bookings": 25168,
+      "tickets": 25168,
+      "payment_callbacks": 25168,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 25168,
+      "callback_delivery_target": 25168,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 25200,
+      "expected_paid": 25200,
+      "expected_callback_deliveries_per_payment": 1,
+      "pass": false,
+      "hold_deadlines_elapsed": true
+    },
+    "global_queues": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "pending_callback_deliveries": 0,
+      "pending_refunds": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "kafka_total_lag": 0,
+      "kafka_members": 6,
+      "pass": true,
+      "pending_confirmation_receipts": 0,
+      "review_confirmation_receipts": 0,
+      "confirmation_capacity_outstanding": 0,
+      "confirmation_capacity_mismatches": 0
+    },
+    "all_four_replicas_observed": null,
+    "request_shares": [],
+    "private_cleanup_pass": true,
+    "failure_type": "ValueError"
+  },
+  "gates": {
+    "paid": {
+      "customer_load": false,
+      "post_ttl_financial": false,
+      "zero_double_booking": false,
+      "full_keyspace_queue_drain": true,
+      "kafka_drain": true,
+      "pipeline_observer": true,
+      "kafka_observer": true,
+      "cpu_sampler": true,
+      "source_and_restored_configuration_pass": true,
+      "generator_idle_pass": true,
+      "private_cleanup_pass": true,
+      "hold_deadlines_elapsed": true,
+      "pipeline_observer_source": true,
+      "candidate_source_identity": true,
+      "only_expected_runtime_modules_changed": true,
+      "payment_partition_active": true,
+      "fixed_connection_and_waiter_budget": true,
+      "payment_partition_restored": true,
+      "financial_logic_unchanged": true,
+      "baseline_runtime_deployed": true,
+      "pinned_harness_identity": true,
+      "bounded_equal_cache_age": true
+    },
+    "additional": {
+      "distinct_api_and_generator_machines": true,
+      "fixed_aggregate_budgets": true,
+      "all_four_replicas_observed": false,
+      "both_hosts_cpu_observed": true,
+      "same_offered_measurement_window": true,
+      "per_replica_traffic_distribution": false,
+      "cross_host_one_seat_one_owner": true,
+      "cross_host_idempotent_replay": true,
+      "secondary_resources_removed": true,
+      "primary_lb_and_four_apis_restored": true
+    },
+    "all_required_gates_pass": false,
+    "failed_gates": [
+      "all_four_replicas_observed",
+      "customer_load",
+      "per_replica_traffic_distribution",
+      "post_ttl_financial",
+      "zero_double_booking",
+      "admission_failure_evidence_complete",
+      "slow_database_evidence_complete",
+      "database_wait_evidence_complete",
+      "confirmation_worker_metrics_coverage",
+      "callback_routing_verified"
+    ],
+    "scope": "Gate-map evaluation only; live evidence must be collected by a qualified runner.",
+    "confirmation": {
+      "durable_confirmation_receipts_complete": true,
+      "durable_confirmation_global_drain": true,
+      "admission_failure_evidence_complete": false,
+      "slow_database_evidence_complete": false,
+      "database_wait_evidence_complete": false,
+      "diagnostic_connection_verified": true,
+      "diagnostic_credentials_removed": true
+    }
+  },
+  "restoration_complete": true,
+  "measurements": {
+    "status_checks": 58955,
+    "status_checks_per_dispatched_journey": 2.3424586776859506,
+    "consumer_database": {
+      "observed_replicas": 6,
+      "counter_deltas": {
+        "pool_acquire:ok": 114426.0,
+        "process_cpu_seconds_total": 216.46,
+        "order_cache:event_fill": 50495.0,
+        "order_cache:event_fill_raced": 1.0
+      },
+      "duration_mean_ms": {
+        "db_query:INSERT": 2.21039906409232,
+        "db_connection_hold:all": 13.355200985646155,
+        "db_pool_acquire:ok": 0.014728483809778242,
+        "db_commit:all": 3.3440288534090405,
+        "db_query:SELECT": 1.7047593781195496,
+        "db_query:BEGIN": 3.098119915762618,
+        "db_query:UPDATE": 1.7016988605519434
+      },
+      "event_loop_lag_current_peak_ms": 0.0,
+      "pool_peaks_per_replica": {
+        "pool_acquiring": 0,
+        "pool_in_use": 1.0,
+        "pool_state:pool_size": 1.0,
+        "pool_state:pool_available": 1.0,
+        "pool_state:requests_waiting": 0,
+        "pool_state:pool_max": 8.0
+      },
+      "counter_reset_detected": false
+    },
+    "callback_backlog": {
+      "max": 97,
+      "last": 0,
+      "delta": 0,
+      "p95": 28
+    },
+    "cache_scope": "Full observer lifetime including completion tail; not offered-window HTTP RPS.",
+    "cache_observed": false,
+    "cache_failure_type": "ValueError",
+    "cache_hit_share": null,
+    "confirmation_observed": false,
+    "confirmation_failure_type": "ValueError",
+    "admission_diagnostics_observed": true,
+    "admission_failure_deltas": {
+      "acquisition_failure:general:native_limit": 0.0,
+      "acquisition_failure:payment:role_limit": 0.0,
+      "acquisition_failure:payment:native_timeout": 0.0,
+      "acquisition_failure:general:native_timeout": 0.0,
+      "acquisition_failure:general:global_limit": 0.0,
+      "acquisition_failure:general:role_limit": 0.0,
+      "acquisition_failure:payment:native_limit": 0.0,
+      "acquisition_failure:payment:global_limit": 0.0
+    },
+    "admission_counter_window": "observer lifetime;not exact offered window",
+    "slow_database_capture": null,
+    "database_wait_capture": {
+      "decision": "ADR0173",
+      "complete": false,
+      "rows": 434,
+      "error_counts": {},
+      "counter_continuity": false,
+      "max_collection_ms": 100.09458102285862,
+      "wal_timing_available_throughout": false,
+      "counter_deltas": null,
+      "observed_active_wait_peaks": {
+        "Client:ClientRead": 5,
+        "None:None": 15,
+        "IO:DataFileRead": 2,
+        "IO:WalSync": 1,
+        "LWLock:WALWrite": 22,
+        "LWLock:LockManager": 1,
+        "Lock:transactionid": 1,
+        "IO:DataFileWrite": 1,
+        "Timeout:SpinDelay": 1,
+        "IO:WalInitSync": 1,
+        "IO:WalInitWrite": 1,
+        "LWLock:BufferMapping": 1,
+        "IO:DataFileExtend": 1
+      },
+      "scope": "Observer lifetime, cluster WAL/checkpoints and current-database activity; one-second snapshots may miss brief waits. Correlation does not prove causality."
+    },
+    "callback_routing": {
+      "callback_routing_verified": false,
+      "failure_type": "ValueError"
+    }
+  },
+  "phase_peaks_ms": {
+    "host_cpu": 1.3371710083447397,
+    "pgbouncer": 3.135990002192557,
+    "paid_cohort": 2110.8206970384344,
+    "worker:simulator": 19.749728962779045,
+    "worker:consumer": 134.23177000368014,
+    "worker:publisher": 23.31419597612694,
+    "worker:writer": 53.41353901894763,
+    "worker:maintenance": 15.786061994731426,
+    "worker:reconciler": 27.281280956231058,
+    "worker:confirmation": 19.920261984225363,
+    "api_max": 49.95883599622175
+  },
+  "largest_sampling_gaps": [
+    {
+      "gap_seconds": 2.327144,
+      "before_utc": "2026-10-08T05:00:02.763310+00:00",
+      "phase_ms": {
+        "host_cpu": 0.11377700138837099,
+        "pgbouncer": 0.3326699952594936,
+        "paid_cohort": 2110.8206970384344,
+        "worker:simulator": 8.576603955589235,
+        "worker:consumer": 68.56458698166534,
+        "worker:publisher": 7.8419369529001415,
+        "worker:writer": 26.495088008232415,
+        "worker:maintenance": 7.91753304656595,
+        "worker:reconciler": 7.359957962762564,
+        "worker:confirmation": 6.636041973251849,
+        "api_max": 15.894184005446732
+      }
+    },
+    {
+      "gap_seconds": 2.224758,
+      "before_utc": "2026-10-08T05:00:00.538552+00:00",
+      "phase_ms": {
+        "host_cpu": 0.1193400239571929,
+        "pgbouncer": 0.6014209939166903,
+        "paid_cohort": 1943.2748570106924,
+        "worker:simulator": 8.733916969504207,
+        "worker:consumer": 63.851208018604666,
+        "worker:publisher": 6.394583964720368,
+        "worker:writer": 25.79002402490005,
+        "worker:maintenance": 7.258160039782524,
+        "worker:reconciler": 7.812191033735871,
+        "worker:confirmation": 6.647450965829194,
+        "api_max": 14.11576202372089
+      }
+    },
+    {
+      "gap_seconds": 2.014164,
+      "before_utc": "2026-10-08T05:00:06.825861+00:00",
+      "phase_ms": {
+        "host_cpu": 0.17507100710645318,
+        "pgbouncer": 0.9484599577262998,
+        "paid_cohort": 1794.5055540185422,
+        "worker:simulator": 8.914527017623186,
+        "worker:consumer": 62.21830198774114,
+        "worker:publisher": 6.269109027925879,
+        "worker:writer": 25.08373698219657,
+        "worker:maintenance": 7.223485037684441,
+        "worker:reconciler": 9.523092012386769,
+        "worker:confirmation": 7.238876016344875,
+        "api_max": 20.4921230324544
+      }
+    }
+  ],
+  "read_only_query_plan": {
+    "read_only": true,
+    "statement_timeout_seconds": 5,
+    "plan": {
+      "Node Type": "Nested Loop",
+      "Plan Rows": 1,
+      "Actual Total Time": 905.909,
+      "Actual Rows": 1,
+      "Actual Loops": 1,
+      "Shared Hit Blocks": 290653,
+      "Shared Read Blocks": 0,
+      "Temp Read Blocks": 0,
+      "Temp Written Blocks": 0,
+      "Plans": [
+        {
+          "Node Type": "Seq Scan",
+          "Relation Name": "orders",
+          "Plan Rows": 10944,
+          "Actual Total Time": 668.699,
+          "Actual Rows": 25168,
+          "Actual Loops": 1,
+          "Rows Removed by Filter": 4294687,
+          "Shared Hit Blocks": 88582,
+          "Shared Read Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": []
+        },
+        {
+          "Node Type": "Aggregate",
+          "Plan Rows": 1,
+          "Actual Total Time": 110.218,
+          "Actual Rows": 1,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 101358,
+          "Shared Read Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Nested Loop",
+              "Plan Rows": 23530,
+              "Actual Total Time": 108.348,
+              "Actual Rows": 25168,
+              "Actual Loops": 1,
+              "Shared Hit Blocks": 101358,
+              "Shared Read Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Plans": [
+                {
+                  "Node Type": "Bitmap Heap Scan",
+                  "Relation Name": "bookings",
+                  "Plan Rows": 23519,
+                  "Actual Total Time": 5.644,
+                  "Actual Rows": 25168,
+                  "Actual Loops": 1,
+                  "Shared Hit Blocks": 685,
+                  "Shared Read Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0,
+                  "Plans": [
+                    {
+                      "Node Type": "Bitmap Index Scan",
+                      "Index Name": "bookings_event_id_seat_id_key",
+                      "Plan Rows": 23519,
+                      "Actual Total Time": 2.103,
+                      "Actual Rows": 25168,
+                      "Actual Loops": 1,
+                      "Shared Hit Blocks": 412,
+                      "Shared Read Blocks": 0,
+                      "Temp Read Blocks": 0,
+                      "Temp Written Blocks": 0,
+                      "Plans": []
+                    }
+                  ]
+                },
+                {
+                  "Node Type": "Index Only Scan",
+                  "Index Name": "tickets_booking_id_key",
+                  "Relation Name": "tickets",
+                  "Plan Rows": 1,
+                  "Actual Total Time": 0.004,
+                  "Actual Rows": 1,
+                  "Actual Loops": 25168,
+                  "Shared Hit Blocks": 100673,
+                  "Shared Read Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0,
+                  "Plans": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Node Type": "Aggregate",
+          "Plan Rows": 1,
+          "Actual Total Time": 0.073,
+          "Actual Rows": 1,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 34,
+          "Shared Read Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Index Only Scan",
+              "Index Name": "outbox_pending",
+              "Relation Name": "outbox_events",
+              "Plan Rows": 1,
+              "Actual Total Time": 0.071,
+              "Actual Rows": 0,
+              "Actual Loops": 1,
+              "Shared Hit Blocks": 34,
+              "Shared Read Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Plans": []
+            }
+          ]
+        },
+        {
+          "Node Type": "Aggregate",
+          "Plan Rows": 1,
+          "Actual Total Time": 0.238,
+          "Actual Rows": 1,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Nested Loop",
+              "Plan Rows": 1,
+              "Actual Total Time": 0.236,
+              "Actual Rows": 0,
+              "Actual Loops": 1,
+              "Shared Hit Blocks": 0,
+              "Shared Read Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Plans": [
+                {
+                  "Node Type": "Function Scan",
+                  "Plan Rows": 1,
+                  "Actual Total Time": 0.235,
+                  "Actual Rows": 0,
+                  "Actual Loops": 1,
+                  "Rows Removed by Filter": 24,
+                  "Shared Hit Blocks": 0,
+                  "Shared Read Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0,
+                  "Plans": []
+                },
+                {
+                  "Node Type": "Seq Scan",
+                  "Relation Name": "pg_database",
+                  "Plan Rows": 1,
+                  "Actual Total Time": 0.0,
+                  "Actual Rows": 0,
+                  "Actual Loops": 0,
+                  "Rows Removed by Filter": 0,
+                  "Shared Hit Blocks": 0,
+                  "Shared Read Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0,
+                  "Plans": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "Node Type": "Aggregate",
+          "Plan Rows": 1,
+          "Actual Total Time": 679.913,
+          "Actual Rows": 1,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 88582,
+          "Shared Read Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "CTE Scan",
+              "Plan Rows": 10944,
+              "Actual Total Time": 676.024,
+              "Actual Rows": 25168,
+              "Actual Loops": 1,
+              "Shared Hit Blocks": 88582,
+              "Shared Read Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Plans": []
+            }
+          ]
+        },
+        {
+          "Node Type": "Aggregate",
+          "Plan Rows": 1,
+          "Actual Total Time": 115.455,
+          "Actual Rows": 1,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 100679,
+          "Shared Read Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Nested Loop",
+              "Plan Rows": 10944,
+              "Actual Total Time": 112.312,
+              "Actual Rows": 25168,
+              "Actual Loops": 1,
+              "Shared Hit Blocks": 100679,
+              "Shared Read Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Plans": [
+                {
+                  "Node Type": "CTE Scan",
+                  "Plan Rows": 10944,
+                  "Actual Total Time": 4.798,
+                  "Actual Rows": 25168,
+                  "Actual Loops": 1,
+                  "Shared Hit Blocks": 0,
+                  "Shared Read Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0,
+                  "Plans": []
+                },
+                {
+                  "Node Type": "Index Scan",
+                  "Index Name": "payment_attempts_order_id_key",
+                  "Relation Name": "payment_attempts",
+                  "Plan Rows": 1,
+                  "Actual Total Time": 0.004,
+                  "Actual Rows": 1,
+                  "Actual Loops": 25168,
+                  "Shared Hit Blocks": 100673,
+                  "Shared Read Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0,
+                  "Plans": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "planning_ms": 0.927,
+    "execution_ms": 906.289,
+    "indexes": [
+      {
+        "table": "bookings",
+        "name": "bookings_event_id_seat_id_key",
+        "definition": "CREATE UNIQUE INDEX bookings_event_id_seat_id_key ON public.bookings USING btree (event_id, seat_id)"
+      },
+      {
+        "table": "bookings",
+        "name": "bookings_order_id",
+        "definition": "CREATE INDEX bookings_order_id ON public.bookings USING btree (order_id)"
+      },
+      {
+        "table": "bookings",
+        "name": "bookings_pkey",
+        "definition": "CREATE UNIQUE INDEX bookings_pkey ON public.bookings USING btree (id)"
+      },
+      {
+        "table": "orders",
+        "name": "orders_hold_id_key",
+        "definition": "CREATE UNIQUE INDEX orders_hold_id_key ON public.orders USING btree (hold_id)"
+      },
+      {
+        "table": "orders",
+        "name": "orders_pkey",
+        "definition": "CREATE UNIQUE INDEX orders_pkey ON public.orders USING btree (id)"
+      },
+      {
+        "table": "outbox_events",
+        "name": "outbox_events_pkey",
+        "definition": "CREATE UNIQUE INDEX outbox_events_pkey ON public.outbox_events USING btree (id)"
+      },
+      {
+        "table": "outbox_events",
+        "name": "outbox_pending",
+        "definition": "CREATE INDEX outbox_pending ON public.outbox_events USING btree (occurred_at) WHERE (published_at IS NULL)"
+      },
+      {
+        "table": "payment_attempts",
+        "name": "payment_attempts_dispatch_due",
+        "definition": "CREATE INDEX payment_attempts_dispatch_due ON public.payment_attempts USING btree (due_at) WHERE (deliveries < target_deliveries)"
+      },
+      {
+        "table": "payment_attempts",
+        "name": "payment_attempts_order_id_key",
+        "definition": "CREATE UNIQUE INDEX payment_attempts_order_id_key ON public.payment_attempts USING btree (order_id)"
+      },
+      {
+        "table": "payment_attempts",
+        "name": "payment_attempts_pkey",
+        "definition": "CREATE UNIQUE INDEX payment_attempts_pkey ON public.payment_attempts USING btree (id)"
+      },
+      {
+        "table": "tickets",
+        "name": "tickets_booking_id_key",
+        "definition": "CREATE UNIQUE INDEX tickets_booking_id_key ON public.tickets USING btree (booking_id)"
+      },
+      {
+        "table": "tickets",
+        "name": "tickets_pkey",
+        "definition": "CREATE UNIQUE INDEX tickets_pkey ON public.tickets USING btree (id)"
+      }
+    ]
+  },
+  "recovery_receipt": "docs/capacity/flash-sale-opening/interleaved-refresh-timing-recovery-2026-10-08.json",
+  "original_experiment_status": "RECOVERY_REQUIRED",
+  "hourly_qualified": false,
+  "accounting": {
+    "experiment_seconds": 1466.890000000014,
+    "verification_seconds_this_followup": 234.67199999999139
+  },
+  "next_action": "Add a single orders(event_id) index before a fresh matched 84/s qualification; preserve original failures and all gates."
+}

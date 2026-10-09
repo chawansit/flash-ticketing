@@ -1,0 +1,361 @@
+{
+  "schema_version": 1,
+  "decision": "ADR0172",
+  "envelope_id": "standing-work-envelope-2026-10-06",
+  "authorization": "Direct user approval; existing resources only, no cumulative time cap, experiments as effectively short as possible, current profile gates, reviewed code/evidence to codex branch; main merge requires approval.",
+  "goal_unique_paid_issued_tickets_per_hour": 300000,
+  "spending": {
+    "maximum_new_infrastructure_spend": 0,
+    "existing_service_charges": "Continue at existing sizes; no total bill cap specified.",
+    "allow_new_resources_or_resize": false,
+    "temporary_cce_pilot_exception": {
+      "decision": "ADR0220",
+      "authorized_date_bangkok": "2026-10-09",
+      "maximum_additional_spend": null,
+      "no_spending_cap_explicitly_authorized": true,
+      "scope": "One fresh unchanged four-pod, 1-vCPU bridge, 84/s for 300 seconds short control after verified port restoration correction. Maximum 3600 seconds; all existing correctness, TTL, drain and restoration gates. Historical scopes remain consumed. Hourly follow-up must be separately registered and qualified.",
+      "authorization": "User agreed to remove rolling clock deadlines and explicitly authorized: No monetary cap for this comparison and scaling.",
+      "status": "APPROVED_GOAL_BOUNDED",
+      "prior_expires_at_bangkok": "2026-10-08T23:59:59+07:00",
+      "single_comparison_extension": {
+        "authorized_at_bangkok": "2026-10-09T01:43:30.265337+07:00",
+        "authorization": "User agreed to remove rolling clock deadlines and explicitly authorized: No monetary cap for this comparison and scaling.",
+        "authorization_interpretation": "Reach one fixed paid comparison under explicit uncapped spending and no wall-clock cutoff; retain3600s per experiment, fixed resources and all gates.",
+        "profile": "cce_paid_comparison",
+        "maximum_paid_stages": 1,
+        "maximum_pods": 4,
+        "pod_vcpu": 1,
+        "pod_memory_gib": 1,
+        "offered_journeys_per_second": 84,
+        "offered_seconds": 300,
+        "maximum_experiment_seconds": 3600,
+        "additional_paid_stages_authorized": false,
+        "status": "APPROVED_GOAL_BOUNDED",
+        "failed_pre_dispatch_runs": [
+          "adr0151-c95a1c214e51",
+          "adr0151-7f92bec3c3d5",
+          "adr0151-ff50e8d4005b"
+        ]
+      },
+      "completed_single_run_extensions": [
+        {
+          "authorized_at_bangkok": "2026-10-08T23:00:20+07:00",
+          "authorization": "Direct user approval of the stated single-run extension.",
+          "maximum_experiments": 1,
+          "profile": "cce_paid_comparison",
+          "maximum_pods": 4,
+          "pod_vcpu": 1,
+          "pod_memory_gib": 1,
+          "offered_journeys_per_second": 84,
+          "offered_seconds": 300,
+          "maximum_experiment_seconds": 3600,
+          "expires_at_bangkok": "2026-10-09T01:00:00+07:00",
+          "additional_followup_experiments_authorized": false,
+          "consumed_run": "adr0151-b757db2721ab",
+          "status": "CONSUMED_FAILED_RESTORED"
+        },
+        {
+          "authorized_at_bangkok": "2026-10-08T23:45:15.883665+07:00",
+          "authorization": "Direct user approval of one additional fresh CCE comparison under the same01:00 Bangkok deadline.",
+          "maximum_experiments": 1,
+          "profile": "cce_paid_comparison",
+          "maximum_pods": 4,
+          "pod_vcpu": 1,
+          "pod_memory_gib": 1,
+          "offered_journeys_per_second": 84,
+          "offered_seconds": 300,
+          "maximum_experiment_seconds": 3600,
+          "expires_at_bangkok": "2026-10-09T01:00:00+07:00",
+          "additional_followup_experiments_authorized": false,
+          "status": "CONSUMED_FAILED_RESTORED",
+          "consumed_run": "adr0151-eaf7b12b6381"
+        },
+        {
+          "authorized_at_bangkok": "2026-10-09T00:07:33.447151+07:00",
+          "authorization": "Direct user approval of one fresh CCE comparison through 02:00 Bangkok on 9 October.",
+          "maximum_experiments": 1,
+          "profile": "cce_paid_comparison",
+          "maximum_pods": 4,
+          "pod_vcpu": 1,
+          "pod_memory_gib": 1,
+          "offered_journeys_per_second": 84,
+          "offered_seconds": 300,
+          "maximum_experiment_seconds": 3600,
+          "expires_at_bangkok": "2026-10-09T02:00:00+07:00",
+          "additional_followup_experiments_authorized": false,
+          "status": "CONSUMED_FAILED_RESTORED",
+          "consumed_run": "adr0151-6b8f809a403c"
+        },
+        {
+          "authorized_at_bangkok": "2026-10-09T00:30:18.939915+07:00",
+          "authorization": "Direct user approval: approved all the way to 84 offered journeys/s for five minutes. Includes mandatory financial verification, queue drain and restoration.",
+          "maximum_experiments": 1,
+          "profile": "cce_paid_comparison",
+          "maximum_pods": 4,
+          "pod_vcpu": 1,
+          "pod_memory_gib": 1,
+          "offered_journeys_per_second": 84,
+          "offered_seconds": 300,
+          "maximum_experiment_seconds": 3600,
+          "expires_at_bangkok": "2026-10-09T02:00:00+07:00",
+          "additional_followup_experiments_authorized": false,
+          "status": "CONSUMED_FAILED_RESTORED",
+          "consumed_run": "adr0151-c95a1c214e51"
+        }
+      ],
+      "deadline_extensions": [
+        {
+          "previous_expires_at_bangkok": "2026-10-09T02:00:00+07:00",
+          "expires_at_bangkok": "2026-10-09T03:00:00+07:00",
+          "authorized_at_bangkok": "2026-10-09T01:43:30.265337+07:00",
+          "user_message": "Approved",
+          "context": "Explicit reply approving 03:00 Bangkok cleanup deadline for one 84 offered journeys/s paid stage for 300s, four 1-vCPU/1-GiB API pods, same spending terms and correctness gates, max3600s."
+        }
+      ],
+      "archived_calendar_authorizations": [
+        {
+          "authorized_date_bangkok": "2026-10-08",
+          "expires_at_bangkok": "2026-10-09T03:00:00+07:00",
+          "authorized_expires_at_bangkok": "2026-10-09T03:00:00+07:00",
+          "authorization": "Explicit user approval of 03:00 Bangkok cleanup extension and one bounded CCE test; same spending terms and gates.",
+          "scope": "Fixed CCE comparison: four 1-vCPU/1-GiB API pods, 84 offered journeys/s for 300s, at most 3600s per experiment including required audits/restoration/cleanup by 03:00 Bangkok. No unrelated infrastructure or additional paid stages.",
+          "status": "Latest pre-dispatch attempt failed and independently recovered; no paid stage. New workload blocked after 02:00 Bangkok full-hour creation cutoff for03:00 cleanup."
+        }
+      ],
+      "boundary_mode": "goal_bounded",
+      "goal_bounded_authorization": {
+        "decision": "ADR0232",
+        "profile": "cce_hourly_qualification",
+        "maximum_paid_stages": 1,
+        "maximum_pods": 4,
+        "pod_vcpu": 1,
+        "pod_memory_gib": 1,
+        "offered_journeys_per_second": 84,
+        "offered_seconds": 3600,
+        "maximum_experiment_seconds": 5400,
+        "ledger_start_index": 52,
+        "acquisition_budget": 20,
+        "baseline_sha256": "52a5d5a3a1e516461bd23413f7bd1a355d6f51064b21fd0f91c5554d70b3ed06",
+        "unlimited_cumulative_time_explicitly_authorized": true,
+        "spending_allowance": {
+          "status": "APPROVED",
+          "maximum_additional_spend": null,
+          "currency": null,
+          "no_spending_cap_explicitly_authorized": true,
+          "authorization": "Direct user reply: No monetary cap for this comparison and scaling."
+        },
+        "authorization": "Direct user Proceed and Continue after passing short comparison; previously approved 90-minute hourly qualification and no monetary cap for this comparison and scaling.",
+        "stop_conditions": "One fresh hourly paid stage only; preserve exact profile gates and mandatory recovery. No consumed reservation may be reopened."
+      },
+      "bounded_scaling_permission": {
+        "authorized": true,
+        "authorization": "User: you can more pod to meet requirement; No monetary cap for this comparison and scaling.",
+        "scope": "Additional CCE API pods when measurements justify them; resource count and duration predeclared in a reviewed ADR/profile before each experiment. First comparison remains four1-vCPU/1-GiB pods for fair comparison.",
+        "deployment_registered": false,
+        "automatic_unattended_scaling": false
+      },
+      "completed_goal_authorizations": [
+        {
+          "decision": "ADR0228",
+          "profile": "cce_paid_comparison",
+          "maximum_paid_stages": 1,
+          "maximum_pods": 4,
+          "pod_vcpu": 1,
+          "pod_memory_gib": 1,
+          "offered_journeys_per_second": 84,
+          "offered_seconds": 300,
+          "maximum_experiment_seconds": 3600,
+          "unlimited_cumulative_time_explicitly_authorized": true,
+          "ledger_start_index": 44,
+          "authorized_at_bangkok": "2026-10-09T02:29:06.668056+07:00",
+          "spending_allowance": {
+            "status": "APPROVED",
+            "maximum_additional_spend": null,
+            "currency": null,
+            "no_spending_cap_explicitly_authorized": true,
+            "authorization": "Direct user reply: No monetary cap for this comparison and scaling."
+          },
+          "status": "CONSUMED_FAILED_RESTORED",
+          "consumed_ledger": "bounded_cce_paid_comparison__cfd706a87a52",
+          "evidence": "docs/capacity/flash-sale-opening/cce-paid-comparison-2026-10-09.json"
+        },
+        {
+          "decision": "ADR0228",
+          "profile": "cce_paid_comparison",
+          "maximum_paid_stages": 1,
+          "maximum_pods": 4,
+          "pod_vcpu": 1,
+          "pod_memory_gib": 1,
+          "offered_journeys_per_second": 84,
+          "offered_seconds": 300,
+          "maximum_experiment_seconds": 3600,
+          "unlimited_cumulative_time_explicitly_authorized": true,
+          "ledger_start_index": 48,
+          "authorized_at_bangkok": "2026-10-09T03:53:31.902946+07:00",
+          "spending_allowance": {
+            "status": "APPROVED",
+            "maximum_additional_spend": null,
+            "currency": null,
+            "no_spending_cap_explicitly_authorized": true,
+            "authorization": "Direct user reply: No monetary cap for this comparison and scaling."
+          },
+          "extension_decision": "ADR0230",
+          "authorization": "Direct user instruction: Continue until finish 84/second. One fresh bridge correction comparison; preserve consumed historical scope.",
+          "candidate_factor": {
+            "bridge_cpu_limit": 1,
+            "baseline_bridge_cpu_limit": 0.125
+          },
+          "status": "CONSUMED_FAILED_RESTORED",
+          "consumed_ledger": "bounded_cce_paid_comparison__33bd91855dcc",
+          "evidence": "docs/capacity/flash-sale-opening/cce-bridge-comparison-2026-10-09.json"
+        },
+        {
+          "decision": "ADR0228",
+          "profile": "cce_paid_comparison",
+          "maximum_paid_stages": 1,
+          "maximum_pods": 4,
+          "pod_vcpu": 1,
+          "pod_memory_gib": 1,
+          "offered_journeys_per_second": 84,
+          "offered_seconds": 300,
+          "maximum_experiment_seconds": 3600,
+          "unlimited_cumulative_time_explicitly_authorized": true,
+          "ledger_start_index": 49,
+          "authorized_at_bangkok": "2026-10-09T03:53:31.902946+07:00",
+          "spending_allowance": {
+            "status": "APPROVED",
+            "maximum_additional_spend": null,
+            "currency": null,
+            "no_spending_cap_explicitly_authorized": true,
+            "authorization": "Direct user reply: No monetary cap for this comparison and scaling."
+          },
+          "extension_decision": "ADR0231",
+          "authorization": "Direct user Proceed to diagnose restoration, run unchanged 84/s short control, then hourly qualification only after every control gate passes.",
+          "candidate_factor": {
+            "name": "refresh_verified_restart_ports",
+            "backend_and_resources_unchanged": true
+          },
+          "status": "CONSUMED_FAILED_RESTORED",
+          "consumed_ledger": "bounded_cce_paid_comparison__6c2d3e4257b9",
+          "evidence": "docs/capacity/flash-sale-opening/cce-restoration-control-2026-10-09.json"
+        },
+        {
+          "decision": "ADR0228",
+          "profile": "cce_paid_comparison",
+          "maximum_paid_stages": 1,
+          "maximum_pods": 4,
+          "pod_vcpu": 1,
+          "pod_memory_gib": 1,
+          "offered_journeys_per_second": 84,
+          "offered_seconds": 300,
+          "maximum_experiment_seconds": 3600,
+          "unlimited_cumulative_time_explicitly_authorized": true,
+          "ledger_start_index": 50,
+          "authorized_at_bangkok": "2026-10-09T07:15:39.644482+07:00",
+          "spending_allowance": {
+            "status": "APPROVED",
+            "maximum_additional_spend": null,
+            "currency": null,
+            "no_spending_cap_explicitly_authorized": true,
+            "authorization": "Direct user reply: No monetary cap for this comparison and scaling."
+          },
+          "extension_decision": "ADR0233",
+          "authorization": "Continuing direct user Proceed and Continue until finish84/second; one fresh unchanged diagnostic control, preserved prior consumption and no hourly progression on failed gates.",
+          "candidate_factor": {
+            "name": "retain_failure_time_snapshots",
+            "backend_and_resources_unchanged": true
+          },
+          "status": "CONSUMED_FAILED_RESTORED",
+          "consumed_ledger": "bounded_cce_paid_comparison__d17725c2400a",
+          "evidence": "docs/capacity/flash-sale-opening/cce-admission-control-2026-10-09.json"
+        },
+        {
+          "decision": "ADR0228",
+          "profile": "cce_paid_comparison",
+          "maximum_paid_stages": 1,
+          "maximum_pods": 4,
+          "pod_vcpu": 1,
+          "pod_memory_gib": 1,
+          "offered_journeys_per_second": 84,
+          "offered_seconds": 300,
+          "maximum_experiment_seconds": 3600,
+          "unlimited_cumulative_time_explicitly_authorized": true,
+          "ledger_start_index": 51,
+          "authorized_at_bangkok": "2026-10-09T07:40:33.752513+07:00",
+          "spending_allowance": {
+            "status": "APPROVED",
+            "maximum_additional_spend": null,
+            "currency": null,
+            "no_spending_cap_explicitly_authorized": true,
+            "authorization": "Direct user reply: No monetary cap for this comparison and scaling."
+          },
+          "extension_decision": "ADR0234",
+          "authorization": "Continuing user Proceed and Continue until finish84/second; one fresh evidence-based CCE-only admission-budget candidate. Prior failed stages remain consumed. Hourly progression requires full short-stage pass.",
+          "candidate_factor": {
+            "name": "api_shared_acquisition_budget",
+            "baseline": 12,
+            "candidate": 20,
+            "database_connections_unchanged": true
+          }
+        }
+      ]
+    }
+  },
+  "time": {
+    "cumulative_experiment_seconds_limit": null,
+    "unlimited_cumulative_time_explicitly_authorized": true,
+    "experiment_seconds_limit": 3600,
+    "cleanup_may_exceed_deadline": true,
+    "duration_policy": "shortest_sufficient_evidence",
+    "duration_selection": "Choose the shortest predeclared window sufficient for the hypothesis and required gates. Match baseline/candidate windows; use longer runs only for intermittency, stability or hourly qualification.",
+    "hourly_qualification_exception": {
+      "experiment_seconds_limit": 5400,
+      "scope": "hourly qualification only, including setup, post-TTL, durability, complete queue drain and restoration",
+      "authorization": "Direct user reply: Allow 90 minutes for hourly qualification",
+      "approved_date_bangkok": "2026-10-07",
+      "spending_or_size_changes": false,
+      "status": "locally qualified and registered; cloud hourly load unexecuted"
+    }
+  },
+  "customer_gates": {
+    "mode": "exact_current_profile",
+    "zero_double_booking": true,
+    "zero_payment_loss": true,
+    "complete_queue_drain": true,
+    "no_slo_relaxation": true
+  },
+  "permissions": {
+    "local_engineering": true,
+    "bounded_test_deployment": true,
+    "push_reviewed_code_and_sanitized_evidence": true,
+    "branch_prefix": "codex/",
+    "merge_main": false,
+    "unattended_schedule": false
+  },
+  "qualified_profiles": [
+    "slow_database_control",
+    "database_wait_control",
+    "api_placement_rebalance",
+    "application_role_rebalance",
+    "diagnostic_placement",
+    "atomic_payment_claim",
+    "worker_separation",
+    "callback_routing",
+    "shared_callback_placement",
+    "shared_callback_rate_probe",
+    "interleaved_refresh_probe",
+    "orders_event_index_probe",
+    "writer_write_pipeline_probe",
+    "generator_completion_probe",
+    "cce_dependency_probe",
+    "cce_paid_comparison",
+    "cce_hourly_qualification"
+  ],
+  "escalate": [
+    "new spending or infrastructure action",
+    "requirements or correctness change",
+    "publication outside approved branch",
+    "unresolved restoration or ownership"
+  ],
+  "existing_resource_configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b"
+}

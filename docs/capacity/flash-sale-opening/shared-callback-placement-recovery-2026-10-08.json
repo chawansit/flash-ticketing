@@ -1,0 +1,23 @@
+{
+  "decision": "ADR0218",
+  "ledger": "bounded_shared_callback_placement__e71e05f76ac7",
+  "binding_sha256": "91782cacd5ad386dc28515c4b05aac699cbaf569f5cc625aebf72f28895e71b6",
+  "verified_at_utc": "2026-10-08T01:08:02.850377+00:00",
+  "gates": {
+    "zero_paid_dispatch": true,
+    "safety_financial_durable": true,
+    "zero_double_booking": true,
+    "full_queue_drain": true,
+    "exact_runtime_restored": true,
+    "owned_resources_removed": true,
+    "credentials_removed": true
+  },
+  "retained_artifact_sha256": {
+    "tmp/adr0151-e63b87f19898/comparison-summary.json": "ce31a02c51b50df69db38951dd2b53c0eb194f32da88de5d6584d1c331a3be05",
+    "tmp/adr0151-e63b87f19898/adr0151-arm-e5f9c2fee7af/state.json": "a968c92d6209569c2b392baca3d69c5da458b5993b09d43a43095ea1e91a023e",
+    "tmp/adr0151-e63b87f19898/adr0151-arm-e5f9c2fee7af/control/stage.private.json": "b9b849ff8fac6946daad386e796a8765fd7752cb7c4340e0a9c7cd9cb6f89049",
+    "tmp/adr0151-e63b87f19898/adr0151-arm-143b1dd69b1d/state.json": "564b2fcc18cdca2bf71a0da05ad16bee80b78a046611198399663f85a475ca7c",
+    "tmp/adr0151-e63b87f19898/adr0151-arm-143b1dd69b1d/candidate/stage.private.json": "3e7c858d3e8882ec66ba7e785507701e0b33f2470216154c019379be3c184738"
+  },
+  "scope": "Safety-only diagnostic abort restored; original failed qualification retained. Fresh full safety qualification required; no capacity claim."
+}

@@ -1,0 +1,21 @@
+{
+  "decision": "ADR0218",
+  "ledger": "bounded_writer_write_pipeline_probe__bd6a3461abd9",
+  "binding_sha256": "a13e8bc95695726e6193238edc0acc921c1a75ee9b6d317b34660895827bf58b",
+  "verified_at_utc": "2026-10-08T06:59:00.366739+00:00",
+  "gates": {
+    "zero_paid_dispatch": true,
+    "safety_financial_durable": true,
+    "zero_double_booking": true,
+    "full_queue_drain": true,
+    "exact_runtime_restored": true,
+    "owned_resources_removed": true,
+    "credentials_removed": true
+  },
+  "retained_artifact_sha256": {
+    "tmp/adr0151-3a1e553acc1c/comparison-summary.json": "68c09dc4fa0248abf31ff1f202ffa251b8b3eaec66b02545bf624213e76a9c4e",
+    "tmp/adr0151-3a1e553acc1c/adr0151-arm-4c250bd06e90/state.json": "67e059e77e4b9a9073a90cf6fee74e18f47f4d79686970cf24644aec5ee8005d",
+    "tmp/adr0151-3a1e553acc1c/adr0151-arm-4c250bd06e90/candidate/stage.private.json": "6e40d293d06a6c60670a19cfb3ebb66a061d355930c3d530dc19e759ae5afad0"
+  },
+  "scope": "Safety-only diagnostic abort restored; original failed qualification retained. Fresh full safety qualification required; no capacity claim."
+}

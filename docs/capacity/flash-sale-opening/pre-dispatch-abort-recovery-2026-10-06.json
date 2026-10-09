@@ -1,0 +1,28 @@
+{
+  "decision": "ADR0182",
+  "ledger": "bounded_diagnostic_placement__874965d115cc",
+  "binding_sha256": "382d0f0ac71d1da6ca93173af00fa2589bfde10d9f94753456751cc77b7fb632",
+  "verified_at_utc": "2026-10-06T09:41:54.088246+00:00",
+  "gates": {
+    "zero_paid_dispatch": true,
+    "retained_safety_financial_pass": true,
+    "retained_safety_authorization_pass": true,
+    "retained_restoration_pass": true,
+    "retained_credential_cleanup_pass": true,
+    "fresh_runtime_unchanged": true,
+    "fresh_primary_four": true,
+    "fresh_secondary_empty": true,
+    "fresh_generator_idle": true,
+    "fresh_queues_zero": true,
+    "fresh_credentials_absent": true
+  },
+  "retained_artifact_sha256": {
+    "tmp/adr0151-52cf2dcc92f6/comparison-summary.json": "807d21b799c222805473798b672a14c5a0bec24bf98107de31f3087173c7642a",
+    "tmp/adr0151-c5ca1d43f70d/comparison-summary.json": "557817790cb3f94bf52fad72108edd4eb9b956fe7c4a2fd99a5ebee83b0cb412",
+    "tmp/adr0151-c5ca1d43f70d/adr0151-arm-4ed46ee5db30/state.json": "5bcd66cc32b7dd97e841417633aa529b95146eca49f5b4fa8492c1142b3fba64",
+    "tmp/adr0151-c5ca1d43f70d/adr0151-arm-4ed46ee5db30/control/stage.private.json": "ed17b6d766644252789a543b0141b9e89ced62875d3e14fb979532a446021bb6",
+    "tmp/adr0151-c5ca1d43f70d/adr0151-arm-4ed46ee5db30/control/failure.private.log": "a03b752bfc4c1125b9c7797277a3808e9fa368aa2d5fcc1bb07bfd607ce6fbdb"
+  },
+  "fresh_probe_sha256": "4dd6487d1cc1cd5f7981daaadb83fe16fb01960fb6b8f1e694a8f5f8a20fdd3e",
+  "scope": "Verified pre-dispatch abort only; original failed gates and reservation remain unchanged. No load permission or capacity claim."
+}

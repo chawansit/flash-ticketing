@@ -11,6 +11,10 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -r requirements.lock
       - run: python -m ruff check src tests scripts
+      - name: Check repository names
+        run: python scripts/check_repository_names.py
+      - name: Verify pinned CCE and paid-load reproduction inputs (offline)
+        run: python scripts/check_cce_reproducibility.py
       - run: docker compose up -d --build --wait
       - run: docker compose run --rm seed
       - run: docker compose run --rm --build tests

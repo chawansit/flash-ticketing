@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "decision": "ADR0160",
+  "base_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "parent_manifest_sha256": "f05993241572e5150726b2feef7a2cd4689a216a460d9135eed6b36d173a299d",
+  "patch_sha256": "87d088138b581cda3dc2ee53943265530a917d5b3f6d5cbd25d70f0b6bb420f6",
+  "overlay_sha256": {
+    "migrations/009_payment_confirmation_receipts.sql": "7059f3d7246fef201e8c1bd23065c3f74949e7fb34c9ca47a34340849eb98c0c",
+    "scripts/checkout_journey_probe.py": "10b14c979133188d42aaba5a9a91ab599101922e2d284e85dbe6c03244e3a5bc",
+    "src/ticketing/api.py": "81f5f2198db10f62b6bd8891c379bd5e9f2d3c459ec24d76a90ba4f1571aa5fd",
+    "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+    "src/ticketing/application/ports.py": "3a562c947a28d8a63a257e361707041d41894f6374eba2702078d2bd39f9a98a",
+    "src/ticketing/config.py": "47c0557ab7493fdbce33752da460d6eb3c69d73e20cc6a42182ebda5a2c0b1f4",
+    "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+    "src/ticketing/infrastructure/reservations.py": "543ab9a9bb15a6b8f10874563a33f1fc450bf43795040280f7c137c6e7f3374d",
+    "src/ticketing/observability.py": "1c6752940ac108e4b2d411374115697b9e94f43da24e3c3784f86ddeb83b4b81",
+    "src/ticketing/workers.py": "42073129f3b3e9735edb468b50f15b274d7d5c7ac8bbda52a6e85c6d6bc752ce",
+    "tests/integration/test_async_payment_confirmation.py": "34be9baf2b5f2012bbdda3178b2d05c8f1d0dd10e438411e2cf84b19ff687dcb",
+    "tests/integration/test_payment_commit_recovery.py": "5d94d4a1f08c6f79e47c0a2a09049b400dbb8c94571f289be39c33e6eae39ec8",
+    "tests/unit/test_payment_confirmation.py": "84ceb3f45a4c0bf7751938610022b6064de6b2197f20318829f0b25a95082ac5"
+  },
+  "runtime_source_sha256": {
+    "src/ticketing/api.py": "81f5f2198db10f62b6bd8891c379bd5e9f2d3c459ec24d76a90ba4f1571aa5fd",
+    "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+    "src/ticketing/config.py": "47c0557ab7493fdbce33752da460d6eb3c69d73e20cc6a42182ebda5a2c0b1f4",
+    "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+    "src/ticketing/http.py": "a18f73c197561aa94cbe4875c73494b29456261277736b150c3ef5198a0dbce5",
+    "src/ticketing/observability.py": "1c6752940ac108e4b2d411374115697b9e94f43da24e3c3784f86ddeb83b4b81",
+    "src/ticketing/workers.py": "42073129f3b3e9735edb468b50f15b274d7d5c7ac8bbda52a6e85c6d6bc752ce",
+    "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+    "src/ticketing/application/ports.py": "3a562c947a28d8a63a257e361707041d41894f6374eba2702078d2bd39f9a98a",
+    "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+    "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+    "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+    "src/ticketing/infrastructure/order_status_projector.py": "8e89ce45e57123f5fc1499e5d2bf57752395e57374f50729a975f402cd31ac88",
+    "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "b11dd08700c476f00304302c9199dfb2017aa6fed81ca2033eb89347fb351f4b",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/reservations.py": "543ab9a9bb15a6b8f10874563a33f1fc450bf43795040280f7c137c6e7f3374d",
+    "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "migration_sha256": {
+    "migrations/009_payment_confirmation_receipts.sql": "7059f3d7246fef201e8c1bd23065c3f74949e7fb34c9ca47a34340849eb98c0c"
+  }
+}

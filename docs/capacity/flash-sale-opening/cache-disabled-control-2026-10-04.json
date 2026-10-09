@@ -1,0 +1,818 @@
+{
+  "kind": "cache_disabled_single_factor_control",
+  "run_id": "checkout-20261004T011046Z-39deb0",
+  "tested_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
+  "decision_record": "0126-cache-disabled-same-load-control",
+  "comparison": {
+    "baseline_run": "checkout-20261003T234944Z-7734dc",
+    "baseline_report": "docs/capacity/flash-sale-opening/paid-observer-cohort-requalification-2026-10-04.json",
+    "changed_configuration_keys": [
+      "order_status_cache_ms"
+    ],
+    "factor": "Advisory order-status cache1000ms to disabled0ms only; passing baseline and identical observer query.",
+    "limitations": "Same offeredbuyers/scheduled journeys,application runtime hashes and budgets;physicalHTTP attempts may change due to status visibility. Freshfixture/background variation,sampledCPU windows,unpairedclient/backend timings;passing1000ms baseline and same observer; only cache disabled. No sustained production/headroom claim."
+  },
+  "configuration": {
+    "rate": 60,
+    "seconds": 300,
+    "concurrency": 500,
+    "generator_shards": 2,
+    "http_clients_per_shard": 8,
+    "http_connections_per_shard": 250,
+    "poll_seconds": 1.0,
+    "callback_duplicates": 1,
+    "simulator_dispatch_mode": "refill",
+    "lifecycle_diagnostics": true,
+    "kafka_observer_backend": "python",
+    "api_replicas": 4,
+    "api_pool_per_replica": 4,
+    "api_pool_waiters_per_replica": 12,
+    "order_status_cache_ms": 0,
+    "consumer_replicas": 6,
+    "consumer_pool_per_replica": 8,
+    "writer_replicas": 3,
+    "writer_batch_size": 4,
+    "simulator_refill_slots": 8,
+    "pgbouncer_server_pool": 24
+  },
+  "load_gate_pass": true,
+  "required_gates": {
+    "customer_load": true,
+    "post_ttl_financial": true,
+    "zero_double_booking": true,
+    "full_keyspace_queue_drain": true,
+    "kafka_drain": true,
+    "pipeline_observer": true,
+    "kafka_observer": true,
+    "cpu_sampler": true,
+    "source_and_restored_configuration_pass": true,
+    "generator_idle_pass": true,
+    "private_cleanup_pass": true,
+    "hold_deadlines_elapsed": true,
+    "pipeline_observer_source": true,
+    "cache_disabled": true
+  },
+  "customer": {
+    "scheduled": 18000,
+    "dispatched": 18000,
+    "generator_drops": 0,
+    "fulfilled_by_deadline": 18000,
+    "distinct_orders": 18000,
+    "distinct_tickets": 18000,
+    "retry_attempts": 0,
+    "outcomes": {
+      "fulfilled": 18000
+    },
+    "physical_http_attempts": {
+      "holds": 18000,
+      "reservation_commands": 36512,
+      "payments": 18000,
+      "orders": 36293
+    },
+    "durable_p95_ms": 1044.903656002134,
+    "hold_to_ticket_p95_ms": 2161.8850950035267,
+    "hold_http_p95_ms": 15.768490004120395,
+    "payment_http_p95_ms": 47.223797999322414,
+    "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+    "ticket_wait_p95_ms": 1055.8936470042681,
+    "payment_to_ticket_p95_ms": 1097.9277820006246
+  },
+  "errors": {
+    "failed_customer_journeys": 0,
+    "journey_error_percent_of_dispatched": 0.0,
+    "dropped_percent_of_scheduled": 0.0,
+    "physical_customer_http_attempts": 108805,
+    "customer_http_error_percent_of_physical_attempts": 0.0,
+    "note": "Customer attempts exclude internal callbacks and observers. Backend recovery is separate from customer confirmation."
+  },
+  "comparison_deltas": {
+    "dispatched": {
+      "baseline": 18000,
+      "repeat": 18000,
+      "delta": 0,
+      "percent_change": 0.0
+    },
+    "generator_drops": {
+      "baseline": 0,
+      "repeat": 0,
+      "delta": 0,
+      "percent_change": null
+    },
+    "fulfilled_by_deadline": {
+      "baseline": 18000,
+      "repeat": 18000,
+      "delta": 0,
+      "percent_change": 0.0
+    },
+    "durable_p95_ms": {
+      "baseline": 1042.393551004352,
+      "repeat": 1044.903656002134,
+      "delta": 2.5101049977820367,
+      "percent_change": 0.24080204596081167
+    },
+    "hold_to_ticket_p95_ms": {
+      "baseline": 2157.475264000823,
+      "repeat": 2161.8850950035267,
+      "delta": 4.409831002703868,
+      "percent_change": 0.20439775492611098
+    }
+  },
+  "matched_offered_window": {
+    "baseline_samples": {
+      "offered_seconds": 300,
+      "sample_start_utc": "2026-10-03T23:50:59.279112+00:00",
+      "sample_end_utc": "2026-10-03T23:55:58.876790+00:00",
+      "samples": 299,
+      "method": "Generator-start anchored offered window plus last preceding sample; sampled boundaries, not exact customer latency windows."
+    },
+    "repeat_samples": {
+      "offered_seconds": 300,
+      "sample_start_utc": "2026-10-04T01:12:01.071788+00:00",
+      "sample_end_utc": "2026-10-04T01:17:01.265708+00:00",
+      "samples": 300,
+      "method": "Generator-start anchored offered window plus last preceding sample; sampled boundaries, not exact customer latency windows."
+    },
+    "baseline_writer_phases": {
+      "observed": true,
+      "phases": {
+        "postgres_batch:ok": {
+          "calls": 6036.0,
+          "total_seconds": 516.1554699086846,
+          "mean_ms": 85.51283464358592,
+          "p95_upper_bound_ms": 250.0
+        },
+        "redis_mark_durable:ok": {
+          "calls": 17987.0,
+          "total_seconds": 20.832751990121324,
+          "mean_ms": 1.1582115967154791,
+          "p95_upper_bound_ms": 2.5
+        },
+        "redis_acknowledge:ok": {
+          "calls": 17987.0,
+          "total_seconds": 20.46559410658665,
+          "mean_ms": 1.1377991942284233,
+          "p95_upper_bound_ms": 2.5
+        },
+        "command_age:ok": {
+          "calls": 17987.0,
+          "total_seconds": 13477.13780450821,
+          "mean_ms": 749.2710182080508,
+          "p95_upper_bound_ms": 2000.0
+        },
+        "redis_claim:ok": {
+          "calls": 7858.0,
+          "total_seconds": 157.9458123727236,
+          "mean_ms": 20.100001574538506,
+          "p95_upper_bound_ms": 50.0
+        }
+      },
+      "counter_reset_detected": false,
+      "note": "Nested phases cannot be added. Histogram p95 is an upper bucket bound, not an exact quantile. Poll wall time includes idle waits."
+    },
+    "repeat_writer_phases": {
+      "observed": true,
+      "phases": {
+        "command_age:ok": {
+          "calls": 18000.0,
+          "total_seconds": 13293.427959918976,
+          "mean_ms": 738.5237755510542,
+          "p95_upper_bound_ms": 2000.0
+        },
+        "redis_mark_durable:ok": {
+          "calls": 18000.0,
+          "total_seconds": 21.94916248176014,
+          "mean_ms": 1.2193979156533412,
+          "p95_upper_bound_ms": 2.5
+        },
+        "redis_acknowledge:ok": {
+          "calls": 18000.0,
+          "total_seconds": 21.440894966872293,
+          "mean_ms": 1.1911608314929052,
+          "p95_upper_bound_ms": 2.5
+        },
+        "postgres_batch:ok": {
+          "calls": 6022.0,
+          "total_seconds": 523.5655709376442,
+          "mean_ms": 86.94214064059187,
+          "p95_upper_bound_ms": 250.0
+        },
+        "redis_claim:ok": {
+          "calls": 7755.0,
+          "total_seconds": 159.27525068278192,
+          "mean_ms": 20.538394672183355,
+          "p95_upper_bound_ms": 50.0
+        }
+      },
+      "counter_reset_detected": false,
+      "note": "Nested phases cannot be added. Histogram p95 is an upper bucket bound, not an exact quantile. Poll wall time includes idle waits."
+    },
+    "baseline_simulator_phases": {
+      "observed": true,
+      "phases": {
+        "due_to_claim:ok": {
+          "calls": 17963.0,
+          "total_seconds": 981.4886780000063,
+          "mean_ms": 54.639463229973074,
+          "p95_upper_bound_ms": 100.0
+        },
+        "claim:ok": {
+          "calls": 27266.0,
+          "total_seconds": 320.34335981514596,
+          "mean_ms": 11.748821235793514,
+          "p95_upper_bound_ms": 25.0
+        },
+        "ack:ok": {
+          "calls": 17935.0,
+          "total_seconds": 189.70720034386613,
+          "mean_ms": 10.577485382986682,
+          "p95_upper_bound_ms": 25.0
+        },
+        "delivery:ok": {
+          "calls": 17935.0,
+          "total_seconds": 774.0247745503148,
+          "mean_ms": 43.15722188738861,
+          "p95_upper_bound_ms": 100.0
+        },
+        "delivery:error": {
+          "calls": 24.0,
+          "total_seconds": 0.13146744595724158,
+          "mean_ms": 5.4778102482183995,
+          "p95_upper_bound_ms": 25.0
+        }
+      },
+      "counter_reset_detected": false,
+      "note": "Nested phases cannot be added. Histogram p95 is an upper bucket bound, not an exact quantile. Poll wall time includes idle waits."
+    },
+    "repeat_simulator_phases": {
+      "observed": true,
+      "phases": {
+        "due_to_claim:ok": {
+          "calls": 17971.0,
+          "total_seconds": 928.6958869999993,
+          "mean_ms": 51.67747409715649,
+          "p95_upper_bound_ms": 100.0
+        },
+        "ack:ok": {
+          "calls": 17957.0,
+          "total_seconds": 193.7578763208585,
+          "mean_ms": 10.790102819004204,
+          "p95_upper_bound_ms": 25.0
+        },
+        "delivery:error": {
+          "calls": 13.0,
+          "total_seconds": 0.054243808001047,
+          "mean_ms": 4.172600615465154,
+          "p95_upper_bound_ms": 25.0
+        },
+        "delivery:ok": {
+          "calls": 17957.0,
+          "total_seconds": 764.6337345609936,
+          "mean_ms": 42.581374091495995,
+          "p95_upper_bound_ms": 100.0
+        },
+        "claim:ok": {
+          "calls": 27342.0,
+          "total_seconds": 320.3079686280398,
+          "mean_ms": 11.714869747203563,
+          "p95_upper_bound_ms": 25.0
+        }
+      },
+      "counter_reset_detected": false,
+      "note": "Nested phases cannot be added. Histogram p95 is an upper bucket bound, not an exact quantile. Poll wall time includes idle waits."
+    },
+    "baseline_api_mean_ms": {
+      "db_pool_acquire:ok": 0.36908512319789943,
+      "db_query:INSERT": 1.9401830270810267,
+      "db_query:SELECT": 1.864809760226781,
+      "db_query:UPDATE": 1.9155026698091275,
+      "event_loop_lag:all": 0.9779323490043504,
+      "db_query:BEGIN": 3.5615012169912714,
+      "db_commit:all": 2.865043224456974,
+      "db_connection_hold:all": 20.992234368335826
+    },
+    "repeat_api_mean_ms": {
+      "db_query:INSERT": 1.925385541136589,
+      "db_connection_hold:all": 20.941436344372125,
+      "db_commit:all": 2.982013967066139,
+      "db_query:SELECT": 1.8349593517554272,
+      "db_pool_acquire:ok": 0.4910368438712577,
+      "db_query:UPDATE": 1.885224922177098,
+      "db_query:BEGIN": 3.6001571401658246,
+      "event_loop_lag:all": 0.9290711146631571
+    },
+    "baseline_resources": {
+      "observed": true,
+      "samples": 299,
+      "errors": 0,
+      "counter_reset_detected": false,
+      "role_coverage_pass": true,
+      "host_cpu_p95_percent": 97.98488664987406,
+      "host_cpu_peak_percent": 99.15433403805497,
+      "host_iowait_peak_percent": 0.2597402597402597,
+      "pgbouncer_pool_peaks": {
+        "cl_active": 40.0,
+        "cl_waiting": 0.0,
+        "sv_active": 22.0,
+        "sv_idle": 21.0,
+        "sv_used": 3.0,
+        "sv_login": 0.0
+      },
+      "pgbouncer_maxwait_peak_ms": 0.0,
+      "pgbouncer_counter_deltas": {
+        "total_xact_count": 235879.0,
+        "total_query_count": 1996377.0,
+        "total_xact_time": 4044884161.0,
+        "total_query_time": 3202615742.0,
+        "total_wait_time": 10067696.0,
+        "total_server_assignment_count": 235879.0
+      },
+      "pass": true
+    },
+    "repeat_resources": {
+      "observed": true,
+      "samples": 300,
+      "errors": 0,
+      "counter_reset_detected": false,
+      "role_coverage_pass": true,
+      "host_cpu_p95_percent": 97.46192893401015,
+      "host_cpu_peak_percent": 98.99497487437186,
+      "host_iowait_peak_percent": 0.26455026455026454,
+      "pgbouncer_pool_peaks": {
+        "cl_active": 40.0,
+        "cl_waiting": 6.0,
+        "sv_active": 24.0,
+        "sv_idle": 20.0,
+        "sv_used": 2.0,
+        "sv_login": 1.0
+      },
+      "pgbouncer_maxwait_peak_ms": 6.3759999999999994,
+      "pgbouncer_counter_deltas": {
+        "total_xact_count": 235618.0,
+        "total_query_count": 1995266.0,
+        "total_xact_time": 4076202000.0,
+        "total_query_time": 3291020290.0,
+        "total_wait_time": 18637759.0,
+        "total_server_assignment_count": 235618.0
+      },
+      "pass": true
+    },
+    "note": "Generator-start anchored300s with sampled boundaries. Nested phase means cannot be added; histogram p95 is a bucket upper bound."
+  },
+  "container_cpu": {
+    "observed": true,
+    "pass": true,
+    "samples": 49,
+    "sample_start_utc": "2026-10-04T01:11:54.278085+00:00",
+    "sample_end_utc": "2026-10-04T01:15:54.278143+00:00",
+    "window_seconds": 240.00006281099922,
+    "host_cpu_mean_percent": 78.25799079443394,
+    "aggregate_cpu_cores_by_role": {
+      "api": 1.2424524998346542,
+      "consumer": 0.4932564375752928,
+      "kafka": 0.2654532263609067,
+      "load-balancer": 0.04434941339320429,
+      "maintenance": 0.07298116839991621,
+      "pgbouncer": 0.30622297402428755,
+      "publisher": 0.1251937297352364,
+      "reconciler": 0.024692151871088617,
+      "reservation-writer": 0.22627724078041836,
+      "simulator": 0.13940874684832213
+    },
+    "scope": "Cumulative host/cgroup CPU counters over240s; API includes observers; no function attribution.",
+    "start_offset_from_generator_seconds": -7.356864,
+    "end_offset_from_generator_seconds": 232.643194
+  },
+  "kafka": {
+    "samples": 172,
+    "sample_errors": 0,
+    "max_total_lag": 163,
+    "max_partition_lag": 81,
+    "partition_lag_peaks": {
+      "0": 21,
+      "1": 37,
+      "2": 31,
+      "3": 34,
+      "4": 27,
+      "5": 81
+    },
+    "last_total_lag": 0,
+    "members_min": 6,
+    "members_max": 6,
+    "drain_after_peak_seconds": 48.160946,
+    "ownership_observed": true,
+    "max_partitions_per_member": 1,
+    "last_member_partition_groups": [
+      [
+        0
+      ],
+      [
+        1
+      ],
+      [
+        2
+      ],
+      [
+        3
+      ],
+      [
+        4
+      ],
+      [
+        5
+      ]
+    ]
+  },
+  "post_ttl_correctness": {
+    "orders": 18000,
+    "fulfilled_orders": 18000,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 18000,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 18000,
+    "bookings": 18000,
+    "tickets": 18000,
+    "payment_callbacks": 18000,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 18000,
+    "callback_delivery_target": 18000,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 18000,
+    "expected_paid": 18000,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true
+  },
+  "full_keyspace_queues": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "active_fixture_holds": 0,
+    "overdue_fixture_holds": 0,
+    "pending_fixture_orders": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "pass": true
+  },
+  "recovery": {
+    "source_and_restored_configuration_pass": true,
+    "generator_idle_pass": true,
+    "private_cleanup_pass": true,
+    "hold_deadlines_elapsed": true,
+    "temporary_cloud_key_removed": {
+      "hosts": [
+        {
+          "host_role": "backend",
+          "removed_temporary_key_entries": 1,
+          "remaining_target_entries": 0,
+          "pass": true
+        },
+        {
+          "host_role": "generator",
+          "removed_temporary_key_entries": 1,
+          "remaining_target_entries": 0,
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    "local_temporary_key_files_removed": true
+  },
+  "source_verification_scope": {
+    "runtime_modules": 10,
+    "changed_modules": []
+  },
+  "validation": {
+    "pre_dispatch_local_checks": {
+      "executed_command": ".venv/Scripts/python.exe -m pytest tests/unit/test_order_status_cache.py tests/unit/test_paid_checkout_cli.py -q",
+      "passed": 43,
+      "seconds": 2.44,
+      "warnings": [
+        "PytestCacheWarning: nodeids cache write denied; tests completed successfully."
+      ],
+      "runtime_application_change": false,
+      "cloud_load_dispatched": false,
+      "helper_syntax_pass": true,
+      "exact_bounded_cli_arguments_verified": true,
+      "single_configuration_factor_verified": true,
+      "mandatory_gates_retained": true
+    },
+    "runtime_application_change": false,
+    "application_test_scope": "Prior492 application unit/integration results retained; not rerun for this configuration-only comparison.",
+    "access_bootstrap": {
+      "explicit_temporary_root_key_approval": true,
+      "protected_terminal_password_entry": true,
+      "known_host_verification": true,
+      "datastore_settings_changed": false
+    }
+  },
+  "operator_collection": {
+    "runner_exit_code": 0,
+    "cpu_sampler_exit_code": 0,
+    "all_final_gates_pass": true,
+    "wrapper_exit_code": 0
+  },
+  "capacity_claim": "Bounded60buyers/s development-payment repeat across60shows; not sustained300000/hour, one-hot-concert or real-provider production capacity.",
+  "private_evidence_root": "tmp\\checkout-20261004T011046Z-39deb0",
+  "scope_status": "Exactly one approved60buyers/s300s control completed and all gates passed. Both temporary cloud key entries and local key files removed. No additional run,higher load,external publication or main merge.",
+  "bounded_control_index": 1,
+  "status_read_diagnostics": {
+    "api_cache_counters": {},
+    "baseline_api_cache_counters": {
+      "order_cache:fill": 36168.0,
+      "order_cache:miss": 36170.0
+    },
+    "backend_statement_timings": {
+      "callback_to_ticket": {
+        "max_ms": 1314.813,
+        "p50_ms": 83.05250000000001,
+        "p95_ms": 190.7975999999999,
+        "p99_ms": 616.6989399999977,
+        "mean_ms": 105.49363211111111,
+        "samples": 18000,
+        "negative_samples": 0
+      },
+      "order_to_payment_due": {
+        "max_ms": 1328.673,
+        "p50_ms": 868.9010000000001,
+        "p95_ms": 992.3340999999999,
+        "p99_ms": 1025.0908999999988,
+        "mean_ms": 765.4960727777777,
+        "samples": 18000,
+        "negative_samples": 0
+      },
+      "payment_due_to_ticket": {
+        "max_ms": 15247.929,
+        "p50_ms": 139.1265,
+        "p95_ms": 281.6629499999999,
+        "p99_ms": 1002.0887999999994,
+        "mean_ms": 181.13798088888888,
+        "samples": 18000,
+        "negative_samples": 0
+      },
+      "callback_to_paid_event": {
+        "max_ms": 121.513,
+        "p50_ms": 16.1695,
+        "p95_ms": 27.47705,
+        "p99_ms": 35.711559999999906,
+        "mean_ms": 17.618900055555557,
+        "samples": 18000,
+        "negative_samples": 0
+      },
+      "payment_due_to_callback": {
+        "max_ms": 15149.283,
+        "p50_ms": 52.260000000000005,
+        "p95_ms": 109.00519999999999,
+        "p99_ms": 469.817449999998,
+        "mean_ms": 75.64434877777778,
+        "samples": 18000,
+        "negative_samples": 0
+      },
+      "publication_record_to_ticket": {
+        "max_ms": 1202.058,
+        "p50_ms": 18.697499999999998,
+        "p95_ms": 111.32489999999986,
+        "p99_ms": 488.078389999994,
+        "mean_ms": 39.47805544444444,
+        "samples": 18000,
+        "negative_samples": 101
+      },
+      "paid_event_to_publication_record": {
+        "max_ms": 560.058,
+        "p50_ms": 40.2795,
+        "p95_ms": 115.63779999999998,
+        "p99_ms": 139.8047999999999,
+        "mean_ms": 48.39667661111111,
+        "samples": 18000,
+        "negative_samples": 0
+      }
+    }
+  },
+  "observer_source_verification": {
+    "uploaded": "50f9ab9e6574b3362dcc6856b2049554379ce7f711c67cefabfce28b94242a82",
+    "container": "50f9ab9e6574b3362dcc6856b2049554379ce7f711c67cefabfce28b94242a82",
+    "checkout": "1890ac0302507fc81a3c451351521684aa92b00b47316ab320af44b592dacaf2",
+    "checkout_normalized_sha256": "1890ac0302507fc81a3c451351521684aa92b00b47316ab320af44b592dacaf2",
+    "line_ending_note": "Windows local/uploaded/container bytes include CRLF; Git Linux checkout uses LF. Uploaded and active-container raw bytes exactly match local candidate; normalized checkout matches.",
+    "expected": "50f9ab9e6574b3362dcc6856b2049554379ce7f711c67cefabfce28b94242a82",
+    "pass_gate": true
+  },
+  "access_and_baseline_preflight": {
+    "pass": true,
+    "both_hosts_accessible": true,
+    "restored_baseline_verified": true,
+    "runtime_modules": 10,
+    "source_revision": "5706fce8eb5e4f8e3a6ecd7ad5f42fa27a4ca1cb",
+    "runtime_hashes_match_passing_baseline": true
+  },
+  "qualification": "PASSED",
+  "failed_gates": [],
+  "offered_window_container_cpu": {
+    "baseline": {
+      "samples": 47,
+      "window_seconds": 229.9999868790037,
+      "start_offset_seconds": 1.361003,
+      "end_offset_seconds": 231.360991,
+      "host_cpu_mean_percent": 82.21192317951454,
+      "aggregate_cpu_cores_by_role": {
+        "simulator": 0.14358103427794008,
+        "consumer": 0.5099572464832485,
+        "maintenance": 0.07639115653186122,
+        "reconciler": 0.02450935357211799,
+        "publisher": 0.13175818577738552,
+        "load-balancer": 0.04531182867189711,
+        "api": 1.3303241585007755,
+        "reservation-writer": 0.23965300932385325,
+        "pgbouncer": 0.3155912701777039,
+        "kafka": 0.2702326154161789
+      },
+      "scope": "Only sampled endpoints within offered300s;includes API observers. Not a full300s integral or function CPU attribution."
+    },
+    "candidate": {
+      "samples": 47,
+      "window_seconds": 230.00000583499786,
+      "start_offset_seconds": 2.643186,
+      "end_offset_seconds": 232.643194,
+      "host_cpu_mean_percent": 80.13529929675572,
+      "aggregate_cpu_cores_by_role": {
+        "simulator": 0.14228763552066068,
+        "consumer": 0.5029025698502808,
+        "maintenance": 0.07499719809735439,
+        "reconciler": 0.024457081988230343,
+        "publisher": 0.12935280976185493,
+        "load-balancer": 0.04576579883894201,
+        "api": 1.2765355415279036,
+        "reservation-writer": 0.23329007669023,
+        "pgbouncer": 0.3149289528799575,
+        "kafka": 0.26492943240929273
+      },
+      "scope": "Only sampled endpoints within offered300s;includes API observers. Not a full300s integral or function CPU attribution."
+    }
+  },
+  "hypothesis_metrics": {
+    "ticket_wait_p95_ms": {
+      "baseline": 1060.9418630047003,
+      "candidate": 1055.8936470042681,
+      "delta": -5.048216000432149,
+      "percent_change": -0.47582399907710904
+    },
+    "payment_to_ticket_p95_ms": {
+      "baseline": 1104.1212370037101,
+      "candidate": 1097.9277820006246,
+      "delta": -6.193455003085546,
+      "percent_change": -0.5609397587436075
+    },
+    "hold_to_ticket_p95_ms": {
+      "baseline": 2157.475264000823,
+      "candidate": 2161.8850950035267,
+      "delta": 4.409831002703868,
+      "percent_change": 0.20439775492611098
+    },
+    "durable_p95_ms": {
+      "baseline": 1042.393551004352,
+      "candidate": 1044.903656002134,
+      "delta": 2.5101049977820367,
+      "percent_change": 0.24080204596081167
+    },
+    "http_holds": {
+      "baseline": 18000,
+      "candidate": 18000,
+      "delta": 0,
+      "percent_change": 0.0
+    },
+    "http_reservation_commands": {
+      "baseline": 36366,
+      "candidate": 36512,
+      "delta": 146,
+      "percent_change": 0.40147390419622725
+    },
+    "http_payments": {
+      "baseline": 18000,
+      "candidate": 18000,
+      "delta": 0,
+      "percent_change": 0.0
+    },
+    "http_orders": {
+      "baseline": 36334,
+      "candidate": 36293,
+      "delta": -41,
+      "percent_change": -0.112841966202455
+    },
+    "customer_http_attempts": {
+      "baseline": 108700,
+      "candidate": 108805,
+      "delta": 105,
+      "percent_change": 0.09659613615455381
+    },
+    "host_cpu_mean_percent": {
+      "baseline": 82.21192317951454,
+      "candidate": 80.13529929675572,
+      "delta": -2.076623882758824,
+      "percent_change": -2.5259400369754084
+    },
+    "cpu_cores_api": {
+      "baseline": 1.3303241585007755,
+      "candidate": 1.2765355415279036,
+      "delta": -0.05378861697287185,
+      "percent_change": -4.043271455995324
+    },
+    "cpu_cores_pgbouncer": {
+      "baseline": 0.3155912701777039,
+      "candidate": 0.3149289528799575,
+      "delta": -0.0006623172977464065,
+      "percent_change": -0.20986553188669232
+    },
+    "cpu_cores_consumer": {
+      "baseline": 0.5099572464832485,
+      "candidate": 0.5029025698502808,
+      "delta": -0.00705467663296766,
+      "percent_change": -1.3833858978606353
+    },
+    "cpu_cores_reservation-writer": {
+      "baseline": 0.23965300932385325,
+      "candidate": 0.23329007669023,
+      "delta": -0.006362932633623253,
+      "percent_change": -2.655060602650206
+    },
+    "order_cache:hit": {
+      "baseline": 0,
+      "candidate": 0,
+      "delta": 0,
+      "percent_change": null
+    },
+    "order_cache:miss": {
+      "baseline": 36170.0,
+      "candidate": 0,
+      "delta": -36170.0,
+      "percent_change": -100.0
+    },
+    "order_cache:fill": {
+      "baseline": 36168.0,
+      "candidate": 0,
+      "delta": -36168.0,
+      "percent_change": -100.0
+    }
+  },
+  "all_required_gates_pass": true,
+  "pipeline_observer": {
+    "samples": 342,
+    "database_errors": 0,
+    "api_metrics_errors": 0,
+    "pending_orders": {
+      "max": 66,
+      "last": 0,
+      "delta": 0,
+      "p95": 57
+    },
+    "paid_unfulfilled": {
+      "max": 38,
+      "last": 0,
+      "delta": 0,
+      "p95": 11
+    },
+    "fulfilled_orders": {
+      "max": 18000,
+      "last": 18000,
+      "delta": 18000,
+      "p95": 17999
+    },
+    "pending_callback_deliveries": {
+      "max": 46,
+      "last": 0,
+      "delta": 0,
+      "p95": 10
+    },
+    "pending_payment_attempts": {
+      "max": 44,
+      "last": 0,
+      "delta": 0,
+      "p95": 8
+    },
+    "delivered_callbacks": {
+      "max": 18000,
+      "last": 18000,
+      "delta": 18000,
+      "p95": 17999
+    },
+    "issued_tickets": {
+      "max": 18000,
+      "last": 18000,
+      "delta": 18000,
+      "p95": 17999
+    },
+    "unpublished_outbox": {
+      "max": 36,
+      "last": 0,
+      "delta": 0,
+      "p95": 22
+    },
+    "db_lock_waiters": {
+      "max": 1,
+      "last": 0,
+      "delta": 0,
+      "p95": 0
+    }
+  }
+}

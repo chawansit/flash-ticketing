@@ -1,0 +1,11 @@
+{
+  "kind": "isolated_real_redis_writer_fairness_reproduction",
+  "iterations": 12,
+  "total_claimed": 48,
+  "hot_claimed": 48,
+  "cold_claimed": 0,
+  "cold_entries_remaining": 1,
+  "cold_pending": 0,
+  "finding": "The stream cursor advances by the entire selected window before total COUNT stops fresh reads. With two streams and a continuously ready first stream, every window starts at the first stream; the cold stream never gets a new-entry read. Code inspection also finds an early-full reclaim return; that path was not exercised by this reproduction.",
+  "scope": "Synthetic isolated real Redis scheduling reproduction, not evidence of data loss in the audited cloud cohort. No PostgreSQL or production data used; zero-double-booking audit for the cloud control remains passed."
+}

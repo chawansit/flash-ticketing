@@ -1,0 +1,677 @@
+"""Portable HTTP-only load generator. Requires httpx; no application/DB/Redis imports."""
+
+import argparse
+import asyncio
+import hashlib
+import json
+import math
+import platform
+import random
+import socket
+from collections import Counter, defaultdict
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
+from time import perf_counter, process_time
+from uuid import uuid4
+
+import httpx
+
+
+def percentile(values, fraction):
+    return sorted(values)[math.ceil(len(values) * fraction) - 1] if values else None
+
+
+ERROR_CODES = frozenset({
+    "ADMISSION_FULL", "ADMISSION_UNAVAILABLE", "DATABASE_UNAVAILABLE", "RESOURCE_BUSY",
+    "SEAT_BUSY", "SEAT_UNAVAILABLE", "SEATMAP_WARMING", "SEATMAP_UNAVAILABLE",
+    "RATE_LIMITED", "RESERVATION_DURABILITY_UNKNOWN", "UNAUTHENTICATED",
+    "IDEMPOTENCY_MISMATCH", "SALE_CLOSED",
+    "EVENT_NOT_FOUND", "SEAT_NOT_FOUND", "INVALID_REQUEST", "INVALID_SEATS",
+})
+
+
+def error_diagnostic(response):
+    try:
+        body = response.json()
+    except ValueError:
+        body = None
+    code = body.get("code") if isinstance(body, dict) else None
+    code = code if isinstance(code, str) and code in ERROR_CODES else "OTHER"
+    request_id = response.headers.get("X-Request-ID")
+    try:
+        from uuid import UUID
+        request_id = str(UUID(request_id)) if request_id else None
+    except (ValueError, TypeError, AttributeError):
+        request_id = None
+    return code, request_id
+
+
+OPENING_BURST_PHASES = ((4, 30), (2, 90), (1, 180))
+
+
+def arrival_plan(rate, seconds, burst=False, opening_burst=False):
+    if burst and opening_burst:
+        raise ValueError("Choose only one burst profile")
+    phases = (
+        [(rate * multiplier, duration) for multiplier, duration in OPENING_BURST_PHASES]
+        if opening_burst else [(rate, 60), (rate * 4, 120), (rate, 60)]
+        if burst else [(rate, seconds)]
+    )
+    elapsed = 0
+    for phase, (phase_rate, duration) in enumerate(phases):
+        for index in range(phase_rate * duration):
+            yield elapsed + index / phase_rate, phase
+        elapsed += duration
+
+
+def is_write_request(index, write_percent):
+    return index * write_percent % 100 < write_percent
+
+
+async def fetch_initial_state(client, shows, concurrency=16, max_attempts=3):
+    """Fetch bootstrap ETags and versions quickly enough to stay within the seat-map TTL."""
+    if concurrency < 1 or max_attempts < 1:
+        raise ValueError("Positive bootstrap bounds required")
+    semaphore = asyncio.Semaphore(concurrency)
+    statuses = Counter()
+
+    async def fetch(show):
+        for attempt in range(max_attempts):
+            async with semaphore:
+                response = await client.get(f"/v1/events/{show}/availability")
+            code, _ = error_diagnostic(response)
+            statuses[f"{response.status_code}:{code}"] += 1
+            if response.status_code == 200:
+                try:
+                    body = response.json()
+                except ValueError:
+                    body = {}
+                version = body.get("version") if isinstance(body, dict) else None
+                incarnation = body.get("incarnation") if isinstance(body, dict) else None
+                return (
+                    show, response.headers["etag"],
+                    int(version) if version is not None else None,
+                    str(incarnation) if incarnation is not None else None, attempt,
+                )
+            if (
+                response.status_code == 503
+                and code == "SEATMAP_WARMING"
+                and attempt + 1 < max_attempts
+            ):
+                await asyncio.sleep(0.25 * (attempt + 1))
+                continue
+            response.raise_for_status()
+        raise AssertionError("Bootstrap attempt bound should return or raise")
+
+    rows = await asyncio.gather(*(fetch(show) for show in shows))
+    return (
+        {show: etag for show, etag, _, _, _ in rows},
+        {show: version for show, _, version, _, _ in rows},
+        {show: incarnation for show, _, _, incarnation, _ in rows},
+        {
+            "concurrency": concurrency,
+            "max_attempts": max_attempts,
+            "attempt_statuses": dict(statuses),
+            "retry_count": sum(attempt for _, _, _, _, attempt in rows),
+        },
+    )
+
+
+async def fetch_initial_validators(client, shows, concurrency=16, max_attempts=3):
+    validators, _, _, summary = await fetch_initial_state(
+        client, shows, concurrency, max_attempts
+    )
+    return validators, summary
+
+
+class TransportTrace:
+    """Bounded phase-only diagnostics; never serialize exception text or trace payloads."""
+    def __init__(self):
+        self.started = perf_counter()
+        self.events = []
+        self.connect_attempted = False
+
+    async def __call__(self, name, info):
+        if name == 'connection.connect_tcp.started':
+            self.connect_attempted = True
+        if len(self.events) < 32:
+            self.events.append({'phase': name, 'elapsed_ms': round((perf_counter()-self.started)*1000, 3)})
+
+    def failure(self, exc):
+        chain, seen = [], set()
+        while exc is not None and id(exc) not in seen and len(chain) < 5:
+            seen.add(id(exc))
+            item = {'type': type(exc).__name__}
+            number = getattr(exc, 'errno', None)
+            if isinstance(number, int):
+                item['errno'] = number
+            chain.append(item)
+            exc = exc.__cause__ or exc.__context__
+        return {'connect_attempted': self.connect_attempted, 'events': list(self.events), 'exception_chain': chain}
+
+def expiry_seconds(value):
+    number = float(value)
+    if not math.isfinite(number) or not 0 < number <= 60:
+        raise argparse.ArgumentTypeError("Keep-alive expiry must be finite and in (0, 60] seconds")
+    return number
+
+
+def nonnegative_milliseconds(value):
+    number = float(value)
+    if not math.isfinite(number) or not 0 <= number <= 5000:
+        raise argparse.ArgumentTypeError("Milliseconds must be finite and in [0, 5000]")
+    return number
+
+
+RETRYABLE_CODES = frozenset({
+    "ADMISSION_FULL", "ADMISSION_UNAVAILABLE", "DATABASE_UNAVAILABLE", "RATE_LIMITED",
+    "RESERVATION_DURABILITY_UNKNOWN", "RESOURCE_BUSY", "SEATMAP_WARMING",
+    "SEATMAP_UNAVAILABLE",
+})
+
+
+def retryable_response(write, response, code):
+    if response.status_code in {429, 503} and code in RETRYABLE_CODES:
+        return True
+    return write and response.status_code == 409 and code == "RESOURCE_BUSY"
+
+
+async def run(args):
+    manifest = json.loads(args.manifest.read_text())
+    max_attempts = getattr(args, "max_attempts", 1)
+    retry_base_delay_ms = getattr(args, "retry_base_delay_ms", 25.0)
+    late_delivery_window_ms = getattr(args, "late_delivery_window_ms", 0.0)
+    reservation_mode = getattr(args, "reservation_mode", "postgres")
+    read_mode = getattr(args, "read_mode", "availability")
+    write_percent = getattr(args, "write_percent", 5)
+    write_success_statuses = {"201", "202"} if reservation_mode == "redis-first" else {"201"}
+    write_success_codes = {int(status) for status in write_success_statuses}
+    if manifest.get("schema_version") != 1 or manifest.get("environment") != "development":
+        raise ValueError("Expected a development manifest")
+    if datetime.fromisoformat(manifest["expires_at"]) <= datetime.now(UTC) + timedelta(
+        seconds=args.seconds + 60
+    ):
+        raise ValueError("Regenerate credentials: they must outlive the run and drain")
+    if args.origin.rstrip("/") != manifest["origin"]:
+        raise ValueError("API origin must match the locally prepared manifest")
+    if args.output.resolve() == args.manifest.resolve():
+        raise ValueError("Result must not overwrite credentials")
+    shows, tokens = manifest["show_ids"], manifest["viewer_tokens"]
+    phase_statuses, phase_latency = defaultdict(lambda: defaultdict(Counter)), defaultdict(lambda: defaultdict(list))
+    window_statuses = defaultdict(lambda: defaultdict(Counter))
+    window_latency = defaultdict(lambda: defaultdict(list))
+    window_bytes = Counter()
+    window_delta_observations = defaultdict(Counter)
+    window_drops = Counter()
+    statuses, latency = defaultdict(Counter), defaultdict(list)
+    counts, bytes_received, drops = Counter(), 0, 0
+    connection_counts = defaultdict(Counter)
+    transport_phases = defaultdict(Counter)
+    expected_hot_conflicts = 0
+    transport_errors = Counter()
+    attempt_transport_errors = Counter()
+    transport_examples = []
+    drop_reasons = Counter()
+    late_drop_examples = []
+    late_delivery_examples = []
+    late_deliveries = 0
+    physical_http_attempts = 0
+    first_attempt_failures = Counter()
+    retry_attempts = Counter()
+    retry_successes = Counter()
+    retry_exhausted = Counter()
+    validators, pending, lags = {}, set(), []
+    task_errors = Counter()
+    error_codes, error_examples = Counter(), []
+    delta_observations = Counter()
+    run_id = str(uuid4())
+    async with httpx.AsyncClient(
+        base_url=args.origin,
+        timeout=10,
+        limits=httpx.Limits(max_connections=args.inflight, max_keepalive_connections=args.inflight,
+                           keepalive_expiry=getattr(args, "keepalive_expiry", 5.0)),
+    ) as client:
+        (await client.get("/health/ready")).raise_for_status()
+        initial, initial_versions, initial_incarnations, bootstrap = await fetch_initial_state(
+            client, shows
+        )
+        if read_mode == "delta" and (
+            any(version is None for version in initial_versions.values())
+            or any(incarnation is None for incarnation in initial_incarnations.values())
+        ):
+            raise ValueError("Delta read mode requires composite snapshot cursors")
+        hot_show = manifest.get("hot_show_id")
+        if hot_show and hot_show not in initial:
+            response = await client.get(f"/v1/events/{hot_show}/availability")
+            response.raise_for_status()
+            initial[hot_show] = response.headers["etag"]
+            initial_versions[hot_show] = int(response.json()["version"])
+            initial_incarnations[hot_show] = str(response.json()["incarnation"])
+        validators, versions, incarnations = {}, {}, {}
+        randomizer = random.Random(42)
+        workload = []
+        for index, (due, phase) in enumerate(arrival_plan(args.rate, args.seconds, args.burst, getattr(args, "opening_burst", False))):
+            viewer = randomizer.randrange(len(tokens))
+            show = shows[viewer % len(shows)]
+            write = is_write_request(index, write_percent)
+            hot = bool(getattr(args, "mixed_hot_holds", False) and index % 100 == 0)
+            seat = manifest["seat_offset"] + counts[show]
+            if hot:
+                show = manifest["hot_hold_show_id"]
+                seat = manifest.get("hot_hold_seat", 299)
+                if not 0 <= seat < manifest["seats_per_show"]:
+                    raise ValueError("Invalid hot seat")
+            if write and not hot:
+                if (getattr(args, "mixed_hot_holds", False)
+                        and show == manifest["hot_hold_show_id"]
+                        and seat == manifest.get("hot_hold_seat", 299)):
+                    raise ValueError("Ordinary allocation overlaps the shared hot seat")
+                counts[show] += 1
+                if seat >= manifest["seats_per_show"]:
+                    raise ValueError("Allocated fixture seats exhausted")
+            if not write and hot_show and randomizer.random() < 0.9:
+                show = hot_show
+            workload.append((index, viewer, show, write, seat, due, phase, hot))
+
+        async def request(item):
+            nonlocal bytes_received, expected_hot_conflicts, physical_http_attempts
+            index, viewer, show, write, seat, scheduled_seconds, phase, hot = item
+            window = str(int(scheduled_seconds // 30) * 30)
+            operation = "hot_hold" if hot else "hold" if write else "read"
+            begin = perf_counter()
+            idempotency_key = f"{run_id}-{index}"
+            status = "transport_error"
+            response = None
+            final_code = None
+            attempts_used = 0
+
+            for attempt in range(1, max_attempts + 1):
+                attempts_used = attempt
+                physical_http_attempts += 1
+                trace = TransportTrace() if getattr(args, "transport_diagnostics", False) else None
+                started_utc = datetime.now(UTC).isoformat() if trace else None
+                extensions = {"trace": trace} if trace else {}
+                try:
+                    if write:
+                        response = await client.post(
+                            "/v1/holds",
+                            extensions=extensions,
+                            json={"event_id": show, "seat_ids": [f"S{seat}"]},
+                            headers={
+                                "Authorization": "Bearer " + tokens[viewer],
+                                "Idempotency-Key": idempotency_key,
+                            },
+                        )
+                    else:
+                        if read_mode == "delta":
+                            response = await client.get(
+                                f"/v1/events/{show}/seat-deltas",
+                                extensions=extensions,
+                                params={
+                                    "since": versions.get(
+                                        (viewer, show), initial_versions[show]
+                                    ),
+                                    "incarnation": incarnations.get(
+                                        (viewer, show), initial_incarnations[show]
+                                    ),
+                                },
+                            )
+                        else:
+                            response = await client.get(
+                                f"/v1/events/{show}/availability",
+                                extensions=extensions,
+                                headers={"If-None-Match": validators.get((viewer, show), initial[show])},
+                            )
+                    bytes_received += len(response.content)
+                    window_bytes[window] += len(response.content)
+                    status = str(response.status_code)
+                    final_code, request_id = error_diagnostic(response)
+                    if not write and response.status_code == 200:
+                        if read_mode == "delta":
+                            delta = response.json()
+                            delta_observations["responses"] += 1
+                            delta_observations["seats"] += len(delta["seats"])
+                            delta_observations["reset"] += int(delta.get("reset_required") is True)
+                            delta_observations["empty"] += int(not delta["seats"])
+                            window_delta_observations[window]["responses"] += 1
+                            window_delta_observations[window]["seats"] += len(delta["seats"])
+                            window_delta_observations[window]["reset"] += int(
+                                delta.get("reset_required") is True
+                            )
+                            window_delta_observations[window]["empty"] += int(not delta["seats"])
+                            returned_version = int(delta["version"])
+                            incarnations[(viewer, show)] = str(delta["incarnation"])
+                            if delta.get("reset_required") is True:
+                                versions[(viewer, show)] = returned_version
+                            else:
+                                versions[(viewer, show)] = max(
+                                    returned_version,
+                                    versions.get((viewer, show), initial_versions[show]),
+                                )
+                        else:
+                            validators[(viewer, show)] = response.headers["etag"]
+                    if retryable_response(write, response, final_code) and attempt < max_attempts:
+                        reason = f"{operation}:{status}:{final_code}"
+                        if attempt == 1:
+                            first_attempt_failures[reason] += 1
+                        retry_attempts[reason] += 1
+                        await asyncio.sleep(
+                            retry_base_delay_ms / 1000 * (2 ** (attempt - 1))
+                            * (0.5 + randomizer.random())
+                        )
+                        continue
+                    break
+                except httpx.HTTPError as exc:
+                    error_type = type(exc).__name__
+                    attempt_transport_errors[error_type] += 1
+                    if trace and len(transport_examples) < 20:
+                        transport_examples.append({
+                            "index": index, "attempt": attempt, "operation": operation,
+                            "started_utc": started_utc,
+                            "elapsed_ms": round((perf_counter() - begin) * 1000, 3),
+                            **trace.failure(exc),
+                        })
+                    if attempt < max_attempts:
+                        reason = f"{operation}:transport:{error_type}"
+                        if attempt == 1:
+                            first_attempt_failures[reason] += 1
+                        retry_attempts[reason] += 1
+                        await asyncio.sleep(
+                            retry_base_delay_ms / 1000 * (2 ** (attempt - 1))
+                            * (0.5 + randomizer.random())
+                        )
+                        continue
+                    status = "transport_error"
+                    transport_errors[error_type] += 1
+                    response = None
+                    final_code = None
+                    break
+                finally:
+                    if trace:
+                        connection_counts[operation].update(
+                            event["phase"].rsplit(".", 1)[-1] for event in trace.events
+                            if event["phase"].startswith("connection.connect_tcp.")
+                        )
+                        transport_phases[operation].update(event["phase"] for event in trace.events)
+
+            final_success = (
+                status in ({"200", "304"} if operation == "read" else write_success_statuses)
+                or (operation == "hot_hold" and status == "409"
+                    and final_code in {"SEAT_BUSY", "SEAT_UNAVAILABLE"})
+            )
+            if attempts_used > 1:
+                (retry_successes if final_success else retry_exhausted)[operation] += 1
+            if response is not None and response.status_code not in (
+                write_success_codes if write else {200, 304}
+            ):
+                code, request_id = error_diagnostic(response)
+                if hot and status == "409" and code in {"SEAT_BUSY", "SEAT_UNAVAILABLE"}:
+                    expected_hot_conflicts += 1
+                error_codes[f"{operation}:{status}:{code}"] += 1
+                if len(error_examples) < 20:
+                    error_examples.append({
+                        "operation": operation,
+                        "status": status,
+                        "code": code,
+                        "request_id": request_id,
+                        "content_type": response.headers.get("content-type"),
+                        "server": response.headers.get("server"),
+                        "body_bytes": len(response.content),
+                        "body_sha256": hashlib.sha256(response.content).hexdigest(),
+                    })
+            statuses[operation][status] += 1
+            duration = (perf_counter() - begin) * 1000
+            latency[operation + ":" + status].append(duration)
+            phase_statuses[str(phase)][operation][status] += 1
+            phase_latency[str(phase)][operation].append(duration)
+            window_statuses[window][operation][status] += 1
+            window_latency[window][operation].append(duration)
+
+        if datetime.fromisoformat(manifest["expires_at"]) <= datetime.now(UTC) + timedelta(
+            seconds=args.seconds + 60
+        ):
+            raise ValueError("Credentials expired during bootstrap; regenerate manifest")
+
+        def completed(task):
+            pending.discard(task)
+            if error := task.exception():
+                task_errors[type(error).__name__] += 1
+
+        if args.start_at:
+            delay = (datetime.fromisoformat(args.start_at) - datetime.now(UTC)).total_seconds()
+            if delay < 0:
+                raise ValueError("Missed coordinated start during bootstrap")
+            await asyncio.sleep(delay)
+        measured_started_utc = datetime.now(UTC).isoformat()
+        print(
+            json.dumps(
+                {
+                    "phase": "measuring",
+                    "rate": args.rate,
+                    "seconds": args.seconds,
+                    "utc": measured_started_utc,
+                }
+            ),
+            flush=True,
+        )
+        cpu_start, start = process_time(), perf_counter()
+        for index, item in enumerate(workload):
+            due = start + item[5]
+            await asyncio.sleep(max(0, due - perf_counter()))
+            late = perf_counter() - due
+            lags.append(late * 1000)
+            late_threshold = max(0.05, 1 / args.rate)
+            too_late = late > late_threshold
+            recover_late = (
+                too_late
+                and late_delivery_window_ms > 0
+                and late * 1000 <= late_delivery_window_ms
+                and len(pending) < args.inflight
+            )
+            if recover_late:
+                late_deliveries += 1
+                if len(late_delivery_examples) < 20:
+                    late_delivery_examples.append({
+                        "index": index,
+                        "utc": datetime.now(UTC).isoformat(),
+                        "lag_ms": round(late * 1000, 3),
+                        "pending": len(pending),
+                    })
+            elif too_late or len(pending) >= args.inflight:
+                drops += 1
+                window_drops[str(int(item[5] // 30) * 30)] += 1
+                reason = "late" if too_late else "inflight_limit"
+                drop_reasons[reason] += 1
+                if too_late and len(late_drop_examples) < 20:
+                    late_drop_examples.append(
+                        {
+                            "index": index,
+                            "utc": datetime.now(UTC).isoformat(),
+                            "lag_ms": round(late * 1000, 3),
+                            "pending": len(pending),
+                        }
+                    )
+                continue
+            task = asyncio.create_task(request(item))
+            pending.add(task)
+            task.add_done_callback(completed)
+            if index and index % (args.rate * 30) == 0:
+                print(json.dumps({"phase": "progress", "scheduled": index, "drops": drops}), flush=True)
+        await asyncio.gather(*pending, return_exceptions=True)
+        elapsed, cpu = perf_counter() - start, process_time() - cpu_start
+    reads = [value for key, values in latency.items() if key.startswith("read:") for value in values]
+    holds = [value for key, values in latency.items() if key.startswith("hold:") for value in values]
+    unexpected = sum(
+        n
+        for op, rows in statuses.items()
+        for status, n in rows.items()
+        if status not in (
+            {"200", "304"}
+            if op == "read"
+            else write_success_statuses | {"409"} if op == "hot_hold" else write_success_statuses
+        )
+    )
+    unexpected += statuses["hot_hold"].get("409", 0) - expected_hot_conflicts
+    hot_failed = [
+        value
+        for key, values in latency.items()
+        if key.startswith("hot_hold:") and key.removeprefix("hot_hold:") not in write_success_statuses
+        for value in values
+    ]
+    result = {
+        "reservation_mode": reservation_mode,
+        "read_mode": read_mode,
+        "mixed_hot_holds": getattr(args, "mixed_hot_holds", False),
+        "expected_hot_conflicts": expected_hot_conflicts,
+        "hot_failed_p95_ms": percentile(hot_failed, .95),
+        "phases": {phase: {"statuses": dict(rows), "p95_ms": {
+            op: percentile(values, 0.95) for op, values in phase_latency[phase].items()
+        }} for phase, rows in phase_statuses.items()},
+        "time_windows": {
+            window: {
+                "start_seconds": int(window),
+                "end_seconds": min(int(window) + 30, args.seconds),
+                "statuses": dict(window_statuses[window]),
+                "p95_ms": {
+                    operation: percentile(values, 0.95)
+                    for operation, values in window_latency[window].items()
+                },
+                "response_body_bytes": window_bytes[window],
+                "delta_observations": dict(window_delta_observations[window]),
+                "generator_drops": window_drops[window],
+            }
+            for window in sorted(set(window_statuses) | set(window_drops), key=int)
+        },
+        "read_hot_share": 0.9 if hot_show else 0,
+        "burst": args.burst,
+        "opening_burst": getattr(args, "opening_burst", False),
+        "arrival_phases": (
+            [{"rate": args.rate * multiplier, "seconds": duration}
+             for multiplier, duration in OPENING_BURST_PHASES]
+            if getattr(args, "opening_burst", False) else
+            [{"rate": args.rate, "seconds": 60},
+             {"rate": args.rate * 4, "seconds": 120},
+             {"rate": args.rate, "seconds": 60}]
+            if args.burst else [{"rate": args.rate, "seconds": args.seconds}]
+        ),
+        "utc": datetime.now(UTC).isoformat(),
+        "measured_started_utc": measured_started_utc,
+        "bootstrap": bootstrap,
+        "manifest_id": manifest["id"],
+        "run_id": run_id,
+        "target_origin": args.origin,
+        "generator_hostname": socket.gethostname(),
+        "platform": platform.platform(),
+        "topology_declared": args.topology,
+        "offered_rps": args.rate,
+        "seconds": args.seconds,
+        "show_count": len(shows),
+        "seats_per_show": 300,
+        "viewers": len(tokens),
+        "write_percent": write_percent,
+        "generator_drops": drops,
+        "drop_reasons": dict(drop_reasons),
+        "late_drop_threshold_ms": max(50.0, 1000 / args.rate),
+        "late_drop_examples": late_drop_examples,
+        "late_delivery_window_ms": late_delivery_window_ms,
+        "late_deliveries": late_deliveries,
+        "late_delivery_examples": late_delivery_examples,
+        "max_attempts": max_attempts,
+        "retry_base_delay_ms": retry_base_delay_ms,
+        "physical_http_attempts": physical_http_attempts,
+        "first_attempt_failures": dict(first_attempt_failures),
+        "retry_attempts": dict(retry_attempts),
+        "retry_successes": dict(retry_successes),
+        "retry_exhausted": dict(retry_exhausted),
+        "attempt_transport_error_types": dict(attempt_transport_errors),
+        "error_codes": dict(error_codes),
+        "error_examples": error_examples,
+        "keepalive_expiry_seconds": getattr(args, "keepalive_expiry", 5.0),
+        "measured_tcp_connect_events": dict(connection_counts) if getattr(args, "transport_diagnostics", False) else None,
+        "transport_error_types": dict(transport_errors),
+        "transport_diagnostics_enabled": getattr(args, "transport_diagnostics", False),
+        "transport_phase_counts": {operation: dict(values) for operation, values in transport_phases.items()} if args.transport_diagnostics else None,
+        "transport_failure_examples": transport_examples,
+        "task_error_types": dict(task_errors),
+        "scheduling_lag_p95_ms": percentile(lags, 0.95),
+        "scheduling_lag_p99_ms": percentile(lags, 0.99),
+        "scheduling_lag_p999_ms": percentile(lags, 0.999),
+        "scheduling_lag_max_ms": max(lags, default=None),
+        "scheduling_lag_over_10ms": sum(value > 10 for value in lags),
+        "scheduling_lag_over_25ms": sum(value > 25 for value in lags),
+        "scheduling_lag_over_50ms": sum(value > 50 for value in lags),
+        "generator_cpu_seconds": cpu,
+        "elapsed_seconds": elapsed,
+        "completed_rps": sum(sum(v.values()) for v in statuses.values()) / elapsed,
+        "statuses": dict(statuses),
+        "response_body_bytes": bytes_received,
+        "delta_observations": dict(delta_observations),
+        "latency_ms": {
+            key: {"p50": percentile(v, 0.5), "p95": percentile(v, 0.95), "p99": percentile(v, 0.99)}
+            for key, v in latency.items()
+        },
+        "read_p95_ms": percentile(reads, 0.95),
+        "hold_p95_ms": percentile(holds, 0.95),
+        "local_read_gate_pass": drops == 0
+        and unexpected == 0
+        and not task_errors
+        and bool(reads)
+        and percentile(reads, 0.95) <= 150,
+        "note": "95% reads/5% holds (mixed mode: 4% distinct, 1% hot). Redis-first counts HTTP 202 as provisional intake only; the backend durability audit must still prove every command DURABLE. Known hot 409 codes remain in error_codes but are expected; bootstrap excluded. Topology is operator-declared, not verified.",
+    }
+    result["reservation_gate_pass"] = bool(holds) and percentile(holds, 0.95) <= 300
+    result["accounting_pass"] = (
+        sum(sum(v.values()) for v in statuses.values()) + sum(task_errors.values()) + drops
+        == len(workload)
+    )
+    result["workload_gate_pass"] = (
+        result["local_read_gate_pass"] and result["reservation_gate_pass"] and result["accounting_pass"]
+    )
+    result["phase_latency_gate_pass"] = all(
+        percentile(values, 0.95) <= (150 if op == "read" else 300)
+        for rows in phase_latency.values() for op, values in rows.items()
+    )
+    result["hot_contention_gate_pass"] = not getattr(args, "mixed_hot_holds", False) or (bool(hot_failed) and percentile(hot_failed, .95) <= 200)
+    result["workload_gate_pass"] &= result["phase_latency_gate_pass"] and result["hot_contention_gate_pass"]
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(result, indent=2) + "\n")
+    print(json.dumps(result, indent=2))
+    if not result["workload_gate_pass"]:
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--manifest", type=Path, required=True)
+    parser.add_argument("--origin", required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--rate", type=int, default=50)
+    parser.add_argument("--seconds", type=int, default=180)
+    parser.add_argument("--inflight", type=int, default=64)
+    parser.add_argument("--burst", action="store_true", help="Continuous 60s base/120s 4x/60s recovery")
+    parser.add_argument("--opening-burst", action="store_true",
+                        help="Sale opening: 30s 4x/90s 2x/180s base rate")
+    parser.add_argument("--transport-diagnostics", action="store_true")
+    parser.add_argument("--mixed-hot-holds", action="store_true")
+    parser.add_argument("--reservation-mode", choices=("postgres", "redis-first"), default="postgres")
+    parser.add_argument("--read-mode", choices=("availability", "delta"), default="availability")
+    parser.add_argument("--write-percent", type=int, default=5)
+    parser.add_argument("--keepalive-expiry", type=expiry_seconds, default=5.0)
+    parser.add_argument("--max-attempts", type=int, choices=(1, 2, 3), default=1)
+    parser.add_argument("--retry-base-delay-ms", type=nonnegative_milliseconds, default=25.0)
+    parser.add_argument("--late-delivery-window-ms", type=nonnegative_milliseconds, default=0.0)
+    parser.add_argument("--start-at", help="Optional coordinated UTC ISO start time")
+    parser.add_argument(
+        "--topology", choices=["same-host", "separate-host", "unverified"], default="unverified"
+    )
+    args = parser.parse_args()
+    if args.burst and args.opening_burst:
+        parser.error("Choose only one burst profile")
+    if args.burst:
+        args.seconds = 240
+    if args.opening_burst:
+        args.seconds = 300
+    if (min(args.rate, args.seconds, args.inflight) < 1 or not 1 <= args.write_percent <= 100
+            or args.rate * (600 if args.burst else 480 if args.opening_burst else args.seconds) > 2000000):
+        parser.error("Use positive limits and at most 2000000 requests")
+    asyncio.run(run(args))
