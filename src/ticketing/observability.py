@@ -8,6 +8,10 @@ from time import perf_counter as monotonic
 
 from prometheus_client import Counter, Gauge, Histogram
 
+ORDER_STATUS_CACHE = Counter(
+    "ticketing_order_status_cache_total", "Advisory order snapshot outcomes", ["outcome"]
+)
+
 REQUESTS = Counter("ticketing_http_requests_total", "HTTP requests", ["route", "method", "status"])
 LATENCY = Histogram("ticketing_http_seconds", "HTTP latency", ["route"])
 OUTCOMES = Counter("ticketing_outcomes_total", "Business outcomes", ["operation", "outcome"])
@@ -22,10 +26,65 @@ RESERVATION_PERSISTENCE = Counter(
     "Redis-first PostgreSQL writer outcomes",
     ["outcome"],
 )
+RESERVATION_PERSISTENCE_FAILURES = Counter(
+    "ticketing_reservation_persistence_failures_total",
+    "Deterministic Redis-first persistence failures by bounded domain code",
+    ["code"],
+)
+RESERVATION_PERSISTENCE_PHASE_SECONDS = Histogram(
+    "ticketing_reservation_persistence_phase_seconds",
+    "Reservation-writer phase wall time",
+    ["phase", "outcome"],
+    buckets=(0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5),
+)
+RESERVATION_PERSISTENCE_BATCH_SIZE = Histogram(
+    "ticketing_reservation_persistence_batch_size",
+    "Commands handled by one reservation-writer poll",
+    buckets=(0, 1, 2, 4, 8, 16, 32, 64, 100),
+)
+SIMULATOR_PHASE_SECONDS = Histogram(
+    "ticketing_simulator_phase_seconds", "Development callback dispatch phase wall time",
+    ["phase", "outcome"], buckets=(.001, .005, .01, .025, .05, .1, .25, .5, 1, 2, 5, 10),
+)
+SIMULATOR_DUE_TO_CLAIM_SECONDS = Histogram(
+    "ticketing_simulator_due_to_claim_seconds", "DB-clock due-to-claim statement age",
+    buckets=(.001, .01, .1, .25, .5, 1, 2, 5, 10, 15, 30, 60, 120),
+)
+SIMULATOR_BATCH_BARRIER_SECONDS = Counter(
+    "ticketing_simulator_batch_barrier_seconds", "Sum of completed slot seconds parked behind a batch",
+)
+
+
+@contextmanager
+def simulator_phase(phase):
+    phase = phase if phase in {"claim", "delivery", "ack"} else "other"
+    started, outcome = monotonic(), "ok"
+    try:
+        yield
+    except Exception:
+        outcome = "error"
+        raise
+    finally:
+        SIMULATOR_PHASE_SECONDS.labels(phase, outcome).observe(monotonic() - started)
+
+
+EVENT_CONSUMER_BATCH_SIZE = Histogram(
+    "ticketing_event_consumer_batch_size",
+    "Kafka records handled by one bounded consumer batch",
+    buckets=(1, 2, 4, 8, 16, 32, 64, 100),
+)
+REFRESH_ACK_BATCH_SIZE = Histogram(
+    "ticketing_refresh_ack_batch_size",
+    "Successful refresh projections acknowledged by one PostgreSQL statement",
+    buckets=(1, 2, 4, 8, 16, 32, 64, 100),
+)
 RESERVATION_COMMAND_AGE_SECONDS = Histogram(
     "ticketing_reservation_command_age_seconds",
     "Age of a Redis-first command when a writer handles it",
-    buckets=(0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5, 15, 30, 60),
+    buckets=(
+        0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5, 15, 30, 60,
+        90, 120, 180, 300,
+    ),
 )
 RESERVATION_REPLICA_ACKS = Histogram(
     "ticketing_reservation_replica_acknowledgements",
@@ -74,6 +133,10 @@ DB_COMMIT_SECONDS = Histogram("ticketing_db_commit_seconds", "Time spent committ
 DB_ROLLBACK_SECONDS = Histogram("ticketing_db_rollback_seconds", "Time spent rolling back API transactions")
 DB_POOL_SECONDS = Histogram(
     "ticketing_db_pool_acquire_seconds", "Pool acquisition including failures", ["outcome"]
+)
+DB_ACQUISITION_FAILURES = Counter(
+    "ticketing_db_acquisition_failures_total", "Connection checkout failures by fixed admission reason",
+    ["role", "reason"],
 )
 DB_POOL_RETURN_SECONDS = Histogram(
     "ticketing_db_pool_return_seconds", "Time spent returning a DB connection to the pool"
@@ -136,6 +199,49 @@ RECONCILE_SECONDS = Histogram(
 RECONCILE_RECOVERED = Counter(
     "ticketing_reconciliation_recovered_leases_total", "Expired reconciliation leases reclaimed"
 )
+CONSUMER_BATCH_FAILURES = Counter(
+    "ticketing_consumer_batch_failures_total", "Consumer batch failed attempts including recovery", ["sqlstate"]
+)
+
+
+def observe_consumer_batch_error(exc):
+    state = getattr(exc, "sqlstate", None)
+    allowed = {"40P01", "40001", "55P03", "57014", "08006", "53300"}
+    CONSUMER_BATCH_FAILURES.labels(state if state in allowed else "other").inc()
+
+
+CONSUMER_PHASE_SECONDS = Histogram(
+    "ticketing_consumer_phase_seconds", "Consumer phase wall time including I/O",
+    ["phase", "partition", "outcome"],
+    buckets=(.001, .005, .01, .025, .05, .1, .25, .5, 1, 2, 5, 10),
+)
+
+
+@contextmanager
+def consumer_phase(phase, partition="all"):
+    allowed = {"poll", "partition", "commit", "rewind", "event_SeatsChanged",
+               "event_OrderPaid", "event_TicketsIssued", "event_RefundRequested"}
+    phase = phase if phase in allowed else "event_other"
+    label = str(partition)
+    label = label if label == "all" or label.isdigit() and 0 <= int(label) <= 31 else "other"
+    started, outcome = monotonic(), "ok"
+    try:
+        yield
+    except Exception:
+        outcome = "error"
+        raise
+    finally:
+        CONSUMER_PHASE_SECONDS.labels(phase, label, outcome).observe(monotonic() - started)
+
+
+def measured_consumer_event(fn):
+    @wraps(fn)
+    def wrapped(db, cache, envelope):
+        with consumer_phase("event_" + str(envelope.get("event_type", "other"))):
+            return fn(db, cache, envelope)
+    return wrapped
+
+
 def measured_work(operation):
     def decorate(fn):
         @wraps(fn)
@@ -205,8 +311,59 @@ class TimedHoldResource:
             return self.resource.__exit__(*exc)
 
 
+SEAT_DELTA_OUTCOMES = Counter(
+    "ticketing_seat_delta_outcomes_total",
+    "Versioned seat-map delta outcomes",
+    ["outcome"],
+)
+SEAT_DELTA_RESETS = Counter(
+    "ticketing_seat_delta_resets_total",
+    "Seat-map delta reset fallbacks by bounded cause",
+    ["reason"],
+)
+SEAT_DELTA_PHASE_SECONDS = Histogram(
+    "ticketing_seat_delta_phase_seconds",
+    "Seat-map delta read wall time by bounded phase",
+    ["phase"],
+    buckets=(0.0005, 0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1),
+)
+SEAT_DELTA_RAW_ENTRIES = Histogram(
+    "ticketing_seat_delta_raw_entries",
+    "Retained history entries returned by one Redis delta read",
+    buckets=(0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512),
+)
+SEAT_DELTA_RESULT_SEATS = Histogram(
+    "ticketing_seat_delta_result_seats",
+    "Distinct seat states returned by one delta response",
+    buckets=(0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 300),
+)
 BROWSE_BODY_OUTCOMES = Counter(
     "ticketing_browse_body_total", "Redis-validated browse representation outcomes", ["outcome"]
 )
 BROWSE_BODY_BYTES = Gauge("ticketing_browse_body_bytes", "Retained serialized browse payload bytes")
 BROWSE_BODY_ENTRIES = Gauge("ticketing_browse_body_entries", "Retained serialized browse representations")
+
+
+PAYMENT_RECEIPTS = Counter(
+    "ticketing_payment_receipts_total", "Durable callback receipt outcomes", ["outcome"]
+)
+PAYMENT_CONFIRMATIONS = Counter(
+    "ticketing_payment_confirmations_total", "Financial confirmation outcomes", ["outcome"]
+)
+PAYMENT_CONFIRMATION_PHASE = Histogram(
+    "ticketing_payment_confirmation_phase_seconds", "Receipt and confirmation phase duration",
+    ["phase"], buckets=(.001,.005,.01,.025,.05,.1,.25,.5,1,2,5,10,30),
+)
+PAYMENT_CONFIRMATION_AGE = Histogram(
+    "ticketing_payment_confirmation_age_seconds", "Receipt age when financial confirmation commits",
+    buckets=(.01,.05,.1,.25,.5,1,2,5,10,30,60,120),
+)
+PAYMENT_CONFIRMATION_PENDING = Gauge(
+    "ticketing_payment_confirmation_pending", "Unresolved durable receipts including review"
+)
+PAYMENT_CONFIRMATION_REVIEW = Gauge(
+    "ticketing_payment_confirmation_review", "Receipts requiring explicit operator reconciliation"
+)
+PAYMENT_CONFIRMATION_OLDEST = Gauge(
+    "ticketing_payment_confirmation_oldest_seconds", "Oldest unresolved durable receipt age"
+)

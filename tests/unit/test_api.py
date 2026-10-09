@@ -2,12 +2,14 @@ import hashlib
 import hmac
 import json
 import time
+from types import SimpleNamespace
 from unittest.mock import Mock
 from uuid import uuid4
 
+from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
 
-from ticketing.api import app, service, settings
+from ticketing.api import app, deltas, service, settings
 
 
 def test_openapi_and_auth():
@@ -49,5 +51,45 @@ def test_callback_signature_and_duplicate_payload_forwarding():
         headers["X-Payment-Signature"] = "invalid"
         assert client.post("/v1/webhooks/payments", content=raw, headers=headers).status_code == 401
         store.callback.assert_called_once()
+    finally:
+        app.dependency_overrides.clear()
+
+def test_delta_handler_encodes_response_in_sync_worker():
+    event_id = uuid4()
+    payload = {
+        "event_id": str(event_id),
+        "from_version": 7,
+        "version": 8,
+        "incarnation": "map-1",
+        "reset_required": False,
+        "seats": [],
+    }
+    cache = Mock()
+    cache.deltas.return_value = payload
+    request = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(cache=cache)))
+
+    response = deltas(event_id, request, since=7, incarnation="map-1")
+
+    assert isinstance(response, JSONResponse)
+    assert json.loads(response.body) == payload
+    cache.deltas.assert_called_once_with(str(event_id), 7, "map-1")
+
+
+def test_order_status_response_is_private_and_documents_freshness():
+    from ticketing.api import actor
+
+    order_id = uuid4()
+    svc = Mock()
+    svc.get_order.return_value = {"id": str(order_id), "status": "PENDING", "tickets": []}
+    app.dependency_overrides[actor] = lambda: "owner"
+    app.dependency_overrides[service] = lambda: svc
+    try:
+        client = TestClient(app)
+        response = client.get(f"/v1/orders/{order_id}")
+        assert response.status_code == 200
+        assert response.headers['cache-control'] == 'private, no-store'
+        assert response.headers['vary'] == 'Authorization'
+        svc.get_order.assert_called_once_with('owner', order_id)
+        assert '3 seconds' in client.get('/openapi.json').json()['paths']['/v1/orders/{order_id}']['get']['description']
     finally:
         app.dependency_overrides.clear()

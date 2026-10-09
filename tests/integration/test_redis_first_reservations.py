@@ -15,15 +15,15 @@ from ticketing.workers import persist_reservation_batch, snapshot
 pytestmark = pytest.mark.integration
 
 
-@pytest.fixture
-def redis_first(system):
+@pytest.fixture(params=[False, True], ids=["sequential", "pipelined"])
+def redis_first(system, request):
     _service, db, event_id = system
     url = os.getenv("TEST_REDIS_URL")
     if not url:
         pytest.skip("TEST_REDIS_URL not configured")
     cache = RedisSeats(url)
     intake = RedisReservationIntake(cache, hold_seconds=120)
-    store = PostgresReservations(db, cache, 120)
+    store = PostgresReservations(db, cache, 120, persist_write_pipeline=request.param)
     snapshot(db, cache, event_id)
     try:
         yield store, intake, cache, db, event_id
@@ -75,6 +75,51 @@ def test_one_of_100_concurrent_intakes_wins_and_writer_is_replay_safe(redis_firs
         assert conn.execute("SELECT count(*) AS n FROM orders").fetchone()["n"] == 1
         assert conn.execute("SELECT count(*) AS n FROM reservation_commands").fetchone()["n"] == 1
         assert conn.execute("SELECT count(*) AS n FROM outbox_events").fetchone()["n"] == 1
+
+
+def test_redis_first_hold_and_compensation_preserve_delta_continuity(redis_first):
+    _store, intake, cache, db, event_id = redis_first
+    initial = cache.read(str(event_id))
+
+    pending = intake.enqueue("actor", event_id, ["A"], "delta-hold")
+    held = cache.deltas(str(event_id), initial["version"], initial["incarnation"])
+    assert held["reset_required"] is False
+    assert held["version"] > initial["version"]
+    assert held["seats"] == [
+        {
+            "seat_id": "A",
+            "status": "HELD",
+            "reserved_until": pending["expires_at"],
+        }
+    ]
+
+    # Periodic full reconciliation must not roll back the provisional aggregate
+    # version or discard its contiguous delta when PostgreSQL has not caught up.
+    snapshot(db, cache, event_id)
+    assert cache.deltas(str(event_id), initial["version"], initial["incarnation"]) == held
+
+    map_ttl = cache.redis.ttl(cache.key(event_id))
+    delta_ttl = cache.redis.ttl(cache.delta_key(event_id))
+    assert 0 < delta_ttl <= map_ttl
+
+    assert intake.mark_failed(
+        event_id, pending["command_id"], ["A"], "SEAT_UNAVAILABLE"
+    ) == 1
+    released = cache.deltas(str(event_id), held["version"], held["incarnation"])
+    assert released == {
+        "event_id": str(event_id),
+        "from_version": held["version"],
+        "version": held["version"] + 1,
+        "incarnation": held["incarnation"],
+        "reset_required": False,
+        "seats": [
+            {
+                "seat_id": "A",
+                "status": "AVAILABLE",
+                "reserved_until": None,
+            }
+        ],
+    }
 
 
 def test_changed_idempotency_payload_is_rejected(redis_first):
@@ -162,25 +207,25 @@ def test_expired_provisional_can_be_reclaimed_without_losing_new_owner(redis_fir
 def test_writer_failure_leaves_pending_message_for_reclaim(redis_first, monkeypatch):
     store, intake, _cache, _db, event_id = redis_first
     pending = intake.enqueue("actor", event_id, ["A"], "key")
-    original = store.persist_reservation_command
+    original = store.persist_reservation_commands
 
     def unavailable(*_args):
         raise RuntimeError("database unavailable")
 
-    monkeypatch.setattr(store, "persist_reservation_command", unavailable)
+    monkeypatch.setattr(store, "persist_reservation_commands", unavailable)
     with pytest.raises(RuntimeError, match="database unavailable"):
         persist_reservation_batch(store, intake, "failed-writer", 8)
 
     stream = intake.stream_key(event_id)
     assert intake.redis.xpending(stream, intake.group)["pending"] == 1
 
-    monkeypatch.setattr(store, "persist_reservation_command", original)
+    monkeypatch.setattr(store, "persist_reservation_commands", original)
     claimed = list(intake.messages("recovery-writer", count=8, reclaim_idle_ms=0))
     assert len(claimed) == 1
     claimed_stream, message_id, fields = claimed[0]
     payload = json.loads(fields["payload"])
     response = json.loads(fields["response"])
-    original(payload, response)
+    assert original([(payload, response)])[0][0] == "durable"
     intake.mark_durable(event_id, pending["command_id"])
     intake.acknowledge(claimed_stream, message_id)
 
@@ -233,3 +278,445 @@ def test_new_messages_are_read_across_event_streams_without_starvation(redis_fir
         if keys:
             cache.redis.delete(*keys)
         cache.redis.srem("reservation-stream-registry", second_stream)
+
+def test_batched_writer_isolates_deterministic_failure_with_savepoint(redis_first):
+    store, intake, _cache, db, event_id = redis_first
+    owner = intake.enqueue("existing", event_id, ["C"], "existing")
+    assert persist_reservation_batch(store, intake, "test-writer", 8)
+
+    durable = intake.enqueue("durable", event_id, ["A"], "durable")
+    failed = intake.enqueue("failed", event_id, ["B"], "failed")
+    with db.transaction() as conn:
+        conn.execute(
+            """UPDATE event_seats SET booked_order_id=%s,hold_id=NULL,
+            reserved_until=NULL,version=version+1 WHERE event_id=%s AND seat_id='B'""",
+            (owner["order_id"], event_id),
+        )
+
+    assert persist_reservation_batch(store, intake, "batch-writer", 8)
+    assert intake.status(event_id, durable["command_id"])["persistence_status"] == "DURABLE"
+    failed_status = intake.status(event_id, failed["command_id"])
+    assert failed_status["persistence_status"] == "FAILED"
+    assert failed_status["error_code"] == "SEAT_UNAVAILABLE"
+    assert intake.redis.xlen(intake.stream_key(event_id)) == 0
+    with db.transaction() as conn:
+        assert (
+            conn.execute(
+                "SELECT count(*) AS n FROM reservation_commands WHERE command_id=ANY(%s)",
+                ([durable["command_id"], failed["command_id"]],),
+            ).fetchone()["n"]
+            == 1
+        )
+
+
+def test_post_commit_redis_failure_replays_complete_batch(redis_first, monkeypatch):
+    store, intake, _cache, db, event_id = redis_first
+    first = intake.enqueue("first", event_id, ["A"], "first")
+    second = intake.enqueue("second", event_id, ["B"], "second")
+    original_mark = intake.mark_durable
+
+    def unavailable(*_args):
+        raise RuntimeError("redis unavailable after commit")
+
+    monkeypatch.setattr(intake, "mark_durable", unavailable)
+    with pytest.raises(RuntimeError, match="redis unavailable after commit"):
+        persist_reservation_batch(store, intake, "failed-writer", 8)
+
+    with db.transaction() as conn:
+        assert (
+            conn.execute(
+                "SELECT count(*) AS n FROM reservation_commands WHERE command_id=ANY(%s)",
+                ([first["command_id"], second["command_id"]],),
+            ).fetchone()["n"]
+            == 2
+        )
+    stream = intake.stream_key(event_id)
+    assert intake.redis.xpending(stream, intake.group)["pending"] == 2
+
+    monkeypatch.setattr(intake, "mark_durable", original_mark)
+    original_messages = intake.messages
+
+    def immediate_reclaim(consumer, count=8):
+        yield from original_messages(consumer, count=count, reclaim_idle_ms=0)
+
+    monkeypatch.setattr(intake, "messages", immediate_reclaim)
+    assert persist_reservation_batch(store, intake, "recovery-writer", 8)
+    assert intake.status(event_id, first["command_id"])["persistence_status"] == "DURABLE"
+    assert intake.status(event_id, second["command_id"])["persistence_status"] == "DURABLE"
+    assert intake.redis.xpending(stream, intake.group)["pending"] == 0
+    assert intake.redis.xlen(stream) == 0
+
+
+def test_oldest_command_age_rejects_new_intake_but_allows_replay(redis_first):
+    import time
+
+    _store, _intake, cache, _db, event_id = redis_first
+    intake = RedisReservationIntake(cache, hold_seconds=120, max_command_age_seconds=1)
+    first = intake.enqueue("first", event_id, ["A"], "same-key")
+    time.sleep(1.1)
+
+    assert intake.enqueue("first", event_id, ["A"], "same-key") == first
+    with pytest.raises(Failure, match="RESERVATION_PERSISTENCE_LAGGING"):
+        intake.enqueue("second", event_id, ["B"], "second-key")
+    seats = {seat["seat_id"]: seat for seat in cache.read(str(event_id))["seats"]}
+    assert seats["B"]["status"] == "AVAILABLE"
+
+
+
+@pytest.mark.parametrize("enqueue_after_remove", [False, True])
+def test_empty_stream_prune_cannot_hide_a_concurrent_accepted_command(
+    redis_first, monkeypatch, enqueue_after_remove
+):
+    import time
+
+    store, intake, cache, db, event_id = redis_first
+    stream = intake.stream_key(event_id)
+    intake.ensure_group(stream)
+    cache.redis.sadd("reservation-stream-registry", stream)
+    # Disable the fallback scan: ordinary registry discovery must retain this work.
+    intake._last_scan_refresh = time.monotonic()
+    original_remove = cache.redis.srem
+    accepted = []
+
+    def enqueue_before_remove(key, *streams):
+        if enqueue_after_remove:
+            result = original_remove(key, *streams)
+        if stream in streams and not accepted:
+            assert cache.redis.xlen(stream) == 0
+            accepted.append(intake.enqueue("race-owner", event_id, ["A"], "race-key"))
+        return result if enqueue_after_remove else original_remove(key, *streams)
+
+    monkeypatch.setattr(cache.redis, "srem", enqueue_before_remove)
+    intake._refresh_streams()
+
+    assert len(accepted) == 1
+    assert cache.redis.xlen(stream) == 1
+    assert cache.redis.sismember("reservation-stream-registry", stream)
+    assert stream in intake.streams()
+    assert persist_reservation_batch(store, intake, "race-recovery-writer", 8)
+    assert intake.status(event_id, accepted[0]["command_id"])["persistence_status"] == "DURABLE"
+    assert cache.redis.xlen(stream) == 0
+    assert cache.redis.xpending(stream, intake.group)["pending"] == 0
+    with db.transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM reservation_commands").fetchone()["n"] == 1
+        assert conn.execute("SELECT count(*) AS n FROM orders").fetchone()["n"] == 1
+
+
+
+def test_failed_advisory_registration_recovers_via_scan_without_duplicate_order(redis_first, monkeypatch):
+    from redis.exceptions import RedisError
+
+    store, intake, cache, db, event_id = redis_first
+    original_add = cache.redis.sadd
+    failures = []
+
+    def fail_once(key, *streams):
+        if not failures:
+            failures.append(True)
+            raise RedisError("advisory registration unavailable")
+        return original_add(key, *streams)
+
+    monkeypatch.setattr(cache.redis, "sadd", fail_once)
+    accepted = intake.enqueue("scan-owner", event_id, ["A"], "scan-key")
+    stream = intake.stream_key(event_id)
+    assert accepted["persistence_status"] == "PENDING"
+    assert cache.redis.xlen(stream) == 1
+    assert not cache.redis.sismember("reservation-stream-registry", stream)
+    # A small isolated namespace completes this bounded fallback scan immediately;
+    # this test does not establish a discovery deadline for a large live keyspace.
+    assert persist_reservation_batch(store, intake, "scan-recovery-writer", 8)
+    durable = intake.status(event_id, accepted["command_id"])
+    assert durable["persistence_status"] == "DURABLE"
+    assert intake.enqueue("scan-owner", event_id, ["A"], "scan-key") == durable
+    assert cache.redis.xlen(stream) == 0
+    assert cache.redis.xpending(stream, intake.group)["pending"] == 0
+    with db.transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM reservation_commands").fetchone()["n"] == 1
+        assert conn.execute("SELECT count(*) AS n FROM orders").fetchone()["n"] == 1
+
+
+
+def test_nonblocking_sweep_reaches_ready_work_after_owned_streams(redis_first, monkeypatch):
+    _store, intake, cache, _db, event_id = redis_first
+    streams = [intake.stream_key(event_id) + f":diagnostic-{i:02}" for i in range(32)]
+    reads = []
+    original_read = cache.redis.xreadgroup
+
+    def read(group, consumer, keys, **kwargs):
+        assert "block" not in kwargs
+        reads.append(tuple(keys))
+        return original_read(group, consumer, keys, **kwargs)
+
+    try:
+        for stream in streams:
+            cache.redis.xgroup_create(stream, intake.group, id="0", mkstream=True)
+            cache.redis.xadd(stream, {"diagnostic": "test-only"})
+        for stream in streams[:-1]:
+            rows = original_read(intake.group, "previous-writer", {stream: ">"}, count=1)
+            cache.redis.xack(stream, intake.group, rows[0][1][0][0])
+        cache.redis.sadd("reservation-stream-registry", *streams)
+        monkeypatch.setattr(cache.redis, "xreadgroup", read)
+        messages = list(intake.messages("ready-writer", count=4))
+        assert reads == [(stream,) for stream in streams]
+        assert len(messages) == 1
+        stream, message_id, _fields = messages[0]
+        assert stream == streams[-1]
+        assert cache.redis.xpending(stream, intake.group)["pending"] == 1
+        cache.redis.xack(stream, intake.group, message_id)
+        assert cache.redis.xpending(stream, intake.group)["pending"] == 0
+    finally:
+        cache.redis.delete(*streams)
+        cache.redis.srem("reservation-stream-registry", *streams)
+
+
+def test_pending_filter_recovers_before_new_work_with_a_hard_total(redis_first, monkeypatch):
+    _store, intake, cache, _db, event_id = redis_first
+    streams = [intake.stream_key(event_id) + f":pending-filter-{i:02}" for i in range(4)]
+    claims = []
+    original_claim = cache.redis.xautoclaim
+    try:
+        for stream in streams:
+            cache.redis.xgroup_create(stream, intake.group, id="0", mkstream=True)
+        # Stream 0 retains an acknowledged entry, but has no pending work.
+        acknowledged = cache.redis.xadd(streams[0], {"test": "acknowledged"})
+        cache.redis.xreadgroup(intake.group, "old", {streams[0]: ">"}, count=1)
+        cache.redis.xack(streams[0], intake.group, acknowledged)
+        pending = [cache.redis.xadd(streams[1], {"test": "recover"}) for _ in range(3)]
+        cache.redis.xreadgroup(intake.group, "crashed", {streams[1]: ">"}, count=3)
+        fresh = [cache.redis.xadd(streams[2], {"test": "fresh"}) for _ in range(5)]
+        cache.redis.sadd("reservation-stream-registry", *streams)
+
+        def claim(stream, *args, **kwargs):
+            claims.append(stream)
+            return original_claim(stream, *args, **kwargs)
+
+        monkeypatch.setattr(cache.redis, "xautoclaim", claim)
+        messages = list(intake.messages("replacement", count=4, reclaim_idle_ms=0))
+        assert claims == [streams[1]]
+        assert [message_id for _, message_id, _ in messages[:3]] == pending
+        assert len(messages) == 4
+        assert messages[3][:2] == (streams[2], fresh[0])
+        assert cache.redis.xpending(streams[1], intake.group)["consumers"] == [
+            {"name": "replacement", "pending": 3}
+        ]
+        assert cache.redis.xpending(streams[2], intake.group)["pending"] == 1
+        assert cache.redis.xlen(streams[2]) == 5  # Discovery never ACKs or deletes.
+        remaining_new = cache.redis.xreadgroup(intake.group, "other", {streams[2]: ">"}, count=8)
+        assert [mid for mid, _ in remaining_new[0][1]] == fresh[1:]
+    finally:
+        cache.redis.delete(*streams)
+        cache.redis.srem("reservation-stream-registry", *streams)
+
+
+def test_pending_created_after_summary_is_recovered_on_next_rotation(redis_first, monkeypatch):
+    _store, intake, cache, _db, event_id = redis_first
+    stream = intake.stream_key(event_id)
+    message_id = cache.redis.xadd(stream, {"test": "snapshot race"})
+    cache.redis.sadd("reservation-stream-registry", stream)
+    original_pipeline = cache.redis.pipeline
+    raced = []
+
+    def pipeline(**kwargs):
+        result = original_pipeline(**kwargs)
+        execute = result.execute
+
+        def execute_then_assign(*args, **kw):
+            is_pending = any(command[0][0] == "XPENDING" for command in result.command_stack)
+            rows = execute(*args, **kw)
+            if is_pending and not raced:
+                raced.append(True)
+                cache.redis.xreadgroup(intake.group, "crashed", {stream: ">"}, count=1)
+            return rows
+
+        result.execute = execute_then_assign
+        return result
+
+    monkeypatch.setattr(cache.redis, "pipeline", pipeline)
+    assert list(intake.messages("replacement", count=4, reclaim_idle_ms=0)) == []
+    assert cache.redis.xpending(stream, intake.group)["pending"] == 1
+    recovered = list(intake.messages("replacement", count=4, reclaim_idle_ms=0))
+    assert len(recovered) == 1
+    assert recovered[0][:2] == (stream, message_id)
+    assert cache.redis.xpending(stream, intake.group)["pending"] == 1
+
+
+@pytest.mark.parametrize("reclaim", [False, True])
+@pytest.mark.parametrize("refresh", [0, 60])
+def test_real_redis_hot_stream_gives_cold_stream_next_turn(redis_first, reclaim, refresh):
+    _store, intake, cache, _db, event_id = redis_first
+    streams = [intake.stream_key(event_id) + f":fair-{i}" for i in range(2)]
+    intake.stream_refresh_seconds = refresh
+    try:
+        for stream in streams:
+            intake.ensure_group(stream)
+            cache.redis.sadd("reservation-stream-registry", stream)
+        cold = (streams[1], cache.redis.xadd(streams[1], {"test": "cold"}))
+        if reclaim:
+            cache.redis.xreadgroup(intake.group, "crashed", {streams[1]: ">"}, count=1)
+        seen = []
+        for _ in range(12):
+            for _ in range(4):
+                cache.redis.xadd(streams[0], {"test": "hot"})
+            if reclaim:
+                cache.redis.xreadgroup(intake.group, "crashed", {streams[0]: ">"}, count=4)
+            batch = list(intake.messages("replacement", count=4, reclaim_idle_ms=0))
+            assert len(batch) <= 4
+            seen.append([(stream, message_id) for stream, message_id, _ in batch])
+            # Discovery neither ACKs nor deletes; persistence owns those operations.
+            for stream, message_id, _ in batch:
+                assert cache.redis.xpending_range(stream, intake.group, message_id, message_id, 1)
+                intake.acknowledge(stream, message_id)
+        assert cold not in seen[0]
+        assert cold in seen[1]  # The baseline never reaches it in twelve iterations.
+        assert sum(cold in ids for ids in seen) == 1
+    finally:
+        cache.redis.delete(*streams)
+        cache.redis.srem("reservation-stream-registry", *streams)
+
+
+def test_concurrent_writer_cursors_assign_unique_bounded_batches(redis_first):
+    _store, intake, cache, _db, event_id = redis_first
+    streams = [intake.stream_key(event_id) + f":concurrent-fair-{i}" for i in range(2)]
+    try:
+        expected = set()
+        for stream in streams:
+            intake.ensure_group(stream)
+            for _ in range(32):
+                expected.add((stream, cache.redis.xadd(stream, {"test": "concurrent"})))
+        gate = Barrier(4)
+
+        def collect(index):
+            writer = RedisReservationIntake(cache, stream_refresh_seconds=60)
+            writer._streams = streams[:]
+            writer._stream_cycle_complete = False
+            gate.wait()
+            batches = [list(writer.messages(f"writer-{index}", count=4)) for _ in range(2)]
+            assert all(len(batch) == 4 for batch in batches)
+            assert {stream for batch in batches for stream, *_ in batch} == set(streams)
+            return [(stream, message_id) for batch in batches for stream, message_id, _ in batch]
+
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            results = list(executor.map(collect, range(4)))
+        assigned = [item for result in results for item in result]
+        assert len(assigned) == len(set(assigned)) == 32
+        assert set(assigned) <= expected
+        assert sum(cache.redis.xpending(stream, intake.group)["pending"] for stream in streams) == 32
+        assert sum(cache.redis.xlen(stream) for stream in streams) == 64
+    finally:
+        cache.redis.delete(*streams)
+        cache.redis.srem("reservation-stream-registry", *streams)
+
+
+def test_fair_continuation_after_commit_failure_reset_and_replay(redis_first, monkeypatch):
+    store, intake, cache, db, _event_id = redis_first
+    events = sorted([uuid4(), uuid4()], key=str)
+    streams = [intake.stream_key(event) for event in events]
+    try:
+        with db.transaction() as conn:
+            for event in events:
+                conn.execute(
+                    """INSERT INTO events VALUES (%s,'Fair replay','THB',
+                    clock_timestamp()-interval '1 day',clock_timestamp()+interval '1 day')""",
+                    (event,),
+                )
+                for seat in ["A", "B", "C", "D"]:
+                    conn.execute(
+                        "INSERT INTO event_seats(event_id,seat_id,price) VALUES (%s,%s,100)",
+                        (event, seat),
+                    )
+        for event in events:
+            snapshot(db, cache, event)
+        commands = [intake.enqueue(f"hot-{seat}", events[0], [seat], f"hot-{seat}")
+                    for seat in ["A", "B", "C", "D"]]
+        cold = intake.enqueue("cold", events[1], ["A"], "cold")
+        commands.append(cold)
+        original_mark = intake.mark_durable
+
+        def fail(*_args):
+            raise RuntimeError("commit before marker")
+
+        monkeypatch.setattr(intake, "mark_durable", fail)
+        with pytest.raises(RuntimeError, match="commit before marker"):
+            persist_reservation_batch(store, intake, "crashed", 4)
+        assert intake._stream_cursor == 1
+        assert cache.redis.xpending(streams[0], intake.group)["pending"] == 4
+        with db.transaction() as conn:
+            assert conn.execute("SELECT count(*) AS n FROM reservation_commands").fetchone()["n"] == 4
+
+        intake.reset_connection_state()
+        monkeypatch.setattr(intake, "mark_durable", original_mark)
+        messages = intake.messages
+
+        def recover(consumer, count=8):
+            yield from messages(consumer, count=count, reclaim_idle_ms=0)
+
+        monkeypatch.setattr(intake, "messages", recover)
+        assert persist_reservation_batch(store, intake, "replacement", 4)
+        # Full hot-stream replay advances continuation instead of skipping cold.
+        assert persist_reservation_batch(store, intake, "replacement", 4)
+        assert not persist_reservation_batch(store, intake, "replacement", 4)
+        for event, command in [(events[0], command) for command in commands[:-1]] + [(events[1], cold)]:
+            assert intake.status(event, command["command_id"])["persistence_status"] == "DURABLE"
+        assert all(cache.redis.xlen(stream) == 0 for stream in streams)
+        assert all(cache.redis.xpending(stream, intake.group)["pending"] == 0 for stream in streams)
+        with db.transaction() as conn:
+            for table in ["holds", "orders", "reservation_commands", "outbox_events"]:
+                assert conn.execute(f"SELECT count(*) AS n FROM {table}").fetchone()["n"] == 5
+            assert conn.execute("SELECT count(*) AS n FROM bookings").fetchone()["n"] == 0
+    finally:
+        for event, stream in zip(events, streams, strict=True):
+            keys = list(cache.redis.scan_iter(match=f"*{{{event}}}*"))
+            if keys:
+                cache.redis.delete(*keys)
+            cache.redis.srem("reservation-stream-registry", stream)
+
+
+@pytest.mark.parametrize("failure", ["queued_sql", "commit"])
+def test_write_pipeline_failure_rolls_back_and_keeps_stream_replayable(redis_first, monkeypatch, failure):
+    import psycopg
+
+    import ticketing.infrastructure.reservations as persistence
+
+    store, intake, _cache, db, event_id = redis_first
+    first = intake.enqueue("pipeline-first", event_id, ["A"], "pipeline-first")
+    second = intake.enqueue("pipeline-second", event_id, ["B"], "pipeline-second")
+    original_event = persistence.event
+
+    def failed_event(conn, *args):
+        original_event(conn, *args)
+        conn.execute("SELECT 1/0")  # Fail after earlier writes were submitted.
+
+    def failed_commit(_conn):
+        raise RuntimeError("injected commit failure")
+
+    expected = psycopg.errors.DivisionByZero if failure == "queued_sql" else RuntimeError
+    with monkeypatch.context() as patch:
+        if failure == "queued_sql":
+            patch.setattr(persistence, "event", failed_event)
+        else:
+            patch.setattr(psycopg.Connection, "commit", failed_commit)
+        with pytest.raises(expected):
+            persist_reservation_batch(store, intake, "pipeline-failed-writer", 8)
+
+    stream = intake.stream_key(event_id)
+    assert intake.redis.xpending(stream, intake.group)["pending"] == 2
+    assert intake.status(event_id, first["command_id"])["persistence_status"] == "PENDING"
+    assert intake.status(event_id, second["command_id"])["persistence_status"] == "PENDING"
+    with db.transaction() as conn:
+        for table in ("holds", "orders", "order_items", "reservation_commands", "outbox_events", "idempotency_records"):
+            assert conn.execute(f"SELECT count(*) AS n FROM {table}").fetchone()["n"] == 0
+        assert conn.execute("SELECT count(*) AS n FROM event_seats WHERE hold_id IS NOT NULL").fetchone()["n"] == 0
+
+    original_messages = intake.messages
+
+    def immediate_reclaim(consumer, count=8):
+        yield from original_messages(consumer, count=count, reclaim_idle_ms=0)
+
+    monkeypatch.setattr(intake, "messages", immediate_reclaim)
+    assert persist_reservation_batch(store, intake, "pipeline-recovered-writer", 8)
+    assert intake.redis.xpending(stream, intake.group)["pending"] == 0
+    assert intake.redis.xlen(stream) == 0
+    with db.transaction() as conn:
+        for table in ("holds", "orders", "reservation_commands", "outbox_events"):
+            assert conn.execute(f"SELECT count(*) AS n FROM {table}").fetchone()["n"] == 2
+        assert conn.execute("SELECT count(DISTINCT id) AS n FROM orders").fetchone()["n"] == 2

@@ -1,12 +1,12 @@
-from ticketing.application.ports import ReservationStore
+from ticketing.application.ports import OrderStatusCache, ReservationStore
 from ticketing.domain import Failure
 
 
 class Reservations:
     """Use cases depend on an atomic persistence port, never a database driver."""
 
-    def __init__(self, store: ReservationStore):
-        self.store = store
+    def __init__(self, store: ReservationStore, order_cache: OrderStatusCache | None = None):
+        self.store, self.order_cache = store, order_cache
 
     def reserve(self, actor, event_id, seat_ids, key):
         if not 1 <= len(seat_ids) <= 8 or len(set(seat_ids)) != len(seat_ids):
@@ -19,7 +19,15 @@ class Reservations:
         return self.store.checkout(actor, hold_id, key)
 
     def get_order(self, actor, order_id):
-        return self.store.get_order(actor, order_id)
+        if self.order_cache is None:
+            return self.store.get_order(actor, order_id)
+        cached, snapshot_start_ms = self.order_cache.lookup(actor, order_id)
+        if cached is not None:
+            return cached
+        row = self.store.get_order(actor, order_id)
+        if snapshot_start_ms is not None:
+            self.order_cache.put(actor, order_id, row, snapshot_start_ms)
+        return row
 
     def get_hold(self, actor, hold_id):
         return self.store.get_hold(actor, hold_id)

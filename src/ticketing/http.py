@@ -129,6 +129,8 @@ class RequestInstrumentation:
                         'duration_ms': round(elapsed * 1000, 2),
                         'error_code': request.state.error_code,
                         'db_failure_type': getattr(request.state, 'db_failure_type', None),
+                        **({'db_acquisition_failure': request.state.db_acquisition_failure}
+                           if hasattr(request.state, 'db_acquisition_failure') else {}),
                         'connection_key': key_string,
                         'connection_recreated': connection_recreated,
                         'connection_age_ms': round(connection_age_ms, 2),
