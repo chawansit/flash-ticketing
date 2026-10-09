@@ -167,7 +167,7 @@ def test_executed_batched_snapshot_covers_every_show_and_preserves_late_corrupti
     from types import SimpleNamespace
     namespace = {}
     body = recovery.financial_program(SHOWS, 301961)
-    exec(body.split("\ncohort=")[0], namespace)
+    exec(body.split("\ncohort=")[0], namespace)  # noqa: S102 - Execute only the repository-owned generated read-only audit in a test.
     namespace["audit"] = lambda *args: {"pass": True}
     calls = []
     class Conn:
