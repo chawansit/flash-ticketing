@@ -51,7 +51,7 @@
     "ADR0176 separate application-role diagnostics locally qualified: 138 broader tests in 54.71s, 33 final scoped tests in 0.90s and one real PostgreSQL test in 0.18s. Foreign masking is explicit; hidden own-role or unknown identity fails. No historical generic complete alias. Owned resources removed; zero cloud calls; not registered or capacity-qualified.",
     "ADR0177 separate application-role rebalance runner integrated/registered and locally qualified:284 focused regressions and1 real PostgreSQL test passed. All18 configured database replicas must share effective observer role/database; source read-back, exact modes and distinct scoped gate retained. No cloud calls/reservations, application/schema changes or capacity improvement measured.",
     "ADR0178:32 new real generated-collector placement regressions passed;4 recorded cloud inventories resolved as exact2+2/1+3. Combined runner suite227 passed/1 stale hook assertion failed; after correction complete collector subset52 passed. Ruff/naming/diff checks passed. Original failed scope retained; live original runtime, generator idle and full queues/Kafka zero verified. No measured rebalance benefit.",
-    "Fresh 4a39498e4eff used 1553.25 seconds: dry a27b10cd3e24 passed both 2+2 and 1+3; measured 61ba705c24bc control completed 18,000 scheduled/dispatched/confirmed paid-and-issued tickets with zero errors, drops, loss or duplicate bookings, post-TTL/full drain and exact restoration. Hold-to-ticket worst-shard p95 1668.00 ms; primary CPU 71.147%, secondary 17.430%. Only application_database_wait_evidence_complete failed: three of 478 validation samples, application_visibility_missing at roughly 60-second intervals and 13.8–19.4 ms collection. Candidate skipped; no rebalance benefit measured.",
+    "Fresh 4a39498e4eff used 1553.25 seconds: dry a27b10cd3e24 passed both 2+2 and 1+3; measured 61ba705c24bc control completed 18,000 scheduled/dispatched/confirmed paid-and-issued tickets with zero errors, drops, loss or duplicate bookings, post-TTL/full drain and exact restoration. Hold-to-ticket worst-shard p95 1668.00 ms; primary CPU 71.147%, secondary 17.430%. Only application_database_wait_evidence_complete failed: three of 478 validation samples, application_visibility_missing at roughly 60-second intervals and 13.8\u00e2\u20ac\u201c19.4 ms collection. Candidate skipped; no rebalance benefit measured.",
     "ADR0179 bounded scoped-visibility failure context passed 247 targeted local tests and one real PostgreSQL check with owned resources removed. Same snapshot and query/connection budgets; unknown or hidden application activity still fails. Original three diagnostic failures remain failed and have no historical backend-category context. No new cloud experiment after this source change.",
     "Fresh ADR0179 workflow 3ae1fd15417b: dry 19e4281e9806 both placements passed; measured 9d5fb721cd4f control 18,000 scheduled/dispatched/confirmed paid-issued at 60/s for 300s, zero errors/drops/loss/doubles, post-TTL/full queues/exact restoration passed. Only scoped diagnostics failed: 41/472 samples, complete safe contexts, one unknown-role/hidden-backend each; candidate skipped.",
     "Two real local PostgreSQL visibility tests passed in 1.58s; helper 6.875s removed owned resources, zero cloud calls. Autovacuum reproduced null-role/hidden-backend signature; statistics grant revealed worker and passed full collector but scoped null-role gate stayed failed. Cloud actor identity unproven; no policy/permissions changed.",
@@ -1097,7 +1097,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Use recovered timeout evidence for one focused payment-capacity correction; correct bounded hourly observation collection before a separately authorized fresh comparison. No more traffic under the consumed hourly scope.",
+  "next_action": "Finish payment slot attribution and bounded diagnostics, select one correction, qualify and register a fresh matched short comparison; hourly only if all short gates pass. PR6/PR7 main merge remains separately unapproved.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -6183,7 +6183,7 @@
     "head_branch": "codex/paid-schema-foundation-2026-10-09",
     "head_sha": "6c79718c6e4bf8dd758d4822dc990d572bc4a1d7",
     "base_sha": "0816f76bbc12b68e35335a8244233e294f54d958",
-    "scope": "Four additive migrations 007–010, schema upgrade/correctness tests, decision and provenance; runtime and configuration unchanged.",
+    "scope": "Four additive migrations 007\u00e2\u20ac\u201c010, schema upgrade/correctness tests, decision and provenance; runtime and configuration unchanged.",
     "validation": {
       "native_linux_passed": 230,
       "full_stack_tests_skipped_locally": 2,
@@ -6269,5 +6269,74 @@
     "cloud_actions": 0,
     "capacity_improvement_measured": false,
     "production_qualified": false
+  },
+  "cce_runner_promotion_checkpoint": {
+    "updated_at_utc": "2026-10-09T06:17:11.108445+00:00",
+    "status": "CCE_RUNNER_PR_REVIEW_READY_CI_PASSED",
+    "pull_request": "https://github.com/chawansit/flash-ticketing/pull/7",
+    "head_branch": "codex/cce-paid-runner-integration-2026-10-09",
+    "head_sha": "f4dd430332774915d3c09b22c64db9943076be5e",
+    "base_branch": "codex/tested-backend-workers-2026-10-09",
+    "backend_dependency_pr": 6,
+    "decision_record_url": "https://github.com/chawansit/flash-ticketing/blob/f4dd430332774915d3c09b22c64db9943076be5e/docs/adr/0238-promote-pinned-cce-and-paid-runner.md",
+    "reproduction_lock_url": "https://github.com/chawansit/flash-ticketing/blob/f4dd430332774915d3c09b22c64db9943076be5e/docs/capacity/cce/reproduction-lock-2026-10-09.json",
+    "scope": "Pinned CCE deployment and existing bounded short/hourly runner; 535 reproduction inputs, 78 frozen generator files, six sanitized source snapshots. No application source or migration changes.",
+    "validation": {
+      "local_unit_passed": 1802,
+      "windows_symlink_skip": 1,
+      "linux_unit_runner_passed": 1803,
+      "linux_integration_end_to_end_passed": 258,
+      "ruff_and_names_passed": true,
+      "complete_eight_role_contract_passed": true,
+      "ci": [
+        {
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "details_url": "https://github.com/chawansit/flash-ticketing/actions/runs/37892304356/job/113695718833"
+        },
+        {
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "details_url": "https://github.com/chawansit/flash-ticketing/actions/runs/37892298331/job/113695700109"
+        }
+      ]
+    },
+    "first_ci_failures_preserved": true,
+    "historical_images_match_combined_pr6_source": false,
+    "main_merge_authorized": false,
+    "cloud_actions": 0,
+    "capacity_improvement_measured": false,
+    "production_qualified": false,
+    "next_action": "Merge dependency PR6 only with separate approval, then retarget PR7 to main and rerun CI."
+  },
+  "approved_hourly_failure_follow_up": {
+    "recorded_at_utc": "2026-10-09T06:17:11.108445+00:00",
+    "authorization": "Direct user instruction after PR preparation: analyze latest hourly payment503 and diagnostic gaps, make one evidence-based correction, compare short control/candidate using unchanged workload/connection budgets, then run hourly qualification only after all short gates pass.",
+    "status": "APPROVED_PLAN_OFFLINE_ANALYSIS_IN_PROGRESS_NOT_YET_REGISTERED",
+    "short_profile": {
+      "offered_journeys_per_second": 84,
+      "offered_seconds": 300,
+      "unchanged_resources_and_connection_budget": true,
+      "failed_control_stops_candidate": true
+    },
+    "hourly_follow_up": {
+      "offered_seconds": 3600,
+      "minimum_unique_paid_issued_inside_hour": 300000,
+      "requires_all_short_gates_pass": true,
+      "experiment_ceiling_seconds": 5400
+    },
+    "correctness": "Preserve current customer latency/error gates, zero double-booking, payment durability, postTTL checks, full drain and exact restoration.",
+    "old_scope_replay_authorized": false,
+    "new_cloud_load_started": false,
+    "main_merge_authorized": false,
+    "registration_and_local_qualification_required_before_execution": true,
+    "confirmed_analysis": [
+      "All77 >2s sampling gaps occurred with paid_cohort as the largest observer phase.",
+      "Customer payment timeout interval includes2463.18ms paid_cohort observation; correlation does not establish payment slot ownership.",
+      "Three pod log captures reached8MiB ceiling and retained no failure events; absence does not establish no failures."
+    ],
+    "next_action": "Record diagnostic decision before implementation, recover failure-time slot ownership evidence, then select one correction and bind fresh short comparison."
   }
 }
