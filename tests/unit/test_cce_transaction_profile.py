@@ -49,6 +49,7 @@ def test_exact_pair_selects_api_only_and_preserves_worker_sources(monkeypatch, a
     pods = [v for v in manifests if v["kind"] == "Pod"]
     assert len(pods) == 4
     for pod in pods:
+        assert pod["spec"]["imagePullSecrets"] == [{"name": "default-secret"}, {"name": "swr-pull"}]
         container = pod["spec"]["containers"][0]
         assert container["image"] == api.api_image()
         assert container["resources"] == {"requests": {"cpu": "1", "memory": "1Gi"},

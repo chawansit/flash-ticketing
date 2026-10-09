@@ -151,3 +151,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0241: Bounded failure-time slot ownership](0241-bounded-failure-time-slot-ownership.md)
 
 - [ADR0242: Bind matched CCE transaction comparison](0242-bind-matched-cce-transaction-comparison.md)
+
+- [ADR0243: Use managed CCE SWR pull credentials](0243-use-managed-cce-swr-pull-credentials.md)

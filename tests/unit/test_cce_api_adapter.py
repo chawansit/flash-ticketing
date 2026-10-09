@@ -52,6 +52,7 @@ def test_four_pods_share_exact_budget_without_literal_secrets():
         assert 'test-jwt' not in json.dumps(pod)
         assert 'test-webhook' not in json.dumps(pod)
         assert 'registry-test-password' not in json.dumps(pod)
+        assert pod['spec']['imagePullSecrets'] == [{'name': 'swr-pull'}]
         assert pod['spec']['automountServiceAccountToken'] is False
         assert container['readinessProbe']['httpGet']['path'] == '/health/ready'
         compile(container['command'][3], '<cce-startup>', 'exec')

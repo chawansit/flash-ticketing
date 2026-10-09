@@ -236,6 +236,9 @@ def objects(run, service, primary_ip, registry_username, registry_password, *, a
     if profile not in (SHORT, HOURLY):
         raise ValueError("Exact native lifetime profile required")
     """Private payloads: never publish returned Secrets."""
+    import cce_transaction_profile as transaction
+    pull_secrets = ([{"name": "default-secret"}, {"name": "swr-pull"}]
+                    if transaction.active() is not None else [{"name": "swr-pull"}])
     namespace = dependency.namespace_for(run)
     env = api_environment(service, primary_ip, acquisition_budget=acquisition_budget)
     program = (
@@ -282,7 +285,7 @@ def objects(run, service, primary_ip, registry_username, registry_password, *, a
                     "activeDeadlineSeconds": 5400 if profile == HOURLY else 3000,
                     "automountServiceAccountToken": False,
                     "enableServiceLinks": False,
-                    "imagePullSecrets": [{"name": "swr-pull"}],
+                    "imagePullSecrets": copy.deepcopy(pull_secrets),
                     "securityContext": {
                         "runAsUser": 10001,
                         "runAsNonRoot": True,

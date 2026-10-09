@@ -5,7 +5,7 @@
     "scripts/cce_api_adapter.py": {
       "historical_sha256": "634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e",
-      "current_sha256": "9075eabcb9aa5cf22978086385dcf81873c302ff72a72f802af12266b062b2ab"
+      "current_sha256": "54c036894411cbf7f0bbdeae332ed52b4b47e3d0149045bee4573e628ec9123d"
     },
     "scripts/cce_paid_stage.py": {
       "historical_sha256": "c1acf89ae4544674f179f4615c10f359e3899bfd5dae8421c30e22f29e60c57a",

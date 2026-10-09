@@ -1,0 +1,38 @@
+{
+  "decision": "ADR0243",
+  "run": "adr0151-dc3f10fd2b89",
+  "ledger": "bounded_cce_paid_comparison__a9f93f412be9",
+  "status": "FAILED_RESTORED",
+  "actual_elapsed_seconds": 484.4530000000377,
+  "paid_stages_started": 0,
+  "paid_buyer_journeys_dispatched": 0,
+  "restoration_complete": true,
+  "integrity_verified": true,
+  "temporary_credentials_removed": true,
+  "owned_native_resources_removed": true,
+  "queue_drain_complete": true,
+  "scheduled_pods": 4,
+  "blocked_pods": 4,
+  "waiting_reason": "ImagePullBackOff",
+  "registry_oauth_status": 401,
+  "application_started": false,
+  "registry_followup": {
+    "registry": "swr.ap-southeast-2.myhuaweicloud.com",
+    "manifest": "sha256:e30471a8eee19f9757f9d6acbaf2545f9f1001b6e46ae227cc3b9baa29237ad1",
+    "authenticated_manifest_read": true,
+    "auth_variants": {
+      "single": {
+        "token_received": true,
+        "http_status": 200
+      },
+      "containerd": {
+        "token_received": true,
+        "http_status": 200
+      }
+    },
+    "manifest_schema": 2
+  },
+  "root_cause_scope": "CCE custom pull authentication rejected; precise credential-resolution cause unconfirmed.",
+  "capacity_improvement_measured": false,
+  "production_qualified": false
+}
