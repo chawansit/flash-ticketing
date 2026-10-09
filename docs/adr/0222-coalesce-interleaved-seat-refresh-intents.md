@@ -1,0 +1,54 @@
+# ADR0222: Coalesce interleaved seat refresh intents
+
+Status: Proposed
+
+## Context
+
+The failed ADR0219 84/s probe recorded 128,618 consumer database transactions in a 300.884-second bracketing window. Consumers spent 474.817 seconds across six lanes in 32,849 SeatsChanged handling transactions, while paid-unfulfilled orders peaked at 374. Each consumer partition spent almost the full window processing. The writer is independently saturated: three lanes spent 898.510 seconds busy and PostgreSQL batches averaged 125.266 ms. This change addresses redundant consumer work; it does not claim to solve writer throughput or qualify 84/s.
+
+Current consume_events flushes accumulated seat refresh intents before every business event. Interleaved OrderPaid and TicketsIssued events prevent useful coalescing, although refresh intents describe the latest committed inventory and are not authoritative seat ownership or payment state.
+
+## Decision
+
+Coalesce all SeatsChanged intents within the existing bounded Kafka partition batch, including intents separated by business events. Process business events in their original relative order with their existing individual inbox/handler transactions. Persist the combined refresh intents once at batch end, before returning to the Kafka offset commit. Keep every refresh event identity in the existing inbox, union changed seats by show, and retain full-refresh precedence and generation fencing. Acquire per-show refresh row locks in deterministic show-ID order to prevent cross-partition batches with opposite input orders from deadlocking.
+
+This supersedes ADR0070's consecutive-refresh-only implementation restriction. It retains ADR0070's at-least-once delivery and individual business-event transaction boundaries. ADR0084's OrderPaid batching proposal remains unimplemented. There is no change to hold authority, locking, payment idempotency, TTL, total connection budget or worker count.
+
+## Alternatives
+
+- Add consumers: existing six partitions already have six consumers, with added database concurrency risks.
+- Batch business transactions: potentially useful later, but expands locking and poison-record scope; isolate the simpler redundant-refresh correction first.
+- Increase generator concurrency: does not remove backend work or reduce the measured waits.
+- Relax latency or diagnostic gates: rejected; original failed evidence remains failed.
+
+## Consequences
+
+A mixed partition batch uses one refresh transaction instead of one per consecutive refresh group. Refresh scheduling can be delayed until the current bounded batch finishes; customer freshness gates must be measured unchanged. There is no claim of a fixed speedup. Writer saturation may remain the next bottleneck.
+
+## Failure and recovery behavior
+
+Kafka offsets are committed only after business handlers and deferred refresh persistence finish. If a business handler or refresh transaction fails, the batch is retried. Already committed business inbox rows make replay safe; unpersisted refresh identities remain replayable. Existing bounded retries and poison-message isolation remain unchanged. A process stop before offset commit replays deferred intents. Full refresh wins over partial refresh, and stale projections cannot overwrite newer versions. Roll back by restoring the prior consumer image; audit tickets, payments and full queues before new load.
+
+## Validation evidence
+
+Implemented locally. Final current-code suite: 131 passed in 14.72 seconds. Exact frozen consumer candidate: 50 passed in 8.36 seconds, with its source import independently verified. Both suites used isolated local PostgreSQL 17.6 databases, which were removed afterward. Tests cover interleaving, business order, replay, refresh failure after committed ticket work, full-refresh precedence and two simultaneous overlapping batches with opposite show orders (40 batches/80 retained event identities, both workers progressed). The exact patch changes only workers.py against ADR0163; all other runtime source hashes match the parent. See [local evidence](https://github.com/chawansit/flash-ticketing/blob/8c244f033523a2d24aa16717a8c15f321abd113f/docs/adr/https:/github.com/chawansit/flash-ticketing/blob/8c244f033523a2d24aa16717a8c15f321abd113f/docs/capacity/flash-sale-opening/interleaved-seat-refresh-local-2026-10-08.json). Candidate cloud comparison must use exactly one consumer-source change against the frozen image, the same 84/s workload, budgets and durations, plus unchanged correctness/freshness/queue gates. The existing SWR candidate includes unrelated simulator changes and must not be used silently as a matched candidate. No cloud improvement or hourly capacity is claimed.
+
+## Controlled integration decision
+
+Register a fresh `interleaved_refresh_probe` under the standing work envelope. Reuse the existing paid runner, mandatory safety protocol and verified-TLS diagnostics. Run one 84 journeys/s, 300-second candidate stage on the same 1+3 API placement and shared callback route as the failed ADR0219 reference. Keep its failed outcome and independent ADR0221 recovery separate. This is a correction probe against retained evidence, not a passing control or hourly qualification.
+
+Derive only the consumer image offline from the immutable ADR0163 consumer. Bind every exported file, dependency, patch and per-role image to the plan. All other roles retain their frozen source maps and images; the consumer has its explicitly bound map. Verify actual imports and bytecode against the appropriate role map, and verify inherited layers/configuration and per-role source labels. Historical profiles retain their uniform-map behavior. Do not substitute a current application image or alter workloads, polling, worker counts, total connection budgets, freshness, error or diagnostic gates.
+
+Image staging uses a fresh owned directory under the same reservation; it changes the image cache, proves runtime identities remain unchanged and removes owned archives. Candidate safety must pass before paid dispatch. Restore original services, retain all evidence and complete financial/post-TTL/queue checks on failure. No increase beyond 84/s or use of CCE is authorized by this integration. Choose the matching five-minute window because the retained reference exposes accumulating backlog within that window; the 60-minute experiment ceiling includes staging, safety, mandatory audits and restoration.
+
+Integration verification and cloud results remain pending until executed. Rollback retains the original per-role runtime images.
+
+Integration implemented and locally qualified: 121 runner/profile/staging/envelope tests passed in 512.40 seconds. Offline consumer image dependency, installed import/bytecode and all eight role image metadata checks passed. Naming checks passed. See [integration evidence](https://github.com/chawansit/flash-ticketing/blob/8c244f033523a2d24aa16717a8c15f321abd113f/docs/adr/https:/github.com/chawansit/flash-ticketing/blob/8c244f033523a2d24aa16717a8c15f321abd113f/docs/capacity/flash-sale-opening/interleaved-refresh-runner-local-2026-10-08.json). Cloud correction probe pending; no throughput or hourly claim.
+
+## Cloud correction probe result
+
+The fresh 84/s, 300-second probe completed on 2026-10-08: 25,200 scheduled, dispatched and unique paid-and-issued tickets confirmed by the deadline; no generator drops or failed customer journeys. Financial/post-TTL, zero-double-booking, full queue drain, Kafka drain, source identity, cleanup and restoration gates passed. Worst-shard payment-to-ticket p95 fell from 7,971.05 to 989.00 ms and hold-to-ticket p95 from 9,907.11 to 3,639.98 ms. Status checks fell from 6.9346 to 2.0975 per dispatched journey. All other role images/settings, workloads and budgets were retained.
+
+The overall result is FAILED_RESTORED: a 2.574944-second metrics sampling gap fails the unchanged continuous coverage checks and dependent diagnostic gates. Original and candidate failures remain intact; no gate relaxation. Database counters did not reset or decrease. The largest delay precedes wait collection (2.35083 seconds), whose own collection took 49.97 ms. Resource/PgBouncer/cohort timings must distinguish the cause. Both gaps occur near a half-hour boundary; correlation is not causal proof. WAL I/O timing was unavailable and remains explicit.
+
+The matching bracketing window recorded 25,104 issuances over 300.746168 seconds (83.472/s), with 96 additional tickets finishing after that bracketed window; this is not an exact 300-second issuance count. Writers remain near full occupancy. This is a promising short correction probe, not an hour-long capacity qualification or acceptance for production. Status stays Proposed. See [sanitized cloud evidence](https://github.com/chawansit/flash-ticketing/blob/8c244f033523a2d24aa16717a8c15f321abd113f/docs/adr/https:/github.com/chawansit/flash-ticketing/blob/8c244f033523a2d24aa16717a8c15f321abd113f/docs/capacity/flash-sale-opening/interleaved-refresh-probe-2026-10-08.json).

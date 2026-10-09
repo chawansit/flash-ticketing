@@ -1,0 +1,574 @@
+diff --git a/src/ticketing/config.py b/src/ticketing/config.py
+--- a/src/ticketing/config.py
++++ b/src/ticketing/config.py
+@@ -11,6 +11,7 @@
+     webhook_secret: str = os.getenv("WEBHOOK_SECRET", "local-webhook-secret-change-me")
+     environment: str = os.getenv("ENVIRONMENT", "development")
+     order_status_cache_ms: int = int(os.getenv("ORDER_STATUS_CACHE_MS", "0"))
++    order_status_event_refresh: bool = os.getenv("ORDER_STATUS_EVENT_REFRESH", "0") == "1"
+     hold_seconds: int = int(os.getenv("HOLD_SECONDS", "120"))
+     pool_max: int = int(os.getenv("DB_POOL_MAX", "12"))
+     pool_max_waiting: int | None = (
+@@ -71,6 +72,8 @@
+             or self.seatmap_ttl_seconds < 1
+         ):
+             raise RuntimeError("Invalid positive configuration")
++        if self.order_status_event_refresh and not self.order_status_cache_ms:
++            raise RuntimeError("ORDER_STATUS_EVENT_REFRESH requires ORDER_STATUS_CACHE_MS")
+         if not 0 <= self.order_status_cache_ms <= 3000:
+             raise RuntimeError("ORDER_STATUS_CACHE_MS must be between 0 and 3000")
+         if self.pool_max_waiting is not None and not 1 <= self.pool_max_waiting <= 64:
+diff --git a/src/ticketing/workers.py b/src/ticketing/workers.py
+--- a/src/ticketing/workers.py
++++ b/src/ticketing/workers.py
+@@ -19,6 +19,8 @@
+ from ticketing.application.reservations import Reservations
+ from ticketing.config import Settings
+ from ticketing.infrastructure.cache import RedisSeats
++from ticketing.infrastructure.order_status_cache import RedisOrderStatusCache
++from ticketing.infrastructure.order_status_projector import ORDER_EVENTS, CommittedOrderStatusProjector
+ from ticketing.infrastructure.payment_transport import CallbackTransport
+ from ticketing.infrastructure.postgres import Postgres
+ from ticketing.infrastructure.redis_reservations import RedisReservationIntake
+@@ -728,8 +730,15 @@
+ 
+ 
+ @measured_work("consume_event")
++def consume_event(db, cache, envelope, order_status_projector=None):
++    _consume_event_transaction(db, cache, envelope)
++    if order_status_projector is not None and envelope["event_type"] in ORDER_EVENTS:
++        data = envelope.get("payload")
++        order_status_projector.refresh(data.get("order_id") if isinstance(data, dict) else None)
++
++
+ @measured_consumer_event
+-def consume_event(db, cache, envelope):
++def _consume_event_transaction(db, cache, envelope):
+     if envelope["schema_version"] != 1:
+         raise ValueError("Unsupported event schema")
+     kind, data = envelope["event_type"], envelope["payload"]
+@@ -817,7 +826,7 @@
+     return len(inserted_ids)
+ 
+ 
+-def consume_events(db, cache, envelopes):
++def consume_events(db, cache, envelopes, order_status_projector=None):
+     pending_refresh = []
+ 
+     def flush_refresh():
+@@ -831,7 +840,10 @@
+             pending_refresh.append(envelope)
+             continue
+         flush_refresh()
+-        consume_event(db, cache, envelope)
++        if order_status_projector is None:
++            consume_event(db, cache, envelope)
++        else:
++            consume_event(db, cache, envelope, order_status_projector=order_status_projector)
+     flush_refresh()
+ 
+ 
+@@ -848,11 +860,15 @@
+         )
+ 
+ 
+-def consume_kafka_messages(db, cache, messages):
++def consume_kafka_messages(db, cache, messages, order_status_projector=None):
+     EVENT_CONSUMER_BATCH_SIZE.observe(len(messages))
+     for attempt in range(5):
+         try:
+-            consume_events(db, cache, [json.loads(message.value) for message in messages])
++            envelopes = [json.loads(message.value) for message in messages]
++            if order_status_projector is None:
++                consume_events(db, cache, envelopes)
++            else:
++                consume_events(db, cache, envelopes, order_status_projector=order_status_projector)
+             return
+         except Exception as exc:
+             observe_consumer_batch_error(exc)
+@@ -865,12 +881,16 @@
+     # inbox rows make replay of valid records inexpensive and safe.
+     for message in messages:
+         try:
+-            consume_event(db, cache, json.loads(message.value))
++            envelope = json.loads(message.value)
++            if order_status_projector is None:
++                consume_event(db, cache, envelope)
++            else:
++                consume_event(db, cache, envelope, order_status_projector=order_status_projector)
+         except Exception:
+             dead_letter_message(db, message)
+             log.exception("dead_letter")
+ 
+-def consume_iteration(consumer, db, cache, batch_size):
++def consume_iteration(consumer, db, cache, batch_size, order_status_projector=None):
+     """Time the existing poll/process/rewind/commit sequence without altering its boundaries."""
+     with consumer_phase("poll"):
+         batches = consumer.poll(timeout_ms=500, max_records=batch_size)
+@@ -882,7 +902,10 @@
+         for tp, messages in batches.items():
+             if messages:
+                 with consumer_phase("partition", tp.partition):
+-                    consume_kafka_messages(db, cache, messages)
++                    if order_status_projector is None:
++                        consume_kafka_messages(db, cache, messages)
++                    else:
++                        consume_kafka_messages(db, cache, messages, order_status_projector=order_status_projector)
+     except Exception:
+         for tp, offset in starts.items():
+             with consumer_phase("rewind", tp.partition):
+@@ -1022,6 +1045,10 @@
+     db, cache = Postgres(settings.database_url, settings.pool_max), RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
+     store = PostgresReservations(db, cache, settings.hold_seconds)
+     service = Reservations(store)
++    order_status_projector = (
++        CommittedOrderStatusProjector(db, RedisOrderStatusCache(cache.redis, settings.order_status_cache_ms))
++        if role == "consumer" and settings.order_status_event_refresh else None
++    )
+     intake = RedisReservationIntake(
+         cache,
+         hold_seconds=settings.hold_seconds,
+@@ -1102,7 +1129,9 @@
+                         or work
+                     )
+                 else:
+-                    work = consume_iteration(consumer, db, cache, settings.consumer_batch_size)
++                    work = consume_iteration(
++                        consumer, db, cache, settings.consumer_batch_size, order_status_projector=order_status_projector
++                    )
+                 if not work:
+                     time.sleep(0.1)
+             except Exception as exc:
+diff --git a/src/ticketing/infrastructure/order_status_cache.py b/src/ticketing/infrastructure/order_status_cache.py
+--- a/src/ticketing/infrastructure/order_status_cache.py
++++ b/src/ticketing/infrastructure/order_status_cache.py
+@@ -27,6 +27,27 @@
+ if now < start or remaining <= 0 or remaining > tonumber(ARGV[4]) then return -1 end
+ if redis.call('SET',KEYS[1],ARGV[1],'NX','PX',remaining) then return 1 end
+ return 0
++"""
++PUBLISH = """
++local stamp = redis.call('TIME')
++local now = tonumber(stamp[1])*1000 + math.floor(tonumber(stamp[2])/1000)
++local start = tonumber(ARGV[2])
++local deadline = tonumber(ARGV[3])
++local remaining = deadline-now
++if now < start or remaining <= 0 or remaining > tonumber(ARGV[4]) then return -1 end
++local old = redis.call('GET',KEYS[1])
++if old and string.len(old) <= tonumber(ARGV[5]) then
++    local ok, payload = pcall(cjson.decode,old)
++    local ttl = redis.call('PTTL',KEYS[1])
++    if ok and type(payload) == 'table' and payload.schema_version == 1
++       and type(payload.snapshot_start_ms) == 'number' and type(payload.fresh_until_ms) == 'number'
++       and payload.snapshot_start_ms <= now and payload.snapshot_start_ms >= start
++       and payload.fresh_until_ms > now and ttl > 0 and ttl <= payload.fresh_until_ms-now
++       and payload.fresh_until_ms-payload.snapshot_start_ms <= tonumber(ARGV[4])
++       then return 0 end
++end
++redis.call('SET',KEYS[1],ARGV[1],'PX',remaining)
++return 1
+ """
+ STATUSES = {'PENDING', 'FAILED', 'EXPIRED', 'REFUND_PENDING', 'REFUNDED', 'PAID', 'FULFILLED'}
+ FIELDS = {'id', 'actor', 'hold_id', 'event_id', 'total', 'currency', 'status', 'created_at', 'tickets'}
+@@ -135,3 +156,28 @@
+             ORDER_STATUS_CACHE.labels('redis_error').inc()
+         except (ValueError, TypeError, KeyError):
+             ORDER_STATUS_CACHE.labels('fill_skipped').inc()
++
++    def snapshot_start(self):
++        seconds, micros = self.redis.time()
++        return int(seconds)*1000 + int(micros)//1000
++
++    def publish(self, actor, order_id, row, snapshot_start_ms):
++        """Replace only an older advisory snapshot after a fresh committed read."""
++        try:
++            if type(snapshot_start_ms) is not int:
++                raise ValueError('Invalid snapshot timestamp')
++            raw = json.dumps({'schema_version': 1, 'snapshot_start_ms': snapshot_start_ms,
++                              'fresh_until_ms': snapshot_start_ms+self.max_age_ms,
++                              'order': row}, default=scalar, separators=(',', ':'))
++            if len(raw.encode()) > MAX_BYTES or not valid_order(json.loads(raw)['order'], actor, order_id):
++                ORDER_STATUS_CACHE.labels('event_fill_skipped').inc()
++                return
++            result = self.redis.eval(PUBLISH, 1, self.key(actor, order_id), raw,
++                                     snapshot_start_ms, snapshot_start_ms+self.max_age_ms,
++                                     self.max_age_ms, MAX_BYTES)
++            ORDER_STATUS_CACHE.labels({1: 'event_fill', 0: 'event_fill_raced',
++                                       -1: 'event_fill_stale'}[int(result)]).inc()
++        except RedisError:
++            ORDER_STATUS_CACHE.labels('redis_error').inc()
++        except (ValueError, TypeError, KeyError):
++            ORDER_STATUS_CACHE.labels('event_fill_skipped').inc()
+diff --git a/src/ticketing/infrastructure/order_status_projector.py b/src/ticketing/infrastructure/order_status_projector.py
+new file mode 100644
+--- /dev/null
++++ b/src/ticketing/infrastructure/order_status_projector.py
+@@ -0,0 +1,41 @@
++"""Best-effort advisory snapshots; invoked only after the financial transaction commits."""
++
++import logging
++from uuid import UUID
++
++from ticketing.observability import ORDER_STATUS_CACHE
++
++log = logging.getLogger("ticketing.order_status_projector")
++ORDER_EVENTS = frozenset({"OrderPaid", "TicketsIssued", "RefundRequested"})
++
++
++class CommittedOrderStatusProjector:
++    def __init__(self, database, cache):
++        self.database, self.cache = database, cache
++
++    def refresh(self, order_id):
++        try:
++            identifier = UUID(str(order_id))
++            stamp = self.cache.snapshot_start()
++            with self.database.transaction() as conn:
++                rows = conn.execute(
++                    """SELECT o.*, t.id AS _ticket_id, b.seat_id AS _ticket_seat_id
++                    FROM orders o
++                    LEFT JOIN (bookings b JOIN tickets t ON t.booking_id=b.id) ON b.order_id=o.id
++                    WHERE o.id=%s ORDER BY b.seat_id""",
++                    (identifier,),
++                ).fetchall()
++                if not rows:
++                    ORDER_STATUS_CACHE.labels("event_order_missing").inc()
++                    return
++                order = {key: value for key, value in rows[0].items()
++                         if key not in {"_ticket_id", "_ticket_seat_id"}}
++                order["tickets"] = [{"id": row["_ticket_id"], "seat_id": row["_ticket_seat_id"]}
++                                    for row in rows if row["_ticket_id"] is not None]
++            # Never retain a database connection while publishing to Redis.
++            self.cache.publish(order["actor"], identifier, order, stamp)
++        except Exception:
++            # This boundary is advisory only. Financial transaction failures propagate
++            # before this method is called and are never caught here.
++            ORDER_STATUS_CACHE.labels("event_refresh_error").inc()
++            log.warning("order_status_refresh_failed", exc_info=True)
+diff --git a/.env.example b/.env.example
+--- a/.env.example
++++ b/.env.example
+@@ -21,3 +21,7 @@
+ RECONCILE_LEASE_SECONDS=30
+ RECONCILE_BACKOFF_MS=1000
+ RECONCILE_SEED_BATCH=200
++
++# Opt-in advisory status cache/event refresh (bounded maximum age3000ms).
++ORDER_STATUS_CACHE_MS=0
++ORDER_STATUS_EVENT_REFRESH=0
+diff --git a/compose.yaml b/compose.yaml
+--- a/compose.yaml
++++ b/compose.yaml
+@@ -10,6 +10,7 @@
+     JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-me}
+     WEBHOOK_SECRET: ${WEBHOOK_SECRET:-local-webhook-secret-change-me}
+     ORDER_STATUS_CACHE_MS: ${ORDER_STATUS_CACHE_MS:-0}
++    ORDER_STATUS_EVENT_REFRESH: ${ORDER_STATUS_EVENT_REFRESH:-0}
+     HOLD_SECONDS: ${HOLD_SECONDS:-120}
+     DB_POOL_MAX: ${DB_POOL_MAX:-12}
+     RESERVE_CONCURRENCY: ${RESERVE_CONCURRENCY:-12}
+diff --git a/tests/unit/test_order_status_projector.py b/tests/unit/test_order_status_projector.py
+new file mode 100644
+--- /dev/null
++++ b/tests/unit/test_order_status_projector.py
+@@ -0,0 +1,125 @@
++from contextlib import contextmanager
++from dataclasses import replace
++from datetime import UTC, datetime
++from unittest.mock import Mock, patch
++from uuid import uuid4
++
++import pytest
++from redis.exceptions import TimeoutError
++
++from ticketing.config import Settings
++from ticketing.infrastructure.order_status_cache import RedisOrderStatusCache
++from ticketing.infrastructure.order_status_projector import CommittedOrderStatusProjector
++from ticketing.workers import consume_event
++
++
++def row():
++    return {"id": uuid4(), "actor": "actual-owner", "hold_id": uuid4(), "event_id": uuid4(),
++            "total": 100, "currency": "THB", "status": "FULFILLED", "created_at": datetime.now(UTC),
++            "_ticket_id": uuid4(), "_ticket_seat_id": "A"}
++
++
++def test_projector_releases_connection_and_derives_owner_from_committed_row():
++    order, connection, cache = row(), Mock(), Mock()
++    connection.execute.return_value.fetchall.return_value = [order]
++    held = []
++
++    @contextmanager
++    def transaction():
++        held.append(True)
++        try:
++            yield connection
++        finally:
++            held.pop()
++
++    cache.snapshot_start.return_value = 1000
++    cache.publish.side_effect = lambda *_: pytest.fail("held DB connection") if held else None
++    database = Mock(transaction=transaction)
++    CommittedOrderStatusProjector(database, cache).refresh(str(order["id"]))
++    actor, identifier, snapshot, stamp = cache.publish.call_args.args
++    assert actor == "actual-owner" and identifier == order["id"] and stamp == 1000
++    assert snapshot["tickets"] == [{"id": order["_ticket_id"], "seat_id": "A"}]
++    assert "_ticket_id" not in snapshot
++    assert connection.execute.call_args.args[1] == (order["id"],)
++
++
++@pytest.mark.parametrize("phase", ["clock", "read", "publication"])
++def test_advisory_errors_do_not_escape_after_commit(phase):
++    order, connection, cache = row(), Mock(), Mock()
++    connection.execute.return_value.fetchall.return_value = [order]
++    database = Mock()
++    database.transaction.return_value.__enter__ = Mock(return_value=connection)
++    database.transaction.return_value.__exit__ = Mock(return_value=False)
++    if phase == "clock":
++        cache.snapshot_start.side_effect = TimeoutError("clock unavailable")
++    elif phase == "read":
++        connection.execute.side_effect = RuntimeError("snapshot unavailable")
++    else:
++        cache.publish.side_effect = TimeoutError("publication unavailable")
++    CommittedOrderStatusProjector(database, cache).refresh(order["id"])
++    if phase == "clock":
++        database.transaction.assert_not_called()
++    if phase != "publication":
++        cache.publish.assert_not_called()
++
++
++def test_missing_or_invalid_order_does_not_publish():
++    connection, cache, database = Mock(), Mock(), Mock()
++    connection.execute.return_value.fetchall.return_value = []
++    database.transaction.return_value.__enter__ = Mock(return_value=connection)
++    database.transaction.return_value.__exit__ = Mock(return_value=False)
++    projector = CommittedOrderStatusProjector(database, cache)
++    projector.refresh("bad-id")
++    database.transaction.assert_not_called()
++    projector.refresh(uuid4())
++    cache.publish.assert_not_called()
++
++
++@pytest.mark.parametrize("event_type", ["OrderPaid", "TicketsIssued", "RefundRequested"])
++def test_publication_runs_only_after_successful_financial_boundary_including_replay(event_type):
++    database, cache, projector, identifier = Mock(), Mock(), Mock(), uuid4()
++    envelope = {"schema_version": 1, "event_type": event_type, "payload": {"order_id": str(identifier)}}
++    committed = []
++    projector.refresh.side_effect = lambda *_: committed.append("refresh")
++    with patch("ticketing.workers._consume_event_transaction", side_effect=lambda *_: committed.append("commit")):
++        consume_event(database, cache, envelope, projector)
++        consume_event(database, cache, envelope, projector)
++    assert committed == ["commit", "refresh", "commit", "refresh"]
++
++
++def test_financial_commit_failure_propagates_without_advisory_publication():
++    projector = Mock()
++    envelope = {"event_type": "OrderPaid", "payload": {"order_id": str(uuid4())}}
++    with (
++        patch("ticketing.workers._consume_event_transaction", side_effect=RuntimeError("commit failure")),
++        pytest.raises(RuntimeError, match="commit failure"),
++    ):
++        consume_event(Mock(), Mock(), envelope, projector)
++    projector.refresh.assert_not_called()
++
++
++def test_default_and_seat_events_have_no_projector_work():
++    projector = Mock()
++    envelope = {"event_type": "SeatsChanged", "payload": {}}
++    with patch("ticketing.workers._consume_event_transaction"):
++        consume_event(Mock(), Mock(), envelope, projector)
++        consume_event(Mock(), Mock(), {"event_type": "OrderPaid", "payload": {}})
++    projector.refresh.assert_not_called()
++
++
++def test_event_refresh_requires_enabled_bounded_cache():
++    assert not Settings().order_status_event_refresh
++    with pytest.raises(RuntimeError, match="ORDER_STATUS_EVENT_REFRESH"):
++        replace(Settings(), order_status_event_refresh=True, order_status_cache_ms=0).validate()
++    replace(Settings(), order_status_event_refresh=True, order_status_cache_ms=1000).validate()
++
++
++def test_publish_rejects_noninteger_stamp_and_wrong_actor_before_redis():
++    cache = RedisOrderStatusCache(Mock(), 1000)
++    order = row()
++    order.pop("_ticket_id")
++    order.pop("_ticket_seat_id")
++    order.update(status="PENDING", tickets=[])
++    cache.publish(order["actor"], order["id"], order, True)
++    cache.publish("other", order["id"], order, 1000)
++    cache.redis.eval.assert_not_called()
+diff --git a/tests/integration/test_order_status_event_refresh.py b/tests/integration/test_order_status_event_refresh.py
+new file mode 100644
+--- /dev/null
++++ b/tests/integration/test_order_status_event_refresh.py
+@@ -0,0 +1,170 @@
++import os
++import time
++from unittest.mock import Mock, patch
++from uuid import uuid4
++
++import pytest
++from redis import Redis
++from redis.exceptions import TimeoutError
++
++from ticketing.application.reservations import Reservations
++from ticketing.domain import Failure
++from ticketing.infrastructure.order_status_cache import RedisOrderStatusCache
++from ticketing.infrastructure.order_status_projector import CommittedOrderStatusProjector
++from ticketing.workers import consume_event, publish_batch
++
++pytestmark = pytest.mark.integration
++
++
++@pytest.fixture
++def event_cache():
++    url = os.getenv("TEST_REDIS_URL")
++    if not url:
++        pytest.skip("TEST_REDIS_URL not configured")
++    redis = Redis.from_url(url, decode_responses=True, socket_timeout=.1, socket_connect_timeout=.1)
++    keys = []
++
++    def build(actor, identifier, age=1000):
++        cache = RedisOrderStatusCache(redis, age)
++        keys.extend([cache.key(actor, identifier), cache.key("other", identifier)])
++        return cache
++
++    yield build
++    if keys:
++        redis.delete(*keys)
++    redis.close()
++
++
++def prepare(system, event_cache, age=1000):
++    svc, db, event = system
++    hold = svc.reserve("owner", event, ["A"], str(uuid4()))
++    cache = event_cache("owner", hold["order_id"], age)
++    pending = svc.get_order("owner", hold["order_id"])
++    stamp = cache.snapshot_start()
++    cache.put("owner", hold["order_id"], pending, stamp)
++    attempt = svc.initiate_payment("owner", hold["order_id"], str(uuid4()), "SUCCEEDED", 0, 1)
++    callback = {"callback_id": str(uuid4()), "payment_id": attempt["payment_id"],
++                "order_id": hold["order_id"], "amount": hold["total"], "currency": hold["currency"],
++                "outcome": "SUCCEEDED"}
++    svc.callback(callback)
++    envelope = {"event_id": str(uuid4()), "schema_version": 1, "event_type": "OrderPaid",
++                "payload": {"order_id": hold["order_id"], "actor": "other"}}
++    # Strictly newer Redis timestamps avoid an intentionally permitted equal-ms race.
++    time.sleep(.004)
++    return svc, db, hold, cache, pending, stamp, envelope
++
++
++def drain_outbox(db):
++    producer = Mock()
++    for _ in range(10):
++        if not publish_batch(db, producer, 100):
++            break
++    else:
++        pytest.fail("owned test outbox failed to drain")
++    with db.transaction() as conn:
++        assert conn.execute("SELECT count(*) AS n FROM outbox_events WHERE published_at IS NULL").fetchone()["n"] == 0
++
++
++def test_committed_ticket_snapshot_replaces_pending_and_avoids_api_database_read(system, event_cache):
++    svc, db, hold, cache, _, _, envelope = prepare(system, event_cache)
++    projector = CommittedOrderStatusProjector(db, cache)
++    original = cache.publish
++
++    def released(*args):
++        stats = db.pool.get_stats()
++        assert stats["pool_available"] == stats["pool_size"]
++        return original(*args)
++
++    cache.publish = released
++    consume_event(db, None, envelope, projector)
++    row, _ = cache.lookup("owner", hold["order_id"])
++    assert row["status"] == "FULFILLED" and len(row["tickets"]) == 1
++    store = Mock()
++    reader = Reservations(store, cache)
++    assert reader.get_order("owner", hold["order_id"]) == row
++    store.get_order.assert_not_called()
++    assert cache.lookup("other", hold["order_id"])[0] is None
++    with pytest.raises(Failure, match="ORDER_NOT_FOUND"):
++        Reservations(svc.store, cache).get_order("other", hold["order_id"])
++    drain_outbox(db)
++
++
++def test_post_commit_redis_failure_does_not_replay_financial_effect_and_duplicate_repairs_cache(system, event_cache):
++    _, db, hold, cache, _, _, envelope = prepare(system, event_cache)
++    projector = CommittedOrderStatusProjector(db, cache)
++    with patch.object(cache.redis, "eval", side_effect=TimeoutError("owned publication outage")):
++        consume_event(db, None, envelope, projector)
++    with db.transaction() as conn:
++        assert conn.execute("SELECT status FROM orders WHERE id=%s", (hold["order_id"],)).fetchone()["status"] == "FULFILLED"
++        assert conn.execute("SELECT count(*) AS n FROM tickets").fetchone()["n"] == 1
++        assert conn.execute("SELECT count(*) AS n FROM consumer_inbox WHERE event_id=%s", (envelope["event_id"],)).fetchone()["n"] == 1
++    assert cache.lookup("owner", hold["order_id"])[0]["status"] == "PENDING"
++    consume_event(db, None, envelope, projector)
++    assert cache.lookup("owner", hold["order_id"])[0]["status"] == "FULFILLED"
++    with db.transaction() as conn:
++        assert conn.execute("SELECT count(*) AS n FROM tickets").fetchone()["n"] == 1
++    drain_outbox(db)
++
++
++def test_rolled_back_fulfillment_never_publishes_ticket_snapshot(system, event_cache):
++    _, db, hold, cache, _, _, envelope = prepare(system, event_cache)
++    projector = CommittedOrderStatusProjector(db, cache)
++    with (
++        patch("ticketing.workers.event", side_effect=RuntimeError("owned rollback")),
++        pytest.raises(RuntimeError, match="owned rollback"),
++    ):
++        consume_event(db, None, envelope, projector)
++    assert cache.lookup("owner", hold["order_id"])[0]["status"] == "PENDING"
++    with db.transaction() as conn:
++        assert conn.execute("SELECT status FROM orders WHERE id=%s", (hold["order_id"],)).fetchone()["status"] == "PAID"
++        assert conn.execute("SELECT count(*) AS n FROM tickets").fetchone()["n"] == 0
++        assert conn.execute("SELECT count(*) AS n FROM consumer_inbox WHERE event_id=%s", (envelope["event_id"],)).fetchone()["n"] == 0
++
++
++def test_delayed_pending_fill_and_old_publish_cannot_replace_new_ticket_snapshot(system, event_cache):
++    _, db, hold, cache, pending, old_stamp, envelope = prepare(system, event_cache, age=200)
++    consume_event(db, None, envelope, CommittedOrderStatusProjector(db, cache))
++    key = cache.key("owner", hold["order_id"])
++    before = cache.redis.pttl(key)
++    assert 0 < before <= 200
++    cache.put("owner", hold["order_id"], pending, old_stamp)
++    cache.publish("owner", hold["order_id"], pending, old_stamp)
++    assert cache.lookup("owner", hold["order_id"])[0]["status"] == "FULFILLED"
++    assert cache.redis.pttl(key) <= before
++    time.sleep(max(0, cache.redis.pttl(key))/1000+.02)
++    cache.publish("owner", hold["order_id"], pending, old_stamp)
++    assert cache.lookup("owner", hold["order_id"])[0] is None
++
++
++def test_equal_stamp_does_not_replace_or_extend_snapshot_and_invalid_future_entry_recovers(system, event_cache):
++    svc, _, event = system
++    hold = svc.reserve("owner", event, ["A"], str(uuid4()))
++    cache = event_cache("owner", hold["order_id"])
++    row = svc.get_order("owner", hold["order_id"])
++    stamp = cache.snapshot_start()
++    cache.publish("owner", hold["order_id"], row, stamp)
++    key = cache.key("owner", hold["order_id"])
++    before = cache.redis.pttl(key)
++    cache.publish("owner", hold["order_id"], row, stamp)
++    assert cache.redis.pttl(key) <= before
++    cache.redis.set(key, '{"schema_version":1,"snapshot_start_ms":999999999999999,"fresh_until_ms":999999999999999}')
++    cache.publish("owner", hold["order_id"], row, cache.snapshot_start())
++    assert cache.lookup("owner", hold["order_id"])[0]["status"] == "PENDING"
++
++
++def test_out_of_order_event_uses_current_state_and_tickets_issued_can_repair_after_expiry(system, event_cache):
++    _, db, hold, cache, _, _, envelope = prepare(system, event_cache, age=100)
++    projector = CommittedOrderStatusProjector(db, cache)
++    consume_event(db, None, envelope, projector)
++    cache.redis.delete(cache.key("owner", hold["order_id"]))
++    issued = {"event_id": str(uuid4()), "schema_version": 1, "event_type": "TicketsIssued",
++              "payload": {"order_id": hold["order_id"], "status": "PENDING", "actor": "other"}}
++    consume_event(db, None, issued, projector)
++    assert cache.lookup("owner", hold["order_id"])[0]["status"] == "FULFILLED"
++    ttl = cache.redis.pttl(cache.key("owner", hold["order_id"]))
++    time.sleep(max(0, ttl)/1000+.02)
++    consume_event(db, None, envelope, projector)
++    assert cache.lookup("owner", hold["order_id"])[0]["status"] == "FULFILLED"
++    with db.transaction() as conn:
++        assert conn.execute("SELECT count(*) AS n FROM tickets").fetchone()["n"] == 1
++    drain_outbox(db)

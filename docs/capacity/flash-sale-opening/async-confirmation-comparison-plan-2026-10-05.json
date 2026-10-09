@@ -1,0 +1,66 @@
+{
+  "decision": "ADR0161",
+  "factor": "api_PAYMENT_CONFIRMATION_ASYNC",
+  "base_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
+  "common": {
+    "primary_apis": 2,
+    "secondary_apis": 2,
+    "cache_age_ms": 1000,
+    "consumer_event_refresh": "1",
+    "consumer_dedup": "0",
+    "poll_ms": 500,
+    "simulator_pool": 10,
+    "confirmation_pool": 2,
+    "buyer_journeys_per_second": 60,
+    "duration_seconds": 300
+  },
+  "control": "0",
+  "candidate": "1",
+  "isolated_source_directory": "tmp/adr0160-offline-images-attempt2/source",
+  "expected_runtime_source_sha256": {
+    "src/ticketing/api.py": "81f5f2198db10f62b6bd8891c379bd5e9f2d3c459ec24d76a90ba4f1571aa5fd",
+    "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+    "src/ticketing/config.py": "47c0557ab7493fdbce33752da460d6eb3c69d73e20cc6a42182ebda5a2c0b1f4",
+    "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+    "src/ticketing/http.py": "a18f73c197561aa94cbe4875c73494b29456261277736b150c3ef5198a0dbce5",
+    "src/ticketing/observability.py": "1c6752940ac108e4b2d411374115697b9e94f43da24e3c3784f86ddeb83b4b81",
+    "src/ticketing/workers.py": "42073129f3b3e9735edb468b50f15b274d7d5c7ac8bbda52a6e85c6d6bc752ce",
+    "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+    "src/ticketing/application/ports.py": "3a562c947a28d8a63a257e361707041d41894f6374eba2702078d2bd39f9a98a",
+    "src/ticketing/application/reservations.py": "c4ceb30ef22716a96f9a66f86fa2f55d6cab9e742dab0e32a0f2c91648335b59",
+    "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+    "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+    "src/ticketing/infrastructure/order_status_projector.py": "8e89ce45e57123f5fc1499e5d2bf57752395e57374f50729a975f402cd31ac88",
+    "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "b11dd08700c476f00304302c9199dfb2017aa6fed81ca2033eb89347fb351f4b",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/reservations.py": "543ab9a9bb15a6b8f10874563a33f1fc450bf43795040280f7c137c6e7f3374d",
+    "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "artifact_receipt": {
+    "images": {
+      "api": "sha256:45f065e38d4474b956570143a739e93c92d1645478e01c913bccdc5f3ab910f1",
+      "consumer": "sha256:32376b3f555a032f34c7a19c61a3291348c8e6980c1d64edf1013f531593935e",
+      "publisher": "sha256:c566cd689bb08865217d9d78c7d6785003a870cf9021a289d6ec1803b3abffbf",
+      "simulator": "sha256:65abaa460ae1e54efe69e017bc36b3041e5a611b422f3d146dd48e8d782cd20e",
+      "maintenance": "sha256:2f812a6ba1afdb855ffe4f1c17607c4a94c1767db13764ffdad951843468096d",
+      "reconciler": "sha256:149ac28a122e980b6b91b6f6547c762ebba661c9ae5b7073893ef9411718239e",
+      "reservation-writer": "sha256:45f065e38d4474b956570143a739e93c92d1645478e01c913bccdc5f3ab910f1",
+      "confirmation": "sha256:65abaa460ae1e54efe69e017bc36b3041e5a611b422f3d146dd48e8d782cd20e"
+    },
+    "parent_images": {
+      "api": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e",
+      "consumer": "sha256:ce59e827156b470a81b98c2dbc68cb9c69fed03e50ccc2f516ef30b64e0e21fd",
+      "publisher": "sha256:e575802519ce7b70b42a87f8e92159f42ddac653b8d489b401fe4ad1785a53e2",
+      "simulator": "sha256:22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452",
+      "maintenance": "sha256:51b1e282b277e6b34d5f55442a82912fa406c91e808d71394e7da479b12ad83e",
+      "reconciler": "sha256:57a12dd4be6303ca8dea3daa4bcf2d8201a93976c6df2af51c0f751a9cbcf1a6",
+      "reservation-writer": "sha256:7136a0b6386c6af001b765d4b6aa0915be1c04a2e13c361a0950260956adee1e",
+      "confirmation": "sha256:22eda5e6ad953cce5996aff8b0f9ed31ed77af653c64ea654406372cf6ff3452"
+    },
+    "source_manifest_sha256": "15936b47f1c006655a4354b63b9ce36db10af3c20b2c0894c66397f01fb66290"
+  }
+}

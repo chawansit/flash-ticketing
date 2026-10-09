@@ -1,0 +1,172 @@
+{
+  "decision": "ADR0230",
+  "recovery_decision": "ADR0229",
+  "run": "adr0151-73e82b8d5210",
+  "ledger": "bounded_cce_paid_comparison__33bd91855dcc",
+  "status": "PAID_MEASUREMENT_PASSED_ORIGINAL_RUN_FAILED_RESTORED",
+  "original_runner_pass": false,
+  "original_result_sha256": "d99b0754805fe5a3df109d1fbfddde367bcf62a4e66891052773e8a835810a02",
+  "measurement_gates_pass": true,
+  "full_runner_qualified": false,
+  "hourly_qualified": false,
+  "short_stage_paid_tickets_per_offered_second": 84.0,
+  "rate_definition": "Customer successes divided by the 300-second offered window; includes measured completion latency and tail. Does not prove 84 completions in every individual second or hourly capacity.",
+  "configuration": {
+    "api_pods": 4,
+    "cpu_per_api_pod": 1,
+    "memory_per_api_pod": "1Gi",
+    "bridge_cpu_limit": 1,
+    "baseline_bridge_cpu_limit": 0.125,
+    "pooler_server_connections": 24,
+    "offered_journeys_per_second": 84,
+    "offered_duration_seconds": 300,
+    "generator_shards": 2,
+    "generator_total_in_flight_limit": 500,
+    "unchanged_background_and_workload": true
+  },
+  "customer": {
+    "scheduled": 25200,
+    "dispatched": 25200,
+    "completed": 25200,
+    "generator_drops": 0,
+    "fulfilled": 25200,
+    "fulfilled_by_deadline": 25200,
+    "distinct_orders": 25200,
+    "distinct_tickets": 25200,
+    "retry_attempts": 0,
+    "outcomes": {
+      "fulfilled": 25200
+    },
+    "pass": true,
+    "hold_http_p95_ms": 11.545432033017278,
+    "durable_p95_ms": 1030.549502989743,
+    "payment_http_p95_ms": 71.98392401915044,
+    "payment_to_ticket_p95_ms": 986.4264259813353,
+    "hold_to_ticket_p95_ms": 2133.796275011264,
+    "physical_http_attempts": {
+      "holds": 25200,
+      "reservation_commands": 51054,
+      "payments": 25200,
+      "orders": 52240
+    },
+    "latency_summary_mode": "worst_shard_p95_not_combined_percentile"
+  },
+  "customer_error_percent": 0.0,
+  "financial": {
+    "orders": 25200,
+    "fulfilled_orders": 25200,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 25200,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 25200,
+    "bookings": 25200,
+    "tickets": 25200,
+    "payment_callbacks": 25200,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 25200,
+    "callback_delivery_target": 25200,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 25200,
+    "expected_paid": 25200,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true,
+    "hold_deadlines_elapsed": true
+  },
+  "queue_counts": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 6,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0
+  },
+  "measurement_gates": {
+    "customer_load": true,
+    "post_ttl_financial": true,
+    "zero_double_booking": true,
+    "payment_durability": true,
+    "full_queue_drain": true,
+    "native_observer": true,
+    "native_cpu": true,
+    "unchanged_background": true,
+    "unchanged_native_pods": true
+  },
+  "metrics": {
+    "aggregate_api_process_cpu_cores": 1.2358483792353754,
+    "primary_host_cpu_percent": 67.74057822924806,
+    "bridge_cpu_cores": 0.344585007622571,
+    "api_pool_acquire_mean_ms": 4.053947750515874,
+    "api_pool_errors": 0,
+    "api_select_mean_ms": 2.3765419722146
+  },
+  "baseline": {
+    "evidence": "docs/capacity/flash-sale-opening/cce-paid-comparison-2026-10-09.json",
+    "sha256": "9b509d7c895d060d34fa8070c48d9cc104f5c85e1b4282c9642aba2d1aa6de2a",
+    "customer_error_percent": 99.63492063492063,
+    "fulfilled_by_deadline": 92,
+    "api_pool_acquire_mean_ms": 109.55767756614327,
+    "api_pool_errors": 26256.0
+  },
+  "recovery": {
+    "pass": true,
+    "gates": {
+      "saved_runtime_semantics_restored": true,
+      "runtime_ids_starts_stable": true,
+      "namespace_absent": true,
+      "owned_helpers_absent": true,
+      "secondary_empty": true,
+      "generator_idle": true,
+      "safety_payment_durable": true,
+      "zero_double_booking": true,
+      "all_queues_zero": true,
+      "temporary_transport_credentials_cleared": true
+    },
+    "all_owned_sale_windows_closed": true,
+    "verified_owned_events": 86,
+    "ledger_status": "FAILED_RESTORED",
+    "original_result_preserved": true,
+    "paid_allowance_consumed": 1,
+    "independent_proof_sha256": "4fc8b4bd655f305aa3b0cd42ad268e96ee78a36a977324a52ea6a570e0de75e7"
+  },
+  "interpretation": "Raising only the database bridge CPU limit from 0.125 to 1 vCPU removed the measured bottleneck and met the five-minute paid target. More API pods were not required.",
+  "limitations": [
+    "Intermediate candidate readiness timed out. Its cause is unresolved; final ECS restoration and independent verification passed. The original failed report remains immutable.",
+    "No hourly qualification, simultaneous opening burst validation or maximum capacity measurement.",
+    "Latency is worst-shard p95, not a combined percentile.",
+    "Simulator telemetry observed 9 delivery errors during the observation period. Retries eventually completed all 25,200 callbacks; zero customer failures does not mean zero internal transient errors.",
+    "CCE adds compute relative to ECS-only; this is not an equal-cost platform comparison."
+  ],
+  "validation": {
+    "bridge_allocation_suite_passed": 253,
+    "bridge_allocation_suite_skipped": 1,
+    "recovery_suite_passed": 81,
+    "recovery_suite_seconds": 0.67,
+    "initial_recovery_test_fixture_failure": {
+      "passed": 80,
+      "failed": 1,
+      "seconds": 1.62
+    },
+    "ruff_pass": true,
+    "publication_suite_passed": 564,
+    "publication_suite_skipped": 1,
+    "publication_suite_seconds": 44.21,
+    "repository_names_pass": true
+  },
+  "next_action": "Diagnose intermediate readiness before hourly qualification; then verify at least 300,000 unique paid-and-issued tickets over one hour with all correctness and queue gates.",
+  "publication": {
+    "branch": "codex/standing-work-envelope",
+    "main_merge_requires_approval": true
+  }
+}

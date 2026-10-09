@@ -1,0 +1,2 @@
+# Preserve committed bytes for migration, source and evidence checksums on every OS.
+* -text

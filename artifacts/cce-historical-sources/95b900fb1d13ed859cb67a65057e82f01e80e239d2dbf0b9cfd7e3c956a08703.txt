@@ -1,0 +1,503 @@
+import importlib.util
+import json
+import subprocess
+import sys
+from pathlib import Path
+from types import SimpleNamespace
+from typing import ClassVar
+
+import pytest
+
+SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "unattended_capacity_stage.py"
+SPEC = importlib.util.spec_from_file_location("unattended_capacity_stage", SCRIPT)
+assert SPEC and SPEC.loader
+stage = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(stage)
+
+
+class FakeTransport:
+    instances: ClassVar[list] = []
+    fail_phase: ClassVar[str | None] = None
+
+    def __init__(self, ssh, scp, log_dir, identity_file=None):
+        self.calls = []
+        self.private_manifest = None
+        self.__class__.instances.append(self)
+
+    def remote(self, phase, host, argv, check=True, timeout=None):
+        self.calls.append(("remote", phase))
+        if phase == self.fail_phase:
+            raise RuntimeError("token=should-not-leak")
+        if phase in {"backend-revision", "generator-revision"}:
+            return SimpleNamespace(returncode=0, stdout="a" * 40 + "\n", stderr="")
+        if phase == "load-status":
+            return SimpleNamespace(
+                returncode=0, stdout='{"state":"finished","exit_code":0}', stderr=""
+            )
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    def copy_from(self, phase, host, remote, local, recursive=False):
+        self.calls.append(("copy_from", phase))
+        local = Path(local)
+        if phase == "manifest-from-backend":
+            local.write_text('{"private": true}', encoding="utf-8")
+            self.private_manifest = local
+        elif phase == "generator-evidence":
+            target = local / "public" / "load"
+            target.mkdir(parents=True)
+            for index in range(4):
+                (target / f"worker-{index}.json").write_text("{}", encoding="utf-8")
+            (target / "summary.json").write_text(
+                json.dumps(
+                    {
+                        "rate": 750,
+                        "seconds": 1,
+                        "reservation_mode": "redis-first",
+                        "generator_drops": 0,
+                        "transport_errors": {},
+                        "worst_worker_read_p95_ms": 8,
+                        "worst_worker_hold_p95_ms": 50,
+                        "workload_gate_pass": True,
+                    }
+                ),
+                encoding="utf-8",
+            )
+        elif phase == "backend-evidence":
+            target = local / "public"
+            target.mkdir(parents=True)
+            (target / "durability.json").write_text(
+                json.dumps(
+                    {
+                        "durability_and_expiry_pass": True,
+                        "overlapping_load_hold_intervals": 0,
+                        "queues_snapshot": {"outbox": 0, "refresh": 0, "dead_letters": 0},
+                        "audited_holds": 1,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (target / "admission.json").write_text(
+                '{"admission_rejections": 0, "pass": true}', encoding="utf-8"
+            )
+            (target / "rollback.json").write_text(
+                '{"restored_admission": 4, "pass": true}', encoding="utf-8"
+            )
+
+    def copy_to(self, phase, local, host, remote, recursive=False):
+        self.calls.append(("copy_to", phase))
+
+
+def argv(output: Path) -> list[str]:
+    return [
+        "unattended_capacity_stage.py",
+        "--backend-host",
+        "backend-test",
+        "--generator-host",
+        "generator-test",
+        "--origin",
+        "http://10.1.137.69:8000",
+        "--output",
+        str(output),
+        "--rate",
+        "750",
+        "--seconds",
+        "1",
+        "--shows",
+        "4",
+        "--seats",
+        "300",
+        "--viewers",
+        "40",
+        "--admission-candidate",
+        "5",
+        "--admission-rollback",
+        "4",
+        "--hold-expiry-wait",
+        "1",
+        "--reservation-mode",
+        "redis-first",
+        "--write-percent",
+        "20",
+        "--reservation-writer-candidate",
+        "2",
+        "--reservation-writer-batch-size",
+        "8",
+        "--reservation-max-command-age-seconds",
+        "60",
+    ]
+
+
+def test_redacts_credentials():
+    value = stage.redact(
+        "password=hello token:abc Authorization=Bearer-value "
+        "postgresql://user:private@database/test Bearer ey.private"
+    )
+    assert "hello" not in value
+    assert "abc" not in value
+    assert "private@" not in value
+    assert "ey.private" not in value
+
+
+def test_success_orders_phases_cleans_manifest_and_passes(monkeypatch, tmp_path):
+    FakeTransport.instances.clear()
+    FakeTransport.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", FakeTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "result"))
+
+    stage.main()
+
+    fake = FakeTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert phases.index("deploy") < phases.index("prepare") < phases.index("preflight")
+    assert phases.index("observe") < phases.index("prewarm") < phases.index("load-start")
+    assert phases.index("load-start") < phases.index("load-status") < phases.index("durability-audit") < phases.index("rollback")
+    assert phases[-2:] == ["generator-cleanup", "backend-cleanup"]
+    assert fake.private_manifest is not None and not fake.private_manifest.exists()
+    assert json.loads((tmp_path / "result" / "stage-result.json").read_text())["pass"] is True
+
+
+def test_preflight_failure_short_circuits_and_rolls_back(monkeypatch, tmp_path):
+    FakeTransport.instances.clear()
+    FakeTransport.fail_phase = "preflight"
+    monkeypatch.setattr(stage, "Transport", FakeTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "failed"))
+
+    with pytest.raises(SystemExit):
+        stage.main()
+
+    fake = FakeTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert "load-start" not in phases
+    assert "rollback" in phases
+    assert phases[-2:] == ["generator-cleanup", "backend-cleanup"]
+    assert fake.private_manifest is not None and not fake.private_manifest.exists()
+    result = json.loads((tmp_path / "failed" / "stage-result.json").read_text())
+    assert result["pass"] is False
+    assert "should-not-leak" not in json.dumps(result)
+
+
+def test_cleanup_failure_does_not_skip_remaining_cleanup(monkeypatch, tmp_path):
+    FakeTransport.instances.clear()
+    FakeTransport.fail_phase = "generator-cleanup"
+    monkeypatch.setattr(stage, "Transport", FakeTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "cleanup-failed"))
+
+    with pytest.raises(SystemExit):
+        stage.main()
+
+    fake = FakeTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert phases[-2:] == ["generator-cleanup", "backend-cleanup"]
+    result = json.loads((tmp_path / "cleanup-failed" / "stage-result.json").read_text())
+    assert result["pass"] is False
+    assert "generator cleanup" in result["error"]
+
+def test_load_timeout_still_collects_and_audits(monkeypatch, tmp_path):
+    class TimeoutTransport(FakeTransport):
+        def remote(self, phase, host, argv, check=True, timeout=None):
+            if phase == "load-status":
+                self.calls.append(("remote", phase))
+                raise subprocess.TimeoutExpired(["ssh"], timeout)
+            return super().remote(phase, host, argv, check=check, timeout=timeout)
+
+    TimeoutTransport.instances.clear()
+    TimeoutTransport.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", TimeoutTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "timed-out"))
+
+    with pytest.raises(SystemExit):
+        stage.main()
+
+    fake = TimeoutTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert "durability-audit" in phases
+    assert "load-stop" in phases
+    assert "rollback" in phases
+    result = json.loads((tmp_path / "timed-out" / "stage-result.json").read_text())
+    assert result["gates"]["audit_exit_zero"] is True
+    assert result["gates"]["load_exit_zero"] is False
+    assert result["pass"] is False
+
+
+def test_nonzero_load_still_audits(monkeypatch, tmp_path):
+    class FailedLoadTransport(FakeTransport):
+        def remote(self, phase, host, argv, check=True, timeout=None):
+            if phase == "load-status":
+                self.calls.append(("remote", phase))
+                return SimpleNamespace(
+                    returncode=0, stdout='{"state":"finished","exit_code":1}', stderr=""
+                )
+            return super().remote(phase, host, argv, check=check, timeout=timeout)
+
+    FailedLoadTransport.instances.clear()
+    FailedLoadTransport.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", FailedLoadTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "failed-load"))
+
+    with pytest.raises(SystemExit):
+        stage.main()
+
+    fake = FailedLoadTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert "durability-audit" in phases
+    assert "rollback" in phases
+    result = json.loads((tmp_path / "failed-load" / "stage-result.json").read_text())
+    assert result["gates"]["audit_exit_zero"] is True
+    assert result["gates"]["load_exit_zero"] is False
+
+
+def test_incomplete_generator_evidence_still_rolls_back(monkeypatch, tmp_path):
+    class IncompleteTransport(FakeTransport):
+        def copy_from(self, phase, host, remote, local, recursive=False):
+            super().copy_from(phase, host, remote, local, recursive=recursive)
+            if phase == "generator-evidence":
+                (Path(local) / "public" / "load" / "worker-0.json").unlink()
+
+    IncompleteTransport.instances.clear()
+    IncompleteTransport.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", IncompleteTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "incomplete"))
+
+    with pytest.raises(SystemExit):
+        stage.main()
+
+    fake = IncompleteTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert "durability-audit" not in phases
+    assert "rollback" in phases
+    result = json.loads((tmp_path / "incomplete" / "stage-result.json").read_text())
+    assert "Incomplete generator evidence" in result["error"]
+    assert result["pass"] is False
+
+
+def test_malformed_generator_status_fails_closed_and_stops(monkeypatch, tmp_path):
+    class MalformedTransport(FakeTransport):
+        def remote(self, phase, host, argv, check=True, timeout=None):
+            if phase == "load-status":
+                self.calls.append(("remote", phase))
+                return SimpleNamespace(returncode=0, stdout='{"state":"finished","exit_code":"0"}', stderr="")
+            return super().remote(phase, host, argv, check=check, timeout=timeout)
+
+    MalformedTransport.instances.clear()
+    MalformedTransport.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", MalformedTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "malformed"))
+    with pytest.raises(SystemExit):
+        stage.main()
+    fake = MalformedTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert "load-stop" in phases
+    assert "durability-audit" in phases
+    result = json.loads((tmp_path / "malformed" / "stage-result.json").read_text())
+    assert result["gates"]["load_exit_zero"] is False
+    assert result["pass"] is False
+
+
+def test_failed_generator_stop_blocks_audit_and_rolls_back(monkeypatch, tmp_path):
+    FakeTransport.instances.clear()
+    FakeTransport.fail_phase = "load-stop"
+    monkeypatch.setattr(stage, "Transport", FakeTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "stop-failed"))
+    with pytest.raises(SystemExit):
+        stage.main()
+    fake = FakeTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert "durability-audit" not in phases
+    assert "load-stop-finally" in phases
+    assert "rollback" in phases
+    result = json.loads((tmp_path / "stop-failed" / "stage-result.json").read_text())
+    assert result["pass"] is False
+
+
+def test_running_status_is_polled_until_finished(monkeypatch, tmp_path):
+    class RunningThenFinished(FakeTransport):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.polls = 0
+
+        def remote(self, phase, host, argv, check=True, timeout=None):
+            if phase == "load-status":
+                self.polls += 1
+                if self.polls == 1:
+                    self.calls.append(("remote", phase))
+                    return SimpleNamespace(returncode=0, stdout='{"state":"running"}', stderr="")
+            return super().remote(phase, host, argv, check=check, timeout=timeout)
+
+    RunningThenFinished.instances.clear()
+    RunningThenFinished.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", RunningThenFinished)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "polled"))
+    stage.main()
+    fake = RunningThenFinished.instances[-1]
+    assert fake.polls == 2
+    assert json.loads((tmp_path / "polled" / "stage-result.json").read_text())["pass"] is True
+
+
+def test_mismatched_source_revision_stops_before_deployment(monkeypatch, tmp_path):
+    class MismatchedTransport(FakeTransport):
+        def remote(self, phase, host, argv, check=True, timeout=None):
+            if phase == "generator-revision":
+                self.calls.append(("remote", phase))
+                return SimpleNamespace(returncode=0, stdout="b" * 40 + "\n", stderr="")
+            return super().remote(phase, host, argv, check=check, timeout=timeout)
+
+    MismatchedTransport.instances.clear()
+    MismatchedTransport.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", MismatchedTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(sys, "argv", argv(tmp_path / "revision-mismatch"))
+    with pytest.raises(SystemExit):
+        stage.main()
+    fake = MismatchedTransport.instances[-1]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert "deploy" not in phases
+    assert "load-start" not in phases
+    result = json.loads((tmp_path / "revision-mismatch" / "stage-result.json").read_text())
+    assert result["pass"] is False
+    assert result["source_revision"] is None
+
+
+def test_worker_scaling_is_passed_and_observers_cover_audit(monkeypatch, tmp_path):
+    class CapturingTransport(FakeTransport):
+        def remote(self, phase, host, command, check=True, timeout=None):
+            if phase == "deploy":
+                self.deployment_command = command
+            if phase == "load-start":
+                self.load_command = command
+            return super().remote(phase, host, command, check=check, timeout=timeout)
+
+    CapturingTransport.instances.clear()
+    CapturingTransport.fail_phase = None
+    monkeypatch.setattr(stage, "Transport", CapturingTransport)
+    monkeypatch.setattr(stage.time, "sleep", lambda _: None)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        argv(tmp_path / "scaled")
+        + [
+            "--maintenance-candidate",
+            "2",
+            "--maintenance-rollback",
+            "1",
+            "--consumer-candidate",
+            "2",
+            "--consumer-rollback",
+            "1",
+            "--split-maintenance",
+        ],
+    )
+    stage.main()
+    fake = CapturingTransport.instances[-1]
+    assert fake.deployment_command[-10:] == [
+        "2", "1", "2", "1", "1", "redis-first", "2", "8", "60", "10.1.137.69"
+    ]
+    assert fake.load_command[-4:] == ["redis-first", "20", "availability", "0"]
+    phases = [phase for kind, phase in fake.calls if kind == "remote"]
+    assert phases.index("durability-audit") < phases.index("stop-observers") < phases.index("rollback")
+
+
+def test_backend_deploy_rebuilds_and_verifies_measured_worker_images():
+    helper = (SCRIPT.parent / "huawei_capacity_backend.sh").read_text()
+    assert "$compose build api migrate publisher consumer maintenance refresh expiry reconciler reservation-writer" in helper
+    assert '$compose up -d --no-deps --force-recreate publisher' in helper
+    assert '--force-recreate --scale reconciler=1 reconciler' in helper
+    assert 'wait_reconciler 1' in helper
+    assert 'worker_services="publisher refresh expiry consumer reconciler"' in helper
+    assert 'cache_source_hash=$(sha256sum src/ticketing/infrastructure/cache.py' in helper
+    assert '[ "$cache_image_hash" = "$cache_source_hash" ]' in helper
+    assert '--scale maintenance=0 maintenance' in helper
+    assert '--force-recreate --scale refresh=1 refresh' in helper
+    assert '--force-recreate --scale expiry=1 expiry' in helper
+    assert '--force-recreate --scale "maintenance=$maintenance_candidate" maintenance' in helper
+    assert '--force-recreate --scale "consumer=$consumer_candidate" consumer' in helper
+    assert '--scale "reservation-writer=$reservation_writer_candidate" reservation-writer' in helper
+    assert 'wait_reservation_writer "$reservation_writer_candidate"' in helper
+    assert "summarize_reservation_writer_logs.py" in helper
+    assert "warm_capacity_fixture_cache.py" in helper
+    assert '"$public/prewarm.json"' in helper
+    assert "summarize_reservation_writer_metrics.py" in helper
+    assert '--scale "reservation-writer=$original_reservation_writers" reservation-writer' in helper
+    assert 'set_reservation_mode "$reservation_candidate"' in helper
+    assert 'set_reservation_mode "$original_reservation_mode"' in helper
+    assert 'set_reservation_writer_batch_size "$original_reservation_writer_batch"' in helper
+    assert 'set_reservation_max_command_age "$original_reservation_max_command_age"' in helper
+    assert '"reservation_writer_batch_size":%s' in helper
+    assert '"reservation_max_command_age_seconds":%s' in helper
+    assert '--scale "refresh=$original_refresh" refresh' in helper
+    assert '--scale "expiry=$original_expiry" expiry' in helper
+    assert "src/ticketing/workers.py" in helper
+    assert '"split_maintenance":%s' in helper
+    assert '"worker_source_verified":true' in helper
+    assert '--force-recreate load-balancer' in helper
+    assert '[ "$load_balancer_published_ip" = "$load_balancer_bind_ip" ]' in helper
+    assert "load_balancer_nofile=$(docker exec \"$load_balancer_id\" sh -lc 'ulimit -Sn')" in helper
+    assert '[ "$load_balancer_nofile" -ge 4096 ]' in helper
+    assert 'unset PGSSLROOTCERT' not in helper
+    assert 'RDS_DATABASE_URL="$DATABASE_URL"' in helper
+
+
+def test_origin_bind_ip_requires_explicit_ipv4():
+    assert stage.origin_bind_ip("http://10.1.137.69:8000") == "10.1.137.69"
+    with pytest.raises(ValueError, match="explicit IPv4"):
+        stage.origin_bind_ip("http://private.test:8000")
+
+
+
+def test_opening_burst_requires_correct_duration_and_fresh_seat_capacity(monkeypatch, tmp_path):
+    requested = argv(tmp_path / "opening")
+    requested.extend(["--opening-burst", "--dry-run"])
+    monkeypatch.setattr(sys, "argv", requested)
+    with pytest.raises(ValueError, match="exactly 300 seconds"):
+        stage.main()
+
+    requested[requested.index("--seconds") + 1] = "300"
+    monkeypatch.setattr(sys, "argv", requested)
+    with pytest.raises(ValueError, match="insufficient unique seats"):
+        stage.main()
+
+    requested[requested.index("--rate") + 1] = "10"
+    monkeypatch.setattr(sys, "argv", requested)
+    stage.main()
+    assert not (tmp_path / "opening").exists()
+
+
+
+def test_opening_burst_checks_each_worker_shard_not_just_global_average(monkeypatch, tmp_path):
+    requested = argv(tmp_path / "skewed")
+    requested.extend(["--opening-burst", "--dry-run"])
+    requested[requested.index("--seconds") + 1] = "300"
+    requested[requested.index("--rate") + 1] = "5"
+    requested[requested.index("--seats") + 1] = "150"
+    monkeypatch.setattr(sys, "argv", requested)
+    with pytest.raises(ValueError, match="insufficient unique seats"):
+        stage.main()
+
+
+@pytest.mark.parametrize("operation", ["remote", "copy_from", "copy_to"])
+def test_transport_decodes_utf8_and_malformed_log_bytes(monkeypatch, tmp_path, operation):
+    real_run = subprocess.run
+
+    def local_child(_command, **kwargs):
+        return real_run([sys.executable, "-c",
+                         "import sys; sys.stdout.buffer.write(bytes.fromhex('636166c3a920f09f918dff'))"],
+                        **kwargs)
+
+    monkeypatch.setattr(stage.subprocess, "run", local_child)
+    transport = stage.Transport("ssh", "scp", tmp_path)
+    if operation == "remote":
+        result = transport.remote("unicode", "unused", ["true"])
+        assert result.stdout == "caf\u00e9 \U0001f44d\ufffd"
+    elif operation == "copy_from":
+        transport.copy_from("unicode", "unused", "/unused", tmp_path / "unused")
+    else:
+        transport.copy_to("unicode", tmp_path / "unused", "unused", "/unused")
+    assert (tmp_path / "unicode.log").read_text(encoding="utf-8") == "caf\u00e9 \U0001f44d\ufffd"

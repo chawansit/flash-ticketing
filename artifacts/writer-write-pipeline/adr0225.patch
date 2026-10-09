@@ -1,0 +1,183 @@
+diff --git a/src/ticketing/config.py b/src/ticketing/config.py
+--- a/src/ticketing/config.py
++++ b/src/ticketing/config.py
+@@ -41,6 +41,7 @@
+         os.getenv("REDIS_RESERVATION_MAX_COMMAND_AGE_SECONDS", "0")
+     )
+     reservation_writer_batch_size: int = int(os.getenv("RESERVATION_WRITER_BATCH_SIZE", "1"))
++    reservation_write_pipeline: bool = os.getenv("RESERVATION_WRITE_PIPELINE", "0") == "1"
+     publisher_batch_size: int = int(os.getenv("PUBLISHER_BATCH_SIZE", "32"))
+     consumer_batch_size: int = int(os.getenv("CONSUMER_BATCH_SIZE", "100"))
+     consumer_batch_wait_ms: int = int(os.getenv("CONSUMER_BATCH_WAIT_MS", "10"))
+diff --git a/src/ticketing/infrastructure/reservations.py b/src/ticketing/infrastructure/reservations.py
+--- a/src/ticketing/infrastructure/reservations.py
++++ b/src/ticketing/infrastructure/reservations.py
+@@ -1,3 +1,4 @@
++from contextlib import nullcontext
+ import hashlib
+ import json
+ from datetime import datetime, timedelta
+@@ -58,8 +59,9 @@
+     No gateway, Redis, or Kafka calls occur while database locks are held.
+     """
+ 
+-    def __init__(self, db: Database, cache: SeatCache, hold_seconds=120):
++    def __init__(self, db: Database, cache: SeatCache, hold_seconds=120, *, persist_write_pipeline=False):
+         self.db, self.cache, self.hold_seconds = db, cache, hold_seconds
++        self.persist_write_pipeline = persist_write_pipeline
+ 
+     def reserve(self, actor, event_id, seat_ids, key):
+         seats = sorted(set(seat_ids))
+@@ -223,75 +225,76 @@
+             "expires_at": expires_at.isoformat(),
+             "persistence_status": "DURABLE",
+         }
+-        conn.execute(
+-            "INSERT INTO holds VALUES (%s,%s,%s,%s,'ACTIVE')",
+-            (
+-                payload["hold_id"],
+-                payload["actor"],
+-                payload["event_id"],
+-                payload["expires_at"],
+-            ),
+-        )
+-        conn.execute(
+-            """INSERT INTO orders(id,actor,hold_id,event_id,total,currency,status)
++        with conn.pipeline() if self.persist_write_pipeline else nullcontext():
++            conn.execute(
++                "INSERT INTO holds VALUES (%s,%s,%s,%s,'ACTIVE')",
++                (
++                    payload["hold_id"],
++                    payload["actor"],
++                    payload["event_id"],
++                    payload["expires_at"],
++                ),
++            )
++            conn.execute(
++                """INSERT INTO orders(id,actor,hold_id,event_id,total,currency,status)
+             VALUES (%s,%s,%s,%s,%s,%s,'PENDING')""",
+-            (
+-                payload["order_id"],
+-                payload["actor"],
+-                payload["hold_id"],
+-                payload["event_id"],
+-                total,
+-                sale["currency"],
+-            ),
+-        )
+-        conn.execute(
+-            """UPDATE event_seats SET hold_id=%s,reserved_until=%s,version=version+1
+-            WHERE event_id=%s AND seat_id=ANY(%s)""",
+-            (
+-                payload["hold_id"],
+-                payload["expires_at"],
+-                payload["event_id"],
+-                sorted(payload["seat_ids"]),
+-            ),
+-        )
+-        for row in rows:
+-            conn.execute(
+-                "INSERT INTO order_items VALUES (%s,%s,%s,%s)",
+                 (
+                     payload["order_id"],
++                    payload["actor"],
++                    payload["hold_id"],
+                     payload["event_id"],
+-                    row["seat_id"],
+-                    row["price"],
++                    total,
++                    sale["currency"],
+                 ),
+             )
+-        event(
+-            conn,
+-            payload["order_id"],
+-            "SeatsChanged",
+-            {"event_id": payload["event_id"], "seats": sorted(payload["seat_ids"])},
+-        )
+-        remember(
+-            conn,
+-            payload["actor"],
+-            "hold",
+-            payload["idempotency_key"],
+-            durable,
+-        )
+-        conn.execute(
+-            """INSERT INTO reservation_commands
++            conn.execute(
++                """UPDATE event_seats SET hold_id=%s,reserved_until=%s,version=version+1
++            WHERE event_id=%s AND seat_id=ANY(%s)""",
++                (
++                    payload["hold_id"],
++                    payload["expires_at"],
++                    payload["event_id"],
++                    sorted(payload["seat_ids"]),
++                ),
++            )
++            for row in rows:
++                conn.execute(
++                    "INSERT INTO order_items VALUES (%s,%s,%s,%s)",
++                    (
++                        payload["order_id"],
++                        payload["event_id"],
++                        row["seat_id"],
++                        row["price"],
++                    ),
++                )
++            event(
++                conn,
++                payload["order_id"],
++                "SeatsChanged",
++                {"event_id": payload["event_id"], "seats": sorted(payload["seat_ids"])},
++            )
++            remember(
++                conn,
++                payload["actor"],
++                "hold",
++                payload["idempotency_key"],
++                durable,
++            )
++            conn.execute(
++                """INSERT INTO reservation_commands
+             (command_id,actor,idempotency_key,request_hash,event_id,hold_id,order_id,status,response)
+             VALUES (%s,%s,%s,%s,%s,%s,%s,'DURABLE',%s)""",
+-            (
+-                payload["command_id"],
+-                payload["actor"],
+-                payload["idempotency_key"],
+-                payload["request_hash"],
+-                payload["event_id"],
+-                payload["hold_id"],
+-                payload["order_id"],
+-                Jsonb(durable),
+-            ),
+-        )
++                (
++                    payload["command_id"],
++                    payload["actor"],
++                    payload["idempotency_key"],
++                    payload["request_hash"],
++                    payload["event_id"],
++                    payload["hold_id"],
++                    payload["order_id"],
++                    Jsonb(durable),
++                ),
++            )
+         return durable
+ 
+     def checkout(self, actor, hold_id, key):
+diff --git a/src/ticketing/workers.py b/src/ticketing/workers.py
+--- a/src/ticketing/workers.py
++++ b/src/ticketing/workers.py
+@@ -1048,7 +1048,10 @@
+     signal.signal(signal.SIGINT, stop)
+     start_http_server(settings.worker_port)
+     db, cache = Postgres(settings.database_url, settings.pool_max), RedisSeats(settings.redis_url, seatmap_ttl_seconds=settings.seatmap_ttl_seconds)
+-    store = PostgresReservations(db, cache, settings.hold_seconds)
++    store = PostgresReservations(
++        db, cache, settings.hold_seconds,
++        persist_write_pipeline=role == "reservation-writer" and settings.reservation_write_pipeline,
++    )
+     service = Reservations(store)
+     order_status_projector = (
+         CommittedOrderStatusProjector(
