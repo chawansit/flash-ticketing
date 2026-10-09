@@ -25,6 +25,8 @@ def endpoint():
                 self.server.peak = max(self.server.peak, self.server.active)
                 if self.server.active == 2:
                     self.server.two_active.set()
+                if self.server.active == 12:
+                    self.server.twelve_active.set()
             try:
                 if self.server.gate is not None:
                     assert self.server.gate.wait(3)
@@ -48,6 +50,7 @@ def endpoint():
 
     class Server(ThreadingHTTPServer):
         daemon_threads = True
+        request_queue_size = 32
 
         def get_request(self):
             connection = super().get_request()
@@ -57,6 +60,7 @@ def endpoint():
     server = Server(("127.0.0.1", 0), Handler)
     server.guard = threading.Lock()
     server.two_active = threading.Event()
+    server.twelve_active = threading.Event()
     server.accepted = server.active = server.peak = 0
     server.requests = []
     server.status = 200
@@ -189,3 +193,24 @@ def test_unsafe_or_ambiguous_endpoint_rejected_without_network(url):
 def test_invalid_capacity_rejected():
     with pytest.raises(ValueError, match="bounds"):
         CallbackTransport("http://example.com/callback", 0)
+
+
+def test_twelve_bounded_http_connections_can_deliver_concurrently(endpoint):
+    server, url = endpoint
+    server.gate = threading.Event()
+    transport = CallbackTransport(url, 12, timeout=3)
+    try:
+        with ThreadPoolExecutor(max_workers=12) as executor:
+            futures = [executor.submit(transport.post, str(i).encode(), {}) for i in range(12)]
+            try:
+                assert server.twelve_active.wait(3)
+                assert server.peak == 12
+            finally:
+                server.gate.set()
+            for future in futures:
+                future.result(timeout=5)
+        assert server.accepted == len(server.requests) == 12
+        assert {body for body, *_ in server.requests} == {str(i).encode() for i in range(12)}
+    finally:
+        server.gate.set()
+        transport.close()

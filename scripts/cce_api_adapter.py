@@ -110,7 +110,7 @@ def admission_budget():
     """One declared bounded factor; old profiles retain the immutable baseline."""
     exception = policy.envelope()["spending"]["temporary_cce_pilot_exception"]
     goal = exception.get("goal_bounded_authorization", {})
-    if goal.get("extension_decision") in {"ADR0242", "ADR0245", "ADR0249"}:
+    if goal.get("extension_decision") in {"ADR0242", "ADR0245", "ADR0249", "ADR0251"}:
         import cce_transaction_profile as transaction
         transaction.active()
         return 20

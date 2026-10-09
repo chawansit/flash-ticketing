@@ -94,6 +94,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
         extra.update(cce_partition_decision="ADR0245", cce_payment_pool_max=transaction.payment_connections(goal))
     if goal is not None and goal["extension_decision"] == "ADR0249":
         extra.update(cce_payment_context_decision="ADR0249", cce_payment_pool_max=2)
+    if goal is not None and goal["extension_decision"] == "ADR0251":
+        from cce_simulator_dispatch_profile import receipt
+        extra.update(cce_simulator_decision="ADR0251", cce_simulator_concurrency=12,
+                     cce_simulator_database_pool_max=10, cce_simulator_image_id=receipt()["local_image_id"])
     return {
         **extra,
         "configuration_sha256": policy.digest(config),
@@ -268,6 +272,16 @@ def activate_scope(guard, run):
     policy.write(policy.STATE, state)
 
 
+def worker_contract():
+    import cce_transaction_profile as transaction
+    goal = transaction.active()
+    if goal is not None and goal["extension_decision"] == "ADR0251":
+        from cce_simulator_dispatch_profile import worker_contract as simulator_contract
+        return simulator_contract(goal)
+    return baseline.GeneratorCompletionProbeContract(
+        baseline.plan()["artifact_receipt"], "candidate", native.legacy_contract()["api_sources"])
+
+
 def run(config, output, guard, manifests, kubeconfig, context):
     profile = for_guard(guard)
 
@@ -285,9 +299,7 @@ def run(config, output, guard, manifests, kubeconfig, context):
         "transport_creation_attempted": False,
     }
 
-    contract = baseline.GeneratorCompletionProbeContract(
-        baseline.plan()["artifact_receipt"], "candidate", native.legacy_contract()["api_sources"]
-    )
+    contract = worker_contract()
 
     contract.diagnostic_context = context
 

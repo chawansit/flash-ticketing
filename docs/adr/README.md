@@ -167,3 +167,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0249: Compare post-lock payment context with fixed budgets](0249-compare-post-lock-payment-context-with-fixed-budgets.md)
 
 - [ADR0250: Reconcile the failed payment-context control](0250-reconcile-failed-payment-context-control.md)
+
+- [ADR0251: Decouple callback dispatch concurrency from the database pool](0251-decouple-callback-dispatch-concurrency-from-db-pool.md)

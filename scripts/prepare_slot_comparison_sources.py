@@ -44,6 +44,13 @@ def pairs():
     if candidate[config].count(unrelated) != 1:
         raise ValueError("Exact isolated configuration correction required")
     candidate[config] = candidate[config].replace(unrelated, b"")
+    # ADR0251 changes worker dispatch validation only. Preserve the reviewed API pair.
+    new_bound = b'        # HTTP delivery runs outside SQL transactions; bound its slots separately.\n        if type(self.simulator_concurrency) is not int or not 1 <= self.simulator_concurrency <= 32:\n            raise RuntimeError("SIMULATOR_CONCURRENCY must be an integer between 1 and 32")\n'
+    old_bound = b'        if not 1 <= self.simulator_concurrency <= self.pool_max:\n            raise RuntimeError("SIMULATOR_CONCURRENCY must fit DB_POOL_MAX")\n'
+    if candidate[config].count(new_bound) == 1:
+        candidate[config] = candidate[config].replace(new_bound, old_bound, 1)
+    elif candidate[config].count(old_bound) != 1:
+        raise ValueError("Exact isolated simulator validation correction required")
     raw = candidate[POSTGRES].decode()
     if raw.count(CANDIDATE_BEGIN) != 1:
         raise ValueError("Exact reviewed transaction startup factor required")

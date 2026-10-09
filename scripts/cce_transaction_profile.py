@@ -44,6 +44,11 @@ def image_pair():
 def active(envelope=None):
     envelope = policy.envelope() if envelope is None else envelope
     goal = envelope.get("spending", {}).get("temporary_cce_pilot_exception", {}).get("goal_bounded_authorization", {})
+    if goal.get("extension_decision") == "ADR0251":
+        from cce_simulator_dispatch_profile import active as simulator_active
+        simulator_active(goal)
+        image_pair()
+        return goal
     if goal.get("extension_decision") not in {"ADR0242", "ADR0245", "ADR0249"}:
         return None
     arm = goal.get("comparison_arm")
@@ -66,6 +71,9 @@ def active(envelope=None):
 
 
 def proof_digest(goal):
+    if goal["extension_decision"] == "ADR0251":
+        from cce_simulator_dispatch_profile import PROOF_SHA256 as simulator_digest
+        return simulator_digest
     if goal["extension_decision"] == "ADR0249":
         from cce_payment_context_images import PROOF_SHA256 as payment_digest
         return payment_digest
@@ -81,7 +89,7 @@ def pair_receipt(goal):
 
 def image_for(goal):
     """ADR0245 holds the accepted control binary fixed across both partitions."""
-    arm = "control" if goal["extension_decision"] == "ADR0245" else goal["comparison_arm"]
+    arm = "control" if goal["extension_decision"] in {"ADR0245", "ADR0251"} else goal["comparison_arm"]
     return pair_receipt(goal)["images"][arm]
 
 
@@ -141,6 +149,9 @@ def plan():
     goal = active()
     if goal is None:
         raise ValueError("Explicit ADR0242 short comparison required")
+    if goal["extension_decision"] == "ADR0251":
+        from cce_simulator_dispatch_profile import plan as simulator_plan
+        return simulator_plan(goal)
     from cce_api_adapter import legacy_contract
     if goal["comparison_arm"] == "candidate":
         baseline, evidence = control_receipt(goal)

@@ -154,8 +154,9 @@ class Settings:
             raise RuntimeError("CONSUMER_BATCH_WAIT_MS must be between 1 and 100")
         if self.simulator_dispatch_mode not in {"batch", "refill"}:
             raise RuntimeError("SIMULATOR_DISPATCH_MODE must be batch or refill")
-        if not 1 <= self.simulator_concurrency <= self.pool_max:
-            raise RuntimeError("SIMULATOR_CONCURRENCY must fit DB_POOL_MAX")
+        # HTTP delivery runs outside SQL transactions; bound its slots separately.
+        if type(self.simulator_concurrency) is not int or not 1 <= self.simulator_concurrency <= 32:
+            raise RuntimeError("SIMULATOR_CONCURRENCY must be an integer between 1 and 32")
         if not 1 <= self.refresh_cooldown_ms <= 5000:
             raise RuntimeError("REFRESH_COOLDOWN_MS must be between 1 and 5000")
         if not 1 <= self.refresh_batch_size <= 100:

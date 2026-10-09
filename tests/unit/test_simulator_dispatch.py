@@ -98,7 +98,63 @@ def test_invalid_dispatch_mode_rejected():
         replace(Settings(), simulator_dispatch_mode="unbounded").validate()
 
 
-def test_twelve_slots_fit_existing_pool_and_thirteen_are_rejected():
-    replace(Settings(), simulator_concurrency=12, simulator_dispatch_mode="refill", pool_max=12).validate()
+@pytest.mark.parametrize("pool_size", [2, 10])
+def test_twelve_http_slots_do_not_expand_database_pool(pool_size):
+    settings = replace(Settings(), simulator_concurrency=12, simulator_dispatch_mode="refill", pool_max=pool_size)
+    settings.validate()
+    assert settings.pool_max == pool_size
+
+
+@pytest.mark.parametrize("count", [0, 33, True, 12.5])
+def test_http_dispatch_slots_have_an_independent_hard_bound(count):
     with pytest.raises(RuntimeError, match="SIMULATOR_CONCURRENCY"):
-        replace(Settings(), simulator_concurrency=13, simulator_dispatch_mode="refill", pool_max=12).validate()
+        replace(Settings(), simulator_concurrency=count).validate()
+
+
+def test_dispatch_upper_bound_is_not_a_database_pool_size():
+    replace(Settings(), simulator_concurrency=32, pool_max=2).validate()
+
+
+def test_twelve_slot_refill_stop_drains_only_owned_inflight_jobs(monkeypatch):
+    all_started, release, stop = [threading.Event() for _ in range(3)]
+    guard = threading.Lock()
+    calls = active = peak = 0
+    failures = []
+
+    def task(*_args):
+        nonlocal calls, active, peak
+        with guard:
+            calls += 1
+            active += 1
+            peak = max(peak, active)
+            if active == 12:
+                all_started.set()
+        try:
+            if not release.wait(5):
+                raise RuntimeError("Test delivery was not released")
+            return True
+        finally:
+            with guard:
+                active -= 1
+
+    def dispatch():
+        try:
+            with ThreadPoolExecutor(max_workers=12) as executor:
+                workers.simulate_refill(None, replace(Settings(), simulator_concurrency=12, pool_max=2),
+                                        executor, lambda: not stop.is_set())
+        except Exception as exc:  # noqa: BLE001 - propagate failures from the scheduler thread
+            failures.append(exc)
+
+    monkeypatch.setattr(workers, "simulate_one", task)
+    thread = threading.Thread(target=dispatch)
+    thread.start()
+    try:
+        assert all_started.wait(3)
+        stop.set()
+        assert thread.is_alive()  # Outstanding HTTP work still belongs to the worker.
+    finally:
+        stop.set()
+        release.set()
+        thread.join(5)
+    assert not thread.is_alive() and not failures
+    assert calls == peak == 12 and active == 0
