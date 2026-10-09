@@ -6213,5 +6213,61 @@
     ],
     "merge_sha": "4b23a5e681354f9c6c387b07e3554c88c46e0695",
     "authorization": "Direct user approval: Merge PR #5."
+  },
+  "backend_promotion_checkpoint": {
+    "updated_at_utc": "2026-10-09T05:13:07.819031+00:00",
+    "status": "BACKEND_WORKERS_PR_REVIEW_READY_FULL_STACK_CI_PASSED",
+    "pull_request": "https://github.com/chawansit/flash-ticketing/pull/6",
+    "head_branch": "codex/tested-backend-workers-2026-10-09",
+    "head_sha": "a72d0b5a37bd3732580536c5c8f349f2b7b41712",
+    "base_sha": "4b23a5e681354f9c6c387b07e3554c88c46e0695",
+    "decision_record_url": "https://github.com/chawansit/flash-ticketing/blob/a72d0b5a37bd3732580536c5c8f349f2b7b41712/docs/adr/0237-source-pinned-backend-and-worker-promotion.md",
+    "scope": "Verified API source plus consumer worker behavior and writer main/pipeline; 52 files, source/default provenance, core correctness regressions. No runner, deployment, budget, dependency or migration changes.",
+    "source_identity": {
+      "original_role_files_verified": 21,
+      "roles": [
+        "api",
+        "consumer",
+        "reservation-writer"
+      ],
+      "combined_workers_syntax_origin_passed": true,
+      "combined_runtime_is_new_identity": true,
+      "two_import_blocks_normalized_without_algorithm_change": true
+    },
+    "validation": {
+      "native_main_suite_passed": 580,
+      "combined_financial_journey_matrix_passed": 4,
+      "full_stack_tests_skipped_locally": 2,
+      "full_stack_ci_passed": true,
+      "lint_and_working_staged_outgoing_names_passed": true,
+      "owned_local_containers_and_networks_removed": true
+    },
+    "ci": [
+      {
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "details_url": "https://github.com/chawansit/flash-ticketing/actions/runs/37887248649/job/113679909532"
+      },
+      {
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "details_url": "https://github.com/chawansit/flash-ticketing/actions/runs/37887213638/job/113679797371"
+      }
+    ],
+    "default_features_off": [
+      "async_payment_confirmation",
+      "status_cache_and_event_projection",
+      "payment_pool_partition_and_shared_waiting",
+      "partial_timeout_reclaim",
+      "writer_pipeline"
+    ],
+    "tracked_local_experiment_seconds": 169.875,
+    "next_action": "Review PR #6 and obtain separate approval before main merge. Then prepare CCE/runner integration; separately resolve payment timeout/observation failures before fresh authorized performance comparison.",
+    "main_merge_authorized": false,
+    "cloud_actions": 0,
+    "capacity_improvement_measured": false,
+    "production_qualified": false
   }
 }
