@@ -165,3 +165,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0248: Batch payment context after locking the order](0248-batch-payment-context-after-order-lock.md)
 
 - [ADR0249: Compare post-lock payment context with fixed budgets](0249-compare-post-lock-payment-context-with-fixed-budgets.md)
+
+- [ADR0250: Reconcile the failed payment-context control](0250-reconcile-failed-payment-context-control.md)
