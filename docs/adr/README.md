@@ -100,3 +100,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [0232: Bounded hourly paid ticket qualification](0232-bounded-hourly-paid-ticket-qualification.md)
 - [0234: Bounded CCE acquisition headroom with unchanged connections](0234-bounded-cce-acquisition-headroom.md)
 - [0235: Hourly terminal audit and independent recovery](0235-hourly-terminal-audit-and-recovery.md)
+
+- [ADR0236: Stage the paid backend schema before runtime promotion](0236-staged-paid-backend-schema-promotion.md)

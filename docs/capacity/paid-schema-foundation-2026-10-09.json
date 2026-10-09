@@ -1,0 +1,51 @@
+{
+  "decision": "ADR0236",
+  "status": "LOCALLY_VALIDATED_NOT_DEPLOYED",
+  "base_revision": "0816f76bbc12b68e35335a8244233e294f54d958",
+  "source_revision": "750ad8a4bf680a8440c001f2300b7fa8d56d8e77",
+  "migrations": [
+    {
+      "path": "migrations/007_payment_dispatch_index.sql",
+      "sha256": "657aac975e00ee98bf5c861e454989e8621a0cf2ced06987eab59166f304272b",
+      "source_url": "https://github.com/chawansit/flash-ticketing/blob/750ad8a4bf680a8440c001f2300b7fa8d56d8e77/migrations/007_payment_dispatch_index.sql"
+    },
+    {
+      "path": "migrations/008_bookings_order_index.sql",
+      "sha256": "182f41141666e88f68b4b9ea1e272a77e86908caec0a73450c5e91d4dedefd39",
+      "source_url": "https://github.com/chawansit/flash-ticketing/blob/750ad8a4bf680a8440c001f2300b7fa8d56d8e77/migrations/008_bookings_order_index.sql"
+    },
+    {
+      "path": "migrations/009_payment_confirmation_receipts.sql",
+      "sha256": "7059f3d7246fef201e8c1bd23065c3f74949e7fb34c9ca47a34340849eb98c0c",
+      "source_url": "https://github.com/chawansit/flash-ticketing/blob/750ad8a4bf680a8440c001f2300b7fa8d56d8e77/migrations/009_payment_confirmation_receipts.sql"
+    },
+    {
+      "path": "migrations/010_orders_event_index.sql",
+      "sha256": "103a58c5ce5425c437d6f238d351ea024a7e1db381b1189fe8245cc82c562100",
+      "source_url": "https://github.com/chawansit/flash-ticketing/blob/750ad8a4bf680a8440c001f2300b7fa8d56d8e77/migrations/010_orders_event_index.sql"
+    }
+  ],
+  "runtime_changed": false,
+  "configuration_changed": false,
+  "cloud_actions": 0,
+  "new_capacity_measurement": false,
+  "validation": {
+    "native_linux": true,
+    "postgresql": "17.6",
+    "redis": "7.4.5",
+    "passed": 230,
+    "skipped": 2,
+    "skip_reason": "Two end-to-end tests require a running full HTTP/Kafka stack; full-stack PR CI remains required.",
+    "new_schema_tests": 18,
+    "test_seconds": 63.98,
+    "experiment_seconds": 73.25,
+    "lint_passed": true,
+    "durability_and_double_booking_regressions_executed": true,
+    "owned_containers_and_network_removed": true
+  },
+  "remaining_scope": [
+    "Source-pinned API/workers and feature-flag review",
+    "CCE deployment and bounded runner integration"
+  ],
+  "production_qualified": false
+}
