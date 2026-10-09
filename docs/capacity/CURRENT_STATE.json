@@ -51,7 +51,7 @@
     "ADR0176 separate application-role diagnostics locally qualified: 138 broader tests in 54.71s, 33 final scoped tests in 0.90s and one real PostgreSQL test in 0.18s. Foreign masking is explicit; hidden own-role or unknown identity fails. No historical generic complete alias. Owned resources removed; zero cloud calls; not registered or capacity-qualified.",
     "ADR0177 separate application-role rebalance runner integrated/registered and locally qualified:284 focused regressions and1 real PostgreSQL test passed. All18 configured database replicas must share effective observer role/database; source read-back, exact modes and distinct scoped gate retained. No cloud calls/reservations, application/schema changes or capacity improvement measured.",
     "ADR0178:32 new real generated-collector placement regressions passed;4 recorded cloud inventories resolved as exact2+2/1+3. Combined runner suite227 passed/1 stale hook assertion failed; after correction complete collector subset52 passed. Ruff/naming/diff checks passed. Original failed scope retained; live original runtime, generator idle and full queues/Kafka zero verified. No measured rebalance benefit.",
-    "Fresh 4a39498e4eff used 1553.25 seconds: dry a27b10cd3e24 passed both 2+2 and 1+3; measured 61ba705c24bc control completed 18,000 scheduled/dispatched/confirmed paid-and-issued tickets with zero errors, drops, loss or duplicate bookings, post-TTL/full drain and exact restoration. Hold-to-ticket worst-shard p95 1668.00 ms; primary CPU 71.147%, secondary 17.430%. Only application_database_wait_evidence_complete failed: three of 478 validation samples, application_visibility_missing at roughly 60-second intervals and 13.8\u201319.4 ms collection. Candidate skipped; no rebalance benefit measured.",
+    "Fresh 4a39498e4eff used 1553.25 seconds: dry a27b10cd3e24 passed both 2+2 and 1+3; measured 61ba705c24bc control completed 18,000 scheduled/dispatched/confirmed paid-and-issued tickets with zero errors, drops, loss or duplicate bookings, post-TTL/full drain and exact restoration. Hold-to-ticket worst-shard p95 1668.00 ms; primary CPU 71.147%, secondary 17.430%. Only application_database_wait_evidence_complete failed: three of 478 validation samples, application_visibility_missing at roughly 60-second intervals and 13.8–19.4 ms collection. Candidate skipped; no rebalance benefit measured.",
     "ADR0179 bounded scoped-visibility failure context passed 247 targeted local tests and one real PostgreSQL check with owned resources removed. Same snapshot and query/connection budgets; unknown or hidden application activity still fails. Original three diagnostic failures remain failed and have no historical backend-category context. No new cloud experiment after this source change.",
     "Fresh ADR0179 workflow 3ae1fd15417b: dry 19e4281e9806 both placements passed; measured 9d5fb721cd4f control 18,000 scheduled/dispatched/confirmed paid-issued at 60/s for 300s, zero errors/drops/loss/doubles, post-TTL/full queues/exact restoration passed. Only scoped diagnostics failed: 41/472 samples, complete safe contexts, one unknown-role/hidden-backend each; candidate skipped.",
     "Two real local PostgreSQL visibility tests passed in 1.58s; helper 6.875s removed owned resources, zero cloud calls. Autovacuum reproduced null-role/hidden-backend signature; statistics grant revealed worker and passed full collector but scoped null-role gate stayed failed. Cloud actor identity unproven; no policy/permissions changed.",
@@ -6136,7 +6136,7 @@
   },
   "cce_hourly_latest_evidence": "docs/capacity/flash-sale-opening/cce-hourly-qualification-2026-10-09.json",
   "main_promotion_checkpoint": {
-    "updated_at_utc": "2026-10-09T04:00:35.177279+00:00",
+    "updated_at_utc": "2026-10-09T04:19:41.158404+00:00",
     "pull_request": "https://github.com/chawansit/flash-ticketing/pull/4",
     "number": 4,
     "head_branch": "codex/hourly-capacity-evidence-2026-10-09",
@@ -6154,8 +6154,8 @@
       "backend_or_cloud_tests_run_for_documentation_pr": false
     },
     "ci": "Both GitHub push and PR backend-check jobs passed.",
-    "merge_approved": false,
-    "main_unchanged": true,
+    "merge_approved": true,
+    "main_unchanged": false,
     "cloud_actions": 0,
     "checks": [
       {
@@ -6170,6 +6170,31 @@
         "conclusion": "success",
         "details_url": "https://github.com/chawansit/flash-ticketing/actions/runs/37881610979/job/113662331173"
       }
-    ]
+    ],
+    "status": "MERGED",
+    "merge_sha": "0816f76bbc12b68e35335a8244233e294f54d958",
+    "authorization": "Direct user instruction to follow the recommendation and merge documentation PR #4 first.",
+    "implementation_merge_authorized": false
+  },
+  "implementation_promotion_checkpoint": {
+    "updated_at_utc": "2026-10-09T04:19:41.158404+00:00",
+    "status": "SCHEMA_PR_OPEN_LOCAL_CHECKS_PASSED_CI_PENDING",
+    "pull_request": "https://github.com/chawansit/flash-ticketing/pull/5",
+    "head_branch": "codex/paid-schema-foundation-2026-10-09",
+    "head_sha": "6c79718c6e4bf8dd758d4822dc990d572bc4a1d7",
+    "base_sha": "0816f76bbc12b68e35335a8244233e294f54d958",
+    "scope": "Four additive migrations 007–010, schema upgrade/correctness tests, decision and provenance; runtime and configuration unchanged.",
+    "validation": {
+      "native_linux_passed": 230,
+      "full_stack_tests_skipped_locally": 2,
+      "new_schema_tests": 18,
+      "lint_and_working_staged_outgoing_names_passed": true,
+      "local_containers_and_network_removed": true
+    },
+    "runtime_source_finding": "Existing immutable API image matches all 21 retained source hashes. Current checkout and isolated source trees do not fully match; use the immutable image as runtime source authority.",
+    "next_action": "Review and merge schema PR only after full-stack CI and separate user approval, then prepare source-pinned backend/workers and finally CCE/runner PRs.",
+    "main_merge_authorized": false,
+    "cloud_actions": 0,
+    "new_capacity_measurement": false
   }
 }
