@@ -1,0 +1,28 @@
+{
+  "decision": "ADR0242",
+  "status": "PRE_DISPATCH_FAILED_RESTORED_READINESS_CAUSE_UNCONFIRMED",
+  "run": "adr0151-00ad65a21864",
+  "ledger": "bounded_cce_paid_comparison__2c355218240b",
+  "logical_arm": "control",
+  "paid_stages_started": 0,
+  "paid_buyer_journeys_dispatched": 0,
+  "actual_elapsed_seconds": 494.937,
+  "failure": "Four native API pods did not become Ready within the unchanged 180-second bound. Last pod states were not retained before deletion; cause remains unconfirmed.",
+  "restoration_complete": true,
+  "integrity_verified": true,
+  "queue_drain_complete": true,
+  "owned_native_resources_removed": true,
+  "temporary_credentials_removed": true,
+  "followup_read_only_findings": {
+    "authenticated_registry_manifest_read": true,
+    "ready_nodes": 12,
+    "pod_specific_failure_reason_available": false,
+    "node_warnings_not_attributed_to_failure": true
+  },
+  "correction": "Retain sanitized conditions and container waiting reasons for all four owned pods on readiness timeout before cleanup, using existing pod reads. No deadline or traffic gate change.",
+  "local_readiness_transition_tests_passed": 181,
+  "source_reproduction_pass": true,
+  "repository_naming_pass": true,
+  "capacity_improvement_measured": false,
+  "production_qualified": false
+}

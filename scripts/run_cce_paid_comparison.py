@@ -186,6 +186,7 @@ class ReadyDeployment(native.Deployment):
                 self.authorize()
 
                 ready = True
+                pending_views = []
 
                 for item in manifests[3:]:
                     pod = self.request("GET", self.path() + "/pods/" + item["metadata"]["name"], None)
@@ -195,6 +196,7 @@ class ReadyDeployment(native.Deployment):
                     ):
                         raise ValueError("Owned pod disappeared or was replaced before readiness")
 
+                    pending_views.append((pod, item))
                     statuses = pod.get("status", {}).get("containerStatuses", [])
 
                     if any(
@@ -214,6 +216,9 @@ class ReadyDeployment(native.Deployment):
                     break
 
                 if time.monotonic() >= deadline:
+                    self.persist({"readiness_timeout_views": [
+                        native.verification_summary(pod, item) for pod, item in pending_views
+                    ]})
                     raise TimeoutError("Bounded four-pod readiness expired")
 
                 time.sleep(2)

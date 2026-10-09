@@ -278,3 +278,31 @@ def test_saved_ecs_service_stays_legacy_while_native_api_adds_common_diagnostics
     original = core.service_for(saved)
     assert "DB_FAILURE_DIAGNOSTICS" not in original["environment"]
     assert api.api_environment(original, "10.1.137.69", acquisition_budget=20)["DB_FAILURE_DIAGNOSTICS"] == "1"
+
+
+
+def test_readiness_timeout_retains_all_four_owned_pod_reasons_before_cleanup(monkeypatch):
+    persisted, calls = [], []
+    manifests = api.objects(RUN, service(), "10.1.137.69", "test", "test")
+    def request(method, path, body):
+        calls.append(path)
+        index = int(path.rsplit("-", 1)[1])
+        pod = copy.deepcopy(manifests[index + 3])
+        pod["metadata"]["uid"] = "uid-" + str(index)
+        pod["status"] = {"phase": "Pending", "conditions": [{"type": "PodScheduled", "status": "False", "reason": "Unschedulable"}],
+                         "containerStatuses": [{"name": "api", "state": {"waiting": {"reason": "ImagePullBackOff", "message": "private-message-must-not-be-persisted"}}}]}
+        return pod
+    deployment = core.ReadyDeployment(request, None, persisted.append)
+    deployment.namespace = "flash-cce-" + "a" * 12
+    deployment.pod_uids = {"api-" + str(i): "uid-" + str(i) for i in range(4)}
+    monkeypatch.setattr(deployment, "authorize", lambda: None)
+    clock = iter((0, 181))
+    monkeypatch.setattr(core.time, "monotonic", lambda: next(clock))
+    with pytest.raises(TimeoutError, match="readiness expired"):
+        deployment.observe(manifests, None, None)
+    assert len(calls) == 4
+    views = persisted[-1]["readiness_timeout_views"]
+    assert len(views) == 4 and {v["pod_name"] for v in views} == {"api-" + str(i) for i in range(4)}
+    assert all(v["container_states"][0]["waiting_reason"] == "ImagePullBackOff" for v in views)
+    assert all(v["readiness_conditions"][0]["reason"] == "Unschedulable" for v in views)
+    assert "private-message" not in json.dumps(views)

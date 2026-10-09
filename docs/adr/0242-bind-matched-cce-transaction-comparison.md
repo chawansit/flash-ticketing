@@ -1,7 +1,7 @@
 # ADR0242: Bind matched CCE transaction comparison
 
 ## Status
-Accepted and locally qualified. No fresh cloud scope is registered yet.
+Accepted and locally qualified. Two fresh control scopes failed before paid dispatch and restored completely; paid comparison remains unmeasured.
 
 ## Context
 ADR0239 removes redundant BEGIN. ADR0241 provides matched, registry-verified 22-module API images and bounded failure-time diagnostics. The proven CCE runner still requires the historical 21-module API. Its historical generator, worker images, budgets and financial audits must remain identifiable; replacing its API source map globally would misidentify the unchanged ECS workers.
@@ -28,3 +28,5 @@ Reject unknown arms, changed receipts, changed helper/source hashes, mismatched 
 Executed local evidence: [transaction runner qualification](../capacity/cce/transaction-runner-local-2026-10-09.json). New binding/ownership regressions passed 28; combined runner and idle-boundary follow-up passed 268 with one Windows skip. Full unit suite passed 1,892, skipped two and failed one existing Windows idle timer assertion; this failed result is retained, not reported as a full pass. Ruff, repository names and reproduction verification passed: 535 historical inputs, six explicit current overlays, 78 frozen generator files. No cloud load or capacity improvement is claimed.
 
 The first registered scope (`bounded_cce_paid_comparison__4206c3cffd9f`, run `adr0151-8b010c522d75`) failed before paid dispatch and restored completely in 301.484 seconds. Native common diagnostics were incorrectly used to validate the unchanged ECS API environment, requiring a flag absent from the historical containers. Explicitly validate the captured ECS settings and saved service against `legacy_contract()`, while native pod admission continues to require the new image/source/diagnostic contract. Complete capture, native activation, exact restoration and rejected legacy pod sources were then exercised for both logical arms. The corrected transition/profile/entry suite passed 110. No paid throughput was measured by the failed pre-dispatch attempt.
+
+The second control (`bounded_cce_paid_comparison__2c355218240b`, run `adr0151-00ad65a21864`) expired at native pod readiness before paid dispatch; restoration, queue drain and credential cleanup passed. Authenticated registry reads subsequently succeeded and twelve nodes were Ready, but deleted pod states were unavailable; neither credential expiry nor node warnings are established causes. [Sanitized failure receipt](../capacity/cce/transaction-control-readiness-failure-2026-10-09.json). Retain bounded, sanitized conditions and container waiting reasons from the existing four owned-pod reads only when readiness expires, before cleanup. No additional polling, changed deadline or weakened admission. The affected readiness/transition/profile suite passed 181; Ruff, source reproduction and naming checks passed.

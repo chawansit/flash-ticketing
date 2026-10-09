@@ -423,6 +423,8 @@ def verification_summary(pod, expected):
             if spec.get(k) != expected["spec"][k]
         ),
         "resources": container.get("resources"),
+        "readiness_conditions": [{k: str(row.get(k, ""))[:64] for k in ("type", "status", "reason")}
+                                 for row in status.get("conditions", [])[:8]],
         "container_states": [
             {
                 "name": row.get("name"),
@@ -430,6 +432,7 @@ def verification_summary(pod, expected):
                 "restart_count": row.get("restartCount"),
                 "image_id": row.get("imageID"),
                 "state_kinds": sorted(row.get("state", {})),
+                "waiting_reason": str(row.get("state", {}).get("waiting", {}).get("reason", ""))[:64],
                 "exit_code": row.get("state", {}).get("terminated", {}).get("exitCode"),
             }
             for row in status.get("containerStatuses", [])[:4]
