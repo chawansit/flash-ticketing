@@ -6177,8 +6177,8 @@
     "implementation_merge_authorized": false
   },
   "implementation_promotion_checkpoint": {
-    "updated_at_utc": "2026-10-09T04:19:41.158404+00:00",
-    "status": "SCHEMA_PR_OPEN_LOCAL_CHECKS_PASSED_CI_PENDING",
+    "updated_at_utc": "2026-10-09T04:21:53.051863+00:00",
+    "status": "SCHEMA_PR_REVIEW_READY_FULL_STACK_CI_PASSED",
     "pull_request": "https://github.com/chawansit/flash-ticketing/pull/5",
     "head_branch": "codex/paid-schema-foundation-2026-10-09",
     "head_sha": "6c79718c6e4bf8dd758d4822dc990d572bc4a1d7",
@@ -6189,12 +6189,27 @@
       "full_stack_tests_skipped_locally": 2,
       "new_schema_tests": 18,
       "lint_and_working_staged_outgoing_names_passed": true,
-      "local_containers_and_network_removed": true
+      "local_containers_and_network_removed": true,
+      "full_stack_ci_passed": true
     },
     "runtime_source_finding": "Existing immutable API image matches all 21 retained source hashes. Current checkout and isolated source trees do not fully match; use the immutable image as runtime source authority.",
     "next_action": "Review and merge schema PR only after full-stack CI and separate user approval, then prepare source-pinned backend/workers and finally CCE/runner PRs.",
     "main_merge_authorized": false,
     "cloud_actions": 0,
-    "new_capacity_measurement": false
+    "new_capacity_measurement": false,
+    "ci": [
+      {
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "details_url": "https://github.com/chawansit/flash-ticketing/actions/runs/37883321768/job/113667696410"
+      },
+      {
+        "name": "test",
+        "status": "completed",
+        "conclusion": "success",
+        "details_url": "https://github.com/chawansit/flash-ticketing/actions/runs/37883297689/job/113667622906"
+      }
+    ]
   }
 }
