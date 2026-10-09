@@ -147,3 +147,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0239: Remove redundant transaction BEGIN](0239-remove-redundant-transaction-begin.md)
 
 - [ADR0240: Bounded compressed diagnostic traces](0240-bounded-compressed-diagnostic-traces.md)
+
+- [ADR0241: Bounded failure-time slot ownership](0241-bounded-failure-time-slot-ownership.md)

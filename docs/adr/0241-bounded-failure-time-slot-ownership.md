@@ -1,0 +1,28 @@
+# ADR0241: Bounded failure-time slot ownership
+
+## Status
+Accepted for local implementation. Deployment and controlled paid validation are pending.
+
+## Context
+The hourly run retained one customer payment PoolTimeout, but later metrics cannot identify the operations holding connections when it failed. Three pod log reads hit byte ceilings. Slow cohort scans also delayed observation. These are evidence gaps, not proof of a specific database bottleneck.
+
+## Decision
+Add default-disabled DB_FAILURE_DIAGNOSTICS. When enabled, track only live API adapter leases in a shared, process-local registry bounded by the configured total connection budget. Capture operation category, pool role, lease age and current query/commit/rollback/return phase synchronously when checkout fails. Retain the latest 16 failure snapshots with a sequence and overwrite/error counters. Publish sanitized snapshots as one bounded JSON comment on the existing metrics response, at most 64 KiB. Do not add database connections, SQL queries, endpoints, queues, retries or financial writes. No SQL text, parameters, credentials, request/customer/order identifiers or host addresses enter these records.
+
+The registry handles a same-object native pool handoff during putconn without counting two occupants or letting the old return erase the new lease. A failed return marks occupancy uncertain. Collection allows nonterminal concurrent exposition races, but requires complete immutable records and settled terminal agreement with independent driver counters.
+
+Prepare both API payloads from the complete verified historical 21-module snapshot. Preserve 17 unchanged modules, overlay the four reviewed instrumentation adapters plus the new diagnostics module, and exclude the later worker-only configuration field. Both arms have 22 modules and differ only in transaction BEGIN. Reuse ADR0152's app/installed source and distribution RECORD installer with the exact parent image and dependency hashes. Source preparation does not authorize cloud load.
+
+Enable the same diagnostics and collection contract in both comparison arms; the only application performance factor is ADR0239's redundant BEGIN removal. Instrumentation has overhead and must be measured identically. Historical images and the ADR0238 reproduction lock remain unchanged. A new source/image/configuration binding is required before cloud use.
+
+## Alternatives
+Read busy pod logs only after the stage: loses early failures under truncation. Poll database activity more often or add observer connections: changes the connection budget and still may miss a brief event. Add retries or increase checkout timeout: changes customer behavior without attribution.
+
+## Consequences
+Snapshots identify adapter occupants at failure capture, not PostgreSQL server wait causes or the entire preceding timeout interval. Query labels contain only a finite SQL-command category. Metrics polling can recover failures after ordinary logs rotate, but a pod restart before collection or overwritten ring invalidates evidence completeness. This does not by itself correct cohort sampling gaps.
+
+## Failure and recovery behavior
+Diagnostics must not mask the original driver exception, alter rollback, or block connection return. Flag diagnostic errors, untracked occupancy and ring overwrite as incomplete rather than claim no failures. Preserve failed evidence and mandatory durability, drain and restoration checks. Default off retains prior behavior. Any deployment/profile change requires local qualification and fresh scopes; no old-run replay.
+
+## Validation evidence
+Executed: 83 targeted checks passed, including concurrent checkout failure during commit/return, native same-connection handoff, unknown occupancy, ring overflow, sanitized schema, Prometheus compatibility and terminal counter/ring agreement. A full unit/runner run passed 1,856 tests with two Windows symlink skips before the last two handoff and two source-pair checks were added; those four checks passed in the targeted run. Eleven transaction regressions passed against isolated PostgreSQL 17.6, including a real in-flight query recorded at checkout timeout. Owned PostgreSQL container removal was verified. Ruff, repository naming and all 535 historical reproduction inputs passed. The dedicated observer entry recovers sanitized snapshots from the same admitted HTTP metrics read and restores its hook after errors; five additional regressions passed. The latest full Windows run passed 1,859 tests, skipped two and failed an existing idle-timer assertion (49.3092 ms versus 50 ms); the affected test and all new diagnostics/source/entry tests subsequently passed together (39 tests). The full-suite failure remains recorded. Both local images passed copied/installed/imported bytecode and distribution RECORD verification for all 22 modules, retained seven parent runtime configuration fields and ran as ticketing. See docs/capacity/cce/slot-comparison-images-2026-10-09.json. The initial non-root installer build failure is retained; corrected builds used a fresh canonical ownership identity. Images are not yet published or deployed. Registration of the observer entry in the cloud profile, trace transport integration and hourly cohort sampling continuity remain pending. Prior ADR0239 CI passed 1,829 unit/runner and 261 integration/end-to-end tests. Direct read-only registry authentication with the latest user-supplied SWR credential succeeded; cached Docker credentials belong to another username. No new cloud load or capacity improvement is measured.

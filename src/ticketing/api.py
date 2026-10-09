@@ -62,6 +62,7 @@ async def lifespan(app):
         settings.database_url, settings.pool_max, settings.pool_wait_ms,
         settings.pool_max_waiting, settings.api_payment_pool_max, settings.api_pool_shared_waiting,
         settings.api_partial_timeout_reclaim,
+        settings.db_failure_diagnostics,
     )
     with ExitStack() as resources:
         resources.callback(db.close)
@@ -244,8 +245,11 @@ def ready(request: Request):
 
 
 @app.get("/metrics", include_in_schema=False)
-def metrics():
-    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+def metrics(request: Request):
+    db = getattr(request.app.state, "db", None)
+    diagnostics = getattr(db, "_slot_diagnostics", None)
+    suffix = diagnostics.comment() if diagnostics is not None else b""
+    return Response(generate_latest() + suffix, media_type=CONTENT_TYPE_LATEST)
 
 
 @app.get("/v1/events", tags=["Browse"], responses=ERRORS)
