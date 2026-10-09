@@ -157,3 +157,38 @@ def test_idle_timeout_discards_connection_then_allows_new_transaction(single_db)
         assert conn.execute("SELECT to_regclass('pg_temp.idle_timeout_probe') AS t").fetchone()["t"] is None
     with db.connection() as conn:
         assert settings(conn) == original
+
+
+
+def test_automatic_startup_avoids_duplicate_begin_notice(single_db):
+    notices = []
+    db = single_db
+    with db.connection() as conn:
+        conn.add_notice_handler(lambda notice: notices.append(notice.sqlstate))
+    with db.transaction() as conn:
+        assert conn.autocommit is False
+        assert conn.info.transaction_status == TransactionStatus.INTRANS
+        assert settings(conn) == {"lock": "75ms", "statement": "1500ms", "idle": "3s"}
+    assert "25001" not in notices  # Server warning: already in a transaction.
+
+
+@pytest.mark.parametrize("fail", [False, True])
+def test_borrowed_autocommit_retains_atomic_boundary_and_pool_reuse(single_db, fail):
+    db = single_db
+    pid, original = baseline(db)
+    with db.connection() as conn:
+        conn.autocommit = True
+    try:
+        with pytest.raises(DivisionByZero) if fail else nullcontext(), db.transaction() as conn:
+            assert conn.info.transaction_status == TransactionStatus.INTRANS
+            assert settings(conn) == {"lock": "75ms", "statement": "1500ms", "idle": "3s"}
+            conn.execute("CREATE TEMP TABLE autocommit_boundary_probe(n int) ON COMMIT DROP")
+            conn.execute("INSERT INTO autocommit_boundary_probe VALUES (1)")
+            if fail:
+                conn.execute("SELECT 1/0")
+        assert_reusable(db, pid, original)
+        with db.transaction() as conn:
+            assert conn.execute("SELECT to_regclass('pg_temp.autocommit_boundary_probe') AS t").fetchone()["t"] is None
+    finally:
+        with db.connection() as conn:
+            conn.autocommit = False

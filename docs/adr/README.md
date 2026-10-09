@@ -143,3 +143,7 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [0149: committed event order status refresh](0149-committed-event-order-status-refresh.md)
 
 - [0170: single control payment stall diagnostics](0170-single-control-payment-stall-diagnostics.md)
+
+- [ADR0239: Remove redundant transaction BEGIN](0239-remove-redundant-transaction-begin.md)
+
+- [ADR0240: Bounded compressed diagnostic traces](0240-bounded-compressed-diagnostic-traces.md)

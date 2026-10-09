@@ -66,7 +66,7 @@ class Postgres:
             max_size=maximum,
             timeout=wait_ms / 1000,
             max_waiting=maximum if maximum_waiting is None else maximum_waiting,
-            kwargs={"row_factory": dict_row, "prepare_threshold": None, "cursor_factory": MeasuredCursor},
+            kwargs={"row_factory": dict_row, "prepare_threshold": None, "cursor_factory": MeasuredCursor, "autocommit": False},
         )
 
     @contextmanager
@@ -84,7 +84,10 @@ class Postgres:
                 body_done = None
                 transaction_started = False
                 try:
-                    conn.execute("BEGIN")
+                    # Psycopg starts non-autocommit transactions before the first query.
+                    # A borrowed autocommit adapter still needs an explicit boundary.
+                    if getattr(conn, "autocommit", False):
+                        conn.execute("BEGIN")
                     transaction_started = True
                     conn.execute(
                         "SELECT set_config('lock_timeout', '75ms', true), "
