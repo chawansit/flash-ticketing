@@ -1,6 +1,6 @@
 {
   "decision": "ADR0241",
-  "status": "LOCAL_IMAGES_QUALIFIED_NOT_DEPLOYED",
+  "status": "SWR_SCHEMA2_IMAGES_PUBLISHED_RUNTIME_QUALIFIED_NOT_DEPLOYED",
   "comparison_factor": "redundant_explicit_begin",
   "parent_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:2fdad0b429603e01ce28eb0a578e8e0c87d98401868e389c1d92350c8969c38d",
   "parent_configuration_digest": "sha256:56adbbcd473749b8cfe23da9decf7a6d4a0538fb2409fe40eb081218325287cf",
@@ -10,7 +10,6 @@
   "unchanged_historical_module_count": 17,
   "images": {
     "control": {
-      "local_image_configuration_digest": "sha256:c79f90529a3d1eb801aa13937785eaaa106dc17270a025cf51482d2a9c3506d9",
       "runtime_user": "ticketing",
       "runtime_sources_sha256": {
         "src/ticketing/api.py": "4eac2d307b164877368b72a6ed9c28c83248abd8047acdbc003c59d4562f55ae",
@@ -47,10 +46,23 @@
         "ExposedPorts"
       ],
       "runtime_validation_pass": true,
-      "registry_manifest_digest": null
+      "registry_manifest_digest": "sha256:e30471a8eee19f9757f9d6acbaf2545f9f1001b6e46ae227cc3b9baa29237ad1",
+      "historical_local_oci_index_digest": "sha256:c79f90529a3d1eb801aa13937785eaaa106dc17270a025cf51482d2a9c3506d9",
+      "registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:e30471a8eee19f9757f9d6acbaf2545f9f1001b6e46ae227cc3b9baa29237ad1",
+      "registry_configuration_digest": "sha256:a14073e7c6ad7b05496140294e62c00a1b8ceb260d3264f0280216c97f4f33cb",
+      "immutable_registry_verification_passed": true,
+      "registry_pulled_runtime_validation": {
+        "pass": true,
+        "copied_installed_imported_bytecode_record_modules": 22,
+        "diagnostics_enabled": true,
+        "payment_confirmation_async": false,
+        "general_database_connections": 2,
+        "payment_database_connections": 2,
+        "customer_dispatches": 0,
+        "cloud_receipt": false
+      }
     },
     "candidate": {
-      "local_image_configuration_digest": "sha256:4ce93dcc1404bbbb5f8cddc91e725736bb5ee996edd68c5dee5d74a9ec79263c",
       "runtime_user": "ticketing",
       "runtime_sources_sha256": {
         "src/ticketing/api.py": "4eac2d307b164877368b72a6ed9c28c83248abd8047acdbc003c59d4562f55ae",
@@ -87,10 +99,33 @@
         "ExposedPorts"
       ],
       "runtime_validation_pass": true,
-      "registry_manifest_digest": null
+      "registry_manifest_digest": "sha256:7b841089aea851cc47b3dccd5debe0d3b273e1e16df5cd7b7b410a1b9b61f138",
+      "historical_local_oci_index_digest": "sha256:4ce93dcc1404bbbb5f8cddc91e725736bb5ee996edd68c5dee5d74a9ec79263c",
+      "registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:7b841089aea851cc47b3dccd5debe0d3b273e1e16df5cd7b7b410a1b9b61f138",
+      "registry_configuration_digest": "sha256:93420cdd218912a00dec0d984ef02407b15d5111ec43888edd77855ef782e568",
+      "immutable_registry_verification_passed": true,
+      "registry_pulled_runtime_validation": {
+        "pass": true,
+        "copied_installed_imported_bytecode_record_modules": 22,
+        "diagnostics_enabled": true,
+        "payment_confirmation_async": false,
+        "general_database_connections": 2,
+        "payment_database_connections": 2,
+        "customer_dispatches": 0,
+        "cloud_receipt": false
+      }
     }
   },
   "cloud_load_started": false,
   "capacity_improvement_measured": false,
-  "registry_published": false
+  "registry_published": true,
+  "source_revision": "bb70572dcb49646ac484671884e823e2d02347e0",
+  "manifest_media_type": "application/vnd.docker.distribution.manifest.v2+json",
+  "platform": {
+    "os": "linux",
+    "architecture": "amd64"
+  },
+  "publication_credentials_removed": true,
+  "format_correction": "Earlier local Docker29 Image.Id identified an OCI index, not its configuration. Publication uses single-platform Docker schema2; configuration identity comes from the hash-verified registry manifest and blob.",
+  "retained_failed_publication": "Original OCI attestation/index push rejected by SWR; failure logs retained privately. Original failed stage was not reused for paid traffic."
 }

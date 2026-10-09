@@ -1,6 +1,6 @@
 {
   "decision": "ADR0241",
-  "status": "LOCAL_DIAGNOSTICS_AND_IMAGES_TESTED_CLOUD_BINDING_PENDING",
+  "status": "DIAGNOSTICS_CI_PASSED_IMAGES_PUBLISHED_CLOUD_BINDING_PENDING",
   "latest_swr_credential_read_only_auth_passed": true,
   "cached_docker_credential_is_different_username": true,
   "default_enabled": false,
@@ -35,5 +35,15 @@
   "observer_entry_registered": false,
   "local_images_qualified": true,
   "local_image_proof": "docs/capacity/cce/slot-comparison-images-2026-10-09.json",
-  "registry_published": false
+  "registry_published": true,
+  "linux_ci": {
+    "source_revision": "bb70572dcb49646ac484671884e823e2d02347e0",
+    "unit_runner_passed": 1867,
+    "integration_end_to_end_passed": 263,
+    "jobs": [
+      113722603884,
+      113722585346
+    ],
+    "all_checks_passed": true
+  }
 }
