@@ -37,7 +37,9 @@
     "historical_hourly_status": "FAILED_RESTORED",
     "payment_acquisition_failure_unresolved": true,
     "observer_trace_size_and_sampling_gates_unresolved": true,
-    "hot_18000_seat_projection_unqualified": true
+    "hot_18000_seat_projection_unqualified": true,
+    "first_ci_failed": true,
+    "first_ci_failure_correction": "Execute full unit/runner suite in complete Linux checkout; backend integration/end-to-end suites in Compose. Backend containers omit archived inputs/docs/Git. Runtime images unchanged."
   },
   "scope": {
     "application_source_changes": 0,
