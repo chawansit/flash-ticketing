@@ -39,7 +39,8 @@
     "observer_trace_size_and_sampling_gates_unresolved": true,
     "hot_18000_seat_projection_unqualified": true,
     "first_ci_failed": true,
-    "first_ci_failure_correction": "Execute full unit/runner suite in complete Linux checkout; backend integration/end-to-end suites in Compose. Backend containers omit archived inputs/docs/Git. Runtime images unchanged."
+    "first_ci_failure_correction": "Execute full unit/runner suite in complete Linux checkout; backend integration/end-to-end suites in Compose. Backend containers omit archived inputs/docs/Git. Runtime images unchanged.",
+    "second_ci_failed": "Linux hook fixture failed: executable shell hooks retained Windows CRLF. Normalize only hook files to LF; existing migration and runtime image bytes unchanged."
   },
   "scope": {
     "application_source_changes": 0,
