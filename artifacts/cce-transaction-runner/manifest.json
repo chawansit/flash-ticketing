@@ -10,7 +10,7 @@
     "scripts/cce_paid_stage.py": {
       "historical_sha256": "c1acf89ae4544674f179f4615c10f359e3899bfd5dae8421c30e22f29e60c57a",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/c1acf89ae4544674f179f4615c10f359e3899bfd5dae8421c30e22f29e60c57a",
-      "current_sha256": "e538953e98d1c1e40c94fec4e4a036b636f7cdada2ebc8e9a52bceeda4f5d9ef"
+      "current_sha256": "42e2ac77e18c89fb159cf67c9735a07c0ebfb4492fce1eca0c63cf965f5a2d77"
     },
     "scripts/cce_paid_observers.py": {
       "historical_sha256": "e5e712961d9f6725d45468f0feac95ad50f6591c4f5ee095ac41074257e63257",
@@ -39,11 +39,11 @@
     "docs/capacity/cce/slot-comparison-images-2026-10-09.json": "255b4d2de1cb356b9b48b0ac7025b0cff5194a961d4c94f179c5ec87f189d0c1",
     "scripts/bounded_trace_transport.py": "3456993bacbfd93227bac0bdb28ce532c2f97365310b88338297a175d4c3d21f",
     "scripts/cce_payment_context_images.py": "cbc80a6226ea255766d23159c7a488c8cbbc69f9604eb94dbc3e55a55fbee160",
-    "scripts/cce_reproduction_overlay.py": "c101d21312d905927ca2adf22b1938d7a3a816b4b2bcff4e0455f9ef257415fe",
+    "scripts/cce_reproduction_overlay.py": "7dfe16ad1c8761f35feaa501815d437d1bd8854b07f922ab3790761e4b3ea5c2",
     "scripts/cce_simulator_dispatch_profile.py": "012abfdfbf364a6df458f4f2a21771a60135eab9ed7455abaab0d98fa0f1c857",
     "scripts/cce_slot_trace_transport.py": "3286f3395ff573f555af9080f95f43ca1d83e920b75026cb8679a8a646e2fa11",
     "scripts/cce_transaction_profile.py": "5bfcab19e098ccc9175f9711c38e61a1d107d43dc54d43c74ed3d0ef4e6327af",
-    "scripts/observe_slot_paid_pipeline.py": "4d57e7649aa9b2c4e41ab398f58c31291449a7add10e9adf1384d95f7ea8288e",
+    "scripts/observe_slot_paid_pipeline.py": "a44eb0acdc83cd4d4df41e2e3bad77138deff1353a5c21203c861aca15f69f6a",
     "scripts/prepare_payment_context_sources.py": "7c0f192e30a12843c8658918afee574507b514eb51d54e5fc588b56f78ce136c",
     "scripts/prepare_simulator_dispatch_sources.py": "620107eff675fb18aa18fb307cf44e90dca75af212efad30a0a7418ba42ca669",
     "scripts/prepare_slot_comparison_sources.py": "17779ca2df84be37a108f7b135c9c3f1efc8583d8293b63a01e53bbd00758356",

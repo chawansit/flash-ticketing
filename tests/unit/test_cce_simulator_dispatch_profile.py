@@ -91,3 +91,38 @@ def test_proof_drift_rejected(monkeypatch, tmp_path):
     monkeypatch.setattr(policy, "ROOT", tmp_path)
     with pytest.raises(ValueError, match="image receipt"):
         simulator.receipt()
+
+
+def correction_observer_inventory():
+    worker = simulator.worker_contract()
+    return {"arm": "candidate", "status_refresh_contract": worker.inventory_marker(),
+            "background": worker.background,
+            "worker_sources": [{"role": "simulator", "image_id": worker.images["simulator"],
+                "settings": worker.settings("simulator"), "source_identity": {"source_hashes_match": True,
+                "resolved_imports": {"src/ticketing/config.py": {"sha256": worker.source_map("simulator")["src/ticketing/config.py"]}}}}]}
+
+
+def test_observer_verifies_correction_before_legacy_projection_and_retains_actual():
+    from observe_slot_paid_pipeline import correction_inventory
+    data = correction_observer_inventory()
+    original = copy.deepcopy(data)
+    view, digest = correction_inventory(data, policy.digest(data))
+    assert data == original
+    assert data["background"]["simulator"]["concurrency"] == 12
+    assert view["background"]["simulator"]["concurrency"] == 8
+    assert "correction_decision" not in view["status_refresh_contract"]
+    assert view["worker_sources"] == data["worker_sources"]
+    assert digest == policy.digest(view)
+
+
+@pytest.mark.parametrize("fault", ["pool", "concurrency", "source", "image", "proof", "digest"])
+def test_observer_rejects_unqualified_correction(fault):
+    from observe_slot_paid_pipeline import correction_inventory
+    data = correction_observer_inventory()
+    if fault == "pool": data["worker_sources"][0]["settings"]["DB_POOL_MAX"] = "12"
+    elif fault == "concurrency": data["background"]["simulator"]["concurrency"] = 16
+    elif fault == "source": data["worker_sources"][0]["source_identity"]["resolved_imports"]["src/ticketing/config.py"]["sha256"] = "0" * 64
+    elif fault == "image": data["worker_sources"][0]["image_id"] = "sha256:" + "0" * 64
+    elif fault == "proof": data["status_refresh_contract"]["simulator_receipt_sha256"] = "0" * 64
+    approved = "0" * 64 if fault == "digest" else policy.digest(data)
+    with pytest.raises(ValueError): correction_inventory(data, approved)

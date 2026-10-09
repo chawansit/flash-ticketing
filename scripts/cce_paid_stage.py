@@ -49,7 +49,7 @@ def identity():
         "scripts/prepare_slot_comparison_sources.py",
         "scripts/prepare_payment_context_sources.py",
         "scripts/cce_payment_context_images.py",
-        "scripts/cce_simulator_dispatch_profile.py", "scripts/prepare_simulator_dispatch_sources.py",
+        "scripts/observe_slot_paid_pipeline.py", "scripts/cce_simulator_dispatch_profile.py", "scripts/prepare_simulator_dispatch_sources.py",
         "docs/capacity/cce/simulator-dispatch-image-2026-10-09.json",
         "docs/capacity/cce/payment-context-images-2026-10-09.json",
         "scripts/observe_slot_paid_pipeline.py",
