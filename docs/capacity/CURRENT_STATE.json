@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-10",
   "branch": "codex/customer-recovery-2026-10-10",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "ADR0263 sixteen-slot correction:24,722 unique paid tickets;478 generator drops;12 initial-error journeys recovered;0 final customer failures. Pickup delay improved;paid-to-ticket latency still fails. Zero loss/double-booking and full restoration independently verified. No capacity qualification.",
+  "status": "ADR0265 consumer separation implemented and locally tested:34 unit/138 integration passes; immutable candidate published and verified. Default off, cloud runtime unchanged. Latest paid result remains failed ADR0263;100 successful tickets/s unqualified.",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -51,7 +51,7 @@
     "ADR0176 separate application-role diagnostics locally qualified: 138 broader tests in 54.71s, 33 final scoped tests in 0.90s and one real PostgreSQL test in 0.18s. Foreign masking is explicit; hidden own-role or unknown identity fails. No historical generic complete alias. Owned resources removed; zero cloud calls; not registered or capacity-qualified.",
     "ADR0177 separate application-role rebalance runner integrated/registered and locally qualified:284 focused regressions and1 real PostgreSQL test passed. All18 configured database replicas must share effective observer role/database; source read-back, exact modes and distinct scoped gate retained. No cloud calls/reservations, application/schema changes or capacity improvement measured.",
     "ADR0178:32 new real generated-collector placement regressions passed;4 recorded cloud inventories resolved as exact2+2/1+3. Combined runner suite227 passed/1 stale hook assertion failed; after correction complete collector subset52 passed. Ruff/naming/diff checks passed. Original failed scope retained; live original runtime, generator idle and full queues/Kafka zero verified. No measured rebalance benefit.",
-    "Fresh 4a39498e4eff used 1553.25 seconds: dry a27b10cd3e24 passed both 2+2 and 1+3; measured 61ba705c24bc control completed 18,000 scheduled/dispatched/confirmed paid-and-issued tickets with zero errors, drops, loss or duplicate bookings, post-TTL/full drain and exact restoration. Hold-to-ticket worst-shard p95 1668.00 ms; primary CPU 71.147%, secondary 17.430%. Only application_database_wait_evidence_complete failed: three of 478 validation samples, application_visibility_missing at roughly 60-second intervals and 13.8\u00e2\u20ac\u201c19.4 ms collection. Candidate skipped; no rebalance benefit measured.",
+    "Fresh 4a39498e4eff used 1553.25 seconds: dry a27b10cd3e24 passed both 2+2 and 1+3; measured 61ba705c24bc control completed 18,000 scheduled/dispatched/confirmed paid-and-issued tickets with zero errors, drops, loss or duplicate bookings, post-TTL/full drain and exact restoration. Hold-to-ticket worst-shard p95 1668.00 ms; primary CPU 71.147%, secondary 17.430%. Only application_database_wait_evidence_complete failed: three of 478 validation samples, application_visibility_missing at roughly 60-second intervals and 13.8â€“19.4 ms collection. Candidate skipped; no rebalance benefit measured.",
     "ADR0179 bounded scoped-visibility failure context passed 247 targeted local tests and one real PostgreSQL check with owned resources removed. Same snapshot and query/connection budgets; unknown or hidden application activity still fails. Original three diagnostic failures remain failed and have no historical backend-category context. No new cloud experiment after this source change.",
     "Fresh ADR0179 workflow 3ae1fd15417b: dry 19e4281e9806 both placements passed; measured 9d5fb721cd4f control 18,000 scheduled/dispatched/confirmed paid-issued at 60/s for 300s, zero errors/drops/loss/doubles, post-TTL/full queues/exact restoration passed. Only scoped diagnostics failed: 41/472 samples, complete safe contexts, one unknown-role/hidden-backend each; candidate skipped.",
     "Two real local PostgreSQL visibility tests passed in 1.58s; helper 6.875s removed owned resources, zero cloud calls. Autovacuum reproduced null-role/hidden-backend signature; statistics grant revealed worker and passed full collector but scoped null-role gate stayed failed. Cloud actor identity unproven; no policy/permissions changed.",
@@ -86,10 +86,10 @@
     "ADR0252 hourly target numerically met:301843 unique paid-issued tickets inside hour (conservative301652),83.8453tickets/s;customerconfirmed301924,customererrors104/302028=.0344%,drops372/302400=.1230%,no retry. Terminal301961payments/tickets,67expiredunpaid,doublebook0. FAILED_RESTORED underADR0253; original quality/observerfailure remainsfailed.",
     "ADR0261 control2d46f190577f:24,410 eventual unique paid tickets versus20,040 prior(+21.81%);790/25,200 undispatched,83 recovered initial-error journeys,0 final failures,p957.233s,primaryCPU83.191%. Original failed gates preserved; independent financial/relationship recovery passed,zero double booking,payment loss0,queues0,all owned resources cleaned. No CCE worker candidate or hourly qualification."
   ],
-  "unresolved": "Historical customer payment PoolTimeout cause remains unattributed: failure-time lease owners were not retained, three API log captures were capped, and all 77 observation gaps coincide with expensive paid-cohort scans. Local redundant-BEGIN candidate and complete compression round-trip passed; common diagnostics integration and fresh scopes remain pending. SWR read-only manifest authentication failed; refresh requested.",
-  "next_on_resume": "Complete common failure-time diagnostic retention and observation continuity, qualify and register fresh matched 84/s five-minute control/candidate profiles with unchanged budgets, publish exact source-pinned images after SWR authentication refresh, then run control first. Hourly 300000 unique-ticket qualification only after all short gates pass.",
-  "authorization": "ADR0172 existing ECS sizes and exact registered experiment gates; reviewed publication to codex branch only. ADR0220 direct user exception: bounded CCE pilot with no additional spending cap on 2026-10-08 Bangkok only; ask for new spending boundary tomorrow.",
-  "scope": "Unpaused standing envelope; latest consumed scope remains failed with hash-bound independent ADR0227 recovery verified. No old-scope replay.",
+  "unresolved": "Latest ADR0263 paid-to-ticket latency and generator drops remain unqualified. Refresh lock timeouts are observed, but their full latency contribution is unproven. ADR0265 cloud runner must verify projection identity and both consumer groups before paid load. The separate18000-seat projection issue is not closed by this correction.",
+  "next_on_resume": "Integrate ADR0265 projection identity and both-group lag/drain into the existing paid runner; declare exact source-pinned candidate and unchanged aggregate connection budget. Register one fresh84/s300s correction. All short gates must pass before100/s600s; hourly qualification remains conditional. No placement comparison or unrelated tooling redesign.",
+  "authorization": "Standing ADR0172 workflow: routine engineering within recorded boundaries, no cumulative time cap, bounded experiments and current quality gates, zero payment loss/double-booking. Reviewed code/evidence may be pushed to codex branch; main merge requires explicit approval. User approved the proposed consumer correction. Cloud runs need fresh registered scope; no spent ADR0263 stage is reused.",
+  "scope": "ADR0265 implemented, tested locally and published as a candidate; cloud configuration unchanged, no active recovery or load. Placement comparison deferred. Next fresh84/s correction is conditional on exact candidate and both-group audit integration.",
   "bounded_control": {
     "decision": "0147-fixed-budget-two-host-api-comparison",
     "paid_runs_started": 2,
@@ -6199,7 +6199,7 @@
     "head_branch": "codex/paid-schema-foundation-2026-10-09",
     "head_sha": "6c79718c6e4bf8dd758d4822dc990d572bc4a1d7",
     "base_sha": "0816f76bbc12b68e35335a8244233e294f54d958",
-    "scope": "Four additive migrations 007\u00e2\u20ac\u201c010, schema upgrade/correctness tests, decision and provenance; runtime and configuration unchanged.",
+    "scope": "Four additive migrations 007â€“010, schema upgrade/correctness tests, decision and provenance; runtime and configuration unchanged.",
     "validation": {
       "native_linux_passed": 230,
       "full_stack_tests_skipped_locally": 2,
@@ -9016,6 +9016,31 @@
       "queues_and_restoration_pass": true,
       "production_qualified": false,
       "evidence": "docs/capacity/flash-sale-opening/cce-hourly-qualification-2026-10-09.json"
+    }
+  ],
+  "latest_implementation": {
+    "decision": "ADR0265",
+    "feature": "EVENT_CONSUMER_SEPARATION",
+    "default_enabled": false,
+    "unit_tests_passed": 34,
+    "image_integration_tests_passed": 138,
+    "integration_skipped": 0,
+    "actual_kafka_independent_offsets_verified": true,
+    "image_receipt": "docs/capacity/cce/event-lane-image-2026-10-10.json",
+    "registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:cad773daf44496d91da263edd9fdf4121200ea64116afe218af2f8e0a9cee947",
+    "cloud_deployed": false,
+    "cloud_load_started": false,
+    "capacity_improvement_measured": false,
+    "target_successful_paid_issued_tickets_per_second": 100,
+    "runner_limitation": "Existing paid runner audits only fulfillment group; projection identity/lag/drain must be integrated before split-mode cloud load."
+  },
+  "historical_top_level_notes": [
+    {
+      "archived_by": "ADR0265",
+      "reason": "Retain prior handoff notes without presenting stale SWR/recovery restrictions as current.",
+      "unresolved": "Historical customer payment PoolTimeout cause remains unattributed: failure-time lease owners were not retained, three API log captures were capped, and all 77 observation gaps coincide with expensive paid-cohort scans. Local redundant-BEGIN candidate and complete compression round-trip passed; common diagnostics integration and fresh scopes remain pending. SWR read-only manifest authentication failed; refresh requested.",
+      "authorization": "ADR0172 existing ECS sizes and exact registered experiment gates; reviewed publication to codex branch only. ADR0220 direct user exception: bounded CCE pilot with no additional spending cap on 2026-10-08 Bangkok only; ask for new spending boundary tomorrow.",
+      "scope": "Unpaused standing envelope; latest consumed scope remains failed with hash-bound independent ADR0227 recovery verified. No old-scope replay."
     }
   ]
 }

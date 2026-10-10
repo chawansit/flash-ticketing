@@ -1,0 +1,17 @@
+# ADR0265. Use only a freshly verified ADR0265 image, never the historical shared-image override.
+# EVENT_LANE_IMAGE=<verified-image> docker compose -f compose.yaml -f compose.event-lanes.yaml up -d
+services:
+  consumer:
+    build: !reset null
+    image: ${EVENT_LANE_IMAGE:?Set the verified ADR0265 candidate image}
+    environment:
+      EVENT_CONSUMER_SEPARATION: "1"
+      DB_POOL_MAX: ${FULFILLMENT_POOL_MAX:-10}
+  projection-consumer:
+    extends:
+      service: consumer
+    environment:
+      EVENT_CONSUMER_SEPARATION: "1"
+      DB_POOL_MAX: ${PROJECTION_POOL_MAX:-2}
+      WORKER_METRICS_PORT: "9101"
+    command: ["python", "-m", "ticketing.workers", "projection-consumer"]

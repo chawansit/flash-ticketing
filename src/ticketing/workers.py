@@ -854,6 +854,61 @@ def consume_events(db, cache, envelopes, order_status_projector=None):
     flush_refresh()
 
 
+EVENT_TOPIC = "ticketing.events"
+FULFILLMENT_GROUP = "ticketing-fulfillment-v1"
+PROJECTION_GROUP = "ticketing-seat-projection-v1"
+BUSINESS_EVENTS = frozenset({"OrderPaid", "TicketsIssued", "RefundRequested"})
+CONSUMER_LANES = frozenset({"mixed", "fulfillment", "projection"})
+
+
+def event_consumer_identity(settings, role):
+    if role == "projection-consumer":
+        if not settings.event_consumer_separation:
+            raise RuntimeError("Projection consumer requires EVENT_CONSUMER_SEPARATION=1")
+        return PROJECTION_GROUP, "projection"
+    if role != "consumer":
+        raise ValueError("Not an event consumer role")
+    return FULFILLMENT_GROUP, "fulfillment" if settings.event_consumer_separation else "mixed"
+
+
+def create_event_consumer(settings, role):
+    group, _ = event_consumer_identity(settings, role)
+    return KafkaConsumer(
+        EVENT_TOPIC,
+        bootstrap_servers=settings.kafka_bootstrap,
+        group_id=group,
+        enable_auto_commit=False,
+        auto_offset_reset="earliest",
+        max_poll_records=settings.consumer_batch_size,
+        fetch_max_wait_ms=settings.consumer_batch_wait_ms,
+    )
+
+
+def consume_lane_events(db, cache, envelopes, order_status_projector=None, *, lane="mixed"):
+    if lane not in CONSUMER_LANES:
+        raise ValueError("Unknown consumer lane")
+    if lane != "mixed":
+        selected = []
+        for envelope in envelopes:
+            if not isinstance(envelope, dict) or envelope.get("schema_version") != 1:
+                raise ValueError("Unsupported event schema")
+            kind = envelope.get("event_type")
+            if kind not in BUSINESS_EVENTS and kind != "SeatsChanged":
+                raise ValueError("Unknown event type")
+            if (lane == "projection" and kind == "SeatsChanged") or (
+                lane == "fulfillment" and kind in BUSINESS_EVENTS
+            ):
+                selected.append(envelope)
+        envelopes = selected
+    if not envelopes:
+        return
+    # Keep mixed-mode calling conventions and the accepted batching implementation.
+    if order_status_projector is None:
+        consume_events(db, cache, envelopes)
+    else:
+        consume_events(db, cache, envelopes, order_status_projector=order_status_projector)
+
+
 def dead_letter_message(db, message):
     with db.transaction() as conn:
         conn.execute(
@@ -867,15 +922,14 @@ def dead_letter_message(db, message):
         )
 
 
-def consume_kafka_messages(db, cache, messages, order_status_projector=None):
+def consume_kafka_messages(db, cache, messages, order_status_projector=None, *, lane="mixed"):
+    if lane not in CONSUMER_LANES:
+        raise ValueError("Unknown consumer lane")
     EVENT_CONSUMER_BATCH_SIZE.observe(len(messages))
     for attempt in range(5):
         try:
             envelopes = [json.loads(message.value) for message in messages]
-            if order_status_projector is None:
-                consume_events(db, cache, envelopes)
-            else:
-                consume_events(db, cache, envelopes, order_status_projector=order_status_projector)
+            consume_lane_events(db, cache, envelopes, order_status_projector, lane=lane)
             return
         except Exception as exc:
             observe_consumer_batch_error(exc)
@@ -889,7 +943,9 @@ def consume_kafka_messages(db, cache, messages, order_status_projector=None):
     for message in messages:
         try:
             envelope = json.loads(message.value)
-            if order_status_projector is None:
+            if lane != "mixed":
+                consume_lane_events(db, cache, [envelope], order_status_projector, lane=lane)
+            elif order_status_projector is None:
                 consume_event(db, cache, envelope)
             else:
                 consume_event(db, cache, envelope, order_status_projector=order_status_projector)
@@ -897,8 +953,15 @@ def consume_kafka_messages(db, cache, messages, order_status_projector=None):
             dead_letter_message(db, message)
             log.exception("dead_letter")
 
-def consume_iteration(consumer, db, cache, batch_size, order_status_projector=None):
-    """Time the existing poll/process/rewind/commit sequence without altering its boundaries."""
+def consume_iteration(consumer, db, cache, batch_size, order_status_projector=None, *, lane="mixed"):
+    """Advance only this group after its selected events have durable outcomes."""
+    if lane not in CONSUMER_LANES:
+        raise ValueError("Unknown consumer lane")
+    handler_kwargs = {}
+    if order_status_projector is not None:
+        handler_kwargs["order_status_projector"] = order_status_projector
+    if lane != "mixed":
+        handler_kwargs["lane"] = lane
     with consumer_phase("poll"):
         batches = consumer.poll(timeout_ms=500, max_records=batch_size)
     starts = {
@@ -909,10 +972,7 @@ def consume_iteration(consumer, db, cache, batch_size, order_status_projector=No
         for tp, messages in batches.items():
             if messages:
                 with consumer_phase("partition", tp.partition):
-                    if order_status_projector is None:
-                        consume_kafka_messages(db, cache, messages)
-                    else:
-                        consume_kafka_messages(db, cache, messages, order_status_projector=order_status_projector)
+                    consume_kafka_messages(db, cache, messages, **handler_kwargs)
     except Exception:
         for tp, offset in starts.items():
             with consumer_phase("rewind", tp.partition):
@@ -1038,12 +1098,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "role",
-        choices=["publisher", "consumer", "reservation-writer", "maintenance", "refresh", "expiry", "reconciler", "simulator", "confirmation"],
+        choices=["publisher", "consumer", "projection-consumer", "reservation-writer", "maintenance", "refresh", "expiry", "reconciler", "simulator", "confirmation"],
     )
     role = parser.parse_args().role
     configure_logging()
     settings = Settings()
     settings.validate()
+    consumer_lane = "mixed"
+    if role in {"consumer", "projection-consumer"}:
+        consumer_group, consumer_lane = event_consumer_identity(settings, role)
     if role == "confirmation" and not settings.payment_confirmation_async:
         raise RuntimeError("Confirmation worker requires PAYMENT_CONFIRMATION_ASYNC=1")
     if role == "simulator" and settings.environment != "development":
@@ -1093,16 +1156,11 @@ def main():
                 max_block_ms=10000,
                 request_timeout_ms=10000,
             )
-        if role == "consumer":
-            consumer = KafkaConsumer(
-                "ticketing.events",
-                bootstrap_servers=settings.kafka_bootstrap,
-                group_id="ticketing-fulfillment-v1",
-                enable_auto_commit=False,
-                auto_offset_reset="earliest",
-                max_poll_records=settings.consumer_batch_size,
-                fetch_max_wait_ms=settings.consumer_batch_wait_ms,
-            )
+        if role in {"consumer", "projection-consumer"}:
+            consumer = create_event_consumer(settings, role)
+            log.info("event_consumer_started", extra={"fields": {
+                "role": role, "group": consumer_group, "lane": consumer_lane,
+            }})
         if role == "simulator" and settings.simulator_dispatch_mode == "refill":
             simulate_refill(db, settings, executor, transport=callback_transport)
             return
@@ -1148,7 +1206,8 @@ def main():
                     )
                 else:
                     work = consume_iteration(
-                        consumer, db, cache, settings.consumer_batch_size, order_status_projector=order_status_projector
+                        consumer, db, cache, settings.consumer_batch_size,
+                        order_status_projector=order_status_projector, lane=consumer_lane
                     )
                 if not work:
                     time.sleep(0.1)

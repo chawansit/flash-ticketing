@@ -42,9 +42,10 @@ class Settings:
     redis_reservation_max_command_age_seconds: int = int(
         os.getenv("REDIS_RESERVATION_MAX_COMMAND_AGE_SECONDS", "0")
     )
-    reservation_writer_batch_size: int = int(os.getenv("RESERVATION_WRITER_BATCH_SIZE", "1"))
     reservation_write_pipeline: bool = os.getenv("RESERVATION_WRITE_PIPELINE", "0") == "1"
+    reservation_writer_batch_size: int = int(os.getenv("RESERVATION_WRITER_BATCH_SIZE", "1"))
     publisher_batch_size: int = int(os.getenv("PUBLISHER_BATCH_SIZE", "32"))
+    event_consumer_separation: bool = os.getenv("EVENT_CONSUMER_SEPARATION", "0") == "1"
     consumer_batch_size: int = int(os.getenv("CONSUMER_BATCH_SIZE", "100"))
     consumer_batch_wait_ms: int = int(os.getenv("CONSUMER_BATCH_WAIT_MS", "10"))
     simulator_dispatch_mode: str = os.getenv("SIMULATOR_DISPATCH_MODE", "batch")
