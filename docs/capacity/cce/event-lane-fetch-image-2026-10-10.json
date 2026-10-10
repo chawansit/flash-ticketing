@@ -1,5 +1,5 @@
 {
-  "decision": "ADR0265",
+  "decision": "ADR0267",
   "parent_registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:8dfa1e1455e4df32df7f639403ecfd454e551974ab5a28bfe6bd41418c891cc5",
   "parent_runtime_source_sha256": {
     "src/ticketing/api.py": "4f4db9f6f35da937c37202d451a7da6c7eee1e9022eda560cb1db64ae7ab9c35",
@@ -33,7 +33,7 @@
     "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
     "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
     "src/ticketing/observability.py": "3bb9d042ee01469abdd8e2b630ca6f05ee3a318f96991ab9a867d74dc88244d2",
-    "src/ticketing/workers.py": "473a58215cb6e14258ca57b82996054910f997539c2f30a931d31b55426c300c",
+    "src/ticketing/workers.py": "7594ee2eeb86cd0cfc8f7ab8d0d9875eb164b50341e050a0ba272e0d70fe44a3",
     "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
     "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
     "src/ticketing/application/ports.py": "b2115020590e7b21c56792e7735c68c5d823504ce9a1abcdf3f47b94cb9c82f5",
@@ -50,7 +50,7 @@
     "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a",
     "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
   },
-  "source_identity_sha256": "3e5e998f2d94506e5f79715e2944b2210b932aa3a133e2cda962d5b02b5a5de9",
+  "source_identity_sha256": "b90880f171b957a05d1dd26649357cc33f9e5bcd9fdef15cf2258097dc1b32da",
   "changed_modules": [
     "src/ticketing/config.py",
     "src/ticketing/workers.py"
@@ -59,12 +59,12 @@
     "requirements.lock": "4c45aa6d68478b8f81e57eeb808f7ba55ad59275647cdc1bac28fdb795aaf14d",
     "pyproject.toml": "c1ce0fcb261c6788d55b0532ba249af7a23e29d1d094b44310ebfc39c3b13dbd"
   },
-  "local_tag": "flash-ticketing-shared:adr0265-3e5e998f2d94",
+  "local_tag": "flash-ticketing-shared:adr0267-b90880f171b9",
   "registry_published": true,
   "cloud_deployed": false,
   "cloud_load_started": false,
   "capacity_improvement_measured": false,
-  "local_image_id": "sha256:cad773daf44496d91da263edd9fdf4121200ea64116afe218af2f8e0a9cee947",
+  "local_image_id": "sha256:d9d7cb17433782ca863d8b93ef987a670708d4f6f9719fdecc2c4c21125d23fe",
   "offline_validation": {
     "modules_verified": 22,
     "manifest_role_settings_validated": [],
@@ -78,12 +78,12 @@
   },
   "integration_validation": {
     "executed": true,
-    "summary": "138 passed, 9 warnings in 59.99s",
+    "summary": "139 passed, 10 warnings in 76.84s (0:01:16)",
     "database": "PostgreSQL17.6",
     "redis": "Redis7.4.5",
     "kafka": "Kafka3.9.1",
     "isolated": true,
-    "image_id": "sha256:cad773daf44496d91da263edd9fdf4121200ea64116afe218af2f8e0a9cee947",
+    "image_id": "sha256:d9d7cb17433782ca863d8b93ef987a670708d4f6f9719fdecc2c4c21125d23fe",
     "runtime_source_verification_passed": true
   },
   "compose_validation": {
@@ -92,14 +92,9 @@
     "projection_pool_max": 2,
     "fulfillment_pool_max": 10
   },
-  "registry_tag": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing:adr0265-event-lanes-3e5e998f2d94",
-  "registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:cad773daf44496d91da263edd9fdf4121200ea64116afe218af2f8e0a9cee947",
-  "registry_manifest_digest": "sha256:cad773daf44496d91da263edd9fdf4121200ea64116afe218af2f8e0a9cee947",
-  "registry_pulled_runtime_verified": true,
-  "unit_validation": {
-    "executed": true,
-    "passed": 34,
-    "scope": "lane routing, independent commits, poison fallback, consumer phase/configuration and historical batching"
-  },
-  "registry_configuration_digest": "sha256:ca9c97ac49ad7d945a93b2789ab0eeb1009222ba84180ac04447e65a4edba2c5"
+  "registry_tag": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing:adr0267-b90880f171b9",
+  "registry_manifest_digest": "sha256:d9d7cb17433782ca863d8b93ef987a670708d4f6f9719fdecc2c4c21125d23fe",
+  "registry_configuration_digest": "sha256:1c3abed1d05dede9dbc5c44f553e4c5c71a827d41224ec773a886f6cbd6267f8",
+  "registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:d9d7cb17433782ca863d8b93ef987a670708d4f6f9719fdecc2c4c21125d23fe",
+  "registry_pulled_runtime_verified": true
 }

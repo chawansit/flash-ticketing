@@ -197,3 +197,7 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0264: Close failed dispatch correction without qualifying capacity](0264-close-failed-dispatch-correction-without-qualifying-capacity.md)
 
 - [ADR0265: Isolate fulfillment from seat-refresh consumption](0265-isolate-fulfillment-from-seat-refresh-consumption.md)
+
+- [ADR0266: Bounded event-lane capacity correction](0266-bounded-event-lane-capacity-correction.md)
+
+- [ADR0267: Bound multipartition Kafka fetch frames](0267-bound-multipartition-kafka-fetch-frames.md)

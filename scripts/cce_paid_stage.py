@@ -36,6 +36,10 @@ def sha(raw):
 
 def identity():
     paths = (
+        "scripts/collect_two_host_inventory.py", "scripts/runtime_source_identity.py",
+        "scripts/cce_event_lane_identity.py", "scripts/cce_event_lane_profile.py",
+        "scripts/cce_event_lane_contract.py", "scripts/observe_projection_kafka.py",
+        "docs/capacity/cce/event-lane-fetch-image-2026-10-10.json",
         "scripts/cce_shared_worker_comparison.py", "scripts/cce_shared_worker_profile.py",
         "scripts/cce_payment_dispatch_profile.py", "scripts/cce_shared_worker_image_identity.py",
         "scripts/cce_shared_worker_contract.py", "scripts/cce_shared_application.py",

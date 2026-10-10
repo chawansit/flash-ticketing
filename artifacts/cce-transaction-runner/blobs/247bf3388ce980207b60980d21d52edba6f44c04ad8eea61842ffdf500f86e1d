@@ -104,8 +104,7 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
         raise ValueError("Observed primary placement differs")
     background = {k: {"replicas": len(groups[k])} for k in roles}
     background["consumer"]["pool_per_replica"] = int(environment(groups["consumer"][0])["DB_POOL_MAX"])
-    expected_consumer_pool = "8" if contract is None else str(contract.background["consumer"]["pool_per_replica"])
-    if any(environment(r)["DB_POOL_MAX"] != expected_consumer_pool for r in groups["consumer"]):
+    if any(environment(r)["DB_POOL_MAX"] != "8" for r in groups["consumer"]):
         raise ValueError("Consumer pool differs")
     background["reservation-writer"]["batch_size"] = int(
         environment(groups["reservation-writer"][0])["RESERVATION_WRITER_BATCH_SIZE"]
@@ -194,7 +193,5 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
     if contract is not None and hasattr(contract, "bind_database_roles"):
         inventory["application_database_role_binding"] = contract.bind_database_roles(
             [*primary, *secondary], baseline_env["DATABASE_URL"])
-    if contract is not None and hasattr(contract, "retain_pre_safety_observation"):
-        contract.retain_pre_safety_observation(session, inventory, queue)
     view = validate_inventory(inventory, image_id=IMAGE if contract is None else contract.images["api"], contract=contract)
     return inventory, view, primary, secondary

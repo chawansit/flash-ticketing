@@ -13,6 +13,7 @@ from pathlib import Path
 HOST_ROLES = {"primary", "secondary"}
 BACKGROUND_ROLES = {
     "consumer",
+    "projection-consumer",
     "reservation-writer",
     "maintenance",
     "publisher",
@@ -80,6 +81,13 @@ def validate_spec(spec):
         if physical == "cce-worker-isolation" and spec["host_role"] == "primary":
             expected = {"confirmation": 1, "kafka": 1, "pgbouncer": 1, "load-balancer": 1,
                         "cce-audit": 1, "cce-pooler": 1, "cce-kafka": 1}
+        if spec.get("event_lane_decision") == "ADR0266":
+            if physical != "cce-api-isolation":
+                raise ValueError("Event-lane CPU evidence requires ECS worker placement")
+            if spec["host_role"] == "primary":
+                expected["projection-consumer"] = 1
+        elif any(r["role"] == "projection-consumer" for r in rows):
+            raise ValueError("Explicit event-lane CPU binding required")
         if dict(Counter(r["role"] for r in rows)) != expected:
             raise ValueError("Exact native background and helper counts required")
         for entry in rows:

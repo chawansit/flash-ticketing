@@ -84,6 +84,8 @@ def background_spec(role, rows, instance_sha, receipts_sha):
     }
     if any(entry["role"] == "cce-kafka" for entry in entries):
         spec.update(placement="cce-worker-isolation", decision="ADR0259")
+    if any(entry["role"] == "projection-consumer" for entry in entries):
+        spec["event_lane_decision"] = "ADR0266"
     cpu.validate_spec(spec)
     return spec
 
@@ -212,6 +214,7 @@ class Observers:
         )
         import cce_transaction_profile as transaction
         extended = transaction.active() is not None
+        self.event_lanes = extended and transaction.active()["extension_decision"] == "ADR0266"
         helpers = (
             "observe_cce_paid_pipeline.py",
             "observe_two_host_pipeline.py",
@@ -221,6 +224,8 @@ class Observers:
             *(("cce_shared_worker_image_identity.py", "cce_worker_identity.py", "observe_cce_workers.py") if extended and transaction.active()["extension_decision"] in {"ADR0259", "ADR0263"} else ()),
             *(("observe_slot_paid_pipeline.py", "slot_failure_evidence.py", "bounded_trace_transport.py") if extended else ()),
         )
+        if self.event_lanes:
+            helpers += ("cce_event_lane_identity.py", "observe_projection_kafka.py")
         expected = {}
         for name in helpers:
             raw = (policy.ROOT / "scripts" / name).read_text()
@@ -323,6 +328,10 @@ class Observers:
                 "python",
             ],
         }
+        if self.event_lanes:
+            commands["projection-kafka"] = ["python", self.directory + "/observe_projection_kafka.py",
+                "--output", self.directory + "/projection-kafka.jsonl", "--seconds", observation_seconds,
+                "--interval", "1", "--backend", "python", "--group", "ticketing-seat-projection-v1"]
         for name, arguments in commands.items():
             self.record[name + "_launch_attempted"] = True
             self.checkpoint()
@@ -338,13 +347,14 @@ class Observers:
             )
         import time
 
+        names = tuple(commands)
         deadline = time.monotonic() + 30
         while True:
             status = self.session.api(
                 self.stage.cid,
                 "import json;from pathlib import Path;p=Path("
                 + repr(self.directory)
-                + ");print(json.dumps({n:json.loads((p/(n+'.jsonl')).read_text().splitlines()[0]) if (p/(n+'.jsonl')).exists() and (p/(n+'.jsonl')).stat().st_size else None for n in ('pipeline','kafka')}))",
+                + ");print(json.dumps({n:json.loads((p/(n+'.jsonl')).read_text().splitlines()[0]) if (p/(n+'.jsonl')).exists() and (p/(n+'.jsonl')).stat().st_size else None for n in " + (repr(names) if self.event_lanes else "('pipeline','kafka')") + "}))",
                 45,
             )
             if all(status.values()):
@@ -360,6 +370,13 @@ class Observers:
             or status["pipeline"].get("database_wait_diagnostics", {}).get("complete") is not True
         ):
             raise ValueError("Native observer/diagnostic startup failed before buyer dispatch")
+        if self.event_lanes:
+            row = status["projection-kafka"]
+            self.record["projection_kafka_startup"] = kafka_startup_view(row, 1)
+            if (not self.record["projection_kafka_startup"]["pass"] or row.get("assigned_partitions") != 6
+                    or row.get("group") != "ticketing-seat-projection-v1"
+                    or sorted(p["partition"] for p in row.get("partitions", [])) != list(range(6))):
+                raise ValueError("Projection ownership incomplete before dispatch")
         self.contract.verify_pipeline_startup(status["pipeline"])
         self.started = True
         self.checkpoint()
@@ -467,7 +484,10 @@ class Observers:
         from summarize_paid_kafka_lag import summarize as summarize_kafka
         from summarize_paid_pipeline import summarize as summarize_pipeline
 
-        for name, summarize in (("pipeline", summarize_pipeline), ("kafka", summarize_kafka)):
+        traces = [("pipeline", summarize_pipeline), ("kafka", summarize_kafka)]
+        if getattr(self, "event_lanes", False):
+            traces.append(("projection-kafka", summarize_kafka))
+        for name, summarize in traces:
             try:
                 import cce_transaction_profile as transaction
                 if transaction.active() is not None:
@@ -494,6 +514,13 @@ class Observers:
                         summarize_pipeline=summarize, native_workers=getattr(self, "native_workers", None)))
                 else:
                     self.record[name + "_summary"] = summarize(rows)
+                    if name == "projection-kafka":
+                        from cce_event_lane_identity import projection_summary_pass
+                        self.record["projection_kafka_pass"] = (projection_summary_pass(self.record[name + "_summary"])
+                            and all(row.get("group") == "ticketing-seat-projection-v1" for row in rows)
+                            and len(rows) >= self.stage.profile.duration
+                            and datetime.fromisoformat(rows[0]["utc"]) <= datetime.fromisoformat(self.start_utc)
+                            and datetime.fromisoformat(rows[-1]["utc"]) >= datetime.fromisoformat(self.end_utc))
 
             except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - One missing trace cannot skip the other.
                 failures.append({"operation": name + "_trace", "type": type(error).__name__})
@@ -503,6 +530,7 @@ class Observers:
             and self.record.get("database_wait_capture", {}).get("complete") is True
             and pipeline_pass(self.record.get("pipeline_summary", {}))
             and kafka_pass(self.record.get("kafka_summary", {}))
+            and (not getattr(self, "event_lanes", False) or self.record.get("projection_kafka_pass") is True)
         )
         self.checkpoint()
         if failures:
@@ -514,7 +542,10 @@ class Observers:
         results = {}
         import cce_transaction_profile as transaction
         helper = "observe_slot_paid_pipeline" if transaction.active() is not None else "observe_cce_paid_pipeline"
-        for label, name in (("pipeline", helper), ("kafka", "kafka_lag_observe")):
+        startup_jobs = [("pipeline", helper), ("kafka", "kafka_lag_observe")]
+        if getattr(self, "event_lanes", False):
+            startup_jobs.append(("projection-kafka", "observe_projection_kafka"))
+        for label, name in startup_jobs:
             job = self.record.get(label + "_job")
             if job is None:
                 continue

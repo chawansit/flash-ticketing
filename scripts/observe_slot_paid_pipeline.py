@@ -16,6 +16,9 @@ def install(module, value, **kwargs):
 def correction_inventory(inventory, approved_digest):
     """Verify actual twelve-job evidence before projecting the legacy structural view."""
     marker = inventory.get("status_refresh_contract", {})
+    if marker.get("event_lane_decision") == "ADR0266":
+        from cce_event_lane_identity import historical_view
+        return historical_view(inventory, approved_digest)
     if marker.get("shared_image_decision") == "ADR0259":
         from cce_worker_identity import digest, verify_ecs_shared_inventory
         verify_ecs_shared_inventory(inventory, approved_digest)

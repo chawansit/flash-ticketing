@@ -881,6 +881,11 @@ def create_event_consumer(settings, role):
         auto_offset_reset="earliest",
         max_poll_records=settings.consumer_batch_size,
         fetch_max_wait_ms=settings.consumer_batch_wait_ms,
+        # Six owned partitions may exceed the client's default 1 MB frame cap.
+        # Kafka can return the first batch above the fetch target; keep headroom
+        # for bounded per-partition batches without requesting large responses.
+        **({"fetch_max_bytes": 1024 * 1024, "receive_message_max_bytes": 8 * 1024 * 1024}
+           if role == "projection-consumer" else {}),
     )
 
 

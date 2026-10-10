@@ -57,7 +57,7 @@ def contract():
         data = copy.deepcopy(data)
         data["api_sources"] = transaction.image_for(goal)["runtime_sources_sha256"]
         data["api_settings"]["DB_FAILURE_DIAGNOSTICS"] = "1"
-        if goal["extension_decision"] in {"ADR0259", "ADR0263"}:
+        if goal["extension_decision"] in {"ADR0259", "ADR0263", "ADR0266"}:
             data["resources"] = {k: {"cpu": "1", "memory": "2Gi"} for k in ("requests", "limits")}
             data["api_settings"]["ORDER_STATUS_READ_PIPELINE"] = "0"
             data["workload"]["customer_retries"] = 3
@@ -121,7 +121,7 @@ def admission_budget():
     """One declared bounded factor; old profiles retain the immutable baseline."""
     exception = policy.envelope()["spending"]["temporary_cce_pilot_exception"]
     goal = exception.get("goal_bounded_authorization", {})
-    if goal.get("extension_decision") in {"ADR0242", "ADR0245", "ADR0249", "ADR0251", "ADR0255", "ADR0259", "ADR0263"}:
+    if goal.get("extension_decision") in {"ADR0242", "ADR0245", "ADR0249", "ADR0251", "ADR0255", "ADR0259", "ADR0263", "ADR0266"}:
         import cce_transaction_profile as transaction
         transaction.active()
         return 20

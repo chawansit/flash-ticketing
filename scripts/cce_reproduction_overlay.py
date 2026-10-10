@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 OVERLAID = {
+    "scripts/collect_two_host_inventory.py", "scripts/runtime_source_identity.py",
     "scripts/cce_paid_resources.py", "scripts/cce_paid_lifecycle.py",
     "scripts/cce_dependency_probe.py", "scripts/observe_cce_paid_pipeline.py", "scripts/observe_two_host_cpu.py",
     "scripts/database_wait_evidence.py",
@@ -12,7 +13,10 @@ OVERLAID = {
     "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py",
     "scripts/run_cce_hourly_qualification.py", "scripts/cce_hourly_paid_generator.py", "scripts/cce_hourly_paid_leaf.py"}
 ADDITIONAL = {
-    "scripts/cce_shared_worker_comparison.py", "scripts/cce_shared_worker_profile.py",
+    "scripts/cce_event_lane_identity.py", "scripts/cce_event_lane_profile.py",
+        "scripts/cce_event_lane_contract.py", "scripts/observe_projection_kafka.py",
+        "docs/capacity/cce/event-lane-fetch-image-2026-10-10.json",
+        "scripts/cce_shared_worker_comparison.py", "scripts/cce_shared_worker_profile.py",
     "scripts/cce_shared_worker_contract.py", "scripts/cce_shared_application.py",
     "scripts/cce_shared_worker_image_identity.py", "scripts/cce_payment_dispatch_profile.py",
     "scripts/cce_native_workers.py", "scripts/cce_worker_transition.py", "scripts/cce_worker_identity.py", "scripts/observe_cce_workers.py",

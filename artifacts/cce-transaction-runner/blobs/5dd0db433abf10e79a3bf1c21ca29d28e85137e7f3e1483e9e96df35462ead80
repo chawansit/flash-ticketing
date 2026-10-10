@@ -47,7 +47,7 @@ def container_identity_program(row, role, expected, *, readiness=False):
     if (not isinstance(cid, str) or not re.fullmatch(r"[0-9a-f]{64}", cid)
             or not isinstance(image, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", image)
             or not isinstance(started, str) or not 1 <= len(started) <= 64
-            or role not in {"api", "consumer", "projection-consumer", "reservation-writer", "maintenance", "publisher", "reconciler", "simulator", "confirmation"}):
+            or role not in {"api", "consumer", "reservation-writer", "maintenance", "publisher", "reconciler", "simulator", "confirmation"}):
         raise ValueError("Inspected immutable container/image/start identity required")
     proof = source_identity_program(expected, readiness=readiness)
     return r"""import json,subprocess
@@ -58,7 +58,6 @@ role=ROLE
 def inspect():
  current=json.loads(subprocess.check_output(['docker','inspect',cid],text=True,timeout=10))[0]
  if current['Id']!=cid or current['Image']!=image or current['State']['StartedAt']!=started or current['State']['Running'] is not True or current['Config']['Labels']['com.docker.compose.service']!=role:raise ValueError('Container image/start identity differs')
- if role=='projection-consumer' and current['Config'].get('Cmd')!=['python','-m','ticketing.workers','projection-consumer']:raise ValueError('Projection process command differs')
  return current
 inspect()
 proof=json.loads(subprocess.check_output(['docker','exec',cid,'python','-c',PROOF],text=True,timeout=15))

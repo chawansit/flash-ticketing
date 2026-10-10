@@ -6,7 +6,7 @@ from bounded_trace_transport import unpack_trace
 
 
 def collect(stage, directory, owner, name, copy_out):
-    if (name not in {"pipeline", "kafka"}
+    if (name not in {"pipeline", "kafka", "projection-kafka"}
             or directory != "/tmp/" + stage.run + "/cce-observers"
             or not re.fullmatch(r"adr0151-[0-9a-f]{12}", stage.run)):
         raise ValueError("Exact owned stopped trace required")

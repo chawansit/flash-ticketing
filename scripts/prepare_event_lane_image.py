@@ -48,7 +48,9 @@ def verify_delta(parent, candidate):
         raise ValueError("Configuration delta escaped separation flag")
 
 
-def prepare(output):
+def prepare(output, *, decision="ADR0265"):
+    if decision not in {"ADR0265", "ADR0267"}:
+        raise ValueError("Reviewed event-lane image decision required")
     receipt = json.loads(PARENT_RECEIPT.read_text(encoding="utf-8"))
     image = receipt["registry_image"]
     info = json.loads(docker("image", "inspect", image))[0]
@@ -73,7 +75,7 @@ def prepare(output):
     runtime = {name: sha(raw) for name, raw in candidate.items()}
     identity = sha(json.dumps(runtime, sort_keys=True).encode())
     manifest = {
-        "decision": "ADR0265", "parent_registry_image": image,
+        "decision": decision, "parent_registry_image": image,
         "parent_runtime_source_sha256": receipt["runtime_source_sha256"],
         "parent_receipt_sha256": sha(PARENT_RECEIPT.read_bytes()),
         "runtime_source_sha256": runtime, "source_identity_sha256": identity,
@@ -88,7 +90,7 @@ def prepare(output):
         "RUN python /tmp/event-lane-payload/install.py /tmp/event-lane-payload "
         "&& cp /tmp/event-lane-payload/manifest.json /app/shared-image.json "
         "&& rm -r /tmp/event-lane-payload\n"
-        f'LABEL org.flash-ticketing.decision="ADR0265" org.flash-ticketing.source-sha256="{identity}"\n'
+        f'LABEL org.flash-ticketing.decision="{decision}" org.flash-ticketing.source-sha256="{identity}"\n'
         "USER ticketing\n", encoding="utf-8")
     return manifest
 
@@ -96,11 +98,12 @@ def prepare(output):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build", action="store_true")
+    parser.add_argument("--decision", choices=("ADR0265", "ADR0267"), default="ADR0265")
     parser.add_argument("--receipt", type=Path, required=True)
     args = parser.parse_args()
     output = ROOT / "tmp" / ("adr0265-image-" + uuid4().hex[:12])
-    manifest = prepare(output)
-    tag = "flash-ticketing-shared:adr0265-" + manifest["source_identity_sha256"][:12]
+    manifest = prepare(output, decision=args.decision)
+    tag = "flash-ticketing-shared:" + args.decision.lower() + "-" + manifest["source_identity_sha256"][:12]
     receipt = {**manifest, "local_tag": tag, "registry_published": False,
                "cloud_deployed": False, "cloud_load_started": False,
                "capacity_improvement_measured": False}
