@@ -107,7 +107,58 @@ def test_public_plan_and_inactive_preview_match_executable_contract():
     from pathlib import Path
 
     root = Path(__file__).resolve().parents[2]
-    assert json.loads((root / "docs/capacity/cce/shared-worker-placement-plan-2026-10-10.json").read_text()) == plan()
+    assert json.loads((root / "docs/capacity/cce/shared-worker-placement-consumer-restored-plan-2026-10-10.json").read_text()) == plan()
     from cce_shared_worker_comparison import digest
 
     assert plan()["inactive_preview_sha256"] == digest(inactive_candidate("ticketing-placement-preview", "10.1.137.69"))
+
+
+def test_corrected_control_binding_rejects_original_shared_image():
+    import json
+    from pathlib import Path
+    binding, report = passed_control()
+    old = json.loads((Path(__file__).resolve().parents[2] / "docs/capacity/cce/shared-worker-placement-plan-2026-10-10.json").read_text())
+    binding["image"] = old["image"]
+    with pytest.raises(ValueError, match="Current sealed"):
+        require_passed_control(report, binding)
+
+
+def test_corrected_receipt_is_explicit_and_only_changes_consumer_module():
+    import json
+    from pathlib import Path
+
+    from cce_shared_worker_comparison import selected_receipt
+    corrected = selected_receipt()
+    old = json.loads((Path(__file__).resolve().parents[2] / "docs/capacity/cce/shared-application-image-2026-10-10.json").read_text())
+    assert corrected["decision"] == "ADR0261"
+    assert corrected["registry_image"] != old["registry_image"]
+    assert {key for key in corrected["runtime_source_sha256"] if corrected["runtime_source_sha256"][key] != old["runtime_source_sha256"][key]} == {"src/ticketing/workers.py"}
+
+
+def test_corrected_receipt_tampering_is_rejected(monkeypatch, tmp_path):
+    import cce_shared_worker_comparison as comparison
+    copy = tmp_path / "receipt.json"
+    copy.write_bytes(comparison.RECEIPT.read_bytes() + b" ")
+    monkeypatch.setattr(comparison, "RECEIPT", copy)
+    with pytest.raises(ValueError, match="receipt"):
+        comparison.selected_receipt()
+
+
+def test_remote_worker_identity_imports_without_repository_artifacts(tmp_path):
+    import json
+    import shutil
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    import cce_shared_worker_image_identity as pins
+    from cce_shared_worker_comparison import selected_receipt
+
+    root = Path(__file__).resolve().parents[2]
+    for name in ("cce_worker_identity.py", "cce_shared_worker_image_identity.py"):
+        shutil.copyfile(root / "scripts" / name, tmp_path / name)
+    program = "import json; import cce_worker_identity as i; print(json.dumps([i.SOURCE,i.CONFIG,i.ECS_IMAGE_ID,i.MANIFEST]))"
+    result = subprocess.run([sys.executable, "-I", "-c", "import sys;sys.path.insert(0," + repr(str(tmp_path)) + ");" + program], cwd=tmp_path, capture_output=True, text=True, check=True)
+    receipt = selected_receipt()
+    assert json.loads(result.stdout) == [receipt["source_identity_sha256"], receipt["registry_configuration_digest"], receipt["local_image_id"], receipt["registry_manifest_digest"]]
+    assert pins.IMAGE == receipt["registry_image"]

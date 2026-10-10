@@ -218,7 +218,7 @@ class Observers:
             "prepare_two_host_scaling.py",
             "database_wait_evidence.py",
             "diagnostic_connection.py",
-            *(("cce_worker_identity.py", "observe_cce_workers.py") if extended and transaction.active()["extension_decision"] == "ADR0259" else ()),
+            *(("cce_shared_worker_image_identity.py", "cce_worker_identity.py", "observe_cce_workers.py") if extended and transaction.active()["extension_decision"] == "ADR0259" else ()),
             *(("observe_slot_paid_pipeline.py", "slot_failure_evidence.py", "bounded_trace_transport.py") if extended else ()),
         )
         expected = {}

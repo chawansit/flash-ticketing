@@ -1830,6 +1830,57 @@
         "actual_elapsed_seconds": 76.82799999997951,
         "capacity_qualified": false
       }
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__e0a242809b99",
+      "authorization_id": "work-envelope-e0a242809b99",
+      "envelope_sha256": "233a0b9beff93563afa38287d5bd329f6d4c21d8841c2b80b209af32da40a2e5",
+      "binding_sha256": "d3429de2d52f825d7a011c8d704b2062f283263bdd9222605ff1c66fbfb6edff",
+      "plan_sha256": "15411ad080e58fb6efb72730274b675e2455a0487fa24a599ed70b36ba7d6b66",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 611.875,
+      "started_at_utc": "2026-10-10T05:56:05.815876+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-1a2670d5cd13",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-10T06:06:17.605680+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "3415875b78da010dbae338100124c40aa9c5de17ca84927edf568f529e98c95e"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__aa737738876e",
+      "authorization_id": "work-envelope-aa737738876e",
+      "envelope_sha256": "233a0b9beff93563afa38287d5bd329f6d4c21d8841c2b80b209af32da40a2e5",
+      "binding_sha256": "d0f987607be7be3b41ed435206eeafb0d7992d031d010d712f54cac33490633f",
+      "plan_sha256": "15411ad080e58fb6efb72730274b675e2455a0487fa24a599ed70b36ba7d6b66",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1151.515000000014,
+      "started_at_utc": "2026-10-10T06:09:09.568712+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-2d46f190577f",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-10T06:26:44.667645+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "1894dd9bea7592d348c827956f90ea3315c4b8325c941a1ef62b83099ce9e622",
+      "initial_status": "RECOVERY_REQUIRED",
+      "initial_actual_elapsed_seconds": 1055.1560000000172,
+      "recovery": {
+        "decision": "ADR0260",
+        "evidence": "tmp/adr0151-2d46f190577f/independent-shared-control-recovery.private.json",
+        "sha256": "72bc96ac542f794ab01805d0482875bfb6789cc0da25e8e415ca075ad91d01aa",
+        "actual_elapsed_seconds": 96.35899999999674,
+        "capacity_qualified": false
+      }
     }
   ],
   "verified_aborts": {

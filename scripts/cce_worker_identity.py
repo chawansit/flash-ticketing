@@ -5,10 +5,8 @@ import json
 import math
 import re
 
-SOURCE = "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c"
-CONFIG = "sha256:8ae9bb3692b642e08313dcae1d64cfa905b8a794b5feb048d75e25ebb6e01c5d"
-ECS_IMAGE_ID = "sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742"
-MANIFEST = "sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742"
+from cce_shared_worker_image_identity import CONFIG, ECS_IMAGE_ID, MANIFEST, SOURCE
+
 COUNTS = {"consumer": 6, "reservation-writer": 3, "publisher": 1, "maintenance": 1, "reconciler": 1, "simulator": 1}
 RESOURCES = {k: {"cpu": "250m", "memory": "512Mi"} for k in ("requests", "limits")}
 

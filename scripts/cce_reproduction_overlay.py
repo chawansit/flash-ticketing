@@ -14,8 +14,10 @@ OVERLAID = {
 ADDITIONAL = {
     "scripts/cce_shared_worker_comparison.py", "scripts/cce_shared_worker_profile.py",
     "scripts/cce_shared_worker_contract.py", "scripts/cce_shared_application.py",
+    "scripts/cce_shared_worker_image_identity.py",
     "scripts/cce_native_workers.py", "scripts/cce_worker_transition.py", "scripts/cce_worker_identity.py", "scripts/observe_cce_workers.py",
     "docs/capacity/cce/shared-application-image-2026-10-10.json",
+    "docs/capacity/cce/shared-application-image-consumer-restored-2026-10-10.json",
     "scripts/cce_recovery_hourly_profile.py", "artifacts/hourly-customer-recovery/manifest.json",
     "docs/capacity/cce/customer-recovery-comparison-2026-10-10.json",
     "scripts/paid_fixture_layout.py",

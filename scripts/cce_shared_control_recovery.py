@@ -1,6 +1,7 @@
 """ADR0260 exact dispatched-cohort closure; no paid load or capacity approval."""
 import copy
 import math
+from dataclasses import dataclass
 from pathlib import Path
 
 import work_envelope as policy
@@ -16,48 +17,76 @@ GATES = ("runtime_restored", "runtime_stable", "namespace_absent", "helpers_abse
          "secondary_empty", "generator_idle", "private_inputs_removed", "owned_shows_retired")
 
 
+@dataclass(frozen=True)
+class RecoveryTarget:
+    run: str
+    ledger: str
+    result: str
+    expected: int
+    drops: int
+    recovered: int
+    namespace: str
+
+
+CORRECTED = RecoveryTarget(
+    "adr0151-2d46f190577f", "bounded_cce_paid_comparison__aa737738876e",
+    "1894dd9bea7592d348c827956f90ea3315c4b8325c941a1ef62b83099ce9e622",
+    24410, 790, 83, "flash-cce-2d46f190577f",
+)
+
+
+def target_or_original(target):
+    if target is None:
+        return RecoveryTarget(RUN, LEDGER, RESULT, EXPECTED, 5160, 594, "flash-cce-ba78fda091fd")
+    if target != CORRECTED:
+        raise ValueError("Only the exact retained corrected-control recovery is authorized")
+    return target
+
+
 def safety_program(show_id):
     return build_safety_program(show_id)
 
-def financial_program(show_ids, expected_paid):
-    if len(show_ids) != 84 or expected_paid != EXPECTED:
+def financial_program(show_ids, expected_paid, *, target=None):
+    t = target_or_original(target)
+    if len(show_ids) != 84 or expected_paid != t.expected:
         raise ValueError("Exact dispatched shared-image cohort required")
     from worker_separation_audits import RELATIONSHIP_SQL as old
-    body = financial_body({"show_ids": show_ids, "expected_orders": EXPECTED,
-                           "expected_paid": EXPECTED, "callbacks": 1})
+    body = financial_body({"show_ids": show_ids, "expected_orders": t.expected,
+                           "expected_paid": t.expected, "callbacks": 1})
     marker = "RELATIONSHIP_SQL=" + repr(old)
     if body.count(marker) != 1:
         raise ValueError("Canonical financial builder changed")
     return body.replace(marker, "RELATIONSHIP_SQL=" + repr(RELATIONSHIP_SQL), 1)
 
 
-def validate(report, entry, scope, evidence, fixture):
+def validate(report, entry, scope, evidence, fixture, *, target=None):
+    t = target_or_original(target)
     customer = report.get("paid_stage", {}).get("customer", {})
     elapsed = evidence.get("actual_elapsed_seconds")
     checks = (
-        report.get("run") == RUN, policy.digest(report) == RESULT, report.get("pass") is False,
-        entry.get("ledger") == LEDGER, entry.get("status") == "RECOVERY_REQUIRED",
-        entry.get("profile") == "cce_paid_comparison", entry.get("result_sha256") == RESULT,
-        scope.get("cce_paid_result_sha256") == RESULT,
+        report.get("run") == t.run, policy.digest(report) == t.result, report.get("pass") is False,
+        entry.get("ledger") == t.ledger, entry.get("status") == "RECOVERY_REQUIRED",
+        entry.get("profile") == "cce_paid_comparison", entry.get("result_sha256") == t.result,
+        scope.get("cce_paid_result_sha256") == t.result,
         entry.get("binding_sha256") == policy.digest(scope.get("binding")),
         scope.get("binding", {}).get("cce_worker_placement_decision") == "ADR0259",
         scope.get("binding", {}).get("cce_transaction_arm") == "control",
-        scope.get("active_run") in (None, RUN), scope.get("paid_runs_started") == 1,
+        scope.get("active_run") in (None, t.run), scope.get("paid_runs_started") == 1,
         report.get("capacity_stages_started") == 1, report.get("restoration_complete") is True,
         report.get("native", {}).get("cleanup_complete") is True,
         report.get("transport_credentials_cleared") is True,
-        customer.get("scheduled") == 25200, customer.get("generator_drops") == 5160,
-        all(customer.get(k) == EXPECTED for k in ("dispatched", "completed", "fulfilled", "distinct_orders", "distinct_tickets")),
-        customer.get("outcomes") == {"fulfilled": EXPECTED}, customer.get("final_customer_failures") == 0,
-        customer.get("first_attempt_error_journeys") == customer.get("recovered_journeys") == 594,
+        customer.get("scheduled") == 25200, customer.get("generator_drops") == t.drops,
+        all(customer.get(k) == t.expected for k in ("dispatched", "completed", "fulfilled", "distinct_orders", "distinct_tickets")),
+        customer.get("outcomes") == {"fulfilled": t.expected}, customer.get("final_customer_failures") == 0,
+        customer.get("first_attempt_error_journeys") == customer.get("recovered_journeys") == t.recovered,
         customer.get("pass") is False,
         policy.digest(fixture) == report["paid_stage"]["fixture_identity"]["fixture_identity_sha256"],
         len(fixture.get("show_ids", [])) == 84,
-        evidence.get("decision") == "ADR0260", evidence.get("run") == RUN,
-        evidence.get("ledger") == LEDGER, evidence.get("original_result_sha256") == RESULT,
+        evidence.get("decision") == "ADR0260", evidence.get("run") == t.run,
+        evidence.get("ledger") == t.ledger, evidence.get("original_result_sha256") == t.result,
         evidence.get("binding_sha256") == entry.get("binding_sha256"), evidence.get("pass") is True,
         evidence.get("capacity_qualified") is False, evidence.get("gates") == dict.fromkeys(GATES, True),
-        evidence.get("cleanup_namespace") == "flash-cce-ba78fda091fd",
+        evidence.get("cleanup_namespace") == t.namespace,
         evidence.get("verified_owned_events") == 86,
         queue_checks(evidence.get("queues", {}), 1),
     )
@@ -67,13 +96,13 @@ def validate(report, entry, scope, evidence, fixture):
     counts = financial.get("counts", {})
     relationships = financial.get("relationships", {})
     if (financial.get("pass") is not True or counts.get("pass") is not True
-            or any(counts.get(k) != EXPECTED for k in ("orders", "fulfilled_orders", "payment_attempts",
+            or any(counts.get(k) != t.expected for k in ("orders", "fulfilled_orders", "payment_attempts",
                 "succeeded_payments", "bookings", "tickets", "payment_callbacks", "callback_delivery_attempts",
                 "callback_delivery_target", "expected", "expected_paid"))
             or any(counts.get(k) != 0 for k in ("expired_orders", "pending_orders", "pending_payment_attempts",
                 "incomplete_callback_deliveries", "duplicate_booked_seats", "multi_booking_orders", "unpublished_outbox", "dead_letters"))
             or counts.get("expected_callback_deliveries_per_payment") != 1
-            or relationships.get("unique_issued_tickets") != EXPECTED
+            or relationships.get("unique_issued_tickets") != t.expected
             or any(relationships.get(k) != 0 for k in ("hold_relationship_errors", "booking_relationship_errors",
                 "order_item_relationship_errors", "inventory_relationship_errors", "fulfilled_ticket_relationship_errors", "holds_not_past_ttl"))
             or financial.get("checks") != {"post_ttl_complete": True, "payments_durable": True, "ticket_relationships_valid": True}):
@@ -92,19 +121,20 @@ def validate(report, entry, scope, evidence, fixture):
     return True
 
 
-def close(path):
+def close(path, *, target=None):
+    t = target_or_original(target)
     path = Path(path)
-    if path.is_symlink() or path.stat().st_nlink != 1 or path.resolve().parent != (policy.ROOT / "tmp" / RUN).resolve():
+    if path.is_symlink() or path.stat().st_nlink != 1 or path.resolve().parent != (policy.ROOT / "tmp" / t.run).resolve():
         raise ValueError("Owned regular recovery receipt required")
     state, journal = policy.read(policy.STATE), policy.journal(policy.envelope())
-    matches = [r for r in journal["experiments"] if r.get("ledger") == LEDGER]
-    if len(matches) != 1 or policy.LOCK.exists() or state.get("current_run") not in (None, RUN):
+    matches = [r for r in journal["experiments"] if r.get("ledger") == t.ledger]
+    if len(matches) != 1 or policy.LOCK.exists() or state.get("current_run") not in (None, t.run):
         raise ValueError("Stopped exact consumed scope required")
-    root = policy.ROOT / "tmp" / RUN
+    root = policy.ROOT / "tmp" / t.run
     report = policy.read(root / "cce-comparison.private.json")
     fixture = policy.read(root / "candidate/fixture-identity.json")["fixture_identity"]
-    entry, scope, evidence = matches[0], state[LEDGER], policy.read(path)
-    validate(report, entry, scope, evidence, fixture)
+    entry, scope, evidence = matches[0], state[t.ledger], policy.read(path)
+    validate(report, entry, scope, evidence, fixture, target=target)
     entry.update(initial_status=entry["status"], initial_actual_elapsed_seconds=entry["actual_elapsed_seconds"],
                  status="FAILED_RESTORED", recovery={"decision": "ADR0260",
                  "evidence": path.resolve().relative_to(policy.ROOT).as_posix(), "sha256": policy.digest(evidence),
@@ -112,7 +142,7 @@ def close(path):
     entry["actual_elapsed_seconds"] += evidence["actual_elapsed_seconds"]
     scope["cce_shared_control_terminal_recovery"] = copy.deepcopy(entry["recovery"])
     scope["active_run"] = None
-    if state.get("current_run") == RUN:
+    if state.get("current_run") == t.run:
         state["current_run"] = None
     policy.write(policy.JOURNAL, journal)
     policy.write(policy.STATE, state)

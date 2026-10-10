@@ -1,0 +1,8 @@
+"""ADR0261 standalone pins from the verified receipt; usable in remote observer bundles."""
+RECEIPT_RELATIVE = "docs/capacity/cce/shared-application-image-consumer-restored-2026-10-10.json"
+RECEIPT_SHA256 = "e0d6298d09d85df4632bc2d4cf2547a7b48d9098119cd3c8be9372ebaa6567fd"
+IMAGE = "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:8dfa1e1455e4df32df7f639403ecfd454e551974ab5a28bfe6bd41418c891cc5"
+SOURCE = "477c36475e8829c4293ff5610e8553bc9493a05f7048f13a83a6bdaf9f456008"
+CONFIG = "sha256:25a5e26d83fc09c0fcd07dd3dee16094d27ffb77d8f14532a3069566f2d1e258"
+ECS_IMAGE_ID = "sha256:8dfa1e1455e4df32df7f639403ecfd454e551974ab5a28bfe6bd41418c891cc5"
+MANIFEST = "sha256:8dfa1e1455e4df32df7f639403ecfd454e551974ab5a28bfe6bd41418c891cc5"

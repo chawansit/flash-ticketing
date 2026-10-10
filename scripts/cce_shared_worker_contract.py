@@ -37,13 +37,13 @@ class SharedWorkerContract(parent.SimulatorDispatchContract):
 import json,subprocess
 row=json.loads(subprocess.check_output(['docker','image','inspect',image],text=True,timeout=10))[0]
 labels=row['Config'].get('Labels',{})
-if row['Id']!=image or labels.get('org.flash-ticketing.decision')!='ADR0258' or labels.get('org.flash-ticketing.source-sha256')!=SOURCE:
+if row['Id']!=image or labels.get('org.flash-ticketing.decision')!=DECISION or labels.get('org.flash-ticketing.source-sha256')!=SOURCE:
  raise ValueError('Shared image identity/decision/source label differs')
 if row.get('Os')!='linux' or row.get('Architecture')!='amd64' or row['Config'].get('User')!='ticketing':
  raise ValueError('Shared image platform/user differs')
 proof=json.loads(subprocess.check_output(['docker','run','--rm','--pull','never','--network','none','--read-only','--cap-drop','ALL','--security-opt','no-new-privileges','--entrypoint','python',image,'-c',proof_program],text=True,stderr=subprocess.PIPE,timeout=60))
 if proof.get('source_hashes_match') is not True:raise ValueError('Shared imported sources differ')
-""".replace("SOURCE", repr(comparison.SOURCE)) + bootstrap + "\nprint(json.dumps({'shared_worker_image_verified':True}))\n"
+""".replace("SOURCE", repr(comparison.SOURCE)).replace("DECISION", repr(self.shared["decision"])) + bootstrap + "\nprint(json.dumps({'shared_worker_image_verified':True}))\n"
 
     def inventory_marker(self):
         return {**super().inventory_marker(), "shared_image_decision": "ADR0259",

@@ -7,12 +7,11 @@ import re
 from pathlib import Path
 
 from cce_shared_application import ROLES, render
+from cce_shared_worker_image_identity import IMAGE, RECEIPT_RELATIVE, RECEIPT_SHA256, SOURCE
 from customer_recovery_bundle import MANIFEST_SHA256
 
 ROOT = Path(__file__).resolve().parents[1]
-RECEIPT = ROOT / "docs/capacity/cce/shared-application-image-2026-10-10.json"
-IMAGE = "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742"
-SOURCE = "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c"
+RECEIPT = ROOT / RECEIPT_RELATIVE
 COUNTS = {role: count for role, (count, _) in ROLES.items() if count}
 GATES = ("customer_load", "post_ttl_financial", "zero_double_booking", "payment_durability",
          "full_queue_drain", "native_observer", "native_cpu", "unchanged_background",
@@ -24,12 +23,12 @@ def digest(value):
 
 
 def selected_receipt():
-    if RECEIPT.is_symlink():
+    if RECEIPT.is_symlink() or hashlib.sha256(RECEIPT.read_bytes().replace(b"\r\n", b"\n")).hexdigest() != RECEIPT_SHA256:
         raise ValueError("Shared-image receipt cannot be a symlink")
     value = json.loads(RECEIPT.read_text())
     if (value.get("registry_image") != IMAGE or value.get("source_identity_sha256") != SOURCE
             or value.get("registry_pulled_runtime_verified") is not True):
-        raise ValueError("Exact selected and verified shared image required")
+        raise ValueError("Exact ADR0261 selected and verified shared image required")
     render(value)  # Validate the complete source map and manifest digest.
     return value
 
@@ -37,7 +36,7 @@ def selected_receipt():
 def plan():
     selected_receipt()
     return {
-        "decision": "ADR0259", "single_changed_factor": "worker_placement",
+        "decision": "ADR0259", "image_correction_decision": "ADR0261", "single_changed_factor": "worker_placement",
         "arms": {"control": "cce_api_ecs_workers", "candidate": "cce_api_cce_workers"},
         "image": IMAGE, "source_identity_sha256": SOURCE,
         "replicas": dict(COUNTS), "confirmation_replicas": 0,

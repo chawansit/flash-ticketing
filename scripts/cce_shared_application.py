@@ -16,7 +16,7 @@ API_COMMAND = ["uvicorn", "ticketing.api:app", "--host", "0.0.0.0", "--port", "8
 
 def render(receipt, *, namespace="ticketing-shared-preview"):
     image = receipt.get("registry_image", "")
-    if receipt.get("decision") != "ADR0258" or receipt.get("registry_published") is not True:
+    if receipt.get("decision") not in {"ADR0258", "ADR0261"} or receipt.get("registry_published") is not True:
         raise ValueError("Published shared image receipt required")
     if not re.fullmatch(re.escape(REGISTRY) + r"@sha256:[0-9a-f]{64}", image):
         raise ValueError("Immutable application registry digest required")

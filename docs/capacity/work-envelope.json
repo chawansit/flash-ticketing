@@ -13,7 +13,7 @@
       "authorized_date_bangkok": "2026-10-09",
       "maximum_additional_spend": null,
       "no_spending_cap_explicitly_authorized": true,
-      "scope": "ADR0259: one fresh shared-image ECS-worker control and a conditional CCE-worker candidate, each at 84 journeys/s for 300 seconds. Four API pods at 1 CPU/2 GiB and up to thirteen worker pods at 250m CPU/512 MiB. Preserve the passive ECS confirmation poller, connection budgets, correctness gates and restoration.",
+      "scope": "ADR0261 corrected shared-image control, then conditional ADR0259 CCE worker placement at unchanged 84/s300s, resources, connections and quality gates.",
       "authorization": "User agreed to remove rolling clock deadlines and explicitly authorized: No monetary cap for this comparison and scaling.",
       "status": "APPROVED_GOAL_BOUNDED",
       "prior_expires_at_bangkok": "2026-10-08T23:59:59+07:00",
@@ -146,16 +146,17 @@
           "maximum_additional_spend": null,
           "no_spending_cap_explicitly_authorized": true
         },
-        "ledger_start_index": 68,
+        "ledger_start_index": 69,
         "candidate_factor": {
           "name": "worker_placement",
           "comparison_arm": "control",
-          "placement_plan_sha256": "3d46883a7878d9d775291e38cb21ef1398c56ebd16b7968ddd8d63a3f8d86e2c",
-          "shared_image_receipt_sha256": "7ec8062402ec143ab08931b4bdf5d4ce8eec35b6b576c18c067298ad4ce58017",
+          "placement_plan_sha256": "8b1026a9927255c8e549f93f155192788147be37334938681e9ef1626ebc4d16",
+          "shared_image_receipt_sha256": "e0d6298d09d85df4632bc2d4cf2547a7b48d9098119cd3c8be9372ebaa6567fd",
           "database_connections_unchanged": true
         },
-        "authorization": "Standing uncapped CCE comparison/scaling approval and user continue for ADR0259: fresh84/s300s control, candidate only after all control gates pass; existing budgets, cleanup and correctness gates retained.",
-        "authorized_at_bangkok": "2026-10-10T12:09:25.677429+07:00"
+        "authorization": "Standing user approval to diagnose, correct and repeat within unchanged budgets; user continue for ADR0261 corrected shared consumer. Fresh 84/s300s control, candidate only after all control gates and restoration pass.",
+        "authorized_at_bangkok": "2026-10-10T12:52:39.724856+07:00",
+        "image_correction_decision": "ADR0261"
       },
       "bounded_scaling_permission": {
         "authorized": true,
@@ -409,6 +410,43 @@
           "result_evidence": "docs/capacity/cce/transaction-comparison-2026-10-09.json",
           "recovery_decision": "ADR0244",
           "additional_paid_stages_authorized": false
+        },
+        {
+          "decision": "ADR0228",
+          "profile": "cce_paid_comparison",
+          "extension_decision": "ADR0259",
+          "comparison_arm": "control",
+          "maximum_paid_stages": 2,
+          "maximum_pods": 17,
+          "pod_vcpu": 1,
+          "pod_memory_gib": 2,
+          "worker_resources": {
+            "cpu": "250m",
+            "memory": "512Mi"
+          },
+          "offered_journeys_per_second": 84,
+          "offered_seconds": 300,
+          "maximum_experiment_seconds": 3600,
+          "acquisition_budget": 20,
+          "unlimited_cumulative_time_explicitly_authorized": true,
+          "spending_allowance": {
+            "status": "APPROVED",
+            "maximum_additional_spend": null,
+            "no_spending_cap_explicitly_authorized": true
+          },
+          "ledger_start_index": 68,
+          "candidate_factor": {
+            "name": "worker_placement",
+            "comparison_arm": "control",
+            "placement_plan_sha256": "3d46883a7878d9d775291e38cb21ef1398c56ebd16b7968ddd8d63a3f8d86e2c",
+            "shared_image_receipt_sha256": "7ec8062402ec143ab08931b4bdf5d4ce8eec35b6b576c18c067298ad4ce58017",
+            "database_connections_unchanged": true
+          },
+          "authorization": "Standing uncapped CCE comparison/scaling approval and user continue for ADR0259: fresh84/s300s control, candidate only after all control gates pass; existing budgets, cleanup and correctness gates retained.",
+          "authorized_at_bangkok": "2026-10-10T12:09:25.677429+07:00",
+          "status": "CONSUMED_FAILED_RESTORED",
+          "consumed_run": "adr0151-ba78fda091fd",
+          "superseded_by": "ADR0261"
         }
       ],
       "goal_history": [

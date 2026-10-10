@@ -96,3 +96,36 @@ def test_slot_rollover_keeps_independent_cpu_and_database_evidence(monkeypatch, 
     assert all(f["type"] == "ValueError" for f in failures)
     # Available summaries never erase completeness failures.
     assert failures
+
+
+@pytest.mark.parametrize("fault", [None, "lost_ticket", "wrong_drops", "original_image_result", "wrong_scope"])
+def test_exact_corrected_control_recovery(monkeypatch, fault):
+    from dataclasses import replace
+
+    report, entry, scope, evidence, fixture = proof(monkeypatch)
+    target = recovery.CORRECTED
+    report["run"] = evidence["run"] = target.run
+    entry["ledger"] = evidence["ledger"] = target.ledger
+    evidence["cleanup_namespace"] = target.namespace
+    customer = report["paid_stage"]["customer"]
+    for key in ("dispatched", "completed", "fulfilled", "distinct_orders", "distinct_tickets"):
+        customer[key] = target.expected
+    customer.update(generator_drops=target.drops, outcomes={"fulfilled": target.expected}, first_attempt_error_journeys=target.recovered, recovered_journeys=target.recovered)
+    counts = evidence["financial"]["counts"]
+    for key, value in list(counts.items()):
+        if value == 20040:
+            counts[key] = target.expected
+    evidence["financial"]["relationships"]["unique_issued_tickets"] = target.expected
+    result = policy.digest(report)
+    target = replace(target, result=result)
+    monkeypatch.setattr(recovery, "CORRECTED", target)
+    entry["result_sha256"] = scope["cce_paid_result_sha256"] = evidence["original_result_sha256"] = result
+    if fault == "lost_ticket": counts["tickets"] -= 1
+    elif fault == "wrong_drops": customer["generator_drops"] += 1
+    elif fault == "original_image_result": evidence["original_result_sha256"] = recovery.RESULT
+    elif fault == "wrong_scope": target = replace(target, expected=target.expected-1)
+    if fault:
+        with pytest.raises(ValueError): recovery.validate(report, entry, scope, evidence, fixture, target=target)
+    else:
+        assert recovery.validate(report, entry, scope, evidence, fixture, target=target)
+        compile(recovery.financial_program(fixture["show_ids"],24410,target=target),"corrected-cohort","exec")
