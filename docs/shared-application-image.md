@@ -21,7 +21,7 @@ Its complete source and dependency hashes are in [the build receipt](capacity/cc
 | Payment simulator, test only | `python -m ticketing.workers simulator` | 1 | 10, with 12 independent HTTP deliveries |
 | Optional confirmation worker | `python -m ticketing.workers confirmation` | 0 | 2 |
 
-The CCE preview starts **every deployment at zero replicas**. The suggested layout is 17 active pods, 7.25 vCPU and 14.5 GiB total; worker sizing still needs measurement. Its 146 possible application client connections share the existing PgBouncer physical server budget of 24. API pending acquisition capacity is 20 per process, not 20 extra database connections. No HPA or new external load balancer is included. A full migration is not yet deployed or financially authorized by the consumed four-pod experiment scope.
+The CCE preview starts **every deployment at zero replicas**. The suggested layout is 17 active pods, 7.25 vCPU and 14.5 GiB total; worker sizing still needs measurement. Its 146 possible application client connections share the existing PgBouncer physical server budget of 24. API pending acquisition capacity is 20 per process, not 20 extra database connections. No HPA or new external load balancer is included. A full migration is not yet deployed. [ADR0259](adr/0259-compare-shared-image-worker-placement.md) records the approved bounded two-arm comparison; the consumed four-pod scope cannot be reused to execute it. The worker lifecycle and observation adapter must be integrated before cloud dispatch.
 
 ## Local development
 

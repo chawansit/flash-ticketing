@@ -1,0 +1,56 @@
+{
+  "decision": "ADR0259",
+  "single_changed_factor": "worker_placement",
+  "arms": {
+    "control": "cce_api_ecs_workers",
+    "candidate": "cce_api_cce_workers"
+  },
+  "image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742",
+  "source_identity_sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c",
+  "replicas": {
+    "api": 4,
+    "consumer": 6,
+    "reservation-writer": 3,
+    "publisher": 1,
+    "maintenance": 1,
+    "reconciler": 1,
+    "simulator": 1
+  },
+  "confirmation_replicas": 0,
+  "api_resources": {
+    "cpu": "1",
+    "memory": "2Gi"
+  },
+  "worker_resources": {
+    "cpu": "250m",
+    "memory": "512Mi"
+  },
+  "maximum_pods": 17,
+  "requested_vcpu": 7.25,
+  "requested_memory_gib": 14.5,
+  "pgbouncer_server_connections": 24,
+  "connections_per_api": 4,
+  "payment_connections_per_api": 2,
+  "api_acquisition_budget": 20,
+  "simulator_http_concurrency": 12,
+  "simulator_database_pool": 10,
+  "api_keepalive_seconds": 10,
+  "offered_journeys_per_second": 84,
+  "offered_seconds": 300,
+  "scheduled_journeys": 25200,
+  "generator_concurrency": 500,
+  "generator_shards": 2,
+  "http_clients_per_shard": 8,
+  "poll_seconds": 1,
+  "recovery_max_attempts": 3,
+  "recovery_bundle_sha256": "2349e1b19849c20e57ed26203076635166a5fb7722d6c8202939fe9157f18331",
+  "maximum_paid_stages": 2,
+  "maximum_experiment_seconds": 3600,
+  "mandatory_cleanup_may_exceed_deadline": true,
+  "candidate_requires_fresh_passing_control": true,
+  "keep_current_profile_gates": true,
+  "gateway_delay_changes": false,
+  "inactive_preview_sha256": "7d6abe8f7b6eeb1d217098ca445ab429c368c8467586882dee813e8683caf7fc",
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false
+}

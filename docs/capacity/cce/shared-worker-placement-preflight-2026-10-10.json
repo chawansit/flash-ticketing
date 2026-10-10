@@ -1,0 +1,83 @@
+{
+  "decision": "ADR0259",
+  "cloud_access_verified": true,
+  "secondary_ssh_route": "pinned_private_hop",
+  "generator_idle": true,
+  "owned_cce_namespaces": [],
+  "host_disk_free_gib": {
+    "primary": 6.13,
+    "secondary": 33.31
+  },
+  "primary_service_counts": {
+    "load-balancer": 1,
+    "api": 4,
+    "publisher": 1,
+    "maintenance": 1,
+    "consumer": 1,
+    "reconciler": 1,
+    "simulator": 1,
+    "pgbouncer": 1,
+    "kafka": 1
+  },
+  "secondary_project_containers": 0,
+  "kafka_advertises_docker_hostname": true,
+  "kafka_host_port_published": false,
+  "cloud_load_started": false,
+  "cloud_mutations": false,
+  "capacity_improvement_measured": false,
+  "recorded_at_utc": "2026-10-10T04:40:55.244109+00:00",
+  "api_readiness": {
+    "status": "ready"
+  },
+  "resource_admission": {
+    "api": {
+      "requested": {
+        "requests": {
+          "cpu": "1",
+          "memory": "2Gi"
+        },
+        "limits": {
+          "cpu": "1",
+          "memory": "2Gi"
+        }
+      },
+      "admitted": {
+        "limits": {
+          "cpu": "1",
+          "memory": "2Gi"
+        },
+        "requests": {
+          "cpu": "1",
+          "memory": "2Gi"
+        }
+      },
+      "unchanged": true,
+      "persisted": false
+    },
+    "worker": {
+      "requested": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "admitted": {
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "unchanged": true,
+      "persisted": false
+    }
+  },
+  "selected_swr_digest_pull_verified": true
+}

@@ -183,3 +183,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0257: Close hourly recovery without qualifying incomplete diagnostics](0257-close-hourly-recovery-and-preserve-diagnostic-failures.md)
 
 - [ADR0258: One application image, separate service containers](0258-shared-application-image-and-separate-cce-services.md)
+
+- [ADR0259: Compare shared-image worker placement](0259-compare-shared-image-worker-placement.md)
