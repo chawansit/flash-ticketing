@@ -42,8 +42,36 @@ def test_overlay_rejects_changed_customer_source(monkeypatch):
         bundle.qualify(stage.generator_bundle())
 
 
-def test_unpublished_image_cannot_start_cloud_profile():
+def test_unpublished_image_cannot_start_cloud_profile(monkeypatch, tmp_path):
+    import hashlib
+    import json
+
+    evidence = profile.receipt(require_registry=False)
+    evidence["registry_published"] = False
+    evidence["registry_pulled_runtime_verified"] = False
+    path = tmp_path / "unpublished.json"
+    raw = (json.dumps(evidence, indent=2) + "\n").encode()
+    path.write_bytes(raw)
+    monkeypatch.setattr(profile, "PROOF", str(path))
+    monkeypatch.setattr(profile, "PROOF_SHA256", hashlib.sha256(raw).hexdigest())
     assert profile.receipt(require_registry=False)["registry_published"] is False
+    with pytest.raises(ValueError, match="Published and registry-pulled"):
+        profile.receipt()
+
+
+def test_published_image_requires_registry_pull_and_runtime_verification(monkeypatch, tmp_path):
+    import hashlib
+    import json
+
+    evidence = profile.receipt()
+    assert evidence["registry_published"] is True
+    assert evidence["registry_pulled_runtime_verified"] is True
+    evidence["registry_pulled_runtime_verified"] = False
+    path = tmp_path / "unverified.json"
+    raw = (json.dumps(evidence, indent=2) + "\n").encode()
+    path.write_bytes(raw)
+    monkeypatch.setattr(profile, "PROOF", str(path))
+    monkeypatch.setattr(profile, "PROOF_SHA256", hashlib.sha256(raw).hexdigest())
     with pytest.raises(ValueError, match="Published and registry-pulled"):
         profile.receipt()
 

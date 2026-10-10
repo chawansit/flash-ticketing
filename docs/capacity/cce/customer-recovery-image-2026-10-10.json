@@ -1,6 +1,6 @@
 {
   "decision": "ADR0255",
-  "registry_published": false,
+  "registry_published": true,
   "cloud_load_started": false,
   "capacity_improvement_measured": false,
   "platform": {
@@ -10,9 +10,9 @@
   "parent_registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:e30471a8eee19f9757f9d6acbaf2545f9f1001b6e46ae227cc3b9baa29237ad1",
   "images": {
     "control": {
-      "registry_image": null,
-      "registry_manifest_digest": null,
-      "registry_configuration_digest": null,
+      "registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:6b46c6333c071db306ce6b214bd41bc37368df0044fd9ddfd81c6c82bc89d092",
+      "registry_manifest_digest": "sha256:6b46c6333c071db306ce6b214bd41bc37368df0044fd9ddfd81c6c82bc89d092",
+      "registry_configuration_digest": "sha256:e63c13b3e3c99d45d7fdf472b3e93545b5c0e7c8cdf1c2cc5c668fbe80631694",
       "runtime_sources_sha256": {
         "src/ticketing/api.py": "4f4db9f6f35da937c37202d451a7da6c7eee1e9022eda560cb1db64ae7ab9c35",
         "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
@@ -39,9 +39,9 @@
       }
     },
     "candidate": {
-      "registry_image": null,
-      "registry_manifest_digest": null,
-      "registry_configuration_digest": null,
+      "registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:6b46c6333c071db306ce6b214bd41bc37368df0044fd9ddfd81c6c82bc89d092",
+      "registry_manifest_digest": "sha256:6b46c6333c071db306ce6b214bd41bc37368df0044fd9ddfd81c6c82bc89d092",
+      "registry_configuration_digest": "sha256:e63c13b3e3c99d45d7fdf472b3e93545b5c0e7c8cdf1c2cc5c668fbe80631694",
       "runtime_sources_sha256": {
         "src/ticketing/api.py": "4f4db9f6f35da937c37202d451a7da6c7eee1e9022eda560cb1db64ae7ab9c35",
         "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
@@ -113,5 +113,14 @@
     "src/ticketing/config.py",
     "src/ticketing/infrastructure/postgres.py",
     "src/ticketing/infrastructure/reservations.py"
-  ]
+  ],
+  "registry_pulled_runtime_verified": true,
+  "single_platform_publication": true,
+  "registry_tag": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing:adr0254-recovery-9b0abb7",
+  "registry_pulled_runtime_validation": {
+    "pass": true,
+    "modules_verified": 22,
+    "payment_operation_in_openapi": true,
+    "pipeline_default_off": true
+  }
 }

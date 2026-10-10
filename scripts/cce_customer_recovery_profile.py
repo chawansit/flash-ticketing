@@ -7,7 +7,7 @@ import work_envelope as policy
 from customer_recovery_bundle import MANIFEST_SHA256 as GENERATOR_SHA256
 
 PROOF = "docs/capacity/cce/customer-recovery-image-2026-10-10.json"
-PROOF_SHA256 = "06cdc522b719f888906de7aa90704e6ef65b222e81b4997283a2d4bea3dff888"
+PROOF_SHA256 = "f1cd6168c73aee0dfb915c94f6900b953e326be726ebb4cf28fef6b3d19983bc"
 BASELINE = "docs/capacity/cce/simulator-dispatch-comparison-2026-10-10.json"
 FACTOR = "order_status_read_pipeline"
 
