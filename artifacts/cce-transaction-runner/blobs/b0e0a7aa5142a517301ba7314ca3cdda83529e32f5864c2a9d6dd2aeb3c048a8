@@ -107,8 +107,6 @@ def install_hourly_sampling(module, *, now=None):
 def main(argv=None):
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--hourly", action="store_true")
-    parser.add_argument("--native-workers", type=Path)
-    parser.add_argument("--native-workers-sha256")
     parser.add_argument("--native-receipts", type=Path, required=True)
     parser.add_argument("--native-receipts-sha256", required=True)
     args, remaining = parser.parse_known_args(argv)
@@ -121,24 +119,11 @@ def main(argv=None):
     ):
         raise ValueError("Native receipt transfer changed")
     validate_receipts(value)
-    workers = None
-    if args.native_workers is not None or args.native_workers_sha256 is not None:
-        from cce_worker_identity import digest, validate_bundle
-        if args.native_workers is None or args.native_workers_sha256 is None:
-            raise ValueError("Complete native worker transfer binding required")
-        workers = json.loads(args.native_workers.read_text())
-        validate_bundle(workers)
-        if digest(workers) != args.native_workers_sha256 or workers["run"] != value["run"]:
-            raise ValueError("Worker receipt transfer/run differs")
     original = observer.install_adapter
 
     def adapter(module, *params, **kwargs):
         original(module, *params, **kwargs)  # Retain workers, diagnostics, budgets and metric parsing.
-        result = install(module, value, hourly=args.hourly)
-        if workers is not None:
-            from observe_cce_workers import install as worker_install
-            worker_install(module, workers)
-        return result
+        return install(module, value, hourly=args.hourly)
 
     if args.hourly:
         index = remaining.index("--seconds") if "--seconds" in remaining else -1

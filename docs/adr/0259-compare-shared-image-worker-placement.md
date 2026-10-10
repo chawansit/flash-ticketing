@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for a bounded test implementation, 10 October 2026. Cloud rollout and capacity validation remain pending. This extends ADR0258's inactive deployment preparation and supersedes ADR0228's API-only placement restriction only for this comparison. Other profiles and historical evidence remain unchanged.
+Accepted for a bounded test implementation, 10 October 2026. Runner integration is implemented; the fresh cloud control failed, and candidate migration remains blocked. This extends ADR0258's inactive deployment preparation and supersedes ADR0228's API-only placement restriction only for this comparison. Other profiles and historical evidence remain unchanged.
 
 ## Context
 
@@ -44,5 +44,14 @@ On failed control, do not launch the candidate. On deployment, ownership or cust
 - Live readiness returned `ready`. CCE server-side dry runs admitted both 1-vCPU/2-GiB API and 250m/512-MiB worker resources unchanged, with no persisted pods. The selected SWR digest was pulled successfully again.
 - Read-only live preflight: `docs/capacity/cce/shared-worker-placement-preflight-2026-10-10.json`.
 - Executed: `pytest tests/unit/test_cce_shared_worker_comparison.py tests/unit/test_shared_application_image.py -q -p no:cacheprovider`: 35 passed. These validate the fixed image/budgets, environment drift rejection, private Kafka routing, inactive replicas and candidate rejection after a failed or unrestored control.
-- Implemented preparation: comparison contract, public fixed plan and inactive candidate preview. The Kafka forwarder, worker ownership transition and worker observation still require integration with the existing paid runner. The new contract has not been registered as an executable cloud profile; existing guards remain intact.
-- Neither paid arm has run, workers have not migrated, and capacity improvement remains unmeasured.
+- Implemented: registered shared-image control/candidate profile, owned private Kafka forwarding, stop-before-start worker transfer, native worker identity/CPU/progress observation and ownership-safe restoration.
+- Executed integration checks: 325 tests passed, one skipped; Ruff passed; archived-source reproduction verified 535 historical inputs and 18 declared overlays.
+- Cloud control `adr0151-ba78fda091fd`: 20,040 dispatched and eventually fulfilled of 25,200 scheduled journeys; 5,160 drops; 594 recovered initial-error journeys; zero final failures. Journey p95 11.24 seconds. Control failed customer and slot-history completeness gates. All paid outcomes and relationships independently reconciled after TTL, with no duplicate booking, empty queues and verified restoration. Candidate was not started; no worker-placement capacity improvement is measured. See [control evidence](../capacity/cce/shared-worker-control-2026-10-10.json) and ADR0260.
+
+### Runner integration boundaries
+
+The measured API and background roles use the ADR0258 shared image in both arms. The existing runner may retain its frozen ECS API and audit-helper images during unmeasured bootstrap and restoration; these containers are stopped before paid dispatch and are not presented as measured shared-image roles. This preserves the qualified fixture, financial-audit and restoration implementation.
+
+Per-role resolved environments are sealed before dispatch. Only the database transport address, Kafka DNS route and callback transport address are normalized when comparing placements; credentials, database options, feature flags and connection budgets must match. Actual CCE worker UID, admitted resources, startup source/environment proof, process identity and progress remain separate from the captured ECS inventory. Neither a pod readiness flag nor an old ECS inventory is evidence of native worker progress.
+
+The historical benchmark also starts one confirmation poller on ECS even when API asynchronous confirmation is disabled. Retain that passive poller on ECS in both arms, with the shared image and its unchanged two-connection client pool; no confirmation pod is added to CCE. Include its CPU and source proof in ECS observations. The thirteen migrated workers exclude this unchanged poller. The maximum application client-pool allocation is therefore 148, still sharing 24 physical PgBouncer connections. Kafka forwarding is candidate-only transport overhead, separately recorded as a 0.25-vCPU/64-MiB owned helper.

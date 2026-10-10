@@ -185,3 +185,7 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0258: One application image, separate service containers](0258-shared-application-image-and-separate-cce-services.md)
 
 - [ADR0259: Compare shared-image worker placement](0259-compare-shared-image-worker-placement.md)
+
+- [ADR0260: Close failed shared-image control without qualifying capacity](0260-close-shared-image-control-without-qualifying-capacity.md)
+
+- [ADR0261: Preserve accepted consumer batching in the shared image](0261-preserve-consumer-batching-in-shared-image.md)

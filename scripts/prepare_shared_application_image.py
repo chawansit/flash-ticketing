@@ -89,11 +89,33 @@ def merge_writer(files):
     return result
 
 
+CONSUMER_SOURCE = "8cf69f9495e2a196e842ad076b388c5aabc678c0d4b2ea3874db7eb03600b4fd"
+
+
+def restore_consumer(files):
+    """ADR0261 restore two verified consumer methods without reverting the writer."""
+    name = "src/ticketing/workers.py"
+    if sha(files[name]) != WRITER_SOURCES[name]:
+        raise ValueError("Exact shared writer source required before restoring consumer")
+    accepted = blob(CONSUMER_SOURCE).decode()
+    source = files[name].decode()
+    for method in ("consume_refresh_batch", "consume_events"):
+        def span(text, method):
+            node = next(n for n in ast.parse(text).body if isinstance(n, ast.FunctionDef) and n.name == method)
+            return min([node.lineno] + [d.lineno for d in node.decorator_list]) - 1, node.end_lineno
+        start, end = span(source, method)
+        other_start, other_end = span(accepted, method)
+        lines = source.splitlines(True)
+        source = ''.join(lines[:start] + accepted.splitlines(True)[other_start:other_end] + lines[end:])
+    ast.parse(source, filename=name)
+    return {**files, name: source.encode()}
+
+
 def docker(*args):
     return subprocess.check_output(["docker", *args], text=True).strip()
 
 
-def prepare(output):
+def prepare(output, *, restore_consumer_batching=False):
     accepted = json.loads(ACCEPTED.read_text())["images"]["control"]
     parent = accepted["registry_image"]
     info = json.loads(docker("image", "inspect", parent))[0]
@@ -112,18 +134,22 @@ def prepare(output):
     files = {p.relative_to(output).as_posix(): p.read_bytes()
              for p in (output / "src/ticketing").rglob("*.py")}
     candidate = merge_writer(source_patch(files, accepted["runtime_sources_sha256"]))
+    if restore_consumer_batching:
+        candidate = restore_consumer(candidate)
     for name, raw in candidate.items():
         (output / name).write_bytes(raw)
     runtime = {name: sha(raw) for name, raw in candidate.items()}
     identity = sha(json.dumps(runtime, sort_keys=True).encode())
     manifest = {
-        "decision": "ADR0258", "parent_registry_image": parent,
+        "decision": "ADR0261" if restore_consumer_batching else "ADR0258", "parent_registry_image": parent,
         "parent_runtime_source_sha256": accepted["runtime_sources_sha256"],
         "runtime_source_sha256": runtime, "source_identity_sha256": identity,
         "writer_source_inputs_sha256": WRITER_SOURCES,
         "dependency_input_sha256": {name: sha((output / name).read_bytes())
                                     for name in ("requirements.lock", "pyproject.toml")},
     }
+    if restore_consumer_batching:
+        manifest["consumer_source_input_sha256"] = CONSUMER_SOURCE
     (output / "manifest.json").write_bytes((json.dumps(manifest, indent=2) + "\n").encode())
     (output / "install.py").write_bytes((ROOT / "scripts/status_refresh_image_install.py").read_bytes())
     (output / ".dockerignore").write_bytes(b"**/__pycache__\n**/*.pyc\n")
@@ -132,7 +158,7 @@ def prepare(output):
         "RUN python /tmp/shared-payload/install.py /tmp/shared-payload "
         "&& cp /tmp/shared-payload/manifest.json /app/shared-image.json "
         "&& rm -r /tmp/shared-payload\n"
-        f'LABEL org.flash-ticketing.decision="ADR0258" org.flash-ticketing.source-sha256="{identity}"\n'
+        f'LABEL org.flash-ticketing.decision="{manifest["decision"]}" org.flash-ticketing.source-sha256="{identity}"\n'
         "USER ticketing\n"
     ).encode())
     return manifest
@@ -142,10 +168,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build", action="store_true")
     parser.add_argument("--receipt", type=Path)
+    parser.add_argument("--restore-consumer-batching", action="store_true",
+                        help="ADR0261 isolated restoration; emits a separate corrected-image identity")
     args = parser.parse_args()
-    output = ROOT / "tmp" / ("adr0258-image-" + uuid4().hex[:12])
-    manifest = prepare(output)
-    tag = "flash-ticketing-shared:adr0258-" + manifest["source_identity_sha256"][:12]
+    decision = "adr0261" if args.restore_consumer_batching else "adr0258"
+    output = ROOT / "tmp" / (decision + "-image-" + uuid4().hex[:12])
+    manifest = prepare(output, restore_consumer_batching=args.restore_consumer_batching)
+    tag = "flash-ticketing-shared:" + decision + "-" + manifest["source_identity_sha256"][:12]
     receipt = {**manifest, "local_tag": tag, "registry_published": False,
                "cloud_deployed": False, "cloud_load_started": False,
                "capacity_improvement_measured": False}

@@ -1,0 +1,82 @@
+"""ADR0259 native worker identity/progress evidence; independent of Docker inventory."""
+import hashlib
+import ipaddress
+import json
+import math
+import re
+
+SOURCE = "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c"
+CONFIG = "sha256:8ae9bb3692b642e08313dcae1d64cfa905b8a794b5feb048d75e25ebb6e01c5d"
+ECS_IMAGE_ID = "sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742"
+MANIFEST = "sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742"
+COUNTS = {"consumer": 6, "reservation-writer": 3, "publisher": 1, "maintenance": 1, "reconciler": 1, "simulator": 1}
+RESOURCES = {k: {"cpu": "250m", "memory": "512Mi"} for k in ("requests", "limits")}
+
+
+def digest(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+
+
+def verify_sources(sources):
+    if (not isinstance(sources, dict) or len(sources) != 22
+            or any(not re.fullmatch(r"src/ticketing/[a-z_/]+\.py", k) or not re.fullmatch(r"[0-9a-f]{64}", v) for k, v in sources.items())
+            or hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest() != SOURCE):
+        raise ValueError("Exact shared 22-module source identity required")
+    return True
+
+
+def validate_bundle(value):
+    if (set(value) != {"decision", "run", "sources", "manifest_digest", "resources", "receipts"}
+            or value["decision"] != "ADR0259" or not re.fullmatch(r"adr0151-[0-9a-f]{12}", value["run"])
+            or value["manifest_digest"] != MANIFEST or value["resources"] != RESOURCES):
+        raise ValueError("Exact native worker admission bundle required")
+    verify_sources(value["sources"])
+    expected = {f"{role}-{i}" for role, count in COUNTS.items() for i in range(count)}
+    rows = value["receipts"]
+    if (len(rows) != 13 or {r["pod_name"] for r in rows} != expected
+            or any(len({r[k] for r in rows}) != 13 for k in ("pod_uid", "private_ipv4"))):
+        raise ValueError("Thirteen unique worker pod identities required")
+    for row in rows:
+        role = row["role"]
+        addr = ipaddress.IPv4Address(row["private_ipv4"])
+        proof = row["startup_proof"]
+        started = row["process_start_time_seconds"]
+        if (role not in COUNTS or row["pod_name"] not in {f"{role}-{i}" for i in range(COUNTS[role])}
+                or not any(addr in ipaddress.IPv4Network(n) for n in ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"))
+                or row["image_id"].split("@")[-1] != MANIFEST or row["resources"] != RESOURCES
+                or proof.get("run") != value["run"] or proof.get("pod_uid") != row["pod_uid"]
+                or proof.get("sources") != value["sources"]
+                or not re.fullmatch(r"[0-9a-f]{64}", proof.get("environment_sha256", ""))
+                or proof.get("command_sha256") != digest(["python", "-m", "ticketing.workers", role])
+                or type(started) not in (int, float) or not math.isfinite(started) or started <= 0):
+            raise ValueError("Native worker runtime/command identity differs")
+    return {r["private_ipv4"]: r["process_start_time_seconds"] for r in rows}
+
+
+def verify_ecs_shared_inventory(inventory, approved_digest):
+    """Validate actual sources before adapting historical structural assertions."""
+    marker = inventory.get("status_refresh_contract", {})
+    if digest(inventory) != approved_digest or marker.get("shared_image_decision") != "ADR0259" or marker.get("shared_image_source_sha256") != SOURCE or marker.get("shared_image_configuration_digest") != CONFIG:
+        raise ValueError("Exactly sealed shared-image inventory required")
+    rows = inventory.get("worker_sources", [])
+    counts = {role: 0 for role in {**COUNTS, "confirmation": 1}}
+    ids = set()
+    for row in rows:
+        role = row.get("role")
+        proof = row.get("source_identity", {})
+        imports = proof.get("resolved_imports", {})
+        if (role not in counts or row.get("container_id") in ids or row.get("image_id") != ECS_IMAGE_ID
+                or any(proof.get(k) is not True for k in ("source_hashes_match", "app_source_hashes_match", "import_source_hashes_match", "import_code_matches_source"))
+                or any(v.get("code_matches_source") is not True for v in imports.values())):
+            raise ValueError("Shared worker source/image proof differs")
+        verify_sources({k: v.get("sha256") for k, v in imports.items()})
+        settings = row.get("settings", {})
+        if settings.get("RESERVATION_WRITE_PIPELINE", "0") != ("1" if role == "reservation-writer" else "0"):
+            raise ValueError("Writer-only pipeline setting differs")
+        if role == "simulator" and any(settings.get(k) != v for k, v in {"SIMULATOR_CONCURRENCY": "12", "SIMULATOR_DISPATCH_MODE": "refill", "DB_POOL_MAX": "10"}.items()):
+            raise ValueError("Simulator workload/pool changed")
+        counts[role] += 1
+        ids.add(row["container_id"])
+    if counts != {**COUNTS, "confirmation": 1} or inventory.get("background", {}).get("simulator") != {"replicas": 1, "concurrency": 12, "dispatch_mode": "refill", "pool_per_replica": 10}:
+        raise ValueError("Complete shared worker placement required")
+    return True

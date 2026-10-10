@@ -27,17 +27,26 @@ def receipt_bundle(run, receipts):
     return value
 
 
-def summarize_independent_diagnostics(record, rows, path, receipts, start, end, *, hourly, summarize_waits):
-    """ADR0257 retain independent CPU evidence even if database diagnostics fail."""
+def summarize_independent_diagnostics(record, rows, path, receipts, start, end, *, hourly, summarize_waits,
+                                     summarize_slots=None, summarize_pipeline=None, native_workers=None):
+    """ADR0257/0260 preserve independent diagnostics despite a missing slot history."""
     failures = []
-    operations = (
+    operations = []
+    if summarize_slots is not None:
+        operations.append(("slot_failure_capture", lambda: summarize_slots(rows, native.validate_receipts(receipts))))
+    if summarize_pipeline is not None:
+        operations.append(("pipeline_summary", lambda: summarize_pipeline(rows)))
+    if native_workers is not None:
+        from observe_cce_workers import summarize as summarize_workers
+        operations.append(("native_worker_cpu", lambda: summarize_workers(rows, native_workers, start, end)))
+    operations.extend((
         ("database_wait_capture", lambda: summarize_waits(path, hourly=hourly)),
         ("native_api_cpu", lambda: api_cpu(rows, receipts, start, end, hourly=hourly)),
-    )
+    ))
     for operation, collect in operations:
         try:
             record[operation] = collect()
-        except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Preserve both diagnostic failures independently.
+        except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Every independent diagnostic must be attempted.
             failures.append({"operation": operation, "type": type(error).__name__})
     return failures
 
@@ -49,7 +58,7 @@ def background_spec(role, rows, instance_sha, receipts_sha):
             continue
         labels = row["Config"].get("Labels", {})
         service = labels.get("com.docker.compose.service")
-        if labels.get("codex-purpose") in {"cce-audit", "cce-pooler"}:
+        if labels.get("codex-purpose") in {"cce-audit", "cce-pooler", "cce-kafka"}:
             service = labels["codex-purpose"]
         if service is None:
             raise ValueError("Unknown active container in native measurement")
@@ -73,6 +82,8 @@ def background_spec(role, rows, instance_sha, receipts_sha):
         "instance_uuid_sha256": instance_sha,
         "containers": entries,
     }
+    if any(entry["role"] == "cce-kafka" for entry in entries):
+        spec.update(placement="cce-worker-isolation", decision="ADR0259")
     cpu.validate_spec(spec)
     return spec
 
@@ -207,6 +218,7 @@ class Observers:
             "prepare_two_host_scaling.py",
             "database_wait_evidence.py",
             "diagnostic_connection.py",
+            *(("cce_worker_identity.py", "observe_cce_workers.py") if extended and transaction.active()["extension_decision"] == "ADR0259" else ()),
             *(("observe_slot_paid_pipeline.py", "slot_failure_evidence.py", "bounded_trace_transport.py") if extended else ()),
         )
         expected = {}
@@ -262,6 +274,8 @@ class Observers:
         qualify_bound_inventory(self.contract, self.inventory, self.record, self.stage.output)
         self.upload("inventory.private.json", json.dumps(self.inventory))
         self.upload("native-receipts.json", json.dumps(self.native))
+        if getattr(self, "native_workers", None) is not None:
+            self.upload("native-workers.json", json.dumps(self.native_workers))
         observation_seconds = str(self.stage.profile.observer_seconds)
         common = [
             "--manifest",
@@ -293,6 +307,7 @@ class Observers:
                 "--output",
                 self.directory + "/pipeline.jsonl",
                 *common,
+                *(["--native-workers", self.directory + "/native-workers.json", "--native-workers-sha256", policy.digest(self.native_workers)] if getattr(self, "native_workers", None) is not None else []),
                 *(["--hourly"] if self.stage.profile.duration == 3600 else []),
             ],
             "kafka": [
@@ -357,6 +372,9 @@ class Observers:
         self.end_utc = (datetime.fromtimestamp(start, UTC) + timedelta(seconds=self.stage.profile.duration)).isoformat()
         for role in ("primary", "secondary"):
             spec = background_spec(role, snapshots[role], identities[role], policy.digest(self.native))
+            if getattr(self, "native_workers", None) is not None:
+                spec.update(placement="cce-worker-isolation", decision="ADR0259")
+                cpu.validate_spec(spec)
             location = (
                 self.session.config["primary"]["repo"] + "/tmp/"
                 if role == "primary"
@@ -466,16 +484,16 @@ class Observers:
                 path = self.stage.output / (name + ".jsonl")
                 path.write_bytes(raw)
                 rows = [json.loads(line) for line in raw.decode().splitlines() if line.strip()]
-                if name == "pipeline" and transaction.active() is not None:
-                    from slot_failure_evidence import summarize as summarize_slots
-                    self.record["slot_failure_capture"] = summarize_slots(rows, native.validate_receipts(self.native))
-                self.record[name + "_summary"] = summarize(rows)
                 if name == "pipeline":
                     from database_wait_evidence import summarize as summarize_waits
-
+                    from slot_failure_evidence import summarize as summarize_slots
                     failures.extend(summarize_independent_diagnostics(
                         self.record, rows, path, self.native, self.start_utc, self.end_utc,
-                        hourly=self.stage.profile.duration == 3600, summarize_waits=summarize_waits))
+                        hourly=self.stage.profile.duration == 3600, summarize_waits=summarize_waits,
+                        summarize_slots=summarize_slots if transaction.active() is not None else None,
+                        summarize_pipeline=summarize, native_workers=getattr(self, "native_workers", None)))
+                else:
+                    self.record[name + "_summary"] = summarize(rows)
 
             except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - One missing trace cannot skip the other.
                 failures.append({"operation": name + "_trace", "type": type(error).__name__})

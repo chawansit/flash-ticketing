@@ -102,7 +102,7 @@ class Lifecycle:
 
         # Project discovery intentionally excludes non-Compose helper containers.
         # Add only the two separately captured owned identities, never all Docker.
-        for role in getattr(self.resources, "names", {"audit": None, "bridge": None}):
+        for role in ("audit", "bridge"):
             actual = self.resources.inspect_name(role)
             expected = self.resources.rows.get(role)
             if (
@@ -138,16 +138,11 @@ class Lifecycle:
                 self.record["transition_inventory_refresh"] = self.refresh_inventory()
                 self.checkpoint()
             self.transition.activate(receipts)
-            if hasattr(self.transition, "worker_runtime") and self.transition.worker_runtime is not None:
-                self.observers.native_workers = self.transition.worker_runtime.bundle
-                self.background_before = self.session.call("primary", INSPECT, 45)
             self.record["safety"] = self.qualify_safety(receipts)
             require_safety(self.record["safety"])
             fixture, manifest = self.prepare_fixture()
             self.stage.prepare(fixture, manifest)
             self.observers.start(receipts)
-            if hasattr(self.transition, "verify_workers"):
-                self.transition.verify_workers()
             before = self.snapshots()
             background_unchanged(self.background_before, before["primary"])
             # Re-observe immutable pod/process receipts immediately before scheduling.
@@ -167,8 +162,6 @@ class Lifecycle:
             observed = self.observers.collect()
             financial = self.stage.audit(global_audit)
             self.deployment.observe(self.manifests, http_ready, http_metrics, previous=receipts)
-            if hasattr(self.transition, "verify_workers"):
-                self.transition.verify_workers()
             after = self.snapshots()
             background_unchanged(before["primary"], after["primary"])
             self.record["measurement_gates"] = {

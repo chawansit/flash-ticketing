@@ -42,12 +42,6 @@ def authorized_today(envelope, now=None):
             "offered_journeys_per_second": 84, "offered_seconds": 300,
             "maximum_experiment_seconds": 3600,
         }
-        if goal.get("extension_decision") == "ADR0259":
-            from cce_shared_worker_profile import active
-            active(goal)
-            expected.update(maximum_paid_stages=2, maximum_pods=17, pod_memory_gib=2)
-            if goal.get("worker_resources") != {"cpu": "250m", "memory": "512Mi"}:
-                raise ValueError("Exact mixed API/worker resource budget required")
         decision = "ADR0228"
         if goal.get("profile") == "cce_hourly_qualification":
             decision = "ADR0232"

@@ -1461,6 +1461,375 @@
         "extra_seconds_added": 351.06199999997625,
         "missing_elapsed_evidence": "Three earlier failed read-only recovery attempts have no exact elapsed receipts; cumulative recorded time is incomplete."
       }
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__4206c3cffd9f",
+      "authorization_id": "work-envelope-4206c3cffd9f",
+      "envelope_sha256": "9a7098c9b416811941d52b61adbdafbcc2743399ba34d728a754cdf419b236d8",
+      "binding_sha256": "9fd2d8c25f20d6f95525149f0bb30b2260a2ad62a39fd958919132adf7b6fcda",
+      "plan_sha256": "aa626c0de6e51a080cde1f09fab0fbc816c544e0b58cfff3b4ccbe146d406c9e",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 301.48399999999674,
+      "started_at_utc": "2026-10-09T09:50:00.507207+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-8b010c522d75",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-09T09:55:01.633472+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "34c185588feef09e397677dde67c0a810b982ada6b3f58b2dfb941c8efc54ab6"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__2c355218240b",
+      "authorization_id": "work-envelope-2c355218240b",
+      "envelope_sha256": "9a7098c9b416811941d52b61adbdafbcc2743399ba34d728a754cdf419b236d8",
+      "binding_sha256": "c1e941165d62d18ca7bdd459c96199ac7645b1d0093e0805d8bd603b67565581",
+      "plan_sha256": "aa626c0de6e51a080cde1f09fab0fbc816c544e0b58cfff3b4ccbe146d406c9e",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 494.93699999997625,
+      "started_at_utc": "2026-10-09T10:01:37.781432+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-00ad65a21864",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-09T10:09:52.223734+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "71cc7f1b6f1c5190a5fb498a44dd3f69ae0aaeee437d681b137bb79545771809"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__a9f93f412be9",
+      "authorization_id": "work-envelope-a9f93f412be9",
+      "envelope_sha256": "9a7098c9b416811941d52b61adbdafbcc2743399ba34d728a754cdf419b236d8",
+      "binding_sha256": "55e51f7ad8a86a459ba2b6eabce146e21b73f989d6a7c7c0c4718124bba56c24",
+      "plan_sha256": "aa626c0de6e51a080cde1f09fab0fbc816c544e0b58cfff3b4ccbe146d406c9e",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 484.4530000000377,
+      "started_at_utc": "2026-10-09T10:24:07.742702+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-dc3f10fd2b89",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-09T10:32:11.509906+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "206b3aabebe11eb1dc94c8b13057422e919ef4b4a22a8f3fc77095c43cbb545e"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__d4fdff74cb7c",
+      "authorization_id": "work-envelope-d4fdff74cb7c",
+      "envelope_sha256": "9a7098c9b416811941d52b61adbdafbcc2743399ba34d728a754cdf419b236d8",
+      "binding_sha256": "5c8c5059a97978ddbd73b108d1d22052676750293deacfcf24f41960c50fb16c",
+      "plan_sha256": "aa626c0de6e51a080cde1f09fab0fbc816c544e0b58cfff3b4ccbe146d406c9e",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 540.795999999973,
+      "started_at_utc": "2026-10-09T10:38:03.380685+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-f1d128f9546a",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-09T10:47:03.581888+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "3a09eeec1f47a9465d08bc57e4f2431d80c5d8888897c5918f69024126b798c4"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__bea53a4e8af1",
+      "authorization_id": "work-envelope-bea53a4e8af1",
+      "envelope_sha256": "9a7098c9b416811941d52b61adbdafbcc2743399ba34d728a754cdf419b236d8",
+      "binding_sha256": "d9339af6d46838edd31b205691ae57da06a772ff3497113c3465744e530c3f1d",
+      "plan_sha256": "aa626c0de6e51a080cde1f09fab0fbc816c544e0b58cfff3b4ccbe146d406c9e",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1016.719000000041,
+      "started_at_utc": "2026-10-09T10:51:26.409544+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-d451a218d696",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-09T11:08:22.426468+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "1b873fdaae6b053bf6f7ea37aa0d434b367f627f7a2bbc04d382035c515e4614"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__d9edca30220f",
+      "authorization_id": "work-envelope-d9edca30220f",
+      "envelope_sha256": "1ef2a83558261df76cd939706cce4d68c2e32ceaa2b334e83de60244dbd632df",
+      "binding_sha256": "e30a20554dbd4dc85a8e87547a5e39787233f4b47131edd2a024ad9af0305de9",
+      "plan_sha256": "ad94249a292cad55e87566673032f50cd1f11872fc6769d3270d9972e7e0c2ad",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1160.8919999999925,
+      "started_at_utc": "2026-10-09T11:10:48.369940+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-715430323753",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-09T11:27:58.487625+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "330b8e24cdce874dbac4058e516129073e08a8f2d8bd07d13a245ed58c7e7dde",
+      "initial_status": "RECOVERY_REQUIRED",
+      "initial_actual_elapsed_seconds": 1030.5160000000033,
+      "recovery": {
+        "decision": "ADR0244",
+        "evidence": "tmp/adr0151-715430323753/matched-recovery.private.json",
+        "sha256": "21eded91763d70d15f7e6dbf5fb8e342ddc3b381524c529f5951d0ad81484c23",
+        "actual_elapsed_seconds": 130.3759999999893,
+        "capacity_qualified": false
+      }
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__c2079f5eca01",
+      "authorization_id": "work-envelope-c2079f5eca01",
+      "envelope_sha256": "5bc08f01be905da86272fd2363b4f4677ae4c6982756f37f2150f38f57e27192",
+      "binding_sha256": "8f9cceccc6bd8d17cfdb9dd9e5d135e562d8188cea5620bc49c7645f063a048e",
+      "plan_sha256": "2e5f89a0b98a24adebb0f7f5bb5bcbbb39c70a4f6a9eff9a27cab259a087627b",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1082.7660000000033,
+      "started_at_utc": "2026-10-09T12:14:18.359996+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-4c6657f3e1d1",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-09T12:31:29.612859+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "282c4b52a622153bbba0f87a6ec588c33c2e69fc1d1412cb952abc5d6ba46260",
+      "initial_status": "RECOVERY_REQUIRED",
+      "initial_actual_elapsed_seconds": 1032.0939999999828,
+      "recovery": {
+        "decision": "ADR0246",
+        "evidence": "tmp/adr0151-4c6657f3e1d1/partition-control-recovery.private.json",
+        "sha256": "1d28cfdc6f3330363278f23223714952b7fb1705ea9aa87804fdc629aeef7efd",
+        "actual_elapsed_seconds": 50.67200000002049,
+        "capacity_qualified": false
+      }
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__49fbfae9f1e8",
+      "authorization_id": "work-envelope-49fbfae9f1e8",
+      "envelope_sha256": "0002a398e127303a623f49ef577730b488c28f203b1f50d073e69c7a2c9e282d",
+      "binding_sha256": "026c6a5aa14e1f13a328c742253e2354834a36427e89b07d2b114ae44fb4664e",
+      "plan_sha256": "93d75aabd0deb09490ef29a1726d001d2672011dcf9678017a81cb9db0304ec5",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1161.6410000000033,
+      "started_at_utc": "2026-10-09T14:39:46.135165+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-135b02478459",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-09T14:58:20.714780+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "3403623116e3694d09a9498de9388c8bb1013217adb58a10e477c888ff1e7ddd",
+      "initial_status": "RECOVERY_REQUIRED",
+      "initial_actual_elapsed_seconds": 1116.030999999959,
+      "recovery": {
+        "decision": "ADR0250",
+        "evidence": "tmp/adr0151-135b02478459/payment-context-control-recovery.private.json",
+        "sha256": "d8f84d7aa9cb48de79f862c476fae065c5a0d977a93519d78aa70a72ad5c302c",
+        "actual_elapsed_seconds": 45.61000000004424,
+        "capacity_qualified": false
+      }
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__a1b69c5da1d9",
+      "authorization_id": "work-envelope-a1b69c5da1d9",
+      "envelope_sha256": "d29d749e03649bd218e632010eaf1957fcc6b1e8388822e74de83c0cb3e8f9aa",
+      "binding_sha256": "a9d1b755e9b4eac5b66e98b799a281b7b661fb0d69e775e48f978f2810519a99",
+      "plan_sha256": "699a2c0ee9c0b9b44cf8eef514e8a22962ea668d09d26fc2fc41bd0d285dd3d1",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 3059.9369999999763,
+      "started_at_utc": "2026-10-09T16:04:23.039337+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-1c221c0c993f",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-09T16:54:56.389978+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "00c9ae733a2d17afa71da498952d0b571483b58864f54d5804e9622ac5ce5f65"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__ae59f3c3a9ae",
+      "authorization_id": "work-envelope-ae59f3c3a9ae",
+      "envelope_sha256": "d29d749e03649bd218e632010eaf1957fcc6b1e8388822e74de83c0cb3e8f9aa",
+      "binding_sha256": "0a75676512503ee10a70fc3c750385ee92ff634d09d0a70f229239596f7e3e6e",
+      "plan_sha256": "699a2c0ee9c0b9b44cf8eef514e8a22962ea668d09d26fc2fc41bd0d285dd3d1",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1053.875,
+      "started_at_utc": "2026-10-09T17:03:28.285496+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-82e15c90ba71",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-09T17:21:02.082657+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "f65809964486de89d7d3a24b01311c62c730f0b167804c53f8c697dbb48fd860"
+    },
+    {
+      "ledger": "bounded_cce_hourly_qualification__17b2158eb19b",
+      "authorization_id": "work-envelope-17b2158eb19b",
+      "envelope_sha256": "5a3a327240144e3e42fc04c973764cb63e93ee601a0edbf07484190dfbc83330",
+      "binding_sha256": "36bdc3b3d8d41a35c0c92c6a30adb5387efe9dadead4fe32b7cc87edd36b0747",
+      "plan_sha256": "8df80bd3cc2c5e3f57003a44eb1f0baa5de127849a162fc9914903af8b2198fe",
+      "profile": "cce_hourly_qualification",
+      "reserved_seconds": 5400,
+      "actual_elapsed_seconds": 4619.02999999997,
+      "started_at_utc": "2026-10-09T17:30:42.109875+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-ada3471665ef",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-09T18:44:30.845624+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "338b88f4716c777240eac9f1a1ec6295121ecce4107698463c87e9aaf2dafb18",
+      "initial_status": "RECOVERY_REQUIRED",
+      "initial_actual_elapsed_seconds": 4429.155999999959,
+      "recovery": {
+        "decision": "ADR0253",
+        "evidence": "tmp/adr0151-ada3471665ef/simulator-hourly-recovery.private.json",
+        "sha256": "4c6316c3a947095466df51731fe769c2b10cee3dcdb7a11cfb3da648bf0476ac",
+        "actual_elapsed_seconds": 189.8740000000107,
+        "capacity_qualified": false
+      }
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__d844d16c6d1a",
+      "authorization_id": "work-envelope-d844d16c6d1a",
+      "envelope_sha256": "cea3076db9b564389dd64552435f04221b1ea932bca3d84f7f63418bb0a5be24",
+      "binding_sha256": "143315123d6fba41ca86df551bb1109183a93758c65b1321f9bf570ebca1bdbc",
+      "plan_sha256": "fc6b6d13d2f1323a7f250cf7f51381b75a3a36dcf53b217914845a8e6a224fed",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1028.5470000000205,
+      "started_at_utc": "2026-10-10T00:20:39.390504+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-24c093be24cb",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-10T00:37:47.520800+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "6dec7e5e992957669c24785d12127c9b94f2d2c2d7af78299d9cd139a9225f9f"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__3330214be523",
+      "authorization_id": "work-envelope-3330214be523",
+      "envelope_sha256": "df0f434d50d0997d3bc84abbc167bf7cfc268ac261be733e30b0629480770fa9",
+      "binding_sha256": "a43454a8080694f67222127916829ccf0f91cd607b3bca5381a789c4fad2d539",
+      "plan_sha256": "9fa374166483a96fa8a85e36e473b8b397aef3226c6c3f15a2c0ee928830b2b8",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1034.420999999973,
+      "started_at_utc": "2026-10-10T00:40:13.195926+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-e09b3338a399",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-10T00:57:27.466971+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "b8b98335e30f7d9b222f62fd2161bb11408072546c547d782ae0bd80c84e5e43"
+    },
+    {
+      "ledger": "bounded_cce_hourly_qualification__aef137c0537e",
+      "authorization_id": "work-envelope-aef137c0537e",
+      "envelope_sha256": "bc511411bcdf7e1b2c8c66b884e62497693f81271b2637135e0b96fa37f6e1a0",
+      "binding_sha256": "c26100d8fe9e808cf61c3603a46607f0c2bdc8ed462d03a621f7d73faf54b534",
+      "plan_sha256": "54c93b45f01625fadff96d109de91dbc258b2bb2c8cb792294a7e084ddae7608",
+      "profile": "cce_hourly_qualification",
+      "reserved_seconds": 5400,
+      "actual_elapsed_seconds": 4500.0,
+      "started_at_utc": "2026-10-10T01:27:14.381790+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-c11285855ae5",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-10T02:39:57.748118+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "abafbd34fba936f75adbced7e5a2ba7baee58192a0cb71e9d1df0a1196e555f3",
+      "initial_status": "RECOVERY_REQUIRED",
+      "initial_actual_elapsed_seconds": 4363.4529999999795,
+      "recovery": {
+        "decision": "ADR0257",
+        "evidence": "tmp/adr0151-c11285855ae5/independent-hourly-recovery.private.json",
+        "sha256": "ac899c58e495408da28871109be3c15263ca4563e9c03f489f7f0bc6c99cd8b7",
+        "actual_elapsed_seconds": 136.5470000000205,
+        "capacity_qualified": false
+      }
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__1dfe7edba664",
+      "authorization_id": "work-envelope-1dfe7edba664",
+      "envelope_sha256": "5a59582f58c9b3d8a10ce44a7cef386b6c9554cbfa6f8ff886d2e6f07ef461bf",
+      "binding_sha256": "2a19e6e9ef75ce412a087309e987854bedb8234084ce3aed929c9e492e501f67",
+      "plan_sha256": "58215b8717eae6e2893d97af91133aa2b6b2114f97dc18fc2e504bdc2d5d12ee",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1181.7029999999795,
+      "started_at_utc": "2026-10-10T05:10:48.617309+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-ba78fda091fd",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-10T05:29:13.387719+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "98d5fa9409ae86e2c918109b7aa398fbcf49225f6924346352668941497fb037",
+      "initial_status": "RECOVERY_REQUIRED",
+      "initial_actual_elapsed_seconds": 1104.875,
+      "recovery": {
+        "decision": "ADR0260",
+        "evidence": "tmp/adr0151-ba78fda091fd/independent-shared-control-recovery.private.json",
+        "sha256": "d09ac93cc363ad31f6112f1a29eb29417074e1ad2ba3bbdd9712fa07b922a4eb",
+        "actual_elapsed_seconds": 76.82799999997951,
+        "capacity_qualified": false
+      }
     }
   ],
   "verified_aborts": {
@@ -1566,6 +1935,35 @@
       "sha256": "823f2fe31f5ca4fdd5a8fb03377e81601d7f3b9ec4841717f25d5ad36cc140f0",
       "actual_elapsed_seconds": 42.21900000004098,
       "kind": "ADR0235 read-only supplementary observation recovery; original gate unchanged"
+    }
+  ],
+  "engineering_diagnostics": [
+    {
+      "decision": "ADR0247",
+      "type": "bounded_read_only_query_profiling",
+      "actual_elapsed_seconds": 30.81200000003446,
+      "paid_stages_started": 0,
+      "infrastructure_changes": false,
+      "runtime_unchanged": true,
+      "evidence": "docs/capacity/cce/cohort-query-profile-2026-10-09.json"
+    },
+    {
+      "decision": "ADR0248",
+      "type": "bounded_read_only_payment_lookup_profiling",
+      "actual_elapsed_seconds": 14.422000000020489,
+      "paid_stages_started": 0,
+      "infrastructure_changes": false,
+      "runtime_unchanged": true,
+      "evidence": "docs/capacity/cce/payment-context-query-profile-2026-10-09.json"
+    },
+    {
+      "decision": "ADR0249",
+      "type": "read_only_normal_runtime_snapshot",
+      "actual_elapsed_seconds": 37.15700000000652,
+      "paid_stages_started": 0,
+      "infrastructure_changes": false,
+      "runtime_unchanged": true,
+      "evidence": "tmp/adr0249-payment-comparison/preflight.private.json"
     }
   ]
 }

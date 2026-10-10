@@ -44,6 +44,9 @@ def image_pair():
 def active(envelope=None):
     envelope = policy.envelope() if envelope is None else envelope
     goal = envelope.get("spending", {}).get("temporary_cce_pilot_exception", {}).get("goal_bounded_authorization", {})
+    if goal.get("extension_decision") == "ADR0259":
+        from cce_shared_worker_profile import active as placement_active
+        return placement_active(goal)
     if goal.get("extension_decision") == "ADR0256":
         from cce_recovery_hourly_profile import active as hourly_active
         return hourly_active(goal)
@@ -77,6 +80,9 @@ def active(envelope=None):
 
 
 def proof_digest(goal):
+    if goal["extension_decision"] == "ADR0259":
+        from cce_shared_worker_profile import proof_digest as placement_digest
+        return placement_digest()
     if goal["extension_decision"] in {"ADR0255", "ADR0256"}:
         from cce_customer_recovery_profile import PROOF_SHA256 as recovery_digest
         return recovery_digest
@@ -100,6 +106,9 @@ def pair_receipt(goal):
 
 
 def image_for(goal):
+    if goal["extension_decision"] == "ADR0259":
+        from cce_shared_worker_profile import image
+        return image()
     """ADR0245 holds the accepted control binary fixed across both partitions."""
     arm = "control" if goal["extension_decision"] in {"ADR0245", "ADR0251", "ADR0255", "ADR0256"} else goal["comparison_arm"]
     return pair_receipt(goal)["images"][arm]
@@ -161,6 +170,11 @@ def control_receipt(goal):
             or not report.get("native", {}).get("measurement_gates")
             or any(v is not True for v in report["native"]["measurement_gates"].values())):
         raise ValueError("Fully passed and restored same-pair control required")
+    if goal.get("extension_decision") == "ADR0259":
+        from cce_shared_worker_comparison import require_passed_control
+        if binding.get("cce_worker_placement_decision") != "ADR0259":
+            raise ValueError("Fresh shared-image placement control required")
+        require_passed_control(report, report.get("comparison_binding", {}))
     return relative, report
 
 
@@ -168,6 +182,9 @@ def plan():
     goal = active()
     if goal is None:
         raise ValueError("Explicit ADR0242 short comparison required")
+    if goal["extension_decision"] == "ADR0259":
+        from cce_shared_worker_profile import plan as placement_plan
+        return placement_plan(goal)
     if goal["extension_decision"] in {"ADR0255", "ADR0256"}:
         if goal["extension_decision"] == "ADR0256":
             from cce_recovery_hourly_profile import plan as hourly_recovery_plan

@@ -94,6 +94,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
               "cce_transaction_pair_sha256": transaction.proof_digest(transaction.active())}
              if transaction.active() is not None else {})
     goal = transaction.active()
+    if goal is not None and goal["extension_decision"] == "ADR0259":
+        import cce_shared_worker_comparison as shared
+        extra.update(cce_worker_placement_decision="ADR0259", cce_worker_placement_plan_sha256=shared.digest(shared.plan()),
+                     cce_recovery_max_attempts=3, cce_order_status_read_pipeline="0")
     if goal is not None and goal["extension_decision"] == "ADR0245":
         extra.update(cce_partition_decision="ADR0245", cce_payment_pool_max=transaction.payment_connections(goal))
     if goal is not None and goal["extension_decision"] == "ADR0249":
@@ -196,6 +200,23 @@ print(json.dumps(raw.decode()))
     return values
 
 
+def worker_metrics_reader(session, address):
+    address = native.private_ip(address)
+    code = "import json,urllib.request\nwith urllib.request.urlopen(" + repr("http://" + address + ":9101/metrics") + ",timeout=3) as response:raw=response.read(4194305)\nif len(raw)>4194304:raise ValueError('Worker metrics exceed bound')\nprint(json.dumps(raw.decode()))"
+    raw = session.call("primary", code, 15)
+    import math
+    values = {}
+    for line in raw.splitlines():
+        fields = line.split()
+        if len(fields) == 2 and fields[0] in {"process_cpu_seconds_total", "process_start_time_seconds"}:
+            if fields[0] in values:
+                raise ValueError("Duplicate worker process metric")
+            values[fields[0]] = float(fields[1])
+    if any(type(values.get(k)) not in (int, float) or not math.isfinite(values[k]) or values[k] < 0 for k in ("process_cpu_seconds_total", "process_start_time_seconds")) or values["process_start_time_seconds"] <= 0:
+        raise ValueError("Complete worker process metrics required")
+    return values
+
+
 class ReadyDeployment(native.Deployment):
     def observe(self, manifests, http_ready, http_metrics, *, previous=None):
 
@@ -286,6 +307,9 @@ def activate_scope(guard, run):
 def worker_contract():
     import cce_transaction_profile as transaction
     goal = transaction.active()
+    if goal is not None and goal["extension_decision"] == "ADR0259":
+        from cce_shared_worker_contract import worker_contract as shared_contract
+        return shared_contract()
     if goal is not None and goal["extension_decision"] in {"ADR0251", "ADR0255", "ADR0256"}:
         from cce_simulator_dispatch_profile import worker_contract as simulator_contract
         return simulator_contract(goal if goal["extension_decision"] == "ADR0251" else None)
@@ -375,8 +399,25 @@ def run(config, output, guard, manifests, kubeconfig, context):
 
             deployment = ReadyDeployment(transport.request, guard, persist)
 
-            transition = Transition(
-                session, guard, run_id, routes, owner, lambda value: persist({"transition": value})
+            import cce_transaction_profile as transaction
+            goal = transaction.active()
+            transition_class = Transition
+            transition_options = {}
+            if goal is not None and goal["extension_decision"] == "ADR0259":
+                from cce_worker_transition import WorkerTransition
+                transition_class = WorkerTransition
+
+                def save_comparison(binding):
+                    record["comparison_binding"] = binding
+                    policy.write(output / "cce-comparison.private.json", record)
+
+                def worker_metrics(ip):
+                    return worker_metrics_reader(session, ip)
+
+                transition_options = {"deployment": deployment, "service": service, "read_metrics": worker_metrics,
+                                      "comparison_persist": save_comparison}
+            transition = transition_class(
+                session, guard, run_id, routes, owner, lambda value: persist({"transition": value}), **transition_options
             )
 
             inventory = policy.read(output / "pre-safety-inventory.private.json")

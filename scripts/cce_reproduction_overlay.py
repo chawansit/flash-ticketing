@@ -4,12 +4,18 @@ import json
 from pathlib import Path
 
 OVERLAID = {
+    "scripts/cce_paid_resources.py", "scripts/cce_paid_lifecycle.py",
+    "scripts/cce_dependency_probe.py", "scripts/observe_cce_paid_pipeline.py", "scripts/observe_two_host_cpu.py",
     "scripts/database_wait_evidence.py",
     "scripts/checkout_journey_probe.py", "scripts/paid_ticket_load_generator.py", "scripts/paid_ticket_sharded_generator.py",
     "scripts/cce_api_adapter.py", "scripts/cce_paid_stage.py", "scripts/cce_paid_observers.py",
     "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py",
     "scripts/run_cce_hourly_qualification.py", "scripts/cce_hourly_paid_generator.py", "scripts/cce_hourly_paid_leaf.py"}
 ADDITIONAL = {
+    "scripts/cce_shared_worker_comparison.py", "scripts/cce_shared_worker_profile.py",
+    "scripts/cce_shared_worker_contract.py", "scripts/cce_shared_application.py",
+    "scripts/cce_native_workers.py", "scripts/cce_worker_transition.py", "scripts/cce_worker_identity.py", "scripts/observe_cce_workers.py",
+    "docs/capacity/cce/shared-application-image-2026-10-10.json",
     "scripts/cce_recovery_hourly_profile.py", "artifacts/hourly-customer-recovery/manifest.json",
     "docs/capacity/cce/customer-recovery-comparison-2026-10-10.json",
     "scripts/paid_fixture_layout.py",

@@ -32,27 +32,23 @@ asyncio.run(main())
 """
 
 
-def owned_receipt(row, name, run, command, *, pool_network, bridge, require_running=True, kafka=False):
+def owned_receipt(row, name, run, command, *, pool_network, bridge, require_running=True):
     cfg, host = row.get("Config", {}), row.get("HostConfig", {})
     labels = cfg.get("Labels", {})
     expected_ports = {"6432/tcp": [{"HostIp": "10.1.137.69", "HostPort": "6432"}]} if bridge else {}
-    if kafka:
-        expected_ports = {"9092/tcp": [{"HostIp": "10.1.137.69", "HostPort": "9092"}]}
-    service = "kafka-bridge" if kafka else ("pooler-bridge" if bridge else "audit-helper")
-    purpose = "cce-kafka" if kafka else ("cce-pooler" if bridge else "cce-audit")
     if (
         not re.fullmatch(r"[0-9a-f]{64}", row.get("Id", ""))
         or row.get("Name") != "/" + name
         or row.get("Image") != cce.dependency.INDEX
         or cfg.get("Image") != cce.dependency.INDEX
         or labels.get("com.docker.compose.project") != "cce-" + run
-        or labels.get("com.docker.compose.service") != service
+        or labels.get("com.docker.compose.service") != ("pooler-bridge" if bridge else "audit-helper")
         or labels.get("codex-owner") != run
-        or labels.get("codex-purpose") != purpose
+        or labels.get("codex-purpose") != ("cce-pooler" if bridge else "cce-audit")
         or cfg.get("Entrypoint") != ["python"]
         or cfg.get("Cmd") != command
         or host.get("PortBindings", {}) != expected_ports
-        or ((bridge or kafka) and (host.get("NanoCpus") != (250_000_000 if kafka else BRIDGE_CPU_LIMIT * 1_000_000_000)
+        or (bridge and (host.get("NanoCpus") != BRIDGE_CPU_LIMIT * 1_000_000_000
                         or host.get("Memory") != 64 * 1024 * 1024
                         or host.get("ReadonlyRootfs") is not True))
         or set(row.get("NetworkSettings", {}).get("Networks", {})) != {pool_network}
@@ -92,12 +88,6 @@ class Resources:
         self.record = {"create_attempted": [], "owned_resources_removed": False}
         self.names = {"bridge": "cce-pooler-" + run, "audit": "cce-audit-" + run}
         self.commands = {"bridge": ["-u", "-c", PROXY], "audit": ["-u", "-c", "import time;time.sleep(" + str(for_guard(guard).experiment_limit) + ")"]}
-        import cce_transaction_profile as transaction
-        goal = transaction.active()
-        if goal is not None and goal["extension_decision"] == "ADR0259" and goal["comparison_arm"] == "candidate":
-            self.names["kafka"] = "cce-kafka-" + run
-            self.commands["kafka"] = ["-u", "-c", PROXY.replace("'pgbouncer',5432", "'kafka',9092").replace("6432", "9092")]
-
 
     def check(self):
         if (
@@ -156,7 +146,7 @@ class Resources:
             True,
         )
         self.record["environment_sha256"] = policy.digest(self.env)
-        for role in ("audit", "bridge", *(("kafka",) if "kafka" in self.names else ())):
+        for role in ("audit", "bridge"):
             self.record["create_attempted"].append(role)
             self.checkpoint()
             options = [
@@ -172,9 +162,9 @@ class Resources:
                 "--label",
                 "com.docker.compose.project=cce-" + self.run,
                 "--label",
-                "com.docker.compose.service=" + ("kafka-bridge" if role == "kafka" else "pooler-bridge" if role == "bridge" else "audit-helper"),
+                "com.docker.compose.service=" + ("pooler-bridge" if role == "bridge" else "audit-helper"),
                 "--label",
-                "codex-purpose=cce-" + ("kafka" if role == "kafka" else "pooler" if role == "bridge" else "audit"),
+                "codex-purpose=cce-" + ("pooler" if role == "bridge" else "audit"),
                 "--network",
                 self.network,
                 "--cap-drop",
@@ -188,15 +178,15 @@ class Resources:
                 "--user",
                 "10001:10001",
             ]
-            if role in {"bridge", "kafka"}:
+            if role == "bridge":
                 options += [
                     "--read-only",
                     "--cpus",
-                    str(.25 if role == "kafka" else BRIDGE_CPU_LIMIT),
+                    str(BRIDGE_CPU_LIMIT),
                     "--memory",
                     "64m",
                     "-p",
-                    "10.1.137.69:9092:9092" if role == "kafka" else "10.1.137.69:6432:6432",
+                    "10.1.137.69:6432:6432",
                 ]
             else:
                 options += [
@@ -210,7 +200,7 @@ class Resources:
                 self.session.call(
                     "primary",
                     "import json,socket,subprocess\n"
-                    + ("with socket.socket() as s:s.bind(('10.1.137.69'," + str(9092 if role == "kafka" else 6432) + "))\n" if role in {"bridge", "kafka"} else "")
+                    + ("with socket.socket() as s:s.bind(('10.1.137.69',6432))\n" if role == "bridge" else "")
                     + "args="
                     + repr(options)
                     + "\nsubprocess.run(args,check=True,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,timeout=30);print(json.dumps({'created':True}))",
@@ -229,7 +219,6 @@ class Resources:
                     self.commands[role],
                     pool_network=self.network,
                     bridge=role == "bridge",
-                    kafka=role == "kafka",
                 )
                 if role == "audit":
                     actual = dict(value.split("=", 1) for value in row["Config"]["Env"])
@@ -262,7 +251,6 @@ class Resources:
                     self.commands[role],
                     pool_network=self.network,
                     bridge=role == "bridge",
-                    kafka=role == "kafka",
                     require_running=False,
                 )
                 result = self.session.call(

@@ -57,6 +57,10 @@ def contract():
         data = copy.deepcopy(data)
         data["api_sources"] = transaction.image_for(goal)["runtime_sources_sha256"]
         data["api_settings"]["DB_FAILURE_DIAGNOSTICS"] = "1"
+        if goal["extension_decision"] == "ADR0259":
+            data["resources"] = {k: {"cpu": "1", "memory": "2Gi"} for k in ("requests", "limits")}
+            data["api_settings"]["ORDER_STATUS_READ_PIPELINE"] = "0"
+            data["workload"]["customer_retries"] = 3
         if goal["extension_decision"] in {"ADR0255", "ADR0256"}:
             data["api_settings"]["ORDER_STATUS_READ_PIPELINE"] = "1" if goal["comparison_arm"] == "candidate" else "0"
             data["workload"]["customer_retries"] = 3
@@ -99,6 +103,10 @@ def authorized_creation(envelope, now=None):
             if any(type(count) is not int or count < 0 for count in counts):
                 raise ValueError("Unknown CCE paid-stage consumption")
             consumed += max(counts)
+        if goal.get("extension_decision") == "ADR0259":
+            arm = goal.get("comparison_arm")
+            if (arm == "control" and consumed != 0) or (arm == "candidate" and consumed != 1):
+                raise ValueError("Worker placement requires exactly one fresh control followed by one candidate")
         if consumed >= goal["maximum_paid_stages"]:
             raise ValueError("CCE goal paid-stage allowance already consumed")
         return
@@ -113,7 +121,7 @@ def admission_budget():
     """One declared bounded factor; old profiles retain the immutable baseline."""
     exception = policy.envelope()["spending"]["temporary_cce_pilot_exception"]
     goal = exception.get("goal_bounded_authorization", {})
-    if goal.get("extension_decision") in {"ADR0242", "ADR0245", "ADR0249", "ADR0251", "ADR0255"}:
+    if goal.get("extension_decision") in {"ADR0242", "ADR0245", "ADR0249", "ADR0251", "ADR0255", "ADR0259"}:
         import cce_transaction_profile as transaction
         transaction.active()
         return 20
@@ -700,10 +708,14 @@ class KubernetesTransport:
     def request(self, method, path, body=None):
         if not self.material:
             raise ValueError("Closed CCE certificate transport")
-        if method not in {"GET", "POST", "DELETE"} or not re.fullmatch(
+        import cce_transaction_profile as transaction
+        goal = transaction.active()
+        worker_path = bool(goal is not None and goal["extension_decision"] == "ADR0259" and method == "GET"
+                           and re.fullmatch(r"/api/v1/namespaces/flash-cce-[0-9a-f]{12}/pods/(?:consumer-[0-5]|reservation-writer-[0-2]|publisher-0|maintenance-0|reconciler-0|simulator-0)(?:/log\?container=worker&limitBytes=65536)?", path))
+        if method not in {"GET", "POST", "DELETE"} or not (worker_path or re.fullmatch(
             r"/api/v1/namespaces(?:/flash-cce-[0-9a-f]{12}(?:/(?:pods|secrets)(?:/api-[0-3](?:/log\?container=api&(?:limitBytes=65536|sinceSeconds=600&limitBytes=8388608))?)?)?)?",
             path,
-        ):
+        )):
             raise ValueError("Bounded owned CCE resource path required")
         if method == "POST" and not (path == "/api/v1/namespaces" or path.endswith(("/pods", "/secrets"))):
             raise ValueError("Creation requires an owned collection path")

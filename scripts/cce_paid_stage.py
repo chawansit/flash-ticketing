@@ -36,6 +36,11 @@ def sha(raw):
 
 def identity():
     paths = (
+        "scripts/cce_shared_worker_comparison.py", "scripts/cce_shared_worker_profile.py",
+        "scripts/cce_shared_worker_contract.py", "scripts/cce_shared_application.py",
+        "scripts/cce_native_workers.py", "scripts/cce_worker_transition.py",
+        "scripts/cce_worker_identity.py", "scripts/observe_cce_workers.py",
+        "docs/capacity/cce/shared-application-image-2026-10-10.json",
         "scripts/cce_paid_stage.py",
         "scripts/cce_frozen_harness.py",
         "scripts/cce_historical_sources.py",
