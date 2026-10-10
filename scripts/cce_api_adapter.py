@@ -57,7 +57,7 @@ def contract():
         data = copy.deepcopy(data)
         data["api_sources"] = transaction.image_for(goal)["runtime_sources_sha256"]
         data["api_settings"]["DB_FAILURE_DIAGNOSTICS"] = "1"
-        if goal["extension_decision"] in {"ADR0259", "ADR0263", "ADR0266", "ADR0271"}:
+        if goal["extension_decision"] in {"ADR0259", "ADR0263", "ADR0266", "ADR0271", "ADR0277"}:
             data["resources"] = {k: {"cpu": "1", "memory": "2Gi"} for k in ("requests", "limits")}
             data["api_settings"]["ORDER_STATUS_READ_PIPELINE"] = "0"
             data["workload"]["customer_retries"] = 3
@@ -66,6 +66,8 @@ def contract():
             data["workload"]["customer_retries"] = 3
         if goal["extension_decision"] == "ADR0245":
             data["api_settings"]["API_PAYMENT_POOL_MAX"] = str(transaction.payment_connections(goal))
+    if goal is not None and goal["extension_decision"] == "ADR0277":
+        data["workload"].update(offered_journeys_per_second=168, concurrency=1000)
     return data
 
 
@@ -121,7 +123,7 @@ def admission_budget():
     """One declared bounded factor; old profiles retain the immutable baseline."""
     exception = policy.envelope()["spending"]["temporary_cce_pilot_exception"]
     goal = exception.get("goal_bounded_authorization", {})
-    if goal.get("extension_decision") in {"ADR0242", "ADR0245", "ADR0249", "ADR0251", "ADR0255", "ADR0259", "ADR0263", "ADR0266", "ADR0271"}:
+    if goal.get("extension_decision") in {"ADR0242", "ADR0245", "ADR0249", "ADR0251", "ADR0255", "ADR0259", "ADR0263", "ADR0266", "ADR0271", "ADR0277"}:
         import cce_transaction_profile as transaction
         transaction.active()
         return 20
@@ -244,9 +246,9 @@ os.execvp(command[0],command)
 
 
 def objects(run, service, primary_ip, registry_username, registry_password, *, acquisition_budget=12, profile=None):
-    from cce_paid_profiles import HOURLY, SHORT
+    from cce_paid_profiles import HOURLY, SHORT, TICKET_TARGET
     profile = SHORT if profile is None else profile
-    if profile not in (SHORT, HOURLY):
+    if profile not in (SHORT, HOURLY, TICKET_TARGET):
         raise ValueError("Exact native lifetime profile required")
     """Private payloads: never publish returned Secrets."""
     import cce_transaction_profile as transaction
@@ -730,7 +732,7 @@ class KubernetesTransport:
             raise ValueError("Closed CCE certificate transport")
         import cce_transaction_profile as transaction
         goal = transaction.active()
-        worker_path = bool(goal is not None and goal["extension_decision"] in {"ADR0259", "ADR0271"} and method == "GET"
+        worker_path = bool(goal is not None and goal["extension_decision"] in {"ADR0259", "ADR0271", "ADR0277"} and method == "GET"
                            and re.fullmatch(r"/api/v1/namespaces/flash-cce-[0-9a-f]{12}/pods/(?:consumer-[0-5]|projection-consumer-0|reservation-writer-[0-2]|publisher-0|maintenance-0|reconciler-0|simulator-0)(?:/log\?container=worker&(?:limitBytes=65536|sinceSeconds=60&limitBytes=65536))?", path))
         if method not in {"GET", "POST", "DELETE"} or not (worker_path or re.fullmatch(
             r"/api/v1/namespaces(?:/flash-cce-[0-9a-f]{12}(?:/(?:pods|secrets)(?:/api-[0-3](?:/log\?container=api&(?:limitBytes=65536|sinceSeconds=(?:600|30)&limitBytes=8388608))?)?)?)?",

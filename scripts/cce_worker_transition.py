@@ -47,7 +47,7 @@ class WorkerTransition(Transition):
         self.worker_stop_attempted = False
         self.goal = profile.active()
         self.arm = self.goal["comparison_arm"]
-        self.decision = "ADR0271" if self.goal["extension_decision"] == "ADR0271" else "ADR0259"
+        self.decision = "ADR0271" if self.goal["extension_decision"] in {"ADR0271", "ADR0277"} else "ADR0259"
         self.selected = identity.specification(self.decision)
 
     def capture(self):

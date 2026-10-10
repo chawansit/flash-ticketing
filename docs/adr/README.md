@@ -217,3 +217,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0275: Preserve recovery in worker-placement comparisons](0275-preserve-recovery-in-worker-placement-comparisons.md)
 - [ADR0276: Reconcile the mixed terminal worker-placement cohort](0276-reconcile-mixed-terminal-worker-placement-cohort.md)
+
+- [ADR0277: Five-minute 50,000-ticket capacity test](0277-five-minute-fifty-thousand-ticket-capacity-test.md)

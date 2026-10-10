@@ -241,8 +241,7 @@ def adapter_identity():
 
 
 def financial_audit_program(event_ids, expected_tickets=18000):
-    if (type(expected_tickets) is not int or expected_tickets not in (18000, 25200, 50400, 302400)
-            or expected_tickets == 50400 and (len(event_ids) != 168 or len(set(event_ids)) != 168)
+    if (type(expected_tickets) is not int or expected_tickets not in (18000, 25200, 302400)
             or expected_tickets == 302400 and (len(event_ids) != 1008 or len(set(event_ids)) != 1008)):
         raise ValueError("Unsupported bounded financial expectation")
     return r"""import json,os,time,sys,psycopg

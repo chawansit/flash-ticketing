@@ -197,6 +197,8 @@ class Lifecycle:
             }
             if self.live_admission:
                 self.record["measurement_gates"]["live_admission"] = self.record.get("live_admission_complete") is True
+            if self.stage.profile.name == "cce_ticket_target":
+                self.record["measurement_gates"]["ticket_target_issuance"] = self.stage.record.get("ticket_target_issuance", {}).get("pass") is True
             if self.stage.profile.duration == 3600:
                 self.record["measurement_gates"]["hourly_issuance"] = self.stage.record.get("hourly_issuance", {}).get("pass") is True
             self.record["pass"] = all(self.record["measurement_gates"].values())

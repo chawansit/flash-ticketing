@@ -37,6 +37,7 @@ def sha(raw):
 def identity():
     paths = (
         "scripts/collect_two_host_inventory.py", "scripts/runtime_source_identity.py",
+        "scripts/cce_ticket_target_profile.py",
         "scripts/cce_live_admission.py", "scripts/cce_worker_rebalance_profile.py",
         "scripts/cce_event_lane_identity.py", "scripts/cce_event_lane_profile.py",
         "scripts/cce_event_lane_contract.py", "scripts/observe_projection_kafka.py",
@@ -100,11 +101,11 @@ def generator_bundle():
 
 
 def generator_arguments(directory, origin, start_at_epoch, *, profile=None, recovery_max_attempts=1):
-    from cce_paid_profiles import HOURLY, SHORT
+    from cce_paid_profiles import HOURLY, SHORT, TICKET_TARGET
     profile = SHORT if profile is None else profile
-    if recovery_max_attempts not in (1, 3) or (recovery_max_attempts == 3 and profile not in (SHORT, HOURLY)):
+    if recovery_max_attempts not in (1, 3) or (recovery_max_attempts == 3 and profile not in (SHORT, HOURLY, TICKET_TARGET)):
         raise ValueError("Recovery requires the explicit registered comparison or hourly binding")
-    if profile not in (SHORT, HOURLY):
+    if profile not in (SHORT, HOURLY, TICKET_TARGET):
         raise ValueError("Exact CCE stage profile required")
     if not re.fullmatch(r"/[^\x00\r\n]*?/tmp/adr0151-[0-9a-f]{12}-cce-candidate", directory):
         raise ValueError("Canonical owned generator directory required")
@@ -125,13 +126,13 @@ def generator_arguments(directory, origin, start_at_epoch, *, profile=None, reco
         "--output",
         directory + "/customer.json",
         "--rate",
-        "84",
+        "168" if profile == TICKET_TARGET else "84",
         "--seconds",
         str(profile.duration),
         "--completion-deadline-seconds",
         str(profile.completion_deadline),
         "--concurrency",
-        "500",
+        "1000" if profile == TICKET_TARGET else "500",
         "--http-client-count",
         "8",
         "--poll-seconds",
@@ -195,7 +196,11 @@ class PaidStage:
         if self.recovery_enabled:
             if guard.binding.get("cce_recovery_max_attempts") != 3:
                 raise ValueError("Explicit short recovery binding required")
-            self.bundle, self.coordinator = qualify(self.bundle)
+            if transaction.active()["extension_decision"] == "ADR0277":
+                from cce_ticket_target_profile import qualify_workload
+                self.bundle, self.coordinator = qualify_workload(self.bundle)
+            else:
+                self.bundle, self.coordinator = qualify(self.bundle)
             if self.profile.duration == 3600:
                 from cce_recovery_hourly_profile import qualify_hourly_adapters
                 qualify_hourly_adapters()
@@ -399,6 +404,11 @@ class PaidStage:
             except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Preserve independent mandatory recovery operations.
                 self.record[name + "_failure_type"] = type(error).__name__
                 errors.append(name)
+            self.checkpoint()
+        if self.profile.name == "cce_ticket_target":
+            from cce_ticket_target_profile import issuance_program
+            start = datetime.fromisoformat(self.record["scheduled_offered_start_utc"]).timestamp()
+            self.record["ticket_target_issuance"] = self.session.api(self.cid, issuance_program(self.events, start), 90)
             self.checkpoint()
         if self.profile.duration == 3600:
             try:

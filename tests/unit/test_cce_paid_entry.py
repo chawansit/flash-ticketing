@@ -123,6 +123,9 @@ def test_readiness_wait_observes_immutable_pods_before_admission(monkeypatch):
 
 @pytest.fixture
 def composed(tmp_path, monkeypatch):
+    import cce_transaction_profile as transaction
+    # This fixture exercises the historical mocked lifecycle, independently of a live goal.
+    monkeypatch.setattr(transaction, "active", lambda: None)
     output = tmp_path / ("adr0151-" + "a" * 12)
     output.mkdir()
     calls = []

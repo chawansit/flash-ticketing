@@ -30,12 +30,9 @@ HOURLY = StageProfile(
 )
 
 
-TICKET_TARGET = StageProfile("cce_ticket_target", "bounded_cce_ticket_target", 300, 168, 50400, 420, 3600, 1, 3600)
-
-
 def for_guard(guard):
     prefix = guard.key.split("__")[0]
-    for profile in (SHORT, HOURLY, TICKET_TARGET):
+    for profile in (SHORT, HOURLY):
         if prefix == profile.ledger_prefix:
             return profile
     raise ValueError("Exact registered CCE qualification profile required")

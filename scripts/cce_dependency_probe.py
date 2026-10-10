@@ -70,6 +70,13 @@ def authorized_today(envelope, now=None):
             active(goal)
             expected.update(pod_memory_gib=2)
         decision = "ADR0228"
+        if goal.get("extension_decision") == "ADR0277":
+            from cce_ticket_target_profile import active
+            active(goal)
+            decision = "ADR0277"
+            expected.update(profile="cce_ticket_target", maximum_pods=18, pod_memory_gib=2, offered_journeys_per_second=168)
+            if goal.get("worker_resources") != {"cpu": "250m", "memory": "512Mi"}:
+                raise ValueError("Exact ticket-target worker resources required")
         if goal.get("profile") == "cce_hourly_qualification":
             decision = "ADR0232"
             expected.update(profile="cce_hourly_qualification", offered_seconds=3600,

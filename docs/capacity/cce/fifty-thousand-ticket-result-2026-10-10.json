@@ -1,0 +1,152 @@
+{
+  "decision": "ADR0277",
+  "run": "adr0151-ee0b72fef73d",
+  "ledger": "bounded_cce_ticket_target__e054cd0b6779",
+  "status": "FAILED_RESTORED",
+  "target_unique_paid_issued_tickets": 50000,
+  "offered_journeys_per_second": 168,
+  "offered_seconds": 300,
+  "scheduled_journeys": 50400,
+  "generator_shards": 2,
+  "generator_max_in_flight": 1000,
+  "recovery_max_attempts": 3,
+  "application_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:d9d7cb17433782ca863d8b93ef987a670708d4f6f9719fdecc2c4c21125d23fe",
+  "resources": {
+    "api_pods": 4,
+    "api_resources": {
+      "cpu": "1",
+      "memory": "2Gi"
+    },
+    "worker_pods": 14,
+    "worker_resources": {
+      "cpu": "250m",
+      "memory": "512Mi"
+    },
+    "physical_database_connections": 24,
+    "admission": 20
+  },
+  "offered_start_utc": "2026-10-10T16:05:38.758077+00:00",
+  "offered_start_bangkok": "2026-10-10T23:05:38.758077+07:00",
+  "offered_end_bangkok": "2026-10-10T23:10:38.758077+07:00",
+  "issuance_window": {
+    "window_start_epoch": 1791648338.758077,
+    "window_end_epoch": 1791648638.758077,
+    "unique_paid_issued_tickets": 22101,
+    "unique_orders": 22101,
+    "unique_payments": 22101,
+    "joined_rows": 22101,
+    "conservative_inner_window_tickets": 21900,
+    "inner_window_guard_seconds": 2,
+    "database_now_epoch": 1791648895.488697,
+    "api_helper_now_epoch": 1791648895.4905093,
+    "first_issued_at": "2026-10-10T23:05:40.118670+07:00",
+    "last_issued_at": "2026-10-10T23:10:38.756909+07:00",
+    "pass": false
+  },
+  "issued_inside_offered_window": 22101,
+  "window_paid_issued_per_second": 73.67,
+  "total_unique_paid_issued_after_drain": 31666,
+  "issued_after_window": 9565,
+  "orders": 31903,
+  "unpaid_expired_orders": 237,
+  "pending_orders": 0,
+  "customer_result_available": false,
+  "dispatched_journeys": null,
+  "generator_drops": null,
+  "first_attempt_errors": null,
+  "recovery_attempts": null,
+  "final_customer_failures": null,
+  "customer_latency": null,
+  "generator_failure": {
+    "returncode": 1,
+    "exception_types": [
+      "TimeoutError"
+    ],
+    "frames": [
+      {
+        "source": "tasks.py",
+        "line": 520,
+        "function": "wait_for"
+      },
+      {
+        "source": "subprocess.py",
+        "line": 137,
+        "function": "wait"
+      },
+      {
+        "source": "base_subprocess.py",
+        "line": 230,
+        "function": "_wait"
+      },
+      {
+        "source": "run_synchronized_paid_generator.py",
+        "line": 40,
+        "function": "<module>"
+      },
+      {
+        "source": "run_synchronized_paid_generator.py",
+        "line": 36,
+        "function": "main"
+      },
+      {
+        "source": "paid_ticket_sharded_generator.py",
+        "line": 227,
+        "function": "main"
+      },
+      {
+        "source": "runners.py",
+        "line": 194,
+        "function": "run"
+      },
+      {
+        "source": "runners.py",
+        "line": 118,
+        "function": "run"
+      },
+      {
+        "source": "base_events.py",
+        "line": 687,
+        "function": "run_until_complete"
+      },
+      {
+        "source": "paid_ticket_sharded_generator.py",
+        "line": 177,
+        "function": "run"
+      },
+      {
+        "source": "tasks.py",
+        "line": 519,
+        "function": "wait_for"
+      },
+      {
+        "source": "timeouts.py",
+        "line": 115,
+        "function": "__aexit__"
+      }
+    ],
+    "report_exists": false,
+    "log_bytes": 1954
+  },
+  "customer_metrics_note": "The sharded coordinator timed out waiting for its child processes and did not write customer.json. Scheduled workload is configured evidence; dispatch, drop, customer-error and latency counts are unavailable. Database orders are not a substitute for dispatched journeys.",
+  "correctness": {
+    "zero_double_booking": true,
+    "zero_payment_loss": true,
+    "financial_relationships_valid": true,
+    "post_ttl_complete": true,
+    "complete_queue_drain": true
+  },
+  "cleanup_complete": true,
+  "independent_terminal_audit": "docs/capacity/cce/fifty-thousand-terminal-recovery-2026-10-10.json",
+  "original_failed_result_sha256": "ea0bfebe040a61242984b89cb5dd85a511b26eaa3451e7d3c5551614bb612a05",
+  "original_failed_report_preserved": true,
+  "target_met": false,
+  "capacity_qualified": false,
+  "production_qualified": false,
+  "matched_performance_comparison": false,
+  "limitations": [
+    "The issuance count is authoritative for this cohort and window; this incomplete run cannot establish a qualified maximum capacity.",
+    "The prior 84/s placement run omitted recovery and is not a matched baseline.",
+    "No second paid stage was launched.",
+    "Failure-time diagnostics are retained, but full CPU/database observer summaries were not collected after the coordinator exception."
+  ]
+}

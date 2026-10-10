@@ -220,14 +220,14 @@ class Observers:
         )
         import cce_transaction_profile as transaction
         extended = transaction.active() is not None
-        self.event_lanes = extended and transaction.active()["extension_decision"] in {"ADR0266", "ADR0271"}
+        self.event_lanes = extended and transaction.active()["extension_decision"] in {"ADR0266", "ADR0271", "ADR0277"}
         helpers = (
             "observe_cce_paid_pipeline.py",
             "observe_two_host_pipeline.py",
             "prepare_two_host_scaling.py",
             "database_wait_evidence.py",
             "diagnostic_connection.py",
-            *(("cce_shared_worker_image_identity.py", "cce_worker_identity.py", "observe_cce_workers.py") if extended and transaction.active()["extension_decision"] in {"ADR0259", "ADR0263", "ADR0271"} else ()),
+            *(("cce_shared_worker_image_identity.py", "cce_worker_identity.py", "observe_cce_workers.py") if extended and transaction.active()["extension_decision"] in {"ADR0259", "ADR0263", "ADR0271", "ADR0277"} else ()),
             *(("observe_slot_paid_pipeline.py", "slot_failure_evidence.py", "bounded_trace_transport.py") if extended else ()),
         )
         if self.event_lanes:

@@ -334,7 +334,7 @@ def test_generated_tls_transport_is_syntax_valid_and_verifies_server():
     compile(cce.REQUEST,'<verified-cce-transport>','exec')
     assert 'ssl.create_default_context(cafile=' in cce.REQUEST
     assert 'load_cert_chain' in cce.REQUEST
-    assert 'limit=8388608 if diagnostic else 1048576' in cce.REQUEST
+    assert 'limit=8388608 if diagnostic else 65536 if worker_diagnostic else 1048576' in cce.REQUEST
     assert 'response.read(limit+1)' in cce.REQUEST
     assert 'TemporaryDirectory' in cce.REQUEST
 

@@ -33,7 +33,8 @@ PROFILES = {PROFILE: (BASE_LEDGER, "ADR0171"),
             "generator_completion_probe": ("bounded_generator_completion_probe", "ADR0226"),
             "cce_dependency_probe": ("bounded_cce_dependency_probe", "ADR0228"),
             "cce_paid_comparison": ("bounded_cce_paid_comparison", "ADR0228"),
-            "cce_hourly_qualification": ("bounded_cce_hourly_qualification", "ADR0232")}
+            "cce_hourly_qualification": ("bounded_cce_hourly_qualification", "ADR0232"),
+            "cce_ticket_target": ("bounded_cce_ticket_target", "ADR0277")}
 SCOPE = re.compile("(?:" + "|".join(v[0] for v in PROFILES.values()) + r")__(?:[0-9a-f]{12})$")
 
 
@@ -150,7 +151,7 @@ def reserve(binding, plan, *, profile=PROFILE):
     expected_arms = ["control", "candidate"] if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement", "atomic_payment_claim", "worker_separation", "callback_routing", "shared_callback_placement"} else ["control"]
     if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe'}:
         expected_arms = ["candidate"]
-    if profile in {'cce_paid_comparison', 'cce_hourly_qualification'}:
+    if profile in {'cce_paid_comparison', 'cce_hourly_qualification', 'cce_ticket_target'}:
         import run_cce_paid_comparison as cce
         if profile == "cce_hourly_qualification":
             import run_cce_hourly_qualification as cce
@@ -171,7 +172,7 @@ def reserve(binding, plan, *, profile=PROFILE):
             raise ValueError("Exact qualified CCE dependency probe required")
         expected_arms = []
     if (plan.get("decision") != decision or plan.get("arms") != expected_arms
-            or plan.get("common", {}).get("buyer_journeys_per_second") != (0 if profile == "cce_dependency_probe" else 84 if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe', 'cce_paid_comparison', 'cce_hourly_qualification'} else 60)
+            or plan.get("common", {}).get("buyer_journeys_per_second") != (0 if profile == "cce_dependency_probe" else 168 if profile == "cce_ticket_target" else 84 if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe', 'cce_paid_comparison', 'cce_hourly_qualification'} else 60)
             or plan["common"].get("duration_seconds") != (0 if profile == "cce_dependency_probe" else 3600 if profile == "cce_hourly_qualification" else 300)):
         raise ValueError("Only locally qualified unchanged diagnostic control permitted")
     if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement"} and (
@@ -297,7 +298,7 @@ class ActionGuard:
             authorized_today(envelope())
             if self.binding.get("cce_sources") != identity():
                 raise ValueError("CCE probe sources changed")
-        if entry['profile'] in {'cce_paid_comparison', 'cce_hourly_qualification'}:
+        if entry['profile'] in {'cce_paid_comparison', 'cce_hourly_qualification', 'cce_ticket_target'}:
             import run_cce_paid_comparison as cce
             if entry["profile"] == "cce_hourly_qualification":
                 import run_cce_hourly_qualification as cce
@@ -339,7 +340,7 @@ class ActionGuard:
                          paid_runs_started=0)
             write(JOURNAL, records)
             return entry
-        if entry['profile'] in {'cce_paid_comparison', 'cce_hourly_qualification'}:
+        if entry['profile'] in {'cce_paid_comparison', 'cce_hourly_qualification', 'cce_ticket_target'}:
             from run_cce_paid_comparison import outcome
             if entry["profile"] == "cce_hourly_qualification":
                 from run_cce_hourly_qualification import outcome

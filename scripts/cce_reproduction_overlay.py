@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 OVERLAID = {
+    'scripts/cce_paid_profiles.py', 'scripts/cce_paid_inputs.py', 'scripts/fixture_identity_evidence.py', 'scripts/run_two_host_paid_comparison.py',
     "scripts/work_envelope.py",
     "scripts/collect_two_host_inventory.py", "scripts/runtime_source_identity.py",
     "scripts/cce_paid_resources.py", "scripts/cce_paid_lifecycle.py",
@@ -14,6 +15,7 @@ OVERLAID = {
     "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py",
     "scripts/run_cce_hourly_qualification.py", "scripts/cce_hourly_paid_generator.py", "scripts/cce_hourly_paid_leaf.py"}
 ADDITIONAL = {
+    "scripts/cce_ticket_target_profile.py",
     "scripts/cce_live_admission.py", "scripts/cce_worker_rebalance_profile.py",
     "scripts/cce_event_lane_identity.py", "scripts/cce_event_lane_profile.py",
         "scripts/cce_event_lane_contract.py", "scripts/observe_projection_kafka.py",
