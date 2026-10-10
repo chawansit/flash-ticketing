@@ -1,0 +1,54 @@
+# ADR0258: local development override; one published application image.
+# docker compose -f compose.yaml -f compose.shared.yaml up -d
+services:
+  api:
+    environment:
+      PAYMENT_CONFIRMATION_ASYNC: ${PAYMENT_CONFIRMATION_ASYNC:-0}
+    build: !reset null
+    image: swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742
+  migrate:
+    build: !reset null
+    image: swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742
+  publisher:
+    build: !reset null
+    image: swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742
+  consumer:
+    build: !reset null
+    image: swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742
+  reservation-writer:
+    build: !reset null
+    image: swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742
+  maintenance:
+    build: !reset null
+    image: swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742
+  refresh:
+    build: !reset null
+    image: swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742
+  expiry:
+    build: !reset null
+    image: swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742
+  reconciler:
+    build: !reset null
+    image: swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742
+  simulator:
+    build: !reset null
+    image: swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742
+  seed:
+    build: !reset null
+    image: swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742
+  confirmation:
+    image: swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742
+    profiles: ["async-confirmation"]
+    environment:
+      DATABASE_URL: postgresql://ticketing:ticketing@pgbouncer:5432/ticketing
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: development
+      JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-me}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-local-webhook-secret-change-me}
+      PAYMENT_CONFIRMATION_ASYNC: "1"
+      DB_POOL_MAX: "2"
+      SIMULATOR_CONCURRENCY: "1"
+    command: ["python", "-m", "ticketing.workers", "confirmation"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    restart: unless-stopped

@@ -181,3 +181,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0256: Qualify customer recovery for one hour](0256-qualify-customer-recovery-for-one-hour.md)
 
 - [ADR0257: Close hourly recovery without qualifying incomplete diagnostics](0257-close-hourly-recovery-and-preserve-diagnostic-failures.md)
+
+- [ADR0258: One application image, separate service containers](0258-shared-application-image-and-separate-cce-services.md)

@@ -1,0 +1,1761 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "ticketing-api",
+        "namespace": "ticketing-shared-preview",
+        "labels": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "api",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "annotations": {
+          "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c",
+          "ticketing/suggested-test-replicas": "4"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "ticketing",
+            "app.kubernetes.io/component": "api",
+            "app.kubernetes.io/part-of": "ticketing-shared"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "ticketing",
+              "app.kubernetes.io/component": "api",
+              "app.kubernetes.io/part-of": "ticketing-shared"
+            },
+            "annotations": {
+              "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "terminationGracePeriodSeconds": 60,
+            "imagePullSecrets": [
+              {
+                "name": "swr-pull"
+              }
+            ],
+            "containers": [
+              {
+                "name": "api",
+                "image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742",
+                "imagePullPolicy": "IfNotPresent",
+                "command": [
+                  "uvicorn",
+                  "ticketing.api:app",
+                  "--host",
+                  "0.0.0.0",
+                  "--port",
+                  "8000",
+                  "--limit-concurrency",
+                  "256",
+                  "--timeout-keep-alive",
+                  "5"
+                ],
+                "envFrom": [
+                  {
+                    "configMapRef": {
+                      "name": "ticketing-runtime"
+                    }
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "API_CALLBACK_ACQUISITION_RESERVE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "API_PARTIAL_TIMEOUT_RECLAIM",
+                    "value": "0"
+                  },
+                  {
+                    "name": "API_PAYMENT_POOL_MAX",
+                    "value": "2"
+                  },
+                  {
+                    "name": "API_POOL_SHARED_WAITING",
+                    "value": "1"
+                  },
+                  {
+                    "name": "DB_POOL_MAX",
+                    "value": "4"
+                  },
+                  {
+                    "name": "DB_POOL_MAX_WAITING",
+                    "value": "20"
+                  },
+                  {
+                    "name": "ORDER_STATUS_CACHE_MS",
+                    "value": "1000"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH",
+                    "value": "1"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH_DEDUP",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_POLL_MS",
+                    "value": "500"
+                  },
+                  {
+                    "name": "ORDER_STATUS_READ_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "PAYMENT_CONFIRMATION_ASYNC",
+                    "value": "0"
+                  },
+                  {
+                    "name": "RESERVATION_WRITE_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "SIMULATOR_CONCURRENCY",
+                    "value": "1"
+                  },
+                  {
+                    "name": "WORKER_METRICS_PORT",
+                    "value": "9101"
+                  },
+                  {
+                    "name": "DATABASE_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "DATABASE_URL_POOLER"
+                      }
+                    }
+                  },
+                  {
+                    "name": "REDIS_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "REDIS_URL"
+                      }
+                    }
+                  },
+                  {
+                    "name": "JWT_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "JWT_SECRET"
+                      }
+                    }
+                  },
+                  {
+                    "name": "WEBHOOK_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "WEBHOOK_SECRET"
+                      }
+                    }
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "1",
+                    "memory": "2Gi"
+                  },
+                  "limits": {
+                    "cpu": "1",
+                    "memory": "2Gi"
+                  }
+                },
+                "ports": [
+                  {
+                    "name": "http",
+                    "containerPort": 8000
+                  }
+                ],
+                "securityContext": {
+                  "runAsNonRoot": true,
+                  "runAsUser": 10001,
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "rds-ca",
+                    "mountPath": "/etc/ticketing/rds-ca",
+                    "readOnly": true
+                  }
+                ],
+                "readinessProbe": {
+                  "httpGet": {
+                    "path": "/health/ready",
+                    "port": "http"
+                  },
+                  "periodSeconds": 5,
+                  "timeoutSeconds": 3,
+                  "failureThreshold": 3
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "rds-ca",
+                "secret": {
+                  "secretName": "ticketing-rds-ca"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "ticketing-api",
+        "namespace": "ticketing-shared-preview"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "selector": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "api",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "ports": [
+          {
+            "name": "http",
+            "port": 8000,
+            "targetPort": 8000
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "ticketing-consumer",
+        "namespace": "ticketing-shared-preview",
+        "labels": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "consumer",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "annotations": {
+          "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c",
+          "ticketing/suggested-test-replicas": "6"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "ticketing",
+            "app.kubernetes.io/component": "consumer",
+            "app.kubernetes.io/part-of": "ticketing-shared"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "ticketing",
+              "app.kubernetes.io/component": "consumer",
+              "app.kubernetes.io/part-of": "ticketing-shared"
+            },
+            "annotations": {
+              "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "terminationGracePeriodSeconds": 60,
+            "imagePullSecrets": [
+              {
+                "name": "swr-pull"
+              }
+            ],
+            "containers": [
+              {
+                "name": "consumer",
+                "image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742",
+                "imagePullPolicy": "IfNotPresent",
+                "command": [
+                  "python",
+                  "-m",
+                  "ticketing.workers",
+                  "consumer"
+                ],
+                "envFrom": [
+                  {
+                    "configMapRef": {
+                      "name": "ticketing-runtime"
+                    }
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_POOL_MAX",
+                    "value": "8"
+                  },
+                  {
+                    "name": "ORDER_STATUS_CACHE_MS",
+                    "value": "1000"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH",
+                    "value": "1"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH_DEDUP",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_POLL_MS",
+                    "value": "500"
+                  },
+                  {
+                    "name": "ORDER_STATUS_READ_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "PAYMENT_CONFIRMATION_ASYNC",
+                    "value": "0"
+                  },
+                  {
+                    "name": "RESERVATION_WRITE_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "SIMULATOR_CONCURRENCY",
+                    "value": "1"
+                  },
+                  {
+                    "name": "WORKER_METRICS_PORT",
+                    "value": "9101"
+                  },
+                  {
+                    "name": "DATABASE_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "DATABASE_URL_POOLER"
+                      }
+                    }
+                  },
+                  {
+                    "name": "REDIS_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "REDIS_URL"
+                      }
+                    }
+                  },
+                  {
+                    "name": "JWT_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "JWT_SECRET"
+                      }
+                    }
+                  },
+                  {
+                    "name": "WEBHOOK_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "WEBHOOK_SECRET"
+                      }
+                    }
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "250m",
+                    "memory": "512Mi"
+                  },
+                  "limits": {
+                    "cpu": "250m",
+                    "memory": "512Mi"
+                  }
+                },
+                "ports": [
+                  {
+                    "name": "metrics",
+                    "containerPort": 9101
+                  }
+                ],
+                "securityContext": {
+                  "runAsNonRoot": true,
+                  "runAsUser": 10001,
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "rds-ca",
+                    "mountPath": "/etc/ticketing/rds-ca",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "rds-ca",
+                "secret": {
+                  "secretName": "ticketing-rds-ca"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "ticketing-consumer",
+        "namespace": "ticketing-shared-preview"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "selector": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "consumer",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "ports": [
+          {
+            "name": "metrics",
+            "port": 9101,
+            "targetPort": 9101
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "ticketing-reservation-writer",
+        "namespace": "ticketing-shared-preview",
+        "labels": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "reservation-writer",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "annotations": {
+          "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c",
+          "ticketing/suggested-test-replicas": "3"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "ticketing",
+            "app.kubernetes.io/component": "reservation-writer",
+            "app.kubernetes.io/part-of": "ticketing-shared"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "ticketing",
+              "app.kubernetes.io/component": "reservation-writer",
+              "app.kubernetes.io/part-of": "ticketing-shared"
+            },
+            "annotations": {
+              "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "terminationGracePeriodSeconds": 60,
+            "imagePullSecrets": [
+              {
+                "name": "swr-pull"
+              }
+            ],
+            "containers": [
+              {
+                "name": "reservation-writer",
+                "image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742",
+                "imagePullPolicy": "IfNotPresent",
+                "command": [
+                  "python",
+                  "-m",
+                  "ticketing.workers",
+                  "reservation-writer"
+                ],
+                "envFrom": [
+                  {
+                    "configMapRef": {
+                      "name": "ticketing-runtime"
+                    }
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_POOL_MAX",
+                    "value": "12"
+                  },
+                  {
+                    "name": "ORDER_STATUS_CACHE_MS",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH_DEDUP",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_POLL_MS",
+                    "value": "500"
+                  },
+                  {
+                    "name": "ORDER_STATUS_READ_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "PAYMENT_CONFIRMATION_ASYNC",
+                    "value": "0"
+                  },
+                  {
+                    "name": "RESERVATION_WRITER_BATCH_SIZE",
+                    "value": "4"
+                  },
+                  {
+                    "name": "RESERVATION_WRITE_PIPELINE",
+                    "value": "1"
+                  },
+                  {
+                    "name": "SIMULATOR_CONCURRENCY",
+                    "value": "1"
+                  },
+                  {
+                    "name": "WORKER_METRICS_PORT",
+                    "value": "9101"
+                  },
+                  {
+                    "name": "DATABASE_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "DATABASE_URL_POOLER"
+                      }
+                    }
+                  },
+                  {
+                    "name": "REDIS_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "REDIS_URL"
+                      }
+                    }
+                  },
+                  {
+                    "name": "JWT_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "JWT_SECRET"
+                      }
+                    }
+                  },
+                  {
+                    "name": "WEBHOOK_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "WEBHOOK_SECRET"
+                      }
+                    }
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "250m",
+                    "memory": "512Mi"
+                  },
+                  "limits": {
+                    "cpu": "250m",
+                    "memory": "512Mi"
+                  }
+                },
+                "ports": [
+                  {
+                    "name": "metrics",
+                    "containerPort": 9101
+                  }
+                ],
+                "securityContext": {
+                  "runAsNonRoot": true,
+                  "runAsUser": 10001,
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "rds-ca",
+                    "mountPath": "/etc/ticketing/rds-ca",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "rds-ca",
+                "secret": {
+                  "secretName": "ticketing-rds-ca"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "ticketing-reservation-writer",
+        "namespace": "ticketing-shared-preview"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "selector": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "reservation-writer",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "ports": [
+          {
+            "name": "metrics",
+            "port": 9101,
+            "targetPort": 9101
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "ticketing-publisher",
+        "namespace": "ticketing-shared-preview",
+        "labels": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "publisher",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "annotations": {
+          "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c",
+          "ticketing/suggested-test-replicas": "1"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "ticketing",
+            "app.kubernetes.io/component": "publisher",
+            "app.kubernetes.io/part-of": "ticketing-shared"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "ticketing",
+              "app.kubernetes.io/component": "publisher",
+              "app.kubernetes.io/part-of": "ticketing-shared"
+            },
+            "annotations": {
+              "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "terminationGracePeriodSeconds": 60,
+            "imagePullSecrets": [
+              {
+                "name": "swr-pull"
+              }
+            ],
+            "containers": [
+              {
+                "name": "publisher",
+                "image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742",
+                "imagePullPolicy": "IfNotPresent",
+                "command": [
+                  "python",
+                  "-m",
+                  "ticketing.workers",
+                  "publisher"
+                ],
+                "envFrom": [
+                  {
+                    "configMapRef": {
+                      "name": "ticketing-runtime"
+                    }
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_POOL_MAX",
+                    "value": "12"
+                  },
+                  {
+                    "name": "ORDER_STATUS_CACHE_MS",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH_DEDUP",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_POLL_MS",
+                    "value": "500"
+                  },
+                  {
+                    "name": "ORDER_STATUS_READ_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "PAYMENT_CONFIRMATION_ASYNC",
+                    "value": "0"
+                  },
+                  {
+                    "name": "RESERVATION_WRITE_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "SIMULATOR_CONCURRENCY",
+                    "value": "1"
+                  },
+                  {
+                    "name": "WORKER_METRICS_PORT",
+                    "value": "9101"
+                  },
+                  {
+                    "name": "DATABASE_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "DATABASE_URL_POOLER"
+                      }
+                    }
+                  },
+                  {
+                    "name": "REDIS_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "REDIS_URL"
+                      }
+                    }
+                  },
+                  {
+                    "name": "JWT_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "JWT_SECRET"
+                      }
+                    }
+                  },
+                  {
+                    "name": "WEBHOOK_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "WEBHOOK_SECRET"
+                      }
+                    }
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "250m",
+                    "memory": "512Mi"
+                  },
+                  "limits": {
+                    "cpu": "250m",
+                    "memory": "512Mi"
+                  }
+                },
+                "ports": [
+                  {
+                    "name": "metrics",
+                    "containerPort": 9101
+                  }
+                ],
+                "securityContext": {
+                  "runAsNonRoot": true,
+                  "runAsUser": 10001,
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "rds-ca",
+                    "mountPath": "/etc/ticketing/rds-ca",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "rds-ca",
+                "secret": {
+                  "secretName": "ticketing-rds-ca"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "ticketing-publisher",
+        "namespace": "ticketing-shared-preview"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "selector": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "publisher",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "ports": [
+          {
+            "name": "metrics",
+            "port": 9101,
+            "targetPort": 9101
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "ticketing-maintenance",
+        "namespace": "ticketing-shared-preview",
+        "labels": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "maintenance",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "annotations": {
+          "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c",
+          "ticketing/suggested-test-replicas": "1"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "ticketing",
+            "app.kubernetes.io/component": "maintenance",
+            "app.kubernetes.io/part-of": "ticketing-shared"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "ticketing",
+              "app.kubernetes.io/component": "maintenance",
+              "app.kubernetes.io/part-of": "ticketing-shared"
+            },
+            "annotations": {
+              "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "terminationGracePeriodSeconds": 60,
+            "imagePullSecrets": [
+              {
+                "name": "swr-pull"
+              }
+            ],
+            "containers": [
+              {
+                "name": "maintenance",
+                "image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742",
+                "imagePullPolicy": "IfNotPresent",
+                "command": [
+                  "python",
+                  "-m",
+                  "ticketing.workers",
+                  "maintenance"
+                ],
+                "envFrom": [
+                  {
+                    "configMapRef": {
+                      "name": "ticketing-runtime"
+                    }
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_POOL_MAX",
+                    "value": "12"
+                  },
+                  {
+                    "name": "ORDER_STATUS_CACHE_MS",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH_DEDUP",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_POLL_MS",
+                    "value": "500"
+                  },
+                  {
+                    "name": "ORDER_STATUS_READ_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "PAYMENT_CONFIRMATION_ASYNC",
+                    "value": "0"
+                  },
+                  {
+                    "name": "RESERVATION_WRITE_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "SIMULATOR_CONCURRENCY",
+                    "value": "1"
+                  },
+                  {
+                    "name": "WORKER_METRICS_PORT",
+                    "value": "9101"
+                  },
+                  {
+                    "name": "DATABASE_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "DATABASE_URL_POOLER"
+                      }
+                    }
+                  },
+                  {
+                    "name": "REDIS_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "REDIS_URL"
+                      }
+                    }
+                  },
+                  {
+                    "name": "JWT_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "JWT_SECRET"
+                      }
+                    }
+                  },
+                  {
+                    "name": "WEBHOOK_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "WEBHOOK_SECRET"
+                      }
+                    }
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "250m",
+                    "memory": "512Mi"
+                  },
+                  "limits": {
+                    "cpu": "250m",
+                    "memory": "512Mi"
+                  }
+                },
+                "ports": [
+                  {
+                    "name": "metrics",
+                    "containerPort": 9101
+                  }
+                ],
+                "securityContext": {
+                  "runAsNonRoot": true,
+                  "runAsUser": 10001,
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "rds-ca",
+                    "mountPath": "/etc/ticketing/rds-ca",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "rds-ca",
+                "secret": {
+                  "secretName": "ticketing-rds-ca"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "ticketing-maintenance",
+        "namespace": "ticketing-shared-preview"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "selector": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "maintenance",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "ports": [
+          {
+            "name": "metrics",
+            "port": 9101,
+            "targetPort": 9101
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "ticketing-reconciler",
+        "namespace": "ticketing-shared-preview",
+        "labels": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "reconciler",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "annotations": {
+          "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c",
+          "ticketing/suggested-test-replicas": "1"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "ticketing",
+            "app.kubernetes.io/component": "reconciler",
+            "app.kubernetes.io/part-of": "ticketing-shared"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "ticketing",
+              "app.kubernetes.io/component": "reconciler",
+              "app.kubernetes.io/part-of": "ticketing-shared"
+            },
+            "annotations": {
+              "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "terminationGracePeriodSeconds": 60,
+            "imagePullSecrets": [
+              {
+                "name": "swr-pull"
+              }
+            ],
+            "containers": [
+              {
+                "name": "reconciler",
+                "image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742",
+                "imagePullPolicy": "IfNotPresent",
+                "command": [
+                  "python",
+                  "-m",
+                  "ticketing.workers",
+                  "reconciler"
+                ],
+                "envFrom": [
+                  {
+                    "configMapRef": {
+                      "name": "ticketing-runtime"
+                    }
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_POOL_MAX",
+                    "value": "12"
+                  },
+                  {
+                    "name": "ORDER_STATUS_CACHE_MS",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH_DEDUP",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_POLL_MS",
+                    "value": "500"
+                  },
+                  {
+                    "name": "ORDER_STATUS_READ_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "PAYMENT_CONFIRMATION_ASYNC",
+                    "value": "0"
+                  },
+                  {
+                    "name": "RESERVATION_WRITE_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "SIMULATOR_CONCURRENCY",
+                    "value": "1"
+                  },
+                  {
+                    "name": "WORKER_METRICS_PORT",
+                    "value": "9101"
+                  },
+                  {
+                    "name": "DATABASE_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "DATABASE_URL_POOLER"
+                      }
+                    }
+                  },
+                  {
+                    "name": "REDIS_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "REDIS_URL"
+                      }
+                    }
+                  },
+                  {
+                    "name": "JWT_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "JWT_SECRET"
+                      }
+                    }
+                  },
+                  {
+                    "name": "WEBHOOK_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "WEBHOOK_SECRET"
+                      }
+                    }
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "250m",
+                    "memory": "512Mi"
+                  },
+                  "limits": {
+                    "cpu": "250m",
+                    "memory": "512Mi"
+                  }
+                },
+                "ports": [
+                  {
+                    "name": "metrics",
+                    "containerPort": 9101
+                  }
+                ],
+                "securityContext": {
+                  "runAsNonRoot": true,
+                  "runAsUser": 10001,
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "rds-ca",
+                    "mountPath": "/etc/ticketing/rds-ca",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "rds-ca",
+                "secret": {
+                  "secretName": "ticketing-rds-ca"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "ticketing-reconciler",
+        "namespace": "ticketing-shared-preview"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "selector": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "reconciler",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "ports": [
+          {
+            "name": "metrics",
+            "port": 9101,
+            "targetPort": 9101
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "ticketing-simulator",
+        "namespace": "ticketing-shared-preview",
+        "labels": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "simulator",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "annotations": {
+          "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c",
+          "ticketing/suggested-test-replicas": "1"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "ticketing",
+            "app.kubernetes.io/component": "simulator",
+            "app.kubernetes.io/part-of": "ticketing-shared"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "ticketing",
+              "app.kubernetes.io/component": "simulator",
+              "app.kubernetes.io/part-of": "ticketing-shared"
+            },
+            "annotations": {
+              "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "terminationGracePeriodSeconds": 60,
+            "imagePullSecrets": [
+              {
+                "name": "swr-pull"
+              }
+            ],
+            "containers": [
+              {
+                "name": "simulator",
+                "image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742",
+                "imagePullPolicy": "IfNotPresent",
+                "command": [
+                  "python",
+                  "-m",
+                  "ticketing.workers",
+                  "simulator"
+                ],
+                "envFrom": [
+                  {
+                    "configMapRef": {
+                      "name": "ticketing-runtime"
+                    }
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "API_URL",
+                    "value": "http://ticketing-api:8000"
+                  },
+                  {
+                    "name": "DB_POOL_MAX",
+                    "value": "10"
+                  },
+                  {
+                    "name": "ENVIRONMENT",
+                    "value": "development"
+                  },
+                  {
+                    "name": "ORDER_STATUS_CACHE_MS",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH_DEDUP",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_POLL_MS",
+                    "value": "500"
+                  },
+                  {
+                    "name": "ORDER_STATUS_READ_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "PAYMENT_CONFIRMATION_ASYNC",
+                    "value": "0"
+                  },
+                  {
+                    "name": "RESERVATION_WRITE_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "SIMULATOR_CONCURRENCY",
+                    "value": "12"
+                  },
+                  {
+                    "name": "SIMULATOR_DISPATCH_MODE",
+                    "value": "refill"
+                  },
+                  {
+                    "name": "WORKER_METRICS_PORT",
+                    "value": "9101"
+                  },
+                  {
+                    "name": "DATABASE_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "DATABASE_URL_POOLER"
+                      }
+                    }
+                  },
+                  {
+                    "name": "REDIS_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "REDIS_URL"
+                      }
+                    }
+                  },
+                  {
+                    "name": "JWT_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "JWT_SECRET"
+                      }
+                    }
+                  },
+                  {
+                    "name": "WEBHOOK_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "WEBHOOK_SECRET"
+                      }
+                    }
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "250m",
+                    "memory": "512Mi"
+                  },
+                  "limits": {
+                    "cpu": "250m",
+                    "memory": "512Mi"
+                  }
+                },
+                "ports": [
+                  {
+                    "name": "metrics",
+                    "containerPort": 9101
+                  }
+                ],
+                "securityContext": {
+                  "runAsNonRoot": true,
+                  "runAsUser": 10001,
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "rds-ca",
+                    "mountPath": "/etc/ticketing/rds-ca",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "rds-ca",
+                "secret": {
+                  "secretName": "ticketing-rds-ca"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "ticketing-simulator",
+        "namespace": "ticketing-shared-preview"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "selector": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "simulator",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "ports": [
+          {
+            "name": "metrics",
+            "port": 9101,
+            "targetPort": 9101
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "ticketing-confirmation",
+        "namespace": "ticketing-shared-preview",
+        "labels": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "confirmation",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "annotations": {
+          "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c",
+          "ticketing/suggested-test-replicas": "0"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "ticketing",
+            "app.kubernetes.io/component": "confirmation",
+            "app.kubernetes.io/part-of": "ticketing-shared"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "ticketing",
+              "app.kubernetes.io/component": "confirmation",
+              "app.kubernetes.io/part-of": "ticketing-shared"
+            },
+            "annotations": {
+              "ticketing/source-sha256": "c38cc0af14f6fe2f55e01258d277c67a33c9d81fbb01b05c27de8d9b6bcf310c"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "terminationGracePeriodSeconds": 60,
+            "imagePullSecrets": [
+              {
+                "name": "swr-pull"
+              }
+            ],
+            "containers": [
+              {
+                "name": "confirmation",
+                "image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:11596e03f629846cb4b1c145b11b45e66eb4e4f9b6703314c67da65df1f02742",
+                "imagePullPolicy": "IfNotPresent",
+                "command": [
+                  "python",
+                  "-m",
+                  "ticketing.workers",
+                  "confirmation"
+                ],
+                "envFrom": [
+                  {
+                    "configMapRef": {
+                      "name": "ticketing-runtime"
+                    }
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_POOL_MAX",
+                    "value": "2"
+                  },
+                  {
+                    "name": "ORDER_STATUS_CACHE_MS",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_EVENT_REFRESH_DEDUP",
+                    "value": "0"
+                  },
+                  {
+                    "name": "ORDER_STATUS_POLL_MS",
+                    "value": "500"
+                  },
+                  {
+                    "name": "ORDER_STATUS_READ_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "PAYMENT_CONFIRMATION_ASYNC",
+                    "value": "1"
+                  },
+                  {
+                    "name": "RESERVATION_WRITE_PIPELINE",
+                    "value": "0"
+                  },
+                  {
+                    "name": "SIMULATOR_CONCURRENCY",
+                    "value": "1"
+                  },
+                  {
+                    "name": "WORKER_METRICS_PORT",
+                    "value": "9101"
+                  },
+                  {
+                    "name": "DATABASE_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "DATABASE_URL_POOLER"
+                      }
+                    }
+                  },
+                  {
+                    "name": "REDIS_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "REDIS_URL"
+                      }
+                    }
+                  },
+                  {
+                    "name": "JWT_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "JWT_SECRET"
+                      }
+                    }
+                  },
+                  {
+                    "name": "WEBHOOK_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ticketing-runtime",
+                        "key": "WEBHOOK_SECRET"
+                      }
+                    }
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "250m",
+                    "memory": "512Mi"
+                  },
+                  "limits": {
+                    "cpu": "250m",
+                    "memory": "512Mi"
+                  }
+                },
+                "ports": [
+                  {
+                    "name": "metrics",
+                    "containerPort": 9101
+                  }
+                ],
+                "securityContext": {
+                  "runAsNonRoot": true,
+                  "runAsUser": 10001,
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "rds-ca",
+                    "mountPath": "/etc/ticketing/rds-ca",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "rds-ca",
+                "secret": {
+                  "secretName": "ticketing-rds-ca"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "ticketing-confirmation",
+        "namespace": "ticketing-shared-preview"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "selector": {
+          "app.kubernetes.io/name": "ticketing",
+          "app.kubernetes.io/component": "confirmation",
+          "app.kubernetes.io/part-of": "ticketing-shared"
+        },
+        "ports": [
+          {
+            "name": "metrics",
+            "port": 9101,
+            "targetPort": 9101
+          }
+        ]
+      }
+    }
+  ]
+}
