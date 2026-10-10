@@ -223,7 +223,7 @@ def collect(spec, start_at, *, seconds=300, interval=5, hourly=False):
         "host_role": spec["host_role"],
         "arm": spec["arm"],
         "placement": placement(spec),
-        **{k: spec[k] for k in ("decision", "inventory_sha256") if k in spec},
+        **{k: spec[k] for k in ("decision", "inventory_sha256", "event_lane_decision") if k in spec},
         "instance_uuid_sha256": actual,
         "requested_start_utc": start.isoformat(),
         "seconds": seconds,
@@ -256,7 +256,7 @@ def summarize(data):
         "instance_uuid_sha256": data["instance_uuid_sha256"],
         "containers": data["containers"],
         **({"placement": data["placement"]} if "placement" in data else {}),
-        **{k: data[k] for k in ("decision", "inventory_sha256") if k in data},
+        **{k: data[k] for k in ("decision", "inventory_sha256", "event_lane_decision") if k in data},
     }
     entries = validate_spec(spec)
     ids = {entry["id"] for entry in entries}
@@ -302,7 +302,7 @@ def summarize(data):
         "host_role": data["host_role"],
         "arm": data["arm"],
         "placement": placement(spec),
-        **{k: spec[k] for k in ("decision", "inventory_sha256") if k in spec},
+        **{k: spec[k] for k in ("decision", "inventory_sha256", "event_lane_decision") if k in spec},
         "instance_uuid_sha256": data["instance_uuid_sha256"],
         "start_utc": first["utc"],
         "end_utc": last["utc"],

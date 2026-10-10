@@ -1,0 +1,46 @@
+{
+  "decision": "ADR0268",
+  "run": "adr0151-bf07b7b06bee",
+  "ledger": "bounded_cce_paid_comparison__35f76da36a2a",
+  "original_report_sha256": "0864450f6b5c980f1771ae66a6b12c57fbe9d678aeae5b6dd4c9d6d42abf9609",
+  "original_report_pass": false,
+  "original_entry_sha256": "8d5a502f6322ab4b300891e57fcffad025be9517cd208e6e222ec68752e04ea8",
+  "paid_dispatches": 0,
+  "fresh_restoration": {
+    "primary_runtime_semantics_restored": true,
+    "primary_api_count": 4
+  },
+  "queues": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "secondary_empty": true,
+  "generator_idle": true,
+  "owned_credentials_absent": true,
+  "corrected_image_source_verified": true,
+  "restoration_complete": true,
+  "retained_inventory_replay": {
+    "decision": "ADR0268",
+    "retained_inventory_replay_pass": true,
+    "original_inventory_sha256": "e6509df227c68434b86fb80f9a7e5ae75bab977c8c4fb10c67ba52f3524dee1b",
+    "original_inventory_unchanged": true,
+    "fresh_runtime_qualification": false,
+    "customer_dispatches": 0,
+    "capacity_improvement_measured": false
+  },
+  "verified_at_utc": "2026-10-10T11:55:10.204418+00:00",
+  "capacity_improvement_measured": false
+}

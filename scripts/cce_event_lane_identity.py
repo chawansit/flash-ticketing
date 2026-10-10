@@ -33,6 +33,11 @@ def verify_inventory(inventory, approved_digest):
               "event_consumer_pool_budget": 48}
     if digest(inventory) != approved_digest or any(marker.get(k) != v for k, v in wanted.items()):
         raise ValueError("Exactly sealed event-lane image/budget required")
+    apis = inventory.get("apis", [])
+    if len(apis) != 4 or any(
+            api.get("settings", {}).get(flag) != "0"
+            for api in apis for flag in ("EVENT_CONSUMER_SEPARATION", "RESERVATION_WRITE_PIPELINE")):
+        raise ValueError("Four APIs with explicit disabled event-lane flags required")
     counts, ids = dict.fromkeys(COUNTS, 0), set()
     for row in inventory.get("worker_sources", []):
         role, proof, settings = row.get("role"), row.get("source_identity", {}), row.get("settings", {})
@@ -68,6 +73,10 @@ def historical_view(inventory, approved_digest):
     for key in tuple(marker):
         if key.startswith(("shared_image_", "event_", "simulator_")) or key in {"dispatch_correction_decision", "correction_decision", "correction_factor"}:
             marker.pop(key)
+    for api in legacy["apis"]:
+        # Remove only verified historical-equivalent flags from the copied view.
+        api["settings"].pop("EVENT_CONSUMER_SEPARATION")
+        api["settings"].pop("RESERVATION_WRITE_PIPELINE")
     legacy["background"].pop("projection-consumer")
     legacy["background"]["consumer"]["pool_per_replica"] = 8
     legacy["background"]["simulator"]["concurrency"] = 8

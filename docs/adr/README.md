@@ -201,3 +201,9 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0266: Bounded event-lane capacity correction](0266-bounded-event-lane-capacity-correction.md)
 
 - [ADR0267: Bound multipartition Kafka fetch frames](0267-bound-multipartition-kafka-fetch-frames.md)
+
+- [ADR0268: Validate explicit API flags before legacy projection](0268-validate-explicit-api-flags-before-legacy-projection.md)
+
+- [ADR0269: Reconcile the failed event-lane paid cohort](0269-reconcile-failed-event-lane-paid-cohort.md)
+
+- [ADR0270: Preserve event-lane CPU observation binding](0270-preserve-event-lane-cpu-observation-binding.md)

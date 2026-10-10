@@ -30,7 +30,9 @@ def inventory():
         for _ in range(count):
             rows.append({"role": role, "container_id": str(len(rows)), "image_id": identity.IMAGE_ID,
                          "settings": contract.settings(role), "source_identity": copy.deepcopy(proof)})
-    return {"worker_sources": rows, "status_refresh_contract": contract.inventory_marker(),
+    apis = [{"host_role": role, "settings": copy.deepcopy(contract.api_settings), "ORDER_STATUS_EVENT_REFRESH": "0"}
+            for role in ("primary", "secondary", "secondary", "secondary")]
+    return {"apis": apis, "arm": "candidate", "worker_sources": rows, "status_refresh_contract": contract.inventory_marker(),
             "background": contract.background}
 
 
@@ -162,3 +164,33 @@ def test_readiness_reason_preserved_without_weakening_rejection(monkeypatch):
         copy.deepcopy(prepared_contract()).pre_safety(session, [], {})
     assert session.state["event_lane_readiness_rejection"] == "Pre-safety candidate contract failed"
     assert saved == [True]
+
+
+def test_complete_contract_accepts_only_verified_api_flag_projection():
+    data = inventory()
+    original = copy.deepcopy(data)
+    copy.deepcopy(prepared_contract()).verify_inventory(data)
+    view, _ = identity.historical_view(data, identity.digest(data))
+    assert data == original
+    assert all("EVENT_CONSUMER_SEPARATION" not in a["settings"]
+               and "RESERVATION_WRITE_PIPELINE" not in a["settings"] for a in view["apis"])
+
+
+@pytest.mark.parametrize("flag", ["EVENT_CONSUMER_SEPARATION", "RESERVATION_WRITE_PIPELINE"])
+@pytest.mark.parametrize("value", [None, "1", "false"])
+def test_api_flags_cannot_be_hidden_by_legacy_projection(flag, value):
+    data = inventory()
+    if value is None:
+        data["apis"][1]["settings"].pop(flag)
+    else:
+        data["apis"][1]["settings"][flag] = value
+    with pytest.raises(ValueError, match="explicit disabled"):
+        identity.historical_view(data, identity.digest(data))
+
+
+@pytest.mark.parametrize("field,value", [("DB_POOL_MAX", "5"), ("API_PAYMENT_POOL_MAX", "3"), ("unexpected_flag", "1")])
+def test_unrelated_api_drift_still_fails_complete_contract(field, value):
+    data = inventory()
+    data["apis"][0]["settings"][field] = value
+    with pytest.raises(ValueError, match="exact admission API settings"):
+        copy.deepcopy(prepared_contract()).verify_inventory(data)
