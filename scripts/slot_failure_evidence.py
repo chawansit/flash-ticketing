@@ -25,12 +25,15 @@ def validate(value):
             or any(not integer(value.get(k)) for k in ("failure_total", "overwritten_total", "diagnostic_errors"))
             or not isinstance(value.get("records"), list) or len(value["records"]) > 16):
         raise ValueError("Invalid bounded slot snapshot")
-    if not value["complete"] or value["overwritten_total"] or value["diagnostic_errors"]:
-        raise ValueError("Incomplete slot evidence")
     records = value["records"]
-    if len(records) != value["failure_total"]:
+    total = value["failure_total"]
+    overwritten = max(0, total - 16)
+    if (value["diagnostic_errors"] or value["overwritten_total"] != overwritten
+            or value["complete"] is not (overwritten == 0)):
+        raise ValueError("Incomplete or inconsistent slot evidence")
+    if len(records) != min(total, 16):
         raise ValueError("Missing retained slot failures")
-    for sequence, record in enumerate(records, 1):
+    for sequence, record in enumerate(records, total - len(records) + 1):
         if (not isinstance(record, dict)
                 or set(record) != {"sequence", "captured_at_unix_seconds", "role", "reason", "holders"}
                 or record["sequence"] != sequence or not finite(record["captured_at_unix_seconds"])
@@ -136,6 +139,8 @@ def summarize(rows, expected_replicas):
         raise ValueError("Slot evidence samples required")
     # Exposition is concurrent with failures. Earlier counter/ring reads may race;
     # require a settled final snapshot, never excuse missing terminal evidence.
+    if any(len(replicas[name]) != totals[name] or any(sequence != expected for expected, sequence in enumerate(sorted(replicas[name]), 1)) for name in replicas):
+        raise ValueError("Missing slot failure history after rollover")
     if any(last_counters[name] != totals[name] for name in replicas):
         raise ValueError("Terminal driver counter and slot evidence disagree")
     return {"complete": True, "failure_total": sum(totals.values()),

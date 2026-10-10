@@ -1,0 +1,11 @@
+{
+  "decision": "ADR0256",
+  "recovery_bundle_sha256": "2349e1b19849c20e57ed26203076635166a5fb7722d6c8202939fe9157f18331",
+  "recovery_max_attempts": 3,
+  "duration_seconds": 3600,
+  "completion_deadline_seconds": 3720,
+  "adapters": {
+    "scripts/cce_hourly_paid_generator.py": "51fd73a55bf394f68d37f41e52a7da66fefc87507831ca378ea3ee12a0e11419",
+    "scripts/cce_hourly_paid_leaf.py": "f188960da23aa3824aae16a306a76c925bf358ff1870e70933b285f77cd708bb"
+  }
+}

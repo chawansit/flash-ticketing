@@ -14,8 +14,7 @@ from time import time
 
 def validate(args, manifest):
     if (
-        getattr(args, "recovery_max_attempts", 1) not in {1, 3}
-        or args.rate != 84
+        args.rate != 84
         or args.seconds != 3600
         or args.completion_deadline_seconds != 3720
         or args.concurrency != 500
@@ -88,8 +87,6 @@ async def run(args, manifest):
                     "--start-at-epoch",
                     str(args.start_at_epoch),
                 ]
-                if getattr(args, "recovery_max_attempts", 1) == 3:
-                    command.extend(["--recovery-max-attempts", "3"])
                 if args.lifecycle_diagnostics:
                     command.append("--lifecycle-diagnostics")
                 jobs.append(
@@ -110,8 +107,7 @@ async def run(args, manifest):
                         job.kill()
                 await asyncio.gather(*(job.wait() for job in jobs))
         results = [json.loads(path.read_text()) if path.exists() else {} for path in outputs]
-    result = frozen.aggregate(results, 84, 3600, 500, exits,
-                              **({"recovery_max_attempts": 3} if getattr(args, "recovery_max_attempts", 1) == 3 else {}))
+    result = frozen.aggregate(results, 84, 3600, 500, exits)
     starts = [datetime.fromisoformat(row["started_at_utc"]).timestamp() for row in results]
     result["shard_start_alignment_pass"] = len(starts) == 2 and all(abs(value - args.start_at_epoch) <= 2 for value in starts)
     result["pass"] = result.get("pass") is True and result["shard_start_alignment_pass"]
@@ -142,7 +138,6 @@ def main():
     parser.add_argument("--poll-seconds", type=float, required=True)
     parser.add_argument("--start-at-epoch", type=float, required=True)
     parser.add_argument("--lifecycle-diagnostics", action="store_true")
-    parser.add_argument("--recovery-max-attempts", type=int, choices=(1, 3), default=1)
     args = parser.parse_args()
     if args.output.exists():
         parser.error("Fresh hourly output required")

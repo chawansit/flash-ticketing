@@ -49,8 +49,11 @@ def test_slot_entry_fails_closed_without_retry(fault):
     else:
         observed = module.api_metrics(address)
         assert observed["business_http_requests_total"] == 1
-        assert "db_failure_diagnostics_error" in observed
-        with pytest.raises(ValueError, match="Incomplete"):
+        if fault == "overflow":
+            assert observed["db_failure_diagnostics"]["complete"] is False
+        else:
+            assert "db_failure_diagnostics_error" in observed
+        with pytest.raises(ValueError, match="Missing slot failure history|Incomplete"):
             slots.summarize([{"api_replicas": {address: observed}}], [address])
     assert len(calls) == 1
 

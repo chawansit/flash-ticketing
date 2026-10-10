@@ -44,6 +44,9 @@ def image_pair():
 def active(envelope=None):
     envelope = policy.envelope() if envelope is None else envelope
     goal = envelope.get("spending", {}).get("temporary_cce_pilot_exception", {}).get("goal_bounded_authorization", {})
+    if goal.get("extension_decision") == "ADR0256":
+        from cce_recovery_hourly_profile import active as hourly_active
+        return hourly_active(goal)
     if goal.get("extension_decision") == "ADR0255":
         from cce_customer_recovery_profile import active as recovery_active
         return recovery_active(goal)
@@ -74,7 +77,7 @@ def active(envelope=None):
 
 
 def proof_digest(goal):
-    if goal["extension_decision"] == "ADR0255":
+    if goal["extension_decision"] in {"ADR0255", "ADR0256"}:
         from cce_customer_recovery_profile import PROOF_SHA256 as recovery_digest
         return recovery_digest
     if goal["extension_decision"] == "ADR0251":
@@ -87,7 +90,7 @@ def proof_digest(goal):
 
 
 def pair_receipt(goal):
-    if goal["extension_decision"] == "ADR0255":
+    if goal["extension_decision"] in {"ADR0255", "ADR0256"}:
         from cce_customer_recovery_profile import receipt as recovery_receipt
         return recovery_receipt()
     if goal["extension_decision"] == "ADR0249":
@@ -98,7 +101,7 @@ def pair_receipt(goal):
 
 def image_for(goal):
     """ADR0245 holds the accepted control binary fixed across both partitions."""
-    arm = "control" if goal["extension_decision"] in {"ADR0245", "ADR0251", "ADR0255"} else goal["comparison_arm"]
+    arm = "control" if goal["extension_decision"] in {"ADR0245", "ADR0251", "ADR0255", "ADR0256"} else goal["comparison_arm"]
     return pair_receipt(goal)["images"][arm]
 
 
@@ -107,6 +110,8 @@ def payment_connections(goal):
 
 
 def control_receipt(goal):
+    if goal.get("extension_decision") == "ADR0256":
+        raise ValueError("Hourly recovery uses its separately sealed short prerequisite")
     ledger, relative = goal.get("control_ledger", ""), goal.get("control_report_path", "")
     if not re.fullmatch(r"bounded_cce_paid_comparison__[0-9a-f]{12}", ledger):
         raise ValueError("Fresh passing control ledger required")
@@ -163,7 +168,10 @@ def plan():
     goal = active()
     if goal is None:
         raise ValueError("Explicit ADR0242 short comparison required")
-    if goal["extension_decision"] == "ADR0255":
+    if goal["extension_decision"] in {"ADR0255", "ADR0256"}:
+        if goal["extension_decision"] == "ADR0256":
+            from cce_recovery_hourly_profile import plan as hourly_recovery_plan
+            return hourly_recovery_plan(goal)
         from cce_customer_recovery_profile import plan as recovery_plan
         return recovery_plan(goal)
     if goal["extension_decision"] == "ADR0251":

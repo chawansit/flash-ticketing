@@ -44,10 +44,10 @@ def install(module):
             raise ValueError("Exact bounded hourly leaf settings required")
         views = {}
 
-        async def allocated(client, data, index, run_id, timeout, poll, duplicates, **recovery_kwargs):
+        async def allocated(client, data, index, run_id, timeout, poll, duplicates):
             view, local, block = allocation(data, index, views)
             return await journey(
-                client, view, local, run_id + "-block-" + str(block), timeout, poll, duplicates, **recovery_kwargs
+                client, view, local, run_id + "-block-" + str(block), timeout, poll, duplicates
             )
 
         return await original(args, manifest, journey_fn=allocated)

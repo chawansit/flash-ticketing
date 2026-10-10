@@ -45,6 +45,7 @@ def identity():
         "docs/capacity/cce/reproduction-lock-2026-10-09.json",
         "scripts/cce_paid_profiles.py",
         "scripts/cce_transaction_profile.py",
+        "scripts/cce_recovery_hourly_profile.py", "artifacts/hourly-customer-recovery/manifest.json",
         "scripts/cce_customer_recovery_profile.py", "scripts/customer_recovery_bundle.py",
         "artifacts/customer-recovery/manifest.json", "artifacts/customer-recovery/coordinator.py",
         "docs/capacity/cce/customer-recovery-image-2026-10-10.json",
@@ -90,8 +91,8 @@ def generator_bundle():
 def generator_arguments(directory, origin, start_at_epoch, *, profile=None, recovery_max_attempts=1):
     from cce_paid_profiles import HOURLY, SHORT
     profile = SHORT if profile is None else profile
-    if recovery_max_attempts not in (1, 3) or (recovery_max_attempts == 3 and profile != SHORT):
-        raise ValueError("Recovery is limited to the explicit short comparison")
+    if recovery_max_attempts not in (1, 3) or (recovery_max_attempts == 3 and profile not in (SHORT, HOURLY)):
+        raise ValueError("Recovery requires the explicit registered comparison or hourly binding")
     if profile not in (SHORT, HOURLY):
         raise ValueError("Exact CCE stage profile required")
     if not re.fullmatch(r"/[^\x00\r\n]*?/tmp/adr0151-[0-9a-f]{12}-cce-candidate", directory):
@@ -177,9 +178,14 @@ class PaidStage:
         self.recovery_enabled = enabled(transaction.active())
         self.coordinator = (policy.ROOT / "scripts/run_synchronized_paid_generator.py").read_bytes()
         if self.recovery_enabled:
-            if self.profile.duration != 300 or guard.binding.get("cce_recovery_max_attempts") != 3:
+            if guard.binding.get("cce_recovery_max_attempts") != 3:
                 raise ValueError("Explicit short recovery binding required")
             self.bundle, self.coordinator = qualify(self.bundle)
+            if self.profile.duration == 3600:
+                from cce_recovery_hourly_profile import qualify_hourly_adapters
+                qualify_hourly_adapters()
+                if guard.binding.get("cce_recovery_hourly_decision") != "ADR0256":
+                    raise ValueError("Explicit hourly recovery binding required")
         self.jobs = jobs or OwnedJobs()
         self.job_list = []
         self.record = {

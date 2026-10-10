@@ -57,7 +57,7 @@ def contract():
         data = copy.deepcopy(data)
         data["api_sources"] = transaction.image_for(goal)["runtime_sources_sha256"]
         data["api_settings"]["DB_FAILURE_DIAGNOSTICS"] = "1"
-        if goal["extension_decision"] == "ADR0255":
+        if goal["extension_decision"] in {"ADR0255", "ADR0256"}:
             data["api_settings"]["ORDER_STATUS_READ_PIPELINE"] = "1" if goal["comparison_arm"] == "candidate" else "0"
             data["workload"]["customer_retries"] = 3
         if goal["extension_decision"] == "ADR0245":

@@ -111,3 +111,39 @@ def test_diagnostic_error_is_bounded_and_omits_arbitrary_payload():
     assert "header" not in result
     assert len(json.dumps(result)) < 400
     assert len(result["payload_prefix_sha256"]) == 64
+
+
+def rolling_rows():
+    tracker = SlotDiagnostics(1)
+    rows = []
+    for number in range(1, 21):
+        tracker.failure({"role": "payment", "reason": "native_timeout"})
+        value = json.loads(tracker.comment()[len(collector.PREFIX):])
+        rows.append({"api_replicas": {"api": {"acquisition_failure:payment:native_timeout": number,
+                                             "db_failure_diagnostics": value}}})
+    return rows
+
+
+def test_rolling_ring_requires_independent_complete_history():
+    rows = rolling_rows()
+    assert collector.validate(rows[-1]["api_replicas"]["api"]["db_failure_diagnostics"])["complete"] is False
+    result = collector.summarize(rows, ["api"])
+    assert result["complete"] and result["failure_total"] == 20
+    assert [v["sequence"] for v in result["replicas"]["api"]] == list(range(1, 21))
+    for missing in (rows[-1:], rows[16:]):
+        with pytest.raises(ValueError, match="Missing slot failure history"):
+            collector.summarize(missing, ["api"])
+
+
+def test_rolling_ring_still_rejects_reset_tamper_and_diagnostic_errors():
+    rows = rolling_rows()
+    with pytest.raises(ValueError, match="counter reset"):
+        collector.summarize(rows + [rows[0]], ["api"])
+    damaged = copy.deepcopy(rows)
+    damaged[-1]["api_replicas"]["api"]["db_failure_diagnostics"]["records"][0]["captured_at_unix_seconds"] += 1
+    with pytest.raises(ValueError, match="identity changed"):
+        collector.summarize(damaged, ["api"])
+    damaged = copy.deepcopy(rows[-1]["api_replicas"]["api"]["db_failure_diagnostics"])
+    damaged["diagnostic_errors"] = 1
+    with pytest.raises(ValueError):
+        collector.validate(damaged)

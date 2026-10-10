@@ -93,14 +93,13 @@ def test_same_budget_plan_and_single_candidate_factor(monkeypatch):
         profile.active({**goal, "acquisition_budget": 21})
 
 
-def test_recovery_cli_is_explicit_and_never_hourly():
+def test_recovery_cli_is_explicit_for_registered_profiles():
     from cce_paid_profiles import HOURLY
     path = "/root/flash-ticketing/tmp/adr0151-aaaaaaaaaaaa-cce-candidate"
     origin = "http://10.1.137.69:8000"
     assert "--recovery-max-attempts" not in stage.generator_arguments(path, origin, 0)
     assert stage.generator_arguments(path, origin, 0, recovery_max_attempts=3)[-2:] == ["--recovery-max-attempts", "3"]
-    with pytest.raises(ValueError, match="short comparison"):
-        stage.generator_arguments(path, origin, 0, profile=HOURLY, recovery_max_attempts=3)
+    assert stage.generator_arguments(path, origin, 0, profile=HOURLY, recovery_max_attempts=3)[-2:] == ["--recovery-max-attempts", "3"]
 
 
 

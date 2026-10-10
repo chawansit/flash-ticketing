@@ -7,8 +7,10 @@ OVERLAID = {
     "scripts/checkout_journey_probe.py", "scripts/paid_ticket_load_generator.py", "scripts/paid_ticket_sharded_generator.py",
     "scripts/cce_api_adapter.py", "scripts/cce_paid_stage.py", "scripts/cce_paid_observers.py",
     "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py",
-    "scripts/run_cce_hourly_qualification.py"}
+    "scripts/run_cce_hourly_qualification.py", "scripts/cce_hourly_paid_generator.py", "scripts/cce_hourly_paid_leaf.py"}
 ADDITIONAL = {
+    "scripts/cce_recovery_hourly_profile.py", "artifacts/hourly-customer-recovery/manifest.json",
+    "docs/capacity/cce/customer-recovery-comparison-2026-10-10.json",
     "scripts/paid_fixture_layout.py",
     "scripts/cce_customer_recovery_profile.py", "scripts/customer_recovery_bundle.py",
     "artifacts/customer-recovery/manifest.json", "artifacts/customer-recovery/coordinator.py",
