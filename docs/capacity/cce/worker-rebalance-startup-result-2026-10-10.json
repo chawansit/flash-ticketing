@@ -51,6 +51,22 @@
       "namespace_removed": true,
       "bridge_removed": true,
       "existing_runtime_unchanged": true
+    },
+    {
+      "run": "adr0151-cbf9eab97391",
+      "ledger": "bounded_cce_dependency_probe__8c7a392324b5",
+      "status": "FAILED_RESTORED",
+      "after_user_reported_tcp9092_allowed": true,
+      "customers_written": 0,
+      "paid_stages": 0,
+      "kafka": {
+        "tcp_connected": false,
+        "failure_type": "TimeoutError",
+        "failure_stage": "connect"
+      },
+      "namespace_removed": true,
+      "bridge_removed": true,
+      "existing_runtime_unchanged": true
     }
   ],
   "confirmed_route": {
@@ -64,7 +80,7 @@
     "ecs_to_cce_probe": true
   },
   "interpretation": "CCE-to-ECS private Kafka TCP route fails; exact security-group, egress or network-policy rule is not yet identified. Broker and owned forwarder answer the same protocol request from ECS.",
-  "next_action": "Check private ECS inbound TCP9092 from CCE pod subnet/security group and any CCE egress or network-policy restriction. Repeat dependency probe before migration and paid traffic.",
+  "next_action": "Verify the TCP9092 rule is attached to primary ECS and permits the CCE pod network; user asked for actual source/security group. Recheck CCE egress/network policy if ingress is correct. No further paid load before a successful dependency probe.",
   "local_validation": {
     "dependency_tests": 63,
     "worker_contract_tests": 15,
@@ -73,5 +89,13 @@
     "ruff_passed": true,
     "historical_files_verified": 535,
     "historical_values_changed": false
+  },
+  "latest_retry_at_utc": "2026-10-10T14:08:35.134908+00:00",
+  "latest_probe_rds_redis_reachable": true,
+  "read_only_host_checks": {
+    "ipv4_forwarding_enabled": true,
+    "docker_user_custom_rules": 0,
+    "cce_node_pod_cidrs_available": false,
+    "network_rule_responsible_identified": false
   }
 }

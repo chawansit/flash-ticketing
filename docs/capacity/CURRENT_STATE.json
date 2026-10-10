@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-10",
   "branch": "codex/customer-recovery-2026-10-10",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "ADR0271 worker migration blocked before paid traffic by CCE-to-ECS Kafka TCP9092 connect timeout. ADR0273 verifies the forwarder responds from ECS and RDS/Redis respond from CCE. All failed attempts restored; no capacity improvement measured.",
+  "status": "ADR0273 retry after reported TCP9092 permission still fails during CCE-to-primary Kafka TCP connect; RDS/Redis pass. Original services unchanged, all owned probe resources removed, generator idle. Paid load not started.",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -85,7 +85,8 @@
     "ADR0251 corrected short84/s300s:25200 scheduled/dispatched/customer-confirmed/paid-issued; drops0/errors0/retries0/doublebook0; every measurement gate passed, global queues0 and normal runtime restored. Hourly remains pending.",
     "ADR0252 hourly target numerically met:301843 unique paid-issued tickets inside hour (conservative301652),83.8453tickets/s;customerconfirmed301924,customererrors104/302028=.0344%,drops372/302400=.1230%,no retry. Terminal301961payments/tickets,67expiredunpaid,doublebook0. FAILED_RESTORED underADR0253; original quality/observerfailure remainsfailed.",
     "ADR0261 control2d46f190577f:24,410 eventual unique paid tickets versus20,040 prior(+21.81%);790/25,200 undispatched,83 recovered initial-error journeys,0 final failures,p957.233s,primaryCPU83.191%. Original failed gates preserved; independent financial/relationship recovery passed,zero double booking,payment loss0,queues0,all owned resources cleaned. No CCE worker candidate or hourly qualification.",
-    "ADR0271 third startup attempt 4b826076c234: NoBrokersAvailable before paid dispatch, filtered evidence captured, exact restoration and integrity verified. ADR0273 probe ad0b300d5c1c: CCE Kafka connect timeout while ECS forwarder ApiVersions passed, RDS/Redis reachable; zero writes, all owned resources removed, original runtime unchanged. Capacity unmeasured."
+    "ADR0271 third startup attempt 4b826076c234: NoBrokersAvailable before paid dispatch, filtered evidence captured, exact restoration and integrity verified. ADR0273 probe ad0b300d5c1c: CCE Kafka connect timeout while ECS forwarder ApiVersions passed, RDS/Redis reachable; zero writes, all owned resources removed, original runtime unchanged. Capacity unmeasured.",
+    "ADR0273 post-rule retry cbf9eab97391: TCP9092 connect TimeoutError, RDS/Redis reachable, FAILED_RESTORED, zero writes and capacity stages, original runtime fingerprint unchanged, owned namespace/bridge removed, generator idle. Read-only host forwarding enabled/custom DOCKER-USER chain empty; exact filtering rule not established."
   ],
   "unresolved": "Latest ADR0263 paid-to-ticket latency and generator drops remain unqualified. Refresh lock timeouts are observed, but their full latency contribution is unproven. ADR0265 cloud runner must verify projection identity and both consumer groups before paid load. The separate18000-seat projection issue is not closed by this correction.",
   "next_on_resume": "Integrate ADR0265 projection identity and both-group lag/drain into the existing paid runner; declare exact source-pinned candidate and unchanged aggregate connection budget. Register one fresh84/s300s correction. All short gates must pass before100/s600s; hourly qualification remains conditional. No placement comparison or unrelated tooling redesign.",
@@ -10350,5 +10351,33 @@
     "scope": "Fresh ADR0228 experiment under ADR0172 standing boundaries; exact registered rate only, no replay",
     "cce_result_sha256": "55ec85ff7a06663a7066dd1b8be209add98a32b800bd4d09d31d51f6e9694295"
   },
-  "next_step": "User checks private Kafka ingress/CCE egress; repeat one dependency probe, then resume the unconsumed ADR0271 84/s300s paid-stage allowance only after workers are ready."
+  "next_step": "Await source/security-group verification for primary ECS private TCP9092 from CCE pods, then repeat only the zero-customer dependency probe before the unconsumed ADR0271 paid stage.",
+  "bounded_cce_dependency_probe__8c7a392324b5": {
+    "authorization_id": "work-envelope-8c7a392324b5",
+    "binding": {
+      "run_id": "adr0151-cbf9eab97391",
+      "configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
+      "cce_sources": {
+        "scripts/cce_dependency_probe.py": "87c9b438fca8c0634033ec067d7e668da3ede42ca8afe2a420ac3ff21c3a94ec",
+        "scripts/work_envelope.py": "266d7972765208388ae9feae87ae8ffcc18b72fbf51f54072b42a94592ad2d59",
+        "scripts/run_work_envelope.py": "0bc12e05a96d73f25c11d4827ff2190048a93bced53f143fa4768861630aa189"
+      },
+      "image_proof_sha256": "c18ccce10b538e24d21663ad37a0783765fdf45b998838021d6dce4aecd17f7f",
+      "dependency_transport": "kafka"
+    },
+    "standing_envelope": {
+      "ledger": "bounded_cce_dependency_probe__8c7a392324b5",
+      "envelope_sha256": "d7e9a49b544e0b9222661b3eca93d3bde315d2e25ad48c86610fc846edc3fbb6"
+    },
+    "qualification_runs_authorized": 1,
+    "paid_runs_authorized": 0,
+    "safety_tickets_authorized": 0,
+    "qualification_protocols_started": 1,
+    "paid_runs_started": 0,
+    "paid_protocols_started": 0,
+    "safety_protocols_started": 0,
+    "active_run": null,
+    "scope": "Fresh ADR0228 experiment under ADR0172 standing boundaries; exact registered rate only, no replay",
+    "cce_result_sha256": "4a2efb53183261101594e79d23c125f4ad614428f6c9ab8fe7e6fbbca78c2610"
+  }
 }
