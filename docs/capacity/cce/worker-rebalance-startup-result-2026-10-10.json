@@ -1,8 +1,8 @@
 {
   "decision": "ADR0273",
   "placement_decision": "ADR0271",
-  "recorded_at_utc": "2026-10-10T13:45:15.149233+00:00",
-  "status": "BLOCKED_PRIVATE_KAFKA_CONNECTIVITY",
+  "recorded_at_utc": "2026-10-10T14:47:52.909720+00:00",
+  "status": "BLOCKED_PRIVATE_CALLBACK_API_CONNECTIVITY",
   "paid_stage_started": false,
   "capacity_improvement_measured": false,
   "production_qualified": false,
@@ -83,22 +83,91 @@
       "namespace_removed": true,
       "bridge_removed": true,
       "existing_runtime_unchanged": true
+    },
+    {
+      "run": "adr0151-48f9b4ecfa90",
+      "ledger": "bounded_cce_dependency_probe__b6c390a596cc",
+      "status": "PASSED_RESTORED",
+      "customers_written": 0,
+      "paid_stages": 0,
+      "checks": {
+        "rds": {
+          "tcp_connected": true,
+          "postgresql_protocol_checked": true,
+          "kafka_protocol_checked": false
+        },
+        "redis": {
+          "tcp_connected": true,
+          "postgresql_protocol_checked": false,
+          "kafka_protocol_checked": false
+        },
+        "kafka": {
+          "tcp_connected": true,
+          "postgresql_protocol_checked": false,
+          "kafka_protocol_checked": true
+        }
+      },
+      "namespace_removed": true,
+      "bridge_removed": true,
+      "existing_runtime_unchanged": true,
+      "temporary_credentials_removed": true,
+      "generator_idle_after": true,
+      "original_private_report_sha256": "b25a40f7a3b9e72447d95a7da7aff412732e694c7eb8423c27b671d4f0cafb02"
+    },
+    {
+      "run": "adr0151-ec971e589026",
+      "ledger": "bounded_cce_dependency_probe__681a763a706b",
+      "status": "FAILED_RESTORED",
+      "customers_written": 0,
+      "paid_stages": 0,
+      "checks": {
+        "rds": {
+          "tcp_connected": true,
+          "postgresql_protocol_checked": true,
+          "kafka_protocol_checked": false
+        },
+        "redis": {
+          "tcp_connected": true,
+          "postgresql_protocol_checked": false,
+          "kafka_protocol_checked": false
+        },
+        "kafka": {
+          "tcp_connected": true,
+          "postgresql_protocol_checked": false,
+          "kafka_protocol_checked": true
+        },
+        "callback_api": {
+          "tcp_connected": false,
+          "failure_type": "TimeoutError",
+          "failure_stage": "connect"
+        }
+      },
+      "namespace_removed": true,
+      "bridge_removed": true,
+      "existing_runtime_unchanged": true,
+      "temporary_credentials_removed": true,
+      "generator_idle_after": true,
+      "original_private_report_sha256": "aadf6efa7abf26b485f28bc63fc46838671c1e68830e8aeaa73789c342b08ea7"
     }
   ],
   "confirmed_route": {
-    "cce_to_kafka_tcp": false,
-    "cce_kafka_failure_stage": "connect",
-    "cce_kafka_failure_type": "TimeoutError",
+    "cce_to_kafka_tcp": true,
+    "cce_kafka_failure_stage": null,
+    "cce_kafka_failure_type": null,
     "ecs_to_owned_forwarder_tcp": true,
     "ecs_forwarder_api_versions_verified": true,
     "cce_to_rds": true,
     "cce_to_redis": true,
-    "ecs_to_cce_probe": true
+    "ecs_to_cce_probe": true,
+    "cce_kafka_api_versions_verified": true,
+    "cce_to_callback_api_tcp": false,
+    "cce_callback_failure_stage": "connect",
+    "cce_callback_failure_type": "TimeoutError"
   },
-  "interpretation": "CCE-to-ECS private Kafka TCP route fails; exact security-group, egress or network-policy rule is not yet identified. Broker and owned forwarder answer the same protocol request from ECS.",
-  "next_action": "Verify the TCP9092 rule is attached to primary ECS and permits the CCE pod network; user asked for actual source/security group. Recheck CCE egress/network policy if ingress is correct. No further paid load before a successful dependency probe.",
+  "interpretation": "Kafka TCP and ApiVersions now pass. All14 CCE workers reached readiness, but the native safety ticket was not confirmed. A separate zero-write probe confirms CCE cannot connect to the configured callback destination on private TCP8000; exact filtering rule remains unconfirmed.",
+  "next_action": "Allow private API TCP8000 from the configured CCE pod network/security group, then repeat dependency readiness and safety before the unused84/s paid stage.",
   "local_validation": {
-    "dependency_tests": 63,
+    "dependency_tests": 64,
     "worker_contract_tests": 15,
     "envelope_tests": 53,
     "reproducibility_tests": 17,
@@ -113,5 +182,19 @@
     "docker_user_custom_rules": 0,
     "cce_node_pod_cidrs_available": false,
     "network_rule_responsible_identified": false
+  },
+  "native_safety_attempt": {
+    "run": "adr0151-6a2c764994ca",
+    "status": "FAILED_RESTORED",
+    "native_worker_receipts": 14,
+    "failure": "safety_ticket_confirmation_timeout",
+    "paid_stages_started": 0,
+    "original_private_report_sha256": "3829f2234ce00434788382e68b5973271d27d6614e63d765e8c3f3e1a104254d",
+    "recovery_decision": "ADR0274",
+    "refund_durable": true,
+    "bookings": 0,
+    "tickets": 0,
+    "queue_drain": true,
+    "runtime_restored": true
   }
 }

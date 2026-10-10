@@ -61,7 +61,7 @@
       "historical_sha256": "634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e"
     },
     "scripts/cce_dependency_probe.py": {
-      "current_sha256": "87c9b438fca8c0634033ec067d7e668da3ede42ca8afe2a420ac3ff21c3a94ec",
+      "current_sha256": "9f8d3afebadfda28bdfcac0af45d55779bb5e7b613d5f82eb05198c05e4c9c55",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/0eaa401200576c3b82f9f4a5bae919b4843b3f8ff7895ef2f043b7f9c91d9e65",
       "historical_sha256": "0eaa401200576c3b82f9f4a5bae919b4843b3f8ff7895ef2f043b7f9c91d9e65"
     },

@@ -1,0 +1,129 @@
+{
+  "decision": "ADR0274",
+  "run": "adr0151-6a2c764994ca",
+  "ledger": "bounded_cce_paid_comparison__f1b7bbcd25a6",
+  "original_result_sha256": "3829f2234ce00434788382e68b5973271d27d6614e63d765e8c3f3e1a104254d",
+  "pass": true,
+  "capacity_qualified": false,
+  "paid_stages_started": 0,
+  "financial": {
+    "ecs_safety": {
+      "orders": [
+        [
+          "FULFILLED",
+          1
+        ]
+      ],
+      "payments": [
+        [
+          "SUCCEEDED",
+          1
+        ]
+      ],
+      "refunds": [],
+      "callback_deliveries": [
+        [
+          1,
+          3,
+          3
+        ]
+      ],
+      "bookings_tickets": [
+        [
+          1,
+          1
+        ]
+      ],
+      "expired_holds": [
+        [
+          1,
+          true
+        ]
+      ],
+      "refund_relationship_errors": [
+        [
+          0
+        ]
+      ],
+      "sale_closed": [
+        [
+          true
+        ]
+      ]
+    },
+    "cce_safety": {
+      "orders": [
+        [
+          "REFUNDED",
+          1
+        ]
+      ],
+      "payments": [
+        [
+          "SUCCEEDED",
+          1
+        ]
+      ],
+      "refunds": [
+        [
+          "REFUNDED",
+          1
+        ]
+      ],
+      "callback_deliveries": [
+        [
+          1,
+          3,
+          3
+        ]
+      ],
+      "bookings_tickets": [
+        [
+          0,
+          0
+        ]
+      ],
+      "expired_holds": [
+        [
+          1,
+          true
+        ]
+      ],
+      "refund_relationship_errors": [
+        [
+          0
+        ]
+      ],
+      "sale_closed": [
+        [
+          true
+        ]
+      ]
+    }
+  },
+  "queues": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "namespace_absent": true,
+  "helpers_absent": true,
+  "generator_idle": true,
+  "secondary_empty": true,
+  "native_fixture_retired": true,
+  "runtime_stable": true,
+  "simulated_refund_durable": true,
+  "actual_elapsed_seconds": 60.60899999999674
+}

@@ -396,7 +396,7 @@ def test_kafka_probe_checks_protocol_without_producing_or_group_join():
     assert "KafkaProducer" not in source and "KafkaConsumer" not in source
 
 
-@pytest.mark.parametrize("response_kind", ["fragmented_valid", "wrong_correlation", "truncated", "refused"])
+@pytest.mark.parametrize("response_kind", ["fragmented_valid", "wrong_correlation", "truncated", "refused", "callback_refused"])
 def test_kafka_protocol_probe_rejects_invalid_or_unreachable_broker(monkeypatch, capsys, response_kind):
     import ast
     import http.server
@@ -426,7 +426,7 @@ def test_kafka_protocol_probe_rejects_invalid_or_unreachable_broker(monkeypatch,
 
     def connect(address, timeout):
         assert timeout == 5
-        if address[1] == 9092 and response_kind == "refused":
+        if (address[1] == 9092 and response_kind == "refused") or (address[1] == 8000 and response_kind == "callback_refused"):
             raise ConnectionRefusedError()
         return Connection(address[1])
 
@@ -435,9 +435,10 @@ def test_kafka_protocol_probe_rejects_invalid_or_unreachable_broker(monkeypatch,
     exec(probe, {})  # noqa: S102 - isolated generated network check; all network/server calls mocked
     result = json.loads(capsys.readouterr().out)
     assert result["checks"]["kafka"]["tcp_connected"] is (response_kind != "refused")
-    assert result["all_tcp_connected"] is (response_kind != "refused")
+    assert result["all_tcp_connected"] is (response_kind not in {"refused", "callback_refused"})
+    assert result["checks"]["callback_api"]["tcp_connected"] is (response_kind != "callback_refused")
     assert result["all_dependencies_checked"] is (response_kind == "fragmented_valid")
-    if response_kind != "fragmented_valid":
+    if response_kind not in {"fragmented_valid", "callback_refused"}:
         assert result["checks"]["kafka"]["failure_stage"] == ("connect" if response_kind == "refused" else "protocol")
     assert result["customer_writes"] == 0
     if response_kind != "refused":

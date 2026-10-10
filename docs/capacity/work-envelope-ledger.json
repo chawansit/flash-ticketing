@@ -2143,6 +2143,77 @@
       "finished_at_utc": "2026-10-10T14:13:00.711919+00:00",
       "result_sha256": "f50a1b78533bc1723654bcdaa3f5b25b77d7cada6cefe1abcc3b280d4967dd9f",
       "paid_runs_started": 0
+    },
+    {
+      "ledger": "bounded_cce_dependency_probe__b6c390a596cc",
+      "authorization_id": "work-envelope-b6c390a596cc",
+      "envelope_sha256": "d7e9a49b544e0b9222661b3eca93d3bde315d2e25ad48c86610fc846edc3fbb6",
+      "binding_sha256": "97e3aab00c0584355719586de1deba44e8498949e09db756468cb6f83a8c42cc",
+      "plan_sha256": "2e8df7233788b68c6a15a3c3ccbd88d28a81f640db45eb6deb5a2da1d39e0cee",
+      "profile": "cce_dependency_probe",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 79.92200000002049,
+      "started_at_utc": "2026-10-10T14:20:36.140033+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-48f9b4ecfa90",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-10T14:21:55.605119+00:00",
+      "result_sha256": "b25a40f7a3b9e72447d95a7da7aff412732e694c7eb8423c27b671d4f0cafb02",
+      "paid_runs_started": 0
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__f1b7bbcd25a6",
+      "authorization_id": "work-envelope-f1b7bbcd25a6",
+      "envelope_sha256": "04512dada577a0cb10e261065539fdefd83394d4843fa03ab14362c320b4c0cb",
+      "binding_sha256": "bf5fcfc662d44ce77b00fbac390582ca271779ddbe3ef16a64bfb172cddf9ac9",
+      "plan_sha256": "0332623d8899d28ef0472fc5a8a5f2851c0b9d3db7e541e43547c2b24b1f70d5",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 710.8589999999967,
+      "started_at_utc": "2026-10-10T14:23:14.838685+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-6a2c764994ca",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-10T14:34:05.001872+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "3829f2234ce00434788382e68b5973271d27d6614e63d765e8c3f3e1a104254d",
+      "initial_status": "RECOVERY_REQUIRED",
+      "recovery": {
+        "decision": "ADR0274",
+        "evidence": "docs/capacity/cce/worker-migration-safety-recovery-2026-10-10.json",
+        "sha256": "1f6e1173a7cfbc3b0255d429f535114d6e5af0b0e6975d8034eabdbadb0716be",
+        "actual_elapsed_seconds": 60.60899999999674,
+        "capacity_qualified": false
+      }
+    },
+    {
+      "ledger": "bounded_cce_dependency_probe__681a763a706b",
+      "authorization_id": "work-envelope-681a763a706b",
+      "envelope_sha256": "04512dada577a0cb10e261065539fdefd83394d4843fa03ab14362c320b4c0cb",
+      "binding_sha256": "11734612e92efb176a710f5962d3585fdae296c4c4aeb39fd03c859efd7ae6f1",
+      "plan_sha256": "2e8df7233788b68c6a15a3c3ccbd88d28a81f640db45eb6deb5a2da1d39e0cee",
+      "profile": "cce_dependency_probe",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 85.86000000004424,
+      "started_at_utc": "2026-10-10T14:45:48.604502+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-ec971e589026",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-10T14:47:14.387255+00:00",
+      "result_sha256": "aadf6efa7abf26b485f28bc63fc46838671c1e68830e8aeaa73789c342b08ea7",
+      "paid_runs_started": 0
     }
   ],
   "verified_aborts": {

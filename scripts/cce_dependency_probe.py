@@ -315,7 +315,7 @@ def kafka_remote():
         "asyncio.open_connection('pgbouncer',5432)": "asyncio.open_connection('kafka',9092)",
         "start_server(accept,'0.0.0.0',6432)": "start_server(accept,'0.0.0.0',9092)",
         "10.1.137.69:6432:6432": "10.1.137.69:9092:9092",
-        "('pooler','10.1.137.69',6432)": "('kafka','10.1.137.69',9092)",
+        "('pooler','10.1.137.69',6432)": "('kafka','10.1.137.69',9092),('callback_api','10.1.137.69',8000)",
     }
     for before, after in replacements.items():
         if source.count(before) != 1:
