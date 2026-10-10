@@ -133,3 +133,32 @@ def test_invalid_worker_metrics_are_not_treated_as_startup_retry():
     from run_cce_paid_comparison import worker_metrics_reader
     session = SimpleNamespace(call=lambda *args: {"ready": True, "metrics": "process_cpu_seconds_total nan\nprocess_start_time_seconds 2\n"})
     with pytest.raises(ValueError): worker_metrics_reader(session, "10.2.0.1")
+
+
+def test_remote_worker_filter_drops_arbitrary_log_content():
+    namespace = {}
+    exec(compile(api.WORKER_DIAGNOSTIC_FILTER, "<worker-filter>", "exec"), namespace)  # noqa: S102 - reviewed redaction
+    value = namespace["filtered_worker_failure"](b"secret-password postgres://user:secret@host/db\nNoBrokersAvailable\n")
+    assert value["categories"] == ["kafka_bootstrap_unavailable"]
+    assert "secret" not in json.dumps(value) and "postgres://" not in json.dumps(value)
+
+
+@pytest.mark.parametrize("log_failure", [False, True])
+def test_failed_worker_retains_only_filtered_owner_bound_evidence(log_failure):
+    saved = []
+    def request(*args):
+        if "/log?" not in args[1]: return copy.deepcopy(pod)
+        if log_failure: raise TimeoutError()
+        return {"schema_version": 1, "exception_types": ["NoBrokersAvailable"], "categories": ["kafka_bootstrap_unavailable"]}
+    deployment = SimpleNamespace(run=RUN, verify_owner=lambda: None, request=request)
+    runtime = pods.Workers(deployment, [], lambda _: {}, lambda _: None, "ADR0271", failure_persist=saved.append)
+    runtime.uids = {"consumer-0": "uid-1"}
+    pod = {"metadata": {"name": "consumer-0", "uid": "uid-1", "labels": {"codex-owner": RUN}},
+           "spec": {"secret": "do-not-retain"}, "status": {"containerStatuses": [
+               {"name": "worker", "restartCount": 0, "state": {"terminated": {"exitCode": 1, "reason": "Error", "message": "private-message"}}}]}}
+    runtime.capture_startup_failure(pod, "/owned/consumer-0")
+    assert saved[0]["pod_uid"] == "uid-1" and saved[0]["container_states"][0]["state"]["exit_code"] == 1
+    assert "do-not-retain" not in json.dumps(saved) and "private-message" not in json.dumps(saved)
+    assert ("capture_error" in saved[0]) is log_failure
+    pod["metadata"]["uid"] = "replacement"
+    with pytest.raises(ValueError): runtime.capture_startup_failure(pod, "/owned/consumer-0")

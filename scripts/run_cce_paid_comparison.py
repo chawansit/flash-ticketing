@@ -457,7 +457,8 @@ def run(config, output, guard, manifests, kubeconfig, context):
                     return worker_metrics_reader(session, ip)
 
                 transition_options = {"deployment": deployment, "service": service, "read_metrics": worker_metrics,
-                                      "comparison_persist": save_comparison}
+                                      "comparison_persist": save_comparison,
+                                      "failure_persist": lambda value: policy.write(output / "worker-startup-failure.private.json", value)}
             transition = transition_class(
                 session, guard, run_id, routes, owner, lambda value: persist({"transition": value}), **transition_options
             )

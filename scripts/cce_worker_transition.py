@@ -37,9 +37,10 @@ print(json.dumps({'owned_worker_transition_verified':True,'running':verb=='start
 class WorkerTransition(Transition):
     decision = "ADR0259"
 
-    def __init__(self, *args, deployment, service, read_metrics, comparison_persist, **kwargs):
+    def __init__(self, *args, deployment, service, read_metrics, comparison_persist, failure_persist=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.deployment, self.service, self.read_metrics = deployment, service, read_metrics
+        self.failure_persist = failure_persist
         self.comparison_persist = comparison_persist
         self.worker_rows = []
         self.worker_runtime = None
@@ -85,7 +86,7 @@ class WorkerTransition(Transition):
         self.checkpoint()
         if self.arm == "candidate" or self.decision == "ADR0271":
             self.worker_runtime = workers.Workers(self.deployment, workers.objects(self.run, envs, ip, self.decision), self.read_metrics,
-                                                  lambda value: self.persist({"workers": copy.deepcopy(value)}), decision=self.decision)
+                                                  lambda value: self.persist({"workers": copy.deepcopy(value)}), decision=self.decision, failure_persist=self.failure_persist)
 
     def activate(self, receipts):
         super().activate(receipts)

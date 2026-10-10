@@ -100,9 +100,10 @@ def receipt(pod, expected, run, uid, log, metrics, decision="ADR0259"):
 
 
 class Workers:
-    def __init__(self, deployment, manifests, read_metrics, persist, decision="ADR0259"):
+    def __init__(self, deployment, manifests, read_metrics, persist, decision="ADR0259", failure_persist=None):
         self.deployment, self.manifests, self.read_metrics, self.persist = deployment, manifests, read_metrics, persist
         self.selected = identity.specification(decision)
+        self.failure_persist = failure_persist or persist
         self.decision = decision
         self.uids = {}
         self.attempted = False
@@ -123,6 +124,37 @@ class Workers:
                 self.persist({"worker_pod_uids": dict(self.uids)})
         return self.observe()
 
+    def capture_startup_failure(self, pod, path):
+        name = pod.get("metadata", {}).get("name")
+        uid = pod.get("metadata", {}).get("uid")
+        if name not in self.uids or uid != self.uids[name] or pod["metadata"].get("labels", {}).get("codex-owner") != self.deployment.run:
+            raise ValueError("Exact owned failed worker identity required")
+        self.deployment.verify_owner()
+        states = []
+        for row in pod.get("status", {}).get("containerStatuses", []):
+            state = {"container": "worker", "restart_count": row.get("restartCount")}
+            for key in ("state", "lastState"):
+                terminated = row.get(key, {}).get("terminated", {})
+                reason = terminated.get("reason")
+                state[key] = {"reason": reason if reason in {"Error", "OOMKilled", "Completed", "ContainerCannotRun", "DeadlineExceeded"} else "unknown"}
+                if type(terminated.get("exitCode")) is int:
+                    state[key]["exit_code"] = terminated["exitCode"]
+            states.append(state)
+        evidence = {"decision": self.decision, "run": self.deployment.run, "pod_name": name,
+                    "pod_uid": uid, "container_states": states}
+        try:
+            filtered = self.deployment.request("GET", path + "/log?container=worker&sinceSeconds=60&limitBytes=65536", None)
+            if not isinstance(filtered, dict) or filtered.get("schema_version") != 1:
+                raise ValueError("Filtered failed worker evidence required")
+            evidence["filtered_startup"] = filtered
+        except Exception as error:  # noqa: BLE001 - Keep termination metadata if filtered logs are unavailable.
+            evidence["capture_error"] = type(error).__name__
+        self.deployment.verify_owner()
+        current = self.deployment.request("GET", path, None)
+        if current is None or current.get("metadata", {}).get("uid") != uid or current["metadata"].get("labels", {}).get("codex-owner") != self.deployment.run:
+            raise ValueError("Failed worker identity changed during capture")
+        self.failure_persist(evidence)
+
     def observe(self, *, previous=None):
         deadline = time.monotonic() + 180
         pods = [item for item in self.manifests if item["kind"] == "Pod"]
@@ -140,6 +172,7 @@ class Workers:
                     raise ValueError("Worker pod replaced or disappeared")
                 states = pod.get("status", {}).get("containerStatuses", [])
                 if any(s.get("restartCount", 0) or s.get("state", {}).get("terminated") for s in states):
+                    self.capture_startup_failure(pod, path)
                     raise ValueError("Worker startup terminated or restarted")
                 if not states or pod.get("status", {}).get("phase") != "Running" or not all(s.get("ready") is True for s in states):
                     pending = True

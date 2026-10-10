@@ -731,7 +731,7 @@ class KubernetesTransport:
         import cce_transaction_profile as transaction
         goal = transaction.active()
         worker_path = bool(goal is not None and goal["extension_decision"] in {"ADR0259", "ADR0271"} and method == "GET"
-                           and re.fullmatch(r"/api/v1/namespaces/flash-cce-[0-9a-f]{12}/pods/(?:consumer-[0-5]|projection-consumer-0|reservation-writer-[0-2]|publisher-0|maintenance-0|reconciler-0|simulator-0)(?:/log\?container=worker&limitBytes=65536)?", path))
+                           and re.fullmatch(r"/api/v1/namespaces/flash-cce-[0-9a-f]{12}/pods/(?:consumer-[0-5]|projection-consumer-0|reservation-writer-[0-2]|publisher-0|maintenance-0|reconciler-0|simulator-0)(?:/log\?container=worker&(?:limitBytes=65536|sinceSeconds=60&limitBytes=65536))?", path))
         if method not in {"GET", "POST", "DELETE"} or not (worker_path or re.fullmatch(
             r"/api/v1/namespaces(?:/flash-cce-[0-9a-f]{12}(?:/(?:pods|secrets)(?:/api-[0-3](?:/log\?container=api&(?:limitBytes=65536|sinceSeconds=(?:600|30)&limitBytes=8388608))?)?)?)?",
             path,
@@ -828,8 +828,25 @@ def filtered_admission_logs(raw):
  return {'schema_version':1,'logs_sha256':hashlib.sha256(raw).hexdigest(),'logs_bytes':len(raw),'byte_limit_reached':len(raw)>=8388608,'failure_events':events,'overflow_events':max(0,events-len(records)),'malformed_events':malformed,'records':records}
 """
 
+WORKER_DIAGNOSTIC_FILTER = r"""
+import hashlib,re
+def filtered_worker_failure(raw):
+ text=raw.decode('utf-8',errors='replace')
+ allowed={'NoBrokersAvailable','KafkaTimeoutError','KafkaConnectionError','PoolTimeout','OperationalError','InterfaceError','ConnectionError','AuthenticationError','ConnectionRefusedError','TimeoutError','PermissionError','FileNotFoundError','ModuleNotFoundError','ImportError','ValueError','RuntimeError','MemoryError'}
+ types=sorted({name for name in allowed if re.search(r'\b'+name+r'\b',text)})
+ categories=[]
+ for needles,kind in ((('NoBrokersAvailable',),'kafka_bootstrap_unavailable'),(('KafkaConnectionError',),'kafka_connection_failure'),(('PoolTimeout',),'database_pool_startup_timeout'),(('could not translate host name',),'database_dns_failure'),(('FileNotFoundError','sslrootcert'),'database_ca_missing'),(('PermissionError',),'startup_permission_denied'),(('MemoryError',),'startup_memory_error'),(('Connection refused',),'startup_connection_refused')):
+  if all(word in text for word in needles):categories.append(kind)
+ frames=[]
+ for file,line,function in re.findall(r'File "([^"\n]+)", line ([0-9]+), in ([a-zA-Z_][a-zA-Z_0-9]*)',text):
+  name=file.rsplit('/',1)[-1]
+  if name in {'workers.py','postgres.py','config.py','client_async.py','group.py','kafka.py','connection.py','base.py','metrics.py'} and len(frames)<32:
+   frames.append({'module':name,'line':int(line),'function':function if function in {'main','__init__','create_event_consumer','connect','open','check_version','poll','send','simulate_refill'} else 'other'})
+ return {'schema_version':1,'logs_bytes':len(raw),'logs_sha256':hashlib.sha256(raw).hexdigest(),'byte_limit_reached':len(raw)>=65536,'exception_types':types,'categories':categories,'frames':frames}
+"""
+
 REQUEST = (
-    DIAGNOSTIC_FILTER
+    DIAGNOSTIC_FILTER + WORKER_DIAGNOSTIC_FILTER
     + r"""
 import json,os,ssl,tempfile,urllib.request,urllib.error
 from pathlib import Path
@@ -847,10 +864,11 @@ with tempfile.TemporaryDirectory(prefix='codex-cce-') as directory:
  try:
   with urllib.request.urlopen(req,context=context,timeout=10) as response:
    diagnostic=any(payload['path'].endswith('/log?container=api&sinceSeconds='+str(n)+'&limitBytes=8388608') for n in (30,600))
-   limit=8388608 if diagnostic else 1048576
+   worker_diagnostic=payload['path'].endswith('/log?container=worker&sinceSeconds=60&limitBytes=65536')
+   limit=8388608 if diagnostic else 65536 if worker_diagnostic else 1048576
    raw=response.read(limit+1)
    if len(raw)>limit:raise ValueError('CCE response exceeds bounded payload')
-   value=filtered_admission_logs(raw) if diagnostic else (raw.decode() if '/log?' in payload['path'] else json.loads(raw))
+   value=filtered_admission_logs(raw) if diagnostic else filtered_worker_failure(raw) if worker_diagnostic else (raw.decode() if '/log?' in payload['path'] else json.loads(raw))
    result={'not_found':False,'value':value}
  except urllib.error.HTTPError as error:
   if error.code==404 and payload['method']=='GET':result={'not_found':True}
