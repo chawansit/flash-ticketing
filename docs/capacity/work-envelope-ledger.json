@@ -2122,6 +2122,27 @@
       "finished_at_utc": "2026-10-10T14:06:06.473783+00:00",
       "result_sha256": "4a2efb53183261101594e79d23c125f4ad614428f6c9ab8fe7e6fbbca78c2610",
       "paid_runs_started": 0
+    },
+    {
+      "ledger": "bounded_cce_dependency_probe__d288081c7d3d",
+      "authorization_id": "work-envelope-d288081c7d3d",
+      "envelope_sha256": "d7e9a49b544e0b9222661b3eca93d3bde315d2e25ad48c86610fc846edc3fbb6",
+      "binding_sha256": "ebd39798ea259284a97b771331e4fb0212e9649fd618a874f3606aeebe31d945",
+      "plan_sha256": "2e8df7233788b68c6a15a3c3ccbd88d28a81f640db45eb6deb5a2da1d39e0cee",
+      "profile": "cce_dependency_probe",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 84.875,
+      "started_at_utc": "2026-10-10T14:11:35.893813+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-70613c2b379f",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-10T14:13:00.711919+00:00",
+      "result_sha256": "f50a1b78533bc1723654bcdaa3f5b25b77d7cada6cefe1abcc3b280d4967dd9f",
+      "paid_runs_started": 0
     }
   ],
   "verified_aborts": {

@@ -67,6 +67,22 @@
       "namespace_removed": true,
       "bridge_removed": true,
       "existing_runtime_unchanged": true
+    },
+    {
+      "run": "adr0151-70613c2b379f",
+      "ledger": "bounded_cce_dependency_probe__d288081c7d3d",
+      "status": "FAILED_RESTORED",
+      "user_requested_retry": true,
+      "customers_written": 0,
+      "paid_stages": 0,
+      "kafka": {
+        "tcp_connected": false,
+        "failure_type": "TimeoutError",
+        "failure_stage": "connect"
+      },
+      "namespace_removed": true,
+      "bridge_removed": true,
+      "existing_runtime_unchanged": true
     }
   ],
   "confirmed_route": {
@@ -90,7 +106,7 @@
     "historical_files_verified": 535,
     "historical_values_changed": false
   },
-  "latest_retry_at_utc": "2026-10-10T14:08:35.134908+00:00",
+  "latest_retry_at_utc": "2026-10-10T14:13:40.421034+00:00",
   "latest_probe_rds_redis_reachable": true,
   "read_only_host_checks": {
     "ipv4_forwarding_enabled": true,
