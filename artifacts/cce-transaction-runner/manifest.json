@@ -15,7 +15,7 @@
     "scripts/cce_paid_observers.py": {
       "historical_sha256": "e5e712961d9f6725d45468f0feac95ad50f6591c4f5ee095ac41074257e63257",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/e5e712961d9f6725d45468f0feac95ad50f6591c4f5ee095ac41074257e63257",
-      "current_sha256": "53848dc5f83ebd9e4bc342132dc87a098b8e13e3302692f288c33a72c18fd98b"
+      "current_sha256": "010590dbd2dd736595e4e64fd545b6c4efae4a66ad5a50aaec859aacc2dc44a4"
     },
     "scripts/cce_ecs_transition.py": {
       "historical_sha256": "bf22c4cc8a1ec2db5224d97df3aead9ec693dea6296e548e25e6dcbb25d4af15",
@@ -61,6 +61,11 @@
       "historical_sha256": "abcb6aec285d0e007effbcd23bcdebd858b8ff7102b38c29eea6cdeb2e6aba04",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/abcb6aec285d0e007effbcd23bcdebd858b8ff7102b38c29eea6cdeb2e6aba04",
       "current_sha256": "f188960da23aa3824aae16a306a76c925bf358ff1870e70933b285f77cd708bb"
+    },
+    "scripts/database_wait_evidence.py": {
+      "historical_sha256": "85fe63f8f437b9529984b076d691a88bb833acb39173c1f49b9391b0c9548f18",
+      "historical_blob": "artifacts/cce-transaction-runner/blobs/85fe63f8f437b9529984b076d691a88bb833acb39173c1f49b9391b0c9548f18",
+      "current_sha256": "08a7b0f3cb93ae567c03fd29fb398a8daf8972712984412193d7c8f3c9aeb149"
     }
   },
   "additional_inputs": {
@@ -83,7 +88,7 @@
     "scripts/cce_customer_recovery_profile.py": "400612cb7033e3ff70f4e7f648e0a8d0303570dd93dcbabfb0785f892aadb739",
     "scripts/cce_payment_context_images.py": "cbc80a6226ea255766d23159c7a488c8cbbc69f9604eb94dbc3e55a55fbee160",
     "scripts/cce_recovery_hourly_profile.py": "8061087896cfb0577f12125c8f49598d0ff28bb2d463dfa1d5496ab4ce5f0fd0",
-    "scripts/cce_reproduction_overlay.py": "2b535f344694d740dfc128944f2a1eb394205f4e234e213a8e928fb26b65c128",
+    "scripts/cce_reproduction_overlay.py": "ef90f18a8573aca74e7606049adddfd7231f8e7d6b04089df492076e49d350af",
     "scripts/cce_simulator_dispatch_profile.py": "e3c7e6bdcbbde3317493f95e5ab6e5e4b87fda219c6462e9e8f8ebe55b0647b7",
     "scripts/cce_slot_trace_transport.py": "3286f3395ff573f555af9080f95f43ca1d83e920b75026cb8679a8a646e2fa11",
     "scripts/cce_transaction_profile.py": "0f0dabe29b25f9cad6611f1e711cce271e17c4ac024d8aad9a74a8ecd53df248",

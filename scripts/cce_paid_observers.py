@@ -27,6 +27,21 @@ def receipt_bundle(run, receipts):
     return value
 
 
+def summarize_independent_diagnostics(record, rows, path, receipts, start, end, *, hourly, summarize_waits):
+    """ADR0257 retain independent CPU evidence even if database diagnostics fail."""
+    failures = []
+    operations = (
+        ("database_wait_capture", lambda: summarize_waits(path, hourly=hourly)),
+        ("native_api_cpu", lambda: api_cpu(rows, receipts, start, end, hourly=hourly)),
+    )
+    for operation, collect in operations:
+        try:
+            record[operation] = collect()
+        except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Preserve both diagnostic failures independently.
+            failures.append({"operation": operation, "type": type(error).__name__})
+    return failures
+
+
 def background_spec(role, rows, instance_sha, receipts_sha):
     entries = []
     for row in rows:
@@ -458,8 +473,9 @@ class Observers:
                 if name == "pipeline":
                     from database_wait_evidence import summarize as summarize_waits
 
-                    self.record["database_wait_capture"] = summarize_waits(path)
-                    self.record["native_api_cpu"] = api_cpu(rows, self.native, self.start_utc, self.end_utc, hourly=self.stage.profile.duration == 3600)
+                    failures.extend(summarize_independent_diagnostics(
+                        self.record, rows, path, self.native, self.start_utc, self.end_utc,
+                        hourly=self.stage.profile.duration == 3600, summarize_waits=summarize_waits))
 
             except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - One missing trace cannot skip the other.
                 failures.append({"operation": name + "_trace", "type": type(error).__name__})

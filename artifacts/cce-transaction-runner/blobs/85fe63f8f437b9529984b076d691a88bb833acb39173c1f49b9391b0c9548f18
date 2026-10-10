@@ -6,8 +6,6 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-HOURLY_MAX_ROWS = 4000
-HOURLY_MAX_BYTES = 512 * 2**20
 MAX_ROWS = 2000
 MAX_BYTES = 64 * 2**20
 MAX_LINE = 2 * 2**20
@@ -185,13 +183,9 @@ def install(module):
     module.sample = sample
 
 
-def summarize(path, *, hourly=False):
-    if type(hourly) is not bool:
-        raise ValueError("Explicit hourly diagnostic mode required")
-    max_rows = HOURLY_MAX_ROWS if hourly else MAX_ROWS
-    max_bytes = HOURLY_MAX_BYTES if hourly else MAX_BYTES
+def summarize(path):
     path = Path(path)
-    if path.stat().st_size > max_bytes:
+    if path.stat().st_size > MAX_BYTES:
         raise ValueError("Diagnostic trace byte bound exceeded")
     previous = None
     epochs = {}
@@ -204,7 +198,7 @@ def summarize(path, *, hourly=False):
     continuity = True
     with path.open("rb") as stream:
         while line := stream.readline(MAX_LINE + 1):
-            if len(line) > MAX_LINE or rows >= max_rows:
+            if len(line) > MAX_LINE or rows >= MAX_ROWS:
                 raise ValueError("Diagnostic trace row or line bound exceeded")
             row = json.loads(line)
             rows += 1
