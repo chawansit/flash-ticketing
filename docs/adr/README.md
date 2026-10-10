@@ -176,4 +176,4 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0254: Recover customer payment and confirmation failures](0254-recover-customer-payment-and-confirmation.md)
 
-- [ADR0255: Pipeline status-read transaction setup](0255-pipeline-status-read-transaction-setup.md)
+- [ADR0255: Pipeline status-read transaction setup](0255-pipeline-status-read-transaction-setup.md) — [paired cloud evidence](../capacity/cce/customer-recovery-comparison-2026-10-10.json); recovery verified, pipeline remains off.

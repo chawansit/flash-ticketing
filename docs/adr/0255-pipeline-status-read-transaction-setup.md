@@ -1,7 +1,7 @@
 # ADR0255: Pipeline status-read transaction setup
 
 ## Status
-Accepted for isolated default-off implementation and local validation; cloud benefit unmeasured.
+Accepted for isolated default-off implementation. Matched five-minute cloud comparison completed; candidate not adopted because no performance benefit was demonstrated.
 
 ## Context
 The failed ADR0252 hourly trace retains 56 order_status/query_BEGIN holders, with maximum observed occupancy 362.487 ms, alongside payment/callback commit holders up to 443.303 ms. Missing snapshots prevent attribution of all timeouts or WAL/disk causality. Current status reads issue explicit BEGIN, local timeout configuration and a single joined SELECT sequentially while occupying a database connection. This decision targets avoidable network round trips on those reads, not a claimed repair to RDS commit latency.
@@ -33,3 +33,13 @@ No cloud load started: a fresh SWR credential is required after Authenticate Err
 Protocol reference: [Psycopg pipeline documentation](https://www.psycopg.org/psycopg3/docs/advanced/pipeline.html) explains ordered command execution, batching and synchronization on fetch, pipeline exit and commit. Local behavior tests use the pinned installed driver rather than assuming current documentation alone proves correctness.
 
 Historical ADR0241 image reconstruction is pinned to the exact be4cbd8 baseline source bytes under artifacts/slot-comparison-baseline, with a fixed manifest and per-module digests. Later recovery code is not silently included in older comparisons. Tampering still fails before output creation. The recovery image separately starts from the accepted immutable registry image and verifies all 22 parent source modules; only six allowlisted modules change.
+
+## Matched cloud result, 2026-10-10
+
+The same published recovery image ran with the flag off (control adr0151-24c093be24cb) and on (candidate adr0151-e09b3338a399). Machines, four API pods, connection budgets, simulator settings, recovery policy and workload remained fixed. Both arms passed all nine quality gates and finished PASSED_RESTORED with 25,200 durable paid-and-issued tickets each, zero double-booking, payment loss, generator drops and final customer failures.
+
+The candidate did not demonstrate a performance improvement. Payment p95 increased from 76.989 to 116.677 ms (+51.55%); maximum per-shard total-journey p95 increased from 2524.830 to 2676.023 ms (+5.99%). API mean connection occupancy increased from 28.286 to 30.346 ms (+7.28%) and successful pool acquisition from 4.915 to 11.735 ms (+138.76%). API process CPU was essentially unchanged (1.307 versus 1.297 cores). Three candidate payment first attempts received 503, and all recovered safely; the control had none. Keep ORDER_STATUS_READ_PIPELINE disabled. Passing correctness gates is not evidence that this optimization should be enabled.
+
+Current failure capture is complete for all three candidate native-pool timeouts. Snapshots show both payment connections in the affected pod held by payment_request or payment_callback during commit; callback commit phase age reached 420.287 ms. Other general-pool status holders were also observed. This identifies occupants at rejection, not their entire history during the approximately 500 ms acquisition wait. It does not establish WAL/storage causality or explain all historical timeouts. Cluster WAL/checkpoint and one-second wait observations remain correlations; WAL write/fsync timing is unavailable.
+
+One ordered control/candidate pair is insufficient to attribute every latency difference to the flag, but it provides no basis for adopting it or claiming capacity improvement. Preserve the failed performance hypothesis, focus subsequent diagnosis on payment commit occupancy, and require a separate ADR before another architectural change. See [sanitized paired evidence](../capacity/cce/customer-recovery-comparison-2026-10-10.json).

@@ -1,7 +1,7 @@
 # ADR0254: Recover customer payment and confirmation failures
 
 ## Status
-Accepted for implementation and local validation. Cloud comparison pending.
+Accepted for bounded recovery implementation. Locally verified and exercised in a restored five-minute CCE comparison; hourly and production qualification remain pending.
 
 ## Context
 ADR0252 reached the numerical hourly ticket target but had 67 payment 503 failures, 37 status 503 failures and 372 undispatched journeys. The paid client abandoned transient responses. A missing response can follow a committed payment initiation; a new identity must not create another payment. Existing durable idempotency and callback replay remain the financial authority.
@@ -31,3 +31,11 @@ The complete unit suite passed 2,098 tests with two skipped. Final 67 recovery/r
 The recovery overlay uses the proven 78-file parent and seals three changed customer modules plus the standalone recovery client and the existing fixture-layout dependency (80 files total). Both arms retain distributed 84-show/300-seat fixtures, the original synchronized schedule, two shards, 500 active journeys, eight clients per shard and unchanged poll interval. Single-concert mode remains outside this comparison.
 
 The API image was built offline from the accepted immutable registry parent; all 22 source modules and unchanged dependency inputs were verified and imported. The recovery route is present in OpenAPI. SWR rejected the previous login with Authenticate Error, so registry publication/pull verification and the 84/s cloud comparison remain pending. No capacity improvement or production qualification is claimed.
+
+## Matched cloud validation, 2026-10-10
+
+Fresh SWR authentication succeeded; the published linux/amd64 image was pulled by manifest digest and all 22 runtime modules were verified. A pre-dispatch runner bug was corrected and tested: archived hourly reproduction checks use the historical plan independently of the active short scope. Hourly execution still rejects the recovery short profile. The publication guards passed 31 selected tests and the runner/reproduction/hourly guards passed 45 selected tests; these counts overlap earlier suites.
+
+Both fresh five-minute CCE arms offered 84 journeys/s and completed all 25,200 scheduled journeys with zero generator drops and final customer failures. Control had no first-attempt errors/retries. Candidate had three payment 503 first-attempt errors (0.011905% of dispatched journeys), three authoritative payment-operation lookups and three identical-key recovery attempts; all three journeys recovered. Each arm retained 25,200 succeeded payments, bookings and tickets after TTL, zero double-booking, full queue drain and exact restoration. Both retained ledgers are PASSED_RESTORED. The temporary registry authentication file and owned CCE resources were removed.
+
+This validates the bounded simulator recovery path under three real temporary rejections, not a live-bank charging guarantee. Five-minute offered cohorts include bounded completion tails; they do not qualify 300,000 unique tickets in one hour or maximum production capacity. See [sanitized paired evidence](../capacity/cce/customer-recovery-comparison-2026-10-10.json). The default-off status-read candidate was not adopted; see ADR0255.
