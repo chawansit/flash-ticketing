@@ -9243,6 +9243,19 @@
       "diagnostic_and_pin_passes": 23
     },
     "capacity_improvement_measured": false,
-    "production_qualified": false
+    "production_qualified": false,
+    "automatic_continuation": {
+      "progress_path": "tmp/adr0267-follow-through-3c67ba778dd3/progress.private.json",
+      "recovery_evidence_path": "tmp/adr0267-recovery-continuation/recovery.private.json",
+      "status": "waiting_for_verified_recovery",
+      "next_stage": {
+        "offered_journeys_per_second": 84,
+        "seconds": 300,
+        "maximum_paid_stages": 1
+      },
+      "stop_on_recovery_failure": true,
+      "original_failed_result_preserved": true,
+      "proven_runner": "scripts/run_cce_paid_comparison.py"
+    }
   }
 }
