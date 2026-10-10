@@ -30,12 +30,12 @@
     "scripts/check_cce_reproducibility.py": {
       "historical_sha256": "ca8920447ef5fee85d7f8316fae6defae81c96c715352fd31b5545f25d5e2278",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/ca8920447ef5fee85d7f8316fae6defae81c96c715352fd31b5545f25d5e2278",
-      "current_sha256": "fc0062d21e6c2a6b7a7fd031a2c787d4eb13176b6ac56a5df9a56e86ce9777ad"
+      "current_sha256": "a4d4d7b72b32bd90d3b448fca92d707fede19265d208009a53fbd859195748a7"
     },
     "scripts/run_cce_hourly_qualification.py": {
       "historical_sha256": "c5bada5a5d99360f0b8ab823e086b4459ed4b3c5701f3c862396862944f9ee8d",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/c5bada5a5d99360f0b8ab823e086b4459ed4b3c5701f3c862396862944f9ee8d",
-      "current_sha256": "9d05a4a00055849216efa21c1bf9c0c4294f546531c1fb60230c509ca281fd9c"
+      "current_sha256": "099c0ea9cbc7f8ce521a5d56414e4e0c1adb21122fd220f5925f3bc6f678c207"
     },
     "scripts/checkout_journey_probe.py": {
       "historical_sha256": "10b14c979133188d42aaba5a9a91ab599101922e2d284e85dbe6c03244e3a5bc",

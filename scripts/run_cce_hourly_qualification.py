@@ -22,6 +22,11 @@ def plan():
             raise ValueError("Separate exact hourly runtime binding required")
         from cce_simulator_dispatch_profile import hourly_plan
         return hourly_plan(goal)
+    return historical_plan()
+
+
+def historical_plan():
+    """Verify the archived qualification independently of the active live scope."""
     evidence = core.policy.read(core.policy.ROOT / BASELINE)
     if (evidence.get("original_report_sha256") != BASELINE_REPORT
             or evidence.get("pass") is not True
@@ -44,7 +49,7 @@ def plan():
         "baseline_evidence": BASELINE, "baseline_sha256": core.policy.digest(evidence),
         "published_baseline_evidence": PUBLISHED_BASELINE,
         "acquisition_budget": 20, "replicas": 4,
-        "pod_resources": core.native.contract()["resources"], "bridge_cpu_limit": 1,
+        "pod_resources": core.native.legacy_contract()["resources"], "bridge_cpu_limit": 1,
         "pooler_server_connections": 24, "qualification_runs_authorized": 1,
         "paid_runs_authorized": 1, "safety_tickets_authorized": 2,
         "expected_terminal_tickets": 302400, "minimum_issued_inside_hour": 300000,

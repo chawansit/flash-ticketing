@@ -129,3 +129,11 @@ def test_cloud_entry_checks_lock_before_credentials_or_dispatch(monkeypatch, tmp
         entry.execute(tmp_path / "config", tmp_path / "proof", tmp_path,
                       profile_name="cce_paid_comparison", diagnostic_target=tmp_path / "target",
                       cce_kubeconfig=tmp_path / "kubeconfig", cce_snapshot=tmp_path / "snapshot")
+
+
+def test_historical_verification_does_not_use_live_short_goal(monkeypatch):
+    import cce_transaction_profile as transaction
+    monkeypatch.setattr(transaction, "active", lambda: {"extension_decision": "ADR0255"})
+    assert check.verify()["pass"] is True
+    with pytest.raises(ValueError, match="Separate exact hourly"):
+        check.hourly.plan()

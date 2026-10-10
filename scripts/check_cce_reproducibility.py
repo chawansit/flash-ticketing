@@ -43,7 +43,7 @@ def verify():
     bundle = paid.generator_bundle()
     # Verify every parent file even though the qualified helper replaces one runtime member.
     frozen.frozen_bundle()
-    hourly_plan = hourly.plan()
+    hourly_plan = hourly.historical_plan()
     expected = {"short": {"rate": 84, "seconds": SHORT.duration, "tickets": SHORT.expected},
                 "hourly": {"rate": 84, "seconds": HOURLY.duration, "tickets": HOURLY.expected}}
     if lock["workload_profiles"] != expected or dependency.IMAGE != lock["cce_api_image"]:

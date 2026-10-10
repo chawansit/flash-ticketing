@@ -121,6 +121,8 @@ def hourly_goal(data):
 
 
 def test_fresh_hourly_reservation_preserves_old_scopes_and_checks_sources(area, monkeypatch):  # noqa: F811 - pytest injects the imported fixture.
+    import cce_transaction_profile as transaction
+    monkeypatch.setattr(transaction, "active", lambda *args, **kwargs: None)
     data = policy.read(policy.ENVELOPE)
     data["qualified_profiles"] = list(policy.PROFILES)
     data["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"] = hourly_goal(data)
