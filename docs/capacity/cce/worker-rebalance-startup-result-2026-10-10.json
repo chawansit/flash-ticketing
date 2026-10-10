@@ -2,7 +2,7 @@
   "decision": "ADR0273",
   "placement_decision": "ADR0271",
   "recorded_at_utc": "2026-10-10T14:47:52.909720+00:00",
-  "status": "BLOCKED_PRIVATE_CALLBACK_API_CONNECTIVITY",
+  "status": "CONNECTIVITY_FIXED_PAID_RUN_FAILED_WORKLOAD_MISMATCH",
   "paid_stage_started": false,
   "capacity_improvement_measured": false,
   "production_qualified": false,
@@ -148,6 +148,41 @@
       "temporary_credentials_removed": true,
       "generator_idle_after": true,
       "original_private_report_sha256": "aadf6efa7abf26b485f28bc63fc46838671c1e68830e8aeaa73789c342b08ea7"
+    },
+    {
+      "run": "adr0151-034c3dbf459a",
+      "ledger": "bounded_cce_dependency_probe__8bb6f4cf326f",
+      "status": "PASSED_RESTORED",
+      "customers_written": 0,
+      "paid_stages": 0,
+      "checks": {
+        "rds": {
+          "tcp_connected": true,
+          "postgresql_protocol_checked": true,
+          "kafka_protocol_checked": false
+        },
+        "redis": {
+          "tcp_connected": true,
+          "postgresql_protocol_checked": false,
+          "kafka_protocol_checked": false
+        },
+        "kafka": {
+          "tcp_connected": true,
+          "postgresql_protocol_checked": false,
+          "kafka_protocol_checked": true
+        },
+        "callback_api": {
+          "tcp_connected": true,
+          "postgresql_protocol_checked": false,
+          "kafka_protocol_checked": false
+        }
+      },
+      "namespace_removed": true,
+      "bridge_removed": true,
+      "existing_runtime_unchanged": true,
+      "temporary_credentials_removed": true,
+      "generator_idle_after": true,
+      "original_private_report_sha256": "47701003f49bb41b4e8f6e272ba445500958833e5089d3ba7b03419e97509d93"
     }
   ],
   "confirmed_route": {
@@ -160,12 +195,12 @@
     "cce_to_redis": true,
     "ecs_to_cce_probe": true,
     "cce_kafka_api_versions_verified": true,
-    "cce_to_callback_api_tcp": false,
-    "cce_callback_failure_stage": "connect",
-    "cce_callback_failure_type": "TimeoutError"
+    "cce_to_callback_api_tcp": true,
+    "cce_callback_failure_stage": null,
+    "cce_callback_failure_type": null
   },
-  "interpretation": "Kafka TCP and ApiVersions now pass. All14 CCE workers reached readiness, but the native safety ticket was not confirmed. A separate zero-write probe confirms CCE cannot connect to the configured callback destination on private TCP8000; exact filtering rule remains unconfirmed.",
-  "next_action": "Allow private API TCP8000 from the configured CCE pod network/security group, then repeat dependency readiness and safety before the unused84/s paid stage.",
+  "interpretation": "All dependency routes and CCE safety passed. Paid run df0b0a270c9d failed and is noncomparable because retry selection omittedADR0271. Independent recovery verified21161 paid tickets and57 unpaid expirations, no duplicates, drained queues and complete cleanup. Selector and construction guard corrected locally, not cloud-retested.",
+  "next_action": "A fresh corrected three-attempt comparison needs a further one-stage allowance; preserve this consumed failed stage and do not increase offered load. If pool pressure persists in that matched run, isolate a measured correction.",
   "local_validation": {
     "dependency_tests": 64,
     "worker_contract_tests": 15,
@@ -196,5 +231,6 @@
     "tickets": 0,
     "queue_drain": true,
     "runtime_restored": true
-  }
+  },
+  "latest_paid_result": "docs/capacity/cce/worker-placement-paid-result-2026-10-10.json"
 }

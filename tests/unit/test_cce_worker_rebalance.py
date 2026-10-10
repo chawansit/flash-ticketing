@@ -162,3 +162,46 @@ def test_failed_worker_retains_only_filtered_owner_bound_evidence(log_failure):
     assert ("capture_error" in saved[0]) is log_failure
     pod["metadata"]["uid"] = "replacement"
     with pytest.raises(ValueError): runtime.capture_startup_failure(pod, "/owned/consumer-0")
+
+
+@pytest.mark.parametrize("attempts,missing_selector", [(3, False), (1, False), (None, False), (3, True)])
+def test_validated_worker_goal_constructs_real_recovery_stage(tmp_path, monkeypatch, attempts, missing_selector):
+    import cce_paid_stage as stage
+    import customer_recovery_bundle as recovery
+
+    envelope = copy.deepcopy(policy.envelope())
+    envelope["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"] = goal()
+    selected = transaction.active(envelope)
+    parent = stage.generator_bundle()
+    original = policy.ROOT
+    files = {
+        recovery.MANIFEST, recovery.COORDINATOR, *recovery.OVERLAYS,
+        "scripts/run_synchronized_paid_generator.py",
+        "docs/capacity/flash-sale-opening/frozen-baseline-cpu-diagnostic-plan-2026-10-05.json",
+    }
+    for name in files:
+        target = tmp_path / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((original / name).read_bytes())
+    monkeypatch.setattr(policy, "ROOT", tmp_path)
+    monkeypatch.setattr(transaction, "active", lambda: selected)
+    output = tmp_path / "tmp" / RUN / "candidate"
+    output.mkdir(parents=True)
+    binding = {} if attempts is None else {"cce_recovery_max_attempts": attempts}
+    guard = SimpleNamespace(key="bounded_cce_paid_comparison__" + "f" * 12, binding=binding)
+    session = SimpleNamespace(config={"generator": {"repo": "/root/flash-generator"}})
+    if missing_selector:
+        monkeypatch.setattr(recovery, "enabled", lambda _: False)
+    if attempts != 3 or missing_selector:
+        message = "profile and binding mismatch" if missing_selector else "Explicit short recovery binding"
+        with pytest.raises(ValueError, match=message):
+            stage.PaidStage(session, guard, RUN, "b" * 64, output, bundle=parent)
+        return
+    paid = stage.PaidStage(session, guard, RUN, "b" * 64, output, bundle=parent)
+    assert paid.recovery_enabled is True
+    assert paid.record["customer_recovery_max_attempts"] == 3
+    assert len(paid.bundle) == 80
+    assert paid.coordinator == (original / recovery.COORDINATOR).read_bytes()
+    assert paid.bundle["scripts/customer_recovery_client.py"] == recovery.raw("scripts/customer_recovery_client.py")
+    assert stage.generator_arguments(paid.gen, paid.origin, 0, profile=paid.profile,
+                                     recovery_max_attempts=paid.record["customer_recovery_max_attempts"])[-2:] == ["--recovery-max-attempts", "3"]

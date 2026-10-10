@@ -1,0 +1,145 @@
+{
+  "decision": "ADR0271",
+  "correction_decision": "ADR0275",
+  "recovery_decision": "ADR0276",
+  "run": "adr0151-df0b0a270c9d",
+  "recorded_at_utc": "2026-10-10T15:28:39.366471+00:00",
+  "status": "FAILED_RESTORED",
+  "pass": false,
+  "fair_comparison": false,
+  "capacity_improvement_verified": false,
+  "production_qualified": false,
+  "original_private_report_sha256": "9b1d487a42b5b77bf56fab18f4cf0fb59956e9ce0792b7e550bd07e4da44cd29",
+  "baseline": "docs/capacity/cce/event-lane-paid-result-2026-10-10.json",
+  "comparison_problem": {
+    "intended_recovery_max_attempts": 3,
+    "bound_recovery_max_attempts": 3,
+    "executed_recovery_max_attempts": 1,
+    "baseline_recovery_max_attempts": 3,
+    "cause": "ADR0271 missing from customer_recovery_bundle.enabled; historical no-retry generator selected",
+    "fix": "ADR0271 uses sealed recovery bundle; PaidStage rejects bound/selected recovery mismatch before dispatch",
+    "fix_cloud_retested": false
+  },
+  "workload": {
+    "offered_journeys_per_second": 84,
+    "offered_seconds": 300,
+    "apis": 4,
+    "workers": 14,
+    "pooler_server_connections": 24,
+    "consumer_local_pool_budget": 48,
+    "simulator_concurrency": 16
+  },
+  "customer": {
+    "scheduled": 25200,
+    "dispatched": 21218,
+    "generator_drops": 3982,
+    "completed": 21218,
+    "fulfilled": 20772,
+    "fulfilled_by_deadline": 20772,
+    "distinct_orders": 20772,
+    "distinct_tickets": 20772,
+    "retry_attempts": 0,
+    "outcomes": {
+      "fulfilled": 20772,
+      "order_http_503": 389,
+      "payment_http_503": 57
+    },
+    "physical_http_attempts": {
+      "holds": 21218,
+      "reservation_commands": 49008,
+      "payments": 21218,
+      "orders": 201049
+    },
+    "final_failure_percentage_of_dispatched": 2.1019888773682722,
+    "drop_percentage_of_scheduled": 15.801587301587302,
+    "final_customer_failures": 446,
+    "first_attempt_error_journeys": 446,
+    "recovered_journeys": 0
+  },
+  "latency_ms": {
+    "hold_http_p95_ms": 270.482899970375,
+    "command_durable_wait_p95_ms": 3023.7271600635722,
+    "payment_http_p95_ms": 326.49741088971496,
+    "payment_to_ticket_p95_ms": 11888.241283013485,
+    "hold_to_ticket_p95_ms": 13391.071792924777
+  },
+  "financial_reconciliation": {
+    "orders": 21218,
+    "unique_paid_and_issued_tickets": 21161,
+    "unpaid_expired_orders": 57,
+    "paid_tickets_not_customer_confirmed": 389,
+    "zero_double_booking": true,
+    "relational_integrity": true,
+    "queue_drain": true,
+    "issued_inside_offered_window": 20696,
+    "issued_inside_window_per_second": 68.98666666666666,
+    "scope": "Database ticket issuance timestamps in the300-second scheduled offered window; failed workload, not a qualified capacity claim. Aggregate counts do not prove each status503 customer retrieved its existing ticket."
+  },
+  "diagnostics": {
+    "complete": true,
+    "collection_failures": [],
+    "failure_events": 471,
+    "pool_failure_reasons": {
+      "global_limit": 345,
+      "role_limit": 117,
+      "native_timeout": 9
+    },
+    "rejected_pool_roles": {
+      "general": 389,
+      "payment": 82
+    },
+    "holder_operation_observations": {
+      "payment_request": 497,
+      "payment_callback": 413,
+      "order_status": 936
+    },
+    "holder_observation_note": "Holder entries may repeat across failures; these are not unique transactions or causal attribution.",
+    "order_status_cache": {
+      "order_cache:miss": 92744.0,
+      "order_cache:fill_raced": 407.0,
+      "order_cache:stale": 153.0,
+      "order_cache:fill": 92101.0,
+      "order_cache:hit": 108152.0
+    },
+    "database_wait_peaks": {
+      "Client:ClientRead": 7,
+      "None:None": 3,
+      "IO:WalSync": 1,
+      "LWLock:WALWrite": 22,
+      "Timeout:SpinDelay": 1,
+      "Lock:transactionid": 2,
+      "IO:DataFileRead": 4,
+      "IO:WalWrite": 1,
+      "IO:DataFilePrefetch": 1,
+      "Timeout:VacuumDelay": 1
+    },
+    "pgbouncer_pool_peaks": {
+      "cl_active": 44.0,
+      "cl_waiting": 13.0,
+      "sv_active": 24.0,
+      "sv_idle": 24.0,
+      "sv_used": 6.0,
+      "sv_login": 0.0
+    },
+    "pgbouncer_maxwait_peak_ms": 18.765,
+    "primary_host_cpu_p95_percent": 85.49618320610686,
+    "primary_host_cpu_mean_percent": 57.41775871386112,
+    "api_cpu_cores": 2.1608285319959646,
+    "worker_cpu_cores": 1.0359181197296525,
+    "private_database_forwarder_mean_cpu_cores": 0.8814026854844595
+  },
+  "restoration": {
+    "runtime_restored": true,
+    "runtime_stable": true,
+    "namespace_absent": true,
+    "helpers_absent": true,
+    "generator_idle": true,
+    "private_inputs_removed": true
+  },
+  "local_validation": {
+    "affected_tests_passed": 208,
+    "source_identity_files_verified": 535,
+    "ruff_passed": true
+  },
+  "next_action": "A fresh corrected three-attempt comparison needs a further one-stage allowance; preserve this consumed failed stage and do not increase offered load. If pool pressure persists in that matched run, isolate a measured correction."
+}

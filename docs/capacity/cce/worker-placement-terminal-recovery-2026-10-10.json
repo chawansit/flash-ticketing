@@ -1,0 +1,168 @@
+{
+  "decision": "ADR0276",
+  "run": "adr0151-df0b0a270c9d",
+  "ledger": "bounded_cce_paid_comparison__eddb1a47d450",
+  "original_result_sha256": "9b1d487a42b5b77bf56fab18f4cf0fb59956e9ce0792b7e550bd07e4da44cd29",
+  "binding_sha256": "89d743c59d29cd045b8b94fd5c573ced89f881567300cc8f0c127753ef8a93b8",
+  "pass": true,
+  "capacity_qualified": false,
+  "fair_comparison": false,
+  "paid_stages_started": 1,
+  "financial": {
+    "counts": {
+      "orders": 21218,
+      "fulfilled_orders": 21161,
+      "expired_orders": 57,
+      "pending_orders": 0,
+      "payment_attempts": 21161,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 21161,
+      "bookings": 21161,
+      "tickets": 21161,
+      "payment_callbacks": 21161,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 21161,
+      "callback_delivery_target": 21161,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 21218,
+      "expected_paid": 21161,
+      "expected_callback_deliveries_per_payment": 1,
+      "pass": true
+    },
+    "relationships": {
+      "hold_relationship_errors": 0,
+      "booking_relationship_errors": 0,
+      "order_item_relationship_errors": 0,
+      "inventory_relationship_errors": 0,
+      "fulfilled_ticket_relationship_errors": 0,
+      "unique_issued_tickets": 21161,
+      "holds_not_past_ttl": 0
+    },
+    "checks": {
+      "post_ttl_complete": true,
+      "payments_durable": true,
+      "ticket_relationships_valid": true
+    },
+    "pass": true
+  },
+  "terminal_detail": {
+    "unpaid_expired_orders": 57,
+    "expired_financial_or_booking_rows": 0,
+    "total_paid_tickets": 21161,
+    "issued_inside_offered_window": 20696,
+    "window_seconds": 300
+  },
+  "safety_financial": {
+    "counts": {
+      "orders": 1,
+      "fulfilled_orders": 1,
+      "expired_orders": 0,
+      "pending_orders": 0,
+      "payment_attempts": 1,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 1,
+      "bookings": 1,
+      "tickets": 1,
+      "payment_callbacks": 1,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 3,
+      "callback_delivery_target": 3,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 1,
+      "expected_paid": 1,
+      "expected_callback_deliveries_per_payment": 3,
+      "pass": true
+    },
+    "relationships": {
+      "hold_relationship_errors": 0,
+      "booking_relationship_errors": 0,
+      "order_item_relationship_errors": 0,
+      "inventory_relationship_errors": 0,
+      "fulfilled_ticket_relationship_errors": 0,
+      "unique_issued_tickets": 1,
+      "holds_not_past_ttl": 0
+    },
+    "checks": {
+      "post_ttl_complete": true,
+      "payments_durable": true,
+      "ticket_relationships_valid": true
+    },
+    "pass": true
+  },
+  "native_safety_financial": {
+    "counts": {
+      "orders": 1,
+      "fulfilled_orders": 1,
+      "expired_orders": 0,
+      "pending_orders": 0,
+      "payment_attempts": 1,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 1,
+      "bookings": 1,
+      "tickets": 1,
+      "payment_callbacks": 1,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 3,
+      "callback_delivery_target": 3,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 1,
+      "expected_paid": 1,
+      "expected_callback_deliveries_per_payment": 3,
+      "pass": true
+    },
+    "relationships": {
+      "hold_relationship_errors": 0,
+      "booking_relationship_errors": 0,
+      "order_item_relationship_errors": 0,
+      "inventory_relationship_errors": 0,
+      "fulfilled_ticket_relationship_errors": 0,
+      "unique_issued_tickets": 1,
+      "holds_not_past_ttl": 0
+    },
+    "checks": {
+      "post_ttl_complete": true,
+      "payments_durable": true,
+      "ticket_relationships_valid": true
+    },
+    "pass": true
+  },
+  "global_duplicate_audit": {
+    "duplicate_booked_seats": 0,
+    "zero_double_booking": true
+  },
+  "queues": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "runtime_stable": true,
+  "runtime_restored": true,
+  "namespace_absent": true,
+  "helpers_absent": true,
+  "secondary_empty": true,
+  "generator_idle": true,
+  "private_inputs_removed": true,
+  "owned_fixture_events_retired": 86,
+  "actual_elapsed_seconds": 70.40600000001723
+}

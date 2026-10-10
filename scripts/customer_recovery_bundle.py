@@ -49,4 +49,4 @@ def qualify(parent):
 
 
 def enabled(goal):
-    return goal is not None and goal.get("extension_decision") in {"ADR0255", "ADR0256", "ADR0259", "ADR0263", "ADR0266"}
+    return goal is not None and goal.get("extension_decision") in {"ADR0255", "ADR0256", "ADR0259", "ADR0263", "ADR0266", "ADR0271"}

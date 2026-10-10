@@ -40,7 +40,7 @@
     "scripts/cce_worker_identity.py": "4a002d1aa49477c764b5726230f2d51ded2e9224fb73946b61d322546de13167",
     "scripts/cce_worker_rebalance_profile.py": "bb83dd651fb649ebd1a60497fa9b7b436f23ac59aa242b9266f13aad9fffc3a4",
     "scripts/cce_worker_transition.py": "4e11a3b3b82fd27eed6c7799638c916cfcf22990a0e5435eb331b8e0c1c2e6bf",
-    "scripts/customer_recovery_bundle.py": "ea06506c9136f6ff906989f9d882c4a8df60554de5d7e5b3ce8854ac05c71e14",
+    "scripts/customer_recovery_bundle.py": "49ebd29317e7e953b17d24485285d205daa92ab89b43e6a5bda9e3731a2dae39",
     "scripts/customer_recovery_client.py": "3b9990684cc71286077f083b20a4dad0437f8460088a32b59d780005033b72f5",
     "scripts/observe_cce_workers.py": "8200a7afffe03a5aae732e68f967256f82198ba387b7614188bcfa0b972b49bf",
     "scripts/observe_projection_kafka.py": "837257afdd8d1cb74a60f31114a6a2cef3fd39b14461e1a3ab8007ec7fa196e7",
@@ -96,7 +96,7 @@
       "historical_sha256": "42235326c5ed3a51cf0ad7b072bb7ad699fa93ef134bbe7cec630cbb7f70c79c"
     },
     "scripts/cce_paid_stage.py": {
-      "current_sha256": "3aeea35fbe206a56824ac48c439ec4cee665efdd77834f6fe71913f111261c5c",
+      "current_sha256": "39c57e4e9530280c2fdc6dc12daf6e8a27ffff256c0a7458c9af2f4058a2e9fa",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/c1acf89ae4544674f179f4615c10f359e3899bfd5dae8421c30e22f29e60c57a",
       "historical_sha256": "c1acf89ae4544674f179f4615c10f359e3899bfd5dae8421c30e22f29e60c57a"
     },

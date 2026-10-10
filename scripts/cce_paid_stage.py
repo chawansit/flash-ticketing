@@ -187,6 +187,10 @@ class PaidStage:
         import cce_transaction_profile as transaction
         from customer_recovery_bundle import enabled, qualify
         self.recovery_enabled = enabled(transaction.active())
+        bound_attempts = guard.binding.get("cce_recovery_max_attempts", 1)
+        if (type(bound_attempts) is not int or bound_attempts not in {1, 3}
+                or (not self.recovery_enabled and bound_attempts != 1)):
+            raise ValueError("Recovery profile and binding mismatch")
         self.coordinator = (policy.ROOT / "scripts/run_synchronized_paid_generator.py").read_bytes()
         if self.recovery_enabled:
             if guard.binding.get("cce_recovery_max_attempts") != 3:

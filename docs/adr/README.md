@@ -214,3 +214,6 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0273: Probe Kafka route before worker migration](0273-probe-kafka-route-before-worker-migration.md)
 
 - [ADR0274: Close refunded worker-migration safety scope](0274-close-refunded-worker-migration-safety-scope.md)
+
+- [ADR0275: Preserve recovery in worker-placement comparisons](0275-preserve-recovery-in-worker-placement-comparisons.md)
+- [ADR0276: Reconcile the mixed terminal worker-placement cohort](0276-reconcile-mixed-terminal-worker-placement-cohort.md)
