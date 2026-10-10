@@ -48,6 +48,12 @@ def authorized_today(envelope, now=None):
             expected.update(maximum_paid_stages=2, maximum_pods=17, pod_memory_gib=2)
             if goal.get("worker_resources") != {"cpu": "250m", "memory": "512Mi"}:
                 raise ValueError("Exact mixed API/worker resource budget required")
+        if goal.get("extension_decision") == "ADR0271":
+            from cce_worker_rebalance_profile import active
+            active(goal)
+            expected.update(maximum_pods=18, pod_memory_gib=2)
+            if goal.get("worker_resources") != {"cpu": "250m", "memory": "512Mi"}:
+                raise ValueError("Exact mixed event-lane worker resource budget required")
         if goal.get("extension_decision") == "ADR0266":
             from cce_event_lane_profile import active
             active(goal)

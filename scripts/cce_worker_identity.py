@@ -11,37 +11,51 @@ COUNTS = {"consumer": 6, "reservation-writer": 3, "publisher": 1, "maintenance":
 RESOURCES = {k: {"cpu": "250m", "memory": "512Mi"} for k in ("requests", "limits")}
 
 
+def specification(decision="ADR0259"):
+    if decision == "ADR0259":
+        return {"decision": decision, "counts": dict(COUNTS), "manifest": MANIFEST,
+                "image_id": ECS_IMAGE_ID, "source": SOURCE, "resources": RESOURCES}
+    if decision != "ADR0271":
+        raise ValueError("Unknown native worker placement decision")
+    import cce_event_lane_identity as pins
+    return {"decision": decision, "counts": {k: v for k, v in pins.COUNTS.items() if k != "confirmation"},
+            "manifest": pins.IMAGE_ID, "image_id": pins.IMAGE_ID, "source": pins.SOURCE, "resources": RESOURCES}
+
+
 def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
 
 
-def verify_sources(sources):
+def verify_sources(sources, decision="ADR0259"):
     if (not isinstance(sources, dict) or len(sources) != 22
             or any(not re.fullmatch(r"src/ticketing/[a-z_/]+\.py", k) or not re.fullmatch(r"[0-9a-f]{64}", v) for k, v in sources.items())
-            or hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest() != SOURCE):
+            or hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest() != specification(decision)["source"]):
         raise ValueError("Exact shared 22-module source identity required")
     return True
 
 
 def validate_bundle(value):
+    selected = specification(value.get("decision"))
+    counts, manifest = selected["counts"], selected["manifest"]
+    size = sum(counts.values())
     if (set(value) != {"decision", "run", "sources", "manifest_digest", "resources", "receipts"}
-            or value["decision"] != "ADR0259" or not re.fullmatch(r"adr0151-[0-9a-f]{12}", value["run"])
-            or value["manifest_digest"] != MANIFEST or value["resources"] != RESOURCES):
+            or not re.fullmatch(r"adr0151-[0-9a-f]{12}", value["run"])
+            or value["manifest_digest"] != manifest or value["resources"] != RESOURCES):
         raise ValueError("Exact native worker admission bundle required")
-    verify_sources(value["sources"])
-    expected = {f"{role}-{i}" for role, count in COUNTS.items() for i in range(count)}
+    verify_sources(value["sources"], value["decision"])
+    expected = {f"{role}-{i}" for role, count in counts.items() for i in range(count)}
     rows = value["receipts"]
-    if (len(rows) != 13 or {r["pod_name"] for r in rows} != expected
-            or any(len({r[k] for r in rows}) != 13 for k in ("pod_uid", "private_ipv4"))):
-        raise ValueError("Thirteen unique worker pod identities required")
+    if (len(rows) != size or {r["pod_name"] for r in rows} != expected
+            or any(len({r[k] for r in rows}) != size for k in ("pod_uid", "private_ipv4"))):
+        raise ValueError("Exact unique worker pod identities required")
     for row in rows:
         role = row["role"]
         addr = ipaddress.IPv4Address(row["private_ipv4"])
         proof = row["startup_proof"]
         started = row["process_start_time_seconds"]
-        if (role not in COUNTS or row["pod_name"] not in {f"{role}-{i}" for i in range(COUNTS[role])}
+        if (role not in counts or row["pod_name"] not in {f"{role}-{i}" for i in range(counts[role])}
                 or not any(addr in ipaddress.IPv4Network(n) for n in ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"))
-                or row["image_id"].split("@")[-1] != MANIFEST or row["resources"] != RESOURCES
+                or row["image_id"].split("@")[-1] != manifest or row["resources"] != RESOURCES
                 or proof.get("run") != value["run"] or proof.get("pod_uid") != row["pod_uid"]
                 or proof.get("sources") != value["sources"]
                 or not re.fullmatch(r"[0-9a-f]{64}", proof.get("environment_sha256", ""))

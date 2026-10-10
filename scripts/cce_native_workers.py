@@ -11,8 +11,8 @@ import cce_worker_identity as identity
 import work_envelope as policy
 
 
-def environment(role, values, primary_ip):
-    if role not in identity.COUNTS or not isinstance(values, dict) or any(not isinstance(k, str) or not isinstance(v, str) for k, v in values.items()):
+def environment(role, values, primary_ip, decision="ADR0259"):
+    if role not in identity.specification(decision)["counts"] or not isinstance(values, dict) or any(not isinstance(k, str) or not isinstance(v, str) for k, v in values.items()):
         raise ValueError("Resolved known worker environment required")
     result = copy.deepcopy(values)
     if any(key in result for key in ("CCE_RUN_ID", "CCE_POD_UID")):
@@ -28,14 +28,21 @@ def environment(role, values, primary_ip):
     return result
 
 
-def objects(run, environments, primary_ip):
-    if set(environments) != set(identity.COUNTS):
+def objects(run, environments, primary_ip, decision="ADR0259"):
+    selected = identity.specification(decision)
+    if set(environments) != set(selected["counts"]):
         raise ValueError("Complete worker environments required")
     namespace = cce.dependency.namespace_for(run)
     result = []
-    sources = comparison.selected_receipt()["runtime_source_sha256"]
-    for role, count in identity.COUNTS.items():
-        env = environment(role, environments[role], primary_ip)
+    if decision == "ADR0271":
+        from cce_event_lane_profile import image
+        receipt_image = image()
+    else:
+        receipt_image = comparison.selected_receipt()
+    sources = receipt_image["runtime_source_sha256"]
+    image_ref = receipt_image["registry_image"]
+    for role, count in selected["counts"].items():
+        env = environment(role, environments[role], primary_ip, decision)
         command = ["python", "-m", "ticketing.workers", role]
         program = ("expected=" + repr(sources) + "\nenv_sha=" + repr(policy.digest(env)) + "\ncommand=" + repr(command)
                    + "\nenvironment_keys=" + repr(sorted(env)) + "\n" + cce.STARTUP.replace("CCE_API_STARTUP", "CCE_WORKER_STARTUP"))
@@ -51,7 +58,7 @@ def objects(run, environments, primary_ip):
                                     "imagePullSecrets": [{"name": "default-secret"}, {"name": "swr-pull"}],
                                     "hostAliases": [{"ip": cce.private_ip(primary_ip), "hostnames": ["kafka"]}],
                                     "securityContext": {"runAsUser": 10001, "runAsNonRoot": True, "seccompProfile": {"type": "RuntimeDefault"}},
-                                    "containers": [{"name": "worker", "image": comparison.IMAGE, "imagePullPolicy": "Always",
+                                    "containers": [{"name": "worker", "image": image_ref, "imagePullPolicy": "Always",
                                                     "command": ["python", "-u", "-c", program], "workingDir": "/app",
                                                     "envFrom": [{"secretRef": {"name": role + "-env"}}],
                                                     "env": [{"name": "CCE_RUN_ID", "value": run}, {"name": "CCE_POD_UID", "valueFrom": {"fieldRef": {"apiVersion": "v1", "fieldPath": "metadata.uid"}}}],
@@ -60,7 +67,7 @@ def objects(run, environments, primary_ip):
     return result
 
 
-def receipt(pod, expected, run, uid, log, metrics):
+def receipt(pod, expected, run, uid, log, metrics, decision="ADR0259"):
     meta, spec, status = pod.get("metadata", {}), pod.get("spec", {}), pod.get("status", {})
     wanted = expected["spec"]
     states = status.get("containerStatuses", [])
@@ -74,7 +81,7 @@ def receipt(pod, expected, run, uid, log, metrics):
             or states[0].get("name") != "worker" or states[0].get("restartCount") != 0
             or type(states[0].get("restartCount")) is not int or states[0].get("ready") is not True
             or not states[0].get("state", {}).get("running", {}).get("startedAt")
-            or states[0].get("imageID", "").split("@")[-1] != identity.MANIFEST):
+            or states[0].get("imageID", "").split("@")[-1] != identity.specification(decision)["manifest"]):
         raise ValueError("Worker admitted specification/runtime drift")
     if not isinstance(log, str) or len(log.encode()) > 65536:
         raise ValueError("Bounded worker startup log required")
@@ -93,8 +100,10 @@ def receipt(pod, expected, run, uid, log, metrics):
 
 
 class Workers:
-    def __init__(self, deployment, manifests, read_metrics, persist):
+    def __init__(self, deployment, manifests, read_metrics, persist, decision="ADR0259"):
         self.deployment, self.manifests, self.read_metrics, self.persist = deployment, manifests, read_metrics, persist
+        self.selected = identity.specification(decision)
+        self.decision = decision
         self.uids = {}
         self.attempted = False
         self.bundle = None
@@ -117,7 +126,7 @@ class Workers:
     def observe(self, *, previous=None):
         deadline = time.monotonic() + 180
         pods = [item for item in self.manifests if item["kind"] == "Pod"]
-        if set(self.uids) != {item["metadata"]["name"] for item in pods} or len(pods) != 13:
+        if set(self.uids) != {item["metadata"]["name"] for item in pods} or len(pods) != sum(self.selected["counts"].values()):
             raise ValueError("Complete captured native workers required")
         while True:
             self.deployment.verify_owner()
@@ -144,11 +153,16 @@ class Workers:
                         raise
                     pending = True
                     continue
-                views.append(receipt(pod, expected, self.deployment.run, self.uids[name], log, metrics))
+                views.append(receipt(pod, expected, self.deployment.run, self.uids[name], log, metrics, self.decision))
             if not pending:
-                bundle = {"decision": "ADR0259", "run": self.deployment.run,
-                          "sources": comparison.selected_receipt()["runtime_source_sha256"],
-                          "manifest_digest": identity.MANIFEST, "resources": identity.RESOURCES, "receipts": views}
+                if self.decision == "ADR0271":
+                    from cce_event_lane_profile import image
+                    sources = image()["runtime_source_sha256"]
+                else:
+                    sources = comparison.selected_receipt()["runtime_source_sha256"]
+                bundle = {"decision": self.decision, "run": self.deployment.run,
+                          "sources": sources,
+                          "manifest_digest": self.selected["manifest"], "resources": identity.RESOURCES, "receipts": views}
                 identity.validate_bundle(bundle)
                 if previous is not None and bundle != previous:
                     raise ValueError("Native workers changed since admission")

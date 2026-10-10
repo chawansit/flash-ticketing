@@ -94,7 +94,7 @@ class Resources:
         self.commands = {"bridge": ["-u", "-c", PROXY], "audit": ["-u", "-c", "import time;time.sleep(" + str(for_guard(guard).experiment_limit) + ")"]}
         import cce_transaction_profile as transaction
         goal = transaction.active()
-        if goal is not None and goal["extension_decision"] == "ADR0259" and goal["comparison_arm"] == "candidate":
+        if goal is not None and (goal["extension_decision"] == "ADR0259" and goal["comparison_arm"] == "candidate" or goal["extension_decision"] == "ADR0271"):
             self.names["kafka"] = "cce-kafka-" + run
             self.commands["kafka"] = ["-u", "-c", PROXY.replace("'pgbouncer',5432", "'kafka',9092").replace("6432", "9092")]
 

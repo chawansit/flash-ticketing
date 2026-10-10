@@ -28,12 +28,18 @@ def receipt_bundle(run, receipts):
 
 
 def summarize_independent_diagnostics(record, rows, path, receipts, start, end, *, hourly, summarize_waits,
-                                     summarize_slots=None, summarize_pipeline=None, native_workers=None):
+                                     summarize_slots=None, summarize_pipeline=None, native_workers=None, slot_log_evidence=None):
     """ADR0257/0260 preserve independent diagnostics despite a missing slot history."""
     failures = []
     operations = []
     if summarize_slots is not None:
-        operations.append(("slot_failure_capture", lambda: summarize_slots(rows, native.validate_receipts(receipts))))
+        def slot_history():
+            admitted = native.validate_receipts(receipts)
+            if slot_log_evidence is None:
+                return summarize_slots(rows, admitted)
+            from cce_live_admission import endpoints
+            return summarize_slots(rows, admitted, extra_records=endpoints(slot_log_evidence, receipts))
+        operations.append(("slot_failure_capture", slot_history))
     if summarize_pipeline is not None:
         operations.append(("pipeline_summary", lambda: summarize_pipeline(rows)))
     if native_workers is not None:
@@ -214,14 +220,14 @@ class Observers:
         )
         import cce_transaction_profile as transaction
         extended = transaction.active() is not None
-        self.event_lanes = extended and transaction.active()["extension_decision"] == "ADR0266"
+        self.event_lanes = extended and transaction.active()["extension_decision"] in {"ADR0266", "ADR0271"}
         helpers = (
             "observe_cce_paid_pipeline.py",
             "observe_two_host_pipeline.py",
             "prepare_two_host_scaling.py",
             "database_wait_evidence.py",
             "diagnostic_connection.py",
-            *(("cce_shared_worker_image_identity.py", "cce_worker_identity.py", "observe_cce_workers.py") if extended and transaction.active()["extension_decision"] in {"ADR0259", "ADR0263"} else ()),
+            *(("cce_shared_worker_image_identity.py", "cce_worker_identity.py", "observe_cce_workers.py") if extended and transaction.active()["extension_decision"] in {"ADR0259", "ADR0263", "ADR0271"} else ()),
             *(("observe_slot_paid_pipeline.py", "slot_failure_evidence.py", "bounded_trace_transport.py") if extended else ()),
         )
         if self.event_lanes:
@@ -511,7 +517,8 @@ class Observers:
                         self.record, rows, path, self.native, self.start_utc, self.end_utc,
                         hourly=self.stage.profile.duration == 3600, summarize_waits=summarize_waits,
                         summarize_slots=summarize_slots if transaction.active() is not None else None,
-                        summarize_pipeline=summarize, native_workers=getattr(self, "native_workers", None)))
+                        summarize_pipeline=summarize, native_workers=getattr(self, "native_workers", None),
+                        slot_log_evidence=getattr(self, "slot_log_evidence", None)))
                 else:
                     self.record[name + "_summary"] = summarize(rows)
                     if name == "projection-kafka":

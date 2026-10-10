@@ -18,6 +18,27 @@ def finite(value):
     return type(value) in (int, float) and math.isfinite(value) and value >= 0
 
 
+def validate_record(record):
+    if (not isinstance(record, dict)
+            or set(record) != {"sequence", "captured_at_unix_seconds", "role", "reason", "holders"}
+            or not integer(record["sequence"], 1) or not finite(record["captured_at_unix_seconds"])
+            or record["role"] not in {"general", "payment", "callback"}
+            or record["reason"] not in {"native_timeout", "native_limit", "global_limit", "role_limit"}
+            or not isinstance(record["holders"], list) or len(record["holders"]) > 128):
+        raise ValueError("Invalid slot failure event")
+    seen = set()
+    for holder in record["holders"]:
+        if (not isinstance(holder, dict)
+                or set(holder) != {"lease", "role", "operation", "phase", "age_ms", "phase_age_ms"}
+                or not integer(holder["lease"], 1) or holder["lease"] in seen
+                or holder["role"] not in {"general", "payment"}
+                or holder["operation"] not in OPERATIONS or holder["phase"] not in PHASES
+                or not finite(holder["age_ms"]) or not finite(holder["phase_age_ms"])):
+            raise ValueError("Invalid slot owner")
+        seen.add(holder["lease"])
+    return record
+
+
 def validate(value):
     required = {"schema_version", "failure_total", "overwritten_total", "diagnostic_errors", "complete", "records"}
     if (not isinstance(value, dict) or set(value) != required or value.get("schema_version") != 1
@@ -34,23 +55,9 @@ def validate(value):
     if len(records) != min(total, 16):
         raise ValueError("Missing retained slot failures")
     for sequence, record in enumerate(records, total - len(records) + 1):
-        if (not isinstance(record, dict)
-                or set(record) != {"sequence", "captured_at_unix_seconds", "role", "reason", "holders"}
-                or record["sequence"] != sequence or not finite(record["captured_at_unix_seconds"])
-                or record["role"] not in {"general", "payment", "callback"}
-                or record["reason"] not in {"native_timeout", "native_limit", "global_limit", "role_limit"}
-                or not isinstance(record["holders"], list) or len(record["holders"]) > 128):
+        validate_record(record)
+        if record["sequence"] != sequence:
             raise ValueError("Invalid slot failure event")
-        seen = set()
-        for holder in record["holders"]:
-            if (not isinstance(holder, dict)
-                    or set(holder) != {"lease", "role", "operation", "phase", "age_ms", "phase_age_ms"}
-                    or not integer(holder["lease"], 1) or holder["lease"] in seen
-                    or holder["role"] not in {"general", "payment"}
-                    or holder["operation"] not in OPERATIONS or holder["phase"] not in PHASES
-                    or not finite(holder["age_ms"]) or not finite(holder["phase_age_ms"])):
-                raise ValueError("Invalid slot owner")
-            seen.add(holder["lease"])
     return value
 
 
@@ -110,7 +117,7 @@ def install(module):
     module.api_metrics = api_metrics
 
 
-def summarize(rows, expected_replicas):
+def summarize(rows, expected_replicas, *, extra_records=None):
     replicas = {key: {} for key in expected_replicas}
     totals = {key: 0 for key in replicas}
     last_counters = {key: 0 for key in replicas}
@@ -137,6 +144,21 @@ def summarize(rows, expected_replicas):
             totals[name] = value["failure_total"]
     if not rows:
         raise ValueError("Slot evidence samples required")
+    if extra_records is not None:
+        if set(extra_records) != set(replicas):
+            raise ValueError("Complete admitted log endpoints required")
+        for name, records in extra_records.items():
+            if not isinstance(records, list) or len(records) > 4096:
+                raise ValueError("Bounded live slot records required")
+            for record in records:
+                validate_record(record)
+                sequence = record["sequence"]
+                if sequence > totals[name]:
+                    raise ValueError("Live event exceeds settled terminal counter")
+                prior = replicas[name].get(sequence)
+                if prior is not None and prior != record:
+                    raise ValueError("Retained failure identity changed")
+                replicas[name][sequence] = record
     # Exposition is concurrent with failures. Earlier counter/ring reads may race;
     # require a settled final snapshot, never excuse missing terminal evidence.
     if any(len(replicas[name]) != totals[name] or any(sequence != expected for expected, sequence in enumerate(sorted(replicas[name]), 1)) for name in replicas):
@@ -144,5 +166,5 @@ def summarize(rows, expected_replicas):
     if any(last_counters[name] != totals[name] for name in replicas):
         raise ValueError("Terminal driver counter and slot evidence disagree")
     return {"complete": True, "failure_total": sum(totals.values()),
-            "replicas": {k: list(v.values()) for k, v in replicas.items()},
+            "replicas": {k: [v[n] for n in sorted(v)] for k, v in replicas.items()},
             "historical_timeout_cause_established": False}

@@ -54,6 +54,7 @@ class Lifecycle:
         background_before,
         persist,
         refresh_inventory=None,
+        live_admission=False,
     ):
         self.stage, self.session = stage, stage.session
         self.resources, self.deployment, self.transition = resources, deployment, transition
@@ -61,6 +62,8 @@ class Lifecycle:
         self.qualify_safety, self.prepare_fixture = qualify_safety, prepare_fixture
         self.cleanup_safety = cleanup_safety
         self.identities, self.background_before, self.persist = identities, background_before, persist
+        self.live_admission = live_admission
+        self.live_capture = None
         self.refresh_inventory = refresh_inventory
         self.record = {"pass": False, "cleanup_complete": False, "customers_dispatched": False}
 
@@ -71,6 +74,11 @@ class Lifecycle:
     def capture_admission_diagnostics(self):
         """Retain bounded failure-time context without masking customer results."""
         try:
+            if self.live_capture is not None:
+                live = self.live_capture.finish()
+                self.observers.slot_log_evidence = live
+                policy.write(self.stage.output / "live-admission.private.json", live)
+                self.record["live_admission_complete"] = live["complete"]
             evidence = self.deployment.admission_diagnostics()
             path = self.stage.output / "admission-failures.private.json"
             if path.exists() or path.is_symlink():
@@ -160,6 +168,10 @@ class Lifecycle:
                 "cce_api_receipts": receipts,
                 "all_required_pre_dispatch_gates_pass": True,
             }
+            if self.live_admission:
+                from cce_live_admission import Capture
+                self.live_capture = Capture(self.deployment)
+                self.live_capture.start()
             self.record["dispatch_attempted"] = True
             self.checkpoint()
             customer = self.stage.dispatch(admission, start_at_epoch=start)
@@ -183,6 +195,8 @@ class Lifecycle:
                 "unchanged_background": True,
                 "unchanged_native_pods": True,
             }
+            if self.live_admission:
+                self.record["measurement_gates"]["live_admission"] = self.record.get("live_admission_complete") is True
             if self.stage.profile.duration == 3600:
                 self.record["measurement_gates"]["hourly_issuance"] = self.stage.record.get("hourly_issuance", {}).get("pass") is True
             self.record["pass"] = all(self.record["measurement_gates"].values())
@@ -214,7 +228,7 @@ class Lifecycle:
         finally:
             self.record["customers_dispatched"] = self.stage.record.get("customers_dispatched") is True
             failures = []
-            if self.record["customers_dispatched"] and "admission_diagnostics" not in self.record:
+            if (self.record["customers_dispatched"] or self.live_capture is not None) and "admission_diagnostics" not in self.record:
                 self.capture_admission_diagnostics()
             # Restore the exact ECS candidate first: outer cleanup uses its captured CID.
             from run_two_host_paid_comparison import drain

@@ -23,11 +23,12 @@
     "scripts/cce_event_lane_contract.py": "1c498e5d4e2e87c0688cd6a1db40e8eade177cbe2e9ed9ef83e2a32c46b9d337",
     "scripts/cce_event_lane_identity.py": "efce7c91a735069545527c85b1259a4f261fbab673365712d868fea73929ce9f",
     "scripts/cce_event_lane_profile.py": "ec5fc19e733d273222ffdd8d8ad4b346e6593824cb5945b319aab05fd320efd6",
-    "scripts/cce_native_workers.py": "97da18b94b1d6a40c2806acde1c83d7fb0707c0c7ddd152e9244e3e2e9f9a1be",
+    "scripts/cce_live_admission.py": "393b87a7d9d63d9beb86ae6ccc55815ed004d93a509afc91dc178128909a6971",
+    "scripts/cce_native_workers.py": "3bc53ed47aa868a933d5ad4d92655fe2cceecd8f6ac6547d59f2d972213fd76e",
     "scripts/cce_payment_context_images.py": "cbc80a6226ea255766d23159c7a488c8cbbc69f9604eb94dbc3e55a55fbee160",
     "scripts/cce_payment_dispatch_profile.py": "3ab1312e6d637d6e9d8537fcea55405c68ac13df25717a30870b4a245994c804",
     "scripts/cce_recovery_hourly_profile.py": "8061087896cfb0577f12125c8f49598d0ff28bb2d463dfa1d5496ab4ce5f0fd0",
-    "scripts/cce_reproduction_overlay.py": "b76fc0dd78cb0e3d95934b05e8bfdff25269551e972bfa5864367b33bd82860e",
+    "scripts/cce_reproduction_overlay.py": "7d07d5f0cbf0be74a099fe48dc376da95314f65ba2dbcabf3baf3f964d89e478",
     "scripts/cce_shared_application.py": "bf73281cc9cff5bbb26513a73f23e7b311606580734526e48fb2fa2f53d986a5",
     "scripts/cce_shared_worker_comparison.py": "1c9f6bdde6c9bd5f35d4cf4ede84e7b934872d6e6320c252ab5983e930796adc",
     "scripts/cce_shared_worker_contract.py": "b85b5f1d3e15769cc15592227f281f06af85bc47dc18a5819f630908c8bed3fb",
@@ -35,12 +36,13 @@
     "scripts/cce_shared_worker_profile.py": "a757db861d1965276659df437e317cc5a0c0309ab272737221d282ebb39c43b2",
     "scripts/cce_simulator_dispatch_profile.py": "e3c7e6bdcbbde3317493f95e5ab6e5e4b87fda219c6462e9e8f8ebe55b0647b7",
     "scripts/cce_slot_trace_transport.py": "32b58eeb4ca12f4d963d0cdb1e2a8ad07319e93437efcc78061347ba76eb2150",
-    "scripts/cce_transaction_profile.py": "9a9f767cb96194d99a0b758d7a7b5467152058c6c9b6c3023bd6ffb992d60736",
-    "scripts/cce_worker_identity.py": "e2740f7beccae039192d2ba4b29c29b7e53acc0b6e7bd138b0fcf862cef72ee1",
-    "scripts/cce_worker_transition.py": "60ee12690a6fa342ff4dbf89b908512ad2d895f764538e9ae3126a9389708dc6",
+    "scripts/cce_transaction_profile.py": "5c2a79b276cc45821083555fa1983917588b6bf06a367f357ae45ace68d373bf",
+    "scripts/cce_worker_identity.py": "4a002d1aa49477c764b5726230f2d51ded2e9224fb73946b61d322546de13167",
+    "scripts/cce_worker_rebalance_profile.py": "bb83dd651fb649ebd1a60497fa9b7b436f23ac59aa242b9266f13aad9fffc3a4",
+    "scripts/cce_worker_transition.py": "380375d35ac24a15ed25711d4965546cf63af5f579b0d6b4746a6116a106153a",
     "scripts/customer_recovery_bundle.py": "ea06506c9136f6ff906989f9d882c4a8df60554de5d7e5b3ce8854ac05c71e14",
     "scripts/customer_recovery_client.py": "3b9990684cc71286077f083b20a4dad0437f8460088a32b59d780005033b72f5",
-    "scripts/observe_cce_workers.py": "4e04bdda64d968e065e30bd48ddaaca2c016ac74daed471c9124cb18a4ddaf59",
+    "scripts/observe_cce_workers.py": "8200a7afffe03a5aae732e68f967256f82198ba387b7614188bcfa0b972b49bf",
     "scripts/observe_projection_kafka.py": "837257afdd8d1cb74a60f31114a6a2cef3fd39b14461e1a3ab8007ec7fa196e7",
     "scripts/observe_slot_paid_pipeline.py": "99dc7a45e21576ed7b298158ea09a2728277a04f81e7a359b2a05d0fe69a5867",
     "scripts/paid_fixture_layout.py": "7b9bc3d6acd3522dfcddfad00cecf049350bad38238dbeb4709a4ea71bf6cf32",
@@ -48,18 +50,18 @@
     "scripts/prepare_payment_context_sources.py": "7c0f192e30a12843c8658918afee574507b514eb51d54e5fc588b56f78ce136c",
     "scripts/prepare_simulator_dispatch_sources.py": "620107eff675fb18aa18fb307cf44e90dca75af212efad30a0a7418ba42ca669",
     "scripts/prepare_slot_comparison_sources.py": "fb192efa50afb95eb0b61efbf9c343bfe899a1af2810509a3376cf45f65442fd",
-    "scripts/slot_failure_evidence.py": "45cc16f757542a2421b14a544bbd90279204ebebadcbe6873592ff5be998a0e2"
+    "scripts/slot_failure_evidence.py": "5303920a2497d02f3bb42824bd775b7d065ce7dbf34c4020e2eef9404195b619"
   },
   "decision": "ADR0242",
   "historical_lock_sha256": "3dabc984d879e7d59699ad74d9b26d5259a83ce338c60c2620536e7456d48fcd",
   "overlays": {
     "scripts/cce_api_adapter.py": {
-      "current_sha256": "c4c838e21e08daadd28d765496f6a2a05b93fec79e04155ad197b043cb9a37e2",
+      "current_sha256": "137f83d750be0fcad039d1456c3fdc2a75d7c44ccfcf6842f774716fd54ad0c6",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e",
       "historical_sha256": "634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e"
     },
     "scripts/cce_dependency_probe.py": {
-      "current_sha256": "250b8dcb58f8d67059a0d08f860274f18ddc1ab1ce42b65f57e78d6303626e96",
+      "current_sha256": "738088b1bf23e3dab9a4ebd3332f88ee02447400fda71c45a6f2b0feb3e27389",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/0eaa401200576c3b82f9f4a5bae919b4843b3f8ff7895ef2f043b7f9c91d9e65",
       "historical_sha256": "0eaa401200576c3b82f9f4a5bae919b4843b3f8ff7895ef2f043b7f9c91d9e65"
     },
@@ -79,22 +81,22 @@
       "historical_sha256": "abcb6aec285d0e007effbcd23bcdebd858b8ff7102b38c29eea6cdeb2e6aba04"
     },
     "scripts/cce_paid_lifecycle.py": {
-      "current_sha256": "9d3fbc9cedb9f97747ae49135dfd686d382fe3ff1e54c2d9af1de27aa2eeebdd",
+      "current_sha256": "3ae2408038a4b6f2af63cc8d7fcb63be34e731231380060218df1072040ae291",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/0fed16ed4aeb02c22a277c9b81bfc8efce29eeaaefa3c1165eb1e3216a22cd12",
       "historical_sha256": "0fed16ed4aeb02c22a277c9b81bfc8efce29eeaaefa3c1165eb1e3216a22cd12"
     },
     "scripts/cce_paid_observers.py": {
-      "current_sha256": "a06fd8811f0902f0e8da700a019021ceff1a49b313bdb89bd4269695dfe0c9a5",
+      "current_sha256": "8df101a4e65f667a4c5a1565bd5e1b18d82276cf3add78a395a357368eda009f",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/e5e712961d9f6725d45468f0feac95ad50f6591c4f5ee095ac41074257e63257",
       "historical_sha256": "e5e712961d9f6725d45468f0feac95ad50f6591c4f5ee095ac41074257e63257"
     },
     "scripts/cce_paid_resources.py": {
-      "current_sha256": "e9e57e438205d90c3a937a9e5db47b3eaa4608eedf0e9641251631a8278f5adf",
+      "current_sha256": "138054acac8968ff9309a5b43119442e22c9d277b14c3006dddf0af054c80a19",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/42235326c5ed3a51cf0ad7b072bb7ad699fa93ef134bbe7cec630cbb7f70c79c",
       "historical_sha256": "42235326c5ed3a51cf0ad7b072bb7ad699fa93ef134bbe7cec630cbb7f70c79c"
     },
     "scripts/cce_paid_stage.py": {
-      "current_sha256": "c44a5c103f34c8315ddedfc0deb91e9d91d2e717c5767270561e0a63df9969c2",
+      "current_sha256": "3aeea35fbe206a56824ac48c439ec4cee665efdd77834f6fe71913f111261c5c",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/c1acf89ae4544674f179f4615c10f359e3899bfd5dae8421c30e22f29e60c57a",
       "historical_sha256": "c1acf89ae4544674f179f4615c10f359e3899bfd5dae8421c30e22f29e60c57a"
     },
@@ -144,7 +146,7 @@
       "historical_sha256": "c5bada5a5d99360f0b8ab823e086b4459ed4b3c5701f3c862396862944f9ee8d"
     },
     "scripts/run_cce_paid_comparison.py": {
-      "current_sha256": "dc1ddf08f8c67fdd4b1c8d2ae3dc285ecf5f09979ab3ecc9ad7e705a8071570e",
+      "current_sha256": "ec4691cebf92b553f9bfe67e8b95032651f01611175712b34b7351750553895e",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
       "historical_sha256": "cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017"
     },

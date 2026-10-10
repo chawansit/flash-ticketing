@@ -44,6 +44,9 @@ def image_pair():
 def active(envelope=None):
     envelope = policy.envelope() if envelope is None else envelope
     goal = envelope.get("spending", {}).get("temporary_cce_pilot_exception", {}).get("goal_bounded_authorization", {})
+    if goal.get("extension_decision") == "ADR0271":
+        from cce_worker_rebalance_profile import active as rebalance_active
+        return rebalance_active(goal)
     if goal.get("extension_decision") == "ADR0266":
         from cce_event_lane_profile import active as event_active
         return event_active(goal)
@@ -86,7 +89,7 @@ def active(envelope=None):
 
 
 def proof_digest(goal):
-    if goal["extension_decision"] == "ADR0266":
+    if goal["extension_decision"] in {"ADR0266", "ADR0271"}:
         from cce_event_lane_identity import RECEIPT_SHA256
         return RECEIPT_SHA256
     if goal["extension_decision"] in {"ADR0259", "ADR0263"}:
@@ -115,7 +118,7 @@ def pair_receipt(goal):
 
 
 def image_for(goal):
-    if goal["extension_decision"] == "ADR0266":
+    if goal["extension_decision"] in {"ADR0266", "ADR0271"}:
         from cce_event_lane_profile import image
         return image()
     if goal["extension_decision"] in {"ADR0259", "ADR0263"}:
@@ -194,6 +197,9 @@ def plan():
     goal = active()
     if goal is None:
         raise ValueError("Explicit ADR0242 short comparison required")
+    if goal["extension_decision"] == "ADR0271":
+        from cce_worker_rebalance_profile import plan as rebalance_plan
+        return rebalance_plan(goal)
     if goal["extension_decision"] == "ADR0266":
         from cce_event_lane_profile import plan as event_plan
         return event_plan(goal)

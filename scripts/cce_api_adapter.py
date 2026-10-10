@@ -57,7 +57,7 @@ def contract():
         data = copy.deepcopy(data)
         data["api_sources"] = transaction.image_for(goal)["runtime_sources_sha256"]
         data["api_settings"]["DB_FAILURE_DIAGNOSTICS"] = "1"
-        if goal["extension_decision"] in {"ADR0259", "ADR0263", "ADR0266"}:
+        if goal["extension_decision"] in {"ADR0259", "ADR0263", "ADR0266", "ADR0271"}:
             data["resources"] = {k: {"cpu": "1", "memory": "2Gi"} for k in ("requests", "limits")}
             data["api_settings"]["ORDER_STATUS_READ_PIPELINE"] = "0"
             data["workload"]["customer_retries"] = 3
@@ -121,7 +121,7 @@ def admission_budget():
     """One declared bounded factor; old profiles retain the immutable baseline."""
     exception = policy.envelope()["spending"]["temporary_cce_pilot_exception"]
     goal = exception.get("goal_bounded_authorization", {})
-    if goal.get("extension_decision") in {"ADR0242", "ADR0245", "ADR0249", "ADR0251", "ADR0255", "ADR0259", "ADR0263", "ADR0266"}:
+    if goal.get("extension_decision") in {"ADR0242", "ADR0245", "ADR0249", "ADR0251", "ADR0255", "ADR0259", "ADR0263", "ADR0266", "ADR0271"}:
         import cce_transaction_profile as transaction
         transaction.active()
         return 20
@@ -652,8 +652,10 @@ class Deployment:
         self.persist({"cce_api_receipts": views})
         return views
 
-    def admission_diagnostics(self):
+    def admission_diagnostics(self, *, lookback_seconds=600):
         """Read only exact owned pod logs; available during mandatory cleanup."""
+        if type(lookback_seconds) is not int or lookback_seconds not in {30, 600}:
+            raise ValueError("Bounded admission log window required")
         self.verify_owner()
         if set(self.pod_uids) != {f"api-{i}" for i in range(4)}:
             raise ValueError("Four captured pod identities required for admission evidence")
@@ -675,7 +677,7 @@ class Deployment:
 
                 verify()
                 value = self.request(
-                    "GET", path + "/log?container=api&sinceSeconds=600&limitBytes=8388608", None
+                    "GET", path + f"/log?container=api&sinceSeconds={lookback_seconds}&limitBytes=8388608", None
                 )
                 verify()
                 if not isinstance(value, dict) or value.get("schema_version") != 1:
@@ -728,10 +730,10 @@ class KubernetesTransport:
             raise ValueError("Closed CCE certificate transport")
         import cce_transaction_profile as transaction
         goal = transaction.active()
-        worker_path = bool(goal is not None and goal["extension_decision"] == "ADR0259" and method == "GET"
-                           and re.fullmatch(r"/api/v1/namespaces/flash-cce-[0-9a-f]{12}/pods/(?:consumer-[0-5]|reservation-writer-[0-2]|publisher-0|maintenance-0|reconciler-0|simulator-0)(?:/log\?container=worker&limitBytes=65536)?", path))
+        worker_path = bool(goal is not None and goal["extension_decision"] in {"ADR0259", "ADR0271"} and method == "GET"
+                           and re.fullmatch(r"/api/v1/namespaces/flash-cce-[0-9a-f]{12}/pods/(?:consumer-[0-5]|projection-consumer-0|reservation-writer-[0-2]|publisher-0|maintenance-0|reconciler-0|simulator-0)(?:/log\?container=worker&limitBytes=65536)?", path))
         if method not in {"GET", "POST", "DELETE"} or not (worker_path or re.fullmatch(
-            r"/api/v1/namespaces(?:/flash-cce-[0-9a-f]{12}(?:/(?:pods|secrets)(?:/api-[0-3](?:/log\?container=api&(?:limitBytes=65536|sinceSeconds=600&limitBytes=8388608))?)?)?)?",
+            r"/api/v1/namespaces(?:/flash-cce-[0-9a-f]{12}(?:/(?:pods|secrets)(?:/api-[0-3](?:/log\?container=api&(?:limitBytes=65536|sinceSeconds=(?:600|30)&limitBytes=8388608))?)?)?)?",
             path,
         )):
             raise ValueError("Bounded owned CCE resource path required")
@@ -803,6 +805,24 @@ def filtered_admission_logs(raw):
     values=guard.get(key)
     if isinstance(values,dict):result[key]={k:v for k,v in values.items() if k in {'general','payment','callback'} and type(v) is int and v>=0}
    record['guard']=result
+  slot=fields.get('slot_ownership')
+  if slot is not None:
+   try:
+    if not isinstance(slot,dict) or set(slot)!={'sequence','captured_at_unix_seconds','role','reason','holders'}:raise ValueError()
+    if type(slot['sequence']) is not int or slot['sequence']<1:raise ValueError()
+    if type(slot['captured_at_unix_seconds']) not in (int,float) or not math.isfinite(slot['captured_at_unix_seconds']) or slot['captured_at_unix_seconds']<0:raise ValueError()
+    if slot['role']!=record.get('role') or slot['reason']!=record.get('reason'):raise ValueError()
+    if not isinstance(slot['holders'],list) or len(slot['holders'])>128:raise ValueError()
+    phases={'connection_context','setup','body','commit','rollback','context_exit','pool_return'}|{'query_'+v for v in ('SELECT','INSERT','UPDATE','DELETE','SET','BEGIN','COMMIT','ROLLBACK','OTHER')}
+    seen=set()
+    for holder in slot['holders']:
+     if not isinstance(holder,dict) or set(holder)!={'lease','role','operation','phase','age_ms','phase_age_ms'}:raise ValueError()
+     if type(holder['lease']) is not int or holder['lease']<1 or holder['lease'] in seen:raise ValueError()
+     seen.add(holder['lease'])
+     if holder['role'] not in {'general','payment'} or holder['operation'] not in {'payment_request','payment_callback','order_status','order_create','hold','availability','other'} or holder['phase'] not in phases:raise ValueError()
+     if any(type(holder[k]) not in (int,float) or not math.isfinite(holder[k]) or holder[k]<0 for k in ('age_ms','phase_age_ms')):raise ValueError()
+    record['slot_ownership']=slot
+   except (ValueError,KeyError,TypeError):malformed+=1
   if not all(k in record for k in ('role','reason','capture','guard','native_pool')):malformed+=1
   records.append(record)
  return {'schema_version':1,'logs_sha256':hashlib.sha256(raw).hexdigest(),'logs_bytes':len(raw),'byte_limit_reached':len(raw)>=8388608,'failure_events':events,'overflow_events':max(0,events-len(records)),'malformed_events':malformed,'records':records}
@@ -826,7 +846,7 @@ with tempfile.TemporaryDirectory(prefix='codex-cce-') as directory:
   headers={'Content-Type':'application/json'},method=payload['method'])
  try:
   with urllib.request.urlopen(req,context=context,timeout=10) as response:
-   diagnostic=payload['path'].endswith('/log?container=api&sinceSeconds=600&limitBytes=8388608')
+   diagnostic=any(payload['path'].endswith('/log?container=api&sinceSeconds='+str(n)+'&limitBytes=8388608') for n in (30,600))
    limit=8388608 if diagnostic else 1048576
    raw=response.read(limit+1)
    if len(raw)>limit:raise ValueError('CCE response exceeds bounded payload')

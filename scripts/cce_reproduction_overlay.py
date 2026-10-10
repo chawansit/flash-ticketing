@@ -13,6 +13,7 @@ OVERLAID = {
     "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py",
     "scripts/run_cce_hourly_qualification.py", "scripts/cce_hourly_paid_generator.py", "scripts/cce_hourly_paid_leaf.py"}
 ADDITIONAL = {
+    "scripts/cce_live_admission.py", "scripts/cce_worker_rebalance_profile.py",
     "scripts/cce_event_lane_identity.py", "scripts/cce_event_lane_profile.py",
         "scripts/cce_event_lane_contract.py", "scripts/observe_projection_kafka.py",
         "docs/capacity/cce/event-lane-fetch-image-2026-10-10.json",

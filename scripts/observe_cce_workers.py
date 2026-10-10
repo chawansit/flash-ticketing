@@ -7,7 +7,7 @@ from urllib.request import urlopen
 
 from cce_worker_identity import validate_bundle
 
-ROLE_ALIAS = {"writer": "reservation-writer"}
+ROLE_ALIAS = {"writer": "reservation-writer", "projection": "projection-consumer"}
 
 
 def install(module, bundle, *, fetch=urlopen):
@@ -15,6 +15,8 @@ def install(module, bundle, *, fetch=urlopen):
     by_role = {}
     for row in bundle["receipts"]:
         by_role.setdefault(row["role"], []).append(row["private_ipv4"])
+    if "projection-consumer" in by_role:
+        module.METRICS["projection"] = ("consume_refresh_batch", "http://projection-consumer:9101/metrics")
     original_discover, original_counters = module.api_replicas, module.worker_counters
     previous = {}
 
@@ -87,7 +89,10 @@ def summarize(rows, bundle, start, end):
     previous, initial = {}, {}
     for row in window:
         current = {}
-        for role in ("consumer", "writer", "publisher", "maintenance", "reconciler", "simulator"):
+        roles = ("consumer", "writer", "publisher", "maintenance", "reconciler", "simulator")
+        if bundle["decision"] == "ADR0271":
+            roles += ("projection",)
+        for role in roles:
             replicas = row.get(role + "_native_processes", {})
             if row.get(role + "_metrics_error"):
                 raise ValueError("Native worker sampling failed")
@@ -99,7 +104,7 @@ def summarize(rows, bundle, start, end):
                     raise ValueError("Native worker sampling identity/counter drift")
                 current[address] = values
         if set(current) != set(starts):
-            raise ValueError("Complete thirteen-worker samples required")
+            raise ValueError("Complete admitted worker samples required")
         if not initial:
             initial = current
         previous = current
