@@ -34,7 +34,7 @@ def live_pod(index=0):
     pod['status'] = {'phase': 'Running', 'podIP': '10.2.240.' + str(index + 1),
         'conditions': [{'type': 'Ready', 'status': 'True'}],
         'containerStatuses': [{'name': 'api', 'restartCount': 0, 'ready': True,
-            'imageID': cce.dependency.IMAGE, 'state': {'running': {'startedAt': '2026-10-08T11:00:00Z'}}}]}
+            'imageID': cce.dependency.IMAGE, 'containerID': 'container-'+str(index), 'state': {'running': {'startedAt': '2026-10-08T11:00:00Z'}}}]}
     proof = {'run': RUN, 'pod_uid': pod['metadata']['uid'], 'sources': cce.contract()['api_sources'],
         'environment_sha256': expected['metadata']['annotations']['codex-environment-sha256'],
         'command_sha256': policy.digest(COMMAND)}
@@ -248,7 +248,7 @@ def test_scope_payload_drift_fails_before_creation(lifecycle):
     assert events == []
 
 
-@pytest.mark.parametrize('fault', ['none','missing','restart','source','environment','readiness','metrics','replaced_after_admission'])
+@pytest.mark.parametrize('fault', ['none','rotated','forged_previous','missing','restart','source','environment','readiness','metrics','process_restart','container_replaced','replaced_after_admission'])
 def test_all_pods_observed_before_admission(lifecycle, fault):
     deployment, values, _events, _persisted, _stored = lifecycle
     deployment.create(values)
@@ -262,16 +262,25 @@ def test_all_pods_observed_before_admission(lifecycle, fault):
     def request(method,path,body):
         if '/pods/api-' in path:
             name=path.split('/pods/')[1].split('/')[0]
-            if '/log?' in path:return cce.PROOF_PREFIX+json.dumps(proofs[name])
+            if '/log?' in path:return 'recent requests only' if rotated[0] else cce.PROOF_PREFIX+json.dumps(proofs[name])
             return pods[name]
         return original(method,path,body)
+    rotated=[False]
     deployment.request=request
     ready=lambda address:{'status':'ready'}
     metrics=lambda address:{'process_start_time_seconds':100.0,'process_cpu_seconds_total':0.1}
     baseline=deployment.observe(values,ready,metrics)
     assert len(baseline)==4
     if fault=='none':assert deployment.observe(values,ready,metrics,previous=baseline)==baseline;return
-    if fault=='missing':pods['api-2']=None
+    if fault=='rotated':
+        rotated[0]=True
+        assert deployment.observe(values,ready,metrics,previous=baseline)==baseline
+        with pytest.raises(ValueError):deployment.observe(values,ready,metrics)
+        return
+    if fault=='forged_previous':baseline[0]['startup_proof']['sources']={}
+    elif fault=='process_restart':metrics=lambda address:{'process_start_time_seconds':101.,'process_cpu_seconds_total':.2}
+    elif fault=='container_replaced':pods['api-2']['status']['containerStatuses'][0]['containerID']='replacement'
+    elif fault=='missing':pods['api-2']=None
     elif fault=='restart':pods['api-2']['status']['containerStatuses'][0]['restartCount']=1
     elif fault=='source':proofs['api-2']['sources']={}
     elif fault=='environment':proofs['api-2']['environment_sha256']='b'*64

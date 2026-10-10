@@ -56,6 +56,12 @@ def verify_ecs_shared_inventory(inventory, approved_digest):
     marker = inventory.get("status_refresh_contract", {})
     if digest(inventory) != approved_digest or marker.get("shared_image_decision") != "ADR0259" or marker.get("shared_image_source_sha256") != SOURCE or marker.get("shared_image_configuration_digest") != CONFIG:
         raise ValueError("Exactly sealed shared-image inventory required")
+    correction = marker.get("dispatch_correction_decision")
+    if correction not in (None, "ADR0263"):
+        raise ValueError("Unknown shared dispatch correction")
+    concurrency = 16 if correction == "ADR0263" else 12
+    if marker.get("simulator_concurrency") != concurrency:
+        raise ValueError("Sealed simulator concurrency marker differs")
     rows = inventory.get("worker_sources", [])
     counts = {role: 0 for role in {**COUNTS, "confirmation": 1}}
     ids = set()
@@ -71,10 +77,10 @@ def verify_ecs_shared_inventory(inventory, approved_digest):
         settings = row.get("settings", {})
         if settings.get("RESERVATION_WRITE_PIPELINE", "0") != ("1" if role == "reservation-writer" else "0"):
             raise ValueError("Writer-only pipeline setting differs")
-        if role == "simulator" and any(settings.get(k) != v for k, v in {"SIMULATOR_CONCURRENCY": "12", "SIMULATOR_DISPATCH_MODE": "refill", "DB_POOL_MAX": "10"}.items()):
+        if role == "simulator" and any(settings.get(k) != v for k, v in {"SIMULATOR_CONCURRENCY": str(concurrency), "SIMULATOR_DISPATCH_MODE": "refill", "DB_POOL_MAX": "10"}.items()):
             raise ValueError("Simulator workload/pool changed")
         counts[role] += 1
         ids.add(row["container_id"])
-    if counts != {**COUNTS, "confirmation": 1} or inventory.get("background", {}).get("simulator") != {"replicas": 1, "concurrency": 12, "dispatch_mode": "refill", "pool_per_replica": 10}:
+    if counts != {**COUNTS, "confirmation": 1} or inventory.get("background", {}).get("simulator") != {"replicas": 1, "concurrency": concurrency, "dispatch_mode": "refill", "pool_per_replica": 10}:
         raise ValueError("Complete shared worker placement required")
     return True

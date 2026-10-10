@@ -7,12 +7,23 @@ from runtime_source_identity import source_identity_program
 
 
 class SharedWorkerContract(parent.SimulatorDispatchContract):
-    def __init__(self):
+    def __init__(self, *, dispatch_slots=12):
         data = parent.baseline.plan()
         super().__init__(data["artifact_receipt"], "candidate", parent.legacy_contract()["api_sources"])
+        if type(dispatch_slots) is not int or dispatch_slots not in (12, 16):
+            raise ValueError("Reviewed twelve or sixteen delivery slots required")
+        self.dispatch_slots = dispatch_slots
+        self.background = copy.deepcopy(self.background)
+        self.background["simulator"]["concurrency"] = dispatch_slots
         self.shared = comparison.selected_receipt()
         for role in self.background:
             self.images[role] = self.shared["local_image_id"]
+
+    def settings(self, role):
+        values = super().settings(role)
+        if role == "simulator":
+            values["SIMULATOR_CONCURRENCY"] = str(self.dispatch_slots)
+        return values
 
     def source_map(self, role):
         if role in self.background:
@@ -46,11 +57,13 @@ if proof.get('source_hashes_match') is not True:raise ValueError('Shared importe
 """.replace("SOURCE", repr(comparison.SOURCE)).replace("DECISION", repr(self.shared["decision"])) + bootstrap + "\nprint(json.dumps({'shared_worker_image_verified':True}))\n"
 
     def inventory_marker(self):
-        return {**super().inventory_marker(), "shared_image_decision": "ADR0259",
+        return {**super().inventory_marker(),
+                **({"dispatch_correction_decision": "ADR0263"} if self.dispatch_slots == 16 else {}),
+                "simulator_concurrency": self.dispatch_slots, "shared_image_decision": "ADR0259",
                 "shared_image_source_sha256": comparison.SOURCE,
                 "shared_image_configuration_digest": self.shared["registry_configuration_digest"],
                 "shared_image_receipt_sha256": comparison.digest(self.shared)}
 
 
-def worker_contract():
-    return SharedWorkerContract()
+def worker_contract(*, dispatch_slots=12):
+    return SharedWorkerContract(dispatch_slots=dispatch_slots)

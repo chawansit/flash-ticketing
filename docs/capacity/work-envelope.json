@@ -126,16 +126,12 @@
       "goal_bounded_authorization": {
         "decision": "ADR0228",
         "profile": "cce_paid_comparison",
-        "extension_decision": "ADR0259",
-        "comparison_arm": "control",
-        "maximum_paid_stages": 2,
-        "maximum_pods": 17,
+        "extension_decision": "ADR0263",
+        "comparison_arm": "correction",
+        "maximum_paid_stages": 1,
+        "maximum_pods": 4,
         "pod_vcpu": 1,
         "pod_memory_gib": 2,
-        "worker_resources": {
-          "cpu": "250m",
-          "memory": "512Mi"
-        },
         "offered_journeys_per_second": 84,
         "offered_seconds": 300,
         "maximum_experiment_seconds": 3600,
@@ -146,17 +142,24 @@
           "maximum_additional_spend": null,
           "no_spending_cap_explicitly_authorized": true
         },
-        "ledger_start_index": 69,
+        "ledger_start_index": 71,
         "candidate_factor": {
-          "name": "worker_placement",
-          "comparison_arm": "control",
-          "placement_plan_sha256": "8b1026a9927255c8e549f93f155192788147be37334938681e9ef1626ebc4d16",
+          "name": "callback_dispatch_concurrency",
+          "comparison_arm": "correction",
+          "baseline": 12,
+          "candidate": 16,
+          "simulator_database_pool_max": 10,
           "shared_image_receipt_sha256": "e0d6298d09d85df4632bc2d4cf2547a7b48d9098119cd3c8be9372ebaa6567fd",
-          "database_connections_unchanged": true
+          "database_connections_unchanged": true,
+          "gateway_delay_unchanged": true
         },
-        "authorization": "Standing user approval to diagnose, correct and repeat within unchanged budgets; user continue for ADR0261 corrected shared consumer. Fresh 84/s300s control, candidate only after all control gates and restoration pass.",
+        "authorization": "Direct user Continue: correct payment dispatch under the standing envelope",
         "authorized_at_bangkok": "2026-10-10T12:52:39.724856+07:00",
-        "image_correction_decision": "ADR0261"
+        "image_correction_decision": "ADR0261",
+        "authorized_at_utc": "2026-10-10T07:39:36.866891+00:00",
+        "scope_note": "One sixteen-slot run with unchanged ADR0261 image, placement, SQL budgets and gateway delay; no placement comparison",
+        "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
+        "baseline_sha256": "094aebcce9855b9eebd9304a3dbc62d3767c5a6c31670cd90b24ccc7d0f4aa7c"
       },
       "bounded_scaling_permission": {
         "authorized": true,
@@ -564,6 +567,45 @@
           "status": "APPROVED_GOAL_BOUNDED",
           "authorized_at_utc": "2026-10-09T16:00:37.351300+00:00",
           "additional_paid_stages_authorized": true
+        },
+        {
+          "goal": {
+            "decision": "ADR0228",
+            "profile": "cce_paid_comparison",
+            "extension_decision": "ADR0259",
+            "comparison_arm": "control",
+            "maximum_paid_stages": 2,
+            "maximum_pods": 17,
+            "pod_vcpu": 1,
+            "pod_memory_gib": 2,
+            "worker_resources": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            },
+            "offered_journeys_per_second": 84,
+            "offered_seconds": 300,
+            "maximum_experiment_seconds": 3600,
+            "acquisition_budget": 20,
+            "unlimited_cumulative_time_explicitly_authorized": true,
+            "spending_allowance": {
+              "status": "APPROVED",
+              "maximum_additional_spend": null,
+              "no_spending_cap_explicitly_authorized": true
+            },
+            "ledger_start_index": 69,
+            "candidate_factor": {
+              "name": "worker_placement",
+              "comparison_arm": "control",
+              "placement_plan_sha256": "8b1026a9927255c8e549f93f155192788147be37334938681e9ef1626ebc4d16",
+              "shared_image_receipt_sha256": "e0d6298d09d85df4632bc2d4cf2547a7b48d9098119cd3c8be9372ebaa6567fd",
+              "database_connections_unchanged": true
+            },
+            "authorization": "Standing user approval to diagnose, correct and repeat within unchanged budgets; user continue for ADR0261 corrected shared consumer. Fresh 84/s300s control, candidate only after all control gates and restoration pass.",
+            "authorized_at_bangkok": "2026-10-10T12:52:39.724856+07:00",
+            "image_correction_decision": "ADR0261"
+          },
+          "status": "CONSUMED_FAILED_RESTORED",
+          "ledger": "bounded_cce_paid_comparison__aa737738876e"
         }
       ],
       "prior_goal_authorizations": [

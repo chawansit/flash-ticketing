@@ -94,6 +94,11 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
               "cce_transaction_pair_sha256": transaction.proof_digest(transaction.active())}
              if transaction.active() is not None else {})
     goal = transaction.active()
+    if goal is not None and goal["extension_decision"] == "ADR0263":
+        from customer_recovery_bundle import MANIFEST_SHA256
+        extra.update(cce_dispatch_decision="ADR0263", cce_simulator_concurrency=16,
+                     cce_simulator_database_pool_max=10, cce_recovery_max_attempts=3,
+                     cce_recovery_bundle_sha256=MANIFEST_SHA256, cce_order_status_read_pipeline="0")
     if goal is not None and goal["extension_decision"] == "ADR0259":
         import cce_shared_worker_comparison as shared
         extra.update(cce_worker_placement_decision="ADR0259", cce_worker_placement_plan_sha256=shared.digest(shared.plan()),
@@ -307,9 +312,9 @@ def activate_scope(guard, run):
 def worker_contract():
     import cce_transaction_profile as transaction
     goal = transaction.active()
-    if goal is not None and goal["extension_decision"] == "ADR0259":
+    if goal is not None and goal["extension_decision"] in {"ADR0259", "ADR0263"}:
         from cce_shared_worker_contract import worker_contract as shared_contract
-        return shared_contract()
+        return shared_contract(dispatch_slots=16 if goal["extension_decision"] == "ADR0263" else 12)
     if goal is not None and goal["extension_decision"] in {"ADR0251", "ADR0255", "ADR0256"}:
         from cce_simulator_dispatch_profile import worker_contract as simulator_contract
         return simulator_contract(goal if goal["extension_decision"] == "ADR0251" else None)

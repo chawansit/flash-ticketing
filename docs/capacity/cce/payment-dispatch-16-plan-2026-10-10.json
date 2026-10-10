@@ -1,0 +1,125 @@
+{
+  "decision": "ADR0263",
+  "implemented": true,
+  "local_tests": {
+    "targeted_runner_checks": {
+      "passed": 212,
+      "skipped": 1
+    },
+    "profile_dependency_checks": {
+      "passed": 123
+    },
+    "immutable_image_integration": {
+      "passed": 81,
+      "database_versions": [
+        "PostgreSQL 17.6",
+        "Redis 7.4.5"
+      ],
+      "simulator_slots_sql_pools": [
+        [
+          12,
+          2
+        ],
+        [
+          16,
+          2
+        ],
+        [
+          16,
+          10
+        ]
+      ],
+      "lost_response_and_stale_lease_replay": true
+    },
+    "lint_pass": true
+  },
+  "plan": {
+    "decision": "ADR0228",
+    "arms": [
+      "candidate"
+    ],
+    "extension_decision": "ADR0263",
+    "comparison_arm": "correction",
+    "kind": "shared_image_dispatch_correction",
+    "single_changed_factor": "callback_dispatch_concurrency",
+    "common": {
+      "buyer_journeys_per_second": 84,
+      "duration_seconds": 300
+    },
+    "diagnostic_connection_decision": "ADR0180",
+    "baseline_evidence": "docs/capacity/cce/shared-worker-consumer-restored-control-2026-10-10.json",
+    "baseline_sha256": "094aebcce9855b9eebd9304a3dbc62d3767c5a6c31670cd90b24ccc7d0f4aa7c",
+    "baseline_is_passing_control": false,
+    "image_pair_receipt_sha256": "e0d6298d09d85df4632bc2d4cf2547a7b48d9098119cd3c8be9372ebaa6567fd",
+    "arm_manifest_digest": "sha256:8dfa1e1455e4df32df7f639403ecfd454e551974ab5a28bfe6bd41418c891cc5",
+    "arm_configuration_digest": "sha256:25a5e26d83fc09c0fcd07dd3dee16094d27ffb77d8f14532a3069566f2d1e258",
+    "arm_api_source_sha256": {
+      "src/ticketing/api.py": "4f4db9f6f35da937c37202d451a7da6c7eee1e9022eda560cb1db64ae7ab9c35",
+      "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+      "src/ticketing/config.py": "35d400dcab5b5824770655d545cea96bf8ef726cd6b05d0e843ada27574d0939",
+      "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+      "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
+      "src/ticketing/observability.py": "3bb9d042ee01469abdd8e2b630ca6f05ee3a318f96991ab9a867d74dc88244d2",
+      "src/ticketing/workers.py": "21b9fb1ca3a11285e5e332f9f1054d47fc01f82c2af40d361355a826e27814c1",
+      "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+      "src/ticketing/application/ports.py": "b2115020590e7b21c56792e7735c68c5d823504ce9a1abcdf3f47b94cb9c82f5",
+      "src/ticketing/application/reservations.py": "a3195a029d2cd6a00ae68abac125349ebfb5db70a7f40e4199660f78ff402114",
+      "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+      "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+      "src/ticketing/infrastructure/order_status_projector.py": "8e89ce45e57123f5fc1499e5d2bf57752395e57374f50729a975f402cd31ac88",
+      "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+      "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+      "src/ticketing/infrastructure/postgres.py": "849d56ca192180ad3ffa5a293b2a776eeffb83d476e04405be765d68a3bf6766",
+      "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+      "src/ticketing/infrastructure/reservations.py": "67d683fa2b2066f93cf1cbaab00eace5542b94fdb00e664fba8d9471603adb9e",
+      "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a",
+      "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "common_environment_changes": {
+      "DB_FAILURE_DIAGNOSTICS": "1"
+    },
+    "connections_per_api": 4,
+    "payment_connections_per_api": 2,
+    "general_connections_per_api": 2,
+    "pod_resources": {
+      "requests": {
+        "cpu": "1",
+        "memory": "2Gi"
+      },
+      "limits": {
+        "cpu": "1",
+        "memory": "2Gi"
+      }
+    },
+    "worker_resources": {
+      "requests": {
+        "cpu": "250m",
+        "memory": "512Mi"
+      },
+      "limits": {
+        "cpu": "250m",
+        "memory": "512Mi"
+      }
+    },
+    "replicas": 4,
+    "pooler_server_connections": 24,
+    "acquisition_budget": 20,
+    "bridge_cpu_limit": 1,
+    "simulator_concurrency": 16,
+    "simulator_database_pool_max": 10,
+    "customer_recovery_max_attempts": 3,
+    "recovery_bundle_sha256": "2349e1b19849c20e57ed26203076635166a5fb7722d6c8202939fe9157f18331",
+    "qualification_runs_authorized": 1,
+    "paid_runs_authorized": 1,
+    "safety_tickets_authorized": 2,
+    "duration_reason": "One five-minute correction on the existing topology; no placement comparison or hourly qualification.",
+    "gateway_delay_changes": false
+  },
+  "cloud_load_completed": true,
+  "capacity_improvement_measured": true,
+  "production_qualified": false,
+  "result": "docs/capacity/cce/payment-dispatch-16-result-2026-10-10.json",
+  "capacity_improvement_qualified": false
+}

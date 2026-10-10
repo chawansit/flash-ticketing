@@ -35,10 +35,17 @@ CORRECTED = RecoveryTarget(
 )
 
 
+DISPATCH = RecoveryTarget(
+    "adr0151-692aefc90917", "bounded_cce_paid_comparison__862f9e161c91",
+    "289eab78fa43736913cb31d22e2ccfe2fb7e6c651f2d69ab30430a2defad79b1",
+    24722, 478, 12, "flash-cce-692aefc90917",
+)
+
+
 def target_or_original(target):
     if target is None:
         return RecoveryTarget(RUN, LEDGER, RESULT, EXPECTED, 5160, 594, "flash-cce-ba78fda091fd")
-    if target != CORRECTED:
+    if target not in (CORRECTED, DISPATCH):
         raise ValueError("Only the exact retained corrected-control recovery is authorized")
     return target
 
@@ -63,14 +70,26 @@ def validate(report, entry, scope, evidence, fixture, *, target=None):
     t = target_or_original(target)
     customer = report.get("paid_stage", {}).get("customer", {})
     elapsed = evidence.get("actual_elapsed_seconds")
+    binding = scope.get("binding", {})
+    dispatch = target == DISPATCH
+    exact_profile = (
+        binding.get("cce_dispatch_decision") == "ADR0263"
+        and binding.get("cce_simulator_concurrency") == 16
+        and binding.get("cce_simulator_database_pool_max") == 10
+        and binding.get("cce_transaction_arm") == "correction"
+        and report.get("native", {}).get("measurement_gates", {}).get("unchanged_native_pods") is True
+        and report.get("native", {}).get("measurement_gates", {}).get("native_observer") is True
+    ) if dispatch else (
+        binding.get("cce_worker_placement_decision") == "ADR0259"
+        and binding.get("cce_transaction_arm") == "control"
+    )
     checks = (
         report.get("run") == t.run, policy.digest(report) == t.result, report.get("pass") is False,
         entry.get("ledger") == t.ledger, entry.get("status") == "RECOVERY_REQUIRED",
         entry.get("profile") == "cce_paid_comparison", entry.get("result_sha256") == t.result,
         scope.get("cce_paid_result_sha256") == t.result,
         entry.get("binding_sha256") == policy.digest(scope.get("binding")),
-        scope.get("binding", {}).get("cce_worker_placement_decision") == "ADR0259",
-        scope.get("binding", {}).get("cce_transaction_arm") == "control",
+        exact_profile,
         scope.get("active_run") in (None, t.run), scope.get("paid_runs_started") == 1,
         report.get("capacity_stages_started") == 1, report.get("restoration_complete") is True,
         report.get("native", {}).get("cleanup_complete") is True,

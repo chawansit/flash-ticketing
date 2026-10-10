@@ -57,7 +57,7 @@ def contract():
         data = copy.deepcopy(data)
         data["api_sources"] = transaction.image_for(goal)["runtime_sources_sha256"]
         data["api_settings"]["DB_FAILURE_DIAGNOSTICS"] = "1"
-        if goal["extension_decision"] == "ADR0259":
+        if goal["extension_decision"] in {"ADR0259", "ADR0263"}:
             data["resources"] = {k: {"cpu": "1", "memory": "2Gi"} for k in ("requests", "limits")}
             data["api_settings"]["ORDER_STATUS_READ_PIPELINE"] = "0"
             data["workload"]["customer_retries"] = 3
@@ -121,7 +121,7 @@ def admission_budget():
     """One declared bounded factor; old profiles retain the immutable baseline."""
     exception = policy.envelope()["spending"]["temporary_cce_pilot_exception"]
     goal = exception.get("goal_bounded_authorization", {})
-    if goal.get("extension_decision") in {"ADR0242", "ADR0245", "ADR0249", "ADR0251", "ADR0255", "ADR0259"}:
+    if goal.get("extension_decision") in {"ADR0242", "ADR0245", "ADR0249", "ADR0251", "ADR0255", "ADR0259", "ADR0263"}:
         import cce_transaction_profile as transaction
         transaction.active()
         return 20
@@ -391,6 +391,8 @@ def receipt(pod, expected, uid, run, startup_proof):
         or type(statuses[0].get("restartCount")) is not int
         or statuses[0]["restartCount"] != 0
         or statuses[0].get("ready") is not True
+        or not isinstance(statuses[0].get("containerID"), str)
+        or not statuses[0]["containerID"]
         or not statuses[0].get("state", {}).get("running", {}).get("startedAt")
         or statuses[0].get("imageID", "").split("@")[-1] != api_manifest()
     ):
@@ -410,6 +412,7 @@ def receipt(pod, expected, uid, run, startup_proof):
         "private_ipv4": private_ip(status["podIP"]),
         "image_id": statuses[0]["imageID"],
         "started_at": statuses[0]["state"]["running"]["startedAt"],
+        "container_id": statuses[0]["containerID"],
         "resources": container["resources"],
         "startup_proof": startup_proof,
     }
@@ -497,6 +500,7 @@ class Deployment:
         self.request, self.guard, self.persist, self.now, self.sleep = request, guard, persist, now, sleep
         self.namespace = self.run = self.namespace_uid = None
         self.pod_uids, self.attempted = {}, False
+        self.admitted_receipts = None
 
     def authorize(self):
         if self.guard is None:
@@ -570,6 +574,13 @@ class Deployment:
         self.authorize()
         if set(self.pod_uids) != {f"api-{i}" for i in range(4)}:
             raise ValueError("Four captured pod creation identities required")
+        if previous is not None and (
+            self.admitted_receipts is None or previous != self.admitted_receipts
+        ):
+            raise ValueError("Previous receipts must match this deployment's captured admission")
+        if previous is None and self.admitted_receipts is not None:
+            raise ValueError("Cannot replace captured admission")
+        admitted = {v["pod_name"]: v for v in self.admitted_receipts or []}
         views = []
         for expected in manifests[3:]:
             name = expected["metadata"]["name"]
@@ -582,7 +593,12 @@ class Deployment:
             context = verification_summary(pod, expected)
             context["verification_gate"] = "startup_proof"
             try:
-                proof = parse_startup(
+                if not isinstance(log, str) or len(log.encode()) > 65536:
+                    raise ValueError("Bounded startup log required")
+                retained = previous is not None and not any(
+                    line.startswith(PROOF_PREFIX) for line in log.splitlines()
+                )
+                proof = copy.deepcopy(admitted[name]["startup_proof"]) if retained else parse_startup(
                     log,
                     annotations["codex-environment-sha256"],
                     [
@@ -631,6 +647,8 @@ class Deployment:
         endpoints(views)
         if previous is not None and views != previous:
             raise ValueError("CCE API runtime changed since admission")
+        if previous is None:
+            self.admitted_receipts = copy.deepcopy(views)
         self.persist({"cce_api_receipts": views})
         return views
 

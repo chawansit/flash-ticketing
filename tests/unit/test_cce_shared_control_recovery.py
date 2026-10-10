@@ -129,3 +129,39 @@ def test_exact_corrected_control_recovery(monkeypatch, fault):
     else:
         assert recovery.validate(report, entry, scope, evidence, fixture, target=target)
         compile(recovery.financial_program(fixture["show_ids"],24410,target=target),"corrected-cohort","exec")
+
+
+@pytest.mark.parametrize("fault", [None, "slot_budget", "sql_budget", "runtime", "observer", "lost_payment", "drop_count"])
+def test_exact_dispatch_correction_recovery(monkeypatch, fault):
+    from dataclasses import replace
+    report, entry, scope, evidence, fixture = proof(monkeypatch)
+    target = recovery.DISPATCH
+    report["run"] = evidence["run"] = target.run
+    entry["ledger"] = evidence["ledger"] = target.ledger
+    evidence["cleanup_namespace"] = target.namespace
+    c = report["paid_stage"]["customer"]
+    for k in ("dispatched", "completed", "fulfilled", "distinct_orders", "distinct_tickets"):
+        c[k] = target.expected
+    c.update(generator_drops=target.drops, outcomes={"fulfilled": target.expected},
+             first_attempt_error_journeys=target.recovered, recovered_journeys=target.recovered)
+    for k, v in list(evidence["financial"]["counts"].items()):
+        if v == 20040:evidence["financial"]["counts"][k] = target.expected
+    evidence["financial"]["relationships"]["unique_issued_tickets"] = target.expected
+    scope["binding"] = {"cce_dispatch_decision": "ADR0263", "cce_simulator_concurrency": 16,
+                        "cce_simulator_database_pool_max": 10, "cce_transaction_arm": "correction"}
+    report["native"]["measurement_gates"] = {"unchanged_native_pods": True, "native_observer": True}
+    result = policy.digest(report)
+    target = replace(target, result=result)
+    monkeypatch.setattr(recovery, "DISPATCH", target)
+    entry["result_sha256"] = scope["cce_paid_result_sha256"] = evidence["original_result_sha256"] = result
+    entry["binding_sha256"] = evidence["binding_sha256"] = policy.digest(scope["binding"])
+    if fault == "slot_budget":scope["binding"]["cce_simulator_concurrency"] = 12
+    elif fault == "sql_budget":scope["binding"]["cce_simulator_database_pool_max"] = 16
+    elif fault == "runtime":report["native"]["measurement_gates"]["unchanged_native_pods"] = False
+    elif fault == "observer":report["native"]["measurement_gates"]["native_observer"] = False
+    elif fault == "lost_payment":evidence["financial"]["counts"]["tickets"] -= 1
+    elif fault == "drop_count":c["generator_drops"] += 1
+    if fault:
+        with pytest.raises(ValueError):recovery.validate(report, entry, scope, evidence, fixture, target=target)
+    else:
+        assert recovery.validate(report, entry, scope, evidence, fixture, target=target)

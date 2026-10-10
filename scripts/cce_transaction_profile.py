@@ -44,6 +44,9 @@ def image_pair():
 def active(envelope=None):
     envelope = policy.envelope() if envelope is None else envelope
     goal = envelope.get("spending", {}).get("temporary_cce_pilot_exception", {}).get("goal_bounded_authorization", {})
+    if goal.get("extension_decision") == "ADR0263":
+        from cce_payment_dispatch_profile import active as dispatch_active
+        return dispatch_active(goal)
     if goal.get("extension_decision") == "ADR0259":
         from cce_shared_worker_profile import active as placement_active
         return placement_active(goal)
@@ -80,7 +83,7 @@ def active(envelope=None):
 
 
 def proof_digest(goal):
-    if goal["extension_decision"] == "ADR0259":
+    if goal["extension_decision"] in {"ADR0259", "ADR0263"}:
         from cce_shared_worker_profile import proof_digest as placement_digest
         return placement_digest()
     if goal["extension_decision"] in {"ADR0255", "ADR0256"}:
@@ -106,7 +109,7 @@ def pair_receipt(goal):
 
 
 def image_for(goal):
-    if goal["extension_decision"] == "ADR0259":
+    if goal["extension_decision"] in {"ADR0259", "ADR0263"}:
         from cce_shared_worker_profile import image
         return image()
     """ADR0245 holds the accepted control binary fixed across both partitions."""
@@ -182,6 +185,9 @@ def plan():
     goal = active()
     if goal is None:
         raise ValueError("Explicit ADR0242 short comparison required")
+    if goal["extension_decision"] == "ADR0263":
+        from cce_payment_dispatch_profile import plan as dispatch_plan
+        return dispatch_plan(goal)
     if goal["extension_decision"] == "ADR0259":
         from cce_shared_worker_profile import plan as placement_plan
         return placement_plan(goal)

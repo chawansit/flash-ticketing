@@ -189,3 +189,9 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0260: Close failed shared-image control without qualifying capacity](0260-close-shared-image-control-without-qualifying-capacity.md)
 
 - [ADR0261: Preserve accepted consumer batching in the shared image](0261-preserve-consumer-batching-in-shared-image.md)
+
+- [ADR0262: Retain startup proof with live runtime verification](0262-retain-startup-proof-with-live-runtime-verification.md)
+
+- [ADR0263: Bound payment dispatch slots independently](0263-bound-payment-dispatch-slots-independently.md)
+
+- [ADR0264: Close failed dispatch correction without qualifying capacity](0264-close-failed-dispatch-correction-without-qualifying-capacity.md)

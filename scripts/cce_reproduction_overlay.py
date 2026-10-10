@@ -14,7 +14,7 @@ OVERLAID = {
 ADDITIONAL = {
     "scripts/cce_shared_worker_comparison.py", "scripts/cce_shared_worker_profile.py",
     "scripts/cce_shared_worker_contract.py", "scripts/cce_shared_application.py",
-    "scripts/cce_shared_worker_image_identity.py",
+    "scripts/cce_shared_worker_image_identity.py", "scripts/cce_payment_dispatch_profile.py",
     "scripts/cce_native_workers.py", "scripts/cce_worker_transition.py", "scripts/cce_worker_identity.py", "scripts/observe_cce_workers.py",
     "docs/capacity/cce/shared-application-image-2026-10-10.json",
     "docs/capacity/cce/shared-application-image-consumer-restored-2026-10-10.json",

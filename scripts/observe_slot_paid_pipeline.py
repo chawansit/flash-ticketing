@@ -21,8 +21,8 @@ def correction_inventory(inventory, approved_digest):
         verify_ecs_shared_inventory(inventory, approved_digest)
         legacy = copy.deepcopy(inventory)
         for key in ("shared_image_decision", "shared_image_source_sha256", "shared_image_configuration_digest", "shared_image_receipt_sha256",
-                    "correction_decision", "correction_factor", "simulator_concurrency", "simulator_database_pool_max", "simulator_image_id", "simulator_receipt_sha256"):
-            legacy["status_refresh_contract"].pop(key)
+                    "dispatch_correction_decision", "correction_decision", "correction_factor", "simulator_concurrency", "simulator_database_pool_max", "simulator_image_id", "simulator_receipt_sha256"):
+            legacy["status_refresh_contract"].pop(key, None)
         legacy["background"]["simulator"]["concurrency"] = 8
         return legacy, digest(legacy)
     if "correction_decision" not in marker:
