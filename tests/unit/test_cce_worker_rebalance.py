@@ -105,3 +105,31 @@ def test_resource_authorization_requires_exact_eighteen_pod_envelope():
     authorized_today(envelope)
     old["maximum_pods"] = 19
     with pytest.raises(ValueError): authorized_today(envelope)
+
+
+@pytest.mark.parametrize("kind,expected", [("connection_refused", ConnectionRefusedError), ("timeout", TimeoutError)])
+def test_startup_network_failure_reaches_existing_bounded_readiness_loop(kind, expected):
+    from run_cce_paid_comparison import worker_metrics_reader
+    session = SimpleNamespace(call=lambda *args: {"ready": False, "kind": kind})
+    with pytest.raises(expected): worker_metrics_reader(session, "10.2.0.1")
+
+
+def test_remote_refused_socket_is_structured_without_secrets(monkeypatch):
+    import contextlib
+    import urllib.error
+    import urllib.request
+
+    from run_cce_paid_comparison import WORKER_METRICS_READ
+    def refused(*args, **kwargs):
+        raise urllib.error.URLError(ConnectionRefusedError(111, "Connection refused"))
+    monkeypatch.setattr(urllib.request, "urlopen", refused)
+    output = io.StringIO()
+    with contextlib.redirect_stdout(output):
+        exec(compile(WORKER_METRICS_READ, "<bounded-worker-read>", "exec"), {"address": "10.2.0.1"})  # noqa: S102 - reviewed remote reader
+    assert json.loads(output.getvalue()) == {"ready": False, "kind": "connection_refused"}
+
+
+def test_invalid_worker_metrics_are_not_treated_as_startup_retry():
+    from run_cce_paid_comparison import worker_metrics_reader
+    session = SimpleNamespace(call=lambda *args: {"ready": True, "metrics": "process_cpu_seconds_total nan\nprocess_start_time_seconds 2\n"})
+    with pytest.raises(ValueError): worker_metrics_reader(session, "10.2.0.1")

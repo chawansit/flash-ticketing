@@ -216,10 +216,33 @@ print(json.dumps(raw.decode()))
     return values
 
 
+WORKER_METRICS_READ = r"""
+import json,urllib.request,urllib.error
+try:
+ with urllib.request.urlopen('http://'+address+':9101/metrics',timeout=3) as response:
+  raw=response.read(4194305)
+ if len(raw)>4194304:raise ValueError('Worker metrics exceed bound')
+ result={'ready':True,'metrics':raw.decode()}
+except urllib.error.URLError as error:
+ if isinstance(error.reason,ConnectionRefusedError):result={'ready':False,'kind':'connection_refused'}
+ elif isinstance(error.reason,TimeoutError):result={'ready':False,'kind':'timeout'}
+ else:raise
+print(json.dumps(result))
+"""
+
+
 def worker_metrics_reader(session, address):
     address = native.private_ip(address)
-    code = "import json,urllib.request\nwith urllib.request.urlopen(" + repr("http://" + address + ":9101/metrics") + ",timeout=3) as response:raw=response.read(4194305)\nif len(raw)>4194304:raise ValueError('Worker metrics exceed bound')\nprint(json.dumps(raw.decode()))"
-    raw = session.call("primary", code, 15)
+    result = session.call("primary", "address=" + repr(address) + "\n" + WORKER_METRICS_READ, 15)
+    if result == {"ready": False, "kind": "connection_refused"}:
+        raise ConnectionRefusedError("Worker metrics listener not ready")
+    if result == {"ready": False, "kind": "timeout"}:
+        raise TimeoutError("Worker metrics startup request timed out")
+    if not isinstance(result, dict) or set(result) != {"ready", "metrics"} or result["ready"] is not True:
+        raise ValueError("Exact bounded worker metrics response required")
+    raw = result["metrics"]
+    if not isinstance(raw, str) or len(raw.encode()) > 4194304:
+        raise ValueError("Bounded worker metrics payload required")
     import math
     values = {}
     for line in raw.splitlines():

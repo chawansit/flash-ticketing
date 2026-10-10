@@ -146,7 +146,7 @@
       "historical_sha256": "c5bada5a5d99360f0b8ab823e086b4459ed4b3c5701f3c862396862944f9ee8d"
     },
     "scripts/run_cce_paid_comparison.py": {
-      "current_sha256": "ec4691cebf92b553f9bfe67e8b95032651f01611175712b34b7351750553895e",
+      "current_sha256": "c3283a0a7655f3e418716c9e1c1c4f00b54a64abaff6493f391a648ac911f370",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
       "historical_sha256": "cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017"
     },
