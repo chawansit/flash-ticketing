@@ -20,13 +20,20 @@ IMAGE = REGISTRY + "/chawansit/flash-ticketing@" + MANIFEST
 SERVER = "https://dd1a8efd-c2b5-11f1-bd1d-0255ac1001d4.cluster.cce.ap-southeast-2.myhuaweicloud.com:5443"
 
 
-def plan():
-    return {"decision": "ADR0228", "arms": [],
+def plan(transport="pooler"):
+    if transport not in {"pooler", "kafka"}:
+        raise ValueError("Known dependency transport required")
+    result = {"decision": "ADR0228", "arms": [],
             "common": {"buyer_journeys_per_second": 0, "duration_seconds": 0},
             "kind": "tcp_dependency_qualification_only", "maximum_pods": 1,
             "pod_resources": {"cpu": "1", "memory": "1Gi"}, "customer_writes": 0,
             "probe_deadline_seconds": 240, "cleanup_deadline_seconds": 120, "image": IMAGE,
             "private_bridge_port": 6432, "pooler_upstream_port": 5432}
+    if transport == "kafka":
+        result.update(transport="kafka", diagnostic_decision="ADR0273", private_bridge_port=9092)
+        del result["pooler_upstream_port"]
+        result["kafka_upstream_port"] = 9092
+    return result
 
 
 def authorized_today(envelope, now=None):
@@ -145,10 +152,11 @@ def outcome(report, scope, binding):
     return restored, valid, restored and report.get("pass") is True
 
 
-def remote_program(material, run, username, password):
+def remote_program(material, run, username, password, *, transport="pooler"):
     payload = {"material": material, "run": run, "namespace": namespace_for(run), "server": SERVER,
                "username": username, "password": password, "image": IMAGE, "local_image": INDEX}
-    return "payload=" + repr(payload) + "\n" + REMOTE
+    plan(transport)
+    return "payload=" + repr(payload) + "\n" + (kafka_remote() if transport == "kafka" else REMOTE)
 
 
 REMOTE = r"""
@@ -298,11 +306,56 @@ print(json.dumps(result))
 """
 
 
-def execute(config_path, proof_path, ssh_runtime, kubeconfig, ecs_password, username, password):
+def kafka_remote():
+    source = REMOTE
+    replacements = {
+        "name='cce-pooler-'+run": "name='cce-kafka-'+run",
+        "('10.1.137.69',6432)": "('10.1.137.69',9092)",
+        "com.docker.compose.service=pgbouncer": "com.docker.compose.service=kafka",
+        "asyncio.open_connection('pgbouncer',5432)": "asyncio.open_connection('kafka',9092)",
+        "start_server(accept,'0.0.0.0',6432)": "start_server(accept,'0.0.0.0',9092)",
+        "10.1.137.69:6432:6432": "10.1.137.69:9092:9092",
+        "('pooler','10.1.137.69',6432)": "('kafka','10.1.137.69',9092)",
+    }
+    for before, after in replacements.items():
+        if source.count(before) != 1:
+            raise ValueError("Dependency template changed; explicit Kafka route required")
+        source = source.replace(before, after)
+    before = "  checks[role]={'tcp_connected':True,'postgresql_protocol_checked':role in {'rds','pooler'}}"
+    after = """   if role == 'kafka':
+    request=struct.pack('!hhih',18,0,273,0)
+    conn.sendall(struct.pack('!i',len(request))+request)
+    def read_exact(size):
+     value=b''
+     while len(value)<size:
+      block=conn.recv(size-len(value))
+      if not block:raise OSError('Incomplete Kafka protocol response')
+      value+=block
+     return value
+    size=struct.unpack('!i',read_exact(4))[0]
+    if not 6<=size<=65536:raise OSError('Invalid Kafka response size')
+    header=read_exact(6)
+    if struct.unpack('!ih',header)!=(273,0):raise OSError('Invalid Kafka ApiVersions response')
+  checks[role]={'tcp_connected':True,'postgresql_protocol_checked':role in {'rds','pooler'},'kafka_protocol_checked':role=='kafka'}"""
+    if source.count(before) != 1:
+        raise ValueError("Dependency protocol template changed")
+    source = source.replace(before, after)
+    source = source.replace(" try:\n  with socket.create_connection((host,port),timeout=5) as conn:",
+                            " connected=False\n try:\n  with socket.create_connection((host,port),timeout=5) as conn:\n   connected=True", 1)
+    source = source.replace("except OSError as error:checks[role]={'tcp_connected':False,'failure_type':type(error).__name__}",
+                            "except OSError as error:checks[role]={'tcp_connected':connected,'failure_type':type(error).__name__,'failure_stage':'protocol' if connected else 'connect'}", 1)
+    source = source.replace("result={'checks':checks,'all_tcp_connected':all(x['tcp_connected'] for x in checks.values()),'customer_writes':0}",
+                            "result={'checks':checks,'all_tcp_connected':all(x['tcp_connected'] for x in checks.values()),'all_dependencies_checked':all(x['tcp_connected'] and 'failure_type' not in x for x in checks.values()),'customer_writes':0}", 1)
+    return source.replace("result['pass']=result['network']['all_tcp_connected']",
+                          "result['pass']=result['network']['all_dependencies_checked']", 1)
+
+
+def execute(config_path, proof_path, ssh_runtime, kubeconfig, ecs_password, username, password, *, transport="pooler"):
     from qualify_two_host_deployment import GENERATOR_IDLE, Session
     from run_status_refresh_comparison import RunLock
     from stage_status_refresh_images import new_stage_output
 
+    selected_plan = plan(transport)
     config, proof = policy.read(config_path), policy.read(proof_path)
     validate_proof(proof)
     material = kube_material(kubeconfig)
@@ -310,6 +363,8 @@ def execute(config_path, proof_path, ssh_runtime, kubeconfig, ecs_password, user
     run = "adr0151-" + uuid4().hex[:12]
     binding = {"run_id": run, "configuration_sha256": policy.digest(config), "cce_sources": identity(),
                "image_proof_sha256": policy.digest(proof)}
+    if transport == "kafka":
+        binding["dependency_transport"] = transport
     output = new_stage_output()
     output.mkdir()
     lock = RunLock(run)
@@ -317,7 +372,7 @@ def execute(config_path, proof_path, ssh_runtime, kubeconfig, ecs_password, user
     started = time.monotonic()
     entry = guard = session = None
     try:
-        entry = policy.reserve(binding, plan(), profile=PROFILE)
+        entry = policy.reserve(binding, selected_plan, profile=PROFILE)
         guard = policy.ActionGuard(entry["ledger"], binding)
         sys.path.insert(0, str(ssh_runtime.resolve()))
         session = Session(config, output, ecs_password, action_guard=guard)
@@ -327,7 +382,8 @@ def execute(config_path, proof_path, ssh_runtime, kubeconfig, ecs_password, user
         state[entry["ledger"]]["qualification_protocols_started"] = 1
         policy.write(policy.STATE, state)
         session.phase("cce-bounded-dependency-probe")
-        code = remote_program(material, run, username, password)
+        code = (remote_program(material, run, username, password, transport=transport)
+                if transport == "kafka" else remote_program(material, run, username, password))
         material.clear()
         password = ecs_password = None
         report = session.call("primary", code, timeout=360)

@@ -126,10 +126,10 @@
       "goal_bounded_authorization": {
         "decision": "ADR0228",
         "profile": "cce_paid_comparison",
-        "extension_decision": "ADR0266",
+        "extension_decision": "ADR0271",
         "comparison_arm": "correction",
         "maximum_paid_stages": 1,
-        "maximum_pods": 4,
+        "maximum_pods": 18,
         "pod_vcpu": 1,
         "pod_memory_gib": 2,
         "offered_journeys_per_second": 84,
@@ -142,26 +142,44 @@
           "maximum_additional_spend": null,
           "no_spending_cap_explicitly_authorized": true
         },
-        "ledger_start_index": 72,
+        "ledger_start_index": 75,
         "candidate_factor": {
-          "name": "independent_event_consumer_progress",
+          "name": "event_lane_worker_placement",
           "comparison_arm": "correction",
-          "fulfillment_consumers": 6,
-          "projection_consumers": 1,
-          "fulfillment_pool_per_replica": 7,
-          "projection_pool_per_replica": 6,
-          "consumer_local_pool_budget": 48,
+          "worker_counts": {
+            "consumer": 6,
+            "projection-consumer": 1,
+            "reservation-writer": 3,
+            "publisher": 1,
+            "maintenance": 1,
+            "reconciler": 1,
+            "simulator": 1
+          },
+          "worker_resources": {
+            "requests": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            },
+            "limits": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            }
+          },
           "image_receipt_sha256": "86e7655ecdd8496a7f95af5b8f805bbf351779344b0103168cbd22c61225b80a",
           "database_connections_unchanged": true,
           "gateway_delay_unchanged": true
         },
-        "authorization": "Direct user continue: run the ADR0265 isolated event-lane correction under the standing envelope",
-        "authorized_at_bangkok": "2026-10-10T16:32:26.904051+07:00",
+        "authorization": "User continue under standing approved CCE worker placement/scaling envelope",
+        "authorized_at_bangkok": "2026-10-10T20:26:52.607797+07:00",
         "image_correction_decision": "ADR0267",
-        "authorized_at_utc": "2026-10-10T09:32:26.904051+00:00",
-        "scope_note": "One 84/s 300-second event-lane correction, 6x7 + 1x6 consumer pools, physical cap24, unchanged simulator16/pool10 and gateway delay; ADR0267 bounded multipartition fetch correction, original failed scope must recover first",
+        "authorized_at_utc": "2026-10-10T13:26:52.607797+00:00",
+        "scope_note": "One 84/s, 300-second correction: four API plus fourteen active worker pods; same image, roles, physical cap24, aggregate consumer pool48, simulator16/pool10, customer recovery3 and gateway delays; live bounded diagnostics ADR0272",
         "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
-        "baseline_sha256": "3d5c5910bbe87ccfd64e5956eeeba3c435c709b3b1d77b831cec34e1e62b0111"
+        "baseline_sha256": "02506dbbb5c8e390e159824d20bb6ee480b576fecd524ca8a65e4f891f85af13",
+        "worker_resources": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
       },
       "bounded_scaling_permission": {
         "authorized": true,
@@ -860,6 +878,174 @@
           "scope_note": "One sixteen-slot run with unchanged ADR0261 image, placement, SQL budgets and gateway delay; no placement comparison",
           "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
           "baseline_sha256": "094aebcce9855b9eebd9304a3dbc62d3767c5a6c31670cd90b24ccc7d0f4aa7c"
+        },
+        {
+          "goal": {
+            "decision": "ADR0228",
+            "profile": "cce_paid_comparison",
+            "extension_decision": "ADR0266",
+            "comparison_arm": "correction",
+            "maximum_paid_stages": 1,
+            "maximum_pods": 4,
+            "pod_vcpu": 1,
+            "pod_memory_gib": 2,
+            "offered_journeys_per_second": 84,
+            "offered_seconds": 300,
+            "maximum_experiment_seconds": 3600,
+            "acquisition_budget": 20,
+            "unlimited_cumulative_time_explicitly_authorized": true,
+            "spending_allowance": {
+              "status": "APPROVED",
+              "maximum_additional_spend": null,
+              "no_spending_cap_explicitly_authorized": true
+            },
+            "ledger_start_index": 72,
+            "candidate_factor": {
+              "name": "independent_event_consumer_progress",
+              "comparison_arm": "correction",
+              "fulfillment_consumers": 6,
+              "projection_consumers": 1,
+              "fulfillment_pool_per_replica": 7,
+              "projection_pool_per_replica": 6,
+              "consumer_local_pool_budget": 48,
+              "image_receipt_sha256": "86e7655ecdd8496a7f95af5b8f805bbf351779344b0103168cbd22c61225b80a",
+              "database_connections_unchanged": true,
+              "gateway_delay_unchanged": true
+            },
+            "authorization": "Direct user continue: run the ADR0265 isolated event-lane correction under the standing envelope",
+            "authorized_at_bangkok": "2026-10-10T16:32:26.904051+07:00",
+            "image_correction_decision": "ADR0267",
+            "authorized_at_utc": "2026-10-10T09:32:26.904051+00:00",
+            "scope_note": "One 84/s 300-second event-lane correction, 6x7 + 1x6 consumer pools, physical cap24, unchanged simulator16/pool10 and gateway delay; ADR0267 bounded multipartition fetch correction, original failed scope must recover first",
+            "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
+            "baseline_sha256": "3d5c5910bbe87ccfd64e5956eeeba3c435c709b3b1d77b831cec34e1e62b0111"
+          },
+          "superseded_by": "ADR0271",
+          "superseded_at_utc": "2026-10-10T13:00:28.576514+00:00"
+        },
+        {
+          "goal": {
+            "decision": "ADR0228",
+            "profile": "cce_paid_comparison",
+            "extension_decision": "ADR0271",
+            "comparison_arm": "correction",
+            "maximum_paid_stages": 1,
+            "maximum_pods": 18,
+            "pod_vcpu": 1,
+            "pod_memory_gib": 2,
+            "offered_journeys_per_second": 84,
+            "offered_seconds": 300,
+            "maximum_experiment_seconds": 3600,
+            "acquisition_budget": 20,
+            "unlimited_cumulative_time_explicitly_authorized": true,
+            "spending_allowance": {
+              "status": "APPROVED",
+              "maximum_additional_spend": null,
+              "no_spending_cap_explicitly_authorized": true
+            },
+            "ledger_start_index": 75,
+            "candidate_factor": {
+              "name": "event_lane_worker_placement",
+              "comparison_arm": "correction",
+              "worker_counts": {
+                "consumer": 6,
+                "projection-consumer": 1,
+                "reservation-writer": 3,
+                "publisher": 1,
+                "maintenance": 1,
+                "reconciler": 1,
+                "simulator": 1
+              },
+              "worker_resources": {
+                "requests": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                },
+                "limits": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                }
+              },
+              "image_receipt_sha256": "86e7655ecdd8496a7f95af5b8f805bbf351779344b0103168cbd22c61225b80a",
+              "database_connections_unchanged": true,
+              "gateway_delay_unchanged": true
+            },
+            "authorization": "User continue under standing approved CCE worker placement/scaling envelope",
+            "authorized_at_bangkok": "2026-10-10T20:00:28.576514+07:00",
+            "image_correction_decision": "ADR0267",
+            "authorized_at_utc": "2026-10-10T13:00:28.576514+00:00",
+            "scope_note": "One 84/s, 300-second correction: four API plus fourteen active worker pods; same image, roles, physical cap24, aggregate consumer pool48, simulator16/pool10, customer recovery3 and gateway delays; live bounded diagnostics ADR0272",
+            "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
+            "baseline_sha256": "02506dbbb5c8e390e159824d20bb6ee480b576fecd524ca8a65e4f891f85af13",
+            "worker_resources": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            }
+          },
+          "superseded_by": "ADR0271",
+          "superseded_at_utc": "2026-10-10T13:11:30.059121+00:00"
+        },
+        {
+          "goal": {
+            "decision": "ADR0228",
+            "profile": "cce_paid_comparison",
+            "extension_decision": "ADR0271",
+            "comparison_arm": "correction",
+            "maximum_paid_stages": 1,
+            "maximum_pods": 18,
+            "pod_vcpu": 1,
+            "pod_memory_gib": 2,
+            "offered_journeys_per_second": 84,
+            "offered_seconds": 300,
+            "maximum_experiment_seconds": 3600,
+            "acquisition_budget": 20,
+            "unlimited_cumulative_time_explicitly_authorized": true,
+            "spending_allowance": {
+              "status": "APPROVED",
+              "maximum_additional_spend": null,
+              "no_spending_cap_explicitly_authorized": true
+            },
+            "ledger_start_index": 75,
+            "candidate_factor": {
+              "name": "event_lane_worker_placement",
+              "comparison_arm": "correction",
+              "worker_counts": {
+                "consumer": 6,
+                "projection-consumer": 1,
+                "reservation-writer": 3,
+                "publisher": 1,
+                "maintenance": 1,
+                "reconciler": 1,
+                "simulator": 1
+              },
+              "worker_resources": {
+                "requests": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                },
+                "limits": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                }
+              },
+              "image_receipt_sha256": "86e7655ecdd8496a7f95af5b8f805bbf351779344b0103168cbd22c61225b80a",
+              "database_connections_unchanged": true,
+              "gateway_delay_unchanged": true
+            },
+            "authorization": "User continue under standing approved CCE worker placement/scaling envelope",
+            "authorized_at_bangkok": "2026-10-10T20:11:30.059121+07:00",
+            "image_correction_decision": "ADR0267",
+            "authorized_at_utc": "2026-10-10T13:11:30.059121+00:00",
+            "scope_note": "One 84/s, 300-second correction: four API plus fourteen active worker pods; same image, roles, physical cap24, aggregate consumer pool48, simulator16/pool10, customer recovery3 and gateway delays; live bounded diagnostics ADR0272",
+            "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
+            "baseline_sha256": "02506dbbb5c8e390e159824d20bb6ee480b576fecd524ca8a65e4f891f85af13",
+            "worker_resources": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            }
+          },
+          "superseded_by": "ADR0271",
+          "superseded_at_utc": "2026-10-10T13:26:52.607797+00:00"
         }
       ]
     }

@@ -1,0 +1,77 @@
+{
+  "decision": "ADR0273",
+  "placement_decision": "ADR0271",
+  "recorded_at_utc": "2026-10-10T13:45:15.149233+00:00",
+  "status": "BLOCKED_PRIVATE_KAFKA_CONNECTIVITY",
+  "paid_stage_started": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "worker_startup": {
+    "run": "adr0151-4b826076c234",
+    "ledger": "bounded_cce_paid_comparison__040fbae68ef6",
+    "status": "FAILED_RESTORED",
+    "exception_types": [
+      "NoBrokersAvailable"
+    ],
+    "categories": [
+      "kafka_bootstrap_unavailable"
+    ],
+    "exit_code": 1,
+    "raw_logs_retained": false,
+    "restoration_complete": true,
+    "cleanup_failures": [],
+    "original_private_report_sha256": "da6dbe10b69ffe5c79355349dca636d77694d4fe0bec8b8251c28c38026ab98d"
+  },
+  "dependency_attempts": [
+    {
+      "run": "adr0151-4bd053291e47",
+      "ledger": "bounded_cce_dependency_probe__dfab10b76b07",
+      "status": "FAILED_RESTORED",
+      "customers_written": 0,
+      "paid_stages": 0,
+      "kafka": {
+        "tcp_connected": false,
+        "failure_type": "TimeoutError"
+      },
+      "namespace_removed": true,
+      "bridge_removed": true,
+      "existing_runtime_unchanged": true
+    },
+    {
+      "run": "adr0151-ad0b300d5c1c",
+      "ledger": "bounded_cce_dependency_probe__3e061cf7d798",
+      "status": "FAILED_RESTORED",
+      "customers_written": 0,
+      "paid_stages": 0,
+      "kafka": {
+        "tcp_connected": false,
+        "failure_type": "TimeoutError",
+        "failure_stage": "connect"
+      },
+      "namespace_removed": true,
+      "bridge_removed": true,
+      "existing_runtime_unchanged": true
+    }
+  ],
+  "confirmed_route": {
+    "cce_to_kafka_tcp": false,
+    "cce_kafka_failure_stage": "connect",
+    "cce_kafka_failure_type": "TimeoutError",
+    "ecs_to_owned_forwarder_tcp": true,
+    "ecs_forwarder_api_versions_verified": true,
+    "cce_to_rds": true,
+    "cce_to_redis": true,
+    "ecs_to_cce_probe": true
+  },
+  "interpretation": "CCE-to-ECS private Kafka TCP route fails; exact security-group, egress or network-policy rule is not yet identified. Broker and owned forwarder answer the same protocol request from ECS.",
+  "next_action": "Check private ECS inbound TCP9092 from CCE pod subnet/security group and any CCE egress or network-policy restriction. Repeat dependency probe before migration and paid traffic.",
+  "local_validation": {
+    "dependency_tests": 63,
+    "worker_contract_tests": 15,
+    "envelope_tests": 53,
+    "reproducibility_tests": 17,
+    "ruff_passed": true,
+    "historical_files_verified": 535,
+    "historical_values_changed": false
+  }
+}

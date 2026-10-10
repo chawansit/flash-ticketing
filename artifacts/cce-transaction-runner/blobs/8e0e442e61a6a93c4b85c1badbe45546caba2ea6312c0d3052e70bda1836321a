@@ -167,7 +167,7 @@ def reserve(binding, plan, *, profile=PROFILE):
         from cce_dependency_probe import authorized_today, identity
         from cce_dependency_probe import plan as cce_plan
         authorized_today(data)
-        if plan != cce_plan(binding.get("dependency_transport", "pooler")) or binding.get("cce_sources") != identity():
+        if plan != cce_plan() or binding.get("cce_sources") != identity():
             raise ValueError("Exact qualified CCE dependency probe required")
         expected_arms = []
     if (plan.get("decision") != decision or plan.get("arms") != expected_arms

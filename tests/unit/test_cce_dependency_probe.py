@@ -140,7 +140,8 @@ def test_changed_plan_and_sources_rejected_before_cloud(area):
 
 @pytest.mark.parametrize("fault", [None, "pod_image", "pod_startup", "network", "namespace_uid",
                                   "bridge_owner", "namespace_create_lost_response", "mount_order", "changed_config"])
-def test_generated_remote_lifecycle_and_independent_cleanup(monkeypatch, capsys, fault):
+@pytest.mark.parametrize("transport", ["pooler", "kafka"])
+def test_generated_remote_lifecycle_and_independent_cleanup(monkeypatch, capsys, fault, transport):
     run = "adr0151-"+"b"*12
     clock = [0]
     namespace = [None]
@@ -156,14 +157,14 @@ def test_generated_remote_lifecycle_and_independent_cleanup(monkeypatch, capsys,
     class Socket:
         def __enter__(self): return self
         def __exit__(self, *args): pass
-        def bind(self, address): assert address == ("10.1.137.69", 6432)
+        def bind(self, address): assert address == ("10.1.137.69", 9092 if transport == "kafka" else 6432)
     import socket
     monkeypatch.setattr(socket, "socket", Socket)
 
     def output(args, **kwargs):
         calls.append(args)
         if args[:2] == ["docker", "inspect"]:
-            row = pool if args[2] == "pool" else {"Id": bridge[0], "Name": "/cce-pooler-"+run,
+            row = pool if args[2] == "pool" else {"Id": bridge[0], "Name": "/cce-"+transport+"-"+run,
                    "Image": cce.INDEX, "Config": {"Labels": {"codex-owner": "wrong" if fault == "bridge_owner" else run}}}
             row = copy.deepcopy(row)
             if args[2] == "pool":
@@ -197,7 +198,7 @@ def test_generated_remote_lifecycle_and_independent_cleanup(monkeypatch, capsys,
         body = None if isinstance(request, str) or request.data is None else json.loads(request.data)
         calls.append((method, url))
         if url.startswith("http://"):
-            return response({"all_tcp_connected": fault != "network", "customer_writes": 0})
+            return response({"all_tcp_connected": fault != "network", "all_dependencies_checked": fault != "network", "customer_writes": 0})
         if method == "POST" and url.endswith("/namespaces"):
             namespace[0] = {"metadata": {"uid": "ns-uid", "labels": {"codex-owner": run}}}
             if fault == "namespace_create_lost_response":
@@ -229,7 +230,7 @@ def test_generated_remote_lifecycle_and_independent_cleanup(monkeypatch, capsys,
         return response(row)
     monkeypatch.setattr(urllib.request, "urlopen", urlopen)
     code = cce.remote_program({"ca.crt": "fake", "client.crt": "fake", "client.key": "fake"},
-                              run, "test-user", "test-password")
+                              run, "test-user", "test-password", transport=transport)
     compile(code, "generated", "exec")
     exec(code, {})  # noqa: S102 - execute repository-generated lifecycle with mocked cloud APIs
     report = json.loads(capsys.readouterr().out)
@@ -363,3 +364,82 @@ def test_goal_creation_checks_single_paid_stage_across_fresh_attempts(monkeypatc
     else:
         with pytest.raises(ValueError):
             adapter.authorized_creation(value, now)
+
+
+def test_kafka_probe_plan_requires_explicit_binding_and_zero_paid_scope(area):
+    selected = cce.plan("kafka")
+    assert selected["private_bridge_port"] == selected["kafka_upstream_port"] == 9092
+    assert selected["maximum_pods"] == 1
+    assert selected["customer_writes"] == 0
+    with pytest.raises(ValueError):
+        policy.reserve(area, selected, profile=cce.PROFILE)
+    area["dependency_transport"] = "kafka"
+    entry = policy.reserve(area, selected, profile=cce.PROFILE)
+    state = policy.read(policy.STATE)[entry["ledger"]]
+    assert state["paid_runs_authorized"] == state["safety_tickets_authorized"] == 0
+
+
+def test_kafka_probe_rejects_unknown_transport_and_template_drift(monkeypatch):
+    with pytest.raises(ValueError):
+        cce.plan("public")
+    monkeypatch.setattr(cce, "REMOTE", cce.REMOTE.replace("asyncio.open_connection('pgbouncer',5432)", "changed"))
+    with pytest.raises(ValueError):
+        cce.kafka_remote()
+
+
+def test_kafka_probe_checks_protocol_without_producing_or_group_join():
+    source = cce.kafka_remote()
+    assert "struct.pack('!hhih',18,0,273,0)" in source
+    assert "struct.unpack('!ih',header)!=(273,0)" in source
+    assert "asyncio.open_connection('kafka',9092)" in source
+    assert "kafka:9092" not in source
+    assert "KafkaProducer" not in source and "KafkaConsumer" not in source
+
+
+@pytest.mark.parametrize("response_kind", ["fragmented_valid", "wrong_correlation", "truncated", "refused"])
+def test_kafka_protocol_probe_rejects_invalid_or_unreachable_broker(monkeypatch, capsys, response_kind):
+    import ast
+    import http.server
+    import socket
+    import struct
+    source = ast.parse(cce.kafka_remote())
+    probe = next(node.value.value for node in ast.walk(source)
+                 if isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id == "probe" for target in node.targets)
+                 and isinstance(node.value, ast.Constant))
+    sent = []
+
+    class Connection:
+        def __init__(self, port):
+            self.port = port
+            correlation = 999 if response_kind == "wrong_correlation" else 273
+            self.data = bytearray(struct.pack("!iih", 6, correlation, 0))
+            if response_kind == "truncated":
+                self.data = self.data[:7]
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+        def sendall(self, data): sent.append((self.port, data))
+        def recv(self, size):
+            if self.port == 5432: return b"N"
+            value = bytes(self.data[:1])
+            del self.data[:1]
+            return value
+
+    def connect(address, timeout):
+        assert timeout == 5
+        if address[1] == 9092 and response_kind == "refused":
+            raise ConnectionRefusedError()
+        return Connection(address[1])
+
+    monkeypatch.setattr(socket, "create_connection", connect)
+    monkeypatch.setattr(http.server, "HTTPServer", lambda *args: SimpleNamespace(serve_forever=lambda: None))
+    exec(probe, {})  # noqa: S102 - isolated generated network check; all network/server calls mocked
+    result = json.loads(capsys.readouterr().out)
+    assert result["checks"]["kafka"]["tcp_connected"] is (response_kind != "refused")
+    assert result["all_tcp_connected"] is (response_kind != "refused")
+    assert result["all_dependencies_checked"] is (response_kind == "fragmented_valid")
+    if response_kind != "fragmented_valid":
+        assert result["checks"]["kafka"]["failure_stage"] == ("connect" if response_kind == "refused" else "protocol")
+    assert result["customer_writes"] == 0
+    if response_kind != "refused":
+        packet = next(data for port, data in sent if port == 9092)
+        assert packet == struct.pack("!ihhih", 10, 18, 0, 273, 0)

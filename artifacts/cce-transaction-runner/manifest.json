@@ -28,7 +28,7 @@
     "scripts/cce_payment_context_images.py": "cbc80a6226ea255766d23159c7a488c8cbbc69f9604eb94dbc3e55a55fbee160",
     "scripts/cce_payment_dispatch_profile.py": "3ab1312e6d637d6e9d8537fcea55405c68ac13df25717a30870b4a245994c804",
     "scripts/cce_recovery_hourly_profile.py": "8061087896cfb0577f12125c8f49598d0ff28bb2d463dfa1d5496ab4ce5f0fd0",
-    "scripts/cce_reproduction_overlay.py": "7d07d5f0cbf0be74a099fe48dc376da95314f65ba2dbcabf3baf3f964d89e478",
+    "scripts/cce_reproduction_overlay.py": "0a981b57f4742f59aa2763801a8dd3700caa10b71a8f0bbe92301f10ded50b79",
     "scripts/cce_shared_application.py": "bf73281cc9cff5bbb26513a73f23e7b311606580734526e48fb2fa2f53d986a5",
     "scripts/cce_shared_worker_comparison.py": "1c9f6bdde6c9bd5f35d4cf4ede84e7b934872d6e6320c252ab5983e930796adc",
     "scripts/cce_shared_worker_contract.py": "b85b5f1d3e15769cc15592227f281f06af85bc47dc18a5819f630908c8bed3fb",
@@ -61,7 +61,7 @@
       "historical_sha256": "634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e"
     },
     "scripts/cce_dependency_probe.py": {
-      "current_sha256": "738088b1bf23e3dab9a4ebd3332f88ee02447400fda71c45a6f2b0feb3e27389",
+      "current_sha256": "87c9b438fca8c0634033ec067d7e668da3ede42ca8afe2a420ac3ff21c3a94ec",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/0eaa401200576c3b82f9f4a5bae919b4843b3f8ff7895ef2f043b7f9c91d9e65",
       "historical_sha256": "0eaa401200576c3b82f9f4a5bae919b4843b3f8ff7895ef2f043b7f9c91d9e65"
     },
@@ -154,6 +154,11 @@
       "current_sha256": "fc4aa3a62f0a4f61d9e070b5dda7b9a78f4ac9541fa587f2833de0878b05885b",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/5dd0db433abf10e79a3bf1c21ca29d28e85137e7f3e1483e9e96df35462ead80",
       "historical_sha256": "5dd0db433abf10e79a3bf1c21ca29d28e85137e7f3e1483e9e96df35462ead80"
+    },
+    "scripts/work_envelope.py": {
+      "historical_sha256": "8e0e442e61a6a93c4b85c1badbe45546caba2ea6312c0d3052e70bda1836321a",
+      "historical_blob": "artifacts/cce-transaction-runner/blobs/8e0e442e61a6a93c4b85c1badbe45546caba2ea6312c0d3052e70bda1836321a",
+      "current_sha256": "266d7972765208388ae9feae87ae8ffcc18b72fbf51f54072b42a94592ad2d59"
     }
   }
 }

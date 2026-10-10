@@ -210,3 +210,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0271: Rebalance event-lane workers to CCE](0271-rebalance-event-lane-workers-to-cce.md)
 - [ADR0272: Capture bounded failure logs during paid traffic](0272-capture-bounded-failure-logs-during-paid-traffic.md)
+
+- [ADR0273: Probe Kafka route before worker migration](0273-probe-kafka-route-before-worker-migration.md)
