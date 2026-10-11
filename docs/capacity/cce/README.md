@@ -2,6 +2,12 @@
 
 This integration depends on backend PR #6. Merge that PR first, then retarget this stacked PR to main and rerun CI. Repository integration changes neither deployment nor capacity. Do not build a new image from main and label it as the historical benchmark image.
 
+## Latest measured comparison — 11 October 2026
+
+The [ADR0279 native database bridge comparison](native-database-bridge-result-2026-10-11.json) issued **24,558 unique paid tickets inside five minutes (81.86/s)**, versus 20,279 (67.60/s) in its retained ADR0278 baseline: **21.1% more in-window tickets**. The shared application image, four 1-vCPU/2-GiB APIs, fourteen 250m/512-MiB workers and 24 physical database connections were unchanged. Only the database TCP bridge implementation changed; the explicitly recorded generator-reporting correction changes no traffic behavior.
+
+Three initial customer errors recovered, zero final customer failures, zero double-booking and zero payment loss were verified. **183 of 25,200 journeys were undispatched**, so quality qualification failed. All 25,017 dispatched journeys ultimately received paid tickets. Independent financial closure and queue drain passed, runtime restored, and no hourly qualification ran. Read [ADR0279](../../adr/0279-native-database-tcp-bridge.md) and the [terminal audit](native-database-bridge-terminal-recovery-2026-10-11.json) for evidence and limits. The historical profile below describes a different pinned experiment; its image/resources/retry settings must not be substituted for this result.
+
 ## What is pinned
 
 `reproduction-lock-2026-10-09.json` records the CCE Linux platform image digest, eight historical role image identities, 21 API source hashes, runner/helper/contract input hashes and two fixed workloads. The adapter verifies registry index, platform manifest and Docker configuration separately. API startup verifies copied source, installed imports, loaded bytecode, explicit environment keys and command. ECS transition and recovery verify role image/configuration/start identity, pool budgets, ownership and restoration.

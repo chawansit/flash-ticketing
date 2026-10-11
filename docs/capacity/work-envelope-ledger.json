@@ -2322,6 +2322,35 @@
         "actual_elapsed_seconds": 82.96799999999348,
         "capacity_qualified": false
       }
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__654c2f38e7d4",
+      "authorization_id": "work-envelope-654c2f38e7d4",
+      "envelope_sha256": "71d520f3e9e945784aee129141f20c02de1c57bfdc9455f19a91f05f8059af98",
+      "binding_sha256": "34cc6d92ad2bc057d9beaf63f4ca6256e0d28a06714c94800f3ba1ec916a70d6",
+      "plan_sha256": "298546da511d99f4cd9e7766d7440011174738c48b173769a959a31dbd8d6986",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1217.6720000000205,
+      "started_at_utc": "2026-10-11T14:15:45.157326+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-bab60371d340",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-11T14:34:40.404237+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "212c26cc90bbd82ac539702bba29eb103cfddf840c9edd74a2f284e34eeb4316",
+      "initial_status": "RECOVERY_REQUIRED",
+      "recovery": {
+        "decision": "ADR0279",
+        "evidence": "docs/capacity/cce/native-database-bridge-terminal-recovery-2026-10-11.json",
+        "sha256": "96a10a2afb4668f74d9268ead1e923781cb060afbed40f6050dc1787d99f8b18",
+        "actual_elapsed_seconds": 82.31200000003446,
+        "capacity_qualified": false
+      }
     }
   ],
   "verified_aborts": {

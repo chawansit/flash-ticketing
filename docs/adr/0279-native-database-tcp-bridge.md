@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for implementation and one bounded five-minute 84 offered journeys/s comparison under the standing work envelope and the user's Continue instruction. Implemented and locally validated; cloud results remain pending. No improvement or hourly qualification is claimed yet.
+Accepted for implementation and one bounded five-minute 84 offered journeys/s comparison under the standing work envelope and the user's Continue instruction. Implemented and validated. One unchanged 84/s five-minute candidate completed on 11 October 2026. In-window paid issuance improved 21.1%, but the customer quality gate failed on 183 generator drops. Independent actual-cohort financial audit passed and runtime was restored. The ledger is FAILED_RESTORED; no hourly qualification or production capacity is claimed.
 
 ## Context
 
@@ -34,6 +34,31 @@ Supersedes only ADR0228's Python database bridge for explicitly selected ADR0279
 
 ## Validation evidence
 
-Read-only ECS inspection on 11 October 2026 verified the exact cached nginx digest and built-in stream module. No customer traffic was sent by that inspection. Executed 127 focused tests covering opt-in binding, immutable helper identity, changed configuration refusal, lifecycle cleanup and historical runner behavior; all passed. Ruff and offline reproduction verification passed (535 historical inputs, 25 orchestration overlays). A bounded ECS test passed 16 concurrent certificate-verified TLS sessions and 8 MiB of checked payload, abrupt disconnect followed by a fresh connection, a one-second diagnostic idle timeout, upstream refusal and owned container/file cleanup. It sent zero customer requests and zero database queries. See [TCP validation](../capacity/cce/native-database-bridge-tcp-validation-2026-10-11.json). The paid comparison remains pending.
+Read-only ECS inspection on 11 October 2026 verified the exact cached nginx digest and built-in stream module. No customer traffic was sent by that inspection. Executed 127 focused tests covering opt-in binding, immutable helper identity, changed configuration refusal, lifecycle cleanup and historical runner behavior; all passed. Ruff and offline reproduction verification passed (535 historical inputs, 25 orchestration overlays). A bounded ECS test passed 16 concurrent certificate-verified TLS sessions and 8 MiB of checked payload, abrupt disconnect followed by a fresh connection, a one-second diagnostic idle timeout, upstream refusal and owned container/file cleanup. It sent zero customer requests and zero database queries. See [TCP validation](../capacity/cce/native-database-bridge-tcp-validation-2026-10-11.json). The paid comparison is complete. See the [candidate result](../capacity/cce/native-database-bridge-result-2026-10-11.json) and [independent terminal audit](../capacity/cce/native-database-bridge-terminal-recovery-2026-10-11.json).
 
 References: [nginx stream proxy](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html), [stream core](https://nginx.org/en/docs/stream/ngx_stream_core_module.html), [retained baseline](../capacity/cce/timeout-baseline-result-2026-10-11.json).
+
+### Measured comparison
+
+Both runs offered 25,200 journeys at 84/s for 300 seconds with the same application image, four APIs, fourteen workers and 24 physical database connections.
+
+| Metric | ADR0278 Python bridge | ADR0279 native bridge |
+| --- | ---: | ---: |
+| Unique paid tickets inside 300 seconds | 20,279 | 24,558 |
+| In-window paid ticket rate | 67.5967/s | 81.86/s |
+| Dispatched and completed customer journeys | 20,744 | 25,017 |
+| Undispatched journeys | 4,456 (17.683%) | 183 (0.726%) |
+| Initially errored customer journeys | 556 (2.680%) | 3 (0.012%) |
+| Final failed customer journeys | 0 | 0 |
+| Maximum shard journey p95 | 24.159 seconds | 11.303 seconds |
+| Database bridge CPU | 0.9236 cores | 0.3711 cores |
+| Mean API database pool acquisition | 29.281 ms | 5.696 ms |
+| Observed API pool acquisition failures | 625 | 8 |
+
+All three initial customer payment errors recovered with three retries. Five additional callback HTTP 503 responses were observed separately. All 25,017 orders, payments, bookings, tickets and callback records reconciled after expiry, with no lost payment or double-booking. All queues drained; CCE namespace, helpers, native configuration and private inputs were removed, and normal runtime restored. The original financial gate expected all 25,200 scheduled journeys; its failure was retained and independently audited against the actual cohort, without waiving the load gate.
+
+The native bridge reduced CPU 59.8% despite processing more dispatched journeys. API aggregate CPU remained about 1.97 of four cores; worker aggregate about 1.22 of 3.5. The remaining delay includes payment-to-ticket p95 of 10.08 seconds, paid-unfulfilled backlog up to 359 and fulfillment Kafka lag up to 1,590 records. This points to fulfillment scheduling as the next candidate for attribution; it does not prove Kafka broker capacity is exhausted.
+
+Complete bounded slot evidence captured eight failures in one short burst around 93 seconds after offered start. Payment requests were observed in commit, with commit-phase ages up to 151.9 ms; general status transactions also held connections. Cluster WALWrite contention was observed, but provider WAL write/sync timings were unavailable and snapshots do not reconstruct the entire wait. Do not claim a proven storage root cause.
+
+This is one matched offered-load comparison. The reporting-only coordinator correction and its different sealed digest are explicit in the result. Keep load unchanged for the next isolated correction; do not scale or start hourly qualification from this failed quality gate. The 81.86/s result remains below 83.33/s needed for 300,000/hour and below the desired 84/s successful-ticket headroom.
