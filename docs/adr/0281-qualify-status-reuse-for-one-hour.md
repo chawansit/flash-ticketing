@@ -41,3 +41,5 @@ Executed offline: 155 focused regressions passed. They cover exact hourly scope 
 Pending: cloud readiness/safety checks, one continuous hourly run, inside-hour durable counts, mandatory post-TTL financial audit, full queue drain and restoration. Hourly capacity is not yet qualified.
 
 Passing short prerequisite: [ADR0280 result](../capacity/cce/committed-status-reuse-result-2026-10-11.json).
+
+Read-only cloud preflight passed on 11 October. Before any reservation/customer dispatch, hourly registration rejected a stale live-plan lookup during proposed-envelope validation. The validator now checks the supplied hourly goal before persistence; 41 affected regressions passed, including this exact case. No paid stage was consumed or deployed by that attempt.

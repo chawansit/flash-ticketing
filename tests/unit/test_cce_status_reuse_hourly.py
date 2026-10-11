@@ -139,3 +139,10 @@ def test_hourly_adapter_imports_the_exact_timeout_retaining_leaf(tmp_path):
     from customer_timeout_bundle import MANIFEST
     receipt = policy.read(policy.ROOT / MANIFEST)
     assert hashlib.sha256(bundle["scripts/paid_ticket_load_generator.py"]).hexdigest() == receipt["files"]["artifacts/customer-timeout/paid_ticket_load_generator.py"]
+
+
+def test_pending_hourly_envelope_validates_without_reading_old_live_goal():
+    from cce_dependency_probe import authorized_today
+    # The caller validates a proposed envelope before persisting it.
+    # The live envelope still contains the previous short comparison.
+    authorized_today(envelope())

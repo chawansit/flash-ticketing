@@ -85,8 +85,14 @@ def authorized_today(envelope, now=None):
             decision = "ADR0232"
             expected.update(profile="cce_hourly_qualification", offered_seconds=3600,
                             maximum_experiment_seconds=5400)
-            from run_cce_hourly_qualification import plan as hourly_plan
-            if goal.get("acquisition_budget") != 20 or goal.get("baseline_sha256") != hourly_plan()["baseline_sha256"]:
+            from cce_status_reuse_hourly import selected as hourly_selected
+            if hourly_selected(goal):
+                from cce_status_reuse_hourly import plan as hourly_status_plan
+                baseline_sha256 = hourly_status_plan(goal)["baseline_sha256"]
+            else:
+                from run_cce_hourly_qualification import plan as hourly_plan
+                baseline_sha256 = hourly_plan()["baseline_sha256"]
+            if goal.get("acquisition_budget") != 20 or goal.get("baseline_sha256") != baseline_sha256:
                 raise ValueError("Passing short baseline and unchanged hourly configuration required")
         if (
             now.tzinfo is None or exception.get("decision") != "ADR0220"
