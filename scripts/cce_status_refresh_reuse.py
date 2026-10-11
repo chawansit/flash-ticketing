@@ -22,6 +22,11 @@ def selected(goal):
         if goal and "status_refresh_reuse_sha256" in goal:
             raise ValueError("Orphan status reuse identity")
         return False
+    from cce_status_reuse_hourly import selected as hourly_selected
+    if hourly_selected(goal):
+        from cce_status_reuse_hourly import active, short_view
+        active(goal)
+        return selected(short_view(goal))
     from cce_native_database_bridge import selected as native_selected
     if (value != "ADR0280" or goal.get("status_refresh_reuse_sha256") != digest(contract())
             or not native_selected(goal) or goal.get("offered_journeys_per_second") != 84

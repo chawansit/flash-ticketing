@@ -18,6 +18,10 @@ def plan():
     import cce_transaction_profile as transaction
     goal = transaction.active()
     if goal is not None:
+        from cce_status_reuse_hourly import plan as status_plan
+        from cce_status_reuse_hourly import selected
+        if selected(goal):
+            return status_plan(goal)
         if goal.get("extension_decision") == "ADR0256":
             from cce_recovery_hourly_profile import plan as recovery_plan
             return recovery_plan(goal)

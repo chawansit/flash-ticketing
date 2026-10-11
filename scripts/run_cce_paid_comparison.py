@@ -46,7 +46,8 @@ def plan(*, profile=SHORT):
     import cce_transaction_profile as transaction
     goal = transaction.active()
     if goal is not None:
-        if profile == HOURLY and goal.get("extension_decision") in {"ADR0251", "ADR0256"}:
+        if profile == HOURLY and (goal.get("extension_decision") in {"ADR0251", "ADR0256"}
+                                  or goal.get("hourly_qualification_decision") == "ADR0281"):
             from run_cce_hourly_qualification import plan as hourly_plan
             return hourly_plan()
         if goal.get("extension_decision") == "ADR0277" and profile in (SHORT, TICKET_TARGET):
@@ -96,6 +97,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
               "cce_transaction_pair_sha256": transaction.proof_digest(transaction.active())}
              if transaction.active() is not None else {})
     goal = transaction.active()
+    from cce_status_reuse_hourly import adapters
+    from cce_status_reuse_hourly import selected as hourly_selected
+    if hourly_selected(goal):
+        extra.update(cce_hourly_qualification_decision="ADR0281", cce_hourly_adapters_sha256=policy.digest(adapters()))
     import cce_native_database_bridge as bridge
     if bridge.selected(goal):
         extra.update(cce_native_database_bridge_decision="ADR0279", cce_native_database_bridge_sha256=policy.digest(bridge.contract()))

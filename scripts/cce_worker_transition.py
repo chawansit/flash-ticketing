@@ -8,6 +8,7 @@ import cce_transaction_profile as profile
 import cce_worker_identity as identity
 import work_envelope as policy
 from cce_ecs_transition import Transition, execution_identity
+from cce_paid_profiles import for_guard
 from qualify_two_host_deployment import INSPECT
 
 
@@ -85,7 +86,7 @@ class WorkerTransition(Transition):
         self.record["captured_worker_execution_sha256"] = policy.digest([execution_identity(r) for r in self.worker_rows])
         self.checkpoint()
         if self.arm == "candidate" or self.decision == "ADR0271":
-            self.worker_runtime = workers.Workers(self.deployment, workers.objects(self.run, envs, ip, self.decision), self.read_metrics,
+            self.worker_runtime = workers.Workers(self.deployment, workers.objects(self.run, envs, ip, self.decision, profile=for_guard(self.guard)), self.read_metrics,
                                                   lambda value: self.persist({"workers": copy.deepcopy(value)}), decision=self.decision, failure_persist=self.failure_persist)
 
     def activate(self, receipts):

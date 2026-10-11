@@ -225,3 +225,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0279: Native database TCP bridge](0279-native-database-tcp-bridge.md)
 
 - [0280: Reuse fresh committed order status in fulfillment](0280-reuse-fresh-committed-order-status.md)
+
+- [ADR0281: Qualify committed-status reuse for one hour](0281-qualify-status-reuse-for-one-hour.md)

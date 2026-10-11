@@ -37,7 +37,8 @@ def sha(raw):
 def identity():
     paths = (
         "scripts/collect_two_host_inventory.py", "scripts/runtime_source_identity.py",
-        "scripts/cce_ticket_target_profile.py", "scripts/customer_timeout_bundle.py", "scripts/cce_native_database_bridge.py", "scripts/cce_status_refresh_reuse.py",
+        "scripts/cce_ticket_target_profile.py", "scripts/customer_timeout_bundle.py", "scripts/cce_native_database_bridge.py", "scripts/cce_status_refresh_reuse.py", "scripts/cce_status_reuse_hourly.py",
+        "docs/capacity/cce/committed-status-reuse-result-2026-10-11.json",
         "artifacts/customer-timeout/manifest.json", "artifacts/customer-timeout/coordinator.py",
         "artifacts/customer-timeout/paid_ticket_load_generator.py",
         "artifacts/customer-timeout/paid_ticket_sharded_generator.py",
@@ -208,17 +209,23 @@ class PaidStage:
             from customer_timeout_bundle import qualify as retain_timeout
             from customer_timeout_bundle import selected
             if selected(transaction.active()):
-                if (self.profile.name != "cce_paid_comparison"
+                if (self.profile.name not in {"cce_paid_comparison", "cce_hourly_qualification"}
                         or guard.binding.get("cce_timeout_retention_decision") != "ADR0278"
                         or guard.binding.get("cce_timeout_bundle_sha256") != timeout_sha):
-                    raise ValueError("Exact short timeout-retention binding required")
+                    raise ValueError("Exact timeout-retention binding required")
                 self.bundle, self.coordinator = retain_timeout(self.bundle, self.coordinator)
             elif "cce_timeout_bundle_sha256" in guard.binding:
                 raise ValueError("Unselected timeout-retention binding")
             if self.profile.duration == 3600:
                 from cce_recovery_hourly_profile import qualify_hourly_adapters
                 qualify_hourly_adapters()
-                if guard.binding.get("cce_recovery_hourly_decision") != "ADR0256":
+                from cce_status_reuse_hourly import adapters
+                from cce_status_reuse_hourly import selected as hourly_selected
+                if hourly_selected(transaction.active()):
+                    if (guard.binding.get("cce_hourly_qualification_decision") != "ADR0281"
+                            or guard.binding.get("cce_hourly_adapters_sha256") != policy.digest(adapters())):
+                        raise ValueError("Exact hourly timeout-retention adapters required")
+                elif selected(transaction.active()) or guard.binding.get("cce_recovery_hourly_decision") != "ADR0256":
                     raise ValueError("Explicit hourly recovery binding required")
         self.jobs = jobs or OwnedJobs()
         self.job_list = []
@@ -422,7 +429,7 @@ class PaidStage:
         import cce_transaction_profile as transaction
         from customer_timeout_bundle import issuance_program as short_window
         from customer_timeout_bundle import selected
-        if selected(transaction.active()):
+        if selected(transaction.active()) and self.profile.duration == 300:
             try:
                 start = datetime.fromisoformat(self.record["scheduled_offered_start_utc"]).timestamp()
                 self.record["short_issuance_window"] = self.session.api(self.cid, short_window(self.events, start), 90)

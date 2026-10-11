@@ -7,7 +7,13 @@ from slot_failure_evidence import validate_record
 
 
 class Capture:
-    def __init__(self, deployment, *, now=time.monotonic):
+    def __init__(self, deployment, *, now=time.monotonic, profile=None):
+        from cce_paid_profiles import HOURLY, SHORT, TICKET_TARGET
+        profile = SHORT if profile is None else profile
+        if profile not in (SHORT, HOURLY, TICKET_TARGET):
+            raise ValueError("Exact bounded admission lifetime required")
+        self.maximum_seconds = 4300 if profile == HOURLY else 600
+        self.maximum_samples = 440 if profile == HOURLY else 64
         self.deployment, self.now = deployment, now
         self.identities = dict(deployment.pod_uids)
         if set(self.identities) != {f"api-{i}" for i in range(4)} or len(set(self.identities.values())) != 4:
@@ -20,7 +26,7 @@ class Capture:
 
     def read(self):
         at = self.now()
-        if len(self.samples) >= 64 or self.started is None or at - self.started > 600:
+        if len(self.samples) >= self.maximum_samples or self.started is None or at - self.started > self.maximum_seconds:
             raise ValueError("Live admission capture budget exhausted")
         if self.samples and at - self.samples[-1] > 20:
             raise ValueError("Live admission coverage gap exceeds overlap")
@@ -76,7 +82,7 @@ class Capture:
             self.errors.append(type(error).__name__)
         return {"decision": "ADR0272", "complete": not self.errors and bool(self.samples),
                 "samples": len(self.samples), "errors": list(self.errors),
-                "pod_uids": dict(self.identities), "maximum_capture_seconds": 600,
+                "pod_uids": dict(self.identities), "maximum_capture_seconds": self.maximum_seconds,
                 "records": {name: [rows[k] for k in sorted(rows)] for name, rows in self.records.items()}}
 
 

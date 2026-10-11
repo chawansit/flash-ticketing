@@ -56,7 +56,11 @@ def authorized_today(envelope, now=None):
             if goal.get("worker_resources") != {"cpu": "250m", "memory": "512Mi"}:
                 raise ValueError("Exact mixed API/worker resource budget required")
         if goal.get("extension_decision") == "ADR0271":
-            from cce_worker_rebalance_profile import active
+            from cce_status_reuse_hourly import selected as hourly_selected
+            if hourly_selected(goal):
+                from cce_status_reuse_hourly import active
+            else:
+                from cce_worker_rebalance_profile import active
             active(goal)
             expected.update(maximum_pods=18, pod_memory_gib=2)
             if goal.get("worker_resources") != {"cpu": "250m", "memory": "512Mi"}:

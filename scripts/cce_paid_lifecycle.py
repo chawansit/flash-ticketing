@@ -170,7 +170,7 @@ class Lifecycle:
             }
             if self.live_admission:
                 from cce_live_admission import Capture
-                self.live_capture = Capture(self.deployment)
+                self.live_capture = Capture(self.deployment, profile=self.stage.profile)
                 self.live_capture.start()
             self.record["dispatch_attempted"] = True
             self.checkpoint()

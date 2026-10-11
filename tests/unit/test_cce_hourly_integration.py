@@ -114,7 +114,13 @@ from test_work_envelope import area  # noqa: F401 - Shared isolated ledger fixtu
 
 def hourly_goal(data):
     previous = data["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"]
-    return {**previous, "decision": "ADR0232", "profile": HOURLY.name,
+    # The historical profile must not inherit newer live extension markers/resources.
+    previous = {k: v for k, v in previous.items() if k not in {
+        "extension_decision", "hourly_qualification_decision", "hourly_adapters_sha256",
+        "status_refresh_reuse_decision", "status_refresh_reuse_sha256",
+        "native_database_bridge_decision", "native_database_bridge_sha256", "timeout_retention_decision"}}
+    return {**previous, "maximum_pods": 4, "pod_memory_gib": 1,
+            "decision": "ADR0232", "profile": HOURLY.name,
             "offered_seconds": 3600, "maximum_experiment_seconds": 5400,
             "ledger_start_index": 0, "acquisition_budget": 20,
             "baseline_sha256": entry.plan()["baseline_sha256"]}

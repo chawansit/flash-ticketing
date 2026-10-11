@@ -28,7 +28,11 @@ def environment(role, values, primary_ip, decision="ADR0259"):
     return result
 
 
-def objects(run, environments, primary_ip, decision="ADR0259"):
+def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None):
+    from cce_paid_profiles import HOURLY, SHORT, TICKET_TARGET
+    profile = SHORT if profile is None else profile
+    if profile not in (SHORT, HOURLY, TICKET_TARGET):
+        raise ValueError("Exact worker lifetime profile required")
     selected = identity.specification(decision)
     if set(environments) != set(selected["counts"]):
         raise ValueError("Complete worker environments required")
@@ -53,7 +57,7 @@ def objects(run, environments, primary_ip, decision="ADR0259"):
             result.append({"apiVersion": "v1", "kind": "Pod",
                            "metadata": {"name": f"{role}-{index}", "namespace": namespace, "labels": {"codex-owner": run, "codex-worker-role": role},
                                         "annotations": {"codex-environment-sha256": policy.digest(env), "codex-command-sha256": policy.digest(command)}},
-                           "spec": {"restartPolicy": "Never", "activeDeadlineSeconds": 3000,
+                           "spec": {"restartPolicy": "Never", "activeDeadlineSeconds": 5400 if profile == HOURLY else 3000,
                                     "automountServiceAccountToken": False, "enableServiceLinks": False,
                                     "imagePullSecrets": [{"name": "default-secret"}, {"name": "swr-pull"}],
                                     "hostAliases": [{"ip": cce.private_ip(primary_ip), "hostnames": ["kafka"]}],

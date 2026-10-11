@@ -44,6 +44,10 @@ def image_pair():
 def active(envelope=None):
     envelope = policy.envelope() if envelope is None else envelope
     goal = envelope.get("spending", {}).get("temporary_cce_pilot_exception", {}).get("goal_bounded_authorization", {})
+    from cce_status_reuse_hourly import selected as hourly_selected
+    if hourly_selected(goal):
+        from cce_status_reuse_hourly import active as hourly_active
+        return hourly_active(goal)
     if goal.get("extension_decision") == "ADR0277":
         from cce_ticket_target_profile import active as target_active
         return target_active(goal)
@@ -200,6 +204,10 @@ def plan():
     goal = active()
     if goal is None:
         raise ValueError("Explicit ADR0242 short comparison required")
+    from cce_status_reuse_hourly import selected as hourly_selected
+    if hourly_selected(goal):
+        from cce_status_reuse_hourly import plan as hourly_plan
+        return hourly_plan(goal)
     if goal["extension_decision"] == "ADR0277":
         from cce_ticket_target_profile import plan as target_plan
         return target_plan(goal)
