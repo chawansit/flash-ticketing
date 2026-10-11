@@ -2430,6 +2430,35 @@
       "finished_at_utc": "2026-10-11T18:07:17.012805+00:00",
       "paid_runs_started": 1,
       "result_sha256": "f7b5758c7e99f8f78f5e9de6f23962ffa1a9f6d5bacedd5db38b41b0721ca9f6"
+    },
+    {
+      "ledger": "bounded_cce_hourly_qualification__c6d3f62c9760",
+      "authorization_id": "work-envelope-c6d3f62c9760",
+      "envelope_sha256": "34c7a219c067fa96d3d919609d88dce0d5c29c2428823d28984e38c281f8b306",
+      "binding_sha256": "5216811e43d49dd4391f8a405bc83b1541961aad5643ddf20c49eb57a4a6365b",
+      "plan_sha256": "763b19a6d7c43b15c1e3991f8a6b9e98517cf64eb07c21bacf720d16b2bfb21e",
+      "profile": "cce_hourly_qualification",
+      "reserved_seconds": 5400,
+      "actual_elapsed_seconds": 4681.375,
+      "started_at_utc": "2026-10-11T18:14:43.541413+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-64ea9a9f34d2",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-11T19:29:47.240724+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "c42e80ff61bfbd7943bba045c9b12fd4d0666e34b0ad594fcaa9164299d258a2",
+      "initial_status": "RECOVERY_REQUIRED",
+      "recovery": {
+        "decision": "ADR0282",
+        "evidence": "docs/capacity/cce/observer-cost-hourly-terminal-recovery-2026-10-12.json",
+        "sha256": "90df4026e72b9459eaaf0d27d25363e04d5a522760001cd460d44d806cd5c999",
+        "actual_elapsed_seconds": 177.5,
+        "capacity_qualified": false
+      }
     }
   ],
   "verified_aborts": {

@@ -124,8 +124,8 @@
       ],
       "boundary_mode": "goal_bounded",
       "goal_bounded_authorization": {
-        "decision": "ADR0228",
-        "profile": "cce_paid_comparison",
+        "decision": "ADR0232",
+        "profile": "cce_hourly_qualification",
         "extension_decision": "ADR0271",
         "comparison_arm": "correction",
         "maximum_paid_stages": 1,
@@ -133,8 +133,8 @@
         "pod_vcpu": 1,
         "pod_memory_gib": 2,
         "offered_journeys_per_second": 84,
-        "offered_seconds": 300,
-        "maximum_experiment_seconds": 3600,
+        "offered_seconds": 3600,
+        "maximum_experiment_seconds": 5400,
         "acquisition_budget": 20,
         "unlimited_cumulative_time_explicitly_authorized": true,
         "spending_allowance": {
@@ -142,7 +142,7 @@
           "maximum_additional_spend": null,
           "no_spending_cap_explicitly_authorized": true
         },
-        "ledger_start_index": 92,
+        "ledger_start_index": 93,
         "candidate_factor": {
           "name": "event_lane_worker_placement",
           "comparison_arm": "correction",
@@ -169,11 +169,11 @@
           "database_connections_unchanged": true,
           "gateway_delay_unchanged": true
         },
-        "authorization": "Direct user Continue after failed restored ADR0281: one same-runtime 84/s five-minute comparison after ADR0283 observer correction",
-        "authorized_at_bangkok": "2026-10-12T00:48:30.137079+07:00",
+        "authorization": "Standing Continue authorization after passed ADR0283 short: one same-runtime84/s hourly qualification,unchanged resources and gates,approved90-minute ceiling",
+        "authorized_at_bangkok": "2026-10-12T01:14:42.800970+07:00",
         "image_correction_decision": "ADR0267",
-        "authorized_at_utc": "2026-10-11T17:48:30.137079+00:00",
-        "scope_note": "One84/s300s candidate;25200 distinct journeys; unchanged ADR0280 application image,18pods,24DBconnections,20admission and quality gates; ADR0283 observer correction;3600s experiment including cleanup",
+        "authorized_at_utc": "2026-10-11T18:14:42.800970+00:00",
+        "scope_note": "One84/s3600s hourly candidate after passed ADR0283 short;302400 distinct journeys;unchanged ADR0280 application runtime and resource budgets;ADR0283 bounded observer; original quality gates plus300000 durable paid tickets inside the hour;5400s experiment including cleanup",
         "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
         "baseline_sha256": "6e04b6008fcd08a8e0a3727dab2a6dd6b910c6d1d2fa4ff051911e835993b254",
         "worker_resources": {
@@ -187,7 +187,11 @@
         "status_refresh_reuse_decision": "ADR0280",
         "status_refresh_reuse_sha256": "9a3942c87ff8a71a6d2954b65198e15dbcdab14ac3e4ae535d7aaffff26e094f",
         "observer_cost_decision": "ADR0283",
-        "observer_cost_sha256": "fdee59f7b83e384c5464d3166e644c769b030f9108c91bbd1d939f197f088435"
+        "observer_cost_sha256": "fdee59f7b83e384c5464d3166e644c769b030f9108c91bbd1d939f197f088435",
+        "hourly_qualification_decision": "ADR0281",
+        "hourly_adapters_sha256": "0af7b2ff94cbabfd5e37829e5ba7532b3939d80e02bbc0def9942beeaae891c4",
+        "latest_short_prerequisite_evidence": "docs/capacity/cce/observer-cost-paid-result-2026-10-12.json",
+        "latest_short_prerequisite_sha256": "7a560d2ccf0919025bf2d1a10aa391dc2c451a413183f1948ec959db6b25f1a6"
       },
       "bounded_scaling_permission": {
         "authorized": true,
@@ -1572,6 +1576,76 @@
           },
           "superseded_by": "ADR0283",
           "superseded_at_utc": "2026-10-11T17:48:30.137079+00:00"
+        },
+        {
+          "goal": {
+            "decision": "ADR0228",
+            "profile": "cce_paid_comparison",
+            "extension_decision": "ADR0271",
+            "comparison_arm": "correction",
+            "maximum_paid_stages": 1,
+            "maximum_pods": 18,
+            "pod_vcpu": 1,
+            "pod_memory_gib": 2,
+            "offered_journeys_per_second": 84,
+            "offered_seconds": 300,
+            "maximum_experiment_seconds": 3600,
+            "acquisition_budget": 20,
+            "unlimited_cumulative_time_explicitly_authorized": true,
+            "spending_allowance": {
+              "status": "APPROVED",
+              "maximum_additional_spend": null,
+              "no_spending_cap_explicitly_authorized": true
+            },
+            "ledger_start_index": 92,
+            "candidate_factor": {
+              "name": "event_lane_worker_placement",
+              "comparison_arm": "correction",
+              "worker_counts": {
+                "consumer": 6,
+                "projection-consumer": 1,
+                "reservation-writer": 3,
+                "publisher": 1,
+                "maintenance": 1,
+                "reconciler": 1,
+                "simulator": 1
+              },
+              "worker_resources": {
+                "requests": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                },
+                "limits": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                }
+              },
+              "image_receipt_sha256": "86e7655ecdd8496a7f95af5b8f805bbf351779344b0103168cbd22c61225b80a",
+              "database_connections_unchanged": true,
+              "gateway_delay_unchanged": true
+            },
+            "authorization": "Direct user Continue after failed restored ADR0281: one same-runtime 84/s five-minute comparison after ADR0283 observer correction",
+            "authorized_at_bangkok": "2026-10-12T00:48:30.137079+07:00",
+            "image_correction_decision": "ADR0267",
+            "authorized_at_utc": "2026-10-11T17:48:30.137079+00:00",
+            "scope_note": "One84/s300s candidate;25200 distinct journeys; unchanged ADR0280 application image,18pods,24DBconnections,20admission and quality gates; ADR0283 observer correction;3600s experiment including cleanup",
+            "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
+            "baseline_sha256": "6e04b6008fcd08a8e0a3727dab2a6dd6b910c6d1d2fa4ff051911e835993b254",
+            "worker_resources": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            },
+            "generator_concurrency": 500,
+            "timeout_retention_decision": "ADR0278",
+            "native_database_bridge_decision": "ADR0279",
+            "native_database_bridge_sha256": "11b72a0bd7cb5dbaec8d9396d279a32b97daa892a6aa83d9f622d2bc0fceeaf1",
+            "status_refresh_reuse_decision": "ADR0280",
+            "status_refresh_reuse_sha256": "9a3942c87ff8a71a6d2954b65198e15dbcdab14ac3e4ae535d7aaffff26e094f",
+            "observer_cost_decision": "ADR0283",
+            "observer_cost_sha256": "fdee59f7b83e384c5464d3166e644c769b030f9108c91bbd1d939f197f088435"
+          },
+          "superseded_by": "ADR0283",
+          "superseded_at_utc": "2026-10-11T18:14:42.800970+00:00"
         }
       ]
     }

@@ -2,7 +2,13 @@
 
 This integration depends on backend PR #6. Merge that PR first, then retarget this stacked PR to main and rerun CI. Repository integration changes neither deployment nor capacity. Do not build a new image from main and label it as the historical benchmark image.
 
-## Latest hourly result: ADR0281 (11 October, audited 12 October 2026)
+## Latest hourly measurement: ADR0283 (12 October 2026)
+
+[Hourly evidence](observer-cost-hourly-result-2026-10-12.json): **302,298 unique paid-and-issued tickets inside one hour (83.9717/s)**; the conservative boundary count is 302,078. All 302,400 offered journeys dispatched and completed, with zero drops or final failures. Thirty-two initial payment 503 journeys recovered (0.01058%); journey p95 was **2.314 seconds**. The [independent full-cohort audit](observer-cost-hourly-terminal-recovery-2026-10-12.json) verified all 302,400 terminal paid tickets, zero payment loss, double-booking and relationship errors, post-TTL durability, both safety fixtures, empty queues and exact runtime restoration. Test pods, helpers and private inputs were removed; total bounded experiment time was 78.02 minutes.
+
+**The target was measured; the original qualification remains FAILED_RESTORED.** Its canonical financial query timed out, and one 2.012074-second DB-statistics gap exceeded the unchanged two-second diagnostic bound. Independent recovery does not turn those original gates into passes. The hourly observer itself had zero SQL errors and 8.035-second maximum cohort age; API and worker CPU captures passed. The same four 1-vCPU/2-GiB APIs, fourteen 250m/512-MiB workers, 24 physical DB connections and pinned application image were used. This distributed 1,008-show simulator workload does not qualify a simultaneous concert opening or maximum capacity. [ADR0283](../../adr/0283-bound-hourly-observer-cost-and-preserve-diagnostics.md) records evidence and limits. Next: complete bounded financial-audit integration and independent statistics sampling; do not increase load from this failed qualification.
+
+## Previous hourly result: ADR0281 (11 October, audited 12 October 2026)
 
 The [hourly result](status-reuse-hourly-result-2026-10-11.json) is **FAILED_RESTORED**: **299,782 unique paid tickets within one hour**, 218 below target. The conservative guarded window contained 299,593. Total after drain was 300,228; that total does not qualify 300,000 inside the hour. Resources, image, connection budgets, gateway delays and recovery matched ADR0280.
 
@@ -57,4 +63,4 @@ The original unmodified short-control input is archived under `artifacts/cce-his
 
 The historical hour issued more than 300,000 tickets inside the window but remained `FAILED_RESTORED` because of a customer payment failure and observation gates. The trace-size ceiling and sampling coverage are unresolved; this promotion must not waive those gates. The 18,000-seat projection contention issue remains open. The combined backend source in PR #6 has a new identity and needs a fresh measured comparison before any performance claim. No cloud action, capacity improvement or production qualification is established by this PR.
 
-ADR0283: [observer correction validation](hourly-observer-cost-validation-2026-10-12.json) and [same-budget five-minute paid result](observer-cost-paid-result-2026-10-12.json). All25,200 paid journeys completed,zero errors/drops,full diagnostic coverage and restoration;journey p952.58s. In-window issuance25,095;original separate conservative short-window flag retained false.Hourly qualification pending.
+ADR0283: [observer correction validation](hourly-observer-cost-validation-2026-10-12.json) and [same-budget five-minute paid result](observer-cost-paid-result-2026-10-12.json). All25,200 paid journeys completed,zero errors/drops,full diagnostic coverage and restoration;journey p952.58s. In-window issuance25,095;original separate conservative short-window flag retained false. Subsequent hourly measurement and qualification limits are recorded above.
