@@ -50,6 +50,8 @@ def install(module, value, *, fetch=urlopen, hourly=False):
         raise ValueError("Explicit hourly observer mode required")
     if hourly:
         install_hourly_sampling(module)
+    else:
+        install_indexed_cohort_query(module)
     starts = validate_receipts(value)
     discover = module.api_replicas
     previous = {}
@@ -81,28 +83,91 @@ def install(module, value, *, fetch=urlopen, hourly=False):
 
 
 
+def cohort_sampling_contract():
+    return {"decision": "ADR0283", "short_cohort_interval_seconds": 1,
+            "hourly_maximum_cohort_age_seconds": 10, "hourly_slices": 8,
+            "data_connections": 1, "statement_timeout_seconds": 3,
+            "query": "existing_unique_indexes_parameterized_lateral",
+            "cpu_coverage_gates_unchanged": True, "application_runtime_unchanged": True}
+
+
+def install_indexed_cohort_query(module):
+    """Preserve all predicates and columns while using existing unique indexes."""
+    old = "FROM payment_attempts p JOIN cohort o ON o.id=p.order_id"
+    tickets = "FROM tickets t JOIN bookings b ON b.id=t.booking_id"
+    query = module.PAID_COHORT_QUERY
+    if query.count(old) != 1 or query.count(tickets) != 1:
+        raise ValueError("Exact frozen cohort query required")
+    module.PAID_COHORT_QUERY = query.replace(
+        old, "FROM cohort o CROSS JOIN LATERAL (SELECT status,deliveries,target_deliveries "
+             "FROM payment_attempts WHERE order_id=o.id OFFSET 0) p"
+    ).replace(tickets, "FROM bookings b CROSS JOIN LATERAL "
+                      "(SELECT id FROM tickets WHERE booking_id=b.id OFFSET 0) t")
+
+
 def install_hourly_sampling(module, *, now=None):
-    """Keep full cohort scans at ten seconds; global queue/lock reads remain fresh."""
+    """ADR0283: bounded-age disjoint slices on the existing observation connection."""
     import time
+
     now = time.monotonic if now is None else now
     original = module.sample
+    install_indexed_cohort_query(module)
     module.MAX_PAID_OBSERVER_SECONDS = 3780
-    cache, refreshed = {}, float("-inf")
+    names = ("pending_orders", "paid_unfulfilled", "fulfilled_orders",
+             "pending_callback_deliveries", "pending_payment_attempts",
+             "delivered_callbacks", "issued_tickets")
+    cohort, parts, cache, refreshed, failures = None, [], {}, {}, {}
+    cursor, attempted = 0, float("-inf")
 
     def sample(conn, shows):
-        nonlocal cache, refreshed
-        at = now()
-        if at - refreshed >= 10:
-            cache = dict(original(conn, shows))
-            refreshed = at
+        nonlocal cohort, parts, cursor, attempted
+        identity = tuple(shows)
+        if not identity or len(identity) > 1008 or len(set(identity)) != len(identity):
+            raise ValueError("Distinct bounded cohort required")
+        if cohort is None:
+            cohort = identity
+            count = min(8, math.ceil(len(identity) / 126))
+            parts = [identity[i::count] for i in range(count)]
+            selected = range(count)  # Prime every slice before publishing any count.
+        elif identity != cohort:
+            raise ValueError("Hourly observer cohort changed")
+        elif now() - attempted >= (10 if len(parts) == 1 else 0.9):
+            selected = [cursor]
         else:
-            row = conn.execute("SELECT (SELECT count(*) FROM outbox_events WHERE published_at IS NULL),"
-                               "(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock')").fetchone()
-            cache.update(unpublished_outbox=row[0], db_lock_waiters=row[1])
-        return {**cache, "cohort_sample_age_seconds": at - refreshed,
-                "cohort_sample_interval_seconds": 10}
+            selected = []
+        for index in selected:
+            attempted = now()  # Schedule from query start; execution must not halve the cadence.
+            try:
+                value = dict(original(conn, list(parts[index])))
+                if any(type(value.get(k)) is not int or value[k] < 0 for k in names):
+                    raise ValueError("Invalid cohort counter")
+                cache[index], refreshed[index] = value, now()
+                failures.pop(index, None)
+            except module.psycopg.Error as error:
+                conn.rollback()
+                failures[index] = type(error).__name__
+            cursor = (index + 1) % len(parts)
+        row = conn.execute("SELECT (SELECT count(*) FROM outbox_events WHERE published_at IS NULL),"
+                           "(SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock')").fetchone()
+        latest = {"unpublished_outbox": row[0], "db_lock_waiters": row[1]}
+        at = now()
+        complete = len(cache) == len(parts)
+        age = max((at - stamp for stamp in refreshed.values()), default=None)
+        result = {k: latest[k] for k in ("unpublished_outbox", "db_lock_waiters")}
+        result.update(cohort_sample_age_seconds=age, cohort_sample_interval_seconds=10,
+                      cohort_slice_count=len(parts), cohort_sample_complete=complete and not failures
+                      and age is not None and 0 <= age <= 10)
+        if complete:
+            result.update({k: sum(value[k] for value in cache.values()) for k in names})
+        if not result["cohort_sample_complete"]:
+            result["database_error"] = (next(iter(failures.values())) if failures
+                                        else "IncompleteOrStaleCohort")
+        if failures:
+            result["cohort_slice_errors"] = {str(k): v for k, v in failures.items()}
+        return result
 
     module.sample = sample
+
 
 def main(argv=None):
     parser = argparse.ArgumentParser(add_help=False)

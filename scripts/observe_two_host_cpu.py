@@ -176,7 +176,7 @@ def inspect_containers(entries):
 
 
 def collect(spec, start_at, *, seconds=300, interval=5, hourly=False):
-    if type(hourly) is not bool or (hourly and placement(spec) != "cce-api-isolation"):
+    if type(hourly) is not bool or (hourly and placement(spec) not in {"cce-api-isolation", "cce-worker-isolation"}):
         raise ValueError("Hourly CPU mode requires the native CCE profile")
     entries = validate_spec(spec)
     start = timestamp(start_at)
@@ -240,7 +240,7 @@ def collect(spec, start_at, *, seconds=300, interval=5, hourly=False):
 def summarize(data):
     seconds, interval = data["seconds"], data["interval"]
     hourly = data.get("hourly", False)
-    if type(hourly) is not bool or (hourly and placement(data) != "cce-api-isolation"):
+    if type(hourly) is not bool or (hourly and placement(data) not in {"cce-api-isolation", "cce-worker-isolation"}):
         raise ValueError("Hourly CPU mode requires the native CCE profile")
     if (
         type(seconds) is not int
@@ -314,14 +314,14 @@ def summarize(data):
 
 
 def compare_windows(primary, secondary, *, offered_start_utc, offered_end_utc, hourly=False):
-    if type(hourly) is not bool or (hourly and any(placement(h) != "cce-api-isolation" for h in (primary, secondary))):
+    if type(hourly) is not bool or (hourly and any(placement(h) not in {"cce-api-isolation", "cce-worker-isolation"} for h in (primary, secondary))):
         raise ValueError("Exact hourly native CPU mode required")
     if (
         primary["host_role"] != "primary"
         or secondary["host_role"] != "secondary"
         or primary["arm"] != secondary["arm"]
         or placement(primary) != placement(secondary)
-        or (placement(primary) in {"worker-separation", "cce-api-isolation"} and primary["inventory_sha256"] != secondary["inventory_sha256"])
+        or (placement(primary) in {"worker-separation", "cce-api-isolation", "cce-worker-isolation"} and primary["inventory_sha256"] != secondary["inventory_sha256"])
         or primary["instance_uuid_sha256"] == secondary["instance_uuid_sha256"]
     ):
         raise ValueError("Distinct matched host roles required")

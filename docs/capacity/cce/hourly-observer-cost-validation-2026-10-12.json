@@ -1,0 +1,57 @@
+{
+  "decision": "ADR0283",
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "application_changed": false,
+  "paid_stages_started": 0,
+  "read_only_query": {
+    "original_idle_seconds": 3.732256276998669,
+    "indexed_unsliced_seconds": 3.3404959270264953,
+    "counts_equal_in_repeatable_read": true,
+    "sliced_total_seconds": 2.999032569117844,
+    "warmed_original_seconds": 2.9902067739749327,
+    "total_query_work_reduction_established": false,
+    "slice_seconds": [
+      0.38772990298457444,
+      0.3737136219860986,
+      0.36908712005242705,
+      0.37266649899538606,
+      0.3674661259865388,
+      0.3828475270420313,
+      0.36578874301631004,
+      0.3797330290544778
+    ],
+    "historical_payment_rows_scanned": 2966625,
+    "historical_ticket_rows_scanned": 2944563
+  },
+  "live_loop": {
+    "pass": true,
+    "samples": 20,
+    "connection_count": 1,
+    "statement_timeout_seconds": 3,
+    "slice_count": 8,
+    "first_prime_seconds": 2.964737413916737,
+    "maximum_refresh_seconds": 0.4300000850344077,
+    "maximum_observation_gap_seconds": 1.3676206229720265,
+    "maximum_slice_age_seconds": 7.366455375915393,
+    "database_errors": 0,
+    "issued_tickets": 300228,
+    "cloud_paid_stages": 0
+  },
+  "retained_failed_probes": [
+    {
+      "error_type": "AssertionError",
+      "accepted": false
+    },
+    {
+      "error_type": "IncompleteOrStaleCohort",
+      "maximum_age_seconds": 10.188331261044368,
+      "accepted": false
+    }
+  ],
+  "validation": {
+    "passed": 224,
+    "skipped": 1,
+    "ruff_pass": true
+  }
+}

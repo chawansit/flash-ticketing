@@ -32,6 +32,7 @@ def payload(start=123.0, count=1):
 def test_native_install_fetches_once_and_preserves_worker_discovery():
     calls = []
     module = SimpleNamespace(
+        PAID_COHORT_QUERY="FROM payment_attempts p JOIN cohort o ON o.id=p.order_id; FROM tickets t JOIN bookings b ON b.id=t.booking_id",
         api_replicas=lambda host, port: [host + ":worker"], parse_api_metrics=lambda value: {"frozen": True}
     )
     native.install(
@@ -75,7 +76,7 @@ def test_native_admission_drift_prevents_metrics(fault):
 def test_runtime_drift_fails_without_retry(fault):
     response = payload(count=5)
     calls = []
-    module = SimpleNamespace(api_replicas=lambda *args: [], parse_api_metrics=lambda value: {})
+    module = SimpleNamespace(PAID_COHORT_QUERY="FROM payment_attempts p JOIN cohort o ON o.id=p.order_id; FROM tickets t JOIN bookings b ON b.id=t.booking_id", api_replicas=lambda *args: [], parse_api_metrics=lambda value: {})
 
     def fetch(url, **kwargs):
         calls.append(url)

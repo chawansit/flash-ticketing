@@ -229,3 +229,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0281: Qualify committed-status reuse for one hour](0281-qualify-status-reuse-for-one-hour.md)
 
 - [ADR0282: Bound hourly terminal relationship audit work](0282-bound-hourly-terminal-relationship-audit.md)
+
+- [ADR0283: Bound hourly observer cost and preserve diagnostics](0283-bound-hourly-observer-cost-and-preserve-diagnostics.md) — Accepted; observer-only correction validated, paid comparison pending.

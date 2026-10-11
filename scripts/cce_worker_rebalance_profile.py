@@ -61,4 +61,18 @@ def plan(goal):
                     status_refresh_reuse=reuse_contract(), baseline_evidence=reuse_baseline,
                     baseline_sha256=policy.digest(policy.read(policy.ROOT / reuse_baseline)),
                     duration_reason="One existing-image status reuse comparison at unchanged 84/s for 300s.")
+    if goal.get("observer_cost_decision") is not None:
+        from observe_cce_paid_pipeline import cohort_sampling_contract
+        expected = cohort_sampling_contract()
+        if (goal["observer_cost_decision"] != "ADR0283"
+                or goal.get("observer_cost_sha256") != policy.digest(expected)):
+            raise ValueError("Exact observer correction binding required")
+        baseline = "docs/capacity/cce/committed-status-reuse-result-2026-10-11.json"
+        plan.update(kind="observer_cost_correction", single_changed_factor="observer_query_planning",
+                    observer_cost=expected, baseline_evidence=baseline,
+                    baseline_sha256=policy.digest(policy.read(policy.ROOT / baseline)),
+                    baseline_is_passing_control=True,
+                    duration_reason="One unchanged 84/s five-minute run after bounding observer query work.")
+    elif "observer_cost_sha256" in goal:
+        raise ValueError("Orphan observer correction binding")
     return plan

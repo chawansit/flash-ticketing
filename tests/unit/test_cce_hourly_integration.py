@@ -89,7 +89,16 @@ def test_hourly_sampling_keeps_global_counts_fresh():
     def original(conn, shows):
         scans.append(clock[0])
         return {"issued_tickets": len(scans), "unpublished_outbox": 10, "db_lock_waiters": 11}
-    module = SimpleNamespace(sample=original)
+    from observe_two_host_pipeline import FROZEN_NORMALIZED_SHA256
+    frozen = {}
+    exec(compile((policy.ROOT / "artifacts/cce-historical-sources" / (FROZEN_NORMALIZED_SHA256 + ".txt")).read_text(encoding="utf-8"), "frozen", "exec"), frozen)  # noqa: S102 - Execute the immutable observer against fake connections only.
+    names = ("pending_orders", "paid_unfulfilled", "fulfilled_orders", "pending_callback_deliveries",
+             "pending_payment_attempts", "delivered_callbacks")
+    base = original
+    def counted(conn, shows):
+        return {**dict.fromkeys(names, 0), **base(conn, shows)}
+    module = SimpleNamespace(sample=counted, PAID_COHORT_QUERY=frozen["PAID_COHORT_QUERY"],
+                             psycopg=SimpleNamespace(Error=RuntimeError))
     observer.install_hourly_sampling(module, now=lambda: clock[0])
     conn = SimpleNamespace(execute=lambda query: global_reads.append(query) or SimpleNamespace(fetchone=lambda: (2, 3)))
     assert module.sample(conn, ["owned"])["issued_tickets"] == 1
@@ -99,7 +108,7 @@ def test_hourly_sampling_keeps_global_counts_fresh():
     assert sample["db_lock_waiters"] == 3 and sample["cohort_sample_age_seconds"] == 9
     clock[0] = 10
     assert module.sample(conn, ["owned"])["issued_tickets"] == 2
-    assert scans == [0, 10] and len(global_reads) == 1
+    assert scans == [0, 10] and len(global_reads) == 3
 
 
 def test_registration_does_not_authorize_hourly_without_explicit_exception():
