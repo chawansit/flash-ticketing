@@ -1,5 +1,7 @@
 # Application flow
 
+> Scope: this page documents the PostgreSQL-first baseline and local MVP. The latest CCE experiment uses opt-in Redis-first intake and separate worker services. See the [Thai developer integration guide](customer-integration/redis-kafka-adoption-th.md) for numbered synchronous/asynchronous flows, customer recovery and current evidence limits. Defaults and a tested profile are different contracts.
+
 This describes the implemented backend. See the [system diagrams](system-diagrams.md), [technology stack](tech-stack.md), and detailed [concurrency contract](architecture.md).
 
 ## Customer and API journey
@@ -103,6 +105,6 @@ The simulator defaults to three deliveries of the same callback. Tests also cove
 | 429 | Per-user rate limit exceeded |
 | 503 | Admission, cache or database unavailable/full; bounded rejection |
 
-There is no automatic customer retry loop. A client can let the user choose another seat or deliberately retry the same idempotency key after an uncertain request outcome. See [load-test results](load-test-report.md) for measured rejection rates and latency limits.
+No frontend customer retry loop is implemented here. The opt-in paid-load client now has bounded recovery under [ADR0254](adr/0254-recover-customer-payment-and-confirmation.md), including an authoritative payment-operation check before identical-key replay. The historical no-retry profile remains separate. A production client must implement that contract and let the user choose another seat after a genuine seat conflict. See [load-test results](load-test-report.md) for measured rejection rates and latency limits.
 
 Implementation: [API](../src/ticketing/api.py), [use cases](../src/ticketing/application/reservations.py), [reservation adapter](../src/ticketing/infrastructure/reservations.py), [workers](../src/ticketing/workers.py).

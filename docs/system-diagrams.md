@@ -1,5 +1,7 @@
 # System diagrams
 
+> Scope: this page documents the PostgreSQL-first baseline and local MVP. The latest CCE experiment uses opt-in Redis-first intake and separate worker services. See the [Thai developer integration guide](customer-integration/redis-kafka-adoption-th.md) for numbered synchronous/asynchronous flows, customer recovery and current evidence limits. Defaults and a tested profile are different contracts.
+
 These Mermaid diagrams show the implemented local MVP. GitHub renders them directly from Markdown. Component labels describe logical roles; all Python services use the same application package.
 
 ## Runtime topology

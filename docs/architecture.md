@@ -1,5 +1,7 @@
 # Architecture and concurrency contract
 
+> Scope: this page documents the PostgreSQL-first baseline and local MVP. The latest CCE experiment uses opt-in Redis-first intake and separate worker services. See the [Thai developer integration guide](customer-integration/redis-kafka-adoption-th.md) for numbered synchronous/asynchronous flows, customer recovery and current evidence limits. Defaults and a tested profile are different contracts.
+
 ## Alignment with the concert optimization document
 
 This implements the document's no-waiting-room direction: memory-backed browsing, per-seat
