@@ -96,6 +96,9 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
               "cce_transaction_pair_sha256": transaction.proof_digest(transaction.active())}
              if transaction.active() is not None else {})
     goal = transaction.active()
+    import cce_native_database_bridge as bridge
+    if bridge.selected(goal):
+        extra.update(cce_native_database_bridge_decision="ADR0279", cce_native_database_bridge_sha256=policy.digest(bridge.contract()))
     from customer_timeout_bundle import MANIFEST_SHA256 as timeout_sha
     from customer_timeout_bundle import selected
     if selected(goal):

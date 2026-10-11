@@ -32,7 +32,12 @@ asyncio.run(main())
 """
 
 
-def owned_receipt(row, name, run, command, *, pool_network, bridge, require_running=True, kafka=False):
+def owned_receipt(row, name, run, command, *, pool_network, bridge, require_running=True, kafka=False, native_owner=None):
+    import cce_native_database_bridge as native
+    if native_owner is not None:
+        if not bridge or kafka:
+            raise ValueError("Native selection applies only to database bridge")
+        native.qualify_row(row, native_owner)
     cfg, host = row.get("Config", {}), row.get("HostConfig", {})
     labels = cfg.get("Labels", {})
     expected_ports = {"6432/tcp": [{"HostIp": "10.1.137.69", "HostPort": "6432"}]} if bridge else {}
@@ -43,13 +48,13 @@ def owned_receipt(row, name, run, command, *, pool_network, bridge, require_runn
     if (
         not re.fullmatch(r"[0-9a-f]{64}", row.get("Id", ""))
         or row.get("Name") != "/" + name
-        or row.get("Image") != cce.dependency.INDEX
-        or cfg.get("Image") != cce.dependency.INDEX
+        or row.get("Image") != (native.IMAGE if native_owner else cce.dependency.INDEX)
+        or cfg.get("Image") != (native.IMAGE if native_owner else cce.dependency.INDEX)
         or labels.get("com.docker.compose.project") != "cce-" + run
         or labels.get("com.docker.compose.service") != service
         or labels.get("codex-owner") != run
         or labels.get("codex-purpose") != purpose
-        or cfg.get("Entrypoint") != ["python"]
+        or cfg.get("Entrypoint") != (["nginx"] if native_owner else ["python"])
         or cfg.get("Cmd") != command
         or host.get("PortBindings", {}) != expected_ports
         or ((bridge or kafka) and (host.get("NanoCpus") != (250_000_000 if kafka else BRIDGE_CPU_LIMIT * 1_000_000_000)
@@ -94,6 +99,10 @@ class Resources:
         self.commands = {"bridge": ["-u", "-c", PROXY], "audit": ["-u", "-c", "import time;time.sleep(" + str(for_guard(guard).experiment_limit) + ")"]}
         import cce_transaction_profile as transaction
         goal = transaction.active()
+        import cce_native_database_bridge as native
+        self.native_bridge = native.selected(goal)
+        if self.native_bridge:
+            self.commands["bridge"] = list(native.COMMAND)
         if goal is not None and (goal["extension_decision"] == "ADR0259" and goal["comparison_arm"] == "candidate" or goal["extension_decision"] in {"ADR0271", "ADR0277"}):
             self.names["kafka"] = "cce-kafka-" + run
             self.commands["kafka"] = ["-u", "-c", PROXY.replace("'pgbouncer',5432", "'kafka',9092").replace("6432", "9092")]
@@ -111,6 +120,10 @@ class Resources:
             != paid.sha((policy.ROOT / "scripts/cce_paid_resources.py").read_bytes())
         ):
             raise ValueError("Exactly bound qualified native resources required")
+        import cce_native_database_bridge as native
+        if self.native_bridge and (self.guard.binding.get("cce_native_database_bridge_sha256") != policy.digest(native.contract())
+                                  or self.guard.binding.get("cce_native_database_bridge_decision") != "ADR0279"):
+            raise ValueError("Bound native bridge identity required")
         cce.authorized_creation(policy.envelope())
         self.guard.check(120)
 
@@ -147,6 +160,14 @@ class Resources:
         for role in self.names:
             if self.inspect_name(role):
                 raise ValueError("Owned helper name already exists")
+        if self.native_bridge:
+            import cce_native_database_bridge as native
+            self.record["native_image"] = self.session.call("primary", native.image_program(), 45)
+            self.record["native_config_transfer_attempted"] = True
+            self.checkpoint()
+            self.session.put("primary", self.owner + "/cce-stream.conf", native.CONFIG, True)
+            self.record["native_configuration"] = self.session.call("primary", native.config_program(self.owner, prepare=True), 45)
+            self.checkpoint()
         self.record["env_transfer_attempted"] = True
         self.checkpoint()
         self.session.put(
@@ -184,7 +205,7 @@ class Resources:
                 "--pids-limit",
                 "128",
                 "--entrypoint",
-                "python",
+                "nginx" if role == "bridge" and self.native_bridge else "python",
                 "--user",
                 "10001:10001",
             ]
@@ -205,7 +226,10 @@ class Resources:
                     "--env-file",
                     self.owner + "/cce-audit.env",
                 ]
-            options += [cce.dependency.INDEX, *self.commands[role]]
+            if role == "bridge" and self.native_bridge:
+                options += ["--tmpfs", "/tmp:" + native.TMPFS,
+                            "--mount", "type=bind,src=" + self.owner + "/cce-stream.conf,dst=" + native.DESTINATION + ",readonly"]
+            options += [native.IMAGE if role == "bridge" and self.native_bridge else cce.dependency.INDEX, *self.commands[role]]
             try:
                 self.session.call(
                     "primary",
@@ -230,7 +254,10 @@ class Resources:
                     pool_network=self.network,
                     bridge=role == "bridge",
                     kafka=role == "kafka",
+                    native_owner=self.owner if role == "bridge" and self.native_bridge else None,
                 )
+                if role == "bridge" and self.native_bridge:
+                    self.session.call("primary", native.config_program(self.owner), 45)
                 if role == "audit":
                     actual = dict(value.split("=", 1) for value in row["Config"]["Env"])
                     if any(actual.get(k) != v for k, v in self.env.items()):
@@ -255,6 +282,9 @@ class Resources:
                     or execution_identity(rows[0]) != execution_identity(expected)
                 ):
                     raise ValueError("Unknown helper identity; refusing deletion")
+                if role == "bridge" and self.native_bridge:
+                    import cce_native_database_bridge as native
+                    self.session.call("primary", native.config_program(self.owner), 45)
                 owned_receipt(
                     rows[0],
                     self.names[role],
@@ -263,6 +293,7 @@ class Resources:
                     pool_network=self.network,
                     bridge=role == "bridge",
                     kafka=role == "kafka",
+                    native_owner=self.owner if role == "bridge" and self.native_bridge else None,
                     require_running=False,
                 )
                 result = self.session.call(
@@ -296,6 +327,16 @@ print(json.dumps({'owned_helper_removed':True}))
                 self.record.update(result)
             except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Record private cleanup uncertainty.
                 failures.append({"role": "environment", "type": type(error).__name__})
+        if self.record.get("native_config_transfer_attempted") and not failures:
+            try:
+                import cce_native_database_bridge as native
+                self.session.call("primary", native.config_program(self.owner), 45)
+                result = self.session.call("primary", "from pathlib import Path;import json\np=Path(" + repr(self.owner) + ")/'cce-stream.conf'\np.unlink()\nprint(json.dumps({'native_configuration_removed':not p.exists()}))", 45)
+                if result.get("native_configuration_removed") is not True:
+                    raise ValueError("Native configuration cleanup unverified")
+                self.record.update(result)
+            except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Preserve ownership uncertainty.
+                failures.append({"role": "native-configuration", "type": type(error).__name__})
         self.record["resource_cleanup_failures"] = failures
         self.record["owned_resources_removed"] = not failures
         self.checkpoint()

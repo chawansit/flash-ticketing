@@ -19,6 +19,8 @@ def active(goal):
             or goal.get("profile") != "cce_paid_comparison" or goal.get("comparison_arm") != "correction"
             or goal.get("acquisition_budget") != 20 or goal.get("candidate_factor") != factor()):
         raise ValueError("Exact event-lane worker placement correction required")
+    from cce_native_database_bridge import selected
+    selected(goal)
     parent.image()
     return goal
 
@@ -41,4 +43,12 @@ def plan(goal):
         plan.update(kind="event_lane_fixed_budget_baseline", timeout_retention_decision="ADR0278",
                     timeout_bundle_sha256=MANIFEST_SHA256,
                     duration_reason="One unchanged 84/s five-minute baseline with timeout evidence retention.")
+    from cce_native_database_bridge import contract
+    from cce_native_database_bridge import selected as native_selected
+    if native_selected(goal):
+        baseline = "docs/capacity/cce/timeout-baseline-result-2026-10-11.json"
+        plan.update(kind="native_database_bridge_comparison", single_changed_factor="database_tcp_bridge_implementation",
+                    native_database_bridge=contract(), baseline_evidence=baseline,
+                    baseline_sha256=policy.digest(policy.read(policy.ROOT / baseline)),
+                    duration_reason="One fixed-budget native database bridge comparison at unchanged 84/s for 300s.")
     return plan

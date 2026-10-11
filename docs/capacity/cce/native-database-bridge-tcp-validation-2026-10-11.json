@@ -1,0 +1,20 @@
+{
+  "decision": "ADR0279",
+  "pass": true,
+  "image_id": "sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10",
+  "checks": {
+    "concurrent_verified_tls_sessions": 16,
+    "verified_payload_bytes": 8388608,
+    "tls_certificate_verified": true,
+    "new_connection_after_abrupt_disconnect": true,
+    "one_second_idle_timeout_verified": true,
+    "upstream_refusal_surfaced": true,
+    "owned_container_removed": true,
+    "owned_files_removed": true
+  },
+  "customer_requests": 0,
+  "database_queries": 0,
+  "capacity_improvement_measured": false,
+  "test_inactivity_timeout_seconds": 1,
+  "production_inactivity_timeout_seconds": 300
+}

@@ -221,3 +221,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0277: Five-minute 50,000-ticket capacity test](0277-five-minute-fifty-thousand-ticket-capacity-test.md)
 
 - [ADR0278 Retain paid timeout evidence before restoration](0278-retain-paid-timeout-evidence-before-restoration.md)
+
+- [ADR0279: Native database TCP bridge](0279-native-database-tcp-bridge.md)
