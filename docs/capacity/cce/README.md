@@ -56,3 +56,5 @@ The original unmodified short-control input is archived under `artifacts/cce-his
 ## What remains unqualified
 
 The historical hour issued more than 300,000 tickets inside the window but remained `FAILED_RESTORED` because of a customer payment failure and observation gates. The trace-size ceiling and sampling coverage are unresolved; this promotion must not waive those gates. The 18,000-seat projection contention issue remains open. The combined backend source in PR #6 has a new identity and needs a fresh measured comparison before any performance claim. No cloud action, capacity improvement or production qualification is established by this PR.
+
+ADR0283: [observer correction validation](hourly-observer-cost-validation-2026-10-12.json) and [same-budget five-minute paid result](observer-cost-paid-result-2026-10-12.json). All25,200 paid journeys completed,zero errors/drops,full diagnostic coverage and restoration;journey p952.58s. In-window issuance25,095;original separate conservative short-window flag retained false.Hourly qualification pending.

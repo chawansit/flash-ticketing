@@ -230,4 +230,4 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0282: Bound hourly terminal relationship audit work](0282-bound-hourly-terminal-relationship-audit.md)
 
-- [ADR0283: Bound hourly observer cost and preserve diagnostics](0283-bound-hourly-observer-cost-and-preserve-diagnostics.md) — Accepted; observer-only correction validated, paid comparison pending.
+- [ADR0283: Bound hourly observer cost and preserve diagnostics](0283-bound-hourly-observer-cost-and-preserve-diagnostics.md) — Accepted; observer correction and five-minute paid comparison passed; hour pending.

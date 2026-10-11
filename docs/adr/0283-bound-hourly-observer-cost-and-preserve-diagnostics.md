@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for the bounded observer correction; offline and read-only cloud validation executed. Paid comparison pending; no capacity qualification.
+Accepted for the bounded observer correction; offline and read-only cloud validation executed. Five-minute paid comparison passed and restored; no hourly or maximum capacity qualification.
 
 ## Context
 
@@ -39,3 +39,8 @@ The original idle plan used 141,109 shared-hit blocks, zero disk-read blocks, an
 
 
 The eight-slice query exactly matched all nine original result columns within one read-only repeatable-read snapshot. Individual slices took 365.8–387.7 ms; total sliced work was 2.999 seconds versus 2.990 seconds for the warmed original, so total database CPU reduction is not established. A subsequent live-loop check exposed skipped alternate refresh ticks and correctly failed the ten-second freshness gate at 10.19 seconds. Schedule from query start with bounded clock tolerance; retain that failure and add an aligned-clock regression. The corrected actual sampling function executed twenty read-only observations: maximum refresh 430.0 ms, maximum observation gap 1.368 seconds, oldest slice 7.366 seconds, zero database errors, one data connection, three-second statement deadline, all 300,228 existing tickets counted. No paid traffic was dispatched by these probes. Executed 224 affected regressions passed, one existing platform-dependent test skipped; Ruff passed. Historical observer sources remain immutable. The next experiment repeats 84 offered journeys/s for five minutes with the same application image and budgets before considering another hour.
+
+
+Paid comparison adr0151-0c14342140e2 passed all ten original native gates and restored the runtime. Exactly 25,200 scheduled/dispatched/confirmed/terminal unique paid tickets, zero drops, initial errors, retries or final customer failures. Payment loss/double bookings zero; queues drained; namespace/helpers/credentials removed. Worst-shard journey p95 was 2,582.30 ms versus 4,661.10 ms in ADR0280 (44.60% lower in this one comparison); API CPU 1.175 cores, worker CPU 1.264 cores, primary host CPU 39.91%. All CPU, slot and database-wait captures completed, zero observer SQL errors. 25,095 tickets issued inside the 300-second offered window and 105 afterward; two fewer in-window tickets than the reference, so increased ticket capacity is not established. The existing separate short issuance flag remains false under its conservative two-second boundary guard; no threshold was weakened. Fresh-cohort cache/checkpoint and Kafka partition variation prevent attributing the entire latency difference to the observer correction. The failed ADR0281 hour remains failed; a new hour is required.
+
+[Read-only validation](../capacity/cce/hourly-observer-cost-validation-2026-10-12.json) and [paid comparison](../capacity/cce/observer-cost-paid-result-2026-10-12.json) preserve the evidence and original gates.
