@@ -2,6 +2,12 @@
 
 This integration depends on backend PR #6. Merge that PR first, then retarget this stacked PR to main and rerun CI. Repository integration changes neither deployment nor capacity. Do not build a new image from main and label it as the historical benchmark image.
 
+## Latest measured result: ADR0280 committed status reuse (11 October 2026)
+
+The [fixed-budget comparison](committed-status-reuse-result-2026-10-11.json) passed: **25,200 of 25,200 journeys dispatched and completed**, zero initial/final customer errors, zero double-booking or payment loss, and complete queue drain/restoration. It issued **25,097 unique paid tickets inside 300 seconds (83.6567/s)**; 103 more issued after the window. Journey p95 fell from 11.303 to 4.661 seconds. Reusing fresh committed snapshots avoided 23,133 redundant reads; consumer DB acquisitions fell 22.39%. Image, resources, connections, offered workload, gateway delays and recovery policy were unchanged. The earlier ADR0279 baseline failed quality, explicitly retained below.
+
+Read [ADR0280](../../adr/0280-reuse-fresh-committed-order-status.md) for the exact setting and failure/freshness behavior. This is one passing five-minute run; **300,000 tickets in an hour remains unqualified**. Next is an hour at the same measured configuration, not increased load. The original disabled runtime was restored after the experiment.
+
 ## Latest measured comparison — 11 October 2026
 
 The [ADR0279 native database bridge comparison](native-database-bridge-result-2026-10-11.json) issued **24,558 unique paid tickets inside five minutes (81.86/s)**, versus 20,279 (67.60/s) in its retained ADR0278 baseline: **21.1% more in-window tickets**. The shared application image, four 1-vCPU/2-GiB APIs, fourteen 250m/512-MiB workers and 24 physical database connections were unchanged. Only the database TCP bridge implementation changed; the explicitly recorded generator-reporting correction changes no traffic behavior.

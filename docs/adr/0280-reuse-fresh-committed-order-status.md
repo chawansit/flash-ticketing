@@ -2,7 +2,7 @@
 
 ## Status
 
-Implemented as an explicit candidate for one isolated fixed-budget comparison. No new cloud capacity measurement yet.
+Accepted for the measured short-test configuration. One fixed-budget comparison passed; hourly/production qualification remains pending.
 
 ## Context
 
@@ -38,3 +38,30 @@ Supersedes the disabled consumer refresh-reuse setting only for the explicitly s
 ## Validation evidence
 
 Executed offline: 110 focused regressions passed, including candidate flag/source/budget rejection and the existing reuse regressions. Ruff passed and the sealed overlay verified all 535 historical inputs without changing them. Existing reuse regressions cover fingerprint changes, ownership, expiry, lookup errors, refund invalidation, replay and restart. New candidate binding tests must reject settings/source/budget drift. The cloud comparison must report actual deduplicated reads, event cache fills, DB acquisitions, consumer lag, customer latency, first-attempt and final errors, undispatched journeys, inside-window unique paid tickets, payment durability, double-booking and complete queue drain separately. No hourly qualification from a failed short gate.
+
+
+## Cloud result: 11 October 2026
+
+Run `adr0151-7015f60b6a20`, ledger `bounded_cce_paid_comparison__aec95c9353f9`, offered 22:06:58.269–22:11:58.269 Bangkok time. Terminal status **PASSED_RESTORED**. Every original customer, observer, financial, durability, duplicate-booking, queue-drain, runtime and restoration gate passed. No resources or connection budgets increased.
+
+| Metric | ADR0279 disabled reuse | ADR0280 enabled reuse |
+| --- | ---: | ---: |
+| Dispatched/completed journeys | 25,017 | 25,200 |
+| Undispatched journeys | 183 | 0 |
+| Initial/final customer errors | 3 / 0 | 0 / 0 |
+| Unique paid tickets inside 300 seconds | 24,558 | 25,097 |
+| In-window paid ticket rate | 81.86/s | 83.6567/s |
+| Maximum shard journey p95 | 11.303 seconds | 4.661 seconds |
+| Payment-to-ticket p95 | 10.082 seconds | 3.626 seconds |
+| Consumer database acquisitions | 100,068 | 77,667 |
+| Peak fulfillment Kafka lag | 1,590 | 671 |
+| Peak paid-unfulfilled orders | 359 | 141 |
+| API aggregate CPU cores | 1.973 | 1.244 |
+
+The candidate avoided 23,133 redundant committed-status read transactions. Consumer database acquisitions fell 22.39%, journey p95 fell 58.76%, and in-window issuance rose 2.19%. API pool timeouts were zero; mean API pool acquisition remained 5.419 ms. Mean connection-held and commit times increased to 25.634 and 3.465 ms, so not every metric improved. These are one-run observations, not proof of repeatability.
+
+All 25,200 orders, payments, bookings, tickets and payment callbacks matched after expiry. Zero double-booking, payment loss, pending orders or undrained queues. Owned CCE namespace/helpers/configuration/private inputs were removed; the original disabled configuration was restored and the generator stopped. No independent recovery or gate waiver was required.
+
+The optional exact-window counter still reports false against 25,200 tickets because 103 were issued after the offered window. It is a retained diagnostic, not an omitted or relaxed qualification gate. The observed 83.6567/s exceeds 83.3333/s arithmetically needed for 300,000/hour, but this five-minute run does not qualify an hour. Next: one bounded hour at the same configuration, with at least 300,000 unique paid-and-issued tickets inside the hour and all original quality and cleanup gates. Retain the approved 90-minute ceiling including setup and required audits.
+
+Public evidence: [comparison result](../capacity/cce/committed-status-reuse-result-2026-10-11.json). Default behavior and historical source/image records remain unchanged.
