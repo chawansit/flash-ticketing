@@ -227,3 +227,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [0280: Reuse fresh committed order status in fulfillment](0280-reuse-fresh-committed-order-status.md)
 
 - [ADR0281: Qualify committed-status reuse for one hour](0281-qualify-status-reuse-for-one-hour.md)
+
+- [ADR0282: Bound hourly terminal relationship audit work](0282-bound-hourly-terminal-relationship-audit.md)

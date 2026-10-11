@@ -2,6 +2,8 @@
 
 ## Status
 
+Executed: failed hourly qualification, independently restored. 300,000/hour remains unqualified.
+
 Accepted for one bounded hourly experiment. Implemented and offline tested; cloud qualification pending.
 
 ## Context
@@ -38,7 +40,13 @@ Extends ADR0280's accepted short configuration into one separately authorized ho
 
 Executed offline: 155 focused regressions passed. They cover exact hourly scope and prerequisite rejection, unchanged runtime budgets, short defaults, complete-hour admission capture with overlap rejection, worker lifetimes, hourly allocation and financial boundaries, recovery and transferred timeout-retaining imports. Ruff passed. All 535 frozen reproduction inputs verified unchanged. The historical hourly test fixture now explicitly selects its historical resources instead of inheriting newer live extension markers.
 
-Pending: cloud readiness/safety checks, one continuous hourly run, inside-hour durable counts, mandatory post-TTL financial audit, full queue drain and restoration. Hourly capacity is not yet qualified.
+Executed the unchanged hourly load on 11 October, 22:52:06–23:52:06 Bangkok. Result: **FAILED_RESTORED**. Of 302,400 scheduled journeys, 300,228 dispatched and obtained unique paid tickets; 2,172 were undispatched (0.7183%). All 302 initially failing journeys recovered with 313 attempts and zero final customer failures. Worst-shard journey p95 was 5,568.04 ms. The hour contained 299,782 unique paid tickets (83.2728/s), 218 short of target; the conservative guarded window contained 299,593. Another 446 tickets issued after the hour. Do not qualify capacity from the 300,228 total after drain.
+
+The pipeline retained 156 QueryCanceled rows; successful cohort-phase p95 was 2,057.44 ms and maximum observation gap 3.459 seconds. CPU collection also rejected the hourly worker-isolation profile; native coverage/slot diagnostics failed. No complete CPU attribution or confirmed causal storage/WAL diagnosis follows this run. The original report and failed gates are immutable.
+
+After original restoration failed on the stopped candidate API, independent recovery restarted the exact saved original topology. ADR0282 audited all 300,228 dispatched payments/bookings/tickets and every financial relationship in one read-only snapshot: zero double-booking, payment loss or relationship errors; both safety fixtures passed. All global queues drained, original runtime was stable, namespace/helpers/private inputs were removed, generator idle, secondary empty and all 1,010 owned fixture events retired. Recovery changes terminal status, not qualification. The last independent verification took 152.59 seconds; earlier failed recovery attempts remain private evidence. Time accounting includes 73.07 minutes for the original experiment plus 21.63 minutes of recovery work, including failed attempts. Cleanup exceeded the 90-minute ceiling under the standing cleanup exception; no second paid stage was run.
+
+Evidence: [hourly result](../capacity/cce/status-reuse-hourly-result-2026-10-11.json), [independent terminal recovery](../capacity/cce/status-reuse-hourly-terminal-recovery-2026-10-11.json), [ADR0282](0282-bound-hourly-terminal-relationship-audit.md).
 
 Passing short prerequisite: [ADR0280 result](../capacity/cce/committed-status-reuse-result-2026-10-11.json).
 

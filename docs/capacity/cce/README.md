@@ -2,11 +2,19 @@
 
 This integration depends on backend PR #6. Merge that PR first, then retarget this stacked PR to main and rerun CI. Repository integration changes neither deployment nor capacity. Do not build a new image from main and label it as the historical benchmark image.
 
+## Latest hourly result: ADR0281 (11 October, audited 12 October 2026)
+
+The [hourly result](status-reuse-hourly-result-2026-10-11.json) is **FAILED_RESTORED**: **299,782 unique paid tickets within one hour**, 218 below target. The conservative guarded window contained 299,593. Total after drain was 300,228; that total does not qualify 300,000 inside the hour. Resources, image, connection budgets, gateway delays and recovery matched ADR0280.
+
+Of 302,400 scheduled journeys, 2,172 were undispatched (0.7183%). All 302 journeys with initial errors recovered; final customer failures were zero. Worst-shard journey p95 was 5.568 seconds. Pipeline SQL timed out in 156 samples; hourly CPU/diagnostic coverage failed, so CPU attribution and a causal bottleneck remain unconfirmed.
+
+The [independent terminal audit](status-reuse-hourly-terminal-recovery-2026-10-11.json) reconciled all 300,228 dispatched payments/bookings/tickets, with zero duplicate booking, payment loss or relationship errors. All queues drained and original runtime/cleanup were independently verified. [ADR0281](../../adr/0281-qualify-status-reuse-for-one-hour.md) and [ADR0282](../../adr/0282-bound-hourly-terminal-relationship-audit.md) distinguish failed qualification from successful recovery. Next: correct observer overhead/hourly compatibility and restore complete failure-time coverage, then repeat the same 84/s workload. Do not increase load or claim production qualification from this run.
+
 ## Latest measured result: ADR0280 committed status reuse (11 October 2026)
 
 The [fixed-budget comparison](committed-status-reuse-result-2026-10-11.json) passed: **25,200 of 25,200 journeys dispatched and completed**, zero initial/final customer errors, zero double-booking or payment loss, and complete queue drain/restoration. It issued **25,097 unique paid tickets inside 300 seconds (83.6567/s)**; 103 more issued after the window. Journey p95 fell from 11.303 to 4.661 seconds. Reusing fresh committed snapshots avoided 23,133 redundant reads; consumer DB acquisitions fell 22.39%. Image, resources, connections, offered workload, gateway delays and recovery policy were unchanged. The earlier ADR0279 baseline failed quality, explicitly retained below.
 
-Read [ADR0280](../../adr/0280-reuse-fresh-committed-order-status.md) for the exact setting and failure/freshness behavior. This is one passing five-minute run; **300,000 tickets in an hour remains unqualified**. Next is an hour at the same measured configuration, not increased load. The original disabled runtime was restored after the experiment.
+Read [ADR0280](../../adr/0280-reuse-fresh-committed-order-status.md) for the exact setting and failure/freshness behavior. This is one passing five-minute run; **300,000 tickets in an hour remains unqualified**. The subsequent hourly attempt above failed; this earlier short pass remains valid within its five-minute scope. The original disabled runtime was restored after the experiment.
 
 ## Latest measured comparison — 11 October 2026
 

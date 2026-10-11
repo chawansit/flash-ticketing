@@ -124,8 +124,8 @@
       ],
       "boundary_mode": "goal_bounded",
       "goal_bounded_authorization": {
-        "decision": "ADR0228",
-        "profile": "cce_paid_comparison",
+        "decision": "ADR0232",
+        "profile": "cce_hourly_qualification",
         "extension_decision": "ADR0271",
         "comparison_arm": "correction",
         "maximum_paid_stages": 1,
@@ -133,8 +133,8 @@
         "pod_vcpu": 1,
         "pod_memory_gib": 2,
         "offered_journeys_per_second": 84,
-        "offered_seconds": 300,
-        "maximum_experiment_seconds": 3600,
+        "offered_seconds": 3600,
+        "maximum_experiment_seconds": 5400,
         "acquisition_budget": 20,
         "unlimited_cumulative_time_explicitly_authorized": true,
         "spending_allowance": {
@@ -142,7 +142,7 @@
           "maximum_additional_spend": null,
           "no_spending_cap_explicitly_authorized": true
         },
-        "ledger_start_index": 90,
+        "ledger_start_index": 91,
         "candidate_factor": {
           "name": "event_lane_worker_placement",
           "comparison_arm": "correction",
@@ -169,13 +169,13 @@
           "database_connections_unchanged": true,
           "gateway_delay_unchanged": true
         },
-        "authorization": "Direct user Continue: one ADR0280 existing-image status refresh reuse comparison at fixed-budget 84/s for five minutes",
-        "authorized_at_bangkok": "2026-10-11T21:57:14.021094+07:00",
+        "authorization": "Direct user Continue after passed ADR0280: one same-runtime 84/s hourly qualification with approved 90-minute ceiling",
+        "authorized_at_bangkok": "2026-10-11T22:41:41.811520+07:00",
         "image_correction_decision": "ADR0267",
-        "authorized_at_utc": "2026-10-11T14:57:14.021094+00:00",
-        "scope_note": "One84/s300s candidate; unchanged app digest, four API and fourteen workers, cap24, consumer pool48, simulator16/pool10, recovery3 and gateway delays; retain ADR0279 native DB bridge; ADR0280 consumer refresh reuse only",
+        "authorized_at_utc": "2026-10-11T15:41:41.811520+00:00",
+        "scope_note": "One84/s3600s hourly candidate; 302400 distinct journeys; unchanged passed ADR0280 runtime and resource budgets; original quality gates plus300000 durable paid tickets inside the hour;5400s experiment including cleanup",
         "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
-        "baseline_sha256": "9adfeff32560787723b6cdd54a20e334563b33100f264b9fcdad365983f3b066",
+        "baseline_sha256": "6e04b6008fcd08a8e0a3727dab2a6dd6b910c6d1d2fa4ff051911e835993b254",
         "worker_resources": {
           "cpu": "250m",
           "memory": "512Mi"
@@ -185,7 +185,9 @@
         "native_database_bridge_decision": "ADR0279",
         "native_database_bridge_sha256": "11b72a0bd7cb5dbaec8d9396d279a32b97daa892a6aa83d9f622d2bc0fceeaf1",
         "status_refresh_reuse_decision": "ADR0280",
-        "status_refresh_reuse_sha256": "9a3942c87ff8a71a6d2954b65198e15dbcdab14ac3e4ae535d7aaffff26e094f"
+        "status_refresh_reuse_sha256": "9a3942c87ff8a71a6d2954b65198e15dbcdab14ac3e4ae535d7aaffff26e094f",
+        "hourly_qualification_decision": "ADR0281",
+        "hourly_adapters_sha256": "0af7b2ff94cbabfd5e37829e5ba7532b3939d80e02bbc0def9942beeaae891c4"
       },
       "bounded_scaling_permission": {
         "authorized": true,
@@ -1432,6 +1434,74 @@
           },
           "superseded_by": "ADR0280",
           "superseded_at_utc": "2026-10-11T14:57:14.021094+00:00"
+        },
+        {
+          "goal": {
+            "decision": "ADR0228",
+            "profile": "cce_paid_comparison",
+            "extension_decision": "ADR0271",
+            "comparison_arm": "correction",
+            "maximum_paid_stages": 1,
+            "maximum_pods": 18,
+            "pod_vcpu": 1,
+            "pod_memory_gib": 2,
+            "offered_journeys_per_second": 84,
+            "offered_seconds": 300,
+            "maximum_experiment_seconds": 3600,
+            "acquisition_budget": 20,
+            "unlimited_cumulative_time_explicitly_authorized": true,
+            "spending_allowance": {
+              "status": "APPROVED",
+              "maximum_additional_spend": null,
+              "no_spending_cap_explicitly_authorized": true
+            },
+            "ledger_start_index": 90,
+            "candidate_factor": {
+              "name": "event_lane_worker_placement",
+              "comparison_arm": "correction",
+              "worker_counts": {
+                "consumer": 6,
+                "projection-consumer": 1,
+                "reservation-writer": 3,
+                "publisher": 1,
+                "maintenance": 1,
+                "reconciler": 1,
+                "simulator": 1
+              },
+              "worker_resources": {
+                "requests": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                },
+                "limits": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                }
+              },
+              "image_receipt_sha256": "86e7655ecdd8496a7f95af5b8f805bbf351779344b0103168cbd22c61225b80a",
+              "database_connections_unchanged": true,
+              "gateway_delay_unchanged": true
+            },
+            "authorization": "Direct user Continue: one ADR0280 existing-image status refresh reuse comparison at fixed-budget 84/s for five minutes",
+            "authorized_at_bangkok": "2026-10-11T21:57:14.021094+07:00",
+            "image_correction_decision": "ADR0267",
+            "authorized_at_utc": "2026-10-11T14:57:14.021094+00:00",
+            "scope_note": "One84/s300s candidate; unchanged app digest, four API and fourteen workers, cap24, consumer pool48, simulator16/pool10, recovery3 and gateway delays; retain ADR0279 native DB bridge; ADR0280 consumer refresh reuse only",
+            "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
+            "baseline_sha256": "9adfeff32560787723b6cdd54a20e334563b33100f264b9fcdad365983f3b066",
+            "worker_resources": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            },
+            "generator_concurrency": 500,
+            "timeout_retention_decision": "ADR0278",
+            "native_database_bridge_decision": "ADR0279",
+            "native_database_bridge_sha256": "11b72a0bd7cb5dbaec8d9396d279a32b97daa892a6aa83d9f622d2bc0fceeaf1",
+            "status_refresh_reuse_decision": "ADR0280",
+            "status_refresh_reuse_sha256": "9a3942c87ff8a71a6d2954b65198e15dbcdab14ac3e4ae535d7aaffff26e094f"
+          },
+          "superseded_by": "ADR0281",
+          "superseded_at_utc": "2026-10-11T15:41:41.811520+00:00"
         }
       ]
     }
@@ -1449,7 +1519,7 @@
       "authorization": "Direct user reply: Allow 90 minutes for hourly qualification",
       "approved_date_bangkok": "2026-10-07",
       "spending_or_size_changes": false,
-      "status": "locally qualified and registered; cloud hourly load unexecuted"
+      "status": "ADR0281 hourly executed: FAILED_RESTORED; consumed scope, independent financial/restoration recovery verified. No hourly capacity qualification."
     }
   },
   "customer_gates": {

@@ -2372,6 +2372,43 @@
       "finished_at_utc": "2026-10-11T15:15:57.789946+00:00",
       "paid_runs_started": 1,
       "result_sha256": "7d5b40aa8f24f5141668ae8132e5135cab208b92f127f82dcbe868f9e63fb9fb"
+    },
+    {
+      "ledger": "bounded_cce_hourly_qualification__d6a639df57ac",
+      "authorization_id": "work-envelope-d6a639df57ac",
+      "envelope_sha256": "817e589b97097fcf49acd3f5916449bded4432116e66577f7960301827083ff0",
+      "binding_sha256": "ef17e295ad36996f876fff29081487d5d0ba3c80a742b8b0f7f26ce4f68d5f97",
+      "plan_sha256": "0f94636bbfc6e96828c2f0c8e7738f9a24ed99d14021c6e9f633220ac1872e69",
+      "profile": "cce_hourly_qualification",
+      "reserved_seconds": 5400,
+      "actual_elapsed_seconds": 5681.600532838842,
+      "started_at_utc": "2026-10-11T15:41:42.408785+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-48b046d7943d",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-11T16:54:46.290537+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "37c6f0f5a7656e562f191e75eef130f0f26b4721b610dddd77acba6c4bf9857d",
+      "initial_status": "RECOVERY_REQUIRED",
+      "recovery": {
+        "decision": "ADR0282",
+        "evidence": "docs/capacity/cce/status-reuse-hourly-terminal-recovery-2026-10-11.json",
+        "sha256": "865e1e3c97c189221fa0c7dc6cb364674d0b43fe401985852ad7084a5adc13d1",
+        "actual_elapsed_seconds": 152.59299999999348,
+        "capacity_qualified": false,
+        "wall_elapsed_including_failed_attempts_seconds": 1297.5535328388214,
+        "last_attempt_elapsed_seconds": 152.59299999999348,
+        "started_at_utc": "2026-10-11T16:59:33.915046+00:00",
+        "finished_at_utc": "2026-10-11T17:21:11.468579+00:00",
+        "accounting_note": "Wall time includes failed audit/diagnostic/restoration attempts; final successful audit receipt alone is152.59s. Paid experiment duration unchanged; cleanup may exceed deadline."
+      },
+      "initial_actual_elapsed_seconds": 4384.0470000000205,
+      "cleanup_deadline_overrun_seconds": 281.6005328388419,
+      "cleanup_deadline_overrun_authorized": true
     }
   ],
   "verified_aborts": {
