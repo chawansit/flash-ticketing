@@ -37,7 +37,10 @@ def sha(raw):
 def identity():
     paths = (
         "scripts/collect_two_host_inventory.py", "scripts/runtime_source_identity.py",
-        "scripts/cce_ticket_target_profile.py",
+        "scripts/cce_ticket_target_profile.py", "scripts/customer_timeout_bundle.py",
+        "artifacts/customer-timeout/manifest.json", "artifacts/customer-timeout/coordinator.py",
+        "artifacts/customer-timeout/paid_ticket_load_generator.py",
+        "artifacts/customer-timeout/paid_ticket_sharded_generator.py",
         "scripts/cce_live_admission.py", "scripts/cce_worker_rebalance_profile.py",
         "scripts/cce_event_lane_identity.py", "scripts/cce_event_lane_profile.py",
         "scripts/cce_event_lane_contract.py", "scripts/observe_projection_kafka.py",
@@ -201,6 +204,17 @@ class PaidStage:
                 self.bundle, self.coordinator = qualify_workload(self.bundle)
             else:
                 self.bundle, self.coordinator = qualify(self.bundle)
+            from customer_timeout_bundle import MANIFEST_SHA256 as timeout_sha
+            from customer_timeout_bundle import qualify as retain_timeout
+            from customer_timeout_bundle import selected
+            if selected(transaction.active()):
+                if (self.profile.name != "cce_paid_comparison"
+                        or guard.binding.get("cce_timeout_retention_decision") != "ADR0278"
+                        or guard.binding.get("cce_timeout_bundle_sha256") != timeout_sha):
+                    raise ValueError("Exact short timeout-retention binding required")
+                self.bundle, self.coordinator = retain_timeout(self.bundle, self.coordinator)
+            elif "cce_timeout_bundle_sha256" in guard.binding:
+                raise ValueError("Unselected timeout-retention binding")
             if self.profile.duration == 3600:
                 from cce_recovery_hourly_profile import qualify_hourly_adapters
                 qualify_hourly_adapters()
@@ -404,6 +418,17 @@ class PaidStage:
             except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Preserve independent mandatory recovery operations.
                 self.record[name + "_failure_type"] = type(error).__name__
                 errors.append(name)
+            self.checkpoint()
+        import cce_transaction_profile as transaction
+        from customer_timeout_bundle import issuance_program as short_window
+        from customer_timeout_bundle import selected
+        if selected(transaction.active()):
+            try:
+                start = datetime.fromisoformat(self.record["scheduled_offered_start_utc"]).timestamp()
+                self.record["short_issuance_window"] = self.session.api(self.cid, short_window(self.events, start), 90)
+            except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Preserve independent financial audits.
+                self.record["short_issuance_window_failure_type"] = type(error).__name__
+                errors.append("short_issuance_window")
             self.checkpoint()
         if self.profile.name == "cce_ticket_target":
             from cce_ticket_target_profile import issuance_program

@@ -27,7 +27,7 @@ def plan(goal):
     active(goal)
     legacy = {**goal, "extension_decision": "ADR0266", "candidate_factor": parent.factor()}
     result = parent.plan(legacy)
-    return {**result, "extension_decision": "ADR0271", "kind": "event_lane_worker_placement_correction",
+    plan = {**result, "extension_decision": "ADR0271", "kind": "event_lane_worker_placement_correction",
             "single_changed_factor": "event_lane_worker_placement", "baseline_evidence": BASELINE,
             "baseline_sha256": policy.digest(policy.read(policy.ROOT / BASELINE)),
             "baseline_is_passing_control": False, "worker_counts": factor()["worker_counts"],
@@ -35,3 +35,10 @@ def plan(goal):
             "total_requested_vcpu": 7.5, "total_requested_memory_gib": 15,
             "diagnostic_decision": "ADR0272",
             "duration_reason": "One five-minute worker placement correction; actual paid cohort and both lanes must drain."}
+
+    from customer_timeout_bundle import MANIFEST_SHA256, selected
+    if selected(goal):
+        plan.update(kind="event_lane_fixed_budget_baseline", timeout_retention_decision="ADR0278",
+                    timeout_bundle_sha256=MANIFEST_SHA256,
+                    duration_reason="One unchanged 84/s five-minute baseline with timeout evidence retention.")
+    return plan

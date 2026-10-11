@@ -1,0 +1,12 @@
+{
+  "decision": "ADR0278",
+  "parent_recovery_manifest_sha256": "2349e1b19849c20e57ed26203076635166a5fb7722d6c8202939fe9157f18331",
+  "checkpoint_seconds": 10,
+  "files": {
+    "artifacts/customer-timeout/paid_ticket_load_generator.py": "0b2368445965ab9c5ac36171e3d336ecedffcd15dc6d38a3e66150a3e9c28ea6",
+    "artifacts/customer-timeout/paid_ticket_sharded_generator.py": "19ae460ab3ffdc2b87e42028c47e1c20657cd4840491847553b49c685b48225a",
+    "artifacts/customer-timeout/coordinator.py": "65607e66c38079182b7b8177c99a1f4173ee508f5e33a39701a7abbc055b4c45"
+  },
+  "workload_unchanged": true,
+  "partial_reports_pass": false
+}

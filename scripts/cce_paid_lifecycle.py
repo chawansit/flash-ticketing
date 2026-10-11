@@ -176,6 +176,7 @@ class Lifecycle:
             self.checkpoint()
             customer = self.stage.dispatch(admission, start_at_epoch=start)
             self.capture_admission_diagnostics()
+            self.record["observer_collection_attempted"] = True
             observed = self.observers.collect()
             financial = self.stage.audit(global_audit)
             self.deployment.observe(self.manifests, http_ready, http_metrics, previous=receipts)
@@ -232,6 +233,19 @@ class Lifecycle:
             failures = []
             if (self.record["customers_dispatched"] or self.live_capture is not None) and "admission_diagnostics" not in self.record:
                 self.capture_admission_diagnostics()
+            if self.record["customers_dispatched"] and not self.record.get("observer_collection_attempted"):
+                self.record["observer_collection_attempted"] = True
+                # Stop existing jobs before collecting failed-window diagnostics.
+                try:
+                    self.stage.stop_jobs()
+                except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Mandatory cleanup retries independently.
+                    self.record["failure_observer_stop_error"] = type(error).__name__
+                try:
+                    observed = self.observers.collect()
+                    self.record["failure_observation_complete"] = observed.get("observer_pass") is True
+                except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Never mask the original failure.
+                    self.record["failure_observer_collection_error"] = type(error).__name__
+                self.checkpoint()
             # Restore the exact ECS candidate first: outer cleanup uses its captured CID.
             from run_two_host_paid_comparison import drain
 

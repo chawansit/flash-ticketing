@@ -1,0 +1,30 @@
+{
+  "decision": "ADR0278",
+  "date_bangkok": "2026-10-11",
+  "status": "BLOCKED_BEFORE_LOAD",
+  "local_validation": {
+    "focused_tests_passed": 70,
+    "wider_tests_passed": 186,
+    "test_sets_overlap": true,
+    "ruff_passed": true,
+    "reproduction_historical_sources": 535,
+    "reproduction_current_overlays": 25,
+    "reproduction_pass": true
+  },
+  "cloud_preflight": {
+    "ecs_access_verified": true,
+    "normal_primary_runtime_verified": true,
+    "generator_idle": true,
+    "global_queues_normal": true,
+    "secondary_empty": true,
+    "registry_authentication": false
+  },
+  "cloud_load_started": false,
+  "fresh_experiment_registered": false,
+  "paid_stages_consumed": 0,
+  "application_changed": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "blocker": "SWR rejected the supplied credential; fresh login required.",
+  "next": "One unchanged 84 offered journeys/s baseline for 300 seconds with customer timeout checkpoints and independent failure diagnostics."
+}

@@ -96,6 +96,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
               "cce_transaction_pair_sha256": transaction.proof_digest(transaction.active())}
              if transaction.active() is not None else {})
     goal = transaction.active()
+    from customer_timeout_bundle import MANIFEST_SHA256 as timeout_sha
+    from customer_timeout_bundle import selected
+    if selected(goal):
+        extra.update(cce_timeout_retention_decision="ADR0278", cce_timeout_bundle_sha256=timeout_sha)
     if goal is not None and goal["extension_decision"] in {"ADR0266", "ADR0271", "ADR0277"}:
         from customer_recovery_bundle import MANIFEST_SHA256
         extra.update(cce_event_lane_decision="ADR0266", cce_event_consumer_pool_budget=48,

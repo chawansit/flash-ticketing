@@ -15,6 +15,10 @@ OVERLAID = {
     "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py",
     "scripts/run_cce_hourly_qualification.py", "scripts/cce_hourly_paid_generator.py", "scripts/cce_hourly_paid_leaf.py"}
 ADDITIONAL = {
+    "scripts/customer_timeout_bundle.py",
+    "artifacts/customer-timeout/manifest.json", "artifacts/customer-timeout/coordinator.py",
+    "artifacts/customer-timeout/paid_ticket_load_generator.py",
+    "artifacts/customer-timeout/paid_ticket_sharded_generator.py",
     "scripts/cce_ticket_target_profile.py",
     "scripts/cce_live_admission.py", "scripts/cce_worker_rebalance_profile.py",
     "scripts/cce_event_lane_identity.py", "scripts/cce_event_lane_profile.py",
