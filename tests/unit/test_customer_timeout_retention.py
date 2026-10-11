@@ -172,3 +172,29 @@ def test_unknown_selector_and_invalid_cohort_fail_closed():
         timeout_bundle.selected({"timeout_retention_decision": "ADR9999"})
     with pytest.raises(ValueError, match="cohort"):
         timeout_bundle.issuance_program([], 1000)
+
+
+def test_completed_quality_failure_keeps_final_latencies(tmp_path):
+    coordinator = tmp_path / "paid_ticket_sharded_generator.py"
+    coordinator.write_bytes((ROOT / "artifacts/customer-timeout/paid_ticket_sharded_generator.py").read_bytes())
+    report = {"scheduled": 1, "dispatched": 1, "completed": 1, "generator_drops": 0,
+              "fulfilled": 1, "fulfilled_by_deadline": 1, "distinct_orders": 1,
+              "distinct_tickets": 1, "accounting_complete": True, "measurement_complete": True,
+              "hold_to_ticket_p95_ms": 111, "total_journey_p95_ms": 999,
+              "recovery_max_attempts": 3, "pass": False}
+    (tmp_path / "paid_ticket_load_generator.py").write_text(
+        "import argparse,json\nfrom pathlib import Path\np=argparse.ArgumentParser();"
+        "p.add_argument('--output');a,_=p.parse_known_args()\nPath(a.output).write_text(json.dumps("
+        + repr(report) + "))\nraise SystemExit(1)\n", encoding="utf-8")
+    module = load(coordinator)
+    args = SimpleNamespace(rate=2, seconds=1, concurrency=2, origin="http://unused.invalid",
+                           completion_deadline_seconds=1, poll_seconds=0.1, duplicates=3,
+                           recovery_max_attempts=3)
+    manifest = {"schema_version": 1, "environment": "development", "show_ids": ["a", "b"],
+                "viewer_tokens": ["one", "two"], "seats_per_show": 2, "seat_offset": 0}
+    value = asyncio.run(module.run(args, manifest))
+    assert value["pass"] is False and value["shard_exit_codes"] == [1, 1]
+    assert value["measurement_complete"] is True and value["accounting_complete"] is True
+    assert value["coordinator_failure_type"] is None
+    assert value["dispatched"] == value["fulfilled"] == 2
+    assert value["hold_to_ticket_p95_ms"] == 111 and value["total_journey_p95_ms"] == 999

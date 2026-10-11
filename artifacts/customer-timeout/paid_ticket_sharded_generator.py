@@ -218,7 +218,8 @@ async def run(args, manifest):
     combined["coordinator_failure_type"] = coordinator_failure
     combined["shard_evidence_states"] = evidence_states
     combined["measurement_complete"] = (coordinator_failure is None
-        and evidence_states == ["final", "final"] and exit_codes == [0, 0])
+        and evidence_states == ["final", "final"] and all(code in (0, 1) for code in exit_codes)
+        and all(row.get("measurement_complete") is True for row in results))
     combined["accounting_complete"] = (len(results) == 2 and all(row
         and row.get("accounting_complete", True) for row in results))
     if not combined["measurement_complete"]:

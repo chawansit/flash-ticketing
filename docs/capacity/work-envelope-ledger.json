@@ -2293,6 +2293,35 @@
         "actual_elapsed_seconds": 81.23499999998603,
         "capacity_qualified": false
       }
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__6f32ab603515",
+      "authorization_id": "work-envelope-6f32ab603515",
+      "envelope_sha256": "62bae62b44f9c2cb9460d7f98cdaecd28dfe081f7a177733fb2a3afb714feb9d",
+      "binding_sha256": "4f606614b1cb531ca2f8909d232f3d76af2af57e1553d537730e7fcab2063e2b",
+      "plan_sha256": "f64f3fee3278fdcac97fc2f508319a2472030652d42e2ad2bb18df2861a1eb63",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1136.640000000014,
+      "started_at_utc": "2026-10-11T13:27:23.776023+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-290ef4ae009e",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-11T13:44:57.388987+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "712cbcbecd91171f75bc8bb3c8bfaf924ce458a57e3769d09871fee1f2a25e27",
+      "initial_status": "RECOVERY_REQUIRED",
+      "recovery": {
+        "decision": "ADR0278",
+        "evidence": "docs/capacity/cce/timeout-baseline-terminal-recovery-2026-10-11.json",
+        "sha256": "14ff070a73227893adbbef133d02461e2897bd08929202ce4abf11081408f629",
+        "actual_elapsed_seconds": 82.96799999999348,
+        "capacity_qualified": false
+      }
     }
   ],
   "verified_aborts": {

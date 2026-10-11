@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for implementation and one bounded five-minute 84 offered journeys/s baseline following the user request to continue the stated plan. Local validation passed. Cloud preflight on 11 October 2026 stopped at SWR authentication; a fresh registry login is required before the baseline. No paid load started. No capacity improvement is claimed.
+Accepted for implementation and one bounded five-minute 84 offered journeys/s baseline following the user request to continue the stated plan. Implemented and locally validated. With fresh SWR authentication, one cloud baseline completed on 11 October 2026 and failed quality/diagnostic gates. Independent terminal audit passed; runtime restored. No capacity improvement or hourly qualification is claimed. No capacity improvement is claimed.
 
 ## Context
 
@@ -36,6 +36,10 @@ Extends ADR0254 and ADR0277 evidence retention for a newly selected workload onl
 
 ## Validation evidence
 
-Executed 70 focused tests and 186 wider runner/recovery tests successfully. The focused tests exercised real hung child processes with final, partial, missing and malformed reports, unknown counters, overlay drift, failure diagnostics and mandatory cleanup. Ruff passed for changed Python sources. Offline reproduction verified 535 historical sources and 25 explicit overlays without cloud calls. Cloud baseline remains pending; local tests do not demonstrate capacity.
+Executed 70 focused tests and 186 wider runner/recovery tests successfully. The focused tests exercised real hung child processes with final, partial, missing and malformed reports, unknown counters, overlay drift, failure diagnostics and mandatory cleanup. Ruff passed for changed Python sources. Offline reproduction verified 535 historical sources and 25 explicit overlays without cloud calls. Local tests establish reporting behavior; the executed cloud result below failed qualification.
 
-Cloud preflight reached both ECS hosts, verified the original primary runtime, idle generator, normal queue state and empty secondary runtime, then failed SWR authentication. No fresh ledger or paid-stage allowance was consumed. See [preflight evidence](../capacity/cce/timeout-retention-preflight-2026-10-11.json). The prior ADR0277 capacity result is unchanged.
+The initial cloud preflight reached both ECS hosts, verified the original primary runtime, idle generator, normal queue state and empty secondary runtime, then failed SWR authentication. No fresh ledger or paid-stage allowance was consumed. See [preflight evidence](../capacity/cce/timeout-retention-preflight-2026-10-11.json). The prior ADR0277 capacity result is unchanged.
+
+The executed baseline exposed a reporting distinction: a child normally exits1 when quality gates fail, even when its final measurement is complete. Preserve final metrics for that case; measurement completeness and quality acceptance are separate. Timeout, missing/partial reports and abnormal exits still cannot certify complete metrics. This clarification changes future reporting only and does not rewrite the retained cloud result or waive any gate.
+
+Cloud result: [fixed-budget baseline](../capacity/cce/timeout-baseline-result-2026-10-11.json), [independent terminal audit](../capacity/cce/timeout-baseline-terminal-recovery-2026-10-11.json). 20,744 customer-confirmed tickets, 4,456 undispatched journeys, 556 initially errored journeys recovered, zero final failures; 20,279 unique paid-and-issued tickets inside 300 seconds. Maximum shard journey p95 was 24.159 seconds. APIs used 1.886 of four cores; the Python database bridge used 0.924 of one core; physical database slots peaked at 24 active with 12 clients waiting. Partial slot snapshots covered 594 of 625 failures; the complete-history gate remains failed. The original failed report is preserved. The reporting clarification passed 71 focused tests including a real normal-exit1 child; no cloud replay was performed. Next performance work should target the measured database forwarding path while retaining the physical connection budget.

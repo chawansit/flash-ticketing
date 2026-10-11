@@ -5,7 +5,7 @@ import json
 import work_envelope as policy
 
 MANIFEST = "artifacts/customer-timeout/manifest.json"
-MANIFEST_SHA256 = "6b3b81130c0e971cf77033b97dfd78e24d46e168c0c7875f1e23bebf0452615b"
+MANIFEST_SHA256 = "f9faa5f61768eae1db14c71b5d012fa01cc1aabf3489acc4ac0d690f1ef1401d"
 
 
 def selected(goal):

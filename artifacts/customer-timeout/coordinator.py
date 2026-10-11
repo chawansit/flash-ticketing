@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from time import time
 
-FROZEN_SHA256 = "19ae460ab3ffdc2b87e42028c47e1c20657cd4840491847553b49c685b48225a"
+FROZEN_SHA256 = "b7475ab12771525b30e2317fa4151b6159ff0454d3ca2e57f40c1119a0397788"
 
 
 def load(path, start_at_epoch, *, now=None):
