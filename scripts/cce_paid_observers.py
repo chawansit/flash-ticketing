@@ -231,7 +231,7 @@ class Observers:
             *(("observe_slot_paid_pipeline.py", "slot_failure_evidence.py", "bounded_trace_transport.py") if extended else ()),
         )
         if self.event_lanes:
-            helpers += ("cce_event_lane_identity.py", "observe_projection_kafka.py")
+            helpers += ("cce_event_lane_identity.py", "observe_projection_kafka.py", "cce_status_refresh_reuse.py")
         expected = {}
         for name in helpers:
             raw = (policy.ROOT / "scripts" / name).read_text()

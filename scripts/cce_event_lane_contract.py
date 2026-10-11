@@ -21,7 +21,10 @@ if result['kafka_members']==6:
 
 
 class EventLaneContract(SharedWorkerContract):
-    def __init__(self):
+    def __init__(self, *, status_refresh_reuse=False):
+        if type(status_refresh_reuse) is not bool:
+            raise TypeError("Explicit status refresh reuse boolean required")
+        self.status_refresh_reuse = status_refresh_reuse
         super().__init__(dispatch_slots=16)
         self.shared = profile.image()
         self.background = copy.deepcopy(self.background)
@@ -37,6 +40,8 @@ class EventLaneContract(SharedWorkerContract):
 
     def settings(self, role):
         values = super().settings(role)
+        if self.status_refresh_reuse and role == 'consumer':
+            values['ORDER_STATUS_EVENT_REFRESH_DEDUP'] = '1'
         values['RESERVATION_WRITE_PIPELINE'] = '1' if role == 'reservation-writer' else '0'
         values['EVENT_CONSUMER_SEPARATION'] = '1' if role in {'consumer', 'projection-consumer'} else '0'
         if role in {'consumer', 'projection-consumer'}:
@@ -65,7 +70,10 @@ class EventLaneContract(SharedWorkerContract):
         return super().image_program(roles).replace(repr(SOURCE), repr(pins.SOURCE))
 
     def inventory_marker(self):
-        return {**super().inventory_marker(), 'event_lane_decision': 'ADR0266',
+        from cce_status_refresh_reuse import contract, digest
+        reuse = ({'status_refresh_reuse_decision': 'ADR0280', 'status_refresh_reuse_sha256': digest(contract())}
+                 if self.status_refresh_reuse else {})
+        return {**super().inventory_marker(), **reuse, 'event_lane_decision': 'ADR0266',
                 'shared_image_decision': 'ADR0267', 'shared_image_source_sha256': pins.SOURCE,
                 'shared_image_configuration_digest': pins.CONFIG,
                 'shared_image_receipt_sha256': pins.RECEIPT_SHA256, 'event_consumer_pool_budget': 48}

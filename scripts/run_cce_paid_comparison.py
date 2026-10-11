@@ -99,6 +99,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     import cce_native_database_bridge as bridge
     if bridge.selected(goal):
         extra.update(cce_native_database_bridge_decision="ADR0279", cce_native_database_bridge_sha256=policy.digest(bridge.contract()))
+    from cce_status_refresh_reuse import contract as reuse_contract
+    from cce_status_refresh_reuse import selected as reuse_selected
+    if reuse_selected(goal):
+        extra.update(cce_status_refresh_reuse_decision="ADR0280", cce_status_refresh_reuse_sha256=policy.digest(reuse_contract()))
     from customer_timeout_bundle import MANIFEST_SHA256 as timeout_sha
     from customer_timeout_bundle import selected
     if selected(goal):
@@ -357,7 +361,8 @@ def worker_contract():
     goal = transaction.active()
     if goal is not None and goal["extension_decision"] in {"ADR0266", "ADR0271", "ADR0277"}:
         from cce_event_lane_contract import EventLaneContract
-        return EventLaneContract()
+        from cce_status_refresh_reuse import selected as reuse_selected
+        return EventLaneContract(status_refresh_reuse=reuse_selected(goal))
     if goal is not None and goal["extension_decision"] in {"ADR0259", "ADR0263"}:
         from cce_shared_worker_contract import worker_contract as shared_contract
         return shared_contract(dispatch_slots=16 if goal["extension_decision"] == "ADR0263" else 12)

@@ -37,7 +37,7 @@ def sha(raw):
 def identity():
     paths = (
         "scripts/collect_two_host_inventory.py", "scripts/runtime_source_identity.py",
-        "scripts/cce_ticket_target_profile.py", "scripts/customer_timeout_bundle.py", "scripts/cce_native_database_bridge.py",
+        "scripts/cce_ticket_target_profile.py", "scripts/customer_timeout_bundle.py", "scripts/cce_native_database_bridge.py", "scripts/cce_status_refresh_reuse.py",
         "artifacts/customer-timeout/manifest.json", "artifacts/customer-timeout/coordinator.py",
         "artifacts/customer-timeout/paid_ticket_load_generator.py",
         "artifacts/customer-timeout/paid_ticket_sharded_generator.py",

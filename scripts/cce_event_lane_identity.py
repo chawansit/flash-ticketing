@@ -27,6 +27,8 @@ def projection_summary_pass(summary):
 
 def verify_inventory(inventory, approved_digest):
     marker = inventory.get("status_refresh_contract", {})
+    from cce_status_refresh_reuse import inventory_selected
+    reuse = inventory_selected(marker)
     wanted = {"event_lane_decision": "ADR0266", "shared_image_decision": "ADR0267",
               "shared_image_source_sha256": SOURCE, "shared_image_configuration_digest": CONFIG,
               "shared_image_receipt_sha256": RECEIPT_SHA256, "simulator_concurrency": 16,
@@ -38,6 +40,8 @@ def verify_inventory(inventory, approved_digest):
             api.get("settings", {}).get(flag) != "0"
             for api in apis for flag in ("EVENT_CONSUMER_SEPARATION", "RESERVATION_WRITE_PIPELINE")):
         raise ValueError("Four APIs with explicit disabled event-lane flags required")
+    if any(api.get("settings", {}).get("ORDER_STATUS_EVENT_REFRESH_DEDUP") != "0" for api in apis):
+        raise ValueError("Only fulfillment consumer status reuse may change")
     counts, ids = dict.fromkeys(COUNTS, 0), set()
     for row in inventory.get("worker_sources", []):
         role, proof, settings = row.get("role"), row.get("source_identity", {}), row.get("settings", {})
@@ -50,6 +54,7 @@ def verify_inventory(inventory, approved_digest):
             raise ValueError("Every actual event-lane worker source/image must match")
         want = {"EVENT_CONSUMER_SEPARATION": "1" if role in {"consumer", "projection-consumer"} else "0",
                 "RESERVATION_WRITE_PIPELINE": "1" if role == "reservation-writer" else "0"}
+        want["ORDER_STATUS_EVENT_REFRESH_DEDUP"] = "1" if reuse and role == "consumer" else "0"
         if role in {"consumer", "projection-consumer"}:
             want["DB_POOL_MAX"] = "7" if role == "consumer" else "6"
         if role == "simulator":
@@ -70,6 +75,10 @@ def historical_view(inventory, approved_digest):
     verify_inventory(inventory, approved_digest)
     legacy = copy.deepcopy(inventory)
     marker = legacy["status_refresh_contract"]
+    # Actual candidate identity/flags were verified above. Only the copied view
+    # adapts this independent factor for the frozen historical observer.
+    marker.pop("status_refresh_reuse_decision", None)
+    marker.pop("status_refresh_reuse_sha256", None)
     for key in tuple(marker):
         if key.startswith(("shared_image_", "event_", "simulator_")) or key in {"dispatch_correction_decision", "correction_decision", "correction_factor"}:
             marker.pop(key)
@@ -82,6 +91,7 @@ def historical_view(inventory, approved_digest):
     legacy["background"]["simulator"]["concurrency"] = 8
     legacy["worker_sources"] = [row for row in legacy["worker_sources"] if row["role"] != "projection-consumer"]
     for row in legacy["worker_sources"]:
+        row["settings"]["ORDER_STATUS_EVENT_REFRESH_DEDUP"] = "0"
         row["settings"].pop("EVENT_CONSUMER_SEPARATION", None)
         if row["role"] == "consumer":
             row["settings"]["DB_POOL_MAX"] = "8"

@@ -223,3 +223,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0278 Retain paid timeout evidence before restoration](0278-retain-paid-timeout-evidence-before-restoration.md)
 
 - [ADR0279: Native database TCP bridge](0279-native-database-tcp-bridge.md)
+
+- [0280: Reuse fresh committed order status in fulfillment](0280-reuse-fresh-committed-order-status.md)

@@ -21,6 +21,8 @@ def active(goal):
         raise ValueError("Exact event-lane worker placement correction required")
     from cce_native_database_bridge import selected
     selected(goal)
+    from cce_status_refresh_reuse import selected as reuse_selected
+    reuse_selected(goal)
     parent.image()
     return goal
 
@@ -51,4 +53,12 @@ def plan(goal):
                     native_database_bridge=contract(), baseline_evidence=baseline,
                     baseline_sha256=policy.digest(policy.read(policy.ROOT / baseline)),
                     duration_reason="One fixed-budget native database bridge comparison at unchanged 84/s for 300s.")
+    from cce_status_refresh_reuse import BASELINE as reuse_baseline
+    from cce_status_refresh_reuse import contract as reuse_contract
+    from cce_status_refresh_reuse import selected as reuse_selected
+    if reuse_selected(goal):
+        plan.update(kind="committed_status_refresh_reuse_comparison", single_changed_factor="consumer_ORDER_STATUS_EVENT_REFRESH_DEDUP",
+                    status_refresh_reuse=reuse_contract(), baseline_evidence=reuse_baseline,
+                    baseline_sha256=policy.digest(policy.read(policy.ROOT / reuse_baseline)),
+                    duration_reason="One existing-image status reuse comparison at unchanged 84/s for 300s.")
     return plan
