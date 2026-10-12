@@ -114,3 +114,22 @@ def test_independent_sql_sampler_keeps_default_bound_and_explicit_extension(monk
                              seconds=seconds, max_seconds=bound)
         with pytest.raises(ValueError, match="Bounded sampler"):
             sampling.install(module, "data", tmp_path/"db.jsonl", seconds, max_seconds=bound)
+
+def test_full_hourly_plan_retains_opt_in_while_structural_short_view_omits_it():
+    import cce_metric_admission as metric
+    import cce_status_reuse_hourly as hourly
+    import cce_verification_contract as verification
+    import work_envelope as policy
+    from test_cce_ingress_hourly import goal
+    value = goal()
+    value.update(verification_decision="ADR0285",
+                 verification_contract_sha256=policy.digest(verification.contract()),
+                 hourly_observer_bootstrap_decision="ADR0294",
+                 metric_admission_decision="ADR0287",
+                 metric_admission_contract_sha256=policy.digest(metric.contract()))
+    assert hourly.active(value)
+    assert "hourly_observer_bootstrap_decision" not in hourly.short_view(value)
+    assert value["hourly_observer_bootstrap_decision"] == "ADR0294"
+    assert hourly.plan(value)["expected_terminal_tickets"] == 302400
+    with pytest.raises(ValueError, match="bootstrap"):
+        hourly.active({**value, "hourly_observer_bootstrap_decision": "unknown"})

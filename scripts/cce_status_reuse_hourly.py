@@ -48,7 +48,8 @@ def baseline():
 def short_view(goal):
     return {k: v for k, v in {**goal, "decision": "ADR0228", "profile": "cce_paid_comparison",
                               "offered_seconds": 300}.items()
-            if k not in {"hourly_qualification_decision", "hourly_adapters_sha256"}}
+            if k not in {"hourly_qualification_decision", "hourly_adapters_sha256",
+                         "hourly_observer_bootstrap_decision"}}
 
 
 def active(goal):
@@ -72,6 +73,9 @@ def active(goal):
         hourly_baseline(goal)
     else:
         baseline()
+    if goal.get("hourly_observer_bootstrap_decision") is not None:
+        from cce_verification_contract import selected as verification_selected
+        verification_selected(goal)
     from cce_worker_rebalance_profile import active as placement_active
     placement_active(short_view(goal))
     return goal

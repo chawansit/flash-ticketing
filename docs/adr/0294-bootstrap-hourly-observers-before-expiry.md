@@ -34,3 +34,7 @@ Stop before paid dispatch on stale inventory, failed observer startup, failed sa
 ## Validation evidence
 
 Before implementation: executed ADR0293 failure, unchanged freshness check and lifecycle order reviewed. Executed correction validation: 298 focused tests passed in 150.33 seconds, including safety rejection, cleanup, inventory freshness, exact remaining collector coverage, independent sampler bounds, SQL ownership and original evidence-gap checks. Ruff and whitespace checks passed. Tests use an in-memory refreshed harness identity for historical completed authorization fixtures; live authority and failed evidence are unchanged. The fresh cloud attempt is pending. No paid load or capacity improvement was measured by the aborted attempt.
+
+The first corrected wrapper passed cloud readiness but was rejected before experiment registration: its hourly bootstrap marker was retained in the internal structural short-profile view. No deployment or paid stage started. The view now omits that hourly-only marker while the real hourly authorization validates it before translation. The complete composed hourly plan was then executed locally without writes and passed. A regression test covers plan composition and rejection of an unknown bootstrap decision.
+
+After the composition correction, 299 focused tests passed in 146.31 seconds; Ruff and whitespace checks passed. The fresh paid hourly attempt remains pending.
