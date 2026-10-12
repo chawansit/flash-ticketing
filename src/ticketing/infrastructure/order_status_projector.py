@@ -7,7 +7,7 @@ import time
 from collections import OrderedDict
 from uuid import UUID
 
-from ticketing.infrastructure.order_status_cache import scalar
+from ticketing.infrastructure.order_status_cache import scalar, valid_order
 from ticketing.observability import ORDER_STATUS_CACHE
 
 log = logging.getLogger("ticketing.order_status_projector")
@@ -16,10 +16,13 @@ ORDER_EVENTS = frozenset({"OrderPaid", "TicketsIssued", "RefundRequested"})
 
 
 class CommittedOrderStatusProjector:
-    def __init__(self, database, cache, *, deduplicate=False):
+    def __init__(self, database, cache, *, deduplicate=False, capture_committed=False):
         if type(deduplicate) is not bool:
             raise TypeError("Explicit deduplication boolean required")
+        if type(capture_committed) is not bool:
+            raise TypeError("Explicit capture boolean required")
         self.database, self.cache, self.deduplicate = database, cache, deduplicate
+        self.capture_committed = capture_committed
         # One existing consumer thread owns this bounded, non-authoritative hint table.
         self._recent = OrderedDict()
 
@@ -56,6 +59,39 @@ class CommittedOrderStatusProjector:
             self._recent[identifier] = (order["actor"], self._fingerprint(order), deadline)
             while len(self._recent) > MAX_HINTS:
                 self._recent.popitem(last=False)
+
+    def begin_capture(self, order_id):
+        """Start advisory freshness before the financial connection is acquired."""
+        try:
+            identifier = UUID(str(order_id))
+            self._recent.pop(identifier, None)
+            started = time.monotonic()
+            stamp = self.cache.snapshot_start()
+            if type(stamp) is not int:
+                raise ValueError("Invalid snapshot timestamp")
+            return stamp, started
+        except Exception:  # noqa: BLE001 - preserve the original committed-read fallback
+            ORDER_STATUS_CACHE.labels("committed_capture_unavailable").inc()
+            return None
+
+    def publish_committed(self, order, stamp, started):
+        """Only called after the capturing financial transaction commits."""
+        try:
+            snapshot = json.loads(json.dumps(order, default=scalar))
+            identifier = UUID(snapshot["id"])
+            actor = snapshot["actor"]
+            if not valid_order(snapshot, actor, identifier):
+                ORDER_STATUS_CACHE.labels("committed_capture_invalid").inc()
+                self.refresh(identifier, event_type="OrderPaid")
+                return
+            published = self.cache.publish(actor, identifier, snapshot, stamp)
+            if published is True:
+                ORDER_STATUS_CACHE.labels("committed_read_avoided").inc()
+                if self.deduplicate and snapshot["status"] == "FULFILLED":
+                    self._remember(identifier, snapshot, started)
+        except Exception:  # Advisory failures never undo financial commit.
+            ORDER_STATUS_CACHE.labels("committed_publish_error").inc()
+            log.warning("committed_order_status_publish_failed", exc_info=True)
 
     def refresh(self, order_id, *, event_type=None):
         try:

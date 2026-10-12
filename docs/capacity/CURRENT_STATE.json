@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-13",
   "branch": "codex/customer-recovery-2026-10-10",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "ADR0295 independently verified 300235 dispatched paid tickets after hourly customer and diagnostic gates failed; both safety payments durable, zero double-booking, queues drained, runtime restored and inputs removed. Original hourly run remains failed and its launch consumed. Hourly qualification not passed.",
+  "status": "ADR0295 hourly qualification remains failed and restored. ADR0296 observer supervisor correction passed 84 local regressions. ADR0297 default-off committed fulfillment status candidate implemented: 211 candidate-source tests passed, immutable shared image published and registry-pulled runtime verified. No new cloud deployment/load or measured capacity improvement.",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -97,7 +97,7 @@
     "ADR0285 fresh pipeline-off/on84journeys/s300s pair passed/restored25200terminal tickets each,0drops/initial/final errors/doubles/payment loss; complete bounded audits and independent stats/14workerCPU. Mixed performance;defaultoff retained, no capacity increase/hourly qualification claimed."
   ],
   "unresolved": "300000 unique paid-and-issued tickets inside one hour remains unqualified. The short candidate passed at84 offered journeys/s with25097 issued inside300seconds and25200 by completion. The single pair does not establish maximum capacity or prove ingress caused reduced asynchronous ticket/database delay. Payment commit/callback holders and WALWrite waits remain observed; underlying stall cause is not proven. ADR0289 hourly dropped4781 journeys and lacked105 slot histories; that failed evidence remains failed.",
-  "next_on_resume": "Use this failed hour to isolate fulfillment/database-slot pressure and correct one measured bottleneck. Repair hourly observer duration propagation and validate complete coverage before another bound paid comparison. Keep generator drops and initial/recovered/final customer errors separate; do not increase load or weaken gates.",
+  "next_on_resume": "Bind the ADR0297 immutable image and consumer-only flag to a fresh controlled comparison at unchanged 84 offered journeys/s, resources and connection budgets. Prefer a 10\u201315-minute window covering observed long-run congestion; retain all correctness/customer/drop/diagnostic gates. Then follow the measured result before increasing rate.",
   "authorization": "Standing ADR0172 workflow: routine engineering within recorded boundaries, no cumulative time cap, bounded experiments and current quality gates, zero payment loss/double-booking. Reviewed code/evidence may be pushed to codex branch; main merge requires explicit approval. User approved the proposed consumer correction. Cloud runs need fresh registered scope; no spent ADR0263 stage is reused.",
   "scope": "ADR0287 capture correction passed short and hourly admission-history gates. Hourly business, durability, zero-double-booking, queue drain and restoration checks passed; independent statistics continuity failed. No load or recovery is active. Full production/flash-opening qualification is not claimed.",
   "bounded_control": {
@@ -1110,7 +1110,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Use this failed hour to isolate fulfillment/database-slot pressure and correct one measured bottleneck. Repair hourly observer duration propagation and validate complete coverage before another bound paid comparison. Keep generator drops and initial/recovered/final customer errors separate; do not increase load or weaken gates.",
+  "next_action": "Bind the ADR0297 immutable image and consumer-only flag to a fresh controlled comparison at unchanged 84 offered journeys/s, resources and connection budgets. Prefer a 10\u201315-minute window covering observed long-run congestion; retain all correctness/customer/drop/diagnostic gates. Then follow the measured result before increasing rate.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -17213,5 +17213,19 @@
       "capacity_qualified": false
     },
     "recovery_required": false
+  },
+  "committed_fulfillment_status_candidate": {
+    "decision": "ADR0297",
+    "publication_receipt": "docs/capacity/cce/committed-fulfillment-status-image-2026-10-13.json",
+    "source_identity_sha256": "099bdb706c419eb18850fd7ee6a02986b489118d9f0f350a5754e113edba4104",
+    "registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:1c14f990325a5e408f63ec87b721401bd84ff844a05fbfb3449ec05df4dc06a4",
+    "implemented": true,
+    "candidate_source_tests_passed": 211,
+    "cloud_deployed": false,
+    "cloud_load_started": false,
+    "capacity_improvement_measured": false,
+    "default_enabled": false,
+    "baseline_financial_schema_dependencies_resources_unchanged": true,
+    "old_failed_hour_scope_reusable": false
   }
 }

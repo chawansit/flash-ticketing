@@ -16,6 +16,17 @@ from ticketing.workers import consume_event, publish_batch
 pytestmark = pytest.mark.integration
 
 
+@pytest.fixture(params=[False, True], autouse=True)
+def committed_capture_mode(request, monkeypatch):
+    implementation = CommittedOrderStatusProjector
+
+    def projector(*args, **kwargs):
+        return implementation(*args, **kwargs, capture_committed=request.param)
+
+    monkeypatch.setattr(__import__(__name__, fromlist=[""]), "CommittedOrderStatusProjector", projector)
+    return request.param
+
+
 @pytest.fixture
 def event_cache():
     url = os.getenv("TEST_REDIS_URL")
@@ -171,7 +182,7 @@ def test_out_of_order_event_uses_current_state_and_tickets_issued_can_repair_aft
 
 
 @pytest.mark.parametrize("damage", [None, "deleted", "corrupt", "expired"])
-def test_dedup_skips_only_identical_fresh_projection_and_repairs_missing_entries(system, event_cache, damage):
+def test_dedup_skips_only_identical_fresh_projection_and_repairs_missing_entries(system, event_cache, damage, committed_capture_mode):
     _, db, hold, cache, _, _, envelope = prepare(system, event_cache, age=200 if damage == "expired" else 1000)
     projector = CommittedOrderStatusProjector(db, cache, deduplicate=True)
     issued = {"event_id": str(uuid4()), "schema_version": 1, "event_type": "TicketsIssued",
@@ -180,7 +191,8 @@ def test_dedup_skips_only_identical_fresh_projection_and_repairs_missing_entries
     with (patch.object(db, "transaction", wraps=db.transaction) as transactions,
           patch.object(cache, "publish", wraps=cache.publish) as publish):
         consume_event(db, None, envelope, projector)
-        assert transactions.call_count == 2
+        initial = 1 if committed_capture_mode else 2
+        assert transactions.call_count == initial
         assert projector._recent
         ttl = cache.redis.pttl(key)
         if damage == "deleted":
@@ -190,12 +202,12 @@ def test_dedup_skips_only_identical_fresh_projection_and_repairs_missing_entries
         elif damage == "expired":
             time.sleep(ttl/1000+.02)
         consume_event(db, None, issued, projector)
-        assert transactions.call_count == (3 if damage is None else 4)
+        assert transactions.call_count == initial + (1 if damage is None else 2)
         assert publish.call_count == (1 if damage is None else 2)
         if damage is None:
             assert cache.redis.pttl(key) <= ttl
             consume_event(db, None, issued, projector)
-            assert transactions.call_count == 4 and publish.call_count == 1
+            assert transactions.call_count == initial + 2 and publish.call_count == 1
     assert cache.lookup("owner", hold["order_id"])[0]["status"] == "FULFILLED"
     assert cache.lookup("other", hold["order_id"])[0] is None
     with db.transaction() as conn:
@@ -217,6 +229,22 @@ def test_dedup_failed_publication_does_not_suppress_later_repair_or_replay(syste
     cache.redis.delete(cache.key("owner", hold["order_id"]))
     consume_event(db, None, envelope, projector)
     assert cache.lookup("owner", hold["order_id"])[0]["status"] == "FULFILLED"
+    with db.transaction() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM tickets").fetchone()["n"] == 1
+    drain_outbox(db)
+
+
+def test_new_delivery_for_fulfilled_order_retains_actual_ticket_id(system, event_cache, committed_capture_mode):
+    _, db, hold, cache, _, _, envelope = prepare(system, event_cache)
+    projector = CommittedOrderStatusProjector(db, cache, deduplicate=True)
+    consume_event(db, None, envelope, projector)
+    original = cache.lookup("owner", hold["order_id"])[0]["tickets"]
+    cache.redis.delete(cache.key("owner", hold["order_id"]))
+    envelope = {**envelope, "event_id": str(uuid4())}
+    with patch.object(db, "transaction", wraps=db.transaction) as transactions:
+        consume_event(db, None, envelope, projector)
+        assert transactions.call_count == (1 if committed_capture_mode else 2)
+    assert cache.lookup("owner", hold["order_id"])[0]["tickets"] == original
     with db.transaction() as conn:
         assert conn.execute("SELECT count(*) AS n FROM tickets").fetchone()["n"] == 1
     drain_outbox(db)

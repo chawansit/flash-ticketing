@@ -236,9 +236,9 @@ def consumer_phase(phase, partition="all"):
 
 def measured_consumer_event(fn):
     @wraps(fn)
-    def wrapped(db, cache, envelope):
+    def wrapped(db, cache, envelope, **kwargs):
         with consumer_phase("event_" + str(envelope.get("event_type", "other"))):
-            return fn(db, cache, envelope)
+            return fn(db, cache, envelope, **kwargs)
     return wrapped
 
 

@@ -732,16 +732,25 @@ def reconcile_pass(db, cache, settings, deadline):
 
 @measured_work("consume_event")
 def consume_event(db, cache, envelope, order_status_projector=None):
-    _consume_event_transaction(db, cache, envelope)
-    if order_status_projector is not None and envelope["event_type"] in ORDER_EVENTS:
+    capture = None
+    if (order_status_projector is not None and order_status_projector.capture_committed is True
+            and envelope["event_type"] == "OrderPaid"):
         data = envelope.get("payload")
-        order_status_projector.refresh(
-            data.get("order_id") if isinstance(data, dict) else None, event_type=envelope["event_type"]
-        )
+        capture = order_status_projector.begin_capture(data.get("order_id") if isinstance(data, dict) else None)
+    snapshot = (_consume_event_transaction(db, cache, envelope, capture_status=True)
+                if capture is not None else _consume_event_transaction(db, cache, envelope))
+    if order_status_projector is not None and envelope["event_type"] in ORDER_EVENTS:
+        if snapshot is not None and capture is not None:
+            order_status_projector.publish_committed(snapshot, *capture)
+        else:
+            data = envelope.get("payload")
+            order_status_projector.refresh(
+                data.get("order_id") if isinstance(data, dict) else None, event_type=envelope["event_type"]
+            )
 
 
 @measured_consumer_event
-def _consume_event_transaction(db, cache, envelope):
+def _consume_event_transaction(db, cache, envelope, *, capture_status=False):
     if envelope["schema_version"] != 1:
         raise ValueError("Unsupported event schema")
     kind, data = envelope["event_type"], envelope["payload"]
@@ -764,14 +773,28 @@ def _consume_event_transaction(db, cache, envelope):
             ).fetchone()
             if order["status"] not in {"PAID", "FULFILLED"}:
                 raise ValueError("OrderPaid has no paid order")
-            bookings = conn.execute("SELECT id FROM bookings WHERE order_id=%s", (order["id"],)).fetchall()
+            booking_query = (
+                "SELECT b.id,b.seat_id,t.id AS ticket_id FROM bookings b "
+                "LEFT JOIN tickets t ON t.booking_id=b.id WHERE b.order_id=%s ORDER BY b.seat_id"
+                if capture_status else "SELECT id FROM bookings WHERE order_id=%s")
+            bookings = conn.execute(booking_query, (order["id"],)).fetchall()
+            captured_tickets = []
             for booking in bookings:
-                conn.execute(
-                    "INSERT INTO tickets(id,booking_id) VALUES (%s,%s) ON CONFLICT DO NOTHING",
+                result = conn.execute(
+                    "INSERT INTO tickets(id,booking_id) VALUES (%s,%s) ON CONFLICT DO NOTHING"
+                    + (" RETURNING id" if capture_status else ""),
                     (uuid4(), booking["id"]),
                 )
+                if capture_status:
+                    inserted = result.fetchone()
+                    identifier = inserted["id"] if inserted else booking["ticket_id"]
+                    if identifier is not None:
+                        captured_tickets.append({"id": identifier, "seat_id": booking["seat_id"]})
             conn.execute("UPDATE orders SET status='FULFILLED' WHERE id=%s", (order["id"],))
             event(conn, order["id"], "TicketsIssued", {"order_id": str(order["id"])})
+            if capture_status and len(captured_tickets) == len(bookings) and captured_tickets:
+                # Return exits the context first; a commit failure cannot release this snapshot.
+                return {**order, "status": "FULFILLED", "tickets": captured_tickets}
         elif kind == "RefundRequested":
             # Simulator's financial effect is this durable row. A real gateway requires
             # a separate idempotent external dispatch/reconciliation adapter.
@@ -1129,6 +1152,7 @@ def main():
         CommittedOrderStatusProjector(
             db, RedisOrderStatusCache(cache.redis, settings.order_status_cache_ms),
             deduplicate=settings.order_status_event_refresh_dedup,
+            capture_committed=settings.order_status_committed_snapshot,
         )
         if role == "consumer" and settings.order_status_event_refresh else None
     )

@@ -254,3 +254,7 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0294: Bootstrap hourly observers before native expiry qualification](0294-bootstrap-hourly-observers-before-expiry.md)
 
 - [ADR0295: Bind the hourly generator to the existing CCE ingress](0295-bind-hourly-generator-to-cce-ingress.md)
+
+- [ADR0296: Align hourly observer and supervisor lifetimes](0296-align-hourly-observer-supervisor-lifetime.md)
+
+- [ADR0297: Publish status from the committed fulfillment transaction](0297-publish-status-from-committed-fulfillment.md)

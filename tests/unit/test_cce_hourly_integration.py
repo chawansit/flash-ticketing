@@ -28,7 +28,9 @@ def test_profiles_are_exact_and_separate():
         for_guard(SimpleNamespace(key="bounded_cce_dependency_probe__" + "a" * 12))
 
 
-def test_generated_arguments_do_not_relax_short_profile():
+def test_generated_arguments_do_not_relax_short_profile(monkeypatch):
+    import cce_transaction_profile
+    monkeypatch.setattr(cce_transaction_profile, "active", lambda: None)
     directory = "/root/repo/tmp/adr0151-" + "a" * 12 + "-cce-candidate"
     for profile in (SHORT, HOURLY):
         args = stage.generator_arguments(directory, "http://10.1.137.69:8000", 100, profile=profile)
@@ -123,11 +125,10 @@ from test_work_envelope import area  # noqa: F401 - Shared isolated ledger fixtu
 
 def hourly_goal(data):
     previous = data["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"]
-    # The historical profile must not inherit newer live extension markers/resources.
-    previous = {k: v for k, v in previous.items() if k not in {
-        "extension_decision", "hourly_qualification_decision", "hourly_adapters_sha256",
-        "status_refresh_reuse_decision", "status_refresh_reuse_sha256",
-        "native_database_bridge_decision", "native_database_bridge_sha256", "timeout_retention_decision"}}
+    # Keep only the original authorization boundary; new route/profile markers are unrelated.
+    previous = {k: previous[k] for k in (
+        "maximum_paid_stages", "pod_vcpu", "offered_journeys_per_second",
+        "unlimited_cumulative_time_explicitly_authorized", "spending_allowance")}
     return {**previous, "maximum_pods": 4, "pod_memory_gib": 1,
             "decision": "ADR0232", "profile": HOURLY.name,
             "offered_seconds": 3600, "maximum_experiment_seconds": 5400,

@@ -117,10 +117,21 @@ def job_program(args, directory, *, database=False, hourly=False):
     if type(hourly) is not bool:
         raise ValueError("Explicit hourly job mode required")
     name = Path(args[1]).stem
+    timeout = 3780 if hourly else 600
+    observers = {"observe_cce_paid_pipeline", "observe_slot_paid_pipeline", "kafka_lag_observe", "observe_projection_kafka"}
+    seconds = (args[args.index("--seconds") + 1]
+               if args.count("--seconds") == 1 and args.index("--seconds") + 1 < len(args) else None)
+    if (name in observers and "--early-hourly-bootstrap" in args
+            and (not hourly or seconds != "4200")):
+        raise ValueError("Exact early hourly observer duration required")
+    if hourly and name in observers and seconds == "4200":
+        if name in {"observe_cce_paid_pipeline", "observe_slot_paid_pipeline"} and "--early-hourly-bootstrap" not in args:
+            raise ValueError("Early hourly bootstrap required for extended native observer")
+        timeout = 4260
     status_path = directory + "/job-" + name + "-exit.json"
     supervisor = (
         "import json,os,subprocess;from pathlib import Path;"
-        + "r=subprocess.run(" + repr(args) + ",stdin=subprocess.DEVNULL,timeout=" + str(3780 if hourly else 600) + ");"
+        + "r=subprocess.run(" + repr(args) + ",stdin=subprocess.DEVNULL,timeout=" + str(timeout) + ");"
         + "p=Path(" + repr(status_path) + ");p.write_text(json.dumps({'returncode':r.returncode}));os.chmod(p,0o600)"
     )
     command = [args[0], "-c", supervisor]

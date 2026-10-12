@@ -15,6 +15,7 @@ class Settings:
     order_status_cache_ms: int = int(os.getenv("ORDER_STATUS_CACHE_MS", "0"))
     order_status_event_refresh: bool = os.getenv("ORDER_STATUS_EVENT_REFRESH", "0") == "1"
     order_status_event_refresh_dedup: bool = os.getenv("ORDER_STATUS_EVENT_REFRESH_DEDUP", "0") == "1"
+    order_status_committed_snapshot: bool = os.getenv("ORDER_STATUS_COMMITTED_SNAPSHOT", "0") == "1"
     payment_confirmation_async: bool = os.getenv("PAYMENT_CONFIRMATION_ASYNC", "0") == "1"
     payment_callback_provider: str = os.getenv("PAYMENT_CALLBACK_PROVIDER", "simulator")
     confirmation_max_pending: int = int(os.getenv("CONFIRMATION_MAX_PENDING", "10000"))
@@ -108,6 +109,8 @@ class Settings:
             raise RuntimeError("ORDER_STATUS_EVENT_REFRESH requires ORDER_STATUS_CACHE_MS")
         if self.order_status_event_refresh_dedup and not self.order_status_event_refresh:
             raise RuntimeError("ORDER_STATUS_EVENT_REFRESH_DEDUP requires ORDER_STATUS_EVENT_REFRESH")
+        if self.order_status_committed_snapshot and not self.order_status_event_refresh:
+            raise RuntimeError("ORDER_STATUS_COMMITTED_SNAPSHOT requires ORDER_STATUS_EVENT_REFRESH")
         if not 0 <= self.order_status_cache_ms <= 3000:
             raise RuntimeError("ORDER_STATUS_CACHE_MS must be between 0 and 3000")
         if self.pool_max_waiting is not None and not 1 <= self.pool_max_waiting <= 64:
