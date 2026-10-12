@@ -2,6 +2,7 @@
 
 import json
 import math
+import time
 from datetime import UTC, datetime, timedelta
 
 import cce_api_adapter as cce
@@ -316,7 +317,11 @@ class Observers:
             # Retain admission proofs locally after transition cleanup replaces its checkpoint.
             policy.write(self.stage.output / "native-workers.private.json", self.native_workers)
             self.upload("native-workers.json", json.dumps(self.native_workers))
-        observation_seconds = str(self.stage.profile.observer_seconds)
+        early = getattr(self, "hourly_early_bootstrap", False)
+        observation_seconds = str(4200 if early else self.stage.profile.observer_seconds)
+        if early:
+            self.record["hourly_observer_bootstrap_decision"] = "ADR0294"
+            self.record["observer_seconds"] = 4200
         common = [
             "--manifest",
             self.directory + "/manifest.private.json",
@@ -350,6 +355,7 @@ class Observers:
                 *common,
                 *(["--native-workers", self.directory + "/native-workers.json", "--native-workers-sha256", policy.digest(self.native_workers)] if getattr(self, "native_workers", None) is not None else []),
                 *(["--hourly"] if self.stage.profile.duration == 3600 else []),
+                *(["--early-hourly-bootstrap"] if early else []),
             ],
             "kafka": [
                 "python",
@@ -368,6 +374,7 @@ class Observers:
             commands["projection-kafka"] = ["python", self.directory + "/observe_projection_kafka.py",
                 "--output", self.directory + "/projection-kafka.jsonl", "--seconds", observation_seconds,
                 "--interval", "1", "--backend", "python", "--group", "ticketing-seat-projection-v1"]
+        self.collector_started_monotonic = time.monotonic()
         for name, arguments in commands.items():
             self.record[name + "_launch_attempted"] = True
             self.checkpoint()
@@ -381,8 +388,6 @@ class Observers:
                 self.stage.record,
                 database=True,
             )
-        import time
-
         names = tuple(commands)
         deadline = time.monotonic() + 30
         while True:
@@ -416,6 +421,21 @@ class Observers:
         self.contract.verify_pipeline_startup(status["pipeline"])
         self.started = True
         self.checkpoint()
+
+    def ensure_offered_coverage(self, start):
+        if not getattr(self, "hourly_early_bootstrap", False) or not self.started:
+            raise ValueError("Qualified early hourly observers required")
+        elapsed = time.monotonic() - self.collector_started_monotonic
+        delay = start - time.time()
+        required = elapsed + delay + self.stage.profile.duration + 2
+        self.record["early_observer_coverage"] = {
+            "elapsed_seconds": elapsed, "scheduled_delay_seconds": delay,
+            "required_seconds": required, "observer_seconds": 4200,
+            "pass": 0 <= elapsed and 0 <= delay and required <= 4200}
+        self.checkpoint()
+        if not self.record["early_observer_coverage"]["pass"]:
+            raise ValueError("Early observers cannot cover complete offered hour")
+        return True
 
     def launch_cpu(self, start, snapshots, identities):
         self.stage.check(900)

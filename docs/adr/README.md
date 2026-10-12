@@ -250,3 +250,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0292: Prepare short fixtures after expiry safety](0292-prepare-short-fixtures-after-safety.md) — Accepted short staging correction; preserves freshness limits and hourly ordering.
 
 - [ADR0293: Qualify the existing CCE ingress for one paid hour](0293-qualify-existing-cce-ingress-hourly.md)
+
+- [ADR0294: Bootstrap hourly observers before native expiry qualification](0294-bootstrap-hourly-observers-before-expiry.md)

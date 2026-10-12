@@ -23,7 +23,9 @@ def contract():
         "fixture_preparation_decision": "ADR0289",
         "fixture_preparation_order": "before_transition_admission",
         "short_fixture_preparation_decision": "ADR0292",
-        "short_fixture_preparation_order": "after_safety"}
+        "short_fixture_preparation_order": "after_safety",
+        "hourly_observer_bootstrap_decision": "ADR0294",
+        "hourly_observer_seconds": 4200}
 
 
 def selected(goal):
@@ -32,6 +34,10 @@ def selected(goal):
     if (goal.get("verification_decision") != "ADR0285"
             or goal.get("verification_contract_sha256") != digest(contract())):
         raise ValueError("Exact unchanged verification contract required")
+    if ("hourly_observer_bootstrap_decision" in goal
+            and (goal["hourly_observer_bootstrap_decision"] != "ADR0294"
+                 or goal.get("profile") != "cce_hourly_qualification")):
+        raise ValueError("Exact hourly observer bootstrap required")
     return True
 
 
@@ -48,7 +54,9 @@ def validate_inventory(inventory, approved_sha256):
             or marker.get("fixture_preparation_decision") != "ADR0289"
             or marker.get("fixture_preparation_order") != "before_transition_admission"
             or marker.get("short_fixture_preparation_decision") != "ADR0292"
-            or marker.get("short_fixture_preparation_order") != "after_safety"):
+            or marker.get("short_fixture_preparation_order") != "after_safety"
+            or marker.get("hourly_observer_bootstrap_decision") != "ADR0294"
+            or marker.get("hourly_observer_seconds") != 4200):
         raise ValueError("Exact bounded diagnostic inventory binding required")
     for name in ("independent_database_sampling.py", "database_wait_evidence.py"):
         actual = hashlib.sha256((Path(__file__).parent / name).read_bytes().replace(b"\r\n", b"\n")).hexdigest()

@@ -36,3 +36,7 @@ Reject failed, altered or unrestored prerequisite evidence, unbound origins, add
 ## Validation evidence
 
 Before implementation: [matched short comparison](../capacity/cce/existing-ingress-comparison-2026-10-12.json), [CCE candidate](../capacity/cce/existing-ingress-candidate-result-2026-10-12.json), and source review of the existing hourly adapter and ingress ownership guards. Implemented: opt-in ADR0293 hourly route/prerequisite binding in the existing ingress and hourly adapters. Executed: 220 focused tests passed in 40.79 seconds; Ruff passed for changed source and new tests. The first combined test invocation encountered a completed live goal's stale source hash in existing test helpers (170 passed, one failure and 49 setup errors); rerun refreshed only that in-memory test hash, without altering retained evidence or authority files. Live qualification is pending. No hourly pass or capacity increase is claimed.
+
+## First live attempt
+
+Run adr0151-13916e654f05 stopped before paid dispatch after passing native safety, because observer inventory was stale. FAILED_RESTORED, paid_runs_started=0; original failure retained, financial integrity and exact restoration verified. No hourly capacity measurement occurred. See the [abort evidence](../capacity/cce/existing-ingress-hourly-prepaid-abort-2026-10-12.json). ADR0294 corrects the measured hourly startup ordering in a fresh scope without relaxing freshness.

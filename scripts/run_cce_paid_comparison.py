@@ -169,6 +169,9 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
         if goal.get("ingress_hourly_decision") is not None:
             extra.update(cce_ingress_hourly_decision=goal["ingress_hourly_decision"],
                          cce_ingress_hourly_prerequisite_sha256=goal["ingress_hourly_prerequisite_sha256"])
+    if goal is not None and goal.get("hourly_observer_bootstrap_decision") == "ADR0294":
+        extra.update(cce_hourly_observer_bootstrap_decision="ADR0294",
+                     cce_hourly_observer_seconds=4200)
     return {
         **extra,
         "configuration_sha256": policy.digest(config),
@@ -566,6 +569,7 @@ def run(config, output, guard, manifests, kubeconfig, context):
                 live_admission=goal is not None and goal["extension_decision"] in {"ADR0271", "ADR0277"},
                 metric_admission=__import__("cce_metric_admission").selected(goal),
                 ingress_route=ingress_route,
+                early_hourly_observers=goal is not None and goal.get("hourly_observer_bootstrap_decision") == "ADR0294",
             )
 
             record["native"] = lifecycle.run(

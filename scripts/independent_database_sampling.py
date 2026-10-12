@@ -10,8 +10,8 @@ from diagnostic_connection import _Driver
 
 
 class Sampler:
-    def __init__(self, connection, sample, shows, output, *, interval=1, seconds=480):
-        if not 0.01 <= interval <= 1 or not 0 < seconds <= 3780:
+    def __init__(self, connection, sample, shows, output, *, interval=1, seconds=480, max_seconds=3780):
+        if max_seconds not in (3780, 4200) or not 0.01 <= interval <= 1 or not 0 < seconds <= max_seconds:
             raise ValueError("Bounded sampler interval and duration required")
         self.connection, self.sample = connection, sample
         self.shows = tuple(shows)
@@ -117,8 +117,10 @@ class OwnedConnection:
                 self._connection.close()
 
 
-def install(module, source_dsn, output, seconds):
+def install(module, source_dsn, output, seconds, *, max_seconds=3780):
     """Intercept only the already-authorized data connection; leave admin untouched."""
+    if max_seconds not in (3780, 4200) or not 0 < seconds <= max_seconds:
+        raise ValueError("Bounded sampler interval and duration required")
     original_connect, original_sample = module.psycopg.connect, module.sample
     created = []
 
@@ -135,7 +137,7 @@ def install(module, source_dsn, output, seconds):
         if len(created) != 1 or conn is not created[0]:
             raise ValueError("Protected diagnostic connection required")
         if conn.sampler is None:
-            conn.sampler = Sampler(conn._connection, original_sample, shows, output, seconds=seconds)
+            conn.sampler = Sampler(conn._connection, original_sample, shows, output, seconds=seconds, max_seconds=max_seconds)
         return conn.sampler.snapshot(shows)
 
     module.psycopg = _Driver(module.psycopg, connect)

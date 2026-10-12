@@ -596,9 +596,12 @@ def main(argv=None):
             raise ValueError("Exact bounded diagnostic output and duration required")
         output = Path(remaining[remaining.index("--output") + 1])
         seconds = int(remaining[remaining.index("--seconds") + 1])
-        if output != args.inventory.parent / "pipeline.jsonl" or seconds not in {480, 3780}:
+        early = (inventory.get("verification_contract", {}).get("hourly_observer_bootstrap_decision") == "ADR0294"
+                 and inventory.get("verification_contract", {}).get("hourly_observer_seconds") == 4200)
+        if output != args.inventory.parent / "pipeline.jsonl" or seconds not in ({480, 3780, 4200} if early else {480, 3780}):
             raise ValueError("Exact owned comparison diagnostic trace required")
-        install_independent(frozen, os.environ["TEST_DATABASE_URL"], output.with_name("database-waits.jsonl"), seconds)
+        install_independent(frozen, os.environ["TEST_DATABASE_URL"], output.with_name("database-waits.jsonl"), seconds,
+                            max_seconds=4200 if early else 3780)
         if phase_timings:
             # This now measures snapshot retrieval. Actual SQL timing is in the independent stream.
             install_phase_timings(frozen)

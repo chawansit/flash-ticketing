@@ -45,11 +45,11 @@ def validate_receipts(value):
     return {r["private_ipv4"]: r["process_start_time_seconds"] for r in entries}
 
 
-def install(module, value, *, fetch=urlopen, hourly=False):
+def install(module, value, *, fetch=urlopen, hourly=False, observer_seconds=3780):
     if type(hourly) is not bool:
         raise ValueError("Explicit hourly observer mode required")
     if hourly:
-        install_hourly_sampling(module)
+        install_hourly_sampling(module, observer_seconds=observer_seconds)
     else:
         install_indexed_cohort_query(module)
     starts = validate_receipts(value)
@@ -105,14 +105,16 @@ def install_indexed_cohort_query(module):
                       "(SELECT id FROM tickets WHERE booking_id=b.id OFFSET 0) t")
 
 
-def install_hourly_sampling(module, *, now=None):
+def install_hourly_sampling(module, *, now=None, observer_seconds=3780):
     """ADR0283: bounded-age disjoint slices on the existing observation connection."""
     import time
 
     now = time.monotonic if now is None else now
     original = module.sample
     install_indexed_cohort_query(module)
-    module.MAX_PAID_OBSERVER_SECONDS = 3780
+    if observer_seconds not in {3780, 4200}:
+        raise ValueError("Exact hourly sampling lifetime required")
+    module.MAX_PAID_OBSERVER_SECONDS = observer_seconds
     names = ("pending_orders", "paid_unfulfilled", "fulfilled_orders",
              "pending_callback_deliveries", "pending_payment_attempts",
              "delivered_callbacks", "issued_tickets")
@@ -172,11 +174,14 @@ def install_hourly_sampling(module, *, now=None):
 def main(argv=None):
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--hourly", action="store_true")
+    parser.add_argument("--early-hourly-bootstrap", action="store_true")
     parser.add_argument("--native-workers", type=Path)
     parser.add_argument("--native-workers-sha256")
     parser.add_argument("--native-receipts", type=Path, required=True)
     parser.add_argument("--native-receipts-sha256", required=True)
     args, remaining = parser.parse_known_args(argv)
+    if args.early_hourly_bootstrap and not args.hourly:
+        raise ValueError("Early bootstrap requires hourly mode")
     value = json.loads(args.native_receipts.read_text())
     import hashlib
 
@@ -199,7 +204,8 @@ def main(argv=None):
 
     def adapter(module, *params, **kwargs):
         original(module, *params, **kwargs)  # Retain workers, diagnostics, budgets and metric parsing.
-        result = install(module, value, hourly=args.hourly)
+        result = install(module, value, hourly=args.hourly,
+                         observer_seconds=4200 if args.early_hourly_bootstrap else 3780)
         if workers is not None:
             from observe_cce_workers import install as worker_install
             worker_install(module, workers)
@@ -207,7 +213,8 @@ def main(argv=None):
 
     if args.hourly:
         index = remaining.index("--seconds") if "--seconds" in remaining else -1
-        if index < 0 or remaining[index + 1] != "3780":
+        expected_seconds = "4200" if args.early_hourly_bootstrap else "3780"
+        if index < 0 or remaining[index + 1] != expected_seconds:
             raise ValueError("Exact hourly observer duration required")
     observer.install_adapter = adapter
     try:

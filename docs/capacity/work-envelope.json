@@ -124,17 +124,17 @@
       ],
       "boundary_mode": "goal_bounded",
       "goal_bounded_authorization": {
-        "decision": "ADR0228",
-        "profile": "cce_paid_comparison",
+        "decision": "ADR0232",
+        "profile": "cce_hourly_qualification",
         "extension_decision": "ADR0271",
         "comparison_arm": "correction",
-        "maximum_paid_stages": 2,
+        "maximum_paid_stages": 1,
         "maximum_pods": 18,
         "pod_vcpu": 1,
         "pod_memory_gib": 2,
         "offered_journeys_per_second": 84,
-        "offered_seconds": 300,
-        "maximum_experiment_seconds": 3600,
+        "offered_seconds": 3600,
+        "maximum_experiment_seconds": 5400,
         "acquisition_budget": 20,
         "unlimited_cumulative_time_explicitly_authorized": true,
         "spending_allowance": {
@@ -142,7 +142,7 @@
           "maximum_additional_spend": null,
           "no_spending_cap_explicitly_authorized": true
         },
-        "ledger_start_index": 105,
+        "ledger_start_index": 107,
         "candidate_factor": {
           "name": "event_lane_worker_placement",
           "comparison_arm": "correction",
@@ -169,13 +169,13 @@
           "database_connections_unchanged": true,
           "gateway_delay_unchanged": true
         },
-        "authorization": "User Continue under ADR0291: fresh ECS-entry control followed only after full pass by existing CCE NGINX entry candidate at84/s300s;unchanged resources and gates;3600s per experiment",
-        "authorized_at_bangkok": "2026-10-12T22:38:49.420194+07:00",
+        "authorization": "User Continue under ADR0293 after passing matched CCE-ingress short comparison: one84/s hourly qualification,unchanged image/resources/budgets/workload/gates,approved90-minute ceiling",
+        "authorized_at_bangkok": "2026-10-12T23:42:09.332820+07:00",
         "image_correction_decision": "ADR0267",
-        "authorized_at_utc": "2026-10-12T15:38:49.420194+00:00",
-        "scope_note": "ADR0291 customer HTTP entrypoint comparison;two conditional84/s300s stages;25200 distinct journeys per arm;unchanged application,pods,connections,delays,recovery and verification;no newELB;3600s including cleanup per arm",
+        "authorized_at_utc": "2026-10-12T16:42:09.332820+00:00",
+        "scope_note": "One ADR0293 CCE customer ingress qualification at84/s3600s;302400 distinct journeys;unchanged application,pods,connections,simulator,recovery;hourly bulk fixture-before-admission staging;at least300000 tickets issued inside the hour plus all original gates;5400s including cleanup;no newELB",
         "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
-        "baseline_sha256": "6e04b6008fcd08a8e0a3727dab2a6dd6b910c6d1d2fa4ff051911e835993b254",
+        "baseline_sha256": "48bf7f5a7995bef34e3d683fd259d4470837576f60c2dbf218fad1b67098c2a0",
         "worker_resources": {
           "cpu": "250m",
           "memory": "512Mi"
@@ -190,16 +190,21 @@
         "observer_cost_sha256": "fdee59f7b83e384c5464d3166e644c769b030f9108c91bbd1d939f197f088435",
         "latest_short_prerequisite_evidence": "docs/capacity/cce/observer-cost-paid-result-2026-10-12.json",
         "latest_short_prerequisite_sha256": "5f37fa264394116be33008f8dac924ebd5c9186d8e6312980f5b040916bb31cc",
-        "ingress_route_decision": "ADR0291",
-        "ingress_route_contract_sha256": "df8a00bd5ae783f2bbdf231a782211da1fbdc1b55b6fbbfffb77b65ff07e47ee",
-        "ingress_route_arm": "candidate",
+        "hourly_qualification_decision": "ADR0281",
+        "hourly_adapters_sha256": "0af7b2ff94cbabfd5e37829e5ba7532b3939d80e02bbc0def9942beeaae891c4",
         "verification_decision": "ADR0285",
         "verification_contract_sha256": "495d036bde4056daa0be9ab8b5c0513ee1b51bc0ff27c89e7bb43367ff822cf8",
-        "verification_prerequisite_sha256": "dfaf9b3e14dbc4d28f2daf3996e7651bb9df6e2ec6933aeeb70f3b3d9b459039",
+        "hourly_verification_scope_decision": "ADR0286",
+        "verification_prerequisite_sha256": "48bf7f5a7995bef34e3d683fd259d4470837576f60c2dbf218fad1b67098c2a0",
         "metric_admission_decision": "ADR0287",
         "metric_admission_contract_sha256": "058d377e5965b954e08a2d959fb66dee476e33e4268e57555730c8f092fdbfbe",
-        "ingress_control_ledger": "bounded_cce_paid_comparison__7803374efe6e",
-        "ingress_control_report_path": "tmp/adr0151-88ada5db1162/cce-comparison.private.json"
+        "metric_admission_prerequisite_evidence": "docs/capacity/cce/existing-ingress-candidate-result-2026-10-12.json",
+        "metric_admission_prerequisite_sha256": "48bf7f5a7995bef34e3d683fd259d4470837576f60c2dbf218fad1b67098c2a0",
+        "ingress_route_decision": "ADR0291",
+        "ingress_route_contract_sha256": "a7bd191a38b1d6916a2fb07fbcd0a77714e2d7873bb98963e60ba32ea1789642",
+        "ingress_route_arm": "candidate",
+        "ingress_hourly_decision": "ADR0293",
+        "ingress_hourly_prerequisite_sha256": "48bf7f5a7995bef34e3d683fd259d4470837576f60c2dbf218fad1b67098c2a0"
       },
       "bounded_scaling_permission": {
         "authorized": true,
@@ -2599,6 +2604,88 @@
           },
           "superseded_by": "ADR0291",
           "superseded_at_utc": "2026-10-12T15:38:49.420194+00:00"
+        },
+        {
+          "goal": {
+            "decision": "ADR0228",
+            "profile": "cce_paid_comparison",
+            "extension_decision": "ADR0271",
+            "comparison_arm": "correction",
+            "maximum_paid_stages": 2,
+            "maximum_pods": 18,
+            "pod_vcpu": 1,
+            "pod_memory_gib": 2,
+            "offered_journeys_per_second": 84,
+            "offered_seconds": 300,
+            "maximum_experiment_seconds": 3600,
+            "acquisition_budget": 20,
+            "unlimited_cumulative_time_explicitly_authorized": true,
+            "spending_allowance": {
+              "status": "APPROVED",
+              "maximum_additional_spend": null,
+              "no_spending_cap_explicitly_authorized": true
+            },
+            "ledger_start_index": 105,
+            "candidate_factor": {
+              "name": "event_lane_worker_placement",
+              "comparison_arm": "correction",
+              "worker_counts": {
+                "consumer": 6,
+                "projection-consumer": 1,
+                "reservation-writer": 3,
+                "publisher": 1,
+                "maintenance": 1,
+                "reconciler": 1,
+                "simulator": 1
+              },
+              "worker_resources": {
+                "requests": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                },
+                "limits": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                }
+              },
+              "image_receipt_sha256": "86e7655ecdd8496a7f95af5b8f805bbf351779344b0103168cbd22c61225b80a",
+              "database_connections_unchanged": true,
+              "gateway_delay_unchanged": true
+            },
+            "authorization": "User Continue under ADR0291: fresh ECS-entry control followed only after full pass by existing CCE NGINX entry candidate at84/s300s;unchanged resources and gates;3600s per experiment",
+            "authorized_at_bangkok": "2026-10-12T22:38:49.420194+07:00",
+            "image_correction_decision": "ADR0267",
+            "authorized_at_utc": "2026-10-12T15:38:49.420194+00:00",
+            "scope_note": "ADR0291 customer HTTP entrypoint comparison;two conditional84/s300s stages;25200 distinct journeys per arm;unchanged application,pods,connections,delays,recovery and verification;no newELB;3600s including cleanup per arm",
+            "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
+            "baseline_sha256": "6e04b6008fcd08a8e0a3727dab2a6dd6b910c6d1d2fa4ff051911e835993b254",
+            "worker_resources": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            },
+            "generator_concurrency": 500,
+            "timeout_retention_decision": "ADR0278",
+            "native_database_bridge_decision": "ADR0279",
+            "native_database_bridge_sha256": "11b72a0bd7cb5dbaec8d9396d279a32b97daa892a6aa83d9f622d2bc0fceeaf1",
+            "status_refresh_reuse_decision": "ADR0280",
+            "status_refresh_reuse_sha256": "9a3942c87ff8a71a6d2954b65198e15dbcdab14ac3e4ae535d7aaffff26e094f",
+            "observer_cost_decision": "ADR0283",
+            "observer_cost_sha256": "fdee59f7b83e384c5464d3166e644c769b030f9108c91bbd1d939f197f088435",
+            "latest_short_prerequisite_evidence": "docs/capacity/cce/observer-cost-paid-result-2026-10-12.json",
+            "latest_short_prerequisite_sha256": "5f37fa264394116be33008f8dac924ebd5c9186d8e6312980f5b040916bb31cc",
+            "ingress_route_decision": "ADR0291",
+            "ingress_route_contract_sha256": "df8a00bd5ae783f2bbdf231a782211da1fbdc1b55b6fbbfffb77b65ff07e47ee",
+            "ingress_route_arm": "candidate",
+            "verification_decision": "ADR0285",
+            "verification_contract_sha256": "495d036bde4056daa0be9ab8b5c0513ee1b51bc0ff27c89e7bb43367ff822cf8",
+            "verification_prerequisite_sha256": "dfaf9b3e14dbc4d28f2daf3996e7651bb9df6e2ec6933aeeb70f3b3d9b459039",
+            "metric_admission_decision": "ADR0287",
+            "metric_admission_contract_sha256": "058d377e5965b954e08a2d959fb66dee476e33e4268e57555730c8f092fdbfbe",
+            "ingress_control_ledger": "bounded_cce_paid_comparison__7803374efe6e",
+            "ingress_control_report_path": "tmp/adr0151-88ada5db1162/cce-comparison.private.json"
+          },
+          "superseded_by": "ADR0293",
+          "superseded_at_utc": "2026-10-12T16:42:09.332820+00:00"
         }
       ]
     },

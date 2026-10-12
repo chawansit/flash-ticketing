@@ -1,0 +1,19 @@
+{
+  "decision": "ADR0293",
+  "run": "adr0151-13916e654f05",
+  "ledger": "bounded_cce_hourly_qualification__fd7f6c0b0f58",
+  "status": "FAILED_RESTORED",
+  "raw_result_sha256": "bbafb6809f51af6052f52ea601819014450c3fbf65c568093145ecee5f443fab",
+  "paid_runs_started": 0,
+  "customers_dispatched": false,
+  "failure": "observer_inventory_freshness",
+  "freshness_limit_seconds": 300,
+  "inventory_captured_at": "2026-10-12T16:49:11.410677+00:00",
+  "native_safety_pass": true,
+  "restoration_complete": true,
+  "integrity_verified": true,
+  "transport_credentials_cleared": true,
+  "original_failure_retained": true,
+  "hourly_qualified": false,
+  "capacity_measured": false
+}

@@ -57,6 +57,7 @@ class Lifecycle:
         live_admission=False,
         metric_admission=False,
         ingress_route=None,
+        early_hourly_observers=False,
     ):
         self.stage, self.session = stage, stage.session
         self.resources, self.deployment, self.transition = resources, deployment, transition
@@ -67,6 +68,13 @@ class Lifecycle:
         self.live_admission = live_admission
         self.ingress_route = ingress_route
         self.metric_admission = metric_admission
+        self.early_hourly_observers = early_hourly_observers
+        if early_hourly_observers:
+            if (self.stage.profile.duration != 3600
+                    or self.stage.guard.binding.get("cce_hourly_observer_bootstrap_decision") != "ADR0294"
+                    or self.stage.guard.binding.get("cce_hourly_observer_seconds") != 4200):
+                raise ValueError("Explicit bound hourly observer bootstrap required")
+            self.observers.hourly_early_bootstrap = True
         if metric_admission:
             from cce_metric_admission import validate_binding
             validate_binding(self.stage.guard.binding)
@@ -179,6 +187,11 @@ class Lifecycle:
                 self.ingress_route.install(receipts)
                 self.record["ingress_route_ready_before_safety"] = True
                 self.checkpoint()
+            if self.early_hourly_observers:
+                self.stage.prepare(fixture, manifest)
+                self.observers.start(receipts)
+                self.record["hourly_observer_bootstrap_decision"] = "ADR0294"
+                self.checkpoint()
             self.record["safety"] = self.qualify_safety(receipts)
             require_safety(self.record["safety"])
             if not before_admission:
@@ -187,8 +200,9 @@ class Lifecycle:
                 self.record["paid_fixture_preparation_seconds"] = time.monotonic() - fixture_started
                 self.record["short_fixture_staging_decision"] = "ADR0292"
                 self.checkpoint()
-            self.stage.prepare(fixture, manifest)
-            self.observers.start(receipts)
+            if not self.early_hourly_observers:
+                self.stage.prepare(fixture, manifest)
+                self.observers.start(receipts)
             if hasattr(self.transition, "verify_workers"):
                 self.transition.verify_workers()
             before = self.snapshots()
@@ -199,6 +213,8 @@ class Lifecycle:
                 self.ingress_route.verify()
             start = time.time() + 30
             self.observers.launch_cpu(start, before, self.identities)
+            if self.early_hourly_observers:
+                self.observers.ensure_offered_coverage(start)
             admission = {
                 "run": self.stage.run,
                 "binding_sha256": policy.digest(self.stage.guard.binding),
