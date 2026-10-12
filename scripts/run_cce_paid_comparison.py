@@ -155,6 +155,14 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
                      cce_payment_write_pipeline="1" if goal["payment_pipeline_arm"] == "candidate" else "0",
                      cce_payment_pipeline_receipt_sha256=RECEIPT_SHA256,
                      cce_verification_contract_sha256=goal["verification_contract_sha256"])
+    from cce_committed_status_profile import selected as committed_selected
+    if committed_selected(goal):
+        from cce_committed_status_identity import RECEIPT_SHA256
+        extra.update(cce_transaction_arm=goal["committed_status_arm"],
+                     cce_committed_status_decision="ADR0298", cce_committed_status_arm=goal["committed_status_arm"],
+                     cce_committed_status_snapshot="1" if goal["committed_status_arm"] == "candidate" else "0",
+                     cce_committed_status_receipt_sha256=RECEIPT_SHA256,
+                     cce_verification_contract_sha256=goal["verification_contract_sha256"])
     from cce_metric_admission import contract as metric_contract
     from cce_metric_admission import selected as metric_selected
     if metric_selected(goal):
@@ -398,6 +406,10 @@ def activate_scope(guard, run):
 def worker_contract():
     import cce_transaction_profile as transaction
     goal = transaction.active()
+    from cce_committed_status_profile import selected as committed_selected
+    if committed_selected(goal):
+        from cce_committed_status_contract import CommittedStatusContract
+        return CommittedStatusContract(arm=goal["committed_status_arm"])
     from cce_payment_pipeline_profile import selected as pipeline_selected
     if pipeline_selected(goal):
         from cce_payment_pipeline_contract import PaymentPipelineContract

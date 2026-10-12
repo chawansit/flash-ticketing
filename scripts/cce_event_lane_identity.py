@@ -46,7 +46,11 @@ def verify_inventory(inventory, approved_digest, *, identity=None):
         raise ValueError("Four APIs with explicit disabled event-lane flags required")
     if any(api.get("settings", {}).get("ORDER_STATUS_EVENT_REFRESH_DEDUP") != "0" for api in apis):
         raise ValueError("Only fulfillment consumer status reuse may change")
-    if identity is not None and any(api.get("settings", {}).get("PAYMENT_WRITE_PIPELINE") != "0" for api in apis):
+    bootstrap = getattr(identity, "bootstrap_flags", None) if identity is not None else None
+    if bootstrap is not None and any(
+            api.get("settings", {}).get(k) != v for api in apis for k, v in bootstrap("api").items()):
+        raise ValueError("Only native consumer publication may change")
+    if identity is not None and bootstrap is None and any(api.get("settings", {}).get("PAYMENT_WRITE_PIPELINE") != "0" for api in apis):
         raise ValueError("Bootstrap API payment pipeline must remain disabled")
     counts, ids = dict.fromkeys(COUNTS, 0), set()
     for row in inventory.get("worker_sources", []):
@@ -60,7 +64,9 @@ def verify_inventory(inventory, approved_digest, *, identity=None):
             raise ValueError("Every actual event-lane worker source/image must match")
         want = {"EVENT_CONSUMER_SEPARATION": "1" if role in {"consumer", "projection-consumer"} else "0",
                 "RESERVATION_WRITE_PIPELINE": "1" if role == "reservation-writer" else "0"}
-        if identity is not None:
+        if bootstrap is not None:
+            want.update(bootstrap(role))
+        elif identity is not None:
             want["PAYMENT_WRITE_PIPELINE"] = "0"
         want["ORDER_STATUS_EVENT_REFRESH_DEDUP"] = "1" if reuse and role == "consumer" else "0"
         if role in {"consumer", "projection-consumer"}:
@@ -84,10 +90,19 @@ def historical_view(inventory, approved_digest, *, identity=None):
     legacy = copy.deepcopy(inventory)
     marker = legacy["status_refresh_contract"]
     if identity is not None:
-        for key in ("payment_pipeline_decision", "payment_pipeline_arm", "payment_write_pipeline", "bootstrap_payment_write_pipeline"):
+        bootstrap = getattr(identity, "bootstrap_flags", None)
+        keys = getattr(identity, "MARKER_KEYS", (
+            "payment_pipeline_decision", "payment_pipeline_arm", "payment_write_pipeline", "bootstrap_payment_write_pipeline"))
+        for key in keys:
             marker.pop(key)
+        flags = tuple(bootstrap("api")) if bootstrap is not None else ("PAYMENT_WRITE_PIPELINE",)
         for api in legacy["apis"]:
-            api["settings"].pop("PAYMENT_WRITE_PIPELINE")
+            for key in flags:
+                api["settings"].pop(key)
+        if bootstrap is not None:
+            for row in legacy["worker_sources"]:
+                for key in bootstrap(row["role"]):
+                    row["settings"].pop(key)
     # Actual candidate identity/flags were verified above. Only the copied view
     # adapts this independent factor for the frozen historical observer.
     marker.pop("status_refresh_reuse_decision", None)

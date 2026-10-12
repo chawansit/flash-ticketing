@@ -260,6 +260,9 @@ class Observers:
         from cce_payment_pipeline_profile import selected as pipeline_selected
         if pipeline_selected(goal):
             helpers += ("cce_payment_pipeline_identity.py",)
+        from cce_committed_status_profile import selected as committed_selected
+        if committed_selected(goal):
+            helpers += ("cce_committed_status_identity.py",)
         expected = {}
         for name in helpers:
             raw = (policy.ROOT / "scripts" / name).read_text()

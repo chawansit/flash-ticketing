@@ -258,3 +258,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0296: Align hourly observer and supervisor lifetimes](0296-align-hourly-observer-supervisor-lifetime.md)
 
 - [ADR0297: Publish status from the committed fulfillment transaction](0297-publish-status-from-committed-fulfillment.md)
+
+- [ADR0298: Bind the committed-status load comparison](0298-bind-committed-status-load-comparison.md)

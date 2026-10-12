@@ -52,7 +52,7 @@ def selected(goal):
                 or goal.get("maximum_paid_stages") != 1):
             raise ValueError("Exact bounded ingress hourly qualification required")
     elif (goal.get("profile") != "cce_paid_comparison"
-          or goal.get("maximum_paid_stages") != 2
+          or goal.get("maximum_paid_stages") != (1 if goal.get("committed_status_decision") == "ADR0298" else 2)
           or "ingress_hourly_prerequisite_sha256" in goal):
         raise ValueError("Exact bounded ingress comparison required")
     return True
@@ -115,6 +115,14 @@ def authorize_sequence(envelope):
     """A failed control can never authorize the second paid stage."""
     goal = envelope["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"]
     if not selected(goal):
+        return
+    if goal.get("committed_status_decision") is not None:
+        from cce_committed_status_profile import require_control
+        from cce_committed_status_profile import selected as committed_selected
+        if not committed_selected(goal):
+            raise ValueError("Exact committed-status comparison scope required")
+        if goal["committed_status_arm"] == "candidate":
+            require_control(goal)
         return
     if goal.get("ingress_hourly_decision") == HOURLY_DECISION:
         hourly_baseline(goal)

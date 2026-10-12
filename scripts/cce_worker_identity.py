@@ -15,6 +15,12 @@ def specification(decision="ADR0259"):
     if decision == "ADR0259":
         return {"decision": decision, "counts": dict(COUNTS), "manifest": MANIFEST,
                 "image_id": ECS_IMAGE_ID, "source": SOURCE, "resources": RESOURCES}
+    if decision == "ADR0298":
+        import cce_committed_status_identity as selected_pins
+        import cce_event_lane_identity as legacy_pins
+        return {"decision": decision, "counts": {k: v for k, v in legacy_pins.COUNTS.items() if k != "confirmation"},
+                "manifest": selected_pins.IMAGE_ID, "image_id": selected_pins.IMAGE_ID,
+                "source": selected_pins.SOURCE, "resources": RESOURCES}
     if decision == "ADR0285":
         import cce_event_lane_identity as legacy_pins
         import cce_payment_pipeline_identity as selected_pins

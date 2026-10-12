@@ -69,6 +69,9 @@ def contract():
     from cce_payment_pipeline_profile import selected as pipeline_selected
     if pipeline_selected(goal):
         data["api_settings"]["PAYMENT_WRITE_PIPELINE"] = "1" if goal["payment_pipeline_arm"] == "candidate" else "0"
+    from cce_committed_status_profile import selected as committed_selected
+    if committed_selected(goal):
+        data["api_settings"]["ORDER_STATUS_COMMITTED_SNAPSHOT"] = "0"
     if goal is not None and goal["extension_decision"] == "ADR0277":
         data["workload"].update(offered_journeys_per_second=168, concurrency=1000)
     return data

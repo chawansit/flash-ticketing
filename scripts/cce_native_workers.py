@@ -25,6 +25,13 @@ def environment(role, values, primary_ip, decision="ADR0259"):
         if result.get("API_URL") != "http://load-balancer:8000":
             raise ValueError("Shared callback route required")
         result["API_URL"] = "http://" + cce.private_ip(primary_ip) + ":8000"
+    if decision == "ADR0298":
+        from cce_committed_status_profile import selected
+        from cce_transaction_profile import active
+        goal = active()
+        if not selected(goal) or result.get("ORDER_STATUS_COMMITTED_SNAPSHOT") != "0":
+            raise ValueError("Explicit disabled ECS bootstrap required before consumer activation")
+        result["ORDER_STATUS_COMMITTED_SNAPSHOT"] = "1" if role == "consumer" and goal["committed_status_arm"] == "candidate" else "0"
     return result
 
 
@@ -38,8 +45,10 @@ def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None):
         raise ValueError("Complete worker environments required")
     namespace = cce.dependency.namespace_for(run)
     result = []
-    if decision in {"ADR0271", "ADR0285"}:
-        if decision == "ADR0285":
+    if decision in {"ADR0271", "ADR0285", "ADR0298"}:
+        if decision == "ADR0298":
+            from cce_committed_status_profile import image
+        elif decision == "ADR0285":
             from cce_payment_pipeline_profile import image
         else:
             from cce_event_lane_profile import image
@@ -195,8 +204,10 @@ class Workers:
                     continue
                 views.append(receipt(pod, expected, self.deployment.run, self.uids[name], log, metrics, self.decision))
             if not pending:
-                if self.decision in {"ADR0271", "ADR0285"}:
-                    if self.decision == "ADR0285":
+                if self.decision in {"ADR0271", "ADR0285", "ADR0298"}:
+                    if self.decision == "ADR0298":
+                        from cce_committed_status_profile import image
+                    elif self.decision == "ADR0285":
                         from cce_payment_pipeline_profile import image
                     else:
                         from cce_event_lane_profile import image

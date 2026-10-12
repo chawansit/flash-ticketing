@@ -38,6 +38,9 @@ def identity():
     paths = (
         "scripts/cce_ingress_hourly_generator.py",
         "scripts/cce_bounded_financial_audit.py", "scripts/independent_database_sampling.py",
+        "scripts/cce_committed_status_identity.py", "scripts/cce_committed_status_profile.py",
+        "scripts/cce_committed_status_contract.py",
+        "docs/capacity/cce/committed-fulfillment-status-image-2026-10-13.json",
         "scripts/cce_verification_contract.py", "scripts/cce_metric_admission.py", "scripts/cce_payment_pipeline_identity.py",
         "scripts/cce_payment_pipeline_profile.py", "scripts/cce_payment_pipeline_contract.py",
         "docs/capacity/cce/payment-write-pipeline-image-2026-10-12.json",
