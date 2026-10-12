@@ -124,8 +124,8 @@
       ],
       "boundary_mode": "goal_bounded",
       "goal_bounded_authorization": {
-        "decision": "ADR0232",
-        "profile": "cce_hourly_qualification",
+        "decision": "ADR0228",
+        "profile": "cce_paid_comparison",
         "extension_decision": "ADR0271",
         "comparison_arm": "correction",
         "maximum_paid_stages": 1,
@@ -133,8 +133,8 @@
         "pod_vcpu": 1,
         "pod_memory_gib": 2,
         "offered_journeys_per_second": 84,
-        "offered_seconds": 3600,
-        "maximum_experiment_seconds": 5400,
+        "offered_seconds": 300,
+        "maximum_experiment_seconds": 3600,
         "acquisition_budget": 20,
         "unlimited_cumulative_time_explicitly_authorized": true,
         "spending_allowance": {
@@ -142,7 +142,7 @@
           "maximum_additional_spend": null,
           "no_spending_cap_explicitly_authorized": true
         },
-        "ledger_start_index": 99,
+        "ledger_start_index": 100,
         "candidate_factor": {
           "name": "event_lane_worker_placement",
           "comparison_arm": "correction",
@@ -169,11 +169,11 @@
           "database_connections_unchanged": true,
           "gateway_delay_unchanged": true
         },
-        "authorization": "Standing Continue authorization under ADR0287 after all short capture validation gates passed: one fixed ADR0283-runtime84/s hourly qualification with ADR0285 verification and ADR0287 metric capture,unchanged resources and gates,approved90-minute ceiling",
-        "authorized_at_bangkok": "2026-10-12T16:23:28.529204+07:00",
+        "authorization": "Standing Continue authorization under ADR0288: one fixed ADR0283-runtime84/s five-minute statistics-order validation with ADR0287 capture and ADR0285 verification,unchanged resources and gates,60-minute ceiling",
+        "authorized_at_bangkok": "2026-10-12T18:43:57.365021+07:00",
         "image_correction_decision": "ADR0267",
-        "authorized_at_utc": "2026-10-12T09:23:28.529204+00:00",
-        "scope_note": "One84/s3600s hourly qualification under ADR0287 after passing fresh short validation;302400 distinct journeys;explicit ADR0283 application image with pipelining off;unchanged resources;ADR0285 complete verification and ADR0287 complete metric history;original quality gates plus300000 tickets inside the hour;5400s including cleanup",
+        "authorized_at_utc": "2026-10-12T11:43:57.365021+00:00",
+        "scope_note": "One84/s300s statistics-order validation under ADR0288;25200 distinct journeys;explicit ADR0283 application image with pipelining off;unchanged resources and quality gates;ADR0285 complete verification;3600s including cleanup",
         "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
         "baseline_sha256": "6e04b6008fcd08a8e0a3727dab2a6dd6b910c6d1d2fa4ff051911e835993b254",
         "worker_resources": {
@@ -190,16 +190,11 @@
         "observer_cost_sha256": "fdee59f7b83e384c5464d3166e644c769b030f9108c91bbd1d939f197f088435",
         "latest_short_prerequisite_evidence": "docs/capacity/cce/observer-cost-paid-result-2026-10-12.json",
         "latest_short_prerequisite_sha256": "5f37fa264394116be33008f8dac924ebd5c9186d8e6312980f5b040916bb31cc",
-        "hourly_qualification_decision": "ADR0281",
-        "hourly_adapters_sha256": "0af7b2ff94cbabfd5e37829e5ba7532b3939d80e02bbc0def9942beeaae891c4",
         "verification_decision": "ADR0285",
-        "verification_contract_sha256": "a517693b1e6eff3d31fa85c73b4bda4540831727bc6bbf0f67e3b4be07d76764",
-        "hourly_verification_scope_decision": "ADR0286",
+        "verification_contract_sha256": "20d4dc0b3a328815d12a1e28451f0cadd5669d9b31ff071fdc59e37f0602455d",
         "verification_prerequisite_sha256": "dfaf9b3e14dbc4d28f2daf3996e7651bb9df6e2ec6933aeeb70f3b3d9b459039",
         "metric_admission_decision": "ADR0287",
-        "metric_admission_contract_sha256": "d06ae96e68df19b9377f5750c4e5ccb4b3d4c21f5f88e11dbbe7f749770526ee",
-        "metric_admission_prerequisite_evidence": "docs/capacity/cce/metric-admission-paid-result-2026-10-12.json",
-        "metric_admission_prerequisite_sha256": "dfaf9b3e14dbc4d28f2daf3996e7651bb9df6e2ec6933aeeb70f3b3d9b459039"
+        "metric_admission_contract_sha256": "73521fb7d2547ff002ff84b4d07a9cb41b2079763e3a66b53a26552b6e1c1e64"
       },
       "bounded_scaling_permission": {
         "authorized": true,
@@ -2116,6 +2111,88 @@
           },
           "superseded_by": "ADR0287",
           "superseded_at_utc": "2026-10-12T09:23:28.529204+00:00"
+        },
+        {
+          "goal": {
+            "decision": "ADR0232",
+            "profile": "cce_hourly_qualification",
+            "extension_decision": "ADR0271",
+            "comparison_arm": "correction",
+            "maximum_paid_stages": 1,
+            "maximum_pods": 18,
+            "pod_vcpu": 1,
+            "pod_memory_gib": 2,
+            "offered_journeys_per_second": 84,
+            "offered_seconds": 3600,
+            "maximum_experiment_seconds": 5400,
+            "acquisition_budget": 20,
+            "unlimited_cumulative_time_explicitly_authorized": true,
+            "spending_allowance": {
+              "status": "APPROVED",
+              "maximum_additional_spend": null,
+              "no_spending_cap_explicitly_authorized": true
+            },
+            "ledger_start_index": 99,
+            "candidate_factor": {
+              "name": "event_lane_worker_placement",
+              "comparison_arm": "correction",
+              "worker_counts": {
+                "consumer": 6,
+                "projection-consumer": 1,
+                "reservation-writer": 3,
+                "publisher": 1,
+                "maintenance": 1,
+                "reconciler": 1,
+                "simulator": 1
+              },
+              "worker_resources": {
+                "requests": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                },
+                "limits": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                }
+              },
+              "image_receipt_sha256": "86e7655ecdd8496a7f95af5b8f805bbf351779344b0103168cbd22c61225b80a",
+              "database_connections_unchanged": true,
+              "gateway_delay_unchanged": true
+            },
+            "authorization": "Standing Continue authorization under ADR0287 after all short capture validation gates passed: one fixed ADR0283-runtime84/s hourly qualification with ADR0285 verification and ADR0287 metric capture,unchanged resources and gates,approved90-minute ceiling",
+            "authorized_at_bangkok": "2026-10-12T16:23:28.529204+07:00",
+            "image_correction_decision": "ADR0267",
+            "authorized_at_utc": "2026-10-12T09:23:28.529204+00:00",
+            "scope_note": "One84/s3600s hourly qualification under ADR0287 after passing fresh short validation;302400 distinct journeys;explicit ADR0283 application image with pipelining off;unchanged resources;ADR0285 complete verification and ADR0287 complete metric history;original quality gates plus300000 tickets inside the hour;5400s including cleanup",
+            "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
+            "baseline_sha256": "6e04b6008fcd08a8e0a3727dab2a6dd6b910c6d1d2fa4ff051911e835993b254",
+            "worker_resources": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            },
+            "generator_concurrency": 500,
+            "timeout_retention_decision": "ADR0278",
+            "native_database_bridge_decision": "ADR0279",
+            "native_database_bridge_sha256": "11b72a0bd7cb5dbaec8d9396d279a32b97daa892a6aa83d9f622d2bc0fceeaf1",
+            "status_refresh_reuse_decision": "ADR0280",
+            "status_refresh_reuse_sha256": "9a3942c87ff8a71a6d2954b65198e15dbcdab14ac3e4ae535d7aaffff26e094f",
+            "observer_cost_decision": "ADR0283",
+            "observer_cost_sha256": "fdee59f7b83e384c5464d3166e644c769b030f9108c91bbd1d939f197f088435",
+            "latest_short_prerequisite_evidence": "docs/capacity/cce/observer-cost-paid-result-2026-10-12.json",
+            "latest_short_prerequisite_sha256": "5f37fa264394116be33008f8dac924ebd5c9186d8e6312980f5b040916bb31cc",
+            "hourly_qualification_decision": "ADR0281",
+            "hourly_adapters_sha256": "0af7b2ff94cbabfd5e37829e5ba7532b3939d80e02bbc0def9942beeaae891c4",
+            "verification_decision": "ADR0285",
+            "verification_contract_sha256": "a517693b1e6eff3d31fa85c73b4bda4540831727bc6bbf0f67e3b4be07d76764",
+            "hourly_verification_scope_decision": "ADR0286",
+            "verification_prerequisite_sha256": "dfaf9b3e14dbc4d28f2daf3996e7651bb9df6e2ec6933aeeb70f3b3d9b459039",
+            "metric_admission_decision": "ADR0287",
+            "metric_admission_contract_sha256": "d06ae96e68df19b9377f5750c4e5ccb4b3d4c21f5f88e11dbbe7f749770526ee",
+            "metric_admission_prerequisite_evidence": "docs/capacity/cce/metric-admission-paid-result-2026-10-12.json",
+            "metric_admission_prerequisite_sha256": "dfaf9b3e14dbc4d28f2daf3996e7651bb9df6e2ec6933aeeb70f3b3d9b459039"
+          },
+          "superseded_by": "ADR0288",
+          "superseded_at_utc": "2026-10-12T11:43:57.365021+00:00"
         }
       ]
     }
