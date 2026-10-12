@@ -374,7 +374,8 @@ def receipt(pod, expected, uid, run, startup_proof):
         meta.get("uid") != uid
         or not uid
         or meta.get("name") != expected["metadata"]["name"]
-        or meta.get("labels") != expected["metadata"]["labels"]
+        or any(meta.get("labels", {}).get(k) != v
+               for k, v in expected["metadata"]["labels"].items())
         or meta.get("deletionTimestamp")
         or any(
             meta.get("annotations", {}).get(k) != v for k, v in expected["metadata"]["annotations"].items()
@@ -434,6 +435,8 @@ def verification_summary(pod, expected):
     wanted = expected["spec"]["containers"][0]
     return {
         "pod_name": expected["metadata"]["name"],
+        "required_labels_match": all(pod.get("metadata", {}).get("labels", {}).get(k) == v
+                                     for k, v in expected["metadata"].get("labels", {}).items()),
         "phase": status.get("phase"),
         "container_count": len(spec.get("containers", [])),
         "different_container_fields": sorted(k for k, v in wanted.items() if container.get(k) != v),

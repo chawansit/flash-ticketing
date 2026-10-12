@@ -298,7 +298,9 @@ class ReadyDeployment(native.Deployment):
 
     def cleanup(self):
         if self.ingress_route is not None:
-            self.ingress_route.cleanup()
+            proof = self.ingress_route.cleanup()
+            if proof != {"owned_route_removed": True, "existing_addon_unchanged": True}:
+                raise ValueError("Owned ingress removal and unchanged addon required")
         return super().cleanup()
 
     def observe(self, manifests, http_ready, http_metrics, *, previous=None):

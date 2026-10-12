@@ -46,3 +46,9 @@ Cleanup deletes only the owned Ingress/Service with UID preconditions, verifies 
 Executed before implementation: existing ingress readiness inspection, source review of the proven runner and its cleanup/ownership/origin guards. See [readiness evidence](../capacity/cce/existing-ingress-readiness-2026-10-12.json).
 
 Implemented: opt-in Service/Ingress integration in the existing paid runner, exact addon binding, API-only backend selection, route/authorization checks, and UID-bound teardown. Executed: 303 focused unit tests passed in 35.84 seconds; Ruff passed for changed source and tests. These are local checks, not cloud capacity evidence. The fresh control/candidate comparison remains pending; no hourly qualification or performance gain is claimed.
+
+## Pre-dispatch guard correction
+
+The first fresh attempt (adr0151-c816aa2674a7) stopped during pod admission before any paid stage. The image, imported source, API resources and container settings matched. The new full-label equality check was unnecessarily strict: verify the required owner/API routing labels and permit unrelated provider labels. Regression tests preserve rejection of replaced ownership or routing labels. Failed evidence is retained in [prepaid abort](../capacity/cce/existing-ingress-prepaid-abort-2026-10-12.json); runtime restoration, integrity and credential cleanup passed. This is not a measured control failure or an ingress capacity result.
+
+Executed after correction: 180 focused tests passed in22.05seconds. The corrected comparison requires fresh identities; the original failed attempt is not replayed.

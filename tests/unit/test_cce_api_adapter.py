@@ -393,3 +393,20 @@ def test_admission_correction_still_rejects_real_security_and_probe_changes(muta
     if mutation == 'probe_path': pod['spec']['containers'][0]['readinessProbe']['httpGet']['path'] = '/wrong'
     with pytest.raises(ValueError, match='admitted specification drift'):
         cce.receipt(pod, expected, pod['metadata']['uid'], RUN, proof)
+
+def test_provider_labels_do_not_change_owned_api_identity():
+    expected, pod, proof = live_pod()
+    expected["metadata"]["labels"]["codex-api-route"] = RUN
+    pod["metadata"]["labels"].update({"codex-api-route": RUN,
+                                     "cce.huaweicloud.com/runtime-label": "provider"})
+    assert cce.receipt(pod, expected, pod["metadata"]["uid"], RUN, proof)["pod_uid"] == "uid-0"
+
+
+@pytest.mark.parametrize("label", ["codex-owner", "codex-api-route"])
+def test_provider_defaulting_cannot_override_route_ownership(label):
+    expected, pod, proof = live_pod()
+    expected["metadata"]["labels"]["codex-api-route"] = RUN
+    pod["metadata"]["labels"]["codex-api-route"] = RUN
+    pod["metadata"]["labels"][label] = "another-run"
+    with pytest.raises(ValueError, match="admitted specification drift"):
+        cce.receipt(pod, expected, pod["metadata"]["uid"], RUN, proof)
