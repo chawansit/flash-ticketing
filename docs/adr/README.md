@@ -242,3 +242,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0288: Collect statistics before variable cohort work](0288-collect-statistics-before-cohort-work.md) — Preserve the existing connection budget and two-second gate.
 
 - [ADR0289: Prepare paid fixtures before fresh transition admission](0289-prepare-fixtures-before-fresh-admission.md) — Fresh admission passed; subsequent hour failed throughput/customer and slot-history gates, with independent recovery verified.
+
+- [ADR0290: Compare CCE-managed ingress with the ECS proxy](0290-compare-cce-managed-ingress.md) — Proposed private ELB route comparison; no deployment or capacity gain claimed.
