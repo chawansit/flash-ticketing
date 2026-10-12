@@ -76,7 +76,7 @@ def plan(goal):
     active(goal)
     from cce_worker_rebalance_profile import plan as placement_plan
     value = placement_plan(short_view(goal))
-    return {**value, "decision": "ADR0232", "hourly_qualification_decision": "ADR0281",
+    result = {**value, "decision": "ADR0232", "hourly_qualification_decision": "ADR0281",
             "common": {"buyer_journeys_per_second": 84, "duration_seconds": 3600},
             "kind": "committed_status_reuse_hourly_qualification",
             "single_changed_factor": "duration_and_distinct_cohort",
@@ -88,3 +88,5 @@ def plan(goal):
             "cohort_observer_interval_seconds": 10, "experiment_seconds_limit": 5400,
             "fixture_shows": 1008,
             "duration_reason": "Qualify the same passed runtime for one hour; mandatory audits and restoration within 90 minutes."}
+    from cce_metric_admission import extend_plan
+    return extend_plan(result, goal)

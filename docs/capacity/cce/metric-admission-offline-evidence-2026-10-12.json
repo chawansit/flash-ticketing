@@ -1,0 +1,56 @@
+{
+  "decision": "ADR0287",
+  "scope": "Offline capture validation and temporal correlation; original hourly failure preserved",
+  "run": "adr0151-31c5145ff081",
+  "original_result_sha256": "50f107cb2c9415672d14d1ef910328a68520bb4e63a280538b92430316f5d742",
+  "original_status": "FAILED_RESTORED",
+  "historical_qualification_upgraded": false,
+  "capture_complete": true,
+  "metric_samples": 3666,
+  "slot_failure_total": 72,
+  "metric_capture_contract_sha256": "d06ae96e68df19b9377f5750c4e5ccb4b3d4c21f5f88e11dbbe7f749770526ee",
+  "additional_kubernetes_log_requests": 0,
+  "offered_window_bracketed": true,
+  "holder_phases": {
+    "commit": 129,
+    "query_BEGIN": 29,
+    "query_INSERT": 14,
+    "query_SELECT": 1
+  },
+  "holder_operations": {
+    "payment_callback": 73,
+    "payment_request": 71,
+    "other": 5,
+    "order_status": 24
+  },
+  "maximum_commit_phase_age_ms": 664.239,
+  "maximum_commit_holder_connection_age_ms": 698.8,
+  "failure_time_correlation": {
+    "maximum_allowed_nearest_sample_offset_seconds": 1,
+    "matched_failures": 72,
+    "maximum_actual_offset_seconds": 0.49059391021728516,
+    "failure_snapshots_with_wait_event": {
+      "IO:DataFileRead": 71,
+      "IO:WalSync": 71,
+      "LWLock:WALWrite": 71,
+      "None:None": 5,
+      "Client:ClientRead": 1
+    },
+    "maximum_waiters_in_matched_samples": {
+      "IO:DataFileRead": 5,
+      "IO:WalSync": 1,
+      "LWLock:WALWrite": 22,
+      "None:None": 1,
+      "Client:ClientRead": 5
+    },
+    "scope": "Nearest one-second database snapshots, cluster/current-database activity; one snapshot may match multiple failures. Correlation is not causation."
+  },
+  "wal_or_storage_cause_established": false,
+  "local_validation": {
+    "capture_and_entry_scope_tests": 122,
+    "legacy_observer_and_cleanup_tests": 144,
+    "legacy_skipped_tests": 1,
+    "ruff_pass": true,
+    "full_repository_suite_claimed": false
+  }
+}

@@ -13,7 +13,8 @@ def contract():
     names = ("cce_bounded_financial_audit.py", "independent_database_sampling.py",
              "database_wait_evidence.py", "audit_checkout_smoke.py", "cce_transaction_recovery.py",
              "cce_verification_contract.py", "observe_two_host_pipeline.py", "cce_paid_observers.py",
-             "cce_paid_stage.py", "cce_slot_trace_transport.py", "observe_cce_workers.py")
+             "cce_paid_stage.py", "cce_slot_trace_transport.py", "observe_cce_workers.py",
+             "cce_metric_admission.py", "cce_paid_lifecycle.py")
     return {"decision": "ADR0285", "sources": {name: hashlib.sha256(
         (root / name).read_bytes().replace(b"\r\n", b"\n")).hexdigest() for name in names},
         "sampling_seconds": 1, "statistics_gap_seconds": 2, "cohort_age_seconds": 10,

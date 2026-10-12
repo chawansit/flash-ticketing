@@ -75,5 +75,6 @@ def plan(goal):
                     duration_reason="One unchanged 84/s five-minute run after bounding observer query work.")
     elif "observer_cost_sha256" in goal:
         raise ValueError("Orphan observer correction binding")
+    from cce_metric_admission import extend_plan as extend_capture
     from cce_payment_pipeline_profile import extend_plan
-    return extend_plan(plan, goal)
+    return extend_capture(extend_plan(plan, goal), goal)

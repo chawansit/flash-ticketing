@@ -37,7 +37,7 @@ def sha(raw):
 def identity():
     paths = (
         "scripts/cce_bounded_financial_audit.py", "scripts/independent_database_sampling.py",
-        "scripts/cce_verification_contract.py", "scripts/cce_payment_pipeline_identity.py",
+        "scripts/cce_verification_contract.py", "scripts/cce_metric_admission.py", "scripts/cce_payment_pipeline_identity.py",
         "scripts/cce_payment_pipeline_profile.py", "scripts/cce_payment_pipeline_contract.py",
         "docs/capacity/cce/payment-write-pipeline-image-2026-10-12.json",
         "scripts/collect_two_host_inventory.py", "scripts/runtime_source_identity.py",

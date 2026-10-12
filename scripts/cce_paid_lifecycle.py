@@ -55,6 +55,7 @@ class Lifecycle:
         persist,
         refresh_inventory=None,
         live_admission=False,
+        metric_admission=False,
     ):
         self.stage, self.session = stage, stage.session
         self.resources, self.deployment, self.transition = resources, deployment, transition
@@ -63,6 +64,13 @@ class Lifecycle:
         self.cleanup_safety = cleanup_safety
         self.identities, self.background_before, self.persist = identities, background_before, persist
         self.live_admission = live_admission
+        self.metric_admission = metric_admission
+        if metric_admission:
+            from cce_metric_admission import validate_binding
+            validate_binding(self.stage.guard.binding)
+            if not live_admission:
+                raise ValueError("Metric capture must preserve admission completeness gate")
+            self.observers.metric_admission = True
         self.live_capture = None
         self.refresh_inventory = refresh_inventory
         self.record = {"pass": False, "cleanup_complete": False, "customers_dispatched": False}
@@ -73,6 +81,13 @@ class Lifecycle:
 
     def capture_admission_diagnostics(self):
         """Retain bounded failure-time context without masking customer results."""
+        if self.metric_admission:
+            self.record["admission_diagnostics"] = {
+                "decision": "ADR0287", "source": "existing_one_second_api_metrics",
+                "capture_incomplete": True, "awaiting_trace_validation": True,
+            }
+            self.checkpoint()
+            return
         try:
             if self.live_capture is not None:
                 live = self.live_capture.finish()
@@ -168,7 +183,7 @@ class Lifecycle:
                 "cce_api_receipts": receipts,
                 "all_required_pre_dispatch_gates_pass": True,
             }
-            if self.live_admission:
+            if self.live_admission and not self.metric_admission:
                 from cce_live_admission import Capture
                 self.live_capture = Capture(self.deployment, profile=self.stage.profile)
                 self.live_capture.start()
@@ -178,6 +193,17 @@ class Lifecycle:
             self.capture_admission_diagnostics()
             self.record["observer_collection_attempted"] = True
             observed = self.observers.collect()
+            if self.metric_admission:
+                from cce_metric_admission import validate_summary
+                capture = observed.get("slot_failure_capture")
+                validate_summary(capture, self.stage.guard.binding, receipts)
+                self.record["live_admission_complete"] = True
+                self.record["admission_diagnostics"] = {
+                    "decision": "ADR0287", "source": capture["source"],
+                    "sha256": policy.digest(capture), "failure_events": capture["failure_total"],
+                    "capture_incomplete": False, "additional_kubernetes_log_requests": 0,
+                }
+                self.checkpoint()
             financial = self.stage.audit(global_audit)
             self.deployment.observe(self.manifests, http_ready, http_metrics, previous=receipts)
             if hasattr(self.transition, "verify_workers"):

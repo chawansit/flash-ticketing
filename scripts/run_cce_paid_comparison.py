@@ -155,6 +155,11 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
                      cce_payment_write_pipeline="1" if goal["payment_pipeline_arm"] == "candidate" else "0",
                      cce_payment_pipeline_receipt_sha256=RECEIPT_SHA256,
                      cce_verification_contract_sha256=goal["verification_contract_sha256"])
+    from cce_metric_admission import contract as metric_contract
+    from cce_metric_admission import selected as metric_selected
+    if metric_selected(goal):
+        extra.update(cce_live_admission_decision="ADR0287",
+                     cce_metric_admission_contract_sha256=policy.digest(metric_contract()))
     return {
         **extra,
         "configuration_sha256": policy.digest(config),
@@ -532,6 +537,7 @@ def run(config, output, guard, manifests, kubeconfig, context):
                 persist=lambda value: persist({"lifecycle": value}),
                 refresh_inventory=refresh_inventory,
                 live_admission=goal is not None and goal["extension_decision"] in {"ADR0271", "ADR0277"},
+                metric_admission=__import__("cce_metric_admission").selected(goal),
             )
 
             record["native"] = lifecycle.run(

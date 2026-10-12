@@ -29,12 +29,17 @@ def receipt_bundle(run, receipts):
 
 def summarize_independent_diagnostics(record, rows, path, receipts, start, end, *, hourly, summarize_waits,
                                      summarize_slots=None, summarize_pipeline=None, native_workers=None, slot_log_evidence=None,
-                                     diagnostic_path=None):
+                                     diagnostic_path=None, metric_admission=False):
     """ADR0257/0260 preserve independent diagnostics despite a missing slot history."""
     failures = []
     operations = []
     if summarize_slots is not None:
         def slot_history():
+            if metric_admission:
+                if slot_log_evidence is not None:
+                    raise ValueError("Metric admission cannot silently supplement missing history with logs")
+                from cce_metric_admission import summarize
+                return summarize(rows, receipts, start, end, hourly=hourly)
             admitted = native.validate_receipts(receipts)
             if slot_log_evidence is None:
                 return summarize_slots(rows, admitted)
@@ -59,7 +64,11 @@ def summarize_independent_diagnostics(record, rows, path, receipts, start, end, 
         try:
             record[operation] = collect()
         except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Every independent diagnostic must be attempted.
-            failures.append({"operation": operation, "type": type(error).__name__})
+            failure = {"operation": operation, "type": type(error).__name__}
+            from cce_metric_admission import CaptureError
+            if isinstance(error, CaptureError):
+                failure["reason_code"] = error.reason_code
+            failures.append(failure)
     return failures
 
 
@@ -545,6 +554,7 @@ class Observers:
                         summarize_slots=summarize_slots if transaction.active() is not None else None,
                         summarize_pipeline=summarize, native_workers=getattr(self, "native_workers", None),
                         slot_log_evidence=getattr(self, "slot_log_evidence", None),
+                        metric_admission=getattr(self, "metric_admission", False),
                         diagnostic_path=(self.stage.output / "database-waits.jsonl"
                             if getattr(self, "independent_database_sampling", False) else None)))
                 else:

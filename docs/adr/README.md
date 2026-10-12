@@ -236,3 +236,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0285: Complete audits and compare payment pipelining](0285-complete-audits-and-compare-payment-pipelining.md) — Complete audits and fresh off/on comparisons executed; both short arms passed; no pipeline adoption.
 - [ADR0286: Hourly qualification with complete verification](0286-hourly-qualification-with-complete-verification.md) — Hourly ticket target demonstrated; full qualification failed on log capture; independent integrity/restoration passed.
+
+- [ADR0287: Capture complete slot history from existing API metrics](0287-capture-slot-history-from-existing-metrics.md) — Explicit new-scope diagnostic transport correction; historical hourly failure preserved.
