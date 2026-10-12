@@ -18,7 +18,8 @@ def contract():
     return {"decision": "ADR0285", "sources": {name: hashlib.sha256(
         (root / name).read_bytes().replace(b"\r\n", b"\n")).hexdigest() for name in names},
         "sampling_seconds": 1, "statistics_gap_seconds": 2, "cohort_age_seconds": 10,
-        "data_connections": 1, "audit_seconds": 600, "audit_transport_seconds": 780}
+        "data_connections": 1, "audit_seconds": 600, "audit_transport_seconds": 780,
+        "statistics_schedule_decision": "ADR0288", "statistics_order": "before_cohort"}
 
 
 def selected(goal):
@@ -37,7 +38,9 @@ def validate_inventory(inventory, approved_sha256):
     # Runtime only needs the sampler/stats sources; full local contract is sealed before deployment.
     if (digest(inventory) != approved_sha256 or marker.get("decision") != "ADR0285"
             or marker.get("data_connections") != 1 or marker.get("sampling_seconds") != 1
-            or marker.get("statistics_gap_seconds") != 2 or marker.get("cohort_age_seconds") != 10):
+            or marker.get("statistics_gap_seconds") != 2 or marker.get("cohort_age_seconds") != 10
+            or marker.get("statistics_schedule_decision") != "ADR0288"
+            or marker.get("statistics_order") != "before_cohort"):
         raise ValueError("Exact bounded diagnostic inventory binding required")
     for name in ("independent_database_sampling.py", "database_wait_evidence.py"):
         actual = hashlib.sha256((Path(__file__).parent / name).read_bytes().replace(b"\r\n", b"\n")).hexdigest()

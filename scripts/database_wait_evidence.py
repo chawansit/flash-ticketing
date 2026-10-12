@@ -173,13 +173,28 @@ class Collector:
         return result
 
 
-def install(module):
+def install(module, *, statistics_first=False):
+    """ADR0288 opt-in: sample at cycle start on the same exclusively owned connection."""
+    if type(statistics_first) is not bool:
+        raise ValueError("Explicit statistics ordering required")
     original = module.sample
     collector = Collector()
 
     def sample(conn, show_ids):
-        result = original(conn, show_ids)
-        result["database_wait_diagnostics"] = collector.collect(conn)
+        if not statistics_first:
+            result = original(conn, show_ids)
+            result["database_wait_diagnostics"] = collector.collect(conn)
+            return result
+        diagnostics = collector.collect(conn)
+        try:
+            result = dict(original(conn, show_ids))
+        except Exception as error:  # noqa: BLE001 - retain type, never query/credential text.
+            result = {"database_error": type(error).__name__, "cohort_sample_complete": False}
+            try:
+                conn.rollback()
+            except Exception as rollback_error:  # noqa: BLE001 - cleanup failure remains visible.
+                result["database_rollback_error"] = type(rollback_error).__name__
+        result["database_wait_diagnostics"] = diagnostics
         return result
 
     module.sample = sample
@@ -202,6 +217,8 @@ def summarize(path, *, hourly=False):
     rows = 0
     max_ms = 0
     continuity = True
+    discontinuities = {}
+    max_gap = 0
     with path.open("rb") as stream:
         while line := stream.readline(MAX_LINE + 1):
             if len(line) > MAX_LINE or rows >= max_rows:
@@ -220,8 +237,13 @@ def summarize(path, *, hourly=False):
             checked = sanitize(activity, stats)
             current = stamp(checked["statistics_utc"])
             timing.add(checked["wal_timing_available"])
-            if previous and not 0 < (current - previous[0]).total_seconds() <= 2:
-                continuity = False
+            if previous:
+                gap = (current - previous[0]).total_seconds()
+                max_gap = max(max_gap, gap)
+                if not 0 < gap <= 2:
+                    continuity = False
+                    key = "statistics_gap" if gap > 2 else "timestamp_not_increasing"
+                    discontinuities[key] = discontinuities.get(key, 0) + 1
             for wait in checked["waits"]:
                 key = wait["type"] + ":" + wait["event"]
                 peaks[key] = max(peaks.get(key, 0), wait["count"])
@@ -229,6 +251,7 @@ def summarize(path, *, hourly=False):
                 epoch = checked[group]["stats_reset"]
                 if group in epochs and epoch != epochs[group]:
                     continuity = False
+                    discontinuities["counter_reset"] = discontinuities.get("counter_reset", 0) + 1
                 epochs[group] = epoch
                 for key, value in checked[group].items():
                     if key == "stats_reset" or value is None:
@@ -238,12 +261,15 @@ def summarize(path, *, hourly=False):
                         before = previous[1][group].get(key)
                         if before is None or value < before:
                             continuity = False
+                            discontinuities["counter_decreased_or_missing"] = (
+                                discontinuities.get("counter_decreased_or_missing", 0) + 1)
                         else:
                             deltas[key] += value - before
             previous = (current, checked)
     complete = rows >= 2 and not errors and continuity and max_ms <= MAX_OVERHEAD_MS
     return {"decision": "ADR0173", "complete": complete, "rows": rows, "error_counts": errors,
             "counter_continuity": continuity, "max_collection_ms": max_ms,
+            "max_statistics_gap_seconds": max_gap, "discontinuity_counts": discontinuities,
             "wal_timing_available_throughout": timing == {True},
             "counter_deltas": totals if continuity else None, "observed_active_wait_peaks": peaks,
             "scope": "Observer lifetime, cluster WAL/checkpoints and current-database activity; one-second snapshots may miss brief waits. Correlation does not prove causality."}

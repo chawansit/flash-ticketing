@@ -585,7 +585,8 @@ def main(argv=None):
         install_phase_timings(frozen)
     if args.database_wait_diagnostics:
         from database_wait_evidence import install
-        install(frozen)
+        # The sealed ADR0288 marker was checked above; legacy observation keeps its order.
+        install(frozen, statistics_first=independent)
     if args.application_database_wait_diagnostics:
         from application_database_wait_evidence import binding_from_record, install
         install(frozen, binding_from_record(inventory.get("application_database_role_binding")))

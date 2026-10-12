@@ -99,6 +99,13 @@ def extend_plan(plan, goal):
     result = {**plan, "diagnostic_decision": DECISION, "metric_admission_capture": contract(),
               "single_changed_factor": "admission_diagnostic_transport",
               "kind": "admission_capture_validation", "matched_performance_comparison": False}
+    from cce_verification_contract import contract as verification_contract
+    schedule = verification_contract()
+    if schedule.get("statistics_schedule_decision") == "ADR0288":
+        result.update(diagnostic_decision="ADR0288", kind="statistics_schedule_validation",
+                      single_changed_factor="statistics_collection_order",
+                      statistics_schedule_decision="ADR0288",
+                      statistics_order=schedule["statistics_order"])
     for field in ("live_admission_maximum_seconds", "live_admission_maximum_samples"):
         result.pop(field, None)
     return result

@@ -21,13 +21,16 @@ def goal():
             "maximum_experiment_seconds": 5400, "maximum_paid_stages": 1,
             "generator_concurrency": 500, "maximum_pods": 18, "pod_vcpu": 1,
             "pod_memory_gib": 2, "worker_resources": {"cpu": "250m", "memory": "512Mi"},
-            "baseline_sha256": hourly.BASELINE_SHA256}
+            "baseline_sha256": hourly.BASELINE_SHA256,
+            "unlimited_cumulative_time_explicitly_authorized": True,
+            "spending_allowance": {"status": "APPROVED", "maximum_additional_spend": None,
+                                   "no_spending_cap_explicitly_authorized": True}}
 
 
 def envelope():
     value = copy.deepcopy(policy.envelope())
-    old = value["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"]
-    old.update(goal())
+    # A unit fixture must not inherit a consumed live scope's stale source hashes.
+    value["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"] = goal()
     return value
 
 

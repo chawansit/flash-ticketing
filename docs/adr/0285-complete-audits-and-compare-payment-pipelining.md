@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for implementation, verification and two bounded five-minute comparisons under the user's standing envelope. The user authorized steps 1 through 5 on 12 October 2026. The hourly qualification is outside this authorization. Historical failures stay failed.
+Accepted for implementation, verification and two bounded five-minute comparisons under the user's standing envelope. The user authorized steps 1 through 5 on 12 October 2026. The hourly qualification is outside this authorization. Historical failures stay failed. The cohort-before-statistics ordering is superseded for newly sealed scopes by [ADR0288](0288-collect-statistics-before-cohort-work.md); all connection and quality budgets remain unchanged.
 
 ## Context
 

@@ -1,0 +1,30 @@
+{
+  "decision": "ADR0288",
+  "type": "local_fault_injection",
+  "cloud_load_started": false,
+  "application_performance_gain_claimed": false,
+  "verification_contract_sha256": "20d4dc0b3a328815d12a1e28451f0cadd5669d9b31ff071fdc59e37f0602455d",
+  "data_connections": 1,
+  "statistics_gap_gate_seconds": 2,
+  "cohort_delays_seconds": [
+    0.19,
+    1.51,
+    0.01
+  ],
+  "control": {
+    "complete": false,
+    "error_counts": {},
+    "max_statistics_gap_seconds": 2.317436,
+    "discontinuity_counts": {
+      "statistics_gap": 1
+    },
+    "cohort_calls": 3
+  },
+  "candidate": {
+    "complete": true,
+    "error_counts": {},
+    "max_statistics_gap_seconds": 1.510625,
+    "discontinuity_counts": {},
+    "cohort_calls": 3
+  }
+}

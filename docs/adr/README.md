@@ -238,3 +238,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0286: Hourly qualification with complete verification](0286-hourly-qualification-with-complete-verification.md) — Hourly ticket target demonstrated; full qualification failed on log capture; independent integrity/restoration passed.
 
 - [ADR0287: Capture complete slot history from existing API metrics](0287-capture-slot-history-from-existing-metrics.md) — Explicit new-scope diagnostic transport correction; historical hourly failure preserved.
+
+- [ADR0288: Collect statistics before variable cohort work](0288-collect-statistics-before-cohort-work.md) — Preserve the existing connection budget and two-second gate.
