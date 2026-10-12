@@ -240,3 +240,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0287: Capture complete slot history from existing API metrics](0287-capture-slot-history-from-existing-metrics.md) — Explicit new-scope diagnostic transport correction; historical hourly failure preserved.
 
 - [ADR0288: Collect statistics before variable cohort work](0288-collect-statistics-before-cohort-work.md) — Preserve the existing connection budget and two-second gate.
+
+- [ADR0289: Prepare paid fixtures before fresh transition admission](0289-prepare-fixtures-before-fresh-admission.md) — Preserve the300-second gate after an hour attempt aborted before paid traffic.

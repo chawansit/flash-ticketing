@@ -1,0 +1,32 @@
+{
+  "decision": "ADR0288",
+  "run": "adr0151-d301c0c07d23",
+  "ledger": "bounded_cce_hourly_qualification__7b889d87f936",
+  "status": "FAILED_RESTORED",
+  "pass": false,
+  "raw_result_sha256": "0ef8e332d8877936a69ac5b923933a310c9951f9d2ce49c3a04010326b897fc1",
+  "paid_runs_started": 0,
+  "paid_traffic_dispatched": false,
+  "hourly_capacity_measured": false,
+  "application_capacity_regression_demonstrated": false,
+  "failure": {
+    "outer_type": "TimeoutError",
+    "child_type": "ValueError",
+    "reason": "Observation is stale or future dated",
+    "validator": "prepare_two_host_scaling.validate_inventory",
+    "freshness_limit_seconds": 300,
+    "captured_at_utc": "2026-10-12T12:12:56.266149+00:00",
+    "local_qualified_at_utc": "2026-10-12T12:17:55.374168+00:00",
+    "age_at_local_qualification_seconds": 299.108019,
+    "startup_evidence_retained": true
+  },
+  "restoration_complete": true,
+  "integrity_verified": true,
+  "cleanup_complete": true,
+  "transport_credentials_cleared": true,
+  "actual_elapsed_seconds": 824.219000000041,
+  "experiment_ceiling_seconds": 5400,
+  "short_validation_still_passed": true,
+  "correction_decision": "ADR0289",
+  "historical_result_upgraded": false
+}

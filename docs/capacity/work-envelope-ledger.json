@@ -2622,6 +2622,27 @@
       "finished_at_utc": "2026-10-12T12:04:20.123700+00:00",
       "paid_runs_started": 1,
       "result_sha256": "6bd5368d2b5aa772624ec393f5127d4401b0fa9a7c1eb218fb96e084737a14ec"
+    },
+    {
+      "ledger": "bounded_cce_hourly_qualification__7b889d87f936",
+      "authorization_id": "work-envelope-7b889d87f936",
+      "envelope_sha256": "e44fddc39e9104af38e9e4ec0f4cbbf5fd52af16306777cf0055b6359430b55b",
+      "binding_sha256": "5179638765e8f07229450beccc423f3c7628e1f1b94098fa3d33ab331a3b47cb",
+      "plan_sha256": "725dcb32545f88e118596d8a829b9e487b0cdefe31419ee82a9d2cf6c8b17ebf",
+      "profile": "cce_hourly_qualification",
+      "reserved_seconds": 5400,
+      "actual_elapsed_seconds": 824.219000000041,
+      "started_at_utc": "2026-10-12T12:07:02.569866+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-d301c0c07d23",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-12T12:20:46.434114+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "0ef8e332d8877936a69ac5b923933a310c9951f9d2ce49c3a04010326b897fc1"
     }
   ],
   "verified_aborts": {

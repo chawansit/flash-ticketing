@@ -157,6 +157,12 @@ class Lifecycle:
             # before supplying successful HTTP/readiness evidence; no customer retry.
             receipts = self.deployment.observe(self.manifests, http_ready, http_metrics)
             self.record["native_receipts"] = receipts
+            # ADR0289: bulk inventory/token creation must not age transition admission.
+            fixture_started = time.monotonic()
+            fixture, manifest = self.prepare_fixture()
+            self.record["paid_fixture_prepared_before_admission"] = True
+            self.record["paid_fixture_preparation_seconds"] = time.monotonic() - fixture_started
+            self.checkpoint()
             if self.refresh_inventory is not None:
                 self.record["transition_inventory_refresh"] = self.refresh_inventory()
                 self.checkpoint()
@@ -166,7 +172,6 @@ class Lifecycle:
                 self.background_before = self.session.call("primary", INSPECT, 45)
             self.record["safety"] = self.qualify_safety(receipts)
             require_safety(self.record["safety"])
-            fixture, manifest = self.prepare_fixture()
             self.stage.prepare(fixture, manifest)
             self.observers.start(receipts)
             if hasattr(self.transition, "verify_workers"):

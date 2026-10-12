@@ -106,6 +106,11 @@ def extend_plan(plan, goal):
                       single_changed_factor="statistics_collection_order",
                       statistics_schedule_decision="ADR0288",
                       statistics_order=schedule["statistics_order"])
+    if schedule.get("fixture_preparation_decision") == "ADR0289":
+        result.update(diagnostic_decision="ADR0289", kind="fixture_admission_order_validation",
+                      single_changed_factor="paid_fixture_preparation_order",
+                      fixture_preparation_decision="ADR0289",
+                      fixture_preparation_order=schedule["fixture_preparation_order"])
     for field in ("live_admission_maximum_seconds", "live_admission_maximum_samples"):
         result.pop(field, None)
     return result

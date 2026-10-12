@@ -140,7 +140,8 @@ def test_source_bound_inventory_requires_new_order():
     inventory = {"verification_contract": marker}
     assert marker["data_connections"] == 1 and marker["statistics_gap_seconds"] == 2
     assert verification.validate_inventory(inventory, verification.digest(inventory))
-    for key in ("statistics_schedule_decision", "statistics_order"):
+    for key in ("statistics_schedule_decision", "statistics_order",
+                "fixture_preparation_decision", "fixture_preparation_order"):
         changed = json.loads(json.dumps(inventory))
         changed["verification_contract"].pop(key)
         with pytest.raises(ValueError, match="inventory binding"):
@@ -166,7 +167,9 @@ def test_plan_identifies_statistics_correction_instead_of_repeating_old_capture_
     import cce_metric_admission as capture
     from test_cce_metric_admission import goal
     plan = capture.extend_plan({}, goal())
-    assert plan["diagnostic_decision"] == "ADR0288"
-    assert plan["single_changed_factor"] == "statistics_collection_order"
+    assert plan["diagnostic_decision"] == "ADR0289"
+    assert plan["single_changed_factor"] == "paid_fixture_preparation_order"
+    assert plan["statistics_schedule_decision"] == "ADR0288"
+    assert plan["fixture_preparation_order"] == "before_transition_admission"
     assert plan["statistics_order"] == "before_cohort"
     assert plan["metric_admission_capture"]["decision"] == "ADR0287"
