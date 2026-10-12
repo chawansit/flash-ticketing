@@ -50,5 +50,8 @@
   "hourly_qualified": false,
   "failure_reason": "Fresh open fixture window required",
   "failed_before_paid_dispatch": true,
-  "correction_decision": "ADR0292"
+  "correction_decision": "ADR0292",
+  "fixture_age_at_failure_file_seconds": 263.528368,
+  "fixture_freshness_limit_seconds": 120,
+  "age_measurement_scope": "Local failure-evidence file timestamp minus original producer created_at; approximate guard-call age."
 }

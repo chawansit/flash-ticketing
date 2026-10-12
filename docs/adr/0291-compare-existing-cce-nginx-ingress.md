@@ -45,10 +45,37 @@ Cleanup deletes only the owned Ingress/Service with UID preconditions, verifies 
 
 Executed before implementation: existing ingress readiness inspection, source review of the proven runner and its cleanup/ownership/origin guards. See [readiness evidence](../capacity/cce/existing-ingress-readiness-2026-10-12.json).
 
-Implemented: opt-in Service/Ingress integration in the existing paid runner, exact addon binding, API-only backend selection, route/authorization checks, and UID-bound teardown. Executed: 303 focused unit tests passed in 35.84 seconds; Ruff passed for changed source and tests. These are local checks, not cloud capacity evidence. The fresh control/candidate comparison remains pending; no hourly qualification or performance gain is claimed.
+Implemented: opt-in Service/Ingress integration in the existing paid runner, exact addon binding, API-only backend selection, route/authorization checks, and UID-bound teardown. Executed: 303 focused unit tests passed in 35.84 seconds; Ruff passed for changed source and tests. These are local checks, not cloud capacity evidence. The fresh control/candidate comparison has now completed as recorded below; no hourly qualification or maximum capacity gain is claimed.
 
 ## Pre-dispatch guard correction
 
 The first fresh attempt (adr0151-c816aa2674a7) stopped during pod admission before any paid stage. The image, imported source, API resources and container settings matched. The new full-label equality check was unnecessarily strict: verify the required owner/API routing labels and permit unrelated provider labels. Regression tests preserve rejection of replaced ownership or routing labels. Failed evidence is retained in [prepaid abort](../capacity/cce/existing-ingress-prepaid-abort-2026-10-12.json); runtime restoration, integrity and credential cleanup passed. This is not a measured control failure or an ingress capacity result.
 
-Executed after correction: 180 focused tests passed in22.05seconds. The corrected comparison requires fresh identities; the original failed attempt is not replayed.
+Executed after correction: 180 focused tests passed in 22.05 seconds. The corrected comparison requires fresh identities; the original failed attempt is not replayed.
+
+## Executed cloud comparison
+
+Both fresh arms completed PASSED_RESTORED. Their five-minute paid windows were October 12, 2026, 22:50:08-22:55:08 Bangkok (control) and 23:13:18-23:18:18 Bangkok (candidate). See the [comparison](../capacity/cce/existing-ingress-comparison-2026-10-12.json), [control](../capacity/cce/existing-ingress-control-result-2026-10-12.json) and [candidate](../capacity/cce/existing-ingress-candidate-result-2026-10-12.json).
+
+| Measured outcome | ECS entry control | CCE NGINX candidate |
+| --- | ---: | ---: |
+| Offered / dispatched journeys | 25,200 / 25,200 | 25,200 / 25,200 |
+| Unique paid-and-issued tickets by completion | 25,200 | 25,200 |
+| Unique paid-and-issued tickets inside offered 300 seconds | 24,961 | 25,097 |
+| Inside-window tickets/s | 83.20 | 83.66 |
+| Generator drops | 0 | 0 |
+| Initial customer errors / recovered / final failures | 6 / 6 / 0 | 0 / 0 / 0 |
+| Total journey p95 | 5,296.60 ms | 2,585.48 ms |
+| Hold HTTP p95 | 12.58 ms | 11.64 ms |
+| Payment HTTP p95 | 100.04 ms | 85.56 ms |
+| API CPU aggregate | 1.380 cores | 1.305 cores |
+| Primary ECS mean CPU | 42.74% | 38.70% |
+| Observed pooler maximum wait | 238.86 ms | 8.85 ms |
+
+Latency summaries are the worst shard p95, not a combined percentile. Both arms passed the unchanged short-profile gates, financial relationships, post-TTL durability, zero double-booking, full queue drain, complete statistics and slot-failure capture, ownership and restoration. The supplementary exact-window check against all 25,200 scheduled tickets is false in both arms: some tickets completed after offered traffic ended. It is not the short-profile acceptance gate and must not be interpreted as hourly qualification.
+
+The candidate's observed journey p95 decreased 51.19%; HTTP improvement was smaller. Ticket-wait p95 decreased from 3,963.07 to 621.80 ms. Different database/backend conditions across sequential arms remain a possible contributor. Control failure snapshots include payment commits and callback writes; WALWrite waits occurred in both arms. One pair cannot establish ingress as the cause of the asynchronous improvement or prove a higher capacity ceiling. Ingress controller CPU was not collected, so its headroom is unmeasured.
+
+All temporary candidate route and namespace resources were removed with verified ownership. The existing addon and ELB remained unchanged, no new ELB was created, and both original runtimes and temporary transport credentials were restored/cleared.
+
+Recommendation: use this route as the candidate for a fresh bounded hourly qualification at the same offered rate and resource/connection budgets. A new hourly decision/binding is needed because this ADR selects only the short profile. Do not raise load, claim production qualification or merge main based on this pair.

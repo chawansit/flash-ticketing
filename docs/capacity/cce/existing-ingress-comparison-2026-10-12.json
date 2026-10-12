@@ -1,0 +1,31 @@
+{
+  "decision": "ADR0291",
+  "factor": "customer_http_entry_point",
+  "control": {
+    "evidence": "docs/capacity/cce/existing-ingress-control-result-2026-10-12.json",
+    "evidence_sha256": "793f15dcc764c83fe6f36295d37d617a8c78f482dcdcd0ec923c6c0b87539350"
+  },
+  "candidate": {
+    "evidence": "docs/capacity/cce/existing-ingress-candidate-result-2026-10-12.json",
+    "evidence_sha256": "48bf7f5a7995bef34e3d683fd259d4470837576f60c2dbf218fad1b67098c2a0"
+  },
+  "new_elbs_created": 0,
+  "hourly_qualified": false,
+  "both_arms_passed_restored": true,
+  "customer_latency_change_percent": {
+    "dispatch_lag_p95_ms": -22.61184646181006,
+    "hold_http_p95_ms": -7.501527814600095,
+    "hold_app_p95_ms": -3.0095759233926045,
+    "hold_client_excess_p95_ms": -13.8613186197732,
+    "command_durable_wait_p95_ms": -0.19874141536017076,
+    "durable_p95_ms": -0.2619983944469495,
+    "payment_http_p95_ms": -14.467878965495085,
+    "payment_app_p95_ms": -12.412800354335074,
+    "payment_client_excess_p95_ms": -20.5781946447127,
+    "ticket_wait_p95_ms": -84.31023300769888,
+    "payment_to_ticket_p95_ms": -82.78251729148857,
+    "hold_to_ticket_p95_ms": -51.18633583748948,
+    "total_journey_p95_ms": -51.18602796071489
+  },
+  "conclusion": "One short matched comparison; no maximum capacity or hourly qualification established."
+}

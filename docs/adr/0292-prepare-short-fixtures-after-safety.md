@@ -6,7 +6,7 @@ Accepted. Supersedes ADR0289's fixture-before-admission staging for five-minute 
 
 ## Context
 
-The corrected ADR0291 control (adr0151-eae70eed4853) passed native payment/replay/expiry safety but stopped before paid dispatch at fixture_identity: Fresh open fixture window required. All resources were restored and integrity verified.
+The corrected ADR0291 control (adr0151-eae70eed4853) passed native payment/replay/expiry safety but stopped before paid dispatch at fixture_identity: Fresh open fixture window required. The fixture was approximately263.53seconds old at failure-evidence capture, exceeding the unchanged120second short limit. All resources were restored and integrity verified.
 
 ADR0289 moved bulk fixture preparation ahead of transition admission to prevent a large hourly fixture from aging machine inventory. Hourly fixtures allow600seconds of creation age; short fixtures allow120seconds. Preparing a short fixture before worker startup and mandatory hold-expiry safety necessarily risks exhausting that120second allowance. The earlier passing ADR0288 short stage created its paid fixture after safety.
 
@@ -35,4 +35,4 @@ Persistence, Redis atomicity, idempotency, seat expiry and payment correctness r
 
 ## Validation evidence
 
-Executed before correction: the retained ADR0291 pre-dispatch failure established the120second guard/order conflict; native safety passed and paid_runs_started was0. Executed after correction:177 focused tests passed in33.33seconds, including a130second safety delay that preserves a fresh short fixture and still rejects121second-old evidence. Hourly bulk ordering and failed-admission cleanup regressions passed. Ruff passed after import/noqa cleanup. A fresh controlled paid comparison remains pending. No performance gain is claimed. See the [retained fixture abort](../capacity/cce/existing-ingress-fixture-abort-2026-10-12.json).
+Executed before correction: the retained ADR0291 pre-dispatch failure established the120second guard/order conflict; native safety passed and paid_runs_started was0. Executed after correction:177 focused tests passed in33.33seconds, including a130second safety delay that preserves a fresh short fixture and still rejects121second-old evidence. Hourly bulk ordering and failed-admission cleanup regressions passed. Ruff passed after import/noqa cleanup. The fresh ADR0291 control and candidate both completed paid dispatch and passed all short-profile gates with exact restoration; see the [comparison](../capacity/cce/existing-ingress-comparison-2026-10-12.json). Both created their short paid fixture after native safety with the unchanged freshness limits. No performance gain is claimed. See the [retained fixture abort](../capacity/cce/existing-ingress-fixture-abort-2026-10-12.json).

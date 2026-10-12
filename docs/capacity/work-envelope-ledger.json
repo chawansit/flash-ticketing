@@ -2672,6 +2672,90 @@
         "actual_elapsed_seconds": 169.2970000000205,
         "capacity_qualified": false
       }
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__f2f03f7a4936",
+      "authorization_id": "work-envelope-f2f03f7a4936",
+      "envelope_sha256": "f180ad967e834a46f4ff8adce629e376d7f19575102c0eefb100d65013d14f56",
+      "binding_sha256": "f37317d6bbde0a5d5b295b122f349694a0e21db26f11421ae2c21e0b46425f77",
+      "plan_sha256": "a7408226fff282e606fb30a9aad22ae55c02852438b2421161509fc1efd9a9c4",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 460.25,
+      "started_at_utc": "2026-10-12T15:08:26.541475+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-c816aa2674a7",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-12T15:16:06.647706+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "4adb4617da64f3d0449a3c00bbc09e2e02bb5dc72c6f7243f983ee678c58fe2f"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__5006a1ffdd31",
+      "authorization_id": "work-envelope-5006a1ffdd31",
+      "envelope_sha256": "37f217cdcd15091f39c1e941589d02a6e83743fa41096bf2d0281c8b3cfb321b",
+      "binding_sha256": "88b19f6b34f25c9d018f0dd06a1ca197214f990963af335a0d3e65852bf67b95",
+      "plan_sha256": "a7408226fff282e606fb30a9aad22ae55c02852438b2421161509fc1efd9a9c4",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 750.079000000027,
+      "started_at_utc": "2026-10-12T15:20:53.147825+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-eae70eed4853",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-12T15:33:22.920199+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "010318f0d294a2ef4ba21b30c571450c14e9ea3e50726a90682e7755d980f5e2"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__7803374efe6e",
+      "authorization_id": "work-envelope-7803374efe6e",
+      "envelope_sha256": "62d5db0040b16e6d8b646732e513517d12dd9ab99c3e14b4afaeee49cbaf7d51",
+      "binding_sha256": "fd63528e36488214d54fef21dd171f878e23539aca9bd7d1b7f44a3f26b6a850",
+      "plan_sha256": "cb5e1253669433a2fa1618a24646e8a1ede841421394b780dc3ea034a66977c2",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1326.2970000000205,
+      "started_at_utc": "2026-10-12T15:38:50.009179+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-88ada5db1162",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-12T16:00:56.154438+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "bd9b5901f7588b82b3aea001a64f00cc0d492c00bf2e7c55873b0914a63bc875"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__674af494a268",
+      "authorization_id": "work-envelope-674af494a268",
+      "envelope_sha256": "ed7529755a0f14c6dbb2b8c8bca10cc52fee4772597cfafc7041be0fd690cdbd",
+      "binding_sha256": "d3637b1a98feea1bff09cf6c332f528550a753f0c3bc47fe5cbd80d24a4c9ad4",
+      "plan_sha256": "cfb38fdebd3d24f6d49dc93fe5daebcfe858fe3c15ebf43a4b142a646bf183f4",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1395.2970000000205,
+      "started_at_utc": "2026-10-12T16:00:57.324560+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-949234a779ac",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-12T16:24:12.455915+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "7d5e403800cb61d048426cb1b5436d1f507eb8d3ae3a11df616e5af9ef53c71a"
     }
   ],
   "verified_aborts": {
