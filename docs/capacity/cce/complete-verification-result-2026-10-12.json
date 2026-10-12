@@ -1,0 +1,149 @@
+{
+  "decision": "ADR0285",
+  "implementation": "integrated bounded audit and independent database sampling",
+  "verification_contract": {
+    "decision": "ADR0285",
+    "sources": {
+      "cce_bounded_financial_audit.py": "005ed34d9d7c8300df57aae3e4edc189cf8992f6af768624492f194fbe1592d1",
+      "independent_database_sampling.py": "552bc666952dc8026ed6ffa8540494d863f08b52ca01d4bfd45546d5f60d8d45",
+      "database_wait_evidence.py": "08a7b0f3cb93ae567c03fd29fb398a8daf8972712984412193d7c8f3c9aeb149",
+      "audit_checkout_smoke.py": "677a20b58cdd87580f72353aae63eb8023c5b527ed75b2b9403ddb129a24471d",
+      "cce_transaction_recovery.py": "da158d165e1345d23535398185e89fa6fe64987b1225de8ffa03b3301bb87583",
+      "cce_verification_contract.py": "669fc60bb4d996af8f483de7aeae6da15d55e16b5547027dbdf4899a5f78aa0a",
+      "observe_two_host_pipeline.py": "ee35cc66b2c386a89a2e1110cfd44ba32f5cf1b1eb0900c3655fec6a8c32f54f",
+      "cce_paid_observers.py": "7aefc08da3fa303860dea97d8107942d0ffa521a3ab9522ccc7c8ae5bfa19edd",
+      "cce_paid_stage.py": "9967627110d5ecca0d4ee6fb3edf5ec39b9bd63de786ccedb1a95e22b0032d6f",
+      "cce_slot_trace_transport.py": "e436d14ba737bb590785be153bc6bdc4a0cf0fa6256c9312fd8bf2469f1a8c2b"
+    },
+    "sampling_seconds": 1,
+    "statistics_gap_seconds": 2,
+    "cohort_age_seconds": 10,
+    "data_connections": 1,
+    "audit_seconds": 600,
+    "audit_transport_seconds": 780
+  },
+  "local_tests": {
+    "combined_suite": {
+      "passed": 294,
+      "skipped": 1,
+      "failed": 2,
+      "failures": "hourly markers leaked into a short-test fixture; current orchestration overlay required resealing"
+    },
+    "corrected_failure_reruns": {
+      "transaction_profile_passed": 63,
+      "verification_and_resource_scope_passed": 18
+    },
+    "pipeline_comparison_passed": 15,
+    "postgres_integration_passed": 6,
+    "linux_sigterm_cleanup_passed": true,
+    "linux_signal_program_sha256": "16232c513a11b2b1b45e8a4c29208da20a46497b286637520564ebe349449f44",
+    "lint_passed": true,
+    "worker_membership_regressions_passed": 6,
+    "latest_focused_suite": {
+      "passed": 126,
+      "failed": 0,
+      "elapsed_seconds": 96.05,
+      "note": "After correcting two historical test fixtures that inherited the live payment-pipeline goal; prior run was124 passed,2 failed."
+    }
+  },
+  "existing_hourly_cohort_verification": {
+    "source_run": "adr0151-64ea9a9f34d2",
+    "source_fixture_sha256": "bb33c6158d6ff9540c8a8fe32c1ae53b68d3ca54265524cd56c427263e51abe7",
+    "audit_program_sha256": "3e66e4b86672b46618166a9cb8afe0927511c5bba8ce66bf4e6e156fec756130",
+    "elapsed_seconds": 91.42200000002049,
+    "financial": {
+      "orders": 302400,
+      "fulfilled_orders": 302400,
+      "expired_orders": 0,
+      "pending_orders": 0,
+      "payment_attempts": 302400,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 302400,
+      "bookings": 302400,
+      "tickets": 302400,
+      "payment_callbacks": 302400,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 302400,
+      "callback_delivery_target": 302400,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 302400,
+      "expected_paid": 302400,
+      "expected_callback_deliveries_per_payment": 1,
+      "pass": true,
+      "counts": {
+        "orders": 302400,
+        "fulfilled_orders": 302400,
+        "expired_orders": 0,
+        "pending_orders": 0,
+        "payment_attempts": 302400,
+        "pending_payment_attempts": 0,
+        "succeeded_payments": 302400,
+        "bookings": 302400,
+        "tickets": 302400,
+        "payment_callbacks": 302400,
+        "incomplete_callback_deliveries": 0,
+        "callback_delivery_attempts": 302400,
+        "callback_delivery_target": 302400,
+        "duplicate_booked_seats": 0,
+        "multi_booking_orders": 0,
+        "unpublished_outbox": 0,
+        "dead_letters": 0,
+        "expected": 302400,
+        "expected_paid": 302400,
+        "expected_callback_deliveries_per_payment": 1,
+        "pass": true
+      },
+      "relationships": {
+        "hold_relationship_errors": 0,
+        "booking_relationship_errors": 0,
+        "order_item_relationship_errors": 0,
+        "inventory_relationship_errors": 0,
+        "fulfilled_ticket_relationship_errors": 0,
+        "unique_issued_tickets": 302400,
+        "holds_not_past_ttl": 0
+      },
+      "checks": {
+        "post_ttl_complete": true,
+        "payments_durable": true,
+        "ticket_relationships_valid": true
+      },
+      "hold_deadlines_elapsed": true
+    },
+    "pass": true,
+    "queues_empty": true,
+    "runtime_unchanged": true,
+    "new_paid_load_started": false,
+    "read_only_existing_cohort": true,
+    "private_receipt_sha256": "98ee0e8c1bd05f6da8c58ad0987ea6a8787f45c56a22a0bc5838353bc0ae5c0a",
+    "original_hourly_qualification_status_unchanged": "FAILED_RESTORED"
+  },
+  "new_paid_comparison_result": "BOTH_PASSED_RESTORED",
+  "comparison_verification_contract": {
+    "decision": "ADR0285",
+    "sources": {
+      "cce_bounded_financial_audit.py": "005ed34d9d7c8300df57aae3e4edc189cf8992f6af768624492f194fbe1592d1",
+      "independent_database_sampling.py": "552bc666952dc8026ed6ffa8540494d863f08b52ca01d4bfd45546d5f60d8d45",
+      "database_wait_evidence.py": "08a7b0f3cb93ae567c03fd29fb398a8daf8972712984412193d7c8f3c9aeb149",
+      "audit_checkout_smoke.py": "677a20b58cdd87580f72353aae63eb8023c5b527ed75b2b9403ddb129a24471d",
+      "cce_transaction_recovery.py": "da158d165e1345d23535398185e89fa6fe64987b1225de8ffa03b3301bb87583",
+      "cce_verification_contract.py": "087438dd5484432f8735bad16581777f2457e136fe41efb10f4a99e0149304a7",
+      "observe_two_host_pipeline.py": "ee35cc66b2c386a89a2e1110cfd44ba32f5cf1b1eb0900c3655fec6a8c32f54f",
+      "cce_paid_observers.py": "43b6d0cccc7b53c99b25de12b60330dee8df781e48413bc2f7e0b8d4193636b0",
+      "cce_paid_stage.py": "9967627110d5ecca0d4ee6fb3edf5ec39b9bd63de786ccedb1a95e22b0032d6f",
+      "cce_slot_trace_transport.py": "e436d14ba737bb590785be153bc6bdc4a0cf0fa6256c9312fd8bf2469f1a8c2b",
+      "observe_cce_workers.py": "394945a6a5ef9cc264277cb92ef7195f892846ace0ec2b5ac9976457444ff37b"
+    },
+    "sampling_seconds": 1,
+    "statistics_gap_seconds": 2,
+    "cohort_age_seconds": 10,
+    "data_connections": 1,
+    "audit_seconds": 600,
+    "audit_transport_seconds": 780
+  },
+  "verification_contract_note": "verification_contract records the initial implementation; comparison_verification_contract records the corrected eleven-source contract sealed before the fresh off/on comparison. Historical failed evidence is preserved.",
+  "new_paid_comparison_evidence": "docs/capacity/cce/payment-pipeline-comparison-2026-10-12.json",
+  "pipeline_adopted": false
+}

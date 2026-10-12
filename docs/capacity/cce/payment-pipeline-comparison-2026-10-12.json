@@ -1,0 +1,169 @@
+{
+  "decision": "ADR0285",
+  "application_pattern": "ADR0284",
+  "status": "BOTH_PASSED_RESTORED",
+  "control": {
+    "run": "adr0151-84a625ee08fa",
+    "evidence": "docs/capacity/cce/payment-pipeline-control-result-2026-10-12.json",
+    "evidence_sha256": "5e4dd0186acc2ab0d4067e4b15879a8c5c4d2d3f7f0cd38d73d475f07aab2cc4"
+  },
+  "candidate": {
+    "run": "adr0151-157d143e0e4e",
+    "evidence": "docs/capacity/cce/payment-pipeline-candidate-result-2026-10-12.json",
+    "evidence_sha256": "60d4b352c00fb3c3980b342d3221d07278124e5b9790fbe8176609406a87302a"
+  },
+  "factor": "API PAYMENT_WRITE_PIPELINE:0 versus1; background stays0",
+  "matched_runtime_and_budgets": {
+    "api_resources": {
+      "limits": {
+        "cpu": "1",
+        "memory": "2Gi"
+      },
+      "requests": {
+        "cpu": "1",
+        "memory": "2Gi"
+      }
+    },
+    "worker_counts": {
+      "consumer": 6,
+      "projection-consumer": 1,
+      "reservation-writer": 3,
+      "publisher": 1,
+      "maintenance": 1,
+      "reconciler": 1,
+      "simulator": 1
+    },
+    "worker_resources": {
+      "requests": {
+        "cpu": "250m",
+        "memory": "512Mi"
+      },
+      "limits": {
+        "cpu": "250m",
+        "memory": "512Mi"
+      }
+    },
+    "pooler_server_connections": 24,
+    "acquisition_budget": 20,
+    "generator_shards": 2,
+    "generator_max_in_flight": 500,
+    "http_clients_per_shard": [
+      8,
+      8
+    ],
+    "customer_recovery_max_attempts": 3
+  },
+  "same_image_source_and_verification": true,
+  "quality": {
+    "control": {
+      "scheduled": 25200,
+      "dispatched": 25200,
+      "customer_confirmed_tickets": 25200,
+      "unique_paid_issued_after_drain": 25200,
+      "generator_drops": 0,
+      "first_attempt_error_journeys": 0,
+      "retry_attempts": 0,
+      "final_customer_failures": 0,
+      "measurement_gates": {
+        "customer_load": true,
+        "post_ttl_financial": true,
+        "zero_double_booking": true,
+        "payment_durability": true,
+        "full_queue_drain": true,
+        "native_observer": true,
+        "native_cpu": true,
+        "unchanged_background": true,
+        "unchanged_native_pods": true,
+        "live_admission": true
+      }
+    },
+    "candidate": {
+      "scheduled": 25200,
+      "dispatched": 25200,
+      "customer_confirmed_tickets": 25200,
+      "unique_paid_issued_after_drain": 25200,
+      "generator_drops": 0,
+      "first_attempt_error_journeys": 0,
+      "retry_attempts": 0,
+      "final_customer_failures": 0,
+      "measurement_gates": {
+        "customer_load": true,
+        "post_ttl_financial": true,
+        "zero_double_booking": true,
+        "payment_durability": true,
+        "full_queue_drain": true,
+        "native_observer": true,
+        "native_cpu": true,
+        "unchanged_background": true,
+        "unchanged_native_pods": true,
+        "live_admission": true
+      }
+    }
+  },
+  "metrics": [
+    {
+      "metric": "payment_http_p95_ms",
+      "control": 63.94111004192382,
+      "candidate": 60.31777604948729,
+      "change_percent": -5.666673584585632
+    },
+    {
+      "metric": "total_journey_p95_ms",
+      "control": 3189.1973620513454,
+      "candidate": 2558.626816025935,
+      "change_percent": -19.772076621178964
+    },
+    {
+      "metric": "api_connection_hold_mean_ms",
+      "control": 23.214070602972004,
+      "candidate": 24.055656389900914,
+      "change_percent": 3.625326214098638
+    },
+    {
+      "metric": "api_commit_mean_ms",
+      "control": 3.2300278469391537,
+      "candidate": 3.547910371347007,
+      "change_percent": 9.841479376380166
+    },
+    {
+      "metric": "api_pool_acquire_mean_ms",
+      "control": 3.145921819796477,
+      "candidate": 2.934419385249418,
+      "change_percent": -6.723067090101497
+    },
+    {
+      "metric": "api_cpu_cores",
+      "control": 1.1764509298476935,
+      "candidate": 1.1544873110971674,
+      "change_percent": -1.8669387896501193
+    },
+    {
+      "metric": "worker_cpu_cores",
+      "control": 1.3402584504632404,
+      "candidate": 1.4853231851574409,
+      "change_percent": 10.823638876819688
+    },
+    {
+      "metric": "unique_tickets_inside_300_seconds",
+      "control": 25081,
+      "candidate": 25030,
+      "change_percent": -0.20334117459431442
+    }
+  ],
+  "selection": {
+    "adopt_pipeline": false,
+    "feature_default": false,
+    "reason": "Mixed result: modest payment latency improvement, but API connection occupancy/commit time and worker CPU increased; fewer tickets were issued inside300seconds. No demonstrated ticket-throughput or database-occupancy gain. Retain pipeline-off as baseline."
+  },
+  "verification_gaps": "Bounded financial audit, independent statistics coverage and all14 worker CPU/progress checks passed both fresh arms. The initial worker-summary failure and historical hourly failure are not rewritten.",
+  "limitations": [
+    "One sequential five-minute pair is directional evidence, not statistical proof of causality or maximum capacity.",
+    "P95 is the maximum of shard p95s, not an exact pooled percentile.",
+    "API hold/commit means cover all observed API database operations, not only payment requests.",
+    "Cluster/database WAL and wait counters cover observer lifetime and can include other activity; WAL timing is unavailable.",
+    "Pipelined client execute timings can measure enqueue time; they do not establish reduced server query time.",
+    "25200 terminal tickets per arm includes post-window completions. Control25081 and candidate25030 were issued inside300seconds; conservative two-second inner-window counts24874 and24844.",
+    "No new hourly qualification was executed;300000tickets/hour remains unqualified."
+  ],
+  "next": "Keep pipeline off. Use retained wait/slot diagnostics for the next focused commit/occupancy investigation; qualify the chosen fixed configuration with an hour-long run under a fresh scope."
+}

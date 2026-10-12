@@ -38,8 +38,11 @@ def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None):
         raise ValueError("Complete worker environments required")
     namespace = cce.dependency.namespace_for(run)
     result = []
-    if decision == "ADR0271":
-        from cce_event_lane_profile import image
+    if decision in {"ADR0271", "ADR0285"}:
+        if decision == "ADR0285":
+            from cce_payment_pipeline_profile import image
+        else:
+            from cce_event_lane_profile import image
         receipt_image = image()
     else:
         receipt_image = comparison.selected_receipt()
@@ -192,8 +195,11 @@ class Workers:
                     continue
                 views.append(receipt(pod, expected, self.deployment.run, self.uids[name], log, metrics, self.decision))
             if not pending:
-                if self.decision == "ADR0271":
-                    from cce_event_lane_profile import image
+                if self.decision in {"ADR0271", "ADR0285"}:
+                    if self.decision == "ADR0285":
+                        from cce_payment_pipeline_profile import image
+                    else:
+                        from cce_event_lane_profile import image
                     sources = image()["runtime_source_sha256"]
                 else:
                     sources = comparison.selected_receipt()["runtime_source_sha256"]

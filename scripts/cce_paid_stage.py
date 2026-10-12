@@ -36,6 +36,10 @@ def sha(raw):
 
 def identity():
     paths = (
+        "scripts/cce_bounded_financial_audit.py", "scripts/independent_database_sampling.py",
+        "scripts/cce_verification_contract.py", "scripts/cce_payment_pipeline_identity.py",
+        "scripts/cce_payment_pipeline_profile.py", "scripts/cce_payment_pipeline_contract.py",
+        "docs/capacity/cce/payment-write-pipeline-image-2026-10-12.json",
         "scripts/collect_two_host_inventory.py", "scripts/runtime_source_identity.py",
         "scripts/cce_ticket_target_profile.py", "scripts/customer_timeout_bundle.py", "scripts/cce_native_database_bridge.py", "scripts/cce_status_refresh_reuse.py", "scripts/cce_status_reuse_hourly.py",
         "docs/capacity/cce/committed-status-reuse-result-2026-10-11.json",
@@ -412,11 +416,17 @@ class PaidStage:
         """Mandatory even after lost response, failed SLO or generator failure."""
         if not self.record["customers_dispatched"]:
             return
+        import cce_transaction_profile as transaction
+        from cce_verification_contract import selected as verification_selected
+        audit_program, audit_timeout = financial_audit_program, 175
+        if verification_selected(transaction.active()):
+            from cce_bounded_financial_audit import TRANSPORT_SECONDS, program
+            audit_program, audit_timeout = program, TRANSPORT_SECONDS
         errors = []
         for name, operation in (
             (
                 "financial",
-                lambda: self.session.api(self.cid, financial_audit_program(self.events, self.profile.expected), 175),
+                lambda: self.session.api(self.cid, audit_program(self.events, self.profile.expected), audit_timeout),
             ),
             ("global_queues", lambda: drain(self.session, self.cid, global_audit)),
         ):

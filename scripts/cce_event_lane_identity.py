@@ -25,13 +25,17 @@ def projection_summary_pass(summary):
             and summary.get("last_total_lag") == 0)
 
 
-def verify_inventory(inventory, approved_digest):
+def verify_inventory(inventory, approved_digest, *, identity=None):
     marker = inventory.get("status_refresh_contract", {})
     from cce_status_refresh_reuse import inventory_selected
     reuse = inventory_selected(marker)
-    wanted = {"event_lane_decision": "ADR0266", "shared_image_decision": "ADR0267",
-              "shared_image_source_sha256": SOURCE, "shared_image_configuration_digest": CONFIG,
-              "shared_image_receipt_sha256": RECEIPT_SHA256, "simulator_concurrency": 16,
+    source, image, config, receipt, decision = ((SOURCE, IMAGE_ID, CONFIG, RECEIPT_SHA256, "ADR0267")
+        if identity is None else (identity.SOURCE, identity.IMAGE_ID, identity.CONFIG, identity.RECEIPT_SHA256, identity.DECISION))
+    if identity is not None:
+        identity.verify_marker(marker)
+    wanted = {"event_lane_decision": "ADR0266", "shared_image_decision": decision,
+              "shared_image_source_sha256": source, "shared_image_configuration_digest": config,
+              "shared_image_receipt_sha256": receipt, "simulator_concurrency": 16,
               "event_consumer_pool_budget": 48}
     if digest(inventory) != approved_digest or any(marker.get(k) != v for k, v in wanted.items()):
         raise ValueError("Exactly sealed event-lane image/budget required")
@@ -42,18 +46,22 @@ def verify_inventory(inventory, approved_digest):
         raise ValueError("Four APIs with explicit disabled event-lane flags required")
     if any(api.get("settings", {}).get("ORDER_STATUS_EVENT_REFRESH_DEDUP") != "0" for api in apis):
         raise ValueError("Only fulfillment consumer status reuse may change")
+    if identity is not None and any(api.get("settings", {}).get("PAYMENT_WRITE_PIPELINE") != "0" for api in apis):
+        raise ValueError("Bootstrap API payment pipeline must remain disabled")
     counts, ids = dict.fromkeys(COUNTS, 0), set()
     for row in inventory.get("worker_sources", []):
         role, proof, settings = row.get("role"), row.get("source_identity", {}), row.get("settings", {})
         imports = proof.get("resolved_imports", {})
         sources = {k: v.get("sha256") for k, v in imports.items()}
-        if (role not in counts or row.get("container_id") in ids or row.get("image_id") != IMAGE_ID
-                or len(sources) != 22 or hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest() != SOURCE
+        if (role not in counts or row.get("container_id") in ids or row.get("image_id") != image
+                or len(sources) != 22 or hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest() != source
                 or any(proof.get(k) is not True for k in ("source_hashes_match", "app_source_hashes_match", "import_source_hashes_match", "import_code_matches_source"))
                 or any(v.get("code_matches_source") is not True for v in imports.values())):
             raise ValueError("Every actual event-lane worker source/image must match")
         want = {"EVENT_CONSUMER_SEPARATION": "1" if role in {"consumer", "projection-consumer"} else "0",
                 "RESERVATION_WRITE_PIPELINE": "1" if role == "reservation-writer" else "0"}
+        if identity is not None:
+            want["PAYMENT_WRITE_PIPELINE"] = "0"
         want["ORDER_STATUS_EVENT_REFRESH_DEDUP"] = "1" if reuse and role == "consumer" else "0"
         if role in {"consumer", "projection-consumer"}:
             want["DB_POOL_MAX"] = "7" if role == "consumer" else "6"
@@ -71,10 +79,15 @@ def verify_inventory(inventory, approved_digest):
     return True
 
 
-def historical_view(inventory, approved_digest):
-    verify_inventory(inventory, approved_digest)
+def historical_view(inventory, approved_digest, *, identity=None):
+    verify_inventory(inventory, approved_digest, identity=identity)
     legacy = copy.deepcopy(inventory)
     marker = legacy["status_refresh_contract"]
+    if identity is not None:
+        for key in ("payment_pipeline_decision", "payment_pipeline_arm", "payment_write_pipeline", "bootstrap_payment_write_pipeline"):
+            marker.pop(key)
+        for api in legacy["apis"]:
+            api["settings"].pop("PAYMENT_WRITE_PIPELINE")
     # Actual candidate identity/flags were verified above. Only the copied view
     # adapts this independent factor for the frozen historical observer.
     marker.pop("status_refresh_reuse_decision", None)

@@ -2459,6 +2459,77 @@
         "actual_elapsed_seconds": 177.5,
         "capacity_qualified": false
       }
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__8755393770cc",
+      "authorization_id": "work-envelope-8755393770cc",
+      "envelope_sha256": "87a52c300c323ce6ff674cd9da855b6d4ad8faaaacd0d635d54f5881465a984e",
+      "binding_sha256": "3ff7b491fc02d2d209c8ff16f267da6314f34b53652c01db4c9b91839bc8fa61",
+      "plan_sha256": "099ee9ee235dc2757eb044780dbd3d5ba9f956ab6a7a65e0d8432f33332cb569",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1168.563000000082,
+      "started_at_utc": "2026-10-12T05:04:39.478973+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-b5eb09e537ce",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-12T05:22:52.514961+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "e7cf692dfeebf0aa30265f5b2578557a475c96f274d82f109967634db50db816",
+      "initial_status": "RECOVERY_REQUIRED",
+      "recovery": {
+        "decision": "ADR0285",
+        "evidence": "docs/capacity/cce/payment-pipeline-control-terminal-recovery-2026-10-12.json",
+        "sha256": "9621a1e6e35b6977684a343b361a21c63f2293f56714dda31f4b27264ecd1f3e",
+        "actual_elapsed_seconds": 77.14100000006147,
+        "capacity_qualified": false
+      }
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__b475609197ec",
+      "authorization_id": "work-envelope-b475609197ec",
+      "envelope_sha256": "024f517ad5c44233df519015e5d75bc1bdc57b33298292f7721cfe43a85e642f",
+      "binding_sha256": "1508ba201dacc3b44a6a59b5453885f69dcfb318c8ee0dee987ed151eabc60ff",
+      "plan_sha256": "6c26c86f8a05120db1700bf481596b9a85da65014df844df1df288be76c2444c",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1126.765999999945,
+      "started_at_utc": "2026-10-12T05:31:29.004044+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-84a625ee08fa",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-12T05:50:15.684332+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "9130f057b040a37974236cdd531c6f8062a1ade626a959b1c99aa0181ef8030c"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__43e584a122de",
+      "authorization_id": "work-envelope-43e584a122de",
+      "envelope_sha256": "261b66e48b572402cece20cee4c7dfbc8cd6942d2f99e976076ad6feaab85f0a",
+      "binding_sha256": "c118fdf91ac2198f43cd7a6757503a1284e3a18726bd55e4f750986361756ef0",
+      "plan_sha256": "8122a171eb6727ac1f4f70c339bac4559e0626e77244f6ffffd06811641fe9ad",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1167.295999999973,
+      "started_at_utc": "2026-10-12T05:52:48.978233+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-157d143e0e4e",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-12T06:12:15.973145+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "9c3e80b0b1039356f219aef949ac8e1176362e809eae99d9cd9be59b9d74e130"
     }
   ],
   "verified_aborts": {

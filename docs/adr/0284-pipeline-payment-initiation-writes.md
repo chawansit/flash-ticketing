@@ -59,7 +59,7 @@ mode also sends Flush messages, so fewer Sync messages must not be reported as
 an equal reduction in network waits. This small local result is exploratory; it
 does not reproduce RDS commit stalls, qualify production, or measure cloud capacity.
 
-The candidate is default off, built locally and not deployed or pushed to SWR.
+At the initial checkpoint, the candidate was default off, built locally and not deployed or pushed to SWR.
 It preserves the original measured image's payment queries; the repository has
 a separate earlier query optimization which must not enter this comparison.
 The [local evidence](../capacity/cce/payment-write-pipeline-local-result-2026-10-12.json)
@@ -72,3 +72,5 @@ After replacing its live-method input with the unchanged reviewed snapshot, all
 31 affected image/source/naming checks passed. The guard rejects corrupted input
 and proves later live payment code is not read. Ruff and publication naming
 checks passed; isolated local database/cache test containers were removed.
+
+Publication update: the candidate was subsequently pushed, pulled by immutable digest and verified in SWR on 12 October. The [publication receipt](../capacity/cce/payment-write-pipeline-image-2026-10-12.json) preserves the exact 22-module source identity. ADR0285 completes the audit/sampling integration; its fresh pipeline-off control passed all gates and restoration. The subsequent pipeline-on arm also passed, but performance was mixed: payment p95 improved 5.67%, while database hold/commit means and worker CPU increased and inside-window issuance declined. The flag remains default off; the candidate is not adopted. See the [ADR0285 comparison](../capacity/cce/payment-pipeline-comparison-2026-10-12.json).

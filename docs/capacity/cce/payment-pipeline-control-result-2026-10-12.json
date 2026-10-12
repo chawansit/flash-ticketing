@@ -1,0 +1,318 @@
+{
+  "run": "adr0151-84a625ee08fa",
+  "ledger": "bounded_cce_paid_comparison__b475609197ec",
+  "status": "PASSED_RESTORED",
+  "pass": true,
+  "arm": "control",
+  "pipeline": "0",
+  "raw_result_sha256": "9130f057b040a37974236cdd531c6f8062a1ade626a959b1c99aa0181ef8030c",
+  "binding_sha256": "1508ba201dacc3b44a6a59b5453885f69dcfb318c8ee0dee987ed151eabc60ff",
+  "verification_contract_sha256": "5ffec15c05ed142eaa61c4656a24f93edeb2d1186d4396d4c54d472b4acad2c8",
+  "image": "sha256:af83a344af8abfdd2a42228f0fce4b11a65d9aa5a1094c75b170a04d5f973fe2",
+  "configuration": "sha256:2d1a35bb3a531afe4f45367f8aea2f9208da827d2a29d26a6b1751f3c382a969",
+  "source": "1c1db2cc0a907ff8f4cec5f6a0212d3cb073468d721ba30ccd10bcda31e6ff67",
+  "offered_journeys_per_second": 84,
+  "offered_seconds": 300,
+  "scheduled": 25200,
+  "dispatched": 25200,
+  "customer_confirmed_tickets": 25200,
+  "unique_paid_issued_after_drain": 25200,
+  "inside_window_tickets": 25081,
+  "conservative_inside_window_tickets": 24874,
+  "generator_drops": 0,
+  "first_attempt_error_journeys": 0,
+  "first_attempt_errors": {},
+  "retry_attempts": 0,
+  "payment_operation_checks": 0,
+  "recovered_journeys": 0,
+  "final_customer_failures": 0,
+  "physical_http_attempts": {
+    "holds": 25200,
+    "reservation_commands": 52613,
+    "payments": 25200,
+    "orders": 56014
+  },
+  "customer_quality_pass": true,
+  "customer_latency_ms": {
+    "dispatch_lag_p95_ms": 1.4367086114361882,
+    "hold_http_p95_ms": 11.368984007276595,
+    "hold_app_p95_ms": 6.72,
+    "hold_client_excess_p95_ms": 5.001247947104275,
+    "command_durable_wait_p95_ms": 2015.750780934468,
+    "durable_p95_ms": 2024.261521990411,
+    "payment_http_p95_ms": 63.94111004192382,
+    "payment_app_p95_ms": 58.26,
+    "payment_client_excess_p95_ms": 5.606725996993475,
+    "ticket_wait_p95_ms": 1588.9245819998905,
+    "payment_to_ticket_p95_ms": 1660.0753149250522,
+    "hold_to_ticket_p95_ms": 3189.1573950415477,
+    "total_journey_p95_ms": 3189.1973620513454,
+    "transport_phase_p95_ms": {
+      "holds": {
+        "connect_ms": 17.542788991704583,
+        "headers_to_pool_release_ms": 0.9426680626347661,
+        "pre_send_ms": 1.0764090111479163,
+        "request_to_pool_release_ms": 11.061236960813403,
+        "response_body_ms": 0.33899699337780476,
+        "response_wait_ms": 8.803265052847564,
+        "stream_close_ms": 0.6833409424871206
+      },
+      "orders": {
+        "connect_ms": 15.151207917369902,
+        "headers_to_pool_release_ms": 1.1440459638834,
+        "pre_send_ms": 1.3366619823500514,
+        "request_to_pool_release_ms": 20.429518073797226,
+        "response_body_ms": 0.3489830996841192,
+        "response_wait_ms": 18.35291099268943,
+        "stream_close_ms": 0.8711629780009389
+      },
+      "payment_operations": {
+        "connect_ms": null,
+        "headers_to_pool_release_ms": null,
+        "pre_send_ms": null,
+        "request_to_pool_release_ms": null,
+        "response_body_ms": null,
+        "response_wait_ms": null,
+        "stream_close_ms": null
+      },
+      "payments": {
+        "connect_ms": null,
+        "headers_to_pool_release_ms": 1.0923040099442005,
+        "pre_send_ms": 1.1379929492250085,
+        "request_to_pool_release_ms": 63.72645194642246,
+        "response_body_ms": 0.3367289900779724,
+        "response_wait_ms": 61.71936902683228,
+        "stream_close_ms": 0.8193759713321924
+      },
+      "reservation_commands": {
+        "connect_ms": 24.245854932814837,
+        "headers_to_pool_release_ms": 1.0347520001232624,
+        "pre_send_ms": 1.0577089851722121,
+        "request_to_pool_release_ms": 7.02000199817121,
+        "response_body_ms": 0.3175209276378155,
+        "response_wait_ms": 4.939853097312152,
+        "stream_close_ms": 0.7867009844630957
+      }
+    }
+  },
+  "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+  "measurement_gates": {
+    "customer_load": true,
+    "post_ttl_financial": true,
+    "zero_double_booking": true,
+    "payment_durability": true,
+    "full_queue_drain": true,
+    "native_observer": true,
+    "native_cpu": true,
+    "unchanged_background": true,
+    "unchanged_native_pods": true,
+    "live_admission": true
+  },
+  "post_ttl_financial": {
+    "orders": 25200,
+    "fulfilled_orders": 25200,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 25200,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 25200,
+    "bookings": 25200,
+    "tickets": 25200,
+    "payment_callbacks": 25200,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 25200,
+    "callback_delivery_target": 25200,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 25200,
+    "expected_paid": 25200,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true,
+    "counts": {
+      "orders": 25200,
+      "fulfilled_orders": 25200,
+      "expired_orders": 0,
+      "pending_orders": 0,
+      "payment_attempts": 25200,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 25200,
+      "bookings": 25200,
+      "tickets": 25200,
+      "payment_callbacks": 25200,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 25200,
+      "callback_delivery_target": 25200,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 25200,
+      "expected_paid": 25200,
+      "expected_callback_deliveries_per_payment": 1,
+      "pass": true
+    },
+    "relationships": {
+      "hold_relationship_errors": 0,
+      "booking_relationship_errors": 0,
+      "order_item_relationship_errors": 0,
+      "inventory_relationship_errors": 0,
+      "fulfilled_ticket_relationship_errors": 0,
+      "unique_issued_tickets": 25200,
+      "holds_not_past_ttl": 0
+    },
+    "checks": {
+      "post_ttl_complete": true,
+      "payments_durable": true,
+      "ticket_relationships_valid": true
+    },
+    "hold_deadlines_elapsed": true
+  },
+  "restoration_complete": true,
+  "integrity_verified": true,
+  "cleanup_complete": true,
+  "transport_credentials_cleared": true,
+  "diagnostics": {
+    "api_cpu_cores": 1.1764509298476935,
+    "worker_cpu_cores": 1.3402584504632404,
+    "host_cpu_percent": {
+      "primary": 36.24106907713089,
+      "secondary": 0.14516694198328078
+    },
+    "database_wait_capture": {
+      "decision": "ADR0173",
+      "complete": true,
+      "rows": 365,
+      "error_counts": {},
+      "counter_continuity": true,
+      "max_collection_ms": 64.29876096080989,
+      "wal_timing_available_throughout": false,
+      "counter_deltas": {
+        "wal": {
+          "wal_records": 3439852,
+          "wal_fpi": 406020,
+          "wal_bytes": 2531152675,
+          "wal_buffers_full": 0,
+          "wal_write": 168053,
+          "wal_sync": 168052,
+          "wal_write_time": 0,
+          "wal_sync_time": 0
+        },
+        "checkpointer": {
+          "num_timed": 1,
+          "num_requested": 0,
+          "write_time": 719289,
+          "sync_time": 318,
+          "buffers_written": 55695
+        },
+        "database": {
+          "xact_commit": 322446,
+          "xact_rollback": 25,
+          "blks_read": 310962,
+          "blks_hit": 56657306,
+          "blk_read_time": 156605.2809999995,
+          "blk_write_time": 493.57600000000093,
+          "deadlocks": 0,
+          "temp_bytes": 0
+        }
+      },
+      "observed_active_wait_peaks": {
+        "None:None": 5,
+        "Client:ClientRead": 6,
+        "IO:DataFileRead": 10,
+        "IO:WalSync": 1,
+        "LWLock:WALWrite": 17,
+        "LWLock:ProcArray": 1,
+        "Lock:transactionid": 2,
+        "IO:WalWrite": 1,
+        "LWLock:BufferContent": 1
+      },
+      "scope": "Observer lifetime, cluster WAL/checkpoints and current-database activity; one-second snapshots may miss brief waits. Correlation does not prove causality.",
+      "independent_sampling": true,
+      "offered_window_covered": true,
+      "first_statistics_utc": "2026-10-12T12:40:01.284531+07:00",
+      "last_statistics_utc": "2026-10-12T12:46:05.488584+07:00"
+    },
+    "api_duration_mean_ms": {
+      "db_pool_acquire:ok": 3.145921819796477,
+      "db_query:INSERT": 2.1566080467063893,
+      "db_connection_hold:all": 23.214070602972004,
+      "db_commit:all": 3.2300278469391537,
+      "db_query:BEGIN": 3.5483993619141003,
+      "event_loop_lag:all": 0.5587430620619085,
+      "db_query:UPDATE": 1.927027654832233,
+      "db_query:SELECT": 1.898099462383372
+    },
+    "api_counter_deltas": {
+      "process_cpu_seconds_total": 356.49999999999994,
+      "order_cache:stale": 8.0,
+      "order_cache:miss": 26901.0,
+      "order_cache:fill_raced": 20.0,
+      "pool_acquire:ok": 77629.0,
+      "order_cache:hit": 29105.0,
+      "order_cache:fill": 26889.0
+    },
+    "database_errors": 0,
+    "slot_failure_count": 0,
+    "slot_failure_capture_complete": true,
+    "collection_failures": [],
+    "paid_unfulfilled": {
+      "max": 76,
+      "last": 0,
+      "delta": 0,
+      "p95": 56
+    },
+    "query_duration_comparability": "Client execute duration in pipeline mode can measure enqueue time. Use transaction/connection hold, commit, customer latency and PostgreSQL evidence for the comparison."
+  },
+  "actual_runtime_proof": {
+    "all_four_api_sources_and_images_verified": true,
+    "api_resources": {
+      "limits": {
+        "cpu": "1",
+        "memory": "2Gi"
+      },
+      "requests": {
+        "cpu": "1",
+        "memory": "2Gi"
+      }
+    },
+    "api_startup_environment_sha256": [
+      "64f7addeb95654d18af5ae02f32c751706a058f489d8ea6a27384ddeb39ff142",
+      "64f7addeb95654d18af5ae02f32c751706a058f489d8ea6a27384ddeb39ff142",
+      "64f7addeb95654d18af5ae02f32c751706a058f489d8ea6a27384ddeb39ff142",
+      "64f7addeb95654d18af5ae02f32c751706a058f489d8ea6a27384ddeb39ff142"
+    ],
+    "worker_counts": {
+      "consumer": 6,
+      "projection-consumer": 1,
+      "reservation-writer": 3,
+      "publisher": 1,
+      "maintenance": 1,
+      "reconciler": 1,
+      "simulator": 1
+    },
+    "worker_resources": {
+      "requests": {
+        "cpu": "250m",
+        "memory": "512Mi"
+      },
+      "limits": {
+        "cpu": "250m",
+        "memory": "512Mi"
+      }
+    },
+    "pooler_server_connections": 24,
+    "acquisition_budget": 20,
+    "generator_shards": 2,
+    "generator_max_in_flight": 500,
+    "http_clients_per_shard": [
+      8,
+      8
+    ],
+    "customer_recovery_max_attempts": 3,
+    "all_pre_dispatch_gates_passed": true
+  },
+  "offered_start_bangkok": "2026-10-12T12:40:45.297998+07:00",
+  "offered_end_bangkok": "2026-10-12T12:45:45.297998+07:00"
+}

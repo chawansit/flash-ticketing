@@ -96,6 +96,10 @@ def active(envelope=None):
 
 
 def proof_digest(goal):
+    from cce_payment_pipeline_profile import selected
+    if selected(goal):
+        from cce_payment_pipeline_identity import RECEIPT_SHA256
+        return RECEIPT_SHA256
     if goal["extension_decision"] in {"ADR0266", "ADR0271", "ADR0277"}:
         from cce_event_lane_identity import RECEIPT_SHA256
         return RECEIPT_SHA256
@@ -125,6 +129,9 @@ def pair_receipt(goal):
 
 
 def image_for(goal):
+    from cce_payment_pipeline_profile import image, selected
+    if selected(goal):
+        return image()
     if goal["extension_decision"] in {"ADR0266", "ADR0271", "ADR0277"}:
         from cce_event_lane_profile import image
         return image()

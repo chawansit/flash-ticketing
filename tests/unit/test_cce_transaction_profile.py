@@ -235,6 +235,9 @@ def test_registered_control_reservation_and_guard_keep_exact_source_binding(tmp_
     binding, _, _ = area.__wrapped__(tmp_path, monkeypatch)
     value = policy.read(policy.ENVELOPE)
     new_goal = copy.deepcopy(value["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"])
+    for key in tuple(new_goal):
+        if key.startswith(("payment_pipeline_", "verification_")):
+            new_goal.pop(key)
     new_goal.update(payment_goal("control") if extension == "ADR0249" else goal(), maximum_paid_stages=1, maximum_pods=4, pod_vcpu=1, pod_memory_gib=1,
                     offered_journeys_per_second=84, offered_seconds=300, maximum_experiment_seconds=3600,
                     ledger_start_index=0, unlimited_cumulative_time_explicitly_authorized=True)

@@ -90,7 +90,7 @@ def summarize(rows, bundle, start, end):
     for row in window:
         current = {}
         roles = ("consumer", "writer", "publisher", "maintenance", "reconciler", "simulator")
-        if bundle["decision"] == "ADR0271":
+        if any(receipt["role"] == "projection-consumer" for receipt in bundle["receipts"]):
             roles += ("projection",)
         for role in roles:
             replicas = row.get(role + "_native_processes", {})

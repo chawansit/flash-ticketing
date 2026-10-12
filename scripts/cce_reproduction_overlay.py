@@ -15,6 +15,10 @@ OVERLAID = {
     "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py",
     "scripts/run_cce_hourly_qualification.py", "scripts/cce_hourly_paid_generator.py", "scripts/cce_hourly_paid_leaf.py"}
 ADDITIONAL = {
+    "scripts/cce_bounded_financial_audit.py", "scripts/independent_database_sampling.py",
+    "scripts/cce_verification_contract.py", "scripts/cce_payment_pipeline_identity.py",
+    "scripts/cce_payment_pipeline_profile.py", "scripts/cce_payment_pipeline_contract.py",
+    "docs/capacity/cce/payment-write-pipeline-image-2026-10-12.json",
     "scripts/customer_timeout_bundle.py", "scripts/cce_native_database_bridge.py", "scripts/cce_status_refresh_reuse.py", "scripts/cce_status_reuse_hourly.py",
     "docs/capacity/cce/committed-status-reuse-result-2026-10-11.json",
     "artifacts/customer-timeout/manifest.json", "artifacts/customer-timeout/coordinator.py",

@@ -101,6 +101,8 @@ def test_resource_authorization_requires_exact_eighteen_pod_envelope():
     from cce_dependency_probe import authorized_today
     envelope = copy.deepcopy(policy.envelope())
     old = envelope["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"]
+    for key in ("hourly_qualification_decision", "hourly_adapters_sha256"):
+        old.pop(key, None)
     old.update(goal(), maximum_pods=18, maximum_paid_stages=1, pod_vcpu=1, pod_memory_gib=2,
                offered_journeys_per_second=84, offered_seconds=300, maximum_experiment_seconds=3600,
                worker_resources={"cpu": "250m", "memory": "512Mi"})

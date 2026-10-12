@@ -147,6 +147,14 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
         from cce_simulator_dispatch_profile import receipt
         extra.update(cce_simulator_decision="ADR0251", cce_simulator_concurrency=12,
                      cce_simulator_database_pool_max=10, cce_simulator_image_id=receipt()["local_image_id"])
+    from cce_payment_pipeline_profile import selected as pipeline_selected
+    if pipeline_selected(goal):
+        from cce_payment_pipeline_identity import RECEIPT_SHA256
+        extra.update(cce_transaction_arm=goal["payment_pipeline_arm"],
+                     cce_payment_pipeline_arm=goal["payment_pipeline_arm"], cce_payment_pipeline_decision="ADR0284",
+                     cce_payment_write_pipeline="1" if goal["payment_pipeline_arm"] == "candidate" else "0",
+                     cce_payment_pipeline_receipt_sha256=RECEIPT_SHA256,
+                     cce_verification_contract_sha256=goal["verification_contract_sha256"])
     return {
         **extra,
         "configuration_sha256": policy.digest(config),
@@ -364,6 +372,10 @@ def activate_scope(guard, run):
 def worker_contract():
     import cce_transaction_profile as transaction
     goal = transaction.active()
+    from cce_payment_pipeline_profile import selected as pipeline_selected
+    if pipeline_selected(goal):
+        from cce_payment_pipeline_contract import PaymentPipelineContract
+        return PaymentPipelineContract(arm=goal["payment_pipeline_arm"])
     if goal is not None and goal["extension_decision"] in {"ADR0266", "ADR0271", "ADR0277"}:
         from cce_event_lane_contract import EventLaneContract
         from cce_status_refresh_reuse import selected as reuse_selected

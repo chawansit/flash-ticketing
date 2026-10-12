@@ -28,7 +28,8 @@ def receipt_bundle(run, receipts):
 
 
 def summarize_independent_diagnostics(record, rows, path, receipts, start, end, *, hourly, summarize_waits,
-                                     summarize_slots=None, summarize_pipeline=None, native_workers=None, slot_log_evidence=None):
+                                     summarize_slots=None, summarize_pipeline=None, native_workers=None, slot_log_evidence=None,
+                                     diagnostic_path=None):
     """ADR0257/0260 preserve independent diagnostics despite a missing slot history."""
     failures = []
     operations = []
@@ -45,8 +46,13 @@ def summarize_independent_diagnostics(record, rows, path, receipts, start, end, 
     if native_workers is not None:
         from observe_cce_workers import summarize as summarize_workers
         operations.append(("native_worker_cpu", lambda: summarize_workers(rows, native_workers, start, end)))
+    def database_capture():
+        if diagnostic_path is None:
+            return summarize_waits(path, hourly=hourly)
+        from independent_database_sampling import summarize
+        return summarize(diagnostic_path, start, end, hourly=hourly)
     operations.extend((
-        ("database_wait_capture", lambda: summarize_waits(path, hourly=hourly)),
+        ("database_wait_capture", database_capture),
         ("native_api_cpu", lambda: api_cpu(rows, receipts, start, end, hourly=hourly)),
     ))
     for operation, collect in operations:
@@ -219,7 +225,14 @@ class Observers:
             45,
         )
         import cce_transaction_profile as transaction
-        extended = transaction.active() is not None
+        goal = transaction.active()
+        extended = goal is not None
+        from cce_verification_contract import contract as verification_contract
+        from cce_verification_contract import selected as verification_selected
+        self.independent_database_sampling = verification_selected(goal)
+        if self.independent_database_sampling:
+            self.inventory["verification_contract"] = verification_contract()
+            self.record["independent_database_sampling"] = True
         self.event_lanes = extended and transaction.active()["extension_decision"] in {"ADR0266", "ADR0271", "ADR0277"}
         helpers = (
             "observe_cce_paid_pipeline.py",
@@ -227,11 +240,16 @@ class Observers:
             "prepare_two_host_scaling.py",
             "database_wait_evidence.py",
             "diagnostic_connection.py",
+            "cce_verification_contract.py",
+            *(("independent_database_sampling.py",) if self.independent_database_sampling else ()),
             *(("cce_shared_worker_image_identity.py", "cce_worker_identity.py", "observe_cce_workers.py") if extended and transaction.active()["extension_decision"] in {"ADR0259", "ADR0263", "ADR0271", "ADR0277"} else ()),
             *(("observe_slot_paid_pipeline.py", "slot_failure_evidence.py", "bounded_trace_transport.py") if extended else ()),
         )
         if self.event_lanes:
             helpers += ("cce_event_lane_identity.py", "observe_projection_kafka.py", "cce_status_refresh_reuse.py")
+        from cce_payment_pipeline_profile import selected as pipeline_selected
+        if pipeline_selected(goal):
+            helpers += ("cce_payment_pipeline_identity.py",)
         expected = {}
         for name in helpers:
             raw = (policy.ROOT / "scripts" / name).read_text()
@@ -286,6 +304,8 @@ class Observers:
         self.upload("inventory.private.json", json.dumps(self.inventory))
         self.upload("native-receipts.json", json.dumps(self.native))
         if getattr(self, "native_workers", None) is not None:
+            # Retain admission proofs locally after transition cleanup replaces its checkpoint.
+            policy.write(self.stage.output / "native-workers.private.json", self.native_workers)
             self.upload("native-workers.json", json.dumps(self.native_workers))
         observation_seconds = str(self.stage.profile.observer_seconds)
         common = [
@@ -313,6 +333,7 @@ class Observers:
                 "--frozen-observer",
                 "/app/scripts/observe_paid_pipeline.py",
                 "--database-wait-diagnostics",
+                *(["--independent-database-sampling"] if self.independent_database_sampling else []),
                 "--diagnostic-connection-bundle",
                 self.directory + "/diagnostic.private.json",
                 "--output",
@@ -491,6 +512,8 @@ class Observers:
         from summarize_paid_pipeline import summarize as summarize_pipeline
 
         traces = [("pipeline", summarize_pipeline), ("kafka", summarize_kafka)]
+        if getattr(self, "independent_database_sampling", False):
+            traces.insert(0, ("database-waits", None))
         if getattr(self, "event_lanes", False):
             traces.append(("projection-kafka", summarize_kafka))
         for name, summarize in traces:
@@ -510,6 +533,9 @@ class Observers:
                 path = self.stage.output / (name + ".jsonl")
                 path.write_bytes(raw)
                 rows = [json.loads(line) for line in raw.decode().splitlines() if line.strip()]
+                if name == "database-waits":
+                    self.record["database_wait_trace_sha256"] = policy.digest(rows)
+                    continue
                 if name == "pipeline":
                     from database_wait_evidence import summarize as summarize_waits
                     from slot_failure_evidence import summarize as summarize_slots
@@ -518,7 +544,9 @@ class Observers:
                         hourly=self.stage.profile.duration == 3600, summarize_waits=summarize_waits,
                         summarize_slots=summarize_slots if transaction.active() is not None else None,
                         summarize_pipeline=summarize, native_workers=getattr(self, "native_workers", None),
-                        slot_log_evidence=getattr(self, "slot_log_evidence", None)))
+                        slot_log_evidence=getattr(self, "slot_log_evidence", None),
+                        diagnostic_path=(self.stage.output / "database-waits.jsonl"
+                            if getattr(self, "independent_database_sampling", False) else None)))
                 else:
                     self.record[name + "_summary"] = summarize(rows)
                     if name == "projection-kafka":

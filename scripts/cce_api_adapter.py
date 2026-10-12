@@ -66,6 +66,9 @@ def contract():
             data["workload"]["customer_retries"] = 3
         if goal["extension_decision"] == "ADR0245":
             data["api_settings"]["API_PAYMENT_POOL_MAX"] = str(transaction.payment_connections(goal))
+    from cce_payment_pipeline_profile import selected as pipeline_selected
+    if pipeline_selected(goal):
+        data["api_settings"]["PAYMENT_WRITE_PIPELINE"] = "1" if goal["payment_pipeline_arm"] == "candidate" else "0"
     if goal is not None and goal["extension_decision"] == "ADR0277":
         data["workload"].update(offered_journeys_per_second=168, concurrency=1000)
     return data

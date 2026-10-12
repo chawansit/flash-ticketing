@@ -13,13 +13,21 @@ from test_observe_cce_paid_pipeline import bundle, payload
 from ticketing.infrastructure.slot_diagnostics import SlotDiagnostics
 
 
+def observer(**kwargs):
+    # Exercise the current adapter against the actual pinned observer query.
+    from observe_two_host_pipeline import load_frozen
+    frozen = load_frozen(Path(__file__).resolve().parents[2] / "artifacts/cce-frozen-harness/scripts/observe_paid_pipeline.py")
+    return SimpleNamespace(PAID_COHORT_QUERY=frozen.PAID_COHORT_QUERY, **kwargs)
+
+
+
 def test_slot_capture_uses_same_admitted_http_read_and_retains_old_metrics():
     calls = []
     tracker = SlotDiagnostics(4)
     tracker.failure({"role": "payment", "reason": "native_timeout"})
     raw = (payload() + 'ticketing_db_acquisition_failures_total{role="payment",reason="native_timeout"} 1\n'
            + tracker.comment().decode())
-    module = SimpleNamespace(api_replicas=lambda host, port: [host], parse_api_metrics=lambda raw: {"original": 1})
+    module = observer(api_replicas=lambda host, port: [host], parse_api_metrics=lambda raw: {"original": 1})
     entry.install(module, bundle(), fetch=lambda url, **kw: calls.append(url) or io.BytesIO(raw.encode()))
     address = module.api_replicas()[0]
     metrics = module.api_metrics(address)
@@ -40,7 +48,7 @@ def test_slot_entry_fails_closed_without_retry(fault):
     if fault != "missing":
         raw += tracker.comment().decode()
     calls = []
-    module = SimpleNamespace(api_replicas=lambda *args: [], parse_api_metrics=lambda raw: {})
+    module = observer(api_replicas=lambda *args: [], parse_api_metrics=lambda raw: {})
     entry.install(module, bundle(), fetch=lambda url, **kw: calls.append(url) or io.BytesIO(raw.encode()))
     address = module.api_replicas()[0]
     if fault == "restarted":
@@ -75,7 +83,7 @@ def test_legacy_workers_keep_shared_parser_without_api_only_comments():
     tracker = SlotDiagnostics(4)
     raw = payload() + tracker.comment().decode()
     calls = []
-    module = SimpleNamespace(api_replicas=lambda host, port: [host],
+    module = observer(api_replicas=lambda host, port: [host],
                              parse_api_metrics=lambda raw: {"legacy_metric": 7})
     entry.install(module, bundle(), fetch=lambda url, **kw: calls.append(url) or io.BytesIO(raw.encode()))
     for role in ("confirmation", "consumer", "maintenance", "publisher", "reconciler", "simulator", "writer"):

@@ -233,3 +233,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0283: Bound hourly observer cost and preserve diagnostics](0283-bound-hourly-observer-cost-and-preserve-diagnostics.md) — Hourly ticket target measured; qualification retains audit timeout and diagnostic coverage failures.
 
 - [ADR0284: Pipeline payment initiation writes](0284-pipeline-payment-initiation-writes.md) — Accepted for opt-in implementation; default off; paid comparison pending.
+
+- [ADR0285: Complete audits and compare payment pipelining](0285-complete-audits-and-compare-payment-pipelining.md) — Accepted; implementation and fresh comparisons pending.

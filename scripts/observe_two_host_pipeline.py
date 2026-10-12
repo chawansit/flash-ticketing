@@ -564,15 +564,23 @@ def main(argv=None):
     modes.add_argument("--database-wait-diagnostics", action="store_true")
     modes.add_argument("--application-database-wait-diagnostics", action="store_true")
     parser.add_argument("--diagnostic-connection-bundle", type=Path)
+    parser.add_argument("--independent-database-sampling", action="store_true")
     args, remaining = parser.parse_known_args(argv)
     inventory = json.loads(args.inventory.read_text())
+    independent = False
+    if args.independent_database_sampling or "verification_contract" in inventory:
+        from cce_verification_contract import validate_inventory as validate_verification
+        independent = validate_verification(inventory, args.approved_inventory_sha256)
+    if independent != args.independent_database_sampling or (independent and not args.database_wait_diagnostics):
+        raise ValueError("Independent sampling must match the exact sealed inventory")
     scoped_profile = inventory.get("status_refresh_contract", {}).get("decision") == "ADR0177"
     if scoped_profile != args.application_database_wait_diagnostics or (scoped_profile and not args.approved_inventory_sha256):
         raise ValueError("Diagnostic mode must match the exact qualified inventory")
     frozen = load_frozen(args.frozen_observer)
     install_adapter(frozen, inventory, image_id=FROZEN_IMAGE_ID, approved_inventory_sha256=args.approved_inventory_sha256)
     install_diagnostic_connection(frozen, inventory, args)
-    if inventory.get("status_refresh_contract", {}).get("decision") in {"ADR0222", "ADR0224", 'ADR0225', 'ADR0226'}:
+    phase_timings = inventory.get("status_refresh_contract", {}).get("decision") in {"ADR0222", "ADR0224", 'ADR0225', 'ADR0226'}
+    if phase_timings and not independent:
         # Wrap before wait diagnostics so paid_cohort excludes wait collection.
         install_phase_timings(frozen)
     if args.database_wait_diagnostics:
@@ -581,8 +589,31 @@ def main(argv=None):
     if args.application_database_wait_diagnostics:
         from application_database_wait_evidence import binding_from_record, install
         install(frozen, binding_from_record(inventory.get("application_database_role_binding")))
+    if independent:
+        from independent_database_sampling import install as install_independent
+        if remaining.count("--output") != 1 or remaining.count("--seconds") != 1:
+            raise ValueError("Exact bounded diagnostic output and duration required")
+        output = Path(remaining[remaining.index("--output") + 1])
+        seconds = int(remaining[remaining.index("--seconds") + 1])
+        if output != args.inventory.parent / "pipeline.jsonl" or seconds not in {480, 3780}:
+            raise ValueError("Exact owned comparison diagnostic trace required")
+        install_independent(frozen, os.environ["TEST_DATABASE_URL"], output.with_name("database-waits.jsonl"), seconds)
+        if phase_timings:
+            # This now measures snapshot retrieval. Actual SQL timing is in the independent stream.
+            install_phase_timings(frozen)
     sys.argv = [str(args.frozen_observer), *remaining]
-    frozen.main()
+    if not independent:
+        frozen.main()
+    else:
+        import signal
+        def stop_signal(signum, frame):
+            # Owned job termination unwinds the context and joins SQL before closing its connection.
+            raise SystemExit(0)
+        previous_signal = signal.signal(signal.SIGTERM, stop_signal)
+        try:
+            frozen.main()
+        finally:
+            signal.signal(signal.SIGTERM, previous_signal)
 
 
 if __name__ == "__main__":
