@@ -166,6 +166,9 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
         extra.update(cce_ingress_route_decision="ADR0291",
                      cce_ingress_route_contract_sha256=policy.digest(ingress_contract()),
                      cce_ingress_route_arm=goal["ingress_route_arm"])
+        if goal.get("ingress_hourly_decision") is not None:
+            extra.update(cce_ingress_hourly_decision=goal["ingress_hourly_decision"],
+                         cce_ingress_hourly_prerequisite_sha256=goal["ingress_hourly_prerequisite_sha256"])
     return {
         **extra,
         "configuration_sha256": policy.digest(config),

@@ -8,6 +8,9 @@ import cce_dependency_probe as dependency
 import work_envelope as policy
 
 DECISION = "ADR0291"
+HOURLY_DECISION = "ADR0293"
+HOURLY_BASELINE = "docs/capacity/cce/existing-ingress-candidate-result-2026-10-12.json"
+HOURLY_BASELINE_SHA256 = "48bf7f5a7995bef34e3d683fd259d4470837576f60c2dbf218fad1b67098c2a0"
 CONTROL_ORIGIN = "http://10.1.137.69:8000"
 CANDIDATE_ORIGIN = "http://10.2.39.55"
 ADDON_PATH = "/api/v1/namespaces/kube-system/services/cceaddon-nginx-ingress-controller"
@@ -28,17 +31,64 @@ def contract():
 
 
 def selected(goal):
-    keys = {"ingress_route_decision", "ingress_route_contract_sha256", "ingress_route_arm"}
+    keys = {"ingress_route_decision", "ingress_route_contract_sha256", "ingress_route_arm",
+            "ingress_hourly_decision", "ingress_hourly_prerequisite_sha256"}
     if goal is None or not keys.intersection(goal):
         return False
     if (goal.get("ingress_route_decision") != DECISION
             or goal.get("ingress_route_contract_sha256") != policy.digest(contract())
             or goal.get("ingress_route_arm") not in {"control", "candidate"}
             or goal.get("extension_decision") != "ADR0271"
-            or goal.get("profile") != "cce_paid_comparison"
-            or goal.get("maximum_paid_stages") != 2):
+            or goal.get("profile") not in {"cce_paid_comparison", "cce_hourly_qualification"}):
+        raise ValueError("Exact bounded ingress comparison required")
+    hourly = goal.get("ingress_hourly_decision") is not None
+    if hourly:
+        if (goal["ingress_hourly_decision"] != HOURLY_DECISION
+                or goal.get("ingress_hourly_prerequisite_sha256") != HOURLY_BASELINE_SHA256
+                or goal["ingress_route_arm"] != "candidate"
+                or goal.get("maximum_paid_stages") != 1):
+            raise ValueError("Exact bounded ingress hourly qualification required")
+    elif (goal.get("profile") != "cce_paid_comparison"
+          or goal.get("maximum_paid_stages") != 2
+          or "ingress_hourly_prerequisite_sha256" in goal):
         raise ValueError("Exact bounded ingress comparison required")
     return True
+
+
+def hourly_baseline(goal):
+    """Retained short proof; duration extension changes harness, not application."""
+    if not selected(goal) or goal.get("ingress_hourly_decision") != HOURLY_DECISION:
+        raise ValueError("Explicit ingress hourly prerequisite required")
+    path = policy.ROOT / HOURLY_BASELINE
+    if path.is_symlink():
+        raise ValueError("Retained regular ingress prerequisite required")
+    value = policy.read(path)
+    import cce_event_lane_identity as pins
+    if (policy.digest(value) != HOURLY_BASELINE_SHA256
+            or value.get("status") != "PASSED_RESTORED" or value.get("pass") is not True
+            or value.get("arm") != "candidate" or value.get("decision") != DECISION
+            or value.get("image") != pins.IMAGE_ID or value.get("configuration") != pins.CONFIG
+            or value.get("source") != pins.SOURCE
+            or not value.get("measurement_gates") or not all(value["measurement_gates"].values())
+            or value.get("customer", {}).get("fulfilled") != 25200
+            or any(value.get("customer", {}).get(k) != 0 for k in
+                   ("generator_drops", "first_attempt_error_journeys", "final_customer_failures"))
+            or value.get("issuance_window", {}).get("unique_paid_issued_tickets", 0) < 25000
+            or value.get("financial", {}).get("pass") is not True
+            or value.get("financial", {}).get("duplicate_booked_seats") != 0
+            or not value.get("financial_checks") or not all(value["financial_checks"].values())
+            or any(value.get(k) is not True for k in
+                   ("restoration_complete", "integrity_verified", "cleanup_complete", "transport_credentials_cleared"))
+            or value.get("ingress_route", {}).get("owned_route_removed") is not True
+            or value.get("ingress_route", {}).get("existing_addon_unchanged") is not True):
+        raise ValueError("Fully passing restored ingress prerequisite required")
+    matches = [e for e in policy.journal(policy.envelope())["experiments"]
+               if e.get("ledger") == value["ledger"]]
+    if (len(matches) != 1 or matches[0].get("status") != "PASSED_RESTORED"
+            or matches[0].get("result_sha256") != value["raw_result_sha256"]
+            or matches[0].get("paid_runs_started") != 1):
+        raise ValueError("Restored ingress prerequisite ledger required")
+    return value
 
 
 def origin(goal):
@@ -52,12 +102,22 @@ def validate_binding(goal, binding):
             or binding.get("cce_ingress_route_contract_sha256") != policy.digest(contract())
             or binding.get("cce_ingress_route_arm") != goal["ingress_route_arm"]):
         raise ValueError("Exactly bound ingress entry point required")
+    if (goal.get("ingress_hourly_decision") is not None
+            and (binding.get("cce_ingress_hourly_decision") != HOURLY_DECISION
+                 or binding.get("cce_ingress_hourly_prerequisite_sha256") != HOURLY_BASELINE_SHA256)):
+        raise ValueError("Exactly bound hourly ingress prerequisite required")
 
 
 def authorize_sequence(envelope):
     """A failed control can never authorize the second paid stage."""
     goal = envelope["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"]
     if not selected(goal):
+        return
+    if goal.get("ingress_hourly_decision") == HOURLY_DECISION:
+        hourly_baseline(goal)
+        if goal.get("profile") != "cce_hourly_qualification":
+            raise ValueError("Fresh hourly ingress scope required")
+        # The normal one-stage envelope/guard prevents spent-scope replay.
         return
     entries = [e for e in policy.journal(envelope)["experiments"][goal["ledger_start_index"]:]
                if e.get("profile") == "cce_paid_comparison"]
@@ -94,6 +154,15 @@ def authorize_sequence(envelope):
 def extend_plan(plan, goal):
     if not selected(goal):
         return plan
+    if goal.get("profile") == "cce_hourly_qualification":
+        hourly_baseline(goal)
+        return {**plan, "kind": "existing_nginx_ingress_hourly_qualification",
+                "single_changed_factor": "duration_and_distinct_cohort",
+                "ingress_route": contract(), "ingress_route_arm": "candidate",
+                "ingress_hourly_decision": HOURLY_DECISION,
+                "baseline_evidence": HOURLY_BASELINE, "baseline_sha256": HOURLY_BASELINE_SHA256,
+                "baseline_is_passing_control": True, "matched_performance_comparison": False,
+                "duration_reason": "One unchanged CCE ingress hour at 84/s; audits and restoration within 90 minutes."}
     return {**plan, "kind": "existing_nginx_ingress_comparison",
             "single_changed_factor": contract()["factor"], "ingress_route": contract(),
             "ingress_route_arm": goal["ingress_route_arm"], "matched_performance_comparison": True,

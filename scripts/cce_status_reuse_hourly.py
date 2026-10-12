@@ -54,6 +54,8 @@ def short_view(goal):
 def active(goal):
     if not selected(goal):
         raise ValueError("Explicit hourly status reuse required")
+    from cce_nginx_ingress import HOURLY_BASELINE_SHA256, hourly_baseline
+    ingress_hourly = goal.get("ingress_hourly_decision") is not None
     expected = {"decision": "ADR0232", "profile": "cce_hourly_qualification",
                 "extension_decision": "ADR0271", "comparison_arm": "correction",
                 "offered_journeys_per_second": 84, "offered_seconds": 3600,
@@ -61,12 +63,15 @@ def active(goal):
                 "maximum_experiment_seconds": 5400, "maximum_paid_stages": 1,
                 "maximum_pods": 18, "pod_vcpu": 1, "pod_memory_gib": 2,
                 "worker_resources": {"cpu": "250m", "memory": "512Mi"},
-                "baseline_sha256": BASELINE_SHA256,
+                "baseline_sha256": HOURLY_BASELINE_SHA256 if ingress_hourly else BASELINE_SHA256,
                 "hourly_adapters_sha256": policy.digest(adapters()),
                 "status_refresh_reuse_decision": "ADR0280"}
     if any(type(goal.get(k)) is not type(v) or goal.get(k) != v for k, v in expected.items()):
         raise ValueError("Exact unchanged ADR0281 hourly runtime and workload required")
-    baseline()
+    if ingress_hourly:
+        hourly_baseline(goal)
+    else:
+        baseline()
     from cce_worker_rebalance_profile import active as placement_active
     placement_active(short_view(goal))
     return goal
@@ -89,4 +94,5 @@ def plan(goal):
             "fixture_shows": 1008,
             "duration_reason": "Qualify the same passed runtime for one hour; mandatory audits and restoration within 90 minutes."}
     from cce_metric_admission import extend_plan
-    return extend_plan(result, goal)
+    from cce_nginx_ingress import extend_plan as extend_ingress
+    return extend_ingress(extend_plan(result, goal), goal)

@@ -248,3 +248,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0291: Compare the existing CCE NGINX ingress](0291-compare-existing-cce-nginx-ingress.md) — Accepted bounded customer-entry comparison; no capacity gain measured.
 
 - [ADR0292: Prepare short fixtures after expiry safety](0292-prepare-short-fixtures-after-safety.md) — Accepted short staging correction; preserves freshness limits and hourly ordering.
+
+- [ADR0293: Qualify the existing CCE ingress for one paid hour](0293-qualify-existing-cce-ingress-hourly.md)
