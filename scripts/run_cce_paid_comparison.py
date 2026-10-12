@@ -160,6 +160,12 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     if metric_selected(goal):
         extra.update(cce_live_admission_decision="ADR0287",
                      cce_metric_admission_contract_sha256=policy.digest(metric_contract()))
+    from cce_nginx_ingress import contract as ingress_contract
+    from cce_nginx_ingress import selected as ingress_selected
+    if ingress_selected(goal):
+        extra.update(cce_ingress_route_decision="ADR0291",
+                     cce_ingress_route_contract_sha256=policy.digest(ingress_contract()),
+                     cce_ingress_route_arm=goal["ingress_route_arm"])
     return {
         **extra,
         "configuration_sha256": policy.digest(config),
@@ -288,6 +294,13 @@ def worker_metrics_reader(session, address):
 
 
 class ReadyDeployment(native.Deployment):
+    ingress_route = None
+
+    def cleanup(self):
+        if self.ingress_route is not None:
+            self.ingress_route.cleanup()
+        return super().cleanup()
+
     def observe(self, manifests, http_ready, http_metrics, *, previous=None):
 
         if previous is None:
@@ -479,6 +492,15 @@ def run(config, output, guard, manifests, kubeconfig, context):
 
             import cce_transaction_profile as transaction
             goal = transaction.active()
+            from cce_nginx_ingress import Route
+            from cce_nginx_ingress import http_reader as ingress_http
+            from cce_nginx_ingress import selected as ingress_selected
+            ingress_route = None
+            if ingress_selected(goal) and goal["ingress_route_arm"] == "candidate":
+                ingress_route = Route(deployment,
+                    lambda role, path: ingress_http(session, role, path),
+                    lambda value: persist({"ingress_route": {**native_record.get("ingress_route", {}), **value}}))
+                deployment.ingress_route = ingress_route
             transition_class = Transition
             transition_options = {}
             if goal is not None and goal["extension_decision"] in {"ADR0259", "ADR0271", "ADR0277"}:
@@ -538,6 +560,7 @@ def run(config, output, guard, manifests, kubeconfig, context):
                 refresh_inventory=refresh_inventory,
                 live_admission=goal is not None and goal["extension_decision"] in {"ADR0271", "ADR0277"},
                 metric_admission=__import__("cce_metric_admission").selected(goal),
+                ingress_route=ingress_route,
             )
 
             record["native"] = lifecycle.run(

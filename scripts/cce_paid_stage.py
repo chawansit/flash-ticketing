@@ -56,6 +56,7 @@ def identity():
         "scripts/cce_native_workers.py", "scripts/cce_worker_transition.py",
         "scripts/cce_worker_identity.py", "scripts/observe_cce_workers.py",
         "docs/capacity/cce/shared-application-image-2026-10-10.json",
+        "scripts/cce_nginx_ingress.py",
         "scripts/cce_paid_stage.py",
         "scripts/cce_frozen_harness.py",
         "scripts/cce_historical_sources.py",
@@ -117,7 +118,8 @@ def generator_arguments(directory, origin, start_at_epoch, *, profile=None, reco
         raise ValueError("Exact CCE stage profile required")
     if not re.fullmatch(r"/[^\x00\r\n]*?/tmp/adr0151-[0-9a-f]{12}-cce-candidate", directory):
         raise ValueError("Canonical owned generator directory required")
-    if origin != "http://10.1.137.69:8000":
+    import cce_transaction_profile as transaction
+    if origin != __import__("cce_nginx_ingress").origin(transaction.active()):
         raise ValueError("Existing private shared load-balancer origin required")
     if type(start_at_epoch) not in (int, float) or not math.isfinite(start_at_epoch):
         raise ValueError("Finite synchronized start required")
@@ -242,7 +244,12 @@ class PaidStage:
             "customer_recovery_max_attempts": 3 if self.recovery_enabled else 1,
         }
         self.gen = session.config["generator"]["repo"] + "/tmp/" + run + "-cce-candidate"
-        self.origin = "http://10.1.137.69:8000"
+        from cce_nginx_ingress import origin, validate_binding
+        from cce_nginx_ingress import selected as ingress_selected
+        goal = transaction.active()
+        if ingress_selected(goal):
+            validate_binding(goal, guard.binding)
+        self.origin = origin(goal)
         generator_arguments(self.gen, self.origin, 0, profile=self.profile, recovery_max_attempts=3 if self.recovery_enabled else 1)
         self.events = []
         self.prepared = False

@@ -23,6 +23,8 @@ def active(goal):
     selected(goal)
     from cce_status_refresh_reuse import selected as reuse_selected
     reuse_selected(goal)
+    from cce_nginx_ingress import selected as ingress_selected
+    ingress_selected(goal)
     parent.image()
     return goal
 
@@ -76,5 +78,6 @@ def plan(goal):
     elif "observer_cost_sha256" in goal:
         raise ValueError("Orphan observer correction binding")
     from cce_metric_admission import extend_plan as extend_capture
+    from cce_nginx_ingress import extend_plan as extend_ingress
     from cce_payment_pipeline_profile import extend_plan
-    return extend_capture(extend_plan(plan, goal), goal)
+    return extend_ingress(extend_capture(extend_plan(plan, goal), goal), goal)

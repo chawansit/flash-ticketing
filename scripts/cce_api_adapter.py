@@ -112,6 +112,8 @@ def authorized_creation(envelope, now=None):
             arm = goal.get("comparison_arm")
             if (arm == "control" and consumed != 0) or (arm == "candidate" and consumed != 1):
                 raise ValueError("Worker placement requires exactly one fresh control followed by one candidate")
+        from cce_nginx_ingress import authorize_sequence
+        authorize_sequence(envelope)
         if consumed >= goal["maximum_paid_stages"]:
             raise ValueError("CCE goal paid-stage allowance already consumed")
         return
@@ -292,7 +294,8 @@ def objects(run, service, primary_ip, registry_username, registry_password, *, a
                 "kind": "Pod",
                 "metadata": {
                     "name": f"api-{index}",
-                    "labels": labels,
+                    "labels": {**labels, **({"codex-api-route": run}
+                        if __import__("cce_nginx_ingress").selected(transaction.active()) else {})},
                     "annotations": {
                         "codex-environment-sha256": policy.digest(env),
                         "codex-command-sha256": policy.digest(service["command"]),
@@ -371,7 +374,7 @@ def receipt(pod, expected, uid, run, startup_proof):
         meta.get("uid") != uid
         or not uid
         or meta.get("name") != expected["metadata"]["name"]
-        or meta.get("labels", {}).get("codex-owner") != run
+        or meta.get("labels") != expected["metadata"]["labels"]
         or meta.get("deletionTimestamp")
         or any(
             meta.get("annotations", {}).get(k) != v for k, v in expected["metadata"]["annotations"].items()
@@ -735,16 +738,18 @@ class KubernetesTransport:
             raise ValueError("Closed CCE certificate transport")
         import cce_transaction_profile as transaction
         goal = transaction.active()
+        from cce_nginx_ingress import allowed_request
+        ingress_path = allowed_request(method, path, body, goal)
         worker_path = bool(goal is not None and goal["extension_decision"] in {"ADR0259", "ADR0271", "ADR0277"} and method == "GET"
                            and re.fullmatch(r"/api/v1/namespaces/flash-cce-[0-9a-f]{12}/pods/(?:consumer-[0-5]|projection-consumer-0|reservation-writer-[0-2]|publisher-0|maintenance-0|reconciler-0|simulator-0)(?:/log\?container=worker&(?:limitBytes=65536|sinceSeconds=60&limitBytes=65536))?", path))
-        if method not in {"GET", "POST", "DELETE"} or not (worker_path or re.fullmatch(
+        if method not in {"GET", "POST", "DELETE"} or not (ingress_path or worker_path or re.fullmatch(
             r"/api/v1/namespaces(?:/flash-cce-[0-9a-f]{12}(?:/(?:pods|secrets)(?:/api-[0-3](?:/log\?container=api&(?:limitBytes=65536|sinceSeconds=(?:600|30)&limitBytes=8388608))?)?)?)?",
             path,
         )):
             raise ValueError("Bounded owned CCE resource path required")
-        if method == "POST" and not (path == "/api/v1/namespaces" or path.endswith(("/pods", "/secrets"))):
+        if method == "POST" and not ingress_path and not (path == "/api/v1/namespaces" or path.endswith(("/pods", "/secrets"))):
             raise ValueError("Creation requires an owned collection path")
-        if method == "DELETE" and not re.fullmatch(r"/api/v1/namespaces/flash-cce-[0-9a-f]{12}", path):
+        if method == "DELETE" and not ingress_path and not re.fullmatch(r"/api/v1/namespaces/flash-cce-[0-9a-f]{12}", path):
             raise ValueError("Cleanup deletes only the exact owned namespace")
         if method == "DELETE" and (
             not isinstance(body, dict) or not body.get("preconditions", {}).get("uid")

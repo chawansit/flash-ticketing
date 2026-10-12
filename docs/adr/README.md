@@ -244,3 +244,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0289: Prepare paid fixtures before fresh transition admission](0289-prepare-fixtures-before-fresh-admission.md) — Fresh admission passed; subsequent hour failed throughput/customer and slot-history gates, with independent recovery verified.
 
 - [ADR0290: Compare CCE-managed ingress with the ECS proxy](0290-compare-cce-managed-ingress.md) — Proposed private ELB route comparison; no deployment or capacity gain claimed.
+
+- [ADR0291: Compare the existing CCE NGINX ingress](0291-compare-existing-cce-nginx-ingress.md) — Accepted bounded customer-entry comparison; no capacity gain measured.

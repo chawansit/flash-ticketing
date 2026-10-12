@@ -56,6 +56,7 @@ class Lifecycle:
         refresh_inventory=None,
         live_admission=False,
         metric_admission=False,
+        ingress_route=None,
     ):
         self.stage, self.session = stage, stage.session
         self.resources, self.deployment, self.transition = resources, deployment, transition
@@ -64,6 +65,7 @@ class Lifecycle:
         self.cleanup_safety = cleanup_safety
         self.identities, self.background_before, self.persist = identities, background_before, persist
         self.live_admission = live_admission
+        self.ingress_route = ingress_route
         self.metric_admission = metric_admission
         if metric_admission:
             from cce_metric_admission import validate_binding
@@ -170,6 +172,10 @@ class Lifecycle:
             if hasattr(self.transition, "worker_runtime") and self.transition.worker_runtime is not None:
                 self.observers.native_workers = self.transition.worker_runtime.bundle
                 self.background_before = self.session.call("primary", INSPECT, 45)
+            if self.ingress_route is not None:
+                self.ingress_route.install(receipts)
+                self.record["ingress_route_ready_before_safety"] = True
+                self.checkpoint()
             self.record["safety"] = self.qualify_safety(receipts)
             require_safety(self.record["safety"])
             self.stage.prepare(fixture, manifest)
@@ -180,6 +186,8 @@ class Lifecycle:
             background_unchanged(self.background_before, before["primary"])
             # Re-observe immutable pod/process receipts immediately before scheduling.
             self.deployment.observe(self.manifests, http_ready, http_metrics, previous=receipts)
+            if self.ingress_route is not None:
+                self.ingress_route.verify()
             start = time.time() + 30
             self.observers.launch_cpu(start, before, self.identities)
             admission = {
@@ -233,6 +241,8 @@ class Lifecycle:
                 self.record["measurement_gates"]["ticket_target_issuance"] = self.stage.record.get("ticket_target_issuance", {}).get("pass") is True
             if self.stage.profile.duration == 3600:
                 self.record["measurement_gates"]["hourly_issuance"] = self.stage.record.get("hourly_issuance", {}).get("pass") is True
+            if self.ingress_route is not None:
+                self.record["measurement_gates"]["unchanged_ingress_route"] = self.ingress_route.verify()
             self.record["pass"] = all(self.record["measurement_gates"].values())
             self.checkpoint()
         except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Always restore independently owned resources.

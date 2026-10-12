@@ -225,9 +225,9 @@ from pathlib import Path
 from uuid import uuid4
 from datetime import UTC,datetime
 p=Path(DIRECTORY);fixture=json.loads((p/'fixture.json').read_text());identity=str(uuid4());expiry=time.time()+TOKEN_LIFETIME
-manifest={'schema_version':1,'environment':'development','id':identity,'origin':'http://10.1.137.69:8000','expires_at':datetime.fromtimestamp(expiry,UTC).isoformat(),'show_ids':fixture['show_ids'],'viewer_tokens':[jwt.encode({'sub':'load-'+identity+'-'+str(i),'aud':'ticketing','iss':'ticketing','exp':expiry},os.environ['JWT_SECRET'],algorithm='HS256') for i in range(EXPECTED)],'seat_offset':0,'seats_per_show':300,'fixture_layout':'distributed'}
+manifest={'schema_version':1,'environment':'development','id':identity,'origin':ORIGIN,'expires_at':datetime.fromtimestamp(expiry,UTC).isoformat(),'show_ids':fixture['show_ids'],'viewer_tokens':[jwt.encode({'sub':'load-'+identity+'-'+str(i),'aud':'ticketing','iss':'ticketing','exp':expiry},os.environ['JWT_SECRET'],algorithm='HS256') for i in range(EXPECTED)],'seat_offset':0,'seats_per_show':300,'fixture_layout':'distributed'}
 (p/'manifest.private.json').write_text(json.dumps(manifest));os.chmod(p/'manifest.private.json',0o600);print(json.dumps({'viewers':len(manifest['viewer_tokens'])}))
-""".replace("DIRECTORY", repr(self.directory + "/paid")).replace("TOKEN_LIFETIME", str(self.stage.profile.token_lifetime)).replace("EXPECTED", str(self.stage.profile.expected))
+""".replace("ORIGIN", repr(self.stage.origin)).replace("DIRECTORY", repr(self.directory + "/paid")).replace("TOKEN_LIFETIME", str(self.stage.profile.token_lifetime)).replace("EXPECTED", str(self.stage.profile.expected))
         result = self.session.api(self.stage.cid, program, 45)
         if result.get("viewers") != self.stage.profile.expected:
             raise ValueError("Incomplete private paid cohort")

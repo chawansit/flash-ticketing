@@ -73,6 +73,9 @@ def authorized_today(envelope, now=None):
             from cce_payment_dispatch_profile import active
             active(goal)
             expected.update(pod_memory_gib=2)
+        from cce_nginx_ingress import selected as ingress_selected
+        if ingress_selected(goal):
+            expected.update(maximum_paid_stages=2)
         decision = "ADR0228"
         if goal.get("extension_decision") == "ADR0277":
             from cce_ticket_target_profile import active
