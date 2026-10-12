@@ -21,7 +21,9 @@ def contract():
         "data_connections": 1, "audit_seconds": 600, "audit_transport_seconds": 780,
         "statistics_schedule_decision": "ADR0288", "statistics_order": "before_cohort",
         "fixture_preparation_decision": "ADR0289",
-        "fixture_preparation_order": "before_transition_admission"}
+        "fixture_preparation_order": "before_transition_admission",
+        "short_fixture_preparation_decision": "ADR0292",
+        "short_fixture_preparation_order": "after_safety"}
 
 
 def selected(goal):
@@ -44,7 +46,9 @@ def validate_inventory(inventory, approved_sha256):
             or marker.get("statistics_schedule_decision") != "ADR0288"
             or marker.get("statistics_order") != "before_cohort"
             or marker.get("fixture_preparation_decision") != "ADR0289"
-            or marker.get("fixture_preparation_order") != "before_transition_admission"):
+            or marker.get("fixture_preparation_order") != "before_transition_admission"
+            or marker.get("short_fixture_preparation_decision") != "ADR0292"
+            or marker.get("short_fixture_preparation_order") != "after_safety"):
         raise ValueError("Exact bounded diagnostic inventory binding required")
     for name in ("independent_database_sampling.py", "database_wait_evidence.py"):
         actual = hashlib.sha256((Path(__file__).parent / name).read_bytes().replace(b"\r\n", b"\n")).hexdigest()

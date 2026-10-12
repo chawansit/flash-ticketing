@@ -246,3 +246,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0290: Compare CCE-managed ingress with the ECS proxy](0290-compare-cce-managed-ingress.md) — Proposed private ELB route comparison; no deployment or capacity gain claimed.
 
 - [ADR0291: Compare the existing CCE NGINX ingress](0291-compare-existing-cce-nginx-ingress.md) — Accepted bounded customer-entry comparison; no capacity gain measured.
+
+- [ADR0292: Prepare short fixtures after expiry safety](0292-prepare-short-fixtures-after-safety.md) — Accepted short staging correction; preserves freshness limits and hourly ordering.

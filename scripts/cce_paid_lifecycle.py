@@ -159,11 +159,14 @@ class Lifecycle:
             # before supplying successful HTTP/readiness evidence; no customer retry.
             receipts = self.deployment.observe(self.manifests, http_ready, http_metrics)
             self.record["native_receipts"] = receipts
-            # ADR0289: bulk inventory/token creation must not age transition admission.
-            fixture_started = time.monotonic()
-            fixture, manifest = self.prepare_fixture()
-            self.record["paid_fixture_prepared_before_admission"] = True
-            self.record["paid_fixture_preparation_seconds"] = time.monotonic() - fixture_started
+            # ADR0289 hourly bulk preparation precedes admission; ADR0292 keeps
+            # short fixtures inside their120-second provenance freshness window.
+            before_admission = self.stage.profile.duration == 3600
+            if before_admission:
+                fixture_started = time.monotonic()
+                fixture, manifest = self.prepare_fixture()
+                self.record["paid_fixture_preparation_seconds"] = time.monotonic() - fixture_started
+            self.record["paid_fixture_prepared_before_admission"] = before_admission
             self.checkpoint()
             if self.refresh_inventory is not None:
                 self.record["transition_inventory_refresh"] = self.refresh_inventory()
@@ -178,6 +181,12 @@ class Lifecycle:
                 self.checkpoint()
             self.record["safety"] = self.qualify_safety(receipts)
             require_safety(self.record["safety"])
+            if not before_admission:
+                fixture_started = time.monotonic()
+                fixture, manifest = self.prepare_fixture()
+                self.record["paid_fixture_preparation_seconds"] = time.monotonic() - fixture_started
+                self.record["short_fixture_staging_decision"] = "ADR0292"
+                self.checkpoint()
             self.stage.prepare(fixture, manifest)
             self.observers.start(receipts)
             if hasattr(self.transition, "verify_workers"):
