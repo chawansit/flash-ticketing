@@ -1,0 +1,38 @@
+{
+  "decision": "ADR0290",
+  "type": "existing_nginx_ingress_readiness",
+  "read_only": true,
+  "service": "kube-system/cceaddon-nginx-ingress-controller",
+  "controller_replicas": 2,
+  "controller_ready_replicas": 2,
+  "controller_resources_each": {
+    "limits": {
+      "cpu": "250m",
+      "memory": "512Mi"
+    },
+    "requests": {
+      "cpu": "250m",
+      "memory": "512Mi"
+    }
+  },
+  "controller_restarts_total": 0,
+  "ready_endpoints": 2,
+  "application_ingress_count": 0,
+  "generator_tcp_ports_reachable": [
+    80,
+    443
+  ],
+  "primary_tcp_ports_reachable": [
+    80,
+    443
+  ],
+  "http_root_status_from_generator": 404,
+  "http_root_status_from_primary": 404,
+  "tls_handshake_qualified": false,
+  "application_route_ready": false,
+  "capacity_measured": false,
+  "new_elbs_created": 0,
+  "customer_writes": 0,
+  "private_receipt_canonical_sha256": "712bb6ae5c3c754c2824e910dcc16ce9fa2e6522ba1cf1015dcb7e425ae2438e",
+  "conclusion": "Existing private ELB and two CCE NGINX controller endpoints are reachable. No application Ingress exists; root404 is consistent with missing application routing, not an application capacity test. New dedicated ELB creation was stopped before authentication/mutation."
+}

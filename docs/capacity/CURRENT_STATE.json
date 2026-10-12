@@ -15267,5 +15267,16 @@
       "hourly_issuance",
       "slot_failure_capture"
     ]
+  },
+  "ingress_readiness_checkpoint": {
+    "decision": "ADR0290",
+    "report": "docs/capacity/cce/existing-ingress-readiness-2026-10-12.json",
+    "read_only": true,
+    "new_elbs_created": 0,
+    "existing_controller_ready_replicas": 2,
+    "generator_reachable": true,
+    "application_route_ready": false,
+    "capacity_measured": false,
+    "next_action": "Evaluate existing CCE NGINX entry point for the fixed-budget comparison; decide route before integrating, with no change to addon-owned ELB configuration."
   }
 }

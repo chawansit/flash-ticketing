@@ -2359,6 +2359,23 @@
           "superseded_at_utc": "2026-10-12T12:32:36.876103+00:00"
         }
       ]
+    },
+    "temporary_cce_ingress_provision_exception": {
+      "decision": "ADR0290",
+      "status": "AUTHORIZED_UNCONSUMED_EXISTING_INGRESS_FOUND",
+      "authorization": "User: No ELB yet. Can you create by kubectl?",
+      "authorized_date_bangkok": "2026-10-12",
+      "maximum_elbs": 1,
+      "network": "private",
+      "public_ips": 0,
+      "maximum_additional_pods": 0,
+      "maximum_capacity_stages": 0,
+      "provisioning_ceiling_seconds": 1800,
+      "namespace": "flash-ingress-adr0290",
+      "monetary_spend_measured": false,
+      "retention": "Prepared for subsequent ingress comparison; exact ownership and billing must be reported; no automatic additional ELB or scaling.",
+      "new_elbs_created": 0,
+      "creation_held_reason": "Existing CCE addon ELB discovered and verified reachable; no provisioning mutation."
     }
   },
   "time": {

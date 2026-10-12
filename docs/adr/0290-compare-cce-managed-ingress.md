@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed on 12 October 2026. Preparation is authorized by the user's request to move ingress to CCE Autopilot. No ingress, load balancer, pods or cloud load have been created by this decision. New dedicated ELB spending requires a specific boundary under the standing work envelope; an existing ELB must have verified ownership and unused listener capacity.
+Accepted for provisioning one private dedicated ELB on 12 October 2026 following the user's explicit request: No ELB yet. Can you create by kubectl? This authorizes one ELB and its owned namespace, ClusterIP Service and Ingress; it does not authorize unrelated infrastructure or paid capacity traffic. Adoption as the benchmark/production entry point remains proposed and conditional on measurement.
 
 No accepted decision is superseded yet. If adopted after measurement, this explicitly replaces the ECS Nginx request-entry routing used by ADR0228 for the selected CCE test topology only. Existing persistence, messaging, idempotency, TTL and resource-budget decisions remain accepted.
 
@@ -33,7 +33,7 @@ The current paid runner pins the ECS origin and its Kubernetes adapter restricts
 
 ## Consequences
 
-This can remove the primary ECS HTTP-proxy bottleneck and provides managed backend updates. It does not move PgBouncer or Kafka, remove generator limits, accelerate database commits or guarantee a ticket-throughput improvement. ELB specifications and charges are distinct from CCE API pod resources; monetary cost has not been estimated or authorized specifically for a new ELB.
+This can remove the primary ECS HTTP-proxy bottleneck and provides managed backend updates. It does not move PgBouncer or Kafka, remove generator limits, accelerate database commits or guarantee a ticket-throughput improvement. ELB specifications and charges are distinct from CCE API pod resources; monetary cost has not been measured; the user's new request authorizes this one private ELB provisioning action.
 
 A short pass is necessary but does not demonstrate hourly stability. The latest failed hourly result and missing slot histories remain failed; this candidate must not overwrite or upgrade them.
 
@@ -58,3 +58,15 @@ Planned: compare short 84 offered journeys/s stages using fresh equal-sized isol
 - [Huawei CCE Autopilot ingress overview](https://support.huaweicloud.com/intl/en-us/usermanual-cce-autopilot/cce_11_0094.html)
 - [LoadBalancer and NGINX controller comparison](https://support.huaweicloud.com/intl/en-us/usermanual-cce-autopilot/cce_11_0850.html)
 - [Creating a LoadBalancer ingress with kubectl](https://support.huaweicloud.com/intl/en-us/usermanual-cce-autopilot/cce_11_0252.html)
+
+## Provisioning boundary
+
+Create exactly one private Layer-7 ELB with the fixed small specification documented by Huawei, one AZ selected from live cluster node labels, no EIP, no public listener and no additional application pods. The provider must validate regional specification availability; do not fall back to a larger/elastic specification or create a second ELB automatically. First perform server-side dry-run. Persist resource UIDs, controller-assigned ELB ID/address and events privately. Reconcile existing owned resources before any repeat creation.
+
+The owned namespace is flash-ingress-adr0290, with ClusterIP Service ticketing-api and Ingress ticketing-private. The Service initially has no API endpoints, deliberately preventing business traffic. Provisioning alone is not API readiness or a capacity result. Keep this resource prepared for subsequent owned backend integration; report that it remains billable and track exact cleanup ownership. Do not attach other resources to its automatically created ELB: Huawei warns that sharing it can leave residual resources on deletion. Existing addon load-balancer Services are outside this ownership and must remain unchanged.
+
+## Existing ingress discovery
+
+The user's subsequent Service manifest and executed read-only inspection prove that a dedicated private ELB already backs kube-system/cceaddon-nginx-ingress-controller. Two NGINX controller pods are Ready with zero restarts, each requesting/limited to250m CPU and512Mi memory. Ports80/443 are TCP-reachable from both generator and primary ECS. HTTP GET / returns404; there are no application Ingress objects. This verifies front-door connectivity, not API routing, TLS readiness, paid customer recovery or capacity. The previous benchmark bypassed this addon through ECS Nginx. See [readiness evidence](../capacity/cce/existing-ingress-readiness-2026-10-12.json).
+
+New ELB provisioning was stopped before authentication or any mutation; the prepared creation manifest remains private and unapplied. The one-ELB authorization is unconsumed. No extra cloud resource was created. Evaluate using this existing NGINX ingress entry point before spending on a second dedicated ELB. The proposed direct managed-ELB topology remains an alternative, not an adopted route. Any controller sizing, routing or comparison-profile choice still needs a recorded decision before implementation; do not share or alter the addon's ELB behind its controller.
