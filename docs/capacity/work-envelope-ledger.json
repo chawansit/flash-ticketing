@@ -2777,6 +2777,35 @@
       "finished_at_utc": "2026-10-12T16:56:35.450664+00:00",
       "paid_runs_started": 0,
       "result_sha256": "bbafb6809f51af6052f52ea601819014450c3fbf65c568093145ecee5f443fab"
+    },
+    {
+      "ledger": "bounded_cce_hourly_qualification__807dc6d936d4",
+      "authorization_id": "work-envelope-807dc6d936d4",
+      "envelope_sha256": "f63a36d16b812ca8893f65e0bcd2b906377053267eb8a640d6fc5628f3d83b4b",
+      "binding_sha256": "9f6be649605aaf499bb3f38db3019e8a54f09426e63ba6a4573182af63c353c1",
+      "plan_sha256": "f4406c7e64b783942c29497a0cf83dd08ae83e4417382166a4f0b9afcf53e253",
+      "profile": "cce_hourly_qualification",
+      "reserved_seconds": 5400,
+      "actual_elapsed_seconds": 956.4220000000205,
+      "started_at_utc": "2026-10-12T17:18:58.243291+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-404948d8e6c9",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-12T17:33:44.644088+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "a40468e51ef2760dbdec3e15e1daf7438c4f54d6db6435d0dde03632064faaa6",
+      "initial_status": "RECOVERY_REQUIRED",
+      "recovery": {
+        "decision": "ADR0295",
+        "evidence": "docs/capacity/cce/existing-ingress-hourly-generator-abort-recovery-2026-10-13.json",
+        "sha256": "b4607fa6195728787da41ae8200d20ce177c0e31e3e8bd3a015a8f1dd1c74527",
+        "actual_elapsed_seconds": 69.75,
+        "capacity_qualified": false
+      }
     }
   ],
   "verified_aborts": {

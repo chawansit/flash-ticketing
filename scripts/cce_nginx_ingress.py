@@ -26,6 +26,9 @@ def contract():
             "control_origin": CONTROL_ORIGIN, "candidate_origin": CANDIDATE_ORIGIN,
             "addon_service_uid": ADDON_UID, "elb_id": ELB_ID, "ingress_class": "nginx",
             "new_elbs": 0, "additional_pods": 0, "additional_database_connections": 0,
+            "hourly_generator_decision": "ADR0295",
+            "hourly_generator_sha256": hashlib.sha256(
+                (policy.ROOT / "scripts/cce_ingress_hourly_generator.py").read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
             "source_sha256": hashlib.sha256(
                 __import__("pathlib").Path(__file__).read_bytes().replace(b"\r\n", b"\n")).hexdigest()}
 

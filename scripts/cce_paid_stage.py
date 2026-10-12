@@ -36,6 +36,7 @@ def sha(raw):
 
 def identity():
     paths = (
+        "scripts/cce_ingress_hourly_generator.py",
         "scripts/cce_bounded_financial_audit.py", "scripts/independent_database_sampling.py",
         "scripts/cce_verification_contract.py", "scripts/cce_metric_admission.py", "scripts/cce_payment_pipeline_identity.py",
         "scripts/cce_payment_pipeline_profile.py", "scripts/cce_payment_pipeline_contract.py",
@@ -123,9 +124,11 @@ def generator_arguments(directory, origin, start_at_epoch, *, profile=None, reco
         raise ValueError("Existing private shared load-balancer origin required")
     if type(start_at_epoch) not in (int, float) or not math.isfinite(start_at_epoch):
         raise ValueError("Finite synchronized start required")
+    ingress_hourly = profile == HOURLY and (transaction.active() or {}).get("ingress_hourly_decision") == "ADR0293"
     return [
         "/root/http-load-venv/bin/python",
-        directory + ("/cce_hourly_paid_generator.py" if profile == HOURLY else "/run_synchronized_paid_generator.py"),
+        directory + ("/cce_ingress_hourly_generator.py" if ingress_hourly else
+                     "/cce_hourly_paid_generator.py" if profile == HOURLY else "/run_synchronized_paid_generator.py"),
         *([] if profile == HOURLY else ["--frozen-generator", directory + "/paid_ticket_sharded_generator.py"]),
         "--start-at-epoch",
         str(start_at_epoch),
@@ -342,7 +345,7 @@ class PaidStage:
         self.session.put("generator", self.gen + "/manifest.private.json", json.dumps(manifest), True)
         self.record["private_manifest_uploaded"] = True
         transferred = {}
-        for name in (*CORE, *(("customer_recovery_client.py", "paid_fixture_layout.py") if self.recovery_enabled else ()), *(("cce_hourly_paid_generator.py", "cce_hourly_paid_leaf.py") if self.profile.duration == 3600 else ())):
+        for name in (*CORE, *(("customer_recovery_client.py", "paid_fixture_layout.py") if self.recovery_enabled else ()), *(("cce_hourly_paid_generator.py", "cce_hourly_paid_leaf.py", "cce_ingress_hourly_generator.py") if self.profile.duration == 3600 else ())):
             raw = self.bundle["scripts/" + name] if name in CORE or name in {"customer_recovery_client.py", "paid_fixture_layout.py"} else (policy.ROOT / "scripts" / name).read_bytes()
             self.session.put("generator", self.gen + "/" + name, raw.decode(), True)
             transferred[name] = sha(raw)
@@ -386,6 +389,12 @@ class PaidStage:
         if type(start) not in (int, float) or not math.isfinite(start) or not 3 <= start - time.time() <= 60:
             raise ValueError("Synchronized start must remain 3 to 60 seconds ahead")
         arguments = generator_arguments(self.gen, self.origin, start, profile=self.profile, recovery_max_attempts=3 if self.recovery_enabled else 1)
+        if self.profile.duration == 3600:
+            from cce_ingress_hourly_generator import preflight
+            preflight(arguments, self.manifest)
+            self.record["hourly_generator_preflight_pass"] = True
+            self.record["hourly_generator_preflight_decision"] = "ADR0295"
+            self.checkpoint()
         state = policy.read(policy.STATE)
         scope = state[self.guard.key]
         if (
@@ -415,7 +424,26 @@ class PaidStage:
             self.session, "generator", self.cid, arguments, self.gen, self.job_list, self.record
         )
         self.jobs.wait(self.session, job, "generator", self.profile.job_timeout, allowed_returncodes={0, 1})
-        self.record["customer"] = json.loads(fetch(self.session, "generator", self.gen + "/customer.json"))
+        try:
+            self.record["customer"] = json.loads(fetch(self.session, "generator", self.gen + "/customer.json"))
+        except FileNotFoundError:
+            # Retain bounded stderr before removing private inputs; never manufacture a report.
+            try:
+                path = self.gen + "/job-" + job["name"] + ".log"
+                program = (
+                    "import json;from pathlib import Path;p=Path(" + repr(path) + ")\n"
+                    "assert p.is_file() and not p.is_symlink()\n"
+                    "with p.open('rb') as stream:\n"
+                    " stream.seek(max(0,p.stat().st_size-65536));tail=stream.read(65536).decode('utf-8',errors='replace')\n"
+                    "print(json.dumps({'log_tail':tail}))"
+                )
+                log = self.session.call("generator", program, 30)
+                policy.write(self.output / "generator-exit-log.private.json", log)
+                self.record["generator_exit_log_retained"] = True
+            except Exception as error:  # noqa: BLE001 - Never replace the original missing-report failure.
+                self.record["generator_exit_log_failure_type"] = type(error).__name__
+            self.checkpoint()
+            raise
         self.checkpoint()
         return self.record["customer"]
 

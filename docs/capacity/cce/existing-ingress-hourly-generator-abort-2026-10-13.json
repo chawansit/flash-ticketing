@@ -1,0 +1,48 @@
+{
+  "decision": "ADR0295",
+  "run": "adr0151-404948d8e6c9",
+  "ledger": "bounded_cce_hourly_qualification__807dc6d936d4",
+  "status": "FAILED_RESTORED",
+  "original_status": "RECOVERY_REQUIRED",
+  "original_result_sha256": "a40468e51ef2760dbdec3e15e1daf7438c4f54d6db6435d0dde03632064faaa6",
+  "reserved_launches_consumed": 1,
+  "dispatched_journeys": 0,
+  "customer_report_available": false,
+  "failure": "sealed_hourly_coordinator_rejected_cce_ingress_origin",
+  "coordinator_exit_code": 1,
+  "native_safety_pass": true,
+  "observer_bootstrap_decision": "ADR0294",
+  "observer_startup_pass": true,
+  "observer_seconds": 4200,
+  "early_observer_coverage": {
+    "elapsed_seconds": 169.9529999999795,
+    "scheduled_delay_seconds": 26.714109897613525,
+    "required_seconds": 3798.667109897593,
+    "observer_seconds": 4200,
+    "pass": true
+  },
+  "cohort_counts": {
+    "orders": 0,
+    "succeeded_payments": 0,
+    "bookings": 0,
+    "tickets": 0,
+    "duplicate_booked_seats": 0
+  },
+  "original_financial_gate_pass": false,
+  "original_integrity_flag": false,
+  "restoration_complete": true,
+  "cleanup_complete": true,
+  "transport_credentials_cleared": true,
+  "independent_recovery": {
+    "decision": "ADR0295",
+    "evidence": "docs/capacity/cce/existing-ingress-hourly-generator-abort-recovery-2026-10-13.json",
+    "sha256": "b4607fa6195728787da41ae8200d20ce177c0e31e3e8bd3a015a8f1dd1c74527",
+    "actual_elapsed_seconds": 69.75,
+    "capacity_qualified": false
+  },
+  "hourly_qualified": false,
+  "capacity_measured": false,
+  "first_attempt_customer_error_rate": null,
+  "generator_drop_rate": null,
+  "note": "Coordinator validation failed before customer shards. Do not interpret absent customer traffic as zero-error capacity. Original report and consumed launch remain unchanged."
+}
