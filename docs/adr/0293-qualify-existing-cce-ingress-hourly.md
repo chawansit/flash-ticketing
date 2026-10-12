@@ -40,3 +40,6 @@ Before implementation: [matched short comparison](../capacity/cce/existing-ingre
 ## First live attempt
 
 Run adr0151-13916e654f05 stopped before paid dispatch after passing native safety, because observer inventory was stale. FAILED_RESTORED, paid_runs_started=0; original failure retained, financial integrity and exact restoration verified. No hourly capacity measurement occurred. See the [abort evidence](../capacity/cce/existing-ingress-hourly-prepaid-abort-2026-10-12.json). ADR0294 corrects the measured hourly startup ordering in a fresh scope without relaxing freshness.
+
+
+The fresh ADR0295 hourly run executed and remains FAILED_RESTORED. Generator launch preflight passed, but customer, guarded hourly-target and observer gates failed. Independent recovery verified the actual dispatched paid cohort and restoration. See [executed hourly result](../capacity/cce/existing-ingress-hourly-result-2026-10-13.json) and ADR0295 for details. This does not supersede or weaken any quality gate.

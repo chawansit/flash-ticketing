@@ -2806,6 +2806,35 @@
         "actual_elapsed_seconds": 69.75,
         "capacity_qualified": false
       }
+    },
+    {
+      "ledger": "bounded_cce_hourly_qualification__caab25e6bfc0",
+      "authorization_id": "work-envelope-caab25e6bfc0",
+      "envelope_sha256": "f061863c19fd9b687ee9ef9f8931bb796d73d206379059b6a5d2929aca2b8451",
+      "binding_sha256": "f98c0e45d8fef848c5cf23a3c411d563a3b519066e0cc27ad230d3c5fd8d6057",
+      "plan_sha256": "585bc79499f7d6d0dd8895fc30ebd7b1051d56ffc046fdd724b8e0e322ce0b14",
+      "profile": "cce_hourly_qualification",
+      "reserved_seconds": 5400,
+      "actual_elapsed_seconds": 4922.000000000116,
+      "started_at_utc": "2026-10-12T17:51:24.105733+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-d15d25621ac5",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-12T19:10:26.495587+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "5fcd9fdc0f193811b7eead6da9ea2aa1a62636350926b9d06cf54893c87d9f9d",
+      "initial_status": "RECOVERY_REQUIRED",
+      "recovery": {
+        "decision": "ADR0295",
+        "evidence": "docs/capacity/cce/existing-ingress-hourly-actual-cohort-recovery-2026-10-13.json",
+        "sha256": "3c91ada16c3a268598b15d3fe9dfdab225d6e0095d9400311464001052426046",
+        "actual_elapsed_seconds": 179.34400000004098,
+        "capacity_qualified": false
+      }
     }
   ],
   "verified_aborts": {

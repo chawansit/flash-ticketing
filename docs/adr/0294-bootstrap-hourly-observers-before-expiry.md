@@ -38,3 +38,6 @@ Before implementation: executed ADR0293 failure, unchanged freshness check and l
 The first corrected wrapper passed cloud readiness but was rejected before experiment registration: its hourly bootstrap marker was retained in the internal structural short-profile view. No deployment or paid stage started. The view now omits that hourly-only marker while the real hourly authorization validates it before translation. The complete composed hourly plan was then executed locally without writes and passed. A regression test covers plan composition and rejection of an unknown bootstrap decision.
 
 After the composition correction, 299 focused tests passed in 146.31 seconds; Ruff and whitespace checks passed. The fresh paid hourly attempt remains pending.
+
+
+The fresh ADR0295 hourly run executed and remains FAILED_RESTORED. Generator launch preflight passed, but customer, guarded hourly-target and observer gates failed. Independent recovery verified the actual dispatched paid cohort and restoration. See [executed hourly result](../capacity/cce/existing-ingress-hourly-result-2026-10-13.json) and ADR0295 for details. This does not supersede or weaken any quality gate.
