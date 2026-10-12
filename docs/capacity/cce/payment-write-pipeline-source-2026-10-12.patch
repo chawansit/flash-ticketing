@@ -1,0 +1,33 @@
+--- a/src/ticketing/api.py
++++ b/src/ticketing/api.py
+@@ -65,6 +65,7 @@
+         settings.db_failure_diagnostics,
+     )
+     db.order_status_read_pipeline = settings.order_status_read_pipeline
++    payment_db.payment_write_pipeline = settings.payment_write_pipeline
+     with ExitStack() as resources:
+         resources.callback(db.close)
+         if payment_db is not db:
+--- a/src/ticketing/config.py
++++ b/src/ticketing/config.py
+@@ -11,6 +11,7 @@
+     webhook_secret: str = os.getenv("WEBHOOK_SECRET", "local-webhook-secret-change-me")
+     environment: str = os.getenv("ENVIRONMENT", "development")
+     order_status_read_pipeline: bool = os.getenv("ORDER_STATUS_READ_PIPELINE", "0") == "1"
++    payment_write_pipeline: bool = os.getenv("PAYMENT_WRITE_PIPELINE", "0") == "1"
+     order_status_cache_ms: int = int(os.getenv("ORDER_STATUS_CACHE_MS", "0"))
+     order_status_event_refresh: bool = os.getenv("ORDER_STATUS_EVENT_REFRESH", "0") == "1"
+     order_status_event_refresh_dedup: bool = os.getenv("ORDER_STATUS_EVENT_REFRESH_DEDUP", "0") == "1"
+--- a/src/ticketing/infrastructure/reservations.py
++++ b/src/ticketing/infrastructure/reservations.py
+@@ -439,7 +439,9 @@
+             "delay_seconds": delay_seconds,
+             "duplicates": duplicates,
+         }
+-        with self.db.transaction() as conn:
++        transaction = (self.db.transaction(pipeline=True)
++                       if getattr(self.db, "payment_write_pipeline", False) else self.db.transaction())
++        with transaction as conn:
+             replay = idem(conn, actor, "payment", key, request)
+             if replay is not None:
+                 return replay

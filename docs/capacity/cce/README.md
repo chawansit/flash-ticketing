@@ -2,6 +2,10 @@
 
 This integration depends on backend PR #6. Merge that PR first, then retarget this stacked PR to main and rerun CI. Repository integration changes neither deployment nor capacity. Do not build a new image from main and label it as the historical benchmark image.
 
+## Latest implementation: ADR0284 (12 October 2026)
+
+[Payment write pipeline](../../adr/0284-pipeline-payment-initiation-writes.md) is implemented behind default-off `PAYMENT_WRITE_PIPELINE`. It preserves payment locking, idempotency, expiry, commit durability and connection budgets. The [local candidate evidence](payment-write-pipeline-local-result-2026-10-12.json) records 80 repository checks and 78 real PostgreSQL/Redis checks inside the exact candidate image, plus copied/installed/imported source verification. Local sequential median payment initiation was 7.065ms off versus 6.028ms on; this does not establish cloud improvement or resolve intermittent slow commits. The image derives from the previously measured immutable image and deliberately excludes a separate repository-only payment-query optimization. No new cloud load or deployment occurred. Complete the retained qualification gaps, then compare off/on at unchanged 84 offered journeys/s and budgets.
+
 ## Latest hourly measurement: ADR0283 (12 October 2026)
 
 [Hourly evidence](observer-cost-hourly-result-2026-10-12.json): **302,298 unique paid-and-issued tickets inside one hour (83.9717/s)**; the conservative boundary count is 302,078. All 302,400 offered journeys dispatched and completed, with zero drops or final failures. Thirty-two initial payment 503 journeys recovered (0.01058%); journey p95 was **2.314 seconds**. The [independent full-cohort audit](observer-cost-hourly-terminal-recovery-2026-10-12.json) verified all 302,400 terminal paid tickets, zero payment loss, double-booking and relationship errors, post-TTL durability, both safety fixtures, empty queues and exact runtime restoration. Test pods, helpers and private inputs were removed; total bounded experiment time was 78.02 minutes.
@@ -22,7 +26,7 @@ The [fixed-budget comparison](committed-status-reuse-result-2026-10-11.json) pas
 
 Read [ADR0280](../../adr/0280-reuse-fresh-committed-order-status.md) for the exact setting and failure/freshness behavior. This is one passing five-minute run; **300,000 tickets in an hour remains unqualified**. The subsequent hourly attempt above failed; this earlier short pass remains valid within its five-minute scope. The original disabled runtime was restored after the experiment.
 
-## Latest measured comparison — 11 October 2026
+## Latest measured comparison â€” 11 October 2026
 
 The [ADR0279 native database bridge comparison](native-database-bridge-result-2026-10-11.json) issued **24,558 unique paid tickets inside five minutes (81.86/s)**, versus 20,279 (67.60/s) in its retained ADR0278 baseline: **21.1% more in-window tickets**. The shared application image, four 1-vCPU/2-GiB APIs, fourteen 250m/512-MiB workers and 24 physical database connections were unchanged. Only the database TCP bridge implementation changed; the explicitly recorded generator-reporting correction changes no traffic behavior.
 

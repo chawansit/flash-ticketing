@@ -4,6 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
+from cce_historical_sources import blob
 from prepare_slot_comparison_sources import pairs as original_pairs
 from stage_status_refresh_images import new_stage_output
 
@@ -31,10 +32,9 @@ def pairs():
     expected = receipt["images"]["control"]
     if {name: sha(raw) for name, raw in control.items()} != expected["runtime_sources_sha256"]:
         raise ValueError("Accepted control sources drifted")
-    path = ROOT / MODULE
-    if path.is_symlink():
-        raise ValueError("Payment source symlink forbidden")
-    before, current = control[MODULE].decode(), path.read_text()
+    # Historical ADR0249 reproduction must not inherit later runtime changes.
+    reviewed_hash = evidence["candidate_source_proof"]["candidate_runtime_sources_sha256"][MODULE]
+    before, current = control[MODULE].decode(), blob(reviewed_hash).decode()
     old_method, new_method = payment_method(before), payment_method(current)
     old_lines, new_lines = before.splitlines(keepends=True), current.splitlines(keepends=True)
     patched = "".join(old_lines[:old_method.lineno - 1]

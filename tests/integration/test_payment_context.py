@@ -12,6 +12,11 @@ from ticketing.infrastructure.postgres import MeasuredCursor
 pytestmark = pytest.mark.integration
 
 
+@pytest.fixture(autouse=True, params=[False, True])
+def payment_pipeline(system, request):
+    system[1].payment_write_pipeline = request.param
+
+
 def initiate(svc, order, key="payment"):
     return svc.initiate_payment("one", order["order_id"], key, "SUCCEEDED", 2, 3)
 

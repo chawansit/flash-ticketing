@@ -53,24 +53,27 @@ class ApiProcess:
         self.client.__exit__(None, None, None)
 
 
-@pytest.fixture(params=["normal", "isolated_shared"])
+@pytest.fixture(params=["normal", "isolated_shared", "normal_pipeline", "isolated_shared_pipeline"])
 def process(system, monkeypatch, request):
     _, db, _ = system
     redis_url = os.environ.get("TEST_REDIS_URL")
     if not redis_url:
         pytest.skip("TEST_REDIS_URL not configured")
-    isolated = request.param == "isolated_shared"
+    isolated = request.param.startswith("isolated_shared")
+    pipeline = request.param.endswith("_pipeline")
     monkeypatch.setattr(api, "settings", replace(
         api.settings, environment="development", database_url=db.pool.conninfo,
         redis_url=redis_url, reservation_mode="postgres", order_status_cache_ms=0, simulator_concurrency=1,
         pool_max=4 if isolated else 3, pool_max_waiting=12 if isolated else 3,
         api_payment_pool_max=2 if isolated else 0, api_pool_shared_waiting=isolated,
+        payment_write_pipeline=pipeline,
     ))
     names = ("db", "payment_db", "cache", "reservations", "payment_reservations", "reservation_intake")
     previous = {name: getattr(api.app.state, name) for name in names if hasattr(api.app.state, name)}
     instance = None
     try:
         instance = ApiProcess()
+        assert api.app.state.payment_db.payment_write_pipeline is pipeline
         yield instance
         if isolated:
             assert api.app.state.db._shared_acquisition_budget.snapshot()["used"] == 0
@@ -512,7 +515,8 @@ def test_lost_response_recovers_across_actual_api_process_restart(system, tmp_pa
         pytest.skip("TEST_REDIS_URL not configured")
     settings = replace(api.settings, environment="development", database_url=db.pool.conninfo,
                        redis_url=redis_url, reservation_mode="postgres", order_status_cache_ms=0,
-                       order_status_read_pipeline=pipeline, pool_max=4, api_payment_pool_max=2,
+                       order_status_read_pipeline=pipeline, payment_write_pipeline=pipeline,
+                       pool_max=4, api_payment_pool_max=2,
                        api_pool_shared_waiting=True)
     process = None
     try:

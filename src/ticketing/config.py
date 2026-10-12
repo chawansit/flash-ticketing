@@ -11,6 +11,7 @@ class Settings:
     webhook_secret: str = os.getenv("WEBHOOK_SECRET", "local-webhook-secret-change-me")
     environment: str = os.getenv("ENVIRONMENT", "development")
     order_status_read_pipeline: bool = os.getenv("ORDER_STATUS_READ_PIPELINE", "0") == "1"
+    payment_write_pipeline: bool = os.getenv("PAYMENT_WRITE_PIPELINE", "0") == "1"
     order_status_cache_ms: int = int(os.getenv("ORDER_STATUS_CACHE_MS", "0"))
     order_status_event_refresh: bool = os.getenv("ORDER_STATUS_EVENT_REFRESH", "0") == "1"
     order_status_event_refresh_dedup: bool = os.getenv("ORDER_STATUS_EVENT_REFRESH_DEDUP", "0") == "1"

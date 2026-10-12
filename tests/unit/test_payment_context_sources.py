@@ -27,14 +27,24 @@ def test_candidate_changes_only_reviewed_payment_method_and_keeps_accepted_begin
 
 
 def test_reviewed_candidate_hash_rejects_unreviewed_method(monkeypatch):
-    original = Path.read_text
+    original = source.blob
 
-    def damaged(path, *args, **kwargs):
-        text = original(path, *args, **kwargs)
-        if path == source.ROOT / source.MODULE:
-            return text.replace("clock_timestamp() AS now", "transaction_timestamp() AS now")
-        return text
+    def damaged(digest):
+        return original(digest).replace(b"clock_timestamp() AS now", b"transaction_timestamp() AS now")
 
-    monkeypatch.setattr(Path, "read_text", damaged)
+    monkeypatch.setattr(source, "blob", damaged)
     with pytest.raises(ValueError, match="reviewed payment"):
         source.pairs()
+
+
+def test_historical_payment_method_does_not_read_mutable_runtime(monkeypatch):
+    original = Path.read_text
+
+    def forbidden(path, *args, **kwargs):
+        if path == source.ROOT / source.MODULE:
+            raise AssertionError("Historical reproduction read live runtime")
+        return original(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", forbidden)
+    pair, _ = source.pairs()
+    assert b"payment_write_pipeline" not in pair["candidate"][source.MODULE]

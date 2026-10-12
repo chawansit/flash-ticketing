@@ -17,6 +17,7 @@ def test_clean_environment_keeps_optional_features_off_and_budgets_bounded():
     fields = {"reservation_mode": "postgres", "hold_seconds": 120, "pool_max": 12,
               "api_payment_pool_max": 0, "api_pool_shared_waiting": False,
               "api_partial_timeout_reclaim": False, "payment_confirmation_async": False,
+              "payment_write_pipeline": False,
               "order_status_cache_ms": 0, "order_status_event_refresh": False,
               "order_status_event_refresh_dedup": False, "order_status_poll_ms": 0,
               "reservation_write_pipeline": False, "reservation_writer_batch_size": 1,

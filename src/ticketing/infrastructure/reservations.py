@@ -438,7 +438,9 @@ class PostgresReservations:
             "delay_seconds": delay_seconds,
             "duplicates": duplicates,
         }
-        with self.db.transaction() as conn:
+        transaction = (self.db.transaction(pipeline=True)
+                       if getattr(self.db, "payment_write_pipeline", False) else self.db.transaction())
+        with transaction as conn:
             replay = idem(conn, actor, "payment", key, request)
             if replay is not None:
                 return replay

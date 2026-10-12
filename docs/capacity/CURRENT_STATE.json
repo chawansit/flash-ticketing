@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-12",
   "branch": "codex/customer-recovery-2026-10-10",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "ADR0283 hour measured302298 unique paid tickets inside3600s;302400 dispatched/completed,0drops/final errors,32initial payment503 journeys recovered. Independent full-cohort audit verified0loss/doubles/relationship errors,queues0,exact restoration. Original qualification FAILED_RESTORED: canonical audit timeout and one2.012s diagnostic gap; no production/maximum-capacity claim.",
+  "status": "ADR0283 hour measured302298 unique paid tickets inside3600s;302400 dispatched/completed,0drops/final errors,32initial payment503 journeys recovered. Independent full-cohort audit verified0loss/doubles/relationship errors,queues0,exact restoration. Original qualification FAILED_RESTORED: canonical audit timeout and one2.012s diagnostic gap; no production/maximum-capacity claim. ADR0284 opt-in payment write pipeline implemented/default off;80 repository and78 exact-image checks passed, local sequential median7.065=>6.028ms. No new cloud load/deployment or cloud improvement measured.",
   "cloud_load_requires_resume": false,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -92,7 +92,8 @@
     "ADR0278 completed one84/s300s baseline:20744 completed journeys,4456 undispatched(17.68%),556 initially errored journeys recovered,0 final customer failures;20279 paid-issued insidewindow(67.5967/s). API1.8855cores of4; DBbridge0.9236 of1core; PgBouncer24active/12waiting peak.594 of625 slot-failure snapshots retained; gate incomplete. Independent audit verified20744 payments/bookings/tickets,0doubles/loss, queues drained and normal runtime restored. Not hour-qualified; no rate increase. Evidence:docs/capacity/cce/timeout-baseline-result-2026-10-11.json.",
     "ADR0281 hourly failed:299782 unique paid tickets inside3600s;300228 afterdrain;2172 drops;302 initial-error journeys allrecovered,0 finalfailures. ADR0282 independent full financial/relationships/duplicates/queues/restoration audit passed; immutable original result retained; FAILED_RESTORED, current_runNone. No hourly capacity qualification.",
     "ADR0283 five-minute84/s paid comparison0c14342140e2 PASSED_RESTORED:25200unique paid-issued,0drops/initial-errors/final-errors/retries/loss/doubles,all10nativegates true,complete CPU/DB/slotdiagnostics,queues0 andnormalruntime restored. Journey p952582.30ms versus4661.10ms reference;25095ticketsinsidewindow. Hour remains unqualified.",
-    "ADR0283 unchanged84/s3600s:302298 unique paid tickets insidehour,302400 terminal paid-issued/customer confirmations,0drops/final errors,32recovered payment503 journeys,p95journey2313.68ms. Independent financial/relationship/postTTL/safety/duplicate audits passed;queues0;normal runtime stable and owned resources removed. Original canonical audit timed out and diagnostic gap2.012074s exceeded2s;FAILED_RESTORED retained."
+    "ADR0283 unchanged84/s3600s:302298 unique paid tickets insidehour,302400 terminal paid-issued/customer confirmations,0drops/final errors,32recovered payment503 journeys,p95journey2313.68ms. Independent financial/relationship/postTTL/safety/duplicate audits passed;queues0;normal runtime stable and owned resources removed. Original canonical audit timed out and diagnostic gap2.012074s exceeded2s;FAILED_RESTORED retained.",
+    "ADR0284: payment initiation pipeline default off; SQL, locks, ownership, TTL and commit durability unchanged.80 repository tests;64 isolated source checks;78 checks inside actual candidate Linux image;22 modules and8 roles verified. Candidate excludes pre-existing repository payment-query optimization. Small local timing is not a cloud capacity result. Historical ADR0283 qualification failures remain unchanged."
   ],
   "unresolved": "ADR0281 failed hour remains failed. ADR0283 short passed; repeat the same84/s3600s qualification using bounded hourly slices and corrected CPU collector. Maximum capacity and causal CPU bottleneck remain unconfirmed.",
   "next_on_resume": "Integrate the existing bounded full-cohort financial audit and isolate DB-statistics sampling to remove the measured2.012s collection gap; retain original failures and quality thresholds. Recheck offline/against retained fixture before any fresh paid scope. Do not increase load.",
@@ -10358,7 +10359,7 @@
     "scope": "Fresh ADR0228 experiment under ADR0172 standing boundaries; exact registered rate only, no replay",
     "cce_result_sha256": "55ec85ff7a06663a7066dd1b8be209add98a32b800bd4d09d31d51f6e9694295"
   },
-  "next_step": "Integrate the existing bounded full-cohort financial audit and isolate DB-statistics sampling to remove the measured2.012s collection gap; retain original failures and quality thresholds. Recheck offline/against retained fixture before any fresh paid scope. Do not increase load.",
+  "next_step": "Integrate the already verified bounded financial audit and complete independent DB statistics sampling, then compare the isolated pipeline candidate off/on at the same 84 offered journeys/s and budgets. Do not increase load or call the new image qualified before a paid comparison.",
   "bounded_cce_dependency_probe__8c7a392324b5": {
     "authorization_id": "work-envelope-8c7a392324b5",
     "binding": {
@@ -12723,5 +12724,17 @@
     "measured_hourly_ticket_target_met": true,
     "hourly_ticket_throughput_qualified": false,
     "independent_recovery_evidence": "docs/capacity/cce/observer-cost-hourly-terminal-recovery-2026-10-12.json"
+  },
+  "latest_payment_write_pipeline_local_result": {
+    "decision": "ADR0284",
+    "evidence": "docs/capacity/cce/payment-write-pipeline-local-result-2026-10-12.json",
+    "evidence_sha256": "88eccf145408bca1dbdf4d2c0b34db88cc7589668b73a3ce51c08b7f8545666e",
+    "default_enabled": false,
+    "local_image_id": "sha256:af83a344af8abfdd2a42228f0fce4b11a65d9aa5a1094c75b170a04d5f973fe2",
+    "repository_tests_passed": 80,
+    "actual_candidate_image_tests_passed": 78,
+    "cloud_deployed": false,
+    "cloud_load_started": false,
+    "cloud_capacity_improvement_measured": false
   }
 }
