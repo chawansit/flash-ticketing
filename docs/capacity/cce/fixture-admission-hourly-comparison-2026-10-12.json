@@ -1,0 +1,70 @@
+{
+  "decision": "ADR0289",
+  "type": "offline_hourly_evidence_comparison",
+  "cloud_load_started_by_analysis": false,
+  "application_image_configuration_and_resources_identical": true,
+  "workload_and_connection_budgets_identical": true,
+  "diagnostic_and_setup_order_changed": true,
+  "randomized_matched_comparison": false,
+  "capacity_improvement_claimed": false,
+  "historical_report": "docs/capacity/cce/metric-admission-hourly-result-2026-10-12.json",
+  "latest_report": "docs/capacity/cce/fixture-admission-hourly-result-2026-10-12.json",
+  "historical": {
+    "run": "adr0151-c6ae41810d96",
+    "raw_result_sha256": "ca0bb5e8a2b4811b2338f34ef0d531fc72dbed23ce630256ac7bd02ccc9ca49a",
+    "inside_hour_tickets": 302290,
+    "dispatched": 302400,
+    "generator_drops": 0,
+    "initial_error_journeys": 28,
+    "final_customer_failures": 0,
+    "order_status_requests_per_dispatched_journey": 2.133452380952381,
+    "api_cpu_cores": 1.264881263673609,
+    "primary_host_mean_cpu_percent": 33.517093047180076,
+    "paid_unfulfilled_peak": 117,
+    "latency_ms": {
+      "dispatch_lag_p95_ms": 3.8552212063223124,
+      "hold_http_p95_ms": 18.41450296342373,
+      "hold_app_p95_ms": 8.17,
+      "hold_client_excess_p95_ms": 10.702194049432872,
+      "payment_http_p95_ms": 91.79929492529482,
+      "payment_app_p95_ms": 80.53,
+      "payment_client_excess_p95_ms": 11.915295977704226,
+      "total_journey_p95_ms": 2598.2972889905795
+    },
+    "hold_pre_send_p95_ms": 2.7931630611419678
+  },
+  "latest": {
+    "run": "adr0151-0ffc00f25bf2",
+    "raw_result_sha256": "02043ef826880663afe66a0a9a0e6738a7b58f9a53cefc1a346df92ef20227ec",
+    "inside_hour_tickets": 297218,
+    "dispatched": 297619,
+    "generator_drops": 4781,
+    "initial_error_journeys": 602,
+    "final_customer_failures": 0,
+    "order_status_requests_per_dispatched_journey": 4.251173480187757,
+    "api_cpu_cores": 1.7150397742398087,
+    "primary_host_mean_cpu_percent": 46.01773392813589,
+    "paid_unfulfilled_peak": 353,
+    "latency_ms": {
+      "dispatch_lag_p95_ms": 174.67462352942675,
+      "hold_http_p95_ms": 371.38008303008974,
+      "hold_app_p95_ms": 8.27,
+      "hold_client_excess_p95_ms": 365.02347306750715,
+      "payment_http_p95_ms": 383.1083429977298,
+      "payment_app_p95_ms": 93.09,
+      "payment_client_excess_p95_ms": 327.9553219303489,
+      "total_journey_p95_ms": 12795.400344999507
+    },
+    "hold_pre_send_p95_ms": 292.7670259959996
+  },
+  "findings": [
+    "Earlier hour met numerical target but failed statistics continuity; it remains failed.",
+    "Latest hour passed statistics continuity and fresh admission but failed customer, throughput and complete slot-history capture.",
+    "Order-status reads per dispatched journey nearly doubled; slower ticket confirmation increases polling work.",
+    "Hold pre-send and client excess delays rose while hold application latency stayed nearly unchanged. Separate percentiles are clues, not additive components or proof of one cause.",
+    "API CPU averaged1.715cores across four allocated cores; short-duration or per-core saturation is not ruled out.",
+    "Existing evidence cannot isolate generator event-loop/transport from ingress, Kafka or database pressure; generator CPU/loop attribution is unavailable.",
+    "105 of640 terminal slot-failure records are missing from retained snapshots. Do not synthesize missing history or upgrade the original gate."
+  ],
+  "next_action": "Attribute generator transport versus primary ingress and delayed issuance from retained evidence, then make one controlled correction. Keep84 offered journeys/s, connection budgets and quality gates unchanged; use a fresh registered scope."
+}

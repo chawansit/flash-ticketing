@@ -2643,6 +2643,35 @@
       "finished_at_utc": "2026-10-12T12:20:46.434114+00:00",
       "paid_runs_started": 0,
       "result_sha256": "0ef8e332d8877936a69ac5b923933a310c9951f9d2ce49c3a04010326b897fc1"
+    },
+    {
+      "ledger": "bounded_cce_hourly_qualification__a0859617a86a",
+      "authorization_id": "work-envelope-a0859617a86a",
+      "envelope_sha256": "3cd1f5007fb824c912277346920f1c6e96a6a5144981e7ba61ba12e69e7abe35",
+      "binding_sha256": "e1ce838423e5e731fc215454d44b654f89599d99156e9fc524374cbfcdb887b6",
+      "plan_sha256": "951dec30edeac1fa0937c7b1bf43ed7c2c551f836b03c160884486a7437223df",
+      "profile": "cce_hourly_qualification",
+      "reserved_seconds": 5400,
+      "actual_elapsed_seconds": 4877.609000000055,
+      "started_at_utc": "2026-10-12T12:32:37.499903+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-0ffc00f25bf2",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-12T13:51:05.622260+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "02043ef826880663afe66a0a9a0e6738a7b58f9a53cefc1a346df92ef20227ec",
+      "initial_status": "RECOVERY_REQUIRED",
+      "recovery": {
+        "decision": "ADR0289",
+        "evidence": "docs/capacity/cce/fixture-admission-hourly-terminal-recovery-2026-10-12.json",
+        "sha256": "137b25fe268afa88aa69af74650bc35dd056a0df5c7ef53efc642427e8076135",
+        "actual_elapsed_seconds": 169.2970000000205,
+        "capacity_qualified": false
+      }
     }
   ],
   "verified_aborts": {
