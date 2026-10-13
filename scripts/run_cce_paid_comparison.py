@@ -201,6 +201,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     from cce_terminal_audit_admission import selected as terminal_selected
     if terminal_selected(goal):
         extra.update(cce_terminal_audit_admission_contract=terminal_contract())
+    from customer_gateway_read_bundle import selected as gateway_selected
+    if gateway_selected(goal):
+        from customer_gateway_read_bundle import contract as gateway_contract
+        extra.update(cce_gateway_read_recovery_contract=gateway_contract())
     binding = {
         **extra,
         "configuration_sha256": policy.digest(config),

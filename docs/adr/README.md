@@ -284,3 +284,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0309: Admit terminal audits after paid work stops](0309-admit-terminal-audits-after-paid-work-stops.md)
 
 - [ADR0310: Classify gateway read failures within the approved SLO](0310-classify-gateway-read-failures-within-approved-slo.md)
+
+- [ADR0311: Activate bounded gateway-read recovery](0311-activate-bounded-gateway-read-recovery.md)

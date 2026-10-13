@@ -1,0 +1,107 @@
+{
+  "decision": "ADR0311",
+  "date_bangkok": "2026-10-13",
+  "run": "adr0151-19ac8d32b4df",
+  "ledger": "bounded_cce_paid_comparison__018812d8ffb1",
+  "status": "PASSED_RESTORED",
+  "original_result_sha256": "d874af069489b42fb22a2c35f1c5222714e7d3fe1a7c92f7c06c39d58e886f41",
+  "pass": true,
+  "gateway_read_recovery_contract": {
+    "decision": "ADR0311",
+    "manifest_sha256": "0b5b91aea11c7cbec6271832af9aa18e30f14b71f5efb67656449d19e8015792",
+    "child_client_sha256": "e1de470a2c01a9ec6d42104cc318393292e27818279182dcc84a392bcb94fa70",
+    "read_gateway_codes": [
+      502,
+      504
+    ],
+    "max_attempts": 3,
+    "deadline_and_jitter_unchanged": true,
+    "writes_unchanged": true,
+    "helper_sha256": "b263a392cee5590b36ce2bb63c69cc1fa653130a4c622723c145b3dfce378e85"
+  },
+  "resources": {
+    "api_pods": 4,
+    "api_cpu_per_pod": 1,
+    "api_memory_gib_per_pod": 2,
+    "background_pods": 14,
+    "physical_database_connections": 24,
+    "admission_limit": 20,
+    "payment_connections_per_api": 3,
+    "general_connections_per_api": 1
+  },
+  "offered_journeys_per_second": 84,
+  "offered_seconds": 300,
+  "customer": {
+    "scheduled": 25200,
+    "dispatched": 25200,
+    "completed": 25200,
+    "fulfilled": 25200,
+    "generator_drops": 0,
+    "first_attempt_error_journeys": 0,
+    "recovered_journeys": 0,
+    "retry_attempts": 0,
+    "final_customer_failures": 0,
+    "outcomes": {
+      "fulfilled": 25200
+    }
+  },
+  "customer_outcome_gate": {
+    "decision": "ADR0305",
+    "contract_sha256": "58b2d8743b61552d4052eb82086906cae13c432a62d23e6b50d433bbd1f0cf74",
+    "denominator_dispatched_journeys": 25200,
+    "final_customer_failures": 0,
+    "maximum_final_customer_failures": 2,
+    "final_customer_failure_percent": 0.0,
+    "first_attempt_error_journeys": 0,
+    "recovered_journeys": 0,
+    "retry_attempts": 0,
+    "total_journey_p95_ms": 2564.304917003028,
+    "checks": {
+      "complete_accounting": true,
+      "unique_confirmed_tickets": true,
+      "completion_deadline": true,
+      "zero_generator_drops": true,
+      "complete_shards": true,
+      "known_customer_failures": true,
+      "bounded_final_failures": true,
+      "dispatch_latency": true,
+      "bounded_recovery": true,
+      "unchanged_strict_success": true
+    },
+    "pass": true
+  },
+  "short_issuance_window": {
+    "window_start_epoch": 1791887510.399228,
+    "window_end_epoch": 1791887810.399228,
+    "unique_paid_issued_tickets": 25099,
+    "unique_orders": 25099,
+    "unique_payments": 25099,
+    "joined_rows": 25099,
+    "conservative_inner_window_tickets": 24913,
+    "inner_window_guard_seconds": 2,
+    "database_now_epoch": 1791888046.514553,
+    "api_helper_now_epoch": 1791888046.5176244,
+    "first_issued_at": "2026-10-13T17:31:51.803461+07:00",
+    "last_issued_at": "2026-10-13T17:36:50.366816+07:00",
+    "pass": false
+  },
+  "measurement_gates": {
+    "customer_load": true,
+    "post_ttl_financial": true,
+    "zero_double_booking": true,
+    "payment_durability": true,
+    "full_queue_drain": true,
+    "native_observer": true,
+    "native_cpu": true,
+    "unchanged_background": true,
+    "unchanged_native_pods": true,
+    "live_admission": true,
+    "unchanged_ingress_route": true
+  },
+  "financial_audit_pass": true,
+  "queues_drained": true,
+  "runtime_restored": true,
+  "integrity_verified": true,
+  "transport_credentials_cleared": true,
+  "interpretation": "Short cloud verification of the sealed gateway-read client, with unchanged image/resources/budgets. No initial errors occurred; gateway502/504 recovery is covered by local fault tests, not exercised by a natural gateway failure in this run. This is not new hourly qualification or permanent error elimination."
+}

@@ -42,6 +42,9 @@ def identity():
         "scripts/cce_customer_outcome_slo.py", "scripts/cce_payment_slot_profile.py",
         "scripts/cce_committed_hourly_profile.py", "scripts/cce_terminal_audit_admission.py",
         "scripts/cce_inventory_renewal.py",
+        "scripts/cce_gateway_read_profile.py", "scripts/customer_gateway_read_bundle.py",
+        "scripts/customer_gateway_read_recovery.py", "scripts/cce_customer_slo_reevaluation.py",
+        "artifacts/customer-gateway-read-recovery/manifest.json",
         "scripts/cce_committed_status_identity.py", "scripts/cce_committed_status_profile.py",
         "scripts/cce_committed_status_contract.py",
         "docs/capacity/cce/committed-fulfillment-status-image-2026-10-13.json",
@@ -232,6 +235,15 @@ class PaidStage:
                 self.bundle, self.coordinator = retain_timeout(self.bundle, self.coordinator)
             elif "cce_timeout_bundle_sha256" in guard.binding:
                 raise ValueError("Unselected timeout-retention binding")
+            from customer_gateway_read_bundle import contract as gateway_contract
+            from customer_gateway_read_bundle import qualify as gateway_qualify
+            from customer_gateway_read_bundle import selected as gateway_selected
+            if gateway_selected(transaction.active()):
+                if guard.binding.get("cce_gateway_read_recovery_contract") != gateway_contract():
+                    raise ValueError("Exact sealed gateway-read workload binding required")
+                self.bundle, self.coordinator = gateway_qualify(self.bundle, self.coordinator)
+            elif "cce_gateway_read_recovery_contract" in guard.binding:
+                raise ValueError("Unselected gateway-read workload binding")
             if self.profile.duration == 3600:
                 from cce_recovery_hourly_profile import qualify_hourly_adapters
                 qualify_hourly_adapters()
@@ -252,6 +264,8 @@ class PaidStage:
             "capacity_stages_started": 0,
             "pinned_harness_files": len(self.bundle),
             "customer_recovery_max_attempts": 3 if self.recovery_enabled else 1,
+            "gateway_read_recovery_contract": (gateway_contract() if self.recovery_enabled
+                and gateway_selected(transaction.active()) else None),
         }
         self.gen = session.config["generator"]["repo"] + "/tmp/" + run + "-cce-candidate"
         from cce_nginx_ingress import origin, validate_binding

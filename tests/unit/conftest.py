@@ -5,7 +5,7 @@ import pytest
 
 HISTORICAL_MODULES = {"test_cce_api_adapter", "test_cce_ecs_transition",
                       "test_cce_paid_observers", "test_cce_transaction_profile", "test_observe_cce_paid_pipeline",
-                      "test_cce_paid_lifecycle", "test_cce_hourly_integration",
+                      "test_cce_paid_lifecycle", "test_cce_paid_stage", "test_cce_hourly_integration",
                       "test_cce_hourly_observer_bootstrap"}
 
 
@@ -18,7 +18,13 @@ def isolate_historical_cloud_scope(request, monkeypatch):
             value = copy.deepcopy(original())
             if policy.ENVELOPE == live_path:
                 goal = value["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"]
-                for key in ("extension_decision", "hourly_qualification_decision", "hourly_adapters_sha256"):
-                    goal.pop(key, None)
+                authority = {"decision", "profile", "maximum_paid_stages", "maximum_pods",
+                             "pod_vcpu", "pod_memory_gib", "offered_journeys_per_second",
+                             "offered_seconds", "maximum_experiment_seconds", "acquisition_budget",
+                             "unlimited_cumulative_time_explicitly_authorized", "spending_allowance",
+                             "ledger_start_index", "authorization", "authorized_at_utc",
+                             "authorized_at_bangkok"}
+                for key in set(goal) - authority:
+                    goal.pop(key)
             return value
         monkeypatch.setattr(policy, "envelope", isolated)

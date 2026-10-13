@@ -54,6 +54,10 @@ def connections(goal):
 def require_control(goal):
     if not selected(goal) or goal["payment_slot_arm"] != "candidate":
         raise ValueError("Candidate requires a fresh payment-slot control")
+    from customer_gateway_read_bundle import selected as gateway_selected
+    if gateway_selected(goal):
+        from cce_gateway_read_profile import require_reference
+        return require_reference(goal)
     from cce_committed_hourly_profile import selected as hourly_selected
     if hourly_selected(goal):
         from cce_committed_hourly_profile import require_short
@@ -104,6 +108,12 @@ def extend_plan(plan, goal):
     if goal["payment_slot_arm"] == "candidate":
         baseline, _ = require_control(goal)
     payment = connections(goal)
+    from customer_gateway_read_bundle import selected as gateway_selected
+    if gateway_selected(goal):
+        from cce_gateway_read_profile import extend_plan as gateway_plan
+        return gateway_plan({**plan, "payment_connections_per_api": payment,
+                             "general_connections_per_api": 4 - payment,
+                             "connections_per_api": 4}, goal)
     return {**plan, "kind": "fixed_budget_payment_slot_comparison",
             "single_changed_factor": "API_PAYMENT_POOL_MAX", "payment_slot_decision": "ADR0306",
             "payment_slot_arm": goal["payment_slot_arm"],
@@ -133,6 +143,10 @@ def validate_service_semantics(goal, original, binding):
 
 
 def validate_candidate_binding(goal, binding):
+    from customer_gateway_read_bundle import selected as gateway_selected
+    if gateway_selected(goal):
+        from cce_gateway_read_profile import validate_binding
+        return validate_binding(goal, binding)
     require_control(goal)
     original = policy.read(policy.STATE)[goal["control_ledger"]]["binding"]
     reference = copy.deepcopy(original)

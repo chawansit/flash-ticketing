@@ -3096,6 +3096,27 @@
       "finished_at_utc": "2026-10-13T09:28:09.711477+00:00",
       "paid_runs_started": 1,
       "result_sha256": "4bb87df75913d721c1ce874c09db0db551640bb571a7640a7607105c11e270d1"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__018812d8ffb1",
+      "authorization_id": "work-envelope-018812d8ffb1",
+      "envelope_sha256": "d5dd38004e5870ac4b13b066696ac59883ce79551342ba99ace11ea0cd2bb100",
+      "binding_sha256": "a44d71183eac2bf6fc0783fa1f856ae394173178495a7954a3f6e548e4ec6275",
+      "plan_sha256": "612e557153ebec4ab49a3c673f464f97a68158cf1f37be7df53643d30718ad59",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1423.734000000055,
+      "started_at_utc": "2026-10-13T10:18:49.455128+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-19ac8d32b4df",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-13T10:42:32.782192+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "d874af069489b42fb22a2c35f1c5222714e7d3fe1a7c92f7c06c39d58e886f41"
     }
   ],
   "verified_aborts": {
