@@ -155,10 +155,46 @@ def test_partition_same_total_and_reject_combined_factors(monkeypatch):
 
 
 def test_candidate_binding_rejects_other_changes(monkeypatch):
-    monkeypatch.setattr(slots, "require_control", lambda _: ("path", {"comparison_binding": {
-        "cce_payment_pool_max": 2, "configuration_sha256": "same", "cce_acquisition_budget": 20}}))
-    slots.validate_candidate_binding(goal("candidate"), {
-        "cce_payment_pool_max": 3, "configuration_sha256": "same", "cce_acquisition_budget": 20})
+    ledger = "bounded_cce_paid_comparison__123456abcdef"
+    value = {**goal("candidate"), "control_ledger": ledger}
+    original = {"cce_payment_pool_max": 2, "configuration_sha256": "same", "cce_acquisition_budget": 20,
+                "cce_paid_core_sources": {}, "cce_paid_entry_sources": {}}
+    monkeypatch.setattr(slots, "require_control", lambda _: ("path", {}))
+    monkeypatch.setattr(policy, "read", lambda _: {ledger: {"binding": original}})
+    monkeypatch.setattr(slots, "validate_service_semantics", lambda *_: None)
+    current = {**original, "cce_payment_pool_max": 3}
+    slots.validate_candidate_binding(value, current)
     with pytest.raises(ValueError):
-        slots.validate_candidate_binding(goal("candidate"), {
-            "cce_payment_pool_max": 3, "configuration_sha256": "different", "cce_acquisition_budget": 20})
+        slots.validate_candidate_binding(value, {**current, "configuration_sha256": "different"})
+
+
+def test_only_reviewed_validator_source_lineage_allowed():
+    old = {slots.SELF: slots.REVIEWED_PRIOR_VALIDATOR, "application.py": "same"}
+    assert slots.compatible_sources(old, {**old, slots.SELF: "new"})
+    with pytest.raises(ValueError):
+        slots.compatible_sources(old, {**old, "application.py": "different"})
+    with pytest.raises(ValueError):
+        slots.compatible_sources({**old, slots.SELF: "unreviewed"}, {**old, slots.SELF: "new"})
+
+
+def test_saved_service_allows_only_exact_partition(tmp_path, monkeypatch):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
+    import run_cce_paid_comparison as core
+    p = tmp_path / "tmp" / "scope" / "snapshot.private.json"
+    p.parent.mkdir(parents=True)
+    p.write_text('{"saved":{}}')
+    monkeypatch.setattr(policy, "ROOT", tmp_path)
+    monkeypatch.setattr(core, "service_for", lambda _: {})
+    candidate = {"environment": {"API_PAYMENT_POOL_MAX": "3", "database": "same"}, "image": "same"}
+    monkeypatch.setattr(core, "api_semantics", lambda _: copy.deepcopy(candidate))
+    control = copy.deepcopy(candidate)
+    control["environment"]["API_PAYMENT_POOL_MAX"] = "2"
+    value = {"payment_slot_snapshot_path": "tmp/scope/snapshot.private.json"}
+    slots.validate_service_semantics(value,
+        {"saved_api_service_sha256": policy.digest(control)},
+        {"saved_api_service_sha256": policy.digest(candidate)})
+    candidate["environment"]["database"] = "changed"
+    with pytest.raises(ValueError):
+        slots.validate_service_semantics(value,
+            {"saved_api_service_sha256": policy.digest(control)},
+            {"saved_api_service_sha256": policy.digest(candidate)})
