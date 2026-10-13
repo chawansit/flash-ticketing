@@ -44,6 +44,11 @@ def image_pair():
 def active(envelope=None):
     envelope = policy.envelope() if envelope is None else envelope
     goal = envelope.get("spending", {}).get("temporary_cce_pilot_exception", {}).get("goal_bounded_authorization", {})
+    from cce_recovery_headroom import selected as headroom_selected
+    if headroom_selected(goal):
+        from cce_recovery_headroom import require_short, runtime_view
+        require_short(goal)
+        return runtime_view(goal)
     from cce_status_reuse_hourly import selected as hourly_selected
     if hourly_selected(goal):
         from cce_status_reuse_hourly import active as hourly_active

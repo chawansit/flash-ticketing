@@ -41,7 +41,8 @@ def identity():
         "scripts/cce_runtime_cohort_profile.py", "scripts/paid_cohort_query.py",
         "scripts/cce_customer_outcome_slo.py", "scripts/cce_payment_slot_profile.py",
         "scripts/cce_committed_hourly_profile.py", "scripts/cce_terminal_audit_admission.py",
-        "scripts/cce_inventory_renewal.py",
+        "scripts/cce_inventory_renewal.py", "scripts/cce_recovery_headroom.py",
+        "scripts/cce_writer_scale_verification.py",
         "scripts/cce_gateway_read_profile.py", "scripts/customer_gateway_read_bundle.py",
         "scripts/customer_gateway_read_recovery.py", "scripts/cce_customer_slo_reevaluation.py",
         "artifacts/customer-gateway-read-recovery/manifest.json",
@@ -121,11 +122,11 @@ def generator_bundle():
 
 
 def generator_arguments(directory, origin, start_at_epoch, *, profile=None, recovery_max_attempts=1):
-    from cce_paid_profiles import HOURLY, SHORT, TICKET_TARGET
+    from cce_paid_profiles import HEADROOM, HOURLY, SHORT, TICKET_TARGET
     profile = SHORT if profile is None else profile
-    if recovery_max_attempts not in (1, 3) or (recovery_max_attempts == 3 and profile not in (SHORT, HOURLY, TICKET_TARGET)):
+    if recovery_max_attempts not in (1, 3) or (recovery_max_attempts == 3 and profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM)):
         raise ValueError("Recovery requires the explicit registered comparison or hourly binding")
-    if profile not in (SHORT, HOURLY, TICKET_TARGET):
+    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM):
         raise ValueError("Exact CCE stage profile required")
     if not re.fullmatch(r"/[^\x00\r\n]*?/tmp/adr0151-[0-9a-f]{12}-cce-candidate", directory):
         raise ValueError("Canonical owned generator directory required")
@@ -149,7 +150,7 @@ def generator_arguments(directory, origin, start_at_epoch, *, profile=None, reco
         "--output",
         directory + "/customer.json",
         "--rate",
-        "168" if profile == TICKET_TARGET else "84",
+        str(profile.expected // profile.duration),
         "--seconds",
         str(profile.duration),
         "--completion-deadline-seconds",
@@ -228,7 +229,8 @@ class PaidStage:
             from customer_timeout_bundle import qualify as retain_timeout
             from customer_timeout_bundle import selected
             if selected(transaction.active()):
-                if (self.profile.name not in {"cce_paid_comparison", "cce_hourly_qualification"}
+                from cce_paid_profiles import HEADROOM
+                if (self.profile.name not in {"cce_paid_comparison", "cce_hourly_qualification"} and self.profile != HEADROOM
                         or guard.binding.get("cce_timeout_retention_decision") != "ADR0278"
                         or guard.binding.get("cce_timeout_bundle_sha256") != timeout_sha):
                     raise ValueError("Exact timeout-retention binding required")
@@ -244,6 +246,15 @@ class PaidStage:
                 self.bundle, self.coordinator = gateway_qualify(self.bundle, self.coordinator)
             elif "cce_gateway_read_recovery_contract" in guard.binding:
                 raise ValueError("Unselected gateway-read workload binding")
+            from cce_paid_profiles import HEADROOM
+            if self.profile == HEADROOM:
+                from cce_recovery_headroom import contract as headroom_contract
+                from cce_recovery_headroom import qualify_workload
+                if guard.binding.get("cce_headroom_contract") != headroom_contract():
+                    raise ValueError("Exact headroom workload binding required")
+                self.bundle, self.coordinator = qualify_workload(self.bundle, self.coordinator)
+            elif "cce_headroom_contract" in guard.binding:
+                raise ValueError("Unselected headroom workload binding")
             if self.profile.duration == 3600:
                 from cce_recovery_hourly_profile import qualify_hourly_adapters
                 qualify_hourly_adapters()
@@ -513,9 +524,10 @@ class PaidStage:
                 errors.append(name)
             self.checkpoint()
         import cce_transaction_profile as transaction
+        from cce_paid_profiles import HEADROOM
         from customer_timeout_bundle import issuance_program as short_window
         from customer_timeout_bundle import selected
-        if selected(transaction.active()) and self.profile.duration == 300:
+        if selected(transaction.active()) and self.profile.duration == 300 and self.profile != HEADROOM:
             try:
                 start = datetime.fromisoformat(self.record["scheduled_offered_start_utc"]).timestamp()
                 self.record["short_issuance_window"] = self.session.api(self.cid, short_window(self.events, start), 90)
@@ -524,7 +536,10 @@ class PaidStage:
                 errors.append("short_issuance_window")
             self.checkpoint()
         if self.profile.name == "cce_ticket_target":
-            from cce_ticket_target_profile import issuance_program
+            if self.profile == HEADROOM:
+                from cce_recovery_headroom import issuance_program
+            else:
+                from cce_ticket_target_profile import issuance_program
             start = datetime.fromisoformat(self.record["scheduled_offered_start_utc"]).timestamp()
             self.record["ticket_target_issuance"] = self.session.api(self.cid, issuance_program(self.events, start), 90)
             self.checkpoint()

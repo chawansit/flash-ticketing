@@ -25,7 +25,7 @@ def environment(role, values, primary_ip, decision="ADR0259"):
         if result.get("API_URL") != "http://load-balancer:8000":
             raise ValueError("Shared callback route required")
         result["API_URL"] = "http://" + cce.private_ip(primary_ip) + ":8000"
-    if decision == "ADR0298":
+    if decision in {"ADR0298", "ADR0315"}:
         from cce_committed_status_profile import selected
         from cce_transaction_profile import active
         goal = active()
@@ -36,17 +36,17 @@ def environment(role, values, primary_ip, decision="ADR0259"):
 
 
 def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None):
-    from cce_paid_profiles import HOURLY, SHORT, TICKET_TARGET
+    from cce_paid_profiles import HEADROOM, HOURLY, SHORT, TICKET_TARGET
     profile = SHORT if profile is None else profile
-    if profile not in (SHORT, HOURLY, TICKET_TARGET):
+    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM):
         raise ValueError("Exact worker lifetime profile required")
     selected = identity.specification(decision)
     if set(environments) != set(selected["counts"]):
         raise ValueError("Complete worker environments required")
     namespace = cce.dependency.namespace_for(run)
     result = []
-    if decision in {"ADR0271", "ADR0285", "ADR0298"}:
-        if decision == "ADR0298":
+    if decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315"}:
+        if decision in {"ADR0298", "ADR0315"}:
             from cce_committed_status_profile import image
         elif decision == "ADR0285":
             from cce_payment_pipeline_profile import image
@@ -204,8 +204,8 @@ class Workers:
                     continue
                 views.append(receipt(pod, expected, self.deployment.run, self.uids[name], log, metrics, self.decision))
             if not pending:
-                if self.decision in {"ADR0271", "ADR0285", "ADR0298"}:
-                    if self.decision == "ADR0298":
+                if self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315"}:
+                    if self.decision in {"ADR0298", "ADR0315"}:
                         from cce_committed_status_profile import image
                     elif self.decision == "ADR0285":
                         from cce_payment_pipeline_profile import image

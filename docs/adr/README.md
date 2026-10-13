@@ -286,3 +286,11 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0310: Classify gateway read failures within the approved SLO](0310-classify-gateway-read-failures-within-approved-slo.md)
 
 - [ADR0311: Activate bounded gateway-read recovery](0311-activate-bounded-gateway-read-recovery.md)
+
+- [ADR0312: Bound headroom on the qualified recovery runtime](0312-bound-headroom-on-qualified-recovery-runtime.md)
+
+- [ADR0313: Reconcile the failed headroom cohort](0313-reconcile-failed-headroom-cohort.md)
+
+- [ADR0314: Rebalance general slots at headroom](0314-rebalance-general-slots-at-headroom.md)
+
+- [ADR0315: Scale reservation-writer concurrency](0315-scale-reservation-writer-concurrency.md)

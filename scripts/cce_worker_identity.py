@@ -12,6 +12,10 @@ RESOURCES = {k: {"cpu": "250m", "memory": "512Mi"} for k in ("requests", "limits
 
 
 def specification(decision="ADR0259"):
+    if decision == "ADR0315":
+        parent = specification("ADR0298")
+        return {**parent, "decision": decision,
+                "counts": {**parent["counts"], "reservation-writer": 4}}
     if decision == "ADR0259":
         return {"decision": decision, "counts": dict(COUNTS), "manifest": MANIFEST,
                 "image_id": ECS_IMAGE_ID, "source": SOURCE, "resources": RESOURCES}

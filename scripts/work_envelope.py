@@ -180,8 +180,12 @@ def reserve(binding, plan, *, profile=PROFILE):
         if plan != cce_plan(binding.get("dependency_transport", "pooler")) or binding.get("cce_sources") != identity():
             raise ValueError("Exact qualified CCE dependency probe required")
         expected_arms = []
+    from cce_recovery_headroom import RATE
+    from cce_recovery_headroom import selected as headroom_selected
+    headroom = (profile == "cce_ticket_target" and headroom_selected(
+        data["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"]))
     if (plan.get("decision") != decision or plan.get("arms") != expected_arms
-            or plan.get("common", {}).get("buyer_journeys_per_second") != (0 if profile == "cce_dependency_probe" else 168 if profile == "cce_ticket_target" else 84 if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe', 'cce_paid_comparison', 'cce_hourly_qualification'} else 60)
+            or plan.get("common", {}).get("buyer_journeys_per_second") != (0 if profile == "cce_dependency_probe" else RATE if headroom else 168 if profile == "cce_ticket_target" else 84 if profile in {"shared_callback_rate_probe", "interleaved_refresh_probe", "orders_event_index_probe", 'writer_write_pipeline_probe', 'generator_completion_probe', 'cce_paid_comparison', 'cce_hourly_qualification'} else 60)
             or plan["common"].get("duration_seconds") != (0 if profile == "cce_dependency_probe" else 3600 if profile == "cce_hourly_qualification" else 300)):
         raise ValueError("Only locally qualified unchanged diagnostic control permitted")
     if profile in {"api_placement_rebalance", "application_role_rebalance", "diagnostic_placement"} and (

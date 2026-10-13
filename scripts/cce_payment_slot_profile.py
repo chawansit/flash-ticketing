@@ -54,6 +54,10 @@ def connections(goal):
 def require_control(goal):
     if not selected(goal) or goal["payment_slot_arm"] != "candidate":
         raise ValueError("Candidate requires a fresh payment-slot control")
+    from cce_recovery_headroom import selected as headroom_selected
+    if headroom_selected(goal):
+        from cce_recovery_headroom import require_short
+        return require_short(goal)
     from customer_gateway_read_bundle import selected as gateway_selected
     if gateway_selected(goal):
         from cce_gateway_read_profile import require_reference
@@ -108,6 +112,10 @@ def extend_plan(plan, goal):
     if goal["payment_slot_arm"] == "candidate":
         baseline, _ = require_control(goal)
     payment = connections(goal)
+    from cce_recovery_headroom import selected as headroom_selected
+    if headroom_selected(goal):
+        from cce_recovery_headroom import extend_plan as headroom_plan
+        return headroom_plan(plan, goal)
     from customer_gateway_read_bundle import selected as gateway_selected
     if gateway_selected(goal):
         from cce_gateway_read_profile import extend_plan as gateway_plan
@@ -143,6 +151,10 @@ def validate_service_semantics(goal, original, binding):
 
 
 def validate_candidate_binding(goal, binding):
+    from cce_recovery_headroom import selected as headroom_selected
+    if headroom_selected(goal):
+        from cce_recovery_headroom import validate_binding
+        return validate_binding(goal, binding)
     from customer_gateway_read_bundle import selected as gateway_selected
     if gateway_selected(goal):
         from cce_gateway_read_profile import validate_binding

@@ -48,7 +48,8 @@ def summarize_independent_diagnostics(record, rows, path, receipts, start, end, 
             return summarize_slots(rows, admitted, extra_records=endpoints(slot_log_evidence, receipts))
         operations.append(("slot_failure_capture", slot_history))
     if summarize_pipeline is not None:
-        operations.append(("pipeline_summary", lambda: summarize_pipeline(rows)))
+        from cce_writer_scale_verification import summary as declared_summary
+        operations.append(("pipeline_summary", lambda: declared_summary(rows, native_workers, summarize_pipeline)))
     if native_workers is not None:
         from observe_cce_workers import summarize as summarize_workers
         operations.append(("native_worker_cpu", lambda: summarize_workers(rows, native_workers, start, end)))
@@ -426,7 +427,9 @@ class Observers:
             time.sleep(1)
         if self.runtime_cohort is not None and status["pipeline"].get("runtime_cohort_contract") != self.runtime_cohort:
             raise ValueError("Runtime observer query receipt missing before dispatch")
-        self.record["pipeline_startup"] = pipeline_startup_view(status["pipeline"], 6)
+        from cce_writer_scale_verification import startup as declared_startup
+        self.record["pipeline_startup"] = declared_startup(
+            status["pipeline"], getattr(self, "native_workers", None), pipeline_startup_view)
         self.record["kafka_startup"] = kafka_startup_view(status["kafka"], 6)
         if (
             not self.record["pipeline_startup"]["pass"]
@@ -621,7 +624,8 @@ class Observers:
         self.record["observer_pass"] = (
             not failures
             and self.record.get("database_wait_capture", {}).get("complete") is True
-            and pipeline_pass(self.record.get("pipeline_summary", {}))
+            and __import__("cce_writer_scale_verification").pipeline(
+                self.record.get("pipeline_summary", {}), getattr(self, "native_workers", None), pipeline_pass)
             and kafka_pass(self.record.get("kafka_summary", {}))
             and (not getattr(self, "event_lanes", False) or self.record.get("projection_kafka_pass") is True)
         )

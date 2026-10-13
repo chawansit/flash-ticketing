@@ -78,6 +78,10 @@ def contract():
     from cce_payment_slot_profile import selected as slot_selected
     if slot_selected(goal):
         data["api_settings"]["API_PAYMENT_POOL_MAX"] = str(connections(goal))
+    from cce_recovery_headroom import RATE
+    from cce_recovery_headroom import selected as headroom_selected
+    if headroom_selected(goal):
+        data["workload"].update(offered_journeys_per_second=RATE, concurrency=500)
     return data
 
 
@@ -120,7 +124,13 @@ def authorized_creation(envelope, now=None):
             if (arm == "control" and consumed != 0) or (arm == "candidate" and consumed != 1):
                 raise ValueError("Worker placement requires exactly one fresh control followed by one candidate")
         from cce_nginx_ingress import authorize_sequence
-        authorize_sequence(envelope)
+        from cce_recovery_headroom import runtime_view
+        from cce_recovery_headroom import selected as headroom_selected
+        route_envelope = envelope
+        if headroom_selected(goal):
+            route_envelope = copy.deepcopy(envelope)
+            route_envelope["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"] = runtime_view(goal)
+        authorize_sequence(route_envelope)
         if consumed >= goal["maximum_paid_stages"]:
             raise ValueError("CCE goal paid-stage allowance already consumed")
         return
@@ -258,9 +268,9 @@ os.execvp(command[0],command)
 
 
 def objects(run, service, primary_ip, registry_username, registry_password, *, acquisition_budget=12, profile=None):
-    from cce_paid_profiles import HOURLY, SHORT, TICKET_TARGET
+    from cce_paid_profiles import HEADROOM, HOURLY, SHORT, TICKET_TARGET
     profile = SHORT if profile is None else profile
-    if profile not in (SHORT, HOURLY, TICKET_TARGET):
+    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM):
         raise ValueError("Exact native lifetime profile required")
     """Private payloads: never publish returned Secrets."""
     import cce_transaction_profile as transaction
@@ -750,8 +760,10 @@ class KubernetesTransport:
         goal = transaction.active()
         from cce_nginx_ingress import allowed_request
         ingress_path = allowed_request(method, path, body, goal)
+        from cce_recovery_headroom import writer_scale_selected
+        writer_indices = "0-3" if writer_scale_selected(goal) else "0-2"
         worker_path = bool(goal is not None and goal["extension_decision"] in {"ADR0259", "ADR0271", "ADR0277"} and method == "GET"
-                           and re.fullmatch(r"/api/v1/namespaces/flash-cce-[0-9a-f]{12}/pods/(?:consumer-[0-5]|projection-consumer-0|reservation-writer-[0-2]|publisher-0|maintenance-0|reconciler-0|simulator-0)(?:/log\?container=worker&(?:limitBytes=65536|sinceSeconds=60&limitBytes=65536))?", path))
+                           and re.fullmatch(r"/api/v1/namespaces/flash-cce-[0-9a-f]{12}/pods/(?:consumer-[0-5]|projection-consumer-0|reservation-writer-[" + writer_indices + r"]|publisher-0|maintenance-0|reconciler-0|simulator-0)(?:/log\?container=worker&(?:limitBytes=65536|sinceSeconds=60&limitBytes=65536))?", path))
         if method not in {"GET", "POST", "DELETE"} or not (ingress_path or worker_path or re.fullmatch(
             r"/api/v1/namespaces(?:/flash-cce-[0-9a-f]{12}(?:/(?:pods|secrets)(?:/api-[0-3](?:/log\?container=api&(?:limitBytes=65536|sinceSeconds=(?:600|30)&limitBytes=8388608))?)?)?)?",
             path,

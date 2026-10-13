@@ -16,7 +16,7 @@ from cce_ecs_transition import Transition
 from cce_paid_inputs import Inputs
 from cce_paid_lifecycle import Lifecycle
 from cce_paid_observers import Observers
-from cce_paid_profiles import HOURLY, SHORT, TICKET_TARGET, for_guard
+from cce_paid_profiles import HEADROOM, HOURLY, SHORT, TICKET_TARGET, for_guard
 from cce_paid_resources import BRIDGE_CPU_LIMIT, Resources
 from diagnostic_runner_connection import ProtectedContext, validate_target
 from run_status_refresh_comparison import RunLock, restoration_complete
@@ -45,6 +45,10 @@ def identity():
 def plan(*, profile=SHORT):
     import cce_transaction_profile as transaction
     goal = transaction.active()
+    from cce_recovery_headroom import selected as headroom_selected
+    if headroom_selected(goal):
+        from cce_recovery_headroom import plan as headroom_plan
+        return headroom_plan(goal)
     if goal is not None:
         if profile == HOURLY and (goal.get("extension_decision") in {"ADR0251", "ADR0256"}
                                   or goal.get("hourly_qualification_decision") == "ADR0281"):
@@ -205,6 +209,16 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     if gateway_selected(goal):
         from customer_gateway_read_bundle import contract as gateway_contract
         extra.update(cce_gateway_read_recovery_contract=gateway_contract())
+    from cce_recovery_headroom import selected as headroom_selected
+    if headroom_selected(goal):
+        from cce_recovery_headroom import contract as headroom_contract
+        extra.update(cce_headroom_contract=headroom_contract())
+        from cce_recovery_headroom import writer_scale_contract, writer_scale_selected
+        if writer_scale_selected(goal):
+            from cce_worker_rebalance_profile import factor
+            scale_contract = writer_scale_contract()
+            extra.update(cce_writer_scale_contract=scale_contract,
+                         cce_worker_placement_factor={**factor(), "worker_counts": scale_contract["native_counts"]})
     binding = {
         **extra,
         "configuration_sha256": policy.digest(config),
@@ -229,6 +243,9 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     if committed_hourly(goal):
         from cce_committed_hourly_profile import validate_binding as validate_hourly
         binding["cce_committed_hourly_qualification"] = validate_hourly(goal, binding)
+    elif headroom_selected(goal):
+        from cce_recovery_headroom import validate_binding as validate_headroom
+        validate_headroom(goal, binding)
     elif slot_selected(goal) and goal["payment_slot_arm"] == "candidate":
         from cce_payment_slot_profile import validate_candidate_binding as validate_slots
         validate_slots(goal, binding)
@@ -237,7 +254,7 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
 
 
 def entry_for(profile):
-    if profile in (SHORT, TICKET_TARGET):
+    if profile in (SHORT, TICKET_TARGET, HEADROOM):
         return sys.modules[__name__]
     if profile == HOURLY:
         import run_cce_hourly_qualification

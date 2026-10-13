@@ -43,6 +43,12 @@ def authorized_today(envelope, now=None):
     if mode == "goal_bounded":
         goal = exception.get("goal_bounded_authorization", {})
         budget = goal.get("spending_allowance", {})
+        from cce_recovery_headroom import RATE, runtime_view
+        from cce_recovery_headroom import selected as headroom_selected
+        actual_goal = goal
+        headroom = headroom_selected(goal)
+        if headroom:
+            goal = runtime_view(goal)
         expected = {
             "profile": "cce_paid_comparison", "maximum_paid_stages": 1,
             "maximum_pods": 4, "pod_vcpu": 1, "pod_memory_gib": 1,
@@ -83,7 +89,10 @@ def authorized_today(envelope, now=None):
             from cce_ticket_target_profile import active
             active(goal)
             decision = "ADR0277"
-            expected.update(profile="cce_ticket_target", maximum_pods=18, pod_memory_gib=2, offered_journeys_per_second=168)
+            from cce_recovery_headroom import RATE
+            from cce_recovery_headroom import selected as headroom_selected
+            expected.update(profile="cce_ticket_target", maximum_pods=18, pod_memory_gib=2,
+                            offered_journeys_per_second=RATE if headroom_selected(goal) else 168)
             if goal.get("worker_resources") != {"cpu": "250m", "memory": "512Mi"}:
                 raise ValueError("Exact ticket-target worker resources required")
         if goal.get("profile") == "cce_hourly_qualification":
@@ -99,6 +108,12 @@ def authorized_today(envelope, now=None):
                 baseline_sha256 = hourly_plan()["baseline_sha256"]
             if goal.get("acquisition_budget") != 20 or goal.get("baseline_sha256") != baseline_sha256:
                 raise ValueError("Passing short baseline and unchanged hourly configuration required")
+        if headroom:
+            goal = actual_goal
+            decision = "ADR0277"
+            from cce_recovery_headroom import writer_scale_selected
+            expected.update(profile="cce_ticket_target", offered_journeys_per_second=RATE,
+                            maximum_pods=19 if writer_scale_selected(goal) else 18)
         if (
             now.tzinfo is None or exception.get("decision") != "ADR0220"
             or goal.get("decision") != decision

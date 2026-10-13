@@ -33,8 +33,16 @@ HOURLY = StageProfile(
 TICKET_TARGET = StageProfile("cce_ticket_target", "bounded_cce_ticket_target", 300, 168, 50400, 420, 3600, 1, 3600)
 
 
+HEADROOM = StageProfile("cce_ticket_target", "bounded_cce_ticket_target", 300, 102, 30600, 420, 3600, 1, 3600)
+
+
 def for_guard(guard):
     prefix = guard.key.split("__")[0]
+    if prefix == HEADROOM.ledger_prefix and getattr(guard, "binding", {}).get("cce_headroom_contract"):
+        from cce_recovery_headroom import contract
+        if guard.binding["cce_headroom_contract"] != contract():
+            raise ValueError("Exact declared headroom binding required")
+        return HEADROOM
     for profile in (SHORT, HOURLY, TICKET_TARGET):
         if prefix == profile.ledger_prefix:
             return profile

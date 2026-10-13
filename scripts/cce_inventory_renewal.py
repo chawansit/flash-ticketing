@@ -9,7 +9,8 @@ import work_envelope as policy
 
 def contract():
     return {"decision": "ADR0307", "inventory_freshness_seconds": 300,
-            "apis": 4, "workers": 14, "additional_database_connections": 0,
+            "apis": 4, "workers": 14, "native_worker_scale_counts": {"ADR0315": 15},
+            "additional_database_connections": 0,
             "helper_sha256": hashlib.sha256(Path(__file__).read_bytes().replace(b"\r\n", b"\n")).hexdigest()}
 
 
@@ -31,8 +32,17 @@ def renew(inventory, *, run, binding, native_before, workers_before, observe_nat
         raise ValueError("Reserved live-admission renewal required")
     if native_before.get("run") != run or workers_before.get("run") != run:
         raise ValueError("Same-run native admission evidence required")
-    if len(native_before.get("receipts", [])) != 4 or len(workers_before.get("receipts", [])) != 14:
-        raise ValueError("Complete API and worker admission evidence required")
+    worker_count = 14
+    if "cce_writer_scale_contract" in binding:
+        from cce_recovery_headroom import writer_scale_contract
+        from cce_worker_identity import validate_bundle
+        if (binding["cce_writer_scale_contract"] != writer_scale_contract()
+                or workers_before.get("decision") != "ADR0315"):
+            raise ValueError("Exactly declared native writer scale required")
+        validate_bundle(workers_before)
+        worker_count = 15
+    if len(native_before.get("receipts", [])) != 4 or len(workers_before.get("receipts", [])) != worker_count:
+        raise ValueError("Complete API and declared worker admission evidence required")
     native = observe_native()
     workers = observe_workers()
     verify_background()
@@ -52,6 +62,7 @@ def renew(inventory, *, run, binding, native_before, workers_before, observe_nat
                 "native_api_receipts_sha256": policy.digest(native),
                 "native_worker_receipts_sha256": policy.digest(workers),
                 "timestamp_scope": "joint live native admission revalidation; original ECS bootstrap retained",
-                "background_unchanged": True}
+                "background_unchanged": True, "native_background_workers": worker_count,
+                "normal_ecs_background_workers": 14}
     value["native_admission_renewal"] = evidence
     return value, evidence

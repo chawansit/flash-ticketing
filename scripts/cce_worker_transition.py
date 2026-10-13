@@ -55,19 +55,24 @@ class WorkerTransition(Transition):
         from cce_committed_status_profile import selected as committed_selected
         if committed_selected(self.goal):
             self.decision = "ADR0298"
+        self.normal_decision = self.decision
+        self.normal_selected = identity.specification(self.normal_decision)
+        from cce_recovery_headroom import writer_scale_selected
+        if writer_scale_selected(self.goal):
+            self.decision = "ADR0315"
         self.selected = identity.specification(self.decision)
 
     def capture(self):
         super().capture()
         rows = self.session.call("primary", INSPECT, 45)
-        grouped = {role: [] for role in self.selected["counts"]}
+        grouped = {role: [] for role in self.normal_selected["counts"]}
         for row in rows:
             role = row["Config"].get("Labels", {}).get("com.docker.compose.service")
             if role in grouped:
                 grouped[role].append(row)
         envs = {}
         for role, values in grouped.items():
-            if len(values) != self.selected["counts"][role] or any(not r["State"]["Running"] or r["Image"] != self.selected["image_id"] for r in values):
+            if len(values) != self.normal_selected["counts"][role] or any(not r["State"]["Running"] or r["Image"] != self.normal_selected["image_id"] for r in values):
                 raise ValueError("Complete running shared-image ECS workers required")
             environments = [dict(v.split("=", 1) for v in r["Config"]["Env"]) for r in values]
             if any(env != environments[0] for env in environments):
@@ -77,7 +82,7 @@ class WorkerTransition(Transition):
         ip = self.session.config["primary"]["private_ipv4"]
         hashes = {role: policy.digest(workers.environment(role, values, ip, self.decision)) for role, values in envs.items()}
         hashes["api"] = policy.digest(cce.api_environment(self.service, ip, acquisition_budget=20))
-        if self.decision in {"ADR0271", "ADR0285", "ADR0298"}:
+        if self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315"}:
             binding = {"decision": self.decision, "comparison_arm": self.arm,
                        "role_environment_sha256": hashes, "worker_counts": self.selected["counts"],
                        "manifest_digest": self.selected["manifest"], "source_identity_sha256": self.selected["source"],
@@ -91,7 +96,7 @@ class WorkerTransition(Transition):
         self.comparison_persist(binding)
         self.record["captured_worker_execution_sha256"] = policy.digest([execution_identity(r) for r in self.worker_rows])
         self.checkpoint()
-        if self.arm == "candidate" or self.decision in {"ADR0271", "ADR0285", "ADR0298"}:
+        if self.arm == "candidate" or self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315"}:
             self.worker_runtime = workers.Workers(self.deployment, workers.objects(self.run, envs, ip, self.decision, profile=for_guard(self.guard)), self.read_metrics,
                                                   lambda value: self.persist({"workers": copy.deepcopy(value)}), decision=self.decision, failure_persist=self.failure_persist)
 
@@ -102,7 +107,7 @@ class WorkerTransition(Transition):
         self.worker_stop_attempted = True
         self.record["worker_stop_attempted"] = True
         self.checkpoint()
-        proof = self.session.call("primary", change_program(self.worker_rows, "stop", self.decision), 120)
+        proof = self.session.call("primary", change_program(self.worker_rows, "stop", getattr(self, "normal_decision", self.decision)), 120)
         if proof != {"owned_worker_transition_verified": True, "running": False}:
             raise ValueError("ECS workers not verified stopped before CCE activation")
         self.worker_runtime.create()
@@ -120,7 +125,7 @@ class WorkerTransition(Transition):
                 removed = self.deployment.cleanup()
                 if removed.get("namespace_removed") is not True:
                     raise ValueError("Native worker absence not proven; refusing overlapping ECS restart")
-            proof = self.session.call("primary", change_program(self.worker_rows, "start", self.decision), 120)
+            proof = self.session.call("primary", change_program(self.worker_rows, "start", getattr(self, "normal_decision", self.decision)), 120)
             if proof != {"owned_worker_transition_verified": True, "running": True}:
                 raise ValueError("Captured ECS worker restoration unverified")
             self.record["captured_workers_restored"] = True

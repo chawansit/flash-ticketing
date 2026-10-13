@@ -24,6 +24,7 @@ def selected(goal):
     keys = {"gateway_read_recovery_decision", "gateway_read_recovery_contract_sha256"}
     if goal is None or not keys.intersection(goal):
         return False
+    from cce_recovery_headroom import correction_selected
     if (goal.get("gateway_read_recovery_decision") != "ADR0311"
             or goal.get("gateway_read_recovery_contract_sha256") != policy.digest(contract())
             or goal.get("timeout_retention_decision") != "ADR0278"
@@ -31,7 +32,7 @@ def selected(goal):
             or goal.get("offered_journeys_per_second") != 84
             or goal.get("offered_seconds") != 300
             or goal.get("maximum_experiment_seconds") != 3600
-            or goal.get("payment_slot_arm") != "candidate"):
+            or (goal.get("payment_slot_arm") != "candidate" and not correction_selected(goal))):
         raise ValueError("Exact gateway-read recovery scope required")
     return True
 

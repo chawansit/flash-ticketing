@@ -12,7 +12,7 @@ TRANSPORT_SECONDS = 780  # Includes at most 150 seconds of hold expiry wait.
 
 
 def expectations(show_ids, expected, paid, callbacks):
-    if (not isinstance(show_ids, list) or len(show_ids) not in {1, 60, 84, 1008}
+    if (not isinstance(show_ids, list) or len(show_ids) not in {1, 60, 84, 102, 1008}
             or len(set(show_ids)) != len(show_ids)
             or any(not isinstance(v, str) or str(UUID(v)) != v for v in show_ids)
             or type(expected) is not int or not 0 <= expected <= len(show_ids) * 300

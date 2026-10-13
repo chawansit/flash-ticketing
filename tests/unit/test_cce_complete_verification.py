@@ -179,7 +179,8 @@ def test_integrated_stage_selects_bounded_audit_only_for_sealed_verification(mon
     def execute(cid, source, timeout):
         calls.append((source, timeout))
         return {"pass": True, "hold_deadlines_elapsed": True}
-    stage = SimpleNamespace(record={"customers_dispatched": True}, events=[str(uuid4())], cid="owned",
+    stage = SimpleNamespace(record={"customers_dispatched": True}, outcome_enabled=False,
+            events=[str(uuid4())], cid="owned",
             profile=SimpleNamespace(expected=1, duration=0, name="test"),
             session=SimpleNamespace(api=execute), checkpoint=lambda: None)
     assert stages.PaidStage.audit(stage, "queues") == {"post_ttl_financial_pass": True, "global_queues_pass": True}

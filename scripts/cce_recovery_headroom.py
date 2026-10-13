@@ -1,0 +1,325 @@
+"""ADR0312 exact102/s headroom; application budgets and client remain unchanged."""
+import hashlib
+from uuid import UUID
+
+import work_envelope as policy
+
+RATE, SHOWS, EXPECTED, TARGET = 102, 102, 30600, 30000
+BASELINE_LEDGER = "bounded_cce_paid_comparison__018812d8ffb1"
+BASELINE_PATH = "tmp/adr0151-19ac8d32b4df/cce-comparison.private.json"
+BASELINE_SHA256 = "d874af069489b42fb22a2c35f1c5222714e7d3fe1a7c92f7c06c39d58e886f41"
+SOURCE = "scripts/cce_recovery_headroom.py"
+FAILURE_RUN = "adr0151-211188fa6615"
+FAILURE_LEDGER = "bounded_cce_ticket_target__37fc44dbf69e"
+FAILURE_SHA256 = "463e92253a3613ea9bc5e591823596681b890611290d224bc8ad9a83618b1424"
+SLOT_RUN = "adr0151-4a166cdbdda6"
+SLOT_LEDGER = "bounded_cce_ticket_target__476c1bdb0c87"
+SLOT_SHA256 = "d5a00a534026bce91b131a968f036e38c816e076f95e056e842a011127f4ae01"
+SCALE_KEYS = {"reservation_writer_scale_decision", "reservation_writer_failure_sha256"}
+CORRECTION_KEYS = {"headroom_slot_correction_decision", "headroom_slot_failure_sha256"}
+CHANGED_SOURCES = {
+    "scripts/cce_inventory_renewal.py", "scripts/cce_paid_observers.py",
+    SOURCE,
+    "scripts/cce_paid_profiles.py", "scripts/cce_paid_stage.py", "scripts/cce_paid_inputs.py",
+    "scripts/cce_live_admission.py", "scripts/cce_native_workers.py",
+    "scripts/cce_transaction_profile.py", "scripts/cce_api_adapter.py",
+    "scripts/cce_payment_slot_profile.py", "scripts/run_cce_paid_comparison.py",
+    "scripts/cce_dependency_probe.py", "scripts/work_envelope.py", "scripts/customer_gateway_read_bundle.py",
+    "scripts/cce_worker_identity.py", "scripts/cce_worker_transition.py", "scripts/cce_bounded_financial_audit.py", "scripts/fixture_identity_evidence.py",
+    "artifacts/cce-transaction-runner/manifest.json",
+}
+
+
+def sha(raw):
+    return hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
+
+
+def contract():
+    return {"decision": "ADR0312", "offered_rate": RATE, "offered_seconds": 300,
+            "expected_journeys": EXPECTED, "fixture_shows": SHOWS,
+            "minimum_unique_inside_window": TARGET, "concurrency": 500,
+            "max_attempts": 3, "experiment_limit": 3600,
+            "helper_sha256": sha((policy.ROOT / SOURCE).read_bytes()),
+            "sealed_client_unchanged": True, "resources_and_budgets_unchanged": True,
+            "slot_correction_decision": "ADR0314", "per_api_total": 4,
+            "baseline_payment_pool_max": 3, "corrective_payment_pool_max": 2,
+            "writer_scale_decision": "ADR0315", "native_writers": [3, 4],
+            "maximum_owned_pods_after_scale": 19, "physical_server_connections": 24}
+
+
+def runtime_view(goal):
+    return {**goal, "decision": "ADR0228", "extension_decision": "ADR0271",
+            "profile": "cce_paid_comparison", "offered_journeys_per_second": 84,
+            "maximum_pods": 18, "_headroom_runtime_view": True}
+
+
+def selected(goal):
+    if goal is None or not {"headroom_decision", "headroom_contract_sha256"}.intersection(goal):
+        return False
+    if "_headroom_runtime_view" in goal:
+        actual = {**goal, "decision": "ADR0277", "extension_decision": "ADR0277",
+                  "profile": "cce_ticket_target", "offered_journeys_per_second": RATE,
+                  "maximum_pods": 19 if SCALE_KEYS.intersection(goal) else 18}
+        actual.pop("_headroom_runtime_view")
+        if goal.get("_headroom_runtime_view") is not True or goal != runtime_view(actual):
+            raise ValueError("Exact declared application-only runtime view required")
+        goal = actual
+    correction = bool(CORRECTION_KEYS.intersection(goal))
+    if correction and (goal.get("headroom_slot_correction_decision") != "ADR0314"
+                       or goal.get("headroom_slot_failure_sha256") != FAILURE_SHA256):
+        raise ValueError("Exact failed headroom slot-correction decision required")
+    scale = bool(SCALE_KEYS.intersection(goal))
+    if scale and (not correction or goal.get("reservation_writer_scale_decision") != "ADR0315"
+                  or goal.get("reservation_writer_failure_sha256") != SLOT_SHA256):
+        raise ValueError("Exact reconciled writer-scale reference required")
+    expected = {"headroom_decision": "ADR0312", "decision": "ADR0277",
+                "extension_decision": "ADR0277", "profile": "cce_ticket_target",
+                "offered_journeys_per_second": RATE, "offered_seconds": 300,
+                "maximum_experiment_seconds": 3600, "maximum_paid_stages": 1,
+                "generator_concurrency": 500, "acquisition_budget": 20,
+                "maximum_pods": 19 if scale else 18, "pod_vcpu": 1, "pod_memory_gib": 2,
+                "payment_slot_arm": "control" if correction else "candidate", "gateway_read_recovery_decision": "ADR0311"}
+    if (any(type(goal.get(k)) is not type(v) or goal.get(k) != v for k, v in expected.items())
+            or goal.get("headroom_contract_sha256") != policy.digest(contract())
+            or goal.get("baseline_sha256") != (SLOT_SHA256 if scale else FAILURE_SHA256 if correction else BASELINE_SHA256)):
+        raise ValueError("Exact102/s fixed-budget recovery headroom authorization required")
+    return True
+
+
+def require_short(goal):
+    if not selected(goal):
+        raise ValueError("Explicit recovery headroom prerequisite required")
+    report = policy.read(policy.ROOT / BASELINE_PATH)
+    state = policy.read(policy.STATE)[BASELINE_LEDGER]
+    binding = state["binding"]
+    entries = [e for e in policy.journal(policy.envelope())["experiments"] if e.get("ledger") == BASELINE_LEDGER]
+    stage = report.get("paid_stage", {})
+    customer = stage.get("customer", {})
+    gates = report.get("native", {}).get("measurement_gates", {})
+    if (policy.digest(report) != BASELINE_SHA256 or len(entries) != 1
+            or entries[0].get("status") != "PASSED_RESTORED"
+            or entries[0].get("result_sha256") != BASELINE_SHA256
+            or state.get("cce_paid_result_sha256") != BASELINE_SHA256
+            or report.get("binding_sha256") != policy.digest(binding)
+            or state.get("active_run") or state.get("paid_runs_started") != 1
+            or any(report.get(k) is not True for k in
+                   ("pass", "restoration_complete", "integrity_verified", "transport_credentials_cleared"))
+            or not gates or any(v is not True for v in gates.values())
+            or customer.get("scheduled") != 25200 or customer.get("dispatched") != 25200
+            or customer.get("fulfilled") != 25200 or customer.get("generator_drops") != 0
+            or stage.get("customer_outcome_gate", {}).get("pass") is not True
+            or stage.get("financial", {}).get("pass") is not True
+            or stage.get("financial", {}).get("hold_deadlines_elapsed") is not True
+            or stage.get("global_queues", {}).get("pass") is not True
+            or stage.get("short_issuance_window", {}).get("unique_paid_issued_tickets", 0) < 25000):
+        raise ValueError("Exact fully passed/restored84/s recovery prerequisite required")
+    return BASELINE_PATH, report
+
+
+def correction_selected(goal):
+    return selected(goal) and bool(CORRECTION_KEYS.intersection(goal))
+
+
+def writer_scale_selected(goal):
+    return selected(goal) and bool(SCALE_KEYS.intersection(goal))
+
+
+def writer_scale_contract():
+    from cce_worker_identity import specification
+    return {"decision": "ADR0315", "normal_ecs_workers": 14,
+            "native_background_workers": 15, "native_counts": specification("ADR0315")["counts"],
+            "normal_counts": specification("ADR0298")["counts"],
+            "owned_pods": 19, "physical_connections": 24,
+            "writer_client_pool_max_per_replica": 12, "api_total_connections": 16}
+
+
+def require_slot_failure(goal):
+    if not writer_scale_selected(goal):
+        raise ValueError("Explicit writer scale required")
+    report = policy.read(policy.ROOT / "tmp" / SLOT_RUN / "cce-comparison.private.json")
+    state = policy.read(policy.STATE)[SLOT_LEDGER]
+    entries = [e for e in policy.journal(policy.envelope())["experiments"] if e.get("ledger") == SLOT_LEDGER]
+    if len(entries) != 1:
+        raise ValueError("Exact slot-correction journal required")
+    entry = entries[0]
+    path = policy.ROOT / "tmp" / SLOT_RUN / "headroom-recovery.private.json"
+    recovery = entry.get("recovery", {})
+    evidence = policy.read(path)
+    if (policy.digest(report) != SLOT_SHA256 or entry.get("result_sha256") != SLOT_SHA256
+            or state.get("cce_paid_result_sha256") != SLOT_SHA256
+            or report.get("binding_sha256") != policy.digest(state["binding"])
+            or entry.get("binding_sha256") != policy.digest(state["binding"])
+            or entry.get("status") != "FAILED_RESTORED" or state.get("active_run")
+            or report.get("pass") is not False or report.get("restoration_complete") is not True
+            or recovery.get("decision") != "ADR0313" or recovery.get("capacity_qualified") is not False
+            or recovery.get("sha256") != policy.digest(evidence)
+            or recovery.get("evidence") != path.relative_to(policy.ROOT).as_posix()
+            or evidence.get("original_result_sha256") != SLOT_SHA256
+            or evidence.get("binding_sha256") != report.get("binding_sha256")
+            or evidence.get("pass") is not True or evidence.get("capacity_qualified") is not False
+            or evidence.get("fresh_financial", {}).get("pass") is not True):
+        raise ValueError("Exact independently reconciled2+2failed workload required")
+    return path.with_name("cce-comparison.private.json").relative_to(policy.ROOT).as_posix(), report
+
+
+def require_failure(goal):
+    if not correction_selected(goal):
+        raise ValueError("Explicit slot correction required")
+    report = policy.read(policy.ROOT / "tmp" / FAILURE_RUN / "cce-comparison.private.json")
+    scope = policy.read(policy.STATE)[FAILURE_LEDGER]
+    entries = [e for e in policy.journal(policy.envelope())["experiments"] if e.get("ledger") == FAILURE_LEDGER]
+    if len(entries) != 1:
+        raise ValueError("Exact failed headroom journal required")
+    entry = entries[0]
+    recovery = entry.get("recovery", {})
+    path = policy.ROOT / "tmp" / FAILURE_RUN / "headroom-recovery.private.json"
+    evidence = policy.read(path)
+    if (policy.digest(report) != FAILURE_SHA256 or entry.get("result_sha256") != FAILURE_SHA256
+            or scope.get("cce_paid_result_sha256") != FAILURE_SHA256
+            or entry.get("binding_sha256") != report.get("binding_sha256")
+            or report.get("binding_sha256") != policy.digest(scope.get("binding", {}))
+            or entry.get("status") != "FAILED_RESTORED"
+            or entry.get("initial_status") != "RECOVERY_REQUIRED" or scope.get("active_run")
+            or report.get("pass") is not False or report.get("restoration_complete") is not True
+            or report.get("capacity_stages_started") != 1 or scope.get("paid_runs_started") != 1
+            or recovery.get("decision") != "ADR0313" or recovery.get("capacity_qualified") is not False
+            or recovery.get("evidence") != path.relative_to(policy.ROOT).as_posix()
+            or recovery.get("sha256") != policy.digest(evidence)
+            or evidence.get("original_result_sha256") != FAILURE_SHA256
+            or evidence.get("decision") != "ADR0313"
+            or evidence.get("binding_sha256") != report.get("binding_sha256")
+            or evidence.get("pass") is not True or evidence.get("capacity_qualified") is not False
+            or evidence.get("fresh_financial", {}).get("pass") is not True):
+        raise ValueError("Independently reconciled failed headroom reference required")
+    return path.with_name("cce-comparison.private.json").relative_to(policy.ROOT).as_posix(), report
+
+
+def extend_plan(plan, goal):
+    relative, report = require_short(goal)
+    correction = correction_selected(goal)
+    if correction:
+        relative, report = require_failure(goal)
+    scale = writer_scale_selected(goal)
+    if scale:
+        relative, report = require_slot_failure(goal)
+    payment = 2 if correction else 3
+    scale_fields = ({"worker_counts": writer_scale_contract()["native_counts"],
+                     "maximum_pods": 19, "total_requested_vcpu": 7.75,
+                     "total_requested_memory_gib": 15.5,
+                     "writer_scale_contract": writer_scale_contract()} if scale else {})
+    return {**plan, **scale_fields, "decision": "ADR0277", "extension_decision": "ADR0277",
+            "kind": "writer_concurrency_headroom" if scale else "corrective_general_slot_headroom" if correction else "bounded_recovery_runtime_headroom",
+            "single_changed_factor": "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
+            "common": {"buyer_journeys_per_second": RATE, "duration_seconds": 300},
+            "expected_journeys": EXPECTED, "target_unique_tickets": TARGET,
+            "fixture_shows": SHOWS, "generator_concurrency": 500,
+            "payment_connections_per_api": payment, "general_connections_per_api": 4 - payment,
+            "connections_per_api": 4, "baseline_evidence": relative,
+            "baseline_sha256": policy.digest(report), "baseline_is_passing_control": not correction,
+            "slot_correction_decision": "ADR0314" if correction else None,
+            "matched_performance_comparison": False, "headroom_contract": contract(),
+            "duration_reason": "One102offered/s300s headroom test; require30000unique paid-issued tickets in-window; unchanged app/resources/budgets and bounded recovery."}
+
+
+def plan(goal):
+    from cce_worker_rebalance_profile import plan as placement_plan
+    if not selected(goal):
+        raise ValueError("Explicit headroom profile required")
+    view = goal if goal.get("_headroom_runtime_view") else runtime_view(goal)
+    return placement_plan(view)
+
+
+def validate_binding(goal, binding):
+    require_short(goal)
+    old = policy.read(policy.STATE)[BASELINE_LEDGER]["binding"]
+    correction = correction_selected(goal)
+    scale = writer_scale_selected(goal)
+    if correction:
+        require_failure(goal)
+    if scale:
+        require_slot_failure(goal)
+        old = policy.read(policy.STATE)[SLOT_LEDGER]["binding"]
+    ignored = {"cce_paid_entry_sources", "cce_paid_core_sources", "cce_manifest_sha256",
+               "baseline_sha256", "cce_verification_contract_sha256", "cce_headroom_contract",
+               "cce_gateway_read_recovery_contract", "cce_inventory_renewal_contract",
+               "cce_metric_admission_contract_sha256"}
+    if scale:
+        ignored |= {"cce_worker_placement_factor", "cce_writer_scale_contract"}
+        from cce_worker_rebalance_profile import factor
+        expected_factor = {**factor(), "worker_counts": writer_scale_contract()["native_counts"]}
+        if (binding.get("cce_worker_placement_factor") != expected_factor
+                or binding.get("cce_writer_scale_contract") != writer_scale_contract()):
+            raise ValueError("Exact native-only fourth writer and unchanged physical budget required")
+    if correction and not scale:
+        ignored |= {"cce_payment_slot_arm", "cce_payment_pool_max",
+                    "cce_transaction_arm", "saved_api_service_sha256"}
+        import copy
+
+        import run_cce_paid_comparison as core
+        saved = policy.read(policy.ROOT / goal["payment_slot_snapshot_path"])["saved"]
+        semantics = core.api_semantics(core.service_for(saved))
+        if (binding.get("cce_payment_pool_max") != 2
+                or binding.get("cce_payment_slot_arm") != "control"
+                or binding.get("cce_transaction_arm") != "control"
+                or semantics["environment"].get("API_PAYMENT_POOL_MAX") != "2"
+                or binding["saved_api_service_sha256"] != policy.digest(semantics)):
+            raise ValueError("Exactly2+2API partition required")
+        prior = copy.deepcopy(semantics)
+        prior["environment"]["API_PAYMENT_POOL_MAX"] = "3"
+        if policy.digest(prior) != old["saved_api_service_sha256"]:
+            raise ValueError("API service changed outside the declared payment partition")
+    if any(old.get(k) != binding.get(k) for k in old.keys() | binding.keys() if k not in ignored):
+        raise ValueError("Headroom changed application, recovery, route, resources or database budgets")
+    for key in ("cce_paid_entry_sources", "cce_paid_core_sources"):
+        before, after = old[key], binding[key]
+        if (set(after) != set(before) | {SOURCE, "scripts/cce_writer_scale_verification.py"}
+                or any(before[k] != after[k] for k in before if k not in CHANGED_SOURCES)):
+            raise ValueError("Headroom source changed outside the declared rate integration")
+    from cce_metric_admission import contract as metric_contract
+    if binding.get("cce_metric_admission_contract_sha256") != policy.digest(metric_contract()):
+        raise ValueError("Exact unchanged-sampling admission diagnostic contract required")
+    from cce_inventory_renewal import contract as renewal_contract
+    if binding.get("cce_inventory_renewal_contract") != renewal_contract():
+        raise ValueError("Exact live renewal and declared worker-count policy required")
+    from cce_verification_contract import contract as verification_contract
+    from customer_gateway_read_bundle import contract as client_contract
+    actual_client, old_client = binding.get("cce_gateway_read_recovery_contract", {}), old["cce_gateway_read_recovery_contract"]
+    if (actual_client != client_contract()
+            or {k:v for k,v in actual_client.items() if k != "helper_sha256"}
+               != {k:v for k,v in old_client.items() if k != "helper_sha256"}):
+        raise ValueError("Sealed client or recovery semantics changed")
+    if (binding.get("cce_headroom_contract") != contract()
+            or binding.get("cce_verification_contract_sha256") != policy.digest(verification_contract())):
+        raise ValueError("Exact sealed headroom and financial verification contracts required")
+
+
+def qualify_workload(parent, coordinator):
+    from customer_gateway_read_bundle import CLIENT, receipt
+    if len(parent) != 80 or sha(parent[CLIENT]) != receipt()["child_client_sha256"]:
+        raise ValueError("Unchanged sealed gateway-read client required")
+    name = "scripts/paid_ticket_sharded_generator.py"
+    from customer_timeout_bundle import MANIFEST
+    data = policy.read(policy.ROOT / MANIFEST)
+    if (sha(parent[name]) != data["files"]["artifacts/customer-timeout/paid_ticket_sharded_generator.py"]
+            or sha(coordinator) != data["files"]["artifacts/customer-timeout/coordinator.py"]):
+        raise ValueError("Exact timeout-retaining sharded parent and coordinator required")
+    old = b"if not 2 <= args.rate <= 100 or not 1 <= args.seconds <= 300:"
+    new = b"if not 2 <= args.rate <= 102 or not 1 <= args.seconds <= 300:"
+    if parent[name].count(old) != 1:
+        raise ValueError("Exact prior sharded ceiling required")
+    source = parent[name].replace(old, new)
+    before, after = sha(parent[name]).encode(), sha(source).encode()
+    if coordinator.count(before) != 1:
+        raise ValueError("Exact coordinator-to-sharded-source binding required")
+    return {**parent, name: source}, coordinator.replace(before, after)
+
+
+def issuance_program(events, start):
+    import math
+    if (len(events) != SHOWS or len(set(events)) != SHOWS
+            or any(str(UUID(v)) != v for v in events)
+            or type(start) not in (int, float) or not math.isfinite(start) or start <= 0):
+        raise ValueError("Exact102-show cohort and finite offered start required")
+    from cce_hourly_window import QUERY
+    query = QUERY.replace("3598", "298").replace("3600", "300").replace("300000", str(TARGET)).replace("302400", str(EXPECTED))
+    return "events=" + repr(events) + "\nstart=" + repr(start) + "\n" + query
