@@ -55,7 +55,16 @@ def write(path, value):
         stream.write(json.dumps(value, indent=2, allow_nan=False) + "\n")
         stream.flush()
         os.fsync(stream.fileno())
-    os.replace(temporary, path)
+    for attempt in range(6):
+        try:
+            os.replace(temporary, path)
+            break
+        except PermissionError as error:
+            # Windows readers/scanners can momentarily block an atomic rename.
+            # Preserve the same fsynced pending file and fail closed after 100ms.
+            if os.name != "nt" or getattr(error, "winerror", None) not in {5, 32, 33} or attempt == 5:
+                raise
+            time.sleep(0.02)
 
 
 def envelope():

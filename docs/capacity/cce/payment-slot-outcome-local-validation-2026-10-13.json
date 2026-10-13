@@ -9,7 +9,7 @@
     "command": "pytest tests/unit/test_customer_outcome_slo.py tests/unit/test_runtime_cohort_comparison.py tests/unit/test_cce_committed_status_comparison.py"
   },
   "legacy_stage_and_lifecycle_tests": {
-    "passed": 65,
+    "passed": 66,
     "environment": "Isolated legacy default contract; no live envelope mutation. Overall mixed suite had one fixture error in a separate spending test; that test passed in the focused suite with the actual envelope."
   },
   "ruff": "passed",
@@ -27,5 +27,20 @@
     "scripts/cce_worker_rebalance_profile.py": "42229e31f76353e1b908ba3e9ec2453e3948fa66ed09caf7d9b0691779524c27",
     "scripts/run_cce_paid_comparison.py": "48323e9de4c85648c4a7c7cc8eee8fc25aa77427024f4416b8e7475123215f6f",
     "tests/unit/test_customer_outcome_slo.py": "4e340d5cba07cae294c3e61adadfad492623c381f48c0cba0d8e90858659102c"
+  },
+  "atomic_state_write_tests": {
+    "passed": 55,
+    "retry_limit_ms": 100,
+    "permanent_failure_preserves_old_state": true
+  },
+  "pre_dispatch_attempt": {
+    "run": "adr0151-3309c68c5048",
+    "status": "FAILED_RESTORED",
+    "paid_runs_started": 0,
+    "cause": "Windows atomic report replacement was denied before paid dispatch.",
+    "cloud_cleanup_complete": true,
+    "exact_topology_restored": true,
+    "integrity_verified": true,
+    "correction": "Bounded 100ms retry for transient Windows rename locks; original denial still fails closed."
   }
 }
