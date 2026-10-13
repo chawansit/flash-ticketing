@@ -40,7 +40,7 @@ def identity():
         "scripts/cce_bounded_financial_audit.py", "scripts/independent_database_sampling.py",
         "scripts/cce_runtime_cohort_profile.py", "scripts/paid_cohort_query.py",
         "scripts/cce_customer_outcome_slo.py", "scripts/cce_payment_slot_profile.py",
-        "scripts/cce_committed_hourly_profile.py",
+        "scripts/cce_committed_hourly_profile.py", "scripts/cce_terminal_audit_admission.py",
         "scripts/cce_inventory_renewal.py",
         "scripts/cce_committed_status_identity.py", "scripts/cce_committed_status_profile.py",
         "scripts/cce_committed_status_contract.py",
@@ -477,6 +477,10 @@ class PaidStage:
         if verification_selected(transaction.active()):
             from cce_bounded_financial_audit import TRANSPORT_SECONDS, program
             audit_program, audit_timeout = program, TRANSPORT_SECONDS
+        from cce_terminal_audit_admission import admit
+        from cce_terminal_audit_admission import selected as terminal_selected
+        if terminal_selected(transaction.active()):
+            admit(self)
         errors = []
         for name, operation in (
             (

@@ -197,6 +197,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     from cce_inventory_renewal import selected as renewal_selected
     if renewal_selected(goal):
         extra.update(cce_inventory_renewal_contract=renewal_contract())
+    from cce_terminal_audit_admission import contract as terminal_contract
+    from cce_terminal_audit_admission import selected as terminal_selected
+    if terminal_selected(goal):
+        extra.update(cce_terminal_audit_admission_contract=terminal_contract())
     binding = {
         **extra,
         "configuration_sha256": policy.digest(config),

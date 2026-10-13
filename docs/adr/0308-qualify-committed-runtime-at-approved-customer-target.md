@@ -29,3 +29,5 @@ Any failed short prerequisite blocks hourly dispatch. Failed hourly customer, is
 ## Validation evidence
 
 Hourly reuse hooks implemented; authenticated fresh candidate binding dry-run passed. New prerequisite/runtime tests and observer-bootstrap regressions:35passed; prior broader checks produced100passed and4historical fixture errors, corrected by applying existing scope isolation to lifecycle/hourly fixture modules. The application, sealed hourly generator, latency thresholds and financial audit implementation remain unchanged. No hourly load or new capacity qualification yet.
+
+The first hourly run measured302,292 unique paid-issued tickets inside the hour (302,096conservative), zero errors/drops, and all302,400payments reconciled in cleanup and fresh recovery. Original result remains FAILED_RESTORED because the terminal audit action budget blocked final gate assembly. ADR0309 amends that admission; a clean fresh repeat is required. [Evidence](../capacity/cce/committed-runtime-hourly-audit-recovery-2026-10-13.json).

@@ -280,3 +280,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0307: Renew CCE admission from live identities](0307-renew-cce-admission-from-live-identities.md)
 
 - [ADR0308: Qualify the committed runtime at the approved customer target](0308-qualify-committed-runtime-at-approved-customer-target.md)
+
+- [ADR0309: Admit terminal audits after paid work stops](0309-admit-terminal-audits-after-paid-work-stops.md)
