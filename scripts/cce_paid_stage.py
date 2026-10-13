@@ -43,6 +43,7 @@ def identity():
         "scripts/cce_committed_hourly_profile.py", "scripts/cce_terminal_audit_admission.py",
         "scripts/cce_inventory_renewal.py", "scripts/cce_recovery_headroom.py",
         "scripts/cce_writer_scale_verification.py",
+        "scripts/cce_backend_partition.py", "scripts/cce_backend_partition_runtime.py",
         "scripts/cce_gateway_read_profile.py", "scripts/customer_gateway_read_bundle.py",
         "scripts/customer_gateway_read_recovery.py", "scripts/cce_customer_slo_reevaluation.py",
         "artifacts/customer-gateway-read-recovery/manifest.json",

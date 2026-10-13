@@ -110,18 +110,31 @@ class WorkerTransition(Transition):
         proof = self.session.call("primary", change_program(self.worker_rows, "stop", getattr(self, "normal_decision", self.decision)), 120)
         if proof != {"owned_worker_transition_verified": True, "running": False}:
             raise ValueError("ECS workers not verified stopped before CCE activation")
+        partition = getattr(self,"backend_partition",None)
+        if partition is not None:
+            partition.activate()
         self.worker_runtime.create()
 
     def verify_workers(self):
+        partition = getattr(self,"backend_partition",None)
+        if partition is not None:
+            partition.verify()
         if self.worker_runtime is not None:
             self.worker_runtime.observe(previous=self.worker_runtime.bundle)
         return True
 
     def restore(self):
         self.session.begin_cleanup()
+        partition = getattr(self,"backend_partition",None)
+        if partition is not None and partition.record["attempted"]:
+            if self.deployment.attempted:
+                removed = self.deployment.cleanup()
+                if removed.get("namespace_removed") is not True:
+                    raise ValueError("Native absence required before pooler rollback")
+            partition.restore()
         # A missing deletion acknowledgement never permits duplicate workers.
         if self.worker_stop_attempted:
-            if self.worker_runtime.attempted:
+            if self.worker_runtime.attempted and partition is None:
                 removed = self.deployment.cleanup()
                 if removed.get("namespace_removed") is not True:
                     raise ValueError("Native worker absence not proven; refusing overlapping ECS restart")

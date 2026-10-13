@@ -3300,6 +3300,66 @@
         "actual_elapsed_seconds": 80.70299999997951,
         "capacity_qualified": false
       }
+    },
+    {
+      "ledger": "bounded_cce_ticket_target__e0f07cc2abff",
+      "authorization_id": "work-envelope-e0f07cc2abff",
+      "envelope_sha256": "7cd6d740e9fe3e26694271f866e7b896b8822525ee9cd2fc133fdd5e0fc68f1f",
+      "binding_sha256": "38af2492b416b71ee9a1c39b0c02c4f578a0e9d98cce8fb3c662f6b6597210c8",
+      "plan_sha256": "0da87533429afd6599ba26a21d540c2b44e335182499fc2d915d2a6d89306594",
+      "profile": "cce_ticket_target",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1148.7666363354074,
+      "started_at_utc": "2026-10-13T17:27:54.530248+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-b053a8f1546a",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-13T17:32:59.218716+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "690c3f39aa6c136e9bdd64155281ac7421183b9ca9e3284aedcd4eb76599cb32",
+      "initial_status": "RECOVERY_REQUIRED",
+      "initial_actual_elapsed_seconds": 305.18700000003446,
+      "recovery": {
+        "decision": "ADR0317",
+        "evidence": "tmp/adr0151-b053a8f1546a/partition-abort-recovery.private.json",
+        "sha256": "ec98aa7a756f2355d284d2977b4839e8a33fd3a0f9be35d43f9cf5878931ea98",
+        "capacity_qualified": false,
+        "actual_elapsed_seconds": 843.5796363353729
+      }
+    },
+    {
+      "ledger": "bounded_cce_ticket_target__b7177356a0c3",
+      "authorization_id": "work-envelope-b7177356a0c3",
+      "envelope_sha256": "a368d887c8fe3e2ffc639c81270b0b9b8aaaa21df291643a8c78c0b39666dae1",
+      "binding_sha256": "31ed685d90fe5a86476702eba8b0adbf3e9299e4b0a095a9e4cff8593989869d",
+      "plan_sha256": "438854e3468710bb303b27478e0b90a15769366b683e27cd7e85fc12dd72ab5c",
+      "profile": "cce_ticket_target",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1503.842999999877,
+      "started_at_utc": "2026-10-13T17:49:47.975884+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-c816742577d3",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-13T18:13:35.978508+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "bb26a572a41bd4dad7d2f119a80202e00eb419b447686e0ff4fd649b4d2e6174",
+      "initial_status": "RECOVERY_REQUIRED",
+      "initial_actual_elapsed_seconds": 1428.420999999973,
+      "recovery": {
+        "decision": "ADR0313",
+        "evidence": "tmp/adr0151-c816742577d3/headroom-recovery.private.json",
+        "sha256": "e3eeaa0444508029158f54ee71d64d59f509c139c0054caabb8aad50d2f69a20",
+        "actual_elapsed_seconds": 75.42199999990407,
+        "capacity_qualified": false
+      }
     }
   ],
   "verified_aborts": {

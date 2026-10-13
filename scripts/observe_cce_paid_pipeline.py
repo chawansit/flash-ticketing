@@ -178,6 +178,8 @@ def install_hourly_sampling(module, *, now=None, observer_seconds=3780):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--backend-partition-contract",type=Path)
+    parser.add_argument("--backend-partition-contract-sha256")
     parser.add_argument("--runtime-cohort-contract", type=Path)
     parser.add_argument("--runtime-cohort-contract-sha256")
     parser.add_argument("--hourly", action="store_true")
@@ -217,6 +219,16 @@ def main(argv=None):
                 or hashlib.sha256(json.dumps(runtime_cohort, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
                 != args.runtime_cohort_contract_sha256):
             raise ValueError("Runtime cohort transfer changed")
+    partition_value = None
+    if args.backend_partition_contract is not None or args.backend_partition_contract_sha256 is not None:
+        from cce_backend_partition import contract
+        if args.backend_partition_contract is None or args.backend_partition_contract_sha256 is None:
+            raise ValueError("Complete backend partition transfer binding required")
+        partition_value=json.loads(args.backend_partition_contract.read_text())
+        if (partition_value!=contract() or hashlib.sha256(
+            json.dumps(partition_value,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+                !=args.backend_partition_contract_sha256):
+            raise ValueError("Exact declared backend partition observer contract required")
     original = observer.install_adapter
 
     def adapter(module, *params, **kwargs):
@@ -227,6 +239,9 @@ def main(argv=None):
         if workers is not None:
             from observe_cce_workers import install as worker_install
             worker_install(module, workers)
+        if partition_value is not None:
+            from cce_backend_partition import view
+            module.pgbouncer_view = lambda conn,target:view(conn,target,module.PG_POOL_FIELDS,module.PG_STATS_FIELDS)
         return result
 
     if args.hourly:

@@ -38,6 +38,10 @@ def environment(role, values, primary_ip, decision="ADR0259"):
             if result.get("RESERVATION_WRITER_BATCH_SIZE") != "4":
                 raise ValueError("Exactly batch-four ECS bootstrap required")
             result["RESERVATION_WRITER_BATCH_SIZE"] = "8"
+    from cce_backend_partition import route as partition_route
+    from cce_backend_partition import selected as partition_selected
+    if decision == "ADR0315" and partition_selected(goal):
+        result["DATABASE_URL"] = partition_route(result["DATABASE_URL"],"ticketing_background")
     return result
 
 

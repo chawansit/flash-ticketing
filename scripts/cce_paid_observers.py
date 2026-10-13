@@ -273,6 +273,12 @@ class Observers:
         from cce_committed_status_profile import selected as committed_selected
         if committed_selected(goal):
             helpers += ("cce_committed_status_identity.py",)
+        from cce_backend_partition import contract as partition_contract
+        from cce_backend_partition import selected as partition_selected
+        if partition_selected(goal):
+            helpers += ("cce_backend_partition.py","cce_backend_partition_runtime.py")
+            self.backend_partition = partition_contract()
+            self.upload("backend-partition.json",json.dumps(self.backend_partition))
         expected = {}
         for name in helpers:
             raw = (policy.ROOT / "scripts" / name).read_text()
@@ -375,6 +381,9 @@ class Observers:
                 "--output",
                 self.directory + "/pipeline.jsonl",
                 *common,
+                *(["--backend-partition-contract",self.directory+"/backend-partition.json",
+                   "--backend-partition-contract-sha256",policy.digest(self.backend_partition)]
+                  if hasattr(self,"backend_partition") else []),
                 *(["--native-workers", self.directory + "/native-workers.json", "--native-workers-sha256", policy.digest(self.native_workers)] if getattr(self, "native_workers", None) is not None else []),
                 *(["--hourly"] if self.stage.profile.duration == 3600 else []),
                 *(["--early-hourly-bootstrap"] if early else []),

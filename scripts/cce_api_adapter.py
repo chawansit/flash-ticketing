@@ -198,6 +198,11 @@ def api_environment(service, primary_ip, *, acquisition_budget=12):
         raise ValueError("Baseline must use the original pooler, never a direct RDS bypass")
     authority = db.netloc.rsplit("@", 1)[0] + "@" + private_ip(primary_ip) + ":6432"
     env["DATABASE_URL"] = urlunsplit(db._replace(netloc=authority))
+    from cce_backend_partition import route as partition_route
+    from cce_backend_partition import selected as partition_selected
+    from cce_transaction_profile import active
+    if partition_selected(active()):
+        env["DATABASE_URL"] = partition_route(env["DATABASE_URL"],"ticketing_foreground")
     redis = urlsplit(env["REDIS_URL"])
     if redis.scheme not in {"redis", "rediss"} or redis.hostname != "10.1.245.61" or redis.port != 6379:
         raise ValueError("Exact live DCS primary endpoint required")

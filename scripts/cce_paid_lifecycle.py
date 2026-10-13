@@ -162,6 +162,9 @@ class Lifecycle:
         original_error = None
         try:
             self.transition.capture()
+            partition = getattr(self.transition,"backend_partition",None)
+            if partition is not None:
+                partition.prepare()
             self.deployment.create(self.manifests)
             # The entry point must await Kubernetes readiness within its bounded guard
             # before supplying successful HTTP/readiness evidence; no customer retry.

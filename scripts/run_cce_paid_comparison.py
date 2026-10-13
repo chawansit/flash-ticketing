@@ -222,6 +222,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     from cce_recovery_headroom import writer_batch_contract, writer_batch_selected
     if writer_batch_selected(goal):
         extra.update(cce_writer_batch_contract=writer_batch_contract())
+    from cce_backend_partition import contract as partition_contract
+    from cce_backend_partition import selected as partition_selected
+    if partition_selected(goal):
+        extra.update(cce_backend_partition_contract=partition_contract())
     binding = {
         **extra,
         "configuration_sha256": policy.digest(config),
@@ -596,6 +600,14 @@ def run(config, output, guard, manifests, kubeconfig, context):
             transition = transition_class(
                 session, guard, run_id, routes, owner, lambda value: persist({"transition": value}), **transition_options
             )
+
+            from cce_backend_partition import selected as backend_selected
+            if backend_selected(goal):
+                from cce_backend_partition_runtime import Partition
+                def save_partition(value):
+                    transition.record["backend_partition"] = value
+                    transition.checkpoint()
+                transition.backend_partition = Partition(session,guard,run_id,cid,owner,save_partition)
 
             inventory = policy.read(output / "pre-safety-inventory.private.json")
 

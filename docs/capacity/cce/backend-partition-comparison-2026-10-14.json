@@ -1,0 +1,177 @@
+{
+  "decision": "ADR0317",
+  "status": "REJECTED_FAILED_RESTORED",
+  "capacity_qualified": false,
+  "cloud_paid_load_started": true,
+  "immutable_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:1c14f990325a5e408f63ec87b721401bd84ff844a05fbfb3449ec05df4dc06a4",
+  "controlled_factors": {
+    "same_image": true,
+    "same_api_pods": 4,
+    "api_slots_per_pod": {
+      "general": 2,
+      "payment": 2
+    },
+    "same_reservation_writers": 4,
+    "same_writer_batch_size": 4,
+    "same_resources_and_gateway_and_recovery": true,
+    "same_offered_load": {
+      "journeys_per_second": 102,
+      "seconds": 300
+    },
+    "same_generator_concurrency": 500,
+    "same_physical_pgbouncer_backend_budget": 24,
+    "single_changed_factor": "Shared PgBouncer pool to fixed16 foreground +7 background +1 diagnostic alias allocation"
+  },
+  "measurements": [
+    {
+      "decision": "ADR0315",
+      "run": "adr0151-6fd6d0275799",
+      "original_result_sha256": "250aa2541308119f8da10a7ba3ebdf8024d99fb8a1fffbb796e8eead55fbfa2a",
+      "original_pass": false,
+      "status": "FAILED_RESTORED",
+      "capacity_qualified": false,
+      "offered_journeys_per_second": 102,
+      "offered_seconds": 300,
+      "scheduled": 30600,
+      "dispatched": 30529,
+      "fulfilled_customers": 30529,
+      "undispatched_journeys": 71,
+      "first_attempt_error_journeys": 39,
+      "recovered_journeys": 39,
+      "retry_attempts": 42,
+      "final_customer_failures": 0,
+      "final_customer_failure_percent": 0.0,
+      "outcomes": {
+        "fulfilled": 30529
+      },
+      "reported_total_journey_p95_ms": 3353.260642965324,
+      "p95_scope": "Maximum per-shard p95 including failed journeys; not a merged quantile.",
+      "ticket_wait_p95_ms": 2027.7499350486323,
+      "durable_wait_p95_ms": 2015.029033063911,
+      "payment_http_p95_ms": 168.3514240430668,
+      "unique_paid_issued_in_window": 30370,
+      "in_window_paid_issued_per_second": 101.23333333333333,
+      "conservative_inner_window_tickets": 30155,
+      "in_window_target_pass": true,
+      "api_process_cpu_cores": 1.5092191979020355,
+      "worker_process_cpu_cores": 1.3456105485289747
+    },
+    {
+      "decision": "ADR0317",
+      "run": "adr0151-c816742577d3",
+      "original_result_sha256": "bb26a572a41bd4dad7d2f119a80202e00eb419b447686e0ff4fd649b4d2e6174",
+      "original_pass": false,
+      "status": "FAILED_RESTORED",
+      "capacity_qualified": false,
+      "offered_journeys_per_second": 102,
+      "offered_seconds": 300,
+      "scheduled": 30600,
+      "dispatched": 15399,
+      "fulfilled_customers": 15398,
+      "undispatched_journeys": 15201,
+      "first_attempt_error_journeys": 1,
+      "recovered_journeys": 0,
+      "retry_attempts": 0,
+      "final_customer_failures": 1,
+      "final_customer_failure_percent": 0.006493928177154361,
+      "outcomes": {
+        "fulfilled": 15398,
+        "hold_http_502": 1
+      },
+      "reported_total_journey_p95_ms": 15826.75087894313,
+      "p95_scope": "Maximum per-shard p95 including failed journeys; not a merged quantile.",
+      "ticket_wait_p95_ms": 14576.601637061685,
+      "durable_wait_p95_ms": 1459.301379043609,
+      "payment_http_p95_ms": 202.2590710548684,
+      "unique_paid_issued_in_window": 14914,
+      "in_window_paid_issued_per_second": 49.71333333333333,
+      "conservative_inner_window_tickets": 14811,
+      "in_window_target_pass": false,
+      "api_process_cpu_cores": 1.9686041846392803,
+      "worker_process_cpu_cores": 0.7626370544796467
+    }
+  ],
+  "offered_window_alias_measurements": {
+    "samples": 299,
+    "max_aggregate_backends": 24.0,
+    "aliases": {
+      "ticketing_foreground": {
+        "limit": 16,
+        "mean_physical_backends": 15.822742474916389,
+        "max_physical_backends": 16.0,
+        "mean_active_backends": 6.391304347826087,
+        "mean_idle_backends": 9.280936454849499,
+        "mean_waiting_clients": 0.0,
+        "max_waiting_clients": 0.0,
+        "wait_ms_per_assignment": 0.0013212267382121247,
+        "counter_deltas": {
+          "total_xact_count": 140144.0,
+          "total_wait_time": 185162.0,
+          "total_server_assignment_count": 140144.0
+        }
+      },
+      "ticketing_background": {
+        "limit": 7,
+        "mean_physical_backends": 7.0,
+        "max_physical_backends": 7.0,
+        "mean_active_backends": 6.976588628762542,
+        "mean_idle_backends": 0.023411371237458192,
+        "mean_waiting_clients": 9.7123745819398,
+        "max_waiting_clients": 17.0,
+        "wait_ms_per_assignment": 24.092123081212282,
+        "counter_deltas": {
+          "total_xact_count": 121967.0,
+          "total_wait_time": 2938082594.0,
+          "total_server_assignment_count": 121952.0
+        }
+      },
+      "ticketing": {
+        "limit": 1,
+        "mean_physical_backends": 1.0,
+        "max_physical_backends": 1.0,
+        "mean_active_backends": 0.10367892976588629,
+        "mean_idle_backends": 0.8963210702341137,
+        "mean_waiting_clients": 0.0033444816053511705,
+        "max_waiting_clients": 1.0,
+        "wait_ms_per_assignment": 0.16149455226421516,
+        "counter_deltas": {
+          "total_xact_count": 5874.0,
+          "total_wait_time": 948619.0,
+          "total_server_assignment_count": 5874.0
+        }
+      }
+    },
+    "scope": "Per-second sampled pools; stats deltas use first/last in-window samples, not the full observer lifetime."
+  },
+  "recovery": {
+    "original_raw_report_preserved": true,
+    "original_raw_integrity_flag": false,
+    "independent_recovery_sha256": "e3eeaa0444508029158f54ee71d64d59f509c139c0054caabb8aad50d2f69a20",
+    "all_recorded_orders": 15398,
+    "succeeded_payments": 15398,
+    "unique_paid_issued_tickets": 15398,
+    "financial_integrity_violations": 0,
+    "safety_payments_durable": 2,
+    "queues_zero": true,
+    "namespace_and_helpers_removed": true,
+    "original_pooler_configuration_restored": true,
+    "normal_runtime_restored": true,
+    "all_gates": {
+      "runtime_restored": true,
+      "runtime_stable": true,
+      "namespace_absent": true,
+      "helpers_absent": true,
+      "secondary_empty": true,
+      "generator_idle": true,
+      "queues_zero": true
+    }
+  },
+  "interpretation": "Foreground access improved while all seven background backends stayed occupied and workers queued. Ticket issuance slowed, increasing customer polling and consuming generator journey slots. Reject this allocation; adding API pods is not supported by these results. RDS data-read/WAL variation may also contribute; one run does not isolate every cause.",
+  "next_step": "Allocate more of the unchanged backend budget to fulfillment/payment background work, retain a bounded customer reserve, document the new allocation before implementation, then compare the same load. No higher offered load or hour qualification follows this failed candidate.",
+  "validation": {
+    "focused_unit_tests_passed": 268,
+    "local_exact_pooler_TLS_isolation_reload_rollback_passed": true,
+    "production_qualified": false
+  },
+  "hourly_qualification_scope": "The earlier approved-SLO300000/hour result applies to its original configuration and remains separate."
+}

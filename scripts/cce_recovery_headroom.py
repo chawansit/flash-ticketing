@@ -18,12 +18,14 @@ SLOT_SHA256 = "d5a00a534026bce91b131a968f036e38c816e076f95e056e842a011127f4ae01"
 SCALE_KEYS = {"reservation_writer_scale_decision", "reservation_writer_failure_sha256"}
 CORRECTION_KEYS = {"headroom_slot_correction_decision", "headroom_slot_failure_sha256"}
 BATCH_KEYS = {"writer_batch_decision", "writer_batch_failure_sha256", "writer_batch_size"}
+PARTITION_KEYS = {"backend_partition_decision", "backend_partition_contract_sha256"}
 WRITER_RUN = "adr0151-6fd6d0275799"
 WRITER_LEDGER = "bounded_cce_ticket_target__cf9e12d21c2f"
 WRITER_SHA256 = "250aa2541308119f8da10a7ba3ebdf8024d99fb8a1fffbb796e8eead55fbfa2a"
 CHANGED_SOURCES = {
     "scripts/cce_inventory_renewal.py", "scripts/cce_paid_observers.py",
-    "scripts/cce_writer_scale_verification.py",
+    "scripts/cce_writer_scale_verification.py", "scripts/cce_paid_lifecycle.py",
+    "scripts/observe_cce_paid_pipeline.py",
     SOURCE,
     "scripts/cce_paid_profiles.py", "scripts/cce_paid_stage.py", "scripts/cce_paid_inputs.py",
     "scripts/cce_live_admission.py", "scripts/cce_native_workers.py",
@@ -84,6 +86,12 @@ def selected(goal):
                   or goal.get("writer_batch_failure_sha256") != WRITER_SHA256
                   or type(goal.get("writer_batch_size")) is not int or goal["writer_batch_size"] != 8):
         raise ValueError("Exactly declared four-writer batch-eight correction required")
+    partition = bool(PARTITION_KEYS.intersection(goal))
+    if partition:
+        from cce_backend_partition import contract as partition_contract
+        if (not scale or batch or goal.get("backend_partition_decision") != "ADR0317"
+                or goal.get("backend_partition_contract_sha256") != policy.digest(partition_contract())):
+            raise ValueError("Exact four-writer batch-four backend isolation required")
     expected = {"headroom_decision": "ADR0312", "decision": "ADR0277",
                 "extension_decision": "ADR0277", "profile": "cce_ticket_target",
                 "offered_journeys_per_second": RATE, "offered_seconds": 300,
@@ -93,7 +101,7 @@ def selected(goal):
                 "payment_slot_arm": "control" if correction else "candidate", "gateway_read_recovery_decision": "ADR0311"}
     if (any(type(goal.get(k)) is not type(v) or goal.get(k) != v for k, v in expected.items())
             or goal.get("headroom_contract_sha256") != policy.digest(contract())
-            or goal.get("baseline_sha256") != (WRITER_SHA256 if batch else SLOT_SHA256 if scale else FAILURE_SHA256 if correction else BASELINE_SHA256)):
+            or goal.get("baseline_sha256") != (WRITER_SHA256 if batch or partition else SLOT_SHA256 if scale else FAILURE_SHA256 if correction else BASELINE_SHA256)):
         raise ValueError("Exact102/s fixed-budget recovery headroom authorization required")
     return True
 
@@ -220,8 +228,8 @@ def writer_batch_contract():
 
 
 def require_writer_failure(goal):
-    if not writer_batch_selected(goal):
-        raise ValueError("Explicit batch comparison required")
+    if not selected(goal) or not (BATCH_KEYS|PARTITION_KEYS).intersection(goal):
+        raise ValueError("Explicit four-writer-reference comparison required")
     report_path = policy.ROOT / "tmp" / WRITER_RUN / "cce-comparison.private.json"
     report = policy.read(report_path)
     scope = policy.read(policy.STATE)[WRITER_LEDGER]
@@ -259,6 +267,11 @@ def extend_plan(plan, goal):
     batch = writer_batch_selected(goal)
     if batch:
         relative, report = require_writer_failure(goal)
+    from cce_backend_partition import contract as partition_contract
+    from cce_backend_partition import selected as partition_selected
+    partition = partition_selected(goal)
+    if partition:
+        relative, report = require_writer_failure(goal)
     payment = 2 if correction else 3
     scale_fields = ({"worker_counts": writer_scale_contract()["native_counts"],
                      "maximum_pods": 19, "total_requested_vcpu": 7.75,
@@ -266,9 +279,11 @@ def extend_plan(plan, goal):
                      "writer_scale_contract": writer_scale_contract()} if scale else {})
     batch_fields = ({"writer_batch_contract": writer_batch_contract(),
                      "reservation_writer_batch_size": 8} if batch else {})
-    return {**plan, **scale_fields, **batch_fields, "decision": "ADR0277", "extension_decision": "ADR0277",
-            "kind": "writer_concurrency_headroom" if scale else "corrective_general_slot_headroom" if correction else "bounded_recovery_runtime_headroom",
-            "single_changed_factor": "RESERVATION_WRITER_BATCH_SIZE" if batch else "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
+    partition_fields = ({"backend_partition_contract":partition_contract(),
+                         "backend_partition_decision":"ADR0317"} if partition else {})
+    return {**plan, **scale_fields, **batch_fields, **partition_fields, "decision": "ADR0277", "extension_decision": "ADR0277",
+            "kind": "foreground_backend_isolation_headroom" if partition else "writer_batch_headroom" if batch else "writer_concurrency_headroom" if scale else "corrective_general_slot_headroom" if correction else "bounded_recovery_runtime_headroom",
+            "single_changed_factor": "foreground_background_backend_partition" if partition else "RESERVATION_WRITER_BATCH_SIZE" if batch else "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
             "common": {"buyer_journeys_per_second": RATE, "duration_seconds": 300},
             "expected_journeys": EXPECTED, "target_unique_tickets": TARGET,
             "fixture_shows": SHOWS, "generator_concurrency": 500,
@@ -302,10 +317,34 @@ def validate_binding(goal, binding):
     if batch:
         require_writer_failure(goal)
         old = policy.read(policy.STATE)[WRITER_LEDGER]["binding"]
+    from cce_backend_partition import contract as partition_contract
+    from cce_backend_partition import selected as partition_selected
+    partition = partition_selected(goal)
+    if partition:
+        require_writer_failure(goal)
+        old = policy.read(policy.STATE)[WRITER_LEDGER]["binding"]
     ignored = {"cce_paid_entry_sources", "cce_paid_core_sources", "cce_manifest_sha256",
                "baseline_sha256", "cce_verification_contract_sha256", "cce_headroom_contract",
                "cce_gateway_read_recovery_contract", "cce_inventory_renewal_contract",
                "cce_metric_admission_contract_sha256"}
+    if partition:
+        ignored.add("cce_backend_partition_contract")
+        if binding.get("cce_backend_partition_contract") != partition_contract():
+            raise ValueError("Exact reserved backend partition required")
+        import copy
+        from urllib.parse import urlsplit, urlunsplit
+
+        import run_cce_paid_comparison as core
+        saved = policy.read(policy.ROOT / goal["payment_slot_snapshot_path"])["saved"]
+        semantics = core.api_semantics(core.service_for(saved))
+        db = urlsplit(semantics["environment"]["DATABASE_URL"])
+        prior = copy.deepcopy(semantics)
+        prior["environment"]["DATABASE_URL"] = urlunsplit(db._replace(path="/ticketing"))
+        if (db.path != "/ticketing_foreground" or db.username != "ticketing"
+                or binding.get("saved_api_service_sha256") != policy.digest(semantics)
+                or policy.digest(prior) != old["saved_api_service_sha256"]):
+            raise ValueError("Only declared database alias may change API semantics")
+        ignored.add("saved_api_service_sha256")
     if batch:
         ignored.add("cce_writer_batch_contract")
         if binding.get("cce_writer_batch_contract") != writer_batch_contract():
@@ -339,7 +378,7 @@ def validate_binding(goal, binding):
         raise ValueError("Headroom changed application, recovery, route, resources or database budgets")
     for key in ("cce_paid_entry_sources", "cce_paid_core_sources"):
         before, after = old[key], binding[key]
-        if (set(after) != set(before) | {SOURCE, "scripts/cce_writer_scale_verification.py"}
+        if (set(after) != set(before) | {SOURCE, "scripts/cce_writer_scale_verification.py", "scripts/cce_backend_partition.py", "scripts/cce_backend_partition_runtime.py"}
                 or any(before[k] != after[k] for k in before if k not in CHANGED_SOURCES)):
             raise ValueError("Headroom source changed outside the declared rate integration")
     from cce_metric_admission import contract as metric_contract

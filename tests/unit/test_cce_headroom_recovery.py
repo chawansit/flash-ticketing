@@ -171,3 +171,36 @@ def test_batch_candidate_lossless_closure_preserves_failed_customer(proof, monke
     evidence["fresh_financial"]["counts"]["expired_orders"] = 0
     with pytest.raises(ValueError):
         r.validate(report,entry,scope,evidence,fixture)
+
+
+@pytest.mark.parametrize("fault",[None,"missing_ticket","aliases","missing_shard","invented_order"])
+def test_partition_closure_requires_actual_payment_and_pooler_proof(proof,monkeypatch,fault):
+    from cce_backend_partition import ORIGINAL_CONFIG, POOLER_IMAGE
+    report,entry,scope,evidence,fixture=copy.deepcopy(proof)
+    report["run"]=r.PARTITION_RUN
+    stage=report["paid_stage"]
+    stage["customer"].update(dispatched=15399,completed=15399,fulfilled=15398,
+        generator_drops=15201,final_customer_failures=1,outcomes={"fulfilled":15398,"hold_http_502":1},
+        measurement_complete=True,accounting_complete=True,shard_evidence_states=["final","final"])
+    stage["financial"]["counts"].update({k:15398 for k in r.PAID_COUNTS})
+    stage["financial"]["counts"].update(orders=15398,expired_orders=0)
+    stage["financial"]["relationships"]["unique_issued_tickets"]=15398
+    fresh=evidence["fresh_financial"]
+    fresh["counts"].update({k:15398 for k in r.PAID_COUNTS})
+    fresh["counts"].update(orders=15398,expected=15398,expected_paid=15398,expired_orders=0)
+    fresh["relationships"]["unique_issued_tickets"]=15398
+    evidence["pooler_rollback"]={"configuration_sha256":ORIGINAL_CONFIG,"image":POOLER_IMAGE,
+        "aliases_removed":True,"native_rollback_verified":True,"fresh_live_verified":True}
+    if fault=="invented_order":stage["customer"]["dispatched"]=15398
+    if fault=="missing_shard":stage["customer"]["shard_evidence_states"][1]="missing"
+    sha=p.digest(report);monkeypatch.setattr(r,"PARTITION_RESULT",sha)
+    entry.update(ledger=r.PARTITION_LEDGER,result_sha256=sha)
+    scope.update(active_run=r.PARTITION_RUN,cce_paid_result_sha256=sha)
+    evidence.update(run=r.PARTITION_RUN,ledger=r.PARTITION_LEDGER,original_result_sha256=sha)
+    if fault=="aliases":evidence["pooler_rollback"]["aliases_removed"]=False
+    if fault=="missing_ticket":fresh["counts"]["tickets"]-=1
+    if fault is None:
+        assert r.validate(report,entry,scope,evidence,fixture)
+        assert report["pass"] is False and evidence["capacity_qualified"] is False
+    else:
+        with pytest.raises(ValueError):r.validate(report,entry,scope,evidence,fixture)
