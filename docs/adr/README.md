@@ -260,3 +260,7 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0297: Publish status from the committed fulfillment transaction](0297-publish-status-from-committed-fulfillment.md)
 
 - [ADR0298: Bind the committed-status load comparison](0298-bind-committed-status-load-comparison.md)
+
+- [ADR0299: Expose preloaded query statistics](0299-expose-preloaded-query-statistics.md)
+
+- [ADR0300: Compare cohort observer query cost](0300-compare-cohort-observer-query-cost.md)

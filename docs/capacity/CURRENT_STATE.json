@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-13",
   "branch": "codex/customer-recovery-2026-10-10",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "ADR0298 same-image 84/s five-minute off/on pair passed and restored. Each arm completed 25,200 paid-and-issued tickets with zero generator drops or final customer failures. Consumer acquisitions fell 33.3%; journey p95 improved 5.3%. Candidate had four recovered initial payment503s. Default remains off; database tail risk,100/s and hourly qualification remain unresolved.",
+  "status": "ADR0298 84/s pair remains passed/restored with four recovered candidate payment503s. ADR0299 exposed preloaded query statistics without restart or counter reset. ADR0300 read-only cohort comparison matched all nine counters; existing observer alternative reduced buffer accesses 29.84% and measured EXPLAIN execution 10.98%. No new paid load or capacity increase; default committed-status flag remains off.",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -1111,7 +1111,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Bind the ADR0297 immutable image and consumer-only flag to a fresh controlled comparison at unchanged 84 offered journeys/s, resources and connection budgets. Prefer a 10\u201315-minute window covering observed long-run congestion; retain all correctness/customer/drop/diagnostic gates. Then follow the measured result before increasing rate.",
+  "next_action": "Prepare one isolated observer-query correction using the existing ADR0247 alternative, retaining exact counters, independent financial audits and sampling cadence. Capture role-qualified query statistics before/after a fresh same-resource 84/s comparison; do not attribute cumulative statistics to the four past errors or increase load prematurely.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -10438,7 +10438,7 @@
     "scope": "Fresh ADR0228 experiment under ADR0172 standing boundaries; exact registered rate only, no replay",
     "cce_result_sha256": "55ec85ff7a06663a7066dd1b8be209add98a32b800bd4d09d31d51f6e9694295"
   },
-  "next_step": "Diagnose the two database-delay clusters behind four recovered payment503s. Attribute DataFileRead/WAL waits and write amplification to actual query/index/background operations; preserve the 33.3% reduction in consumer acquisitions as an opt-in candidate. No100/s or hourly qualification claimed. Fresh bounded scope required for further load.",
+  "next_step": "Prepare one isolated observer-query correction using the existing ADR0247 alternative, retaining exact counters, independent financial audits and sampling cadence. Capture role-qualified query statistics before/after a fresh same-resource 84/s comparison; do not attribute cumulative statistics to the four past errors or increase load prematurely.",
   "bounded_cce_dependency_probe__8c7a392324b5": {
     "authorization_id": "work-envelope-8c7a392324b5",
     "binding": {
@@ -17821,5 +17821,17 @@
     "capacity_increase_measured": false,
     "consumer_read_acquisitions_reduction_percent": 33.329365236829226,
     "default_enabled": false
+  },
+  "query_attribution_progress": {
+    "decision": "ADR0299",
+    "observer_comparison_decision": "ADR0300",
+    "statistics_extension_installed": true,
+    "statistics_reset": false,
+    "paid_load_started": false,
+    "application_image_changed": false,
+    "inventory": "docs/capacity/cce/query-attribution-inventory-2026-10-13.json",
+    "comparison": "docs/capacity/cce/cohort-observer-query-comparison-2026-10-13.json",
+    "counter_equivalence_verified": true,
+    "latest_payment_errors_root_cause_confirmed": false
   }
 }

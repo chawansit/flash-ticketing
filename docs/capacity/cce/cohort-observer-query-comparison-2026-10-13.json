@@ -1,0 +1,348 @@
+{
+  "decision": "ADR0300",
+  "pass": true,
+  "run": "adr0151-a809a33e242e",
+  "fixture_sha256": "a6579d8b798c119f284dc56d49615df01b9ae99aabbad3084cff39b3d0c4875d",
+  "private_evidence_sha256": "bcb6289f1990ec65be69cf43e9cee5c93b010bd83f51645b6790aa0b0c859968",
+  "statistics_info": [
+    {
+      "dealloc": 0,
+      "stats_reset": "2026-09-13 08:44:05.348317+07:00"
+    }
+  ],
+  "comparison_scope": "One completed 84-show, 25200-ticket cohort; idle unchanged RDS; two alternating-order rounds; not a paid load test.",
+  "measurements": [
+    {
+      "query": "current",
+      "counters": {
+        "pending_orders": 0,
+        "paid_unfulfilled": 0,
+        "fulfilled_orders": 25200,
+        "pending_callback_deliveries": 0,
+        "pending_payment_attempts": 0,
+        "delivered_callbacks": 25200,
+        "issued_tickets": 25200,
+        "unpublished_outbox": 0,
+        "db_lock_waiters": 0
+      },
+      "elapsed_ms": 317.66306108329445,
+      "execution_ms": 227.048,
+      "planning_ms": 0.734,
+      "shared_hits": 203204,
+      "shared_reads": 0,
+      "relation_scans": [
+        {
+          "node": "Bitmap Heap Scan",
+          "relation": "orders",
+          "actual_rows": 25200,
+          "actual_loops": 1,
+          "total_time_ms": 6.907,
+          "shared_hits": 817,
+          "shared_reads": 0
+        },
+        {
+          "node": "Bitmap Heap Scan",
+          "relation": "bookings",
+          "actual_rows": 25200,
+          "actual_loops": 1,
+          "total_time_ms": 5.183,
+          "shared_hits": 687,
+          "shared_reads": 0
+        },
+        {
+          "node": "Index Only Scan",
+          "relation": "tickets",
+          "actual_rows": 1,
+          "actual_loops": 25200,
+          "total_time_ms": 0.003,
+          "shared_hits": 100801,
+          "shared_reads": 0
+        },
+        {
+          "node": "Index Only Scan",
+          "relation": "outbox_events",
+          "actual_rows": 0,
+          "actual_loops": 1,
+          "total_time_ms": 0.186,
+          "shared_hits": 99,
+          "shared_reads": 0
+        },
+        {
+          "node": "Seq Scan",
+          "relation": "pg_database",
+          "actual_rows": 0,
+          "actual_loops": 0,
+          "total_time_ms": 0.0,
+          "shared_hits": 0,
+          "shared_reads": 0
+        },
+        {
+          "node": "Index Scan",
+          "relation": "payment_attempts",
+          "actual_rows": 1,
+          "actual_loops": 25200,
+          "total_time_ms": 0.003,
+          "shared_hits": 100800,
+          "shared_reads": 0
+        }
+      ]
+    },
+    {
+      "query": "alternative",
+      "counters": {
+        "pending_orders": 0,
+        "paid_unfulfilled": 0,
+        "fulfilled_orders": 25200,
+        "pending_callback_deliveries": 0,
+        "pending_payment_attempts": 0,
+        "delivered_callbacks": 25200,
+        "issued_tickets": 25200,
+        "unpublished_outbox": 0,
+        "db_lock_waiters": 0
+      },
+      "elapsed_ms": 195.8480030298233,
+      "execution_ms": 203.184,
+      "planning_ms": 0.562,
+      "shared_hits": 142578,
+      "shared_reads": 0,
+      "relation_scans": [
+        {
+          "node": "Bitmap Heap Scan",
+          "relation": "orders",
+          "actual_rows": 25200,
+          "actual_loops": 1,
+          "total_time_ms": 7.17,
+          "shared_hits": 817,
+          "shared_reads": 0
+        },
+        {
+          "node": "Bitmap Heap Scan",
+          "relation": "bookings",
+          "actual_rows": 25200,
+          "actual_loops": 1,
+          "total_time_ms": 5.278,
+          "shared_hits": 687,
+          "shared_reads": 0
+        },
+        {
+          "node": "Index Only Scan",
+          "relation": "tickets",
+          "actual_rows": 25200,
+          "actual_loops": 1,
+          "total_time_ms": 88.946,
+          "shared_hits": 70824,
+          "shared_reads": 0
+        },
+        {
+          "node": "Index Only Scan",
+          "relation": "outbox_events",
+          "actual_rows": 0,
+          "actual_loops": 1,
+          "total_time_ms": 0.181,
+          "shared_hits": 99,
+          "shared_reads": 0
+        },
+        {
+          "node": "Seq Scan",
+          "relation": "pg_database",
+          "actual_rows": 0,
+          "actual_loops": 0,
+          "total_time_ms": 0.0,
+          "shared_hits": 0,
+          "shared_reads": 0
+        },
+        {
+          "node": "Index Scan",
+          "relation": "payment_attempts",
+          "actual_rows": 25200,
+          "actual_loops": 1,
+          "total_time_ms": 83.764,
+          "shared_hits": 70838,
+          "shared_reads": 0
+        }
+      ]
+    },
+    {
+      "query": "alternative",
+      "counters": {
+        "pending_orders": 0,
+        "paid_unfulfilled": 0,
+        "fulfilled_orders": 25200,
+        "pending_callback_deliveries": 0,
+        "pending_payment_attempts": 0,
+        "delivered_callbacks": 25200,
+        "issued_tickets": 25200,
+        "unpublished_outbox": 0,
+        "db_lock_waiters": 0
+      },
+      "elapsed_ms": 195.48333797138184,
+      "execution_ms": 203.744,
+      "planning_ms": 0.581,
+      "shared_hits": 142578,
+      "shared_reads": 0,
+      "relation_scans": [
+        {
+          "node": "Bitmap Heap Scan",
+          "relation": "orders",
+          "actual_rows": 25200,
+          "actual_loops": 1,
+          "total_time_ms": 6.983,
+          "shared_hits": 817,
+          "shared_reads": 0
+        },
+        {
+          "node": "Bitmap Heap Scan",
+          "relation": "bookings",
+          "actual_rows": 25200,
+          "actual_loops": 1,
+          "total_time_ms": 5.314,
+          "shared_hits": 687,
+          "shared_reads": 0
+        },
+        {
+          "node": "Index Only Scan",
+          "relation": "tickets",
+          "actual_rows": 25200,
+          "actual_loops": 1,
+          "total_time_ms": 89.957,
+          "shared_hits": 70824,
+          "shared_reads": 0
+        },
+        {
+          "node": "Index Only Scan",
+          "relation": "outbox_events",
+          "actual_rows": 0,
+          "actual_loops": 1,
+          "total_time_ms": 0.181,
+          "shared_hits": 99,
+          "shared_reads": 0
+        },
+        {
+          "node": "Seq Scan",
+          "relation": "pg_database",
+          "actual_rows": 0,
+          "actual_loops": 0,
+          "total_time_ms": 0.0,
+          "shared_hits": 0,
+          "shared_reads": 0
+        },
+        {
+          "node": "Index Scan",
+          "relation": "payment_attempts",
+          "actual_rows": 25200,
+          "actual_loops": 1,
+          "total_time_ms": 83.67,
+          "shared_hits": 70838,
+          "shared_reads": 0
+        }
+      ]
+    },
+    {
+      "query": "current",
+      "counters": {
+        "pending_orders": 0,
+        "paid_unfulfilled": 0,
+        "fulfilled_orders": 25200,
+        "pending_callback_deliveries": 0,
+        "pending_payment_attempts": 0,
+        "delivered_callbacks": 25200,
+        "issued_tickets": 25200,
+        "unpublished_outbox": 0,
+        "db_lock_waiters": 0
+      },
+      "elapsed_ms": 214.54116608947515,
+      "execution_ms": 230.065,
+      "planning_ms": 0.748,
+      "shared_hits": 203204,
+      "shared_reads": 0,
+      "relation_scans": [
+        {
+          "node": "Bitmap Heap Scan",
+          "relation": "orders",
+          "actual_rows": 25200,
+          "actual_loops": 1,
+          "total_time_ms": 7.217,
+          "shared_hits": 817,
+          "shared_reads": 0
+        },
+        {
+          "node": "Bitmap Heap Scan",
+          "relation": "bookings",
+          "actual_rows": 25200,
+          "actual_loops": 1,
+          "total_time_ms": 5.249,
+          "shared_hits": 687,
+          "shared_reads": 0
+        },
+        {
+          "node": "Index Only Scan",
+          "relation": "tickets",
+          "actual_rows": 1,
+          "actual_loops": 25200,
+          "total_time_ms": 0.004,
+          "shared_hits": 100801,
+          "shared_reads": 0
+        },
+        {
+          "node": "Index Only Scan",
+          "relation": "outbox_events",
+          "actual_rows": 0,
+          "actual_loops": 1,
+          "total_time_ms": 0.177,
+          "shared_hits": 99,
+          "shared_reads": 0
+        },
+        {
+          "node": "Seq Scan",
+          "relation": "pg_database",
+          "actual_rows": 0,
+          "actual_loops": 0,
+          "total_time_ms": 0.0,
+          "shared_hits": 0,
+          "shared_reads": 0
+        },
+        {
+          "node": "Index Scan",
+          "relation": "payment_attempts",
+          "actual_rows": 1,
+          "actual_loops": 25200,
+          "total_time_ms": 0.004,
+          "shared_hits": 100800,
+          "shared_reads": 0
+        }
+      ]
+    }
+  ],
+  "mean_execution_ms": {
+    "current": 228.5565,
+    "alternative": 203.464
+  },
+  "execution_reduction_percent": 10.978685795416009,
+  "buffer_access_reduction_percent": 29.835042617271313,
+  "paid_load_started": false,
+  "runtime_query_changed": false,
+  "excluded_attempts": [
+    {
+      "identity": "adr0300-query-f6361a05939b",
+      "reason": "Dictionary rows collapsed duplicate count column names; counter equality incomplete; excluded despite draft pass field."
+    }
+  ],
+  "limitations": [
+    "Two samples per query; caches warm and completed cohort only.",
+    "No comparison under contention, hourly-sized cohort or customer throughput improvement.",
+    "Current warm SELECT 214.54ms versus alternative 195.48-195.85ms; do not use the first 317.66ms current SELECT as a fair percentage baseline."
+  ],
+  "recommendation": "Prepare isolated integration of the existing ADR0247 query; retain nine exact counters and sampling cadence; measure fresh 84/s comparison before adoption or rate increase.",
+  "query_sources": {
+    "current": {
+      "path": "scripts/observe_paid_pipeline.py",
+      "file_sha256": "50f9ab9e6574b3362dcc6856b2049554379ce7f711c67cefabfce28b94242a82",
+      "query_sha256": "36e71bac98ec63cfcd6aa4bdb2ce73355b1dbb6788bd77cb965a2b19056c6f87"
+    },
+    "alternative": {
+      "path": "scripts/paid_cohort_query.py",
+      "file_sha256": "b024b4bf74d26b491342be1f0b8712cba3fd3eea03e1bcdc2ccff6bffe003872",
+      "query_sha256": "cc440cabc192b8037f1e3dfa52d0aa9f501d3af2dfc3af5694d13f470076beef"
+    }
+  }
+}
