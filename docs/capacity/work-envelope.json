@@ -3459,9 +3459,9 @@
   "existing_resource_configuration_sha256": "eaddb6cfae8a9442820b13f73be6df87290fabda96507deffdc8158b43c48b4b",
   "approved_customer_outcome_target": {
     "authorized_date_bangkok": "2026-10-13",
-    "authorization": "User confirmed recoverable first-attempt errors may occur provided recovery succeeds; final customer failures at or below 0.001%.",
-    "maximum_final_customer_failure_percent": 0.001,
-    "maximum_final_customer_failure_fraction": 1e-05,
+    "authorization": "User adjusted accepted final customer failure target to 0.01%, noting it is better than their existing system. Applies after bounded recovery; correctness and other gates unchanged.",
+    "maximum_final_customer_failure_percent": 0.01,
+    "maximum_final_customer_failure_fraction": 0.0001,
     "denominator": "All dispatched customer journeys, including every final failed journey.",
     "final_failure_definition": "Customer journey that remains unsuccessful after bounded recovery or exceeds the current profile total journey deadline.",
     "first_attempt_errors": "Report separately with operation checks, recovery attempts, recovered journeys and total journey latency. No new numeric first-attempt ceiling was approved; preserve any existing profile overload gates.",
@@ -3473,6 +3473,15 @@
     "latency_targets": "Existing profile thresholds unchanged; include recovery in total customer journey latency.",
     "enforcement_status": "Approved business target recorded. Existing versioned profiles remain unchanged and stricter final-failure gates continue to apply until a future explicitly bound profile implements this target.",
     "historical_results": "Do not retroactively reclassify failed runs or claim production qualification from a short zero-failure sample.",
-    "deployment_and_spending_permissions": "Unchanged."
+    "deployment_and_spending_permissions": "Unchanged.",
+    "target_revision_history": [
+      {
+        "authorized_date_bangkok": "2026-10-13",
+        "maximum_final_customer_failure_percent": 0.001,
+        "maximum_final_customer_failure_fraction": 1e-05,
+        "authorization": "User confirmed recoverable first-attempt errors may occur provided recovery succeeds; final customer failures at or below 0.001%.",
+        "status": "SUPERSEDED_BY_USER_TARGET_0.01_PERCENT"
+      }
+    ]
   }
 }
