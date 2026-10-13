@@ -1,0 +1,69 @@
+{
+  "decision": "ADR0304",
+  "control_result": "docs/capacity/cce/runtime-cohort-control-result-2026-10-13.json",
+  "candidate_result": "docs/capacity/cce/runtime-cohort-candidate-result-2026-10-13.json",
+  "single_changed_factor": "observer_runtime_cohort_query",
+  "both_passed": true,
+  "comparisons": {
+    "customer": {
+      "generator_drops": {
+        "control": 0,
+        "candidate": 0
+      },
+      "first_attempt_error_journeys": {
+        "control": 0,
+        "candidate": 13
+      },
+      "retry_attempts": {
+        "control": 0,
+        "candidate": 13
+      },
+      "final_customer_failures": {
+        "control": 0,
+        "candidate": 0
+      },
+      "fulfilled": {
+        "control": 25200,
+        "candidate": 25200
+      }
+    },
+    "customer_latency_ms": {
+      "total_journey_p95_ms": {
+        "control": 2670.938146999106,
+        "candidate": 2678.6437470000237
+      },
+      "payment_http_p95_ms": {
+        "control": 134.23876697197556,
+        "candidate": 108.32061700057238
+      },
+      "payment_to_ticket_p95_ms": {
+        "control": 704.0472769876942,
+        "candidate": 695.2943149954081
+      }
+    },
+    "diagnostics": {
+      "api_cpu_cores": {
+        "control": 1.2930840189388824,
+        "candidate": 1.2022607538306147
+      },
+      "worker_cpu_cores": {
+        "control": 1.3094282022996513,
+        "candidate": 1.3451394668317882
+      }
+    }
+  },
+  "inside_offered_window_tickets_per_second": {
+    "control": 83.66,
+    "candidate": 83.66666666666667
+  },
+  "hourly_qualified": false,
+  "capacity_increase_qualified": false,
+  "observer_mean_exec_reduction_percent": 11.163561486570462,
+  "observer_buffer_hits_per_sample_reduction_percent": 21.857004118462452,
+  "initial_payment_error_percent": {
+    "control": 0,
+    "candidate": 0.05158730158730159
+  },
+  "customer_performance_improvement_established": false,
+  "recommendation": "Keep the baseline query as default. Prioritize payment-slot occupancy and remaining database write/I/O work; do not infer capacity gain or scale load from query savings."
+}

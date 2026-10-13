@@ -2919,6 +2919,48 @@
       "finished_at_utc": "2026-10-13T02:23:40.669138+00:00",
       "paid_runs_started": 1,
       "result_sha256": "6ad3a50b9630968d46b7979b67c0c9fd51b90eed985d5e5d0219d1b198981b3f"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__70f69f8d1e99",
+      "authorization_id": "work-envelope-70f69f8d1e99",
+      "envelope_sha256": "693c0498b7a4b8958b158d2bbf2fc052516ccaba6d4f8ba72bbfca3da091295b",
+      "binding_sha256": "6e78ab0a632f1cad448f4edca8866c7e0c4a1a7cd8b547a0b1d8aad8aa38a08c",
+      "plan_sha256": "19bf96f9078ae1b5a30124022042367ae6c3343e48f912738a6da238a5ca6aa5",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1287.8120000000345,
+      "started_at_utc": "2026-10-13T03:06:06.881591+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-dfa33195839b",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-13T03:27:34.530090+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "742ff83447740e1a8bb6230887e7129da3e82d7bb6df1c90e0c3b7b3d02f776c"
+    },
+    {
+      "ledger": "bounded_cce_paid_comparison__89bc33920c18",
+      "authorization_id": "work-envelope-89bc33920c18",
+      "envelope_sha256": "d8f8055b14a0459c34fb23bad819ac6dfc09d16fe6708a6b22c7086fe0f506b8",
+      "binding_sha256": "4345092bfe7f9fcc50f05f6d3cc19ffec4018985209a770277dbd0490ebc7b2f",
+      "plan_sha256": "b18a468180dbf3d1c5ef3687e44546455df82a6a9527ff9da883078813288359",
+      "profile": "cce_paid_comparison",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1341.2179999999935,
+      "started_at_utc": "2026-10-13T03:27:39.363863+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-0b49a0df24d3",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-13T03:50:00.210118+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "c37ca756c8141a8908a4bf54b696bd03e9ce854bb72f79bd045327e476c64b13"
     }
   ],
   "verified_aborts": {

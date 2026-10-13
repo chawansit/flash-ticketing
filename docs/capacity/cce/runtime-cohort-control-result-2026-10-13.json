@@ -1,0 +1,700 @@
+{
+  "decision": "ADR0304",
+  "arm": "control",
+  "run": "adr0151-dfa33195839b",
+  "ledger": "bounded_cce_paid_comparison__70f69f8d1e99",
+  "status": "PASSED_RESTORED",
+  "pass": true,
+  "paid_runs_started": 1,
+  "raw_result_sha256": "742ff83447740e1a8bb6230887e7129da3e82d7bb6df1c90e0c3b7b3d02f776c",
+  "binding_sha256": "6e78ab0a632f1cad448f4edca8866c7e0c4a1a7cd8b547a0b1d8aad8aa38a08c",
+  "offered_journeys_per_second": 84,
+  "offered_seconds": 300,
+  "application_image_sha256": "sha256:1c14f990325a5e408f63ec87b721401bd84ff844a05fbfb3449ec05df4dc06a4",
+  "configuration_sha256": "sha256:eb54f55a7cb17161310c99b6c6222e64bbb45fb92c696f839dd3877fe31a8112",
+  "source_sha256": "099bdb706c419eb18850fd7ee6a02986b489118d9f0f350a5754e113edba4104",
+  "committed_status_snapshot": "1",
+  "physical_database_connections": 24,
+  "acquisition_budget": 20,
+  "apis": {
+    "replicas": 4,
+    "cpu_per_replica": "1",
+    "memory_per_replica": "2Gi"
+  },
+  "workers": {
+    "replicas": 14,
+    "cpu_per_replica": "250m",
+    "memory_per_replica": "512Mi"
+  },
+  "query_contract": {
+    "decision": "ADR0304",
+    "arm": "control",
+    "baseline_query_sha256": "304b87b37cd635ea178cb69adf19291c33e1218e6652651af9f8ed08e930b5c2",
+    "candidate_query_sha256": "cc440cabc192b8037f1e3dfa52d0aa9f501d3af2dfc3af5694d13f470076beef",
+    "active_query_sha256": "304b87b37cd635ea178cb69adf19291c33e1218e6652651af9f8ed08e930b5c2",
+    "helper_sha256": "0d36c934ecb146ee95733cbdcea00560a348e00bda354d405f7c47c6e708ad60",
+    "sample_columns": [
+      "pending_orders",
+      "paid_unfulfilled",
+      "fulfilled_orders",
+      "pending_callback_deliveries",
+      "pending_payment_attempts",
+      "delivered_callbacks",
+      "issued_tickets",
+      "unpublished_outbox",
+      "db_lock_waiters"
+    ],
+    "interval_seconds": 1,
+    "additional_database_connections": 0,
+    "hourly": false
+  },
+  "query_receipts_complete": true,
+  "customer": {
+    "rate_target_per_second": 84,
+    "dispatch_seconds": 300,
+    "generator_shards": 2,
+    "generator_max_in_flight": 500,
+    "scheduled": 25200,
+    "dispatched": 25200,
+    "generator_drops": 0,
+    "completed": 25200,
+    "fulfilled": 25200,
+    "fulfilled_by_deadline": 25200,
+    "distinct_orders": 25200,
+    "distinct_tickets": 25200,
+    "retry_attempts": 0,
+    "hold_app_timing_samples": 25200,
+    "payment_app_timing_samples": 25200,
+    "first_attempt_error_journeys": 0,
+    "payment_operation_checks": 0,
+    "recovered_journeys": 0,
+    "final_customer_failures": 0,
+    "recovery_max_attempts": 3,
+    "dispatch_lag_p95_ms": 1.4564825687557459,
+    "dispatch_lag_max_ms": 91.45794890355319,
+    "hold_http_p95_ms": 11.85068697668612,
+    "hold_app_p95_ms": 7.22,
+    "hold_client_excess_p95_ms": 5.557919098064303,
+    "command_durable_wait_p95_ms": 2018.598624970764,
+    "durable_p95_ms": 2027.342654997483,
+    "payment_http_p95_ms": 134.23876697197556,
+    "payment_app_p95_ms": 128.7,
+    "payment_client_excess_p95_ms": 6.174945980720224,
+    "ticket_wait_p95_ms": 618.4235200053081,
+    "payment_to_ticket_p95_ms": 704.0472769876942,
+    "hold_to_ticket_p95_ms": 2670.8859889768064,
+    "total_journey_p95_ms": 2670.938146999106,
+    "pass": true,
+    "measurement_complete": true,
+    "accounting_complete": true
+  },
+  "customer_latency_ms": {
+    "dispatch_lag_p95_ms": 1.4564825687557459,
+    "hold_http_p95_ms": 11.85068697668612,
+    "hold_app_p95_ms": 7.22,
+    "hold_client_excess_p95_ms": 5.557919098064303,
+    "command_durable_wait_p95_ms": 2018.598624970764,
+    "durable_p95_ms": 2027.342654997483,
+    "payment_http_p95_ms": 134.23876697197556,
+    "payment_app_p95_ms": 128.7,
+    "payment_client_excess_p95_ms": 6.174945980720224,
+    "ticket_wait_p95_ms": 618.4235200053081,
+    "payment_to_ticket_p95_ms": 704.0472769876942,
+    "hold_to_ticket_p95_ms": 2670.8859889768064,
+    "total_journey_p95_ms": 2670.938146999106,
+    "transport_phase_p95_ms": {
+      "holds": {
+        "connect_ms": 13.900600024499,
+        "headers_to_pool_release_ms": 0.9459489956498146,
+        "pre_send_ms": 1.1070329928770661,
+        "request_to_pool_release_ms": 11.565665015950799,
+        "response_body_ms": 0.33700093626976013,
+        "response_wait_ms": 9.515194920822978,
+        "stream_close_ms": 0.6781750125810504
+      },
+      "orders": {
+        "connect_ms": 5.875346949324012,
+        "headers_to_pool_release_ms": 1.0872780112549663,
+        "pre_send_ms": 1.447207061573863,
+        "request_to_pool_release_ms": 22.933215950615704,
+        "response_body_ms": 0.34980394411832094,
+        "response_wait_ms": 20.911912084557116,
+        "stream_close_ms": 0.7807670626789331
+      },
+      "payment_operations": {
+        "connect_ms": null,
+        "headers_to_pool_release_ms": null,
+        "pre_send_ms": null,
+        "request_to_pool_release_ms": null,
+        "response_body_ms": null,
+        "response_wait_ms": null,
+        "stream_close_ms": null
+      },
+      "payments": {
+        "connect_ms": 92.6365910563618,
+        "headers_to_pool_release_ms": 1.1330930283293128,
+        "pre_send_ms": 1.0928029660135508,
+        "request_to_pool_release_ms": 133.95538995973766,
+        "response_body_ms": 0.3522440092638135,
+        "response_wait_ms": 132.12641107384115,
+        "stream_close_ms": 0.8310440462082624
+      },
+      "reservation_commands": {
+        "connect_ms": 13.482591952197254,
+        "headers_to_pool_release_ms": 0.9972340194508433,
+        "pre_send_ms": 1.0335110127925873,
+        "request_to_pool_release_ms": 7.527604000642896,
+        "response_body_ms": 0.3248340217396617,
+        "response_wait_ms": 5.5405329912900925,
+        "stream_close_ms": 0.7298290729522705
+      }
+    }
+  },
+  "measurement_gates": {
+    "customer_load": true,
+    "post_ttl_financial": true,
+    "zero_double_booking": true,
+    "payment_durability": true,
+    "full_queue_drain": true,
+    "native_observer": true,
+    "native_cpu": true,
+    "unchanged_background": true,
+    "unchanged_native_pods": true,
+    "live_admission": true,
+    "unchanged_ingress_route": true
+  },
+  "financial": {
+    "orders": 25200,
+    "fulfilled_orders": 25200,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 25200,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 25200,
+    "bookings": 25200,
+    "tickets": 25200,
+    "payment_callbacks": 25200,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 25200,
+    "callback_delivery_target": 25200,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 25200,
+    "expected_paid": 25200,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true,
+    "hold_deadlines_elapsed": true
+  },
+  "financial_checks": {
+    "post_ttl_complete": true,
+    "payments_durable": true,
+    "ticket_relationships_valid": true
+  },
+  "issuance_window": {
+    "unique_paid_issued_tickets": 25098,
+    "unique_orders": 25098,
+    "unique_payments": 25098,
+    "joined_rows": 25098,
+    "conservative_inner_window_tickets": 24886,
+    "inner_window_guard_seconds": 2,
+    "pass": false
+  },
+  "issued_inside_offered_window_per_second": 83.66,
+  "global_queues": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 6,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "split",
+    "projection_kafka_total_lag": 0,
+    "projection_kafka_members": 1
+  },
+  "restoration_complete": true,
+  "integrity_verified": true,
+  "cleanup_complete": true,
+  "transport_credentials_cleared": true,
+  "diagnostics": {
+    "api_cpu_cores": 1.2930840189388824,
+    "worker_cpu_cores": 1.3094282022996513,
+    "database_wait_capture": {
+      "decision": "ADR0173",
+      "complete": true,
+      "rows": 358,
+      "error_counts": {},
+      "counter_continuity": true,
+      "max_collection_ms": 43.66782703436911,
+      "max_statistics_gap_seconds": 1.016649,
+      "discontinuity_counts": {},
+      "wal_timing_available_throughout": false,
+      "counter_deltas": {
+        "wal": {
+          "wal_records": 4224748,
+          "wal_fpi": 756548,
+          "wal_bytes": 4058690946,
+          "wal_buffers_full": 0,
+          "wal_write": 148576,
+          "wal_sync": 148573,
+          "wal_write_time": 0,
+          "wal_sync_time": 0
+        },
+        "checkpointer": {
+          "num_timed": 0,
+          "num_requested": 0,
+          "write_time": 0,
+          "sync_time": 0,
+          "buffers_written": 0
+        },
+        "database": {
+          "xact_commit": 274701,
+          "xact_rollback": 24,
+          "blks_read": 1202671,
+          "blks_hit": 54158666,
+          "blk_read_time": 293126.345999999,
+          "blk_write_time": 5296.486999999994,
+          "deadlocks": 0,
+          "temp_bytes": 0
+        }
+      },
+      "observed_active_wait_peaks": {
+        "IO:WalSync": 1,
+        "Client:ClientRead": 6,
+        "None:None": 4,
+        "IO:DataFileRead": 9,
+        "LWLock:WALWrite": 22,
+        "Timeout:VacuumDelay": 1,
+        "Lock:transactionid": 2,
+        "IO:DataFileWrite": 1,
+        "IO:SlruRead": 1,
+        "IO:WalInitSync": 1,
+        "IO:WalInitWrite": 1,
+        "IO:DataFileExtend": 1,
+        "IO:WalWrite": 1,
+        "LWLock:BufferMapping": 1
+      },
+      "scope": "Observer lifetime, cluster WAL/checkpoints and current-database activity; one-second snapshots may miss brief waits. Correlation does not prove causality.",
+      "independent_sampling": true,
+      "offered_window_covered": true,
+      "first_statistics_utc": "2026-10-13T10:16:20.701558+07:00",
+      "last_statistics_utc": "2026-10-13T10:22:17.775060+07:00"
+    },
+    "pipeline_resources": {
+      "observed": true,
+      "samples": 358,
+      "errors": 0,
+      "counter_reset_detected": false,
+      "role_coverage_pass": true,
+      "host_cpu_p95_percent": 60.51282051282051,
+      "host_cpu_peak_percent": 71.96969696969697,
+      "host_iowait_peak_percent": 0.2638522427440633,
+      "pgbouncer_pool_peaks": {
+        "cl_active": 44.0,
+        "cl_waiting": 6.0,
+        "sv_active": 24.0,
+        "sv_idle": 24.0,
+        "sv_used": 3.0,
+        "sv_login": 0.0
+      },
+      "pgbouncer_maxwait_peak_ms": 14.872,
+      "pgbouncer_counter_deltas": {
+        "total_xact_count": 273886.0,
+        "total_query_count": 2274277.0,
+        "total_xact_time": 5675398723.0,
+        "total_query_time": 3893973101.0,
+        "total_wait_time": 42826172.0,
+        "total_server_assignment_count": 273886.0
+      },
+      "pass": true
+    },
+    "api_database": {
+      "observed_replicas": 4,
+      "counter_deltas": {
+        "pool_acquire:ok": 75989.0,
+        "order_cache:fill_raced": 1.0,
+        "order_cache:fill": 25284.0,
+        "process_cpu_seconds_total": 391.65,
+        "order_cache:miss": 25285.0,
+        "order_cache:hit": 25495.0
+      },
+      "duration_mean_ms": {
+        "db_query:SELECT": 2.3499735759565072,
+        "db_pool_acquire:ok": 12.015613077851844,
+        "db_query:BEGIN": 4.421399900998932,
+        "db_query:INSERT": 2.5880491845568168,
+        "db_commit:all": 4.473280836343722,
+        "db_query:UPDATE": 2.3392367251096777,
+        "db_connection_hold:all": 29.292950602508427,
+        "event_loop_lag:all": 0.573003773199076
+      },
+      "event_loop_lag_current_peak_ms": 16.366812999990543,
+      "pool_peaks_per_replica": {
+        "pool_acquiring": 10.0,
+        "pool_in_use": 4.0,
+        "pool_state:pool_size": 4.0,
+        "pool_state:general_pool_size": 2.0,
+        "pool_state:payment_pool_size": 2.0,
+        "pool_state:pool_available": 4.0,
+        "pool_state:general_pool_available": 2.0,
+        "pool_state:payment_pool_available": 2.0,
+        "pool_state:requests_waiting": 9.0,
+        "pool_state:general_requests_waiting": 1.0,
+        "pool_state:payment_requests_waiting": 9.0,
+        "pool_state:pool_max": 4.0,
+        "pool_state:general_pool_max": 2.0,
+        "pool_state:payment_pool_max": 2.0,
+        "pool_state:pool_max_waiting": 20.0,
+        "pool_state:shared_acquisition_limit": 20.0,
+        "pool_state:shared_acquisition_used": 9.0,
+        "pool_state:shared_acquisition_acquiring": 9.0,
+        "pool_state:shared_acquisition_retained": 0,
+        "pool_state:general_max_waiting": 18.0,
+        "pool_state:payment_max_waiting": 18.0
+      },
+      "counter_reset_detected": false
+    },
+    "role_database": {
+      "simulator": {
+        "observed_replicas": 1,
+        "counter_deltas": {
+          "pool_acquire:error": 0.0,
+          "process_cpu_seconds_total": 52.680000000000014,
+          "pool_acquire:ok": 77809.0
+        },
+        "duration_mean_ms": {
+          "db_query:SELECT": 2.325959965577292,
+          "db_pool_acquire:ok": 0.1421585889162907,
+          "db_query:BEGIN": 4.268414161986051,
+          "db_query:UPDATE": 2.3438447192848697,
+          "db_connection_hold:all": 13.79772361656253,
+          "db_commit:all": 3.97948945554202
+        },
+        "event_loop_lag_current_peak_ms": 0.0,
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 4.0,
+          "pool_in_use": 10.0,
+          "pool_state:pool_size": 10.0,
+          "pool_state:pool_available": 10.0,
+          "pool_state:requests_waiting": 1.0,
+          "pool_state:pool_max": 10.0
+        },
+        "counter_reset_detected": false
+      },
+      "consumer": {
+        "observed_replicas": 6,
+        "counter_deltas": {
+          "order_cache:event_read_deduplicated": 25195.0,
+          "process_cpu_seconds_total": 171.97000000000003,
+          "pool_acquire:ok": 50405.0,
+          "order_cache:event_fill": 25200.0,
+          "order_cache:event_fill_raced": 5.0,
+          "order_cache:hit": 25195.0,
+          "order_cache:committed_read_avoided": 25195.0
+        },
+        "duration_mean_ms": {
+          "db_query:SELECT": 2.052811062066929,
+          "db_pool_acquire:ok": 0.01640700200423195,
+          "db_query:BEGIN": 3.8443493090368515,
+          "db_query:UPDATE": 2.046702092778043,
+          "db_connection_hold:all": 19.59064657111388,
+          "db_query:INSERT": 2.658561748412849,
+          "db_commit:all": 4.900850338359437
+        },
+        "event_loop_lag_current_peak_ms": 0.0,
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 0,
+          "pool_in_use": 1.0,
+          "pool_state:pool_size": 1.0,
+          "pool_state:pool_available": 1.0,
+          "pool_state:requests_waiting": 0,
+          "pool_state:pool_max": 7.0
+        },
+        "counter_reset_detected": false
+      },
+      "publisher": {
+        "observed_replicas": 1,
+        "counter_deltas": {
+          "process_cpu_seconds_total": 40.14,
+          "pool_acquire:ok": 16260.0
+        },
+        "duration_mean_ms": {
+          "db_query:SELECT": 2.3327212497880834,
+          "db_pool_acquire:ok": 0.015202882410837977,
+          "db_query:BEGIN": 4.2106039461251,
+          "db_query:UPDATE": 2.7744914952366293,
+          "db_connection_hold:all": 16.695888187084915,
+          "db_commit:all": 4.7623808538743795
+        },
+        "event_loop_lag_current_peak_ms": 0.0,
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 0,
+          "pool_in_use": 1.0,
+          "pool_state:pool_size": 2.0,
+          "pool_state:pool_available": 2.0,
+          "pool_state:requests_waiting": 0,
+          "pool_state:pool_max": 12.0
+        },
+        "counter_reset_detected": false
+      },
+      "writer": {
+        "observed_replicas": 3,
+        "counter_deltas": {
+          "process_cpu_seconds_total": 85.56,
+          "pool_acquire:ok": 7163.0
+        },
+        "duration_mean_ms": {
+          "db_query:SELECT": 2.1772167375119253,
+          "db_pool_acquire:ok": 0.019624699148539957,
+          "db_query:BEGIN": 3.953540848526801,
+          "db_query:UPDATE": 0.0662456222618906,
+          "db_connection_hold:all": 94.06810112397011,
+          "db_query:INSERT": 0.404273352248717,
+          "db_commit:all": 5.868762472428744
+        },
+        "event_loop_lag_current_peak_ms": 0.0,
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 0,
+          "pool_in_use": 1.0,
+          "pool_state:pool_size": 1.0,
+          "pool_state:pool_available": 1.0,
+          "pool_state:requests_waiting": 0,
+          "pool_state:pool_max": 12.0
+        },
+        "counter_reset_detected": false
+      },
+      "maintenance": {
+        "observed_replicas": 1,
+        "counter_deltas": {
+          "process_cpu_seconds_total": 21.6,
+          "pool_acquire:ok": 18781.0
+        },
+        "duration_mean_ms": {
+          "db_query:SELECT": 2.278414834257523,
+          "db_pool_acquire:ok": 0.015018497896837369,
+          "db_query:BEGIN": 4.283164995528135,
+          "db_query:UPDATE": 2.4702246400987815,
+          "db_connection_hold:all": 14.858013531547627,
+          "db_query:OTHER": 3.3647147987203163,
+          "db_commit:all": 3.5276907171715055
+        },
+        "event_loop_lag_current_peak_ms": 0.0,
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 0,
+          "pool_in_use": 1.0,
+          "pool_state:pool_size": 2.0,
+          "pool_state:pool_available": 2.0,
+          "pool_state:requests_waiting": 0,
+          "pool_state:pool_max": 12.0
+        },
+        "counter_reset_detected": false
+      },
+      "reconciler": {
+        "observed_replicas": 1,
+        "counter_deltas": {
+          "process_cpu_seconds_total": 12.18,
+          "pool_acquire:ok": 6862.0
+        },
+        "duration_mean_ms": {
+          "db_query:SELECT": 2.4432984868211665,
+          "db_pool_acquire:ok": 0.018592602885135322,
+          "db_query:BEGIN": 4.494563925677353,
+          "db_query:UPDATE": 2.449678553865731,
+          "db_connection_hold:all": 13.941884616001222,
+          "db_query:INSERT": 2.8276905658663325,
+          "db_commit:all": 3.082395066598274,
+          "db_query:DELETE": 3.2587235868285447
+        },
+        "event_loop_lag_current_peak_ms": 0.0,
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 0,
+          "pool_in_use": 1.0,
+          "pool_state:pool_size": 2.0,
+          "pool_state:pool_available": 2.0,
+          "pool_state:requests_waiting": 0,
+          "pool_state:pool_max": 12.0
+        },
+        "counter_reset_detected": false
+      }
+    },
+    "collection_failures": []
+  },
+  "hourly_qualified": false,
+  "capacity_increase_qualified": false,
+  "slot_failure_counts": {
+    "complete": true,
+    "count": 0
+  },
+  "query_costs": {
+    "complete": true,
+    "span": "dispatch boundary through customer completion; includes launch lead-in and grace",
+    "before_utc": "2026-10-13T10:16:43.013234+07:00",
+    "after_utc": "2026-10-13T10:22:15.367702+07:00",
+    "statistics_reset": "2026-09-13T08:44:05.348317+07:00",
+    "new_query_identities": 0,
+    "totals": {
+      "calls": 2403346.0,
+      "total_exec_time": 459666.08195818594,
+      "rows": 2317468.0,
+      "shared_blks_hit": 50186720.0,
+      "shared_blks_read": 313603.0,
+      "shared_blks_dirtied": 476211.0,
+      "shared_blks_written": 14941.0,
+      "wal_records": 3248905.0,
+      "wal_fpi": 352850.0,
+      "wal_bytes": 2276748184.0
+    },
+    "snapshot_elapsed_seconds": 332.354468,
+    "top_queries": [
+      {
+        "identity_sha256": "72ed538a57a3223d6db1060caf808afaf2f52171c3cd3da6c07634f2bb19e750",
+        "queryid": "-4974615827652569856",
+        "toplevel": true,
+        "category": "paid_cohort_observer",
+        "mean_exec_ms": 151.34338561747032,
+        "calls": 332.0,
+        "total_exec_time": 50246.00402500015,
+        "rows": 332.0,
+        "shared_blks_hit": 31469475.0,
+        "shared_blks_read": 2226.0,
+        "shared_blks_dirtied": 0.0,
+        "shared_blks_written": 0.0,
+        "wal_records": 1294.0,
+        "wal_fpi": 0.0,
+        "wal_bytes": 93172.0
+      },
+      {
+        "identity_sha256": "0e6bffd87bd4032a2870d6f62ce951c54a47d7a006f5f5023379f6fadde3c9ca",
+        "queryid": "-9022762831006339996",
+        "toplevel": true,
+        "category": "consumer_inbox_insert",
+        "mean_exec_ms": 0.8759443727162637,
+        "calls": 50400.0,
+        "total_exec_time": 44147.59638489969,
+        "rows": 50400.0,
+        "shared_blks_hit": 471622.0,
+        "shared_blks_read": 34513.0,
+        "shared_blks_dirtied": 43471.0,
+        "shared_blks_written": 819.0,
+        "wal_records": 151632.0,
+        "wal_fpi": 39746.0,
+        "wal_bytes": 160176368.0
+      },
+      {
+        "identity_sha256": "8336a9096b21def63763f5efaf70e78ca3b953a60e75069facd62cfb7e529dfd",
+        "queryid": "-2230259045155885256",
+        "toplevel": true,
+        "category": "consumer_inbox_insert",
+        "mean_exec_ms": 3.058581282888369,
+        "calls": 13585.0,
+        "total_exec_time": 41550.82672803849,
+        "rows": 50402.0,
+        "shared_blks_hit": 471314.0,
+        "shared_blks_read": 34495.0,
+        "shared_blks_dirtied": 43324.0,
+        "shared_blks_written": 764.0,
+        "wal_records": 151626.0,
+        "wal_fpi": 39697.0,
+        "wal_bytes": 159907830.0
+      },
+      {
+        "identity_sha256": "18b40fd3d1ae1d5c409342ae2fd51f5767ff57a935a1b0804310dfa0caea09e8",
+        "queryid": "3836313942754901128",
+        "toplevel": true,
+        "category": "reservation_commands_insert",
+        "mean_exec_ms": 1.5954466742453433,
+        "calls": 25200.0,
+        "total_exec_time": 40205.25619098265,
+        "rows": 25200.0,
+        "shared_blks_hit": 473928.0,
+        "shared_blks_read": 35090.0,
+        "shared_blks_dirtied": 64683.0,
+        "shared_blks_written": 2475.0,
+        "wal_records": 126528.0,
+        "wal_fpi": 51807.0,
+        "wal_bytes": 317378595.0
+      },
+      {
+        "identity_sha256": "86d2a054d7136b65945a5c39807c8caae7c267674c51acbc3edae7986bffdf07",
+        "queryid": "-7977519136850273448",
+        "toplevel": true,
+        "category": "orders_insert",
+        "mean_exec_ms": 1.452113002858583,
+        "calls": 25200.0,
+        "total_exec_time": 36593.24767203629,
+        "rows": 25200.0,
+        "shared_blks_hit": 528698.0,
+        "shared_blks_read": 27779.0,
+        "shared_blks_dirtied": 41442.0,
+        "shared_blks_written": 644.0,
+        "wal_records": 127986.0,
+        "wal_fpi": 37271.0,
+        "wal_bytes": 234595630.0
+      },
+      {
+        "identity_sha256": "8738383c8c2c122c30279062aeecd6aeef1d332df0788e20f44a21166d776f99",
+        "queryid": "-431975242077588369",
+        "toplevel": true,
+        "category": "outbox_events_insert",
+        "mean_exec_ms": 0.31700860257925734,
+        "calls": 100800.0,
+        "total_exec_time": 31954.467139989138,
+        "rows": 100800.0,
+        "shared_blks_hit": 743156.0,
+        "shared_blks_read": 57118.0,
+        "shared_blks_dirtied": 79262.0,
+        "shared_blks_written": 2076.0,
+        "wal_records": 302902.0,
+        "wal_fpi": 26209.0,
+        "wal_bytes": 192619028.0
+      },
+      {
+        "identity_sha256": "e9f44d9b9e3c22a5a9f42abb2e8ebe3c16d5f2142339c8118ec82bff44e214c6",
+        "queryid": "-500553882578105091",
+        "toplevel": true,
+        "category": "order_items_insert",
+        "mean_exec_ms": 0.7439614327376457,
+        "calls": 25200.0,
+        "total_exec_time": 18747.828104988672,
+        "rows": 25200.0,
+        "shared_blks_hit": 423798.0,
+        "shared_blks_read": 11066.0,
+        "shared_blks_dirtied": 21264.0,
+        "shared_blks_written": 421.0,
+        "wal_records": 77429.0,
+        "wal_fpi": 19909.0,
+        "wal_bytes": 123100285.0
+      },
+      {
+        "identity_sha256": "fc5dd37867c1475ed2d18d389763b92895d167ce2f4eef5f5785a7c0f8c85f41",
+        "queryid": "3260317415285792427",
+        "toplevel": true,
+        "category": "bookings_insert",
+        "mean_exec_ms": 0.7155338090869399,
+        "calls": 25200.0,
+        "total_exec_time": 18031.451988990884,
+        "rows": 25200.0,
+        "shared_blks_hit": 571900.0,
+        "shared_blks_read": 10169.0,
+        "shared_blks_dirtied": 33701.0,
+        "shared_blks_written": 882.0,
+        "wal_records": 102317.0,
+        "wal_fpi": 30839.0,
+        "wal_bytes": 192553701.0
+      }
+    ],
+    "limitations": [
+      "Database-wide dispatch-to-completion counters include lead-in/grace/background work. Summed SQL execution is not CPU time."
+    ],
+    "capture_sha256": "6606318c36770c6976b8d973daf1c29fa87eb3eb85537dcffcaa73de8b548238"
+  }
+}

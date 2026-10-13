@@ -1,0 +1,657 @@
+{
+  "decision": "ADR0304",
+  "run": "adr0151-0b49a0df24d3",
+  "first_payment_503_errors": 13,
+  "recovered_journeys": 13,
+  "final_failures": 0,
+  "slot_failure_events": 17,
+  "failure_time_samples": [
+    {
+      "captured_at_unix_seconds": 1791862930.8670526,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.35660862922668457,
+      "waits": [
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 1
+        },
+        {
+          "type": "None",
+          "event": "None",
+          "count": 6
+        }
+      ],
+      "idle_in_transaction": 13,
+      "holders": [
+        {
+          "operation": "payment_request",
+          "phase": "commit",
+          "phase_age_ms": 106.622
+        },
+        {
+          "operation": "payment_callback",
+          "phase": "query_SELECT",
+          "phase_age_ms": 115.677
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862930.882325,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.37188100814819336,
+      "waits": [
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 1
+        },
+        {
+          "type": "None",
+          "event": "None",
+          "count": 6
+        }
+      ],
+      "idle_in_transaction": 13,
+      "holders": [
+        {
+          "operation": "payment_request",
+          "phase": "commit",
+          "phase_age_ms": 121.91
+        },
+        {
+          "operation": "payment_callback",
+          "phase": "query_SELECT",
+          "phase_age_ms": 130.965
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862930.8860347,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.37559080123901367,
+      "waits": [
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 1
+        },
+        {
+          "type": "None",
+          "event": "None",
+          "count": 6
+        }
+      ],
+      "idle_in_transaction": 13,
+      "holders": [
+        {
+          "operation": "payment_request",
+          "phase": "commit",
+          "phase_age_ms": 125.612
+        },
+        {
+          "operation": "payment_callback",
+          "phase": "query_SELECT",
+          "phase_age_ms": 134.667
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862937.745258,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.2116401195526123,
+      "waits": [
+        {
+          "type": "Client",
+          "event": "ClientRead",
+          "count": 2
+        },
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 1
+        },
+        {
+          "type": "LWLock",
+          "event": "WALWrite",
+          "count": 1
+        },
+        {
+          "type": "None",
+          "event": "None",
+          "count": 1
+        }
+      ],
+      "idle_in_transaction": 15,
+      "holders": [
+        {
+          "operation": "payment_request",
+          "phase": "commit",
+          "phase_age_ms": 119.836
+        },
+        {
+          "operation": "payment_request",
+          "phase": "commit",
+          "phase_age_ms": 70.583
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862937.7842379,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.25061988830566406,
+      "waits": [
+        {
+          "type": "Client",
+          "event": "ClientRead",
+          "count": 2
+        },
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 1
+        },
+        {
+          "type": "LWLock",
+          "event": "WALWrite",
+          "count": 1
+        },
+        {
+          "type": "None",
+          "event": "None",
+          "count": 1
+        }
+      ],
+      "idle_in_transaction": 15,
+      "holders": [
+        {
+          "operation": "payment_callback",
+          "phase": "query_INSERT",
+          "phase_age_ms": 12.541
+        },
+        {
+          "operation": "payment_request",
+          "phase": "query_INSERT",
+          "phase_age_ms": 22.244
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862937.7938242,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.2602062225341797,
+      "waits": [
+        {
+          "type": "Client",
+          "event": "ClientRead",
+          "count": 2
+        },
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 1
+        },
+        {
+          "type": "LWLock",
+          "event": "WALWrite",
+          "count": 1
+        },
+        {
+          "type": "None",
+          "event": "None",
+          "count": 1
+        }
+      ],
+      "idle_in_transaction": 15,
+      "holders": [
+        {
+          "operation": "payment_callback",
+          "phase": "query_INSERT",
+          "phase_age_ms": 22.129
+        },
+        {
+          "operation": "payment_request",
+          "phase": "query_INSERT",
+          "phase_age_ms": 31.832
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862930.6936884,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.1832444667816162,
+      "waits": [
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 1
+        },
+        {
+          "type": "None",
+          "event": "None",
+          "count": 6
+        }
+      ],
+      "idle_in_transaction": 13,
+      "holders": [
+        {
+          "operation": "payment_callback",
+          "phase": "commit",
+          "phase_age_ms": 349.481
+        },
+        {
+          "operation": "payment_request",
+          "phase": "commit",
+          "phase_age_ms": 285.746
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862930.7182615,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.20781755447387695,
+      "waits": [
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 1
+        },
+        {
+          "type": "None",
+          "event": "None",
+          "count": 6
+        }
+      ],
+      "idle_in_transaction": 13,
+      "holders": [
+        {
+          "operation": "payment_callback",
+          "phase": "commit",
+          "phase_age_ms": 374.051
+        },
+        {
+          "operation": "payment_request",
+          "phase": "commit",
+          "phase_age_ms": 310.316
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862930.8490183,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.3385744094848633,
+      "waits": [
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 1
+        },
+        {
+          "type": "None",
+          "event": "None",
+          "count": 6
+        }
+      ],
+      "idle_in_transaction": 13,
+      "holders": [
+        {
+          "operation": "payment_callback",
+          "phase": "query_INSERT",
+          "phase_age_ms": 26.881
+        },
+        {
+          "operation": "payment_request",
+          "phase": "commit",
+          "phase_age_ms": 87.856
+        },
+        {
+          "operation": "order_status",
+          "phase": "query_BEGIN",
+          "phase_age_ms": 102.895
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862930.8972251,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.3867812156677246,
+      "waits": [
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 1
+        },
+        {
+          "type": "None",
+          "event": "None",
+          "count": 6
+        }
+      ],
+      "idle_in_transaction": 13,
+      "holders": [
+        {
+          "operation": "payment_callback",
+          "phase": "query_INSERT",
+          "phase_age_ms": 75.088
+        },
+        {
+          "operation": "payment_request",
+          "phase": "commit",
+          "phase_age_ms": 136.062
+        },
+        {
+          "operation": "order_status",
+          "phase": "query_BEGIN",
+          "phase_age_ms": 151.101
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862898.745892,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.10200691223144531,
+      "waits": [
+        {
+          "type": "Client",
+          "event": "ClientRead",
+          "count": 2
+        },
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 6
+        },
+        {
+          "type": "IO",
+          "event": "WalSync",
+          "count": 1
+        },
+        {
+          "type": "LWLock",
+          "event": "WALWrite",
+          "count": 2
+        }
+      ],
+      "idle_in_transaction": 11,
+      "holders": [
+        {
+          "operation": "payment_request",
+          "phase": "commit",
+          "phase_age_ms": 336.887
+        },
+        {
+          "operation": "payment_request",
+          "phase": "commit",
+          "phase_age_ms": 216.414
+        },
+        {
+          "operation": "order_status",
+          "phase": "query_BEGIN",
+          "phase_age_ms": 225.627
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862898.7498307,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.0980682373046875,
+      "waits": [
+        {
+          "type": "Client",
+          "event": "ClientRead",
+          "count": 2
+        },
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 6
+        },
+        {
+          "type": "IO",
+          "event": "WalSync",
+          "count": 1
+        },
+        {
+          "type": "LWLock",
+          "event": "WALWrite",
+          "count": 2
+        }
+      ],
+      "idle_in_transaction": 11,
+      "holders": [
+        {
+          "operation": "payment_request",
+          "phase": "commit",
+          "phase_age_ms": 340.847
+        },
+        {
+          "operation": "payment_request",
+          "phase": "commit",
+          "phase_age_ms": 220.374
+        },
+        {
+          "operation": "order_status",
+          "phase": "query_BEGIN",
+          "phase_age_ms": 229.587
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862930.9185202,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.40807628631591797,
+      "waits": [
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 1
+        },
+        {
+          "type": "None",
+          "event": "None",
+          "count": 6
+        }
+      ],
+      "idle_in_transaction": 13,
+      "holders": [
+        {
+          "operation": "payment_callback",
+          "phase": "commit",
+          "phase_age_ms": 1.676
+        },
+        {
+          "operation": "payment_callback",
+          "phase": "commit",
+          "phase_age_ms": 1.58
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862898.7669318,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.08096718788146973,
+      "waits": [
+        {
+          "type": "Client",
+          "event": "ClientRead",
+          "count": 2
+        },
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 6
+        },
+        {
+          "type": "IO",
+          "event": "WalSync",
+          "count": 1
+        },
+        {
+          "type": "LWLock",
+          "event": "WALWrite",
+          "count": 2
+        }
+      ],
+      "idle_in_transaction": 11,
+      "holders": [
+        {
+          "operation": "payment_callback",
+          "phase": "commit",
+          "phase_age_ms": 354.487
+        },
+        {
+          "operation": "payment_callback",
+          "phase": "commit",
+          "phase_age_ms": 82.605
+        },
+        {
+          "operation": "other",
+          "phase": "query_BEGIN",
+          "phase_age_ms": 239.805
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862898.7725658,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.0753331184387207,
+      "waits": [
+        {
+          "type": "Client",
+          "event": "ClientRead",
+          "count": 2
+        },
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 6
+        },
+        {
+          "type": "IO",
+          "event": "WalSync",
+          "count": 1
+        },
+        {
+          "type": "LWLock",
+          "event": "WALWrite",
+          "count": 2
+        }
+      ],
+      "idle_in_transaction": 11,
+      "holders": [
+        {
+          "operation": "payment_callback",
+          "phase": "commit",
+          "phase_age_ms": 360.125
+        },
+        {
+          "operation": "payment_callback",
+          "phase": "commit",
+          "phase_age_ms": 88.243
+        },
+        {
+          "operation": "other",
+          "phase": "query_BEGIN",
+          "phase_age_ms": 245.443
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862930.8823855,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.37194156646728516,
+      "waits": [
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 1
+        },
+        {
+          "type": "None",
+          "event": "None",
+          "count": 6
+        }
+      ],
+      "idle_in_transaction": 13,
+      "holders": [
+        {
+          "operation": "payment_callback",
+          "phase": "query_SELECT",
+          "phase_age_ms": 132.642
+        },
+        {
+          "operation": "payment_request",
+          "phase": "query_INSERT",
+          "phase_age_ms": 125.53
+        },
+        {
+          "operation": "order_status",
+          "phase": "query_BEGIN",
+          "phase_age_ms": 137.532
+        }
+      ]
+    },
+    {
+      "captured_at_unix_seconds": 1791862930.9111636,
+      "role": "payment",
+      "reason": "native_timeout",
+      "sample_distance_seconds": 0.40071964263916016,
+      "waits": [
+        {
+          "type": "IO",
+          "event": "DataFileRead",
+          "count": 1
+        },
+        {
+          "type": "None",
+          "event": "None",
+          "count": 6
+        }
+      ],
+      "idle_in_transaction": 13,
+      "holders": [
+        {
+          "operation": "payment_callback",
+          "phase": "query_SELECT",
+          "phase_age_ms": 161.41
+        },
+        {
+          "operation": "payment_request",
+          "phase": "query_INSERT",
+          "phase_age_ms": 154.299
+        },
+        {
+          "operation": "order_status",
+          "phase": "query_BEGIN",
+          "phase_age_ms": 166.301
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Nearest one-second database sample is correlation, not an exact per-request backend trace.",
+    "Slot failure events include internal requests and are not equal to distinct failed customer journeys.",
+    "WAL timing counters are unavailable; do not infer exact fsync duration."
+  ],
+  "first_slot_failure_seconds_into_offered_window": 133.19827699661255,
+  "last_slot_failure_seconds_into_offered_window": 172.24620914459229,
+  "api_pods_unchanged": true,
+  "readiness_passed_before_dispatch": true,
+  "pod_cold_start_supported_by_this_evidence": false
+}
