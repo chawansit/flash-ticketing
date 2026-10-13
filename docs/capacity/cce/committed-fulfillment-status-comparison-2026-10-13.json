@@ -1,0 +1,46 @@
+{
+  "decision": "ADR0298",
+  "factor": "consumer_ORDER_STATUS_COMMITTED_SNAPSHOT",
+  "control": {
+    "evidence": "docs/capacity/cce/committed-fulfillment-status-control-result-2026-10-13.json",
+    "evidence_sha256": "21e9af71424d83e513186786822e72a337b038ceeddf850f708603fa4b86488a"
+  },
+  "candidate": {
+    "evidence": "docs/capacity/cce/committed-fulfillment-status-candidate-result-2026-10-13.json",
+    "evidence_sha256": "be35fecd3d33fb58922ddff34a8faedad2cfb954709cf77f4ec7aaa99ab424f9"
+  },
+  "new_elbs_created": 0,
+  "hourly_qualified": false,
+  "both_arms_passed_restored": true,
+  "customer_latency_change_percent": {
+    "dispatch_lag_p95_ms": -13.378894439523592,
+    "hold_http_p95_ms": -9.96782282871166,
+    "hold_app_p95_ms": -10.468319559228645,
+    "hold_client_excess_p95_ms": -11.149043838503825,
+    "command_durable_wait_p95_ms": -1.1568470004763354,
+    "durable_p95_ms": -1.6057253989227527,
+    "payment_http_p95_ms": -1.2120431123302078,
+    "payment_app_p95_ms": -0.14732965009207621,
+    "payment_client_excess_p95_ms": -15.799436409059652,
+    "ticket_wait_p95_ms": 0.01321737053663341,
+    "payment_to_ticket_p95_ms": 0.03374467008148141,
+    "hold_to_ticket_p95_ms": -5.308842380772116,
+    "total_journey_p95_ms": -5.309007711002057
+  },
+  "conclusion": "Consumer read acquisitions fell 33.3%; journey p95 fell 5.3%. Candidate had 4 initial payment503s, all recovered, versus 0 in control. All correctness and short quality gates passed, but database tail risk remains. Keep opt-in; diagnose payment-slot spikes before 100/s or hourly qualification.",
+  "consumer_database_acquisitions": {
+    "control": 75603.0,
+    "candidate": 50405.0,
+    "reduction_count": 25198.0,
+    "reduction_percent": 33.329365236829226,
+    "committed_reads_avoided": 25195.0,
+    "scope": "Diagnostic collector span; 25,200 paid journeys in each arm."
+  },
+  "initial_payment_error_percentage": 0.015873015873015872,
+  "final_customer_failures": 0,
+  "generator_drops": 0,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "default_enabled": false,
+  "repeatability_uncertainty": "One same-image off/on pair. Checkpoint, cache and background timing can differ; a small latency change does not establish sustained capacity."
+}
