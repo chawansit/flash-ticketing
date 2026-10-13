@@ -184,6 +184,15 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     if cohort_selected(goal):
         from paid_cohort_query import runtime_contract
         extra.update(cce_runtime_cohort_contract=runtime_contract(goal["runtime_cohort_arm"]))
+    from cce_customer_outcome_slo import contract as outcome_contract
+    from cce_customer_outcome_slo import selected as outcome_selected
+    if outcome_selected(goal):
+        extra.update(cce_customer_outcome_contract=outcome_contract())
+    from cce_payment_slot_profile import connections
+    from cce_payment_slot_profile import selected as slot_selected
+    if slot_selected(goal):
+        extra.update(cce_payment_slot_decision="ADR0306", cce_payment_slot_arm=goal["payment_slot_arm"],
+                     cce_payment_pool_max=connections(goal), cce_transaction_arm=goal["payment_slot_arm"])
     binding = {
         **extra,
         "configuration_sha256": policy.digest(config),
@@ -204,6 +213,9 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     if cohort_selected(goal) and goal["runtime_cohort_arm"] == "candidate":
         from cce_runtime_cohort_profile import validate_candidate_binding
         validate_candidate_binding(goal, binding)
+    if slot_selected(goal) and goal["payment_slot_arm"] == "candidate":
+        from cce_payment_slot_profile import validate_candidate_binding as validate_slots
+        validate_slots(goal, binding)
     return binding
 
 

@@ -39,6 +39,7 @@ def identity():
         "scripts/cce_ingress_hourly_generator.py",
         "scripts/cce_bounded_financial_audit.py", "scripts/independent_database_sampling.py",
         "scripts/cce_runtime_cohort_profile.py", "scripts/paid_cohort_query.py",
+        "scripts/cce_customer_outcome_slo.py", "scripts/cce_payment_slot_profile.py",
         "scripts/cce_committed_status_identity.py", "scripts/cce_committed_status_profile.py",
         "scripts/cce_committed_status_contract.py",
         "docs/capacity/cce/committed-fulfillment-status-image-2026-10-13.json",
@@ -258,6 +259,11 @@ class PaidStage:
             validate_binding(goal, guard.binding)
         self.origin = origin(goal)
         generator_arguments(self.gen, self.origin, 0, profile=self.profile, recovery_max_attempts=3 if self.recovery_enabled else 1)
+        from cce_customer_outcome_slo import contract as outcome_contract
+        from cce_customer_outcome_slo import selected as outcome_selected
+        self.outcome_enabled = outcome_selected(goal)
+        if self.outcome_enabled and guard.binding.get("cce_customer_outcome_contract") != outcome_contract():
+            raise ValueError("Exact customer outcome binding required before dispatch")
         self.events = []
         self.prepared = False
 
@@ -449,6 +455,14 @@ class PaidStage:
             self.checkpoint()
             raise
         self.checkpoint()
+        if self.outcome_enabled:
+            from cce_customer_outcome_slo import evaluate
+            customer = self.record["customer"]
+            customer["strict_generator_pass"] = customer["pass"]
+            outcome = evaluate(customer, self.profile.expected)
+            self.record["customer_outcome_gate"] = outcome
+            customer["pass"] = outcome["pass"]
+            self.checkpoint()
         return self.record["customer"]
 
     def audit(self, global_audit):
@@ -471,6 +485,9 @@ class PaidStage:
         ):
             try:
                 self.record[name] = operation()
+                if name == "financial" and self.outcome_enabled and "customer" in self.record:
+                    from cce_customer_outcome_slo import financial
+                    self.record[name] = financial(self.record[name], self.record["customer"], self.profile.expected)
             except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Preserve independent mandatory recovery operations.
                 self.record[name + "_failure_type"] = type(error).__name__
                 errors.append(name)

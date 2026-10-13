@@ -1,0 +1,31 @@
+{
+  "decisions": [
+    "ADR0305",
+    "ADR0306"
+  ],
+  "date_bangkok": "2026-10-13",
+  "focused_tests": {
+    "passed": 78,
+    "command": "pytest tests/unit/test_customer_outcome_slo.py tests/unit/test_runtime_cohort_comparison.py tests/unit/test_cce_committed_status_comparison.py"
+  },
+  "legacy_stage_and_lifecycle_tests": {
+    "passed": 65,
+    "environment": "Isolated legacy default contract; no live envelope mutation. Overall mixed suite had one fixture error in a separate spending test; that test passed in the focused suite with the actual envelope."
+  },
+  "ruff": "passed",
+  "compilation": "passed",
+  "sealed_generator_files_changed": false,
+  "historical_reports_changed": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "normalized_source_sha256": {
+    "scripts/cce_customer_outcome_slo.py": "248833b969234e1dbd78e691dedfbbee2a4ac06022a74b4619dc803ffb2aed55",
+    "scripts/cce_payment_slot_profile.py": "d86d9f74ea8c26ef0993b0c38304ef57cd076e2519eec9130672b1e2cf8dc1b7",
+    "scripts/cce_paid_stage.py": "3fdf7c44b033708adba5251f12a953fd7b51d8007c6fdb76162ff59d588fccb4",
+    "scripts/cce_api_adapter.py": "f86e3b28592bba2fa8cd8a74d21598962377bef9242cbf5df394a03c97a9a00b",
+    "scripts/cce_committed_status_profile.py": "48e1739c4de0365effa2eb6706489ba31dab44be1348580c063683e283f50b65",
+    "scripts/cce_worker_rebalance_profile.py": "42229e31f76353e1b908ba3e9ec2453e3948fa66ed09caf7d9b0691779524c27",
+    "scripts/run_cce_paid_comparison.py": "48323e9de4c85648c4a7c7cc8eee8fc25aa77427024f4416b8e7475123215f6f",
+    "tests/unit/test_customer_outcome_slo.py": "4e340d5cba07cae294c3e61adadfad492623c381f48c0cba0d8e90858659102c"
+  }
+}

@@ -55,6 +55,11 @@ def selected(goal):
 def require_control(goal):
     if not selected(goal) or goal["committed_status_arm"] != "candidate":
         raise ValueError("Candidate-only control prerequisite")
+    from cce_payment_slot_profile import BASELINE as slot_baseline
+    from cce_payment_slot_profile import require_control as slot_control
+    from cce_payment_slot_profile import selected as slot_selected
+    if slot_selected(goal):
+        return slot_control(goal) if goal["payment_slot_arm"] == "candidate" else (slot_baseline, policy.read(policy.ROOT / slot_baseline))
     from cce_runtime_cohort_profile import BASELINE
     from cce_runtime_cohort_profile import require_control as cohort_control
     from cce_runtime_cohort_profile import selected as cohort_selected

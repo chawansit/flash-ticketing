@@ -74,6 +74,10 @@ def contract():
         data["api_settings"]["ORDER_STATUS_COMMITTED_SNAPSHOT"] = "0"
     if goal is not None and goal["extension_decision"] == "ADR0277":
         data["workload"].update(offered_journeys_per_second=168, concurrency=1000)
+    from cce_payment_slot_profile import connections
+    from cce_payment_slot_profile import selected as slot_selected
+    if slot_selected(goal):
+        data["api_settings"]["API_PAYMENT_POOL_MAX"] = str(connections(goal))
     return data
 
 
