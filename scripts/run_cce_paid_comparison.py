@@ -219,6 +219,9 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
             scale_contract = writer_scale_contract()
             extra.update(cce_writer_scale_contract=scale_contract,
                          cce_worker_placement_factor={**factor(), "worker_counts": scale_contract["native_counts"]})
+    from cce_recovery_headroom import writer_batch_contract, writer_batch_selected
+    if writer_batch_selected(goal):
+        extra.update(cce_writer_batch_contract=writer_batch_contract())
     binding = {
         **extra,
         "configuration_sha256": policy.digest(config),

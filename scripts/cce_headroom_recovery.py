@@ -19,6 +19,10 @@ WRITER_RUN = "adr0151-6fd6d0275799"
 WRITER_LEDGER = "bounded_cce_ticket_target__cf9e12d21c2f"
 WRITER_RESULT = "250aa2541308119f8da10a7ba3ebdf8024d99fb8a1fffbb796e8eead55fbfa2a"
 
+BATCH_RUN = "adr0151-3f899bb32f0e"
+BATCH_LEDGER = "bounded_cce_ticket_target__debd1beb6d6b"
+BATCH_RESULT = "aa6875dbd7ab0669159a60a28c21e97e81f143792f347acc71249f7daeb58c92"
+
 
 def case(run):
     if run == RUN:
@@ -27,6 +31,8 @@ def case(run):
         return SLOT_RUN, SLOT_LEDGER, SLOT_RESULT, 27276, 27276, 0, 27276, 3324, 0, {"fulfilled": 27276}
     if run == WRITER_RUN:
         return WRITER_RUN, WRITER_LEDGER, WRITER_RESULT, 30529, 30529, 0, 30529, 71, 0, {"fulfilled": 30529}
+    if run == BATCH_RUN:
+        return BATCH_RUN, BATCH_LEDGER, BATCH_RESULT, 27975, 27974, 1, 27974, 2625, 1, {"fulfilled": 27974, "command_http_502": 1}
     raise ValueError("Unknown failed headroom recovery case")
 GATES = ("runtime_restored", "runtime_stable", "namespace_absent", "helpers_absent",
          "secondary_empty", "generator_idle", "queues_zero")

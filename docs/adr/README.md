@@ -294,3 +294,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0314: Rebalance general slots at headroom](0314-rebalance-general-slots-at-headroom.md)
 
 - [ADR0315: Scale reservation-writer concurrency](0315-scale-reservation-writer-concurrency.md)
+
+- [ADR0316: Test larger reservation batches at fixed four-writer capacity](0316-test-reservation-batch-eight-at-fixed-budget.md)

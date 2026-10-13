@@ -1,0 +1,137 @@
+{
+  "decision": "ADR0316",
+  "source_run": "adr0151-6fd6d0275799",
+  "original_result_sha256": "250aa2541308119f8da10a7ba3ebdf8024d99fb8a1fffbb796e8eead55fbfa2a",
+  "pipeline_trace_sha256": "0f2a27b265fda9088cbafcfc5e1ad45b373b29864e04718d10bb9cb2e0978c1e",
+  "capacity_qualified": false,
+  "failure_events_observed": 54,
+  "failure_roles_reasons": [
+    {
+      "role": "payment",
+      "reason": "native_timeout",
+      "events": 30
+    },
+    {
+      "role": "general",
+      "reason": "global_limit",
+      "events": 11
+    },
+    {
+      "role": "payment",
+      "reason": "global_limit",
+      "events": 11
+    },
+    {
+      "role": "payment",
+      "reason": "role_limit",
+      "events": 2
+    }
+  ],
+  "holder_phases": [
+    {
+      "role": "payment",
+      "operation": "payment_request",
+      "phase": "commit",
+      "observations": 73
+    },
+    {
+      "role": "payment",
+      "operation": "payment_callback",
+      "phase": "commit",
+      "observations": 13
+    },
+    {
+      "role": "payment",
+      "operation": "payment_request",
+      "phase": "query_INSERT",
+      "observations": 2
+    },
+    {
+      "role": "general",
+      "operation": "order_status",
+      "phase": "query_BEGIN",
+      "observations": 62
+    },
+    {
+      "role": "payment",
+      "operation": "payment_callback",
+      "phase": "query_INSERT",
+      "observations": 6
+    },
+    {
+      "role": "general",
+      "operation": "order_status",
+      "phase": "query_SELECT",
+      "observations": 21
+    },
+    {
+      "role": "payment",
+      "operation": "payment_request",
+      "phase": "query_BEGIN",
+      "observations": 5
+    },
+    {
+      "role": "payment",
+      "operation": "payment_request",
+      "phase": "query_SELECT",
+      "observations": 5
+    },
+    {
+      "role": "general",
+      "operation": "order_status",
+      "phase": "commit",
+      "observations": 2
+    },
+    {
+      "role": "payment",
+      "operation": "payment_callback",
+      "phase": "query_BEGIN",
+      "observations": 1
+    },
+    {
+      "role": "payment",
+      "operation": "payment_callback",
+      "phase": "query_UPDATE",
+      "observations": 1
+    },
+    {
+      "role": "payment",
+      "operation": "payment_callback",
+      "phase": "query_SELECT",
+      "observations": 2
+    }
+  ],
+  "generator_drops": 71,
+  "drop_reason": "active_journey_capacity",
+  "concurrency_total": 500,
+  "first_retained_drop_seconds": 268.9045972089516,
+  "last_retained_drop_seconds": 269.60829261504114,
+  "maximum_oldest_active_ms_at_retained_drop": 17195.361649035476,
+  "completed_tasks_still_counted_at_retained_drops": 0,
+  "normal_window_200_to_250_seconds": {
+    "sample_seconds": 49.003896951675415,
+    "issued_tickets_delta": 5000,
+    "issued_per_second": 102.03270170392139,
+    "writer_postgres_batch_mean_ms": 67.70642432069675,
+    "writer_successful_batches": 1609.0,
+    "payment_waiters_peak_across_apis": 7.0,
+    "walwrite_wait_peak": 5
+  },
+  "stall_window_253_to_271_seconds": {
+    "sample_seconds": 17.001224040985107,
+    "issued_tickets_delta": 1343,
+    "issued_per_second": 78.99431221907373,
+    "writer_postgres_batch_mean_ms": 136.0800328729022,
+    "writer_successful_batches": 417.0,
+    "payment_waiters_peak_across_apis": 43.0,
+    "walwrite_wait_peak": 18
+  },
+  "checkpoint_counters_changed_245_to_276_seconds": false,
+  "interpretation": "A correlated transaction/IO stall preceded real active-journey capacity drops; no completed-task accounting leak observed. Exact underlying RDS storage cause is not proven.",
+  "correction_hypothesis": "Test existing bounded writer batch limit4to8 at unchanged four writers/image/physical24/API2+2/admission20/load102/s300s/concurrency500. Preserve commit-before-durable acknowledgment and replay.",
+  "measurement_limits": [
+    "Retained drop snapshots are capped at eight per generator shard.",
+    "One-second statistics correlate the stall but do not attribute every wait to one storage mechanism.",
+    "Batching does not remove per-command writes or change durability guarantees."
+  ]
+}

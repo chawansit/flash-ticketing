@@ -17,8 +17,13 @@ SLOT_LEDGER = "bounded_cce_ticket_target__476c1bdb0c87"
 SLOT_SHA256 = "d5a00a534026bce91b131a968f036e38c816e076f95e056e842a011127f4ae01"
 SCALE_KEYS = {"reservation_writer_scale_decision", "reservation_writer_failure_sha256"}
 CORRECTION_KEYS = {"headroom_slot_correction_decision", "headroom_slot_failure_sha256"}
+BATCH_KEYS = {"writer_batch_decision", "writer_batch_failure_sha256", "writer_batch_size"}
+WRITER_RUN = "adr0151-6fd6d0275799"
+WRITER_LEDGER = "bounded_cce_ticket_target__cf9e12d21c2f"
+WRITER_SHA256 = "250aa2541308119f8da10a7ba3ebdf8024d99fb8a1fffbb796e8eead55fbfa2a"
 CHANGED_SOURCES = {
     "scripts/cce_inventory_renewal.py", "scripts/cce_paid_observers.py",
+    "scripts/cce_writer_scale_verification.py",
     SOURCE,
     "scripts/cce_paid_profiles.py", "scripts/cce_paid_stage.py", "scripts/cce_paid_inputs.py",
     "scripts/cce_live_admission.py", "scripts/cce_native_workers.py",
@@ -44,7 +49,9 @@ def contract():
             "slot_correction_decision": "ADR0314", "per_api_total": 4,
             "baseline_payment_pool_max": 3, "corrective_payment_pool_max": 2,
             "writer_scale_decision": "ADR0315", "native_writers": [3, 4],
-            "maximum_owned_pods_after_scale": 19, "physical_server_connections": 24}
+            "maximum_owned_pods_after_scale": 19, "physical_server_connections": 24,
+            "writer_batch_decision": "ADR0316", "baseline_batch_size": 4,
+            "candidate_batch_size": 8}
 
 
 def runtime_view(goal):
@@ -72,6 +79,11 @@ def selected(goal):
     if scale and (not correction or goal.get("reservation_writer_scale_decision") != "ADR0315"
                   or goal.get("reservation_writer_failure_sha256") != SLOT_SHA256):
         raise ValueError("Exact reconciled writer-scale reference required")
+    batch = bool(BATCH_KEYS.intersection(goal))
+    if batch and (not scale or goal.get("writer_batch_decision") != "ADR0316"
+                  or goal.get("writer_batch_failure_sha256") != WRITER_SHA256
+                  or type(goal.get("writer_batch_size")) is not int or goal["writer_batch_size"] != 8):
+        raise ValueError("Exactly declared four-writer batch-eight correction required")
     expected = {"headroom_decision": "ADR0312", "decision": "ADR0277",
                 "extension_decision": "ADR0277", "profile": "cce_ticket_target",
                 "offered_journeys_per_second": RATE, "offered_seconds": 300,
@@ -81,7 +93,7 @@ def selected(goal):
                 "payment_slot_arm": "control" if correction else "candidate", "gateway_read_recovery_decision": "ADR0311"}
     if (any(type(goal.get(k)) is not type(v) or goal.get(k) != v for k, v in expected.items())
             or goal.get("headroom_contract_sha256") != policy.digest(contract())
-            or goal.get("baseline_sha256") != (SLOT_SHA256 if scale else FAILURE_SHA256 if correction else BASELINE_SHA256)):
+            or goal.get("baseline_sha256") != (WRITER_SHA256 if batch else SLOT_SHA256 if scale else FAILURE_SHA256 if correction else BASELINE_SHA256)):
         raise ValueError("Exact102/s fixed-budget recovery headroom authorization required")
     return True
 
@@ -194,6 +206,48 @@ def require_failure(goal):
     return path.with_name("cce-comparison.private.json").relative_to(policy.ROOT).as_posix(), report
 
 
+
+def writer_batch_selected(goal):
+    return selected(goal) and bool(BATCH_KEYS.intersection(goal))
+
+
+def writer_batch_contract():
+    return {"decision": "ADR0316", "baseline_result_sha256": WRITER_SHA256,
+            "reservation_writers": 4, "baseline_batch_size": 4, "candidate_batch_size": 8,
+            "changed_environment": "RESERVATION_WRITER_BATCH_SIZE",
+            "physical_connections": 24, "additional_resources": 0,
+            "commit_before_acknowledgment": True, "replay_and_ttl_unchanged": True}
+
+
+def require_writer_failure(goal):
+    if not writer_batch_selected(goal):
+        raise ValueError("Explicit batch comparison required")
+    report_path = policy.ROOT / "tmp" / WRITER_RUN / "cce-comparison.private.json"
+    report = policy.read(report_path)
+    scope = policy.read(policy.STATE)[WRITER_LEDGER]
+    entries = [e for e in policy.journal(policy.envelope())["experiments"] if e.get("ledger") == WRITER_LEDGER]
+    if len(entries) != 1:
+        raise ValueError("Exact four-writer failed-reference journal required")
+    entry = entries[0]
+    evidence_path = report_path.with_name("headroom-recovery.private.json")
+    evidence = policy.read(evidence_path)
+    receipt = entry.get("recovery", {})
+    if (policy.digest(report) != WRITER_SHA256 or entry.get("result_sha256") != WRITER_SHA256
+            or scope.get("cce_paid_result_sha256") != WRITER_SHA256
+            or entry.get("binding_sha256") != report.get("binding_sha256")
+            or report.get("binding_sha256") != policy.digest(scope["binding"])
+            or entry.get("status") != "FAILED_RESTORED" or scope.get("active_run")
+            or report.get("pass") is not False or report.get("restoration_complete") is not True
+            or receipt.get("decision") != "ADR0313" or receipt.get("capacity_qualified") is not False
+            or receipt.get("sha256") != policy.digest(evidence)
+            or receipt.get("evidence") != evidence_path.relative_to(policy.ROOT).as_posix()
+            or evidence.get("original_result_sha256") != WRITER_SHA256
+            or evidence.get("binding_sha256") != report.get("binding_sha256")
+            or evidence.get("pass") is not True or evidence.get("capacity_qualified") is not False
+            or evidence.get("fresh_financial", {}).get("pass") is not True):
+        raise ValueError("Exact independently reconciled four-writer failed reference required")
+    return report_path.relative_to(policy.ROOT).as_posix(), report
+
 def extend_plan(plan, goal):
     relative, report = require_short(goal)
     correction = correction_selected(goal)
@@ -202,14 +256,19 @@ def extend_plan(plan, goal):
     scale = writer_scale_selected(goal)
     if scale:
         relative, report = require_slot_failure(goal)
+    batch = writer_batch_selected(goal)
+    if batch:
+        relative, report = require_writer_failure(goal)
     payment = 2 if correction else 3
     scale_fields = ({"worker_counts": writer_scale_contract()["native_counts"],
                      "maximum_pods": 19, "total_requested_vcpu": 7.75,
                      "total_requested_memory_gib": 15.5,
                      "writer_scale_contract": writer_scale_contract()} if scale else {})
-    return {**plan, **scale_fields, "decision": "ADR0277", "extension_decision": "ADR0277",
+    batch_fields = ({"writer_batch_contract": writer_batch_contract(),
+                     "reservation_writer_batch_size": 8} if batch else {})
+    return {**plan, **scale_fields, **batch_fields, "decision": "ADR0277", "extension_decision": "ADR0277",
             "kind": "writer_concurrency_headroom" if scale else "corrective_general_slot_headroom" if correction else "bounded_recovery_runtime_headroom",
-            "single_changed_factor": "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
+            "single_changed_factor": "RESERVATION_WRITER_BATCH_SIZE" if batch else "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
             "common": {"buyer_journeys_per_second": RATE, "duration_seconds": 300},
             "expected_journeys": EXPECTED, "target_unique_tickets": TARGET,
             "fixture_shows": SHOWS, "generator_concurrency": 500,
@@ -239,10 +298,18 @@ def validate_binding(goal, binding):
     if scale:
         require_slot_failure(goal)
         old = policy.read(policy.STATE)[SLOT_LEDGER]["binding"]
+    batch = writer_batch_selected(goal)
+    if batch:
+        require_writer_failure(goal)
+        old = policy.read(policy.STATE)[WRITER_LEDGER]["binding"]
     ignored = {"cce_paid_entry_sources", "cce_paid_core_sources", "cce_manifest_sha256",
                "baseline_sha256", "cce_verification_contract_sha256", "cce_headroom_contract",
                "cce_gateway_read_recovery_contract", "cce_inventory_renewal_contract",
                "cce_metric_admission_contract_sha256"}
+    if batch:
+        ignored.add("cce_writer_batch_contract")
+        if binding.get("cce_writer_batch_contract") != writer_batch_contract():
+            raise ValueError("Exactly bound batch-eight correction required")
     if scale:
         ignored |= {"cce_worker_placement_factor", "cce_writer_scale_contract"}
         from cce_worker_rebalance_profile import factor

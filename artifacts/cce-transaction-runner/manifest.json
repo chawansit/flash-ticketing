@@ -36,7 +36,7 @@
     "scripts/cce_event_lane_profile.py": "ec5fc19e733d273222ffdd8d8ad4b346e6593824cb5945b319aab05fd320efd6",
     "scripts/cce_live_admission.py": "d0df77ebcbb97fa37053726a49b45be134b3abff63b0d9064725230f6a16614c",
     "scripts/cce_native_database_bridge.py": "6f899d82505fea59dda2ebdec8fb8a1f24f489b6024b3e67af1f0519867975b7",
-    "scripts/cce_native_workers.py": "21be25d904ff34697b32173a9898edf1fe7f480b29afab764b5a81a090b3e930",
+    "scripts/cce_native_workers.py": "6b56df0cb8d8316aafe3a89708fc6ec4521ba66c20fa346f299d7a36c8c22505",
     "scripts/cce_payment_context_images.py": "cbc80a6226ea255766d23159c7a488c8cbbc69f9604eb94dbc3e55a55fbee160",
     "scripts/cce_payment_dispatch_profile.py": "3ab1312e6d637d6e9d8537fcea55405c68ac13df25717a30870b4a245994c804",
     "scripts/cce_payment_pipeline_contract.py": "64d3156dacfcf7fbf1c9c58c9248c8f6d3c3a978b53a8e53e02c0038d3bccd74",
@@ -182,7 +182,7 @@
       "historical_sha256": "c5bada5a5d99360f0b8ab823e086b4459ed4b3c5701f3c862396862944f9ee8d"
     },
     "scripts/run_cce_paid_comparison.py": {
-      "current_sha256": "5c941ad7e27e0298e5e155fa36e10686567c21673cd456ab7763f1450d949d21",
+      "current_sha256": "d60275e131ce51291d001f41af1ca50ce8c3397f4689cad3d2f5965d63f0929b",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
       "historical_sha256": "cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017"
     },

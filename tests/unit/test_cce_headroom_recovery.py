@@ -145,3 +145,29 @@ def test_four_writer_throughput_pass_does_not_qualify_failed_quality(proof, monk
     fresh["counts"]["tickets"] -= 1
     with pytest.raises(ValueError):
         r.validate(report, entry, scope, evidence, fixture)
+
+
+def test_batch_candidate_lossless_closure_preserves_failed_customer(proof, monkeypatch):
+    report, entry, scope, evidence, fixture = copy.deepcopy(proof)
+    report["run"] = r.BATCH_RUN
+    stage = report["paid_stage"]
+    stage["customer"].update(dispatched=27975, completed=27975, fulfilled=27974,
+        generator_drops=2625, final_customer_failures=1,
+        outcomes={"fulfilled":27974, "command_http_502":1})
+    stage["financial"]["counts"].update({k:27974 for k in r.PAID_COUNTS})
+    stage["financial"]["counts"].update(orders=27975, expired_orders=1)
+    stage["financial"]["relationships"]["unique_issued_tickets"] = 27974
+    fresh = evidence["fresh_financial"]
+    fresh["counts"].update({k:27974 for k in r.PAID_COUNTS})
+    fresh["counts"].update(orders=27975, expected=27975, expected_paid=27974, expired_orders=1)
+    fresh["relationships"]["unique_issued_tickets"] = 27974
+    sha = p.digest(report)
+    monkeypatch.setattr(r,"BATCH_RESULT",sha)
+    entry.update(ledger=r.BATCH_LEDGER,result_sha256=sha)
+    scope.update(active_run=r.BATCH_RUN,cce_paid_result_sha256=sha)
+    evidence.update(run=r.BATCH_RUN,ledger=r.BATCH_LEDGER,original_result_sha256=sha)
+    assert r.validate(report,entry,scope,evidence,fixture)
+    assert not report["pass"] and not evidence["capacity_qualified"]
+    evidence["fresh_financial"]["counts"]["expired_orders"] = 0
+    with pytest.raises(ValueError):
+        r.validate(report,entry,scope,evidence,fixture)

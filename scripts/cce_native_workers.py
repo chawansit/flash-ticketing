@@ -32,6 +32,12 @@ def environment(role, values, primary_ip, decision="ADR0259"):
         if not selected(goal) or result.get("ORDER_STATUS_COMMITTED_SNAPSHOT") != "0":
             raise ValueError("Explicit disabled ECS bootstrap required before consumer activation")
         result["ORDER_STATUS_COMMITTED_SNAPSHOT"] = "1" if role == "consumer" and goal["committed_status_arm"] == "candidate" else "0"
+    if decision == "ADR0315":
+        from cce_recovery_headroom import writer_batch_selected
+        if writer_batch_selected(goal) and role == "reservation-writer":
+            if result.get("RESERVATION_WRITER_BATCH_SIZE") != "4":
+                raise ValueError("Exactly batch-four ECS bootstrap required")
+            result["RESERVATION_WRITER_BATCH_SIZE"] = "8"
     return result
 
 
