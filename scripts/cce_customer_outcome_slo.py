@@ -10,12 +10,13 @@ DENOMINATOR = 10000
 KEYS = {"customer_outcome_decision", "customer_outcome_contract_sha256"}
 TRANSIENT_OUTCOMES = {
     "hold_http_503", "order_http_503", "payment_http_503",
-    "ticket_timeout", "command_timeout",
+    "ticket_timeout", "command_timeout", "order_http_502",
 }
 
 
 def contract():
-    return {"decision": "ADR0305", "maximum_final_failure_percent": 0.01,
+    return {"decision": "ADR0305", "classification_decision": "ADR0310",
+            "maximum_final_failure_percent": 0.01,
             "failure_denominator": DENOMINATOR, "generator_drops": 0,
             "recovery_max_attempts": 3, "latency_gates": "unchanged",
             "financial_correctness": "zero_tolerance",

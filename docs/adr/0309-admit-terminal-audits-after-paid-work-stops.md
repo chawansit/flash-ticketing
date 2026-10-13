@@ -31,3 +31,5 @@ Unknown generator ownership or an unconsumed paid allowance blocks this opt-in. 
 ## Validation evidence
 
 Terminal admission and hourly/observer regressions:46passed. Exact recovery and terminal admission tests:24passed (overlapping suite). Ruff passed. Fresh read-only financial audit matched all302,400 payments/tickets and all seven relationship counts; runtime, absent namespace/helpers, idle generator and queues verified. Recovery closed as FAILED_RESTORED with original result digest unchanged and capacity_qualified false. Evidence: [hourly measurement and recovery](../capacity/cce/committed-runtime-hourly-audit-recovery-2026-10-13.json). A clean repeat remains pending.
+
+The same-resource hourly repeat executed terminal audit admission with stopped generators and binding rechecked, and completed its financial audit without the prior action-budget timeout. Full restoration and integrity passed. Its remaining customer classification issue is addressed separately in ADR0310; do not rewrite its raw result as passed.

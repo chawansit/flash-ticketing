@@ -282,3 +282,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0308: Qualify the committed runtime at the approved customer target](0308-qualify-committed-runtime-at-approved-customer-target.md)
 
 - [ADR0309: Admit terminal audits after paid work stops](0309-admit-terminal-audits-after-paid-work-stops.md)
+
+- [ADR0310: Classify gateway read failures within the approved SLO](0310-classify-gateway-read-failures-within-approved-slo.md)

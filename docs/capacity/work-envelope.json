@@ -142,7 +142,7 @@
           "maximum_additional_spend": null,
           "no_spending_cap_explicitly_authorized": true
         },
-        "ledger_start_index": 119,
+        "ledger_start_index": 121,
         "candidate_factor": {
           "name": "event_lane_worker_placement",
           "comparison_arm": "correction",
@@ -169,10 +169,10 @@
           "database_connections_unchanged": true,
           "gateway_delay_unchanged": true
         },
-        "authorization": "User approved plan: fresh candidate from the fully passed/restored control; reviewed admission-validator lineage only; unchanged image/resources/budgets/paid workload",
+        "authorization": "User approved hourly qualification after all short gates pass;90-minute experiment including mandatory audits/restoration; same resources/budgets/gateway/recovery;ADR0305 final0.01% target;minimum300000in-hour tickets.",
         "authorized_at_bangkok": "2026-10-13T12:04:22.360505+07:00",
         "image_correction_decision": "ADR0267",
-        "authorized_at_utc": "2026-10-13T05:43:42.932374+00:00",
+        "authorized_at_utc": "2026-10-13T08:02:23.695147+00:00",
         "scope_note": "One90-minute hourly qualification of passed1+3 committed-status runtime,84/s3600s302400distinct journeys; unchangedimage/resources/budgets/gateway/recovery; zero drops/payment violations; minimum300000conservative in-hour tickets.",
         "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
         "baseline_sha256": "f44977fb8a539836ed5462f7d54c4d8a62957a945613063c12ea59d0cfc0083a",
@@ -4034,6 +4034,109 @@
             "hourly_adapters_sha256": "0af7b2ff94cbabfd5e37829e5ba7532b3939d80e02bbc0def9942beeaae891c4"
           },
           "superseded_by": "ADR0309-terminal-audit-admission-prepared"
+        },
+        {
+          "goal": {
+            "decision": "ADR0232",
+            "profile": "cce_hourly_qualification",
+            "extension_decision": "ADR0271",
+            "comparison_arm": "correction",
+            "maximum_paid_stages": 1,
+            "maximum_pods": 18,
+            "pod_vcpu": 1,
+            "pod_memory_gib": 2,
+            "offered_journeys_per_second": 84,
+            "offered_seconds": 3600,
+            "maximum_experiment_seconds": 5400,
+            "acquisition_budget": 20,
+            "unlimited_cumulative_time_explicitly_authorized": true,
+            "spending_allowance": {
+              "status": "APPROVED",
+              "maximum_additional_spend": null,
+              "no_spending_cap_explicitly_authorized": true
+            },
+            "ledger_start_index": 119,
+            "candidate_factor": {
+              "name": "event_lane_worker_placement",
+              "comparison_arm": "correction",
+              "worker_counts": {
+                "consumer": 6,
+                "projection-consumer": 1,
+                "reservation-writer": 3,
+                "publisher": 1,
+                "maintenance": 1,
+                "reconciler": 1,
+                "simulator": 1
+              },
+              "worker_resources": {
+                "requests": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                },
+                "limits": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                }
+              },
+              "image_receipt_sha256": "86e7655ecdd8496a7f95af5b8f805bbf351779344b0103168cbd22c61225b80a",
+              "database_connections_unchanged": true,
+              "gateway_delay_unchanged": true
+            },
+            "authorization": "User approved plan: fresh candidate from the fully passed/restored control; reviewed admission-validator lineage only; unchanged image/resources/budgets/paid workload",
+            "authorized_at_bangkok": "2026-10-13T12:04:22.360505+07:00",
+            "image_correction_decision": "ADR0267",
+            "authorized_at_utc": "2026-10-13T05:43:42.932374+00:00",
+            "scope_note": "One90-minute hourly qualification of passed1+3 committed-status runtime,84/s3600s302400distinct journeys; unchangedimage/resources/budgets/gateway/recovery; zero drops/payment violations; minimum300000conservative in-hour tickets.",
+            "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
+            "baseline_sha256": "f44977fb8a539836ed5462f7d54c4d8a62957a945613063c12ea59d0cfc0083a",
+            "worker_resources": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            },
+            "generator_concurrency": 500,
+            "timeout_retention_decision": "ADR0278",
+            "native_database_bridge_decision": "ADR0279",
+            "native_database_bridge_sha256": "11b72a0bd7cb5dbaec8d9396d279a32b97daa892a6aa83d9f622d2bc0fceeaf1",
+            "status_refresh_reuse_decision": "ADR0280",
+            "status_refresh_reuse_sha256": "9a3942c87ff8a71a6d2954b65198e15dbcdab14ac3e4ae535d7aaffff26e094f",
+            "observer_cost_decision": "ADR0283",
+            "observer_cost_sha256": "fdee59f7b83e384c5464d3166e644c769b030f9108c91bbd1d939f197f088435",
+            "latest_short_prerequisite_evidence": "docs/capacity/cce/observer-cost-paid-result-2026-10-12.json",
+            "latest_short_prerequisite_sha256": "5f37fa264394116be33008f8dac924ebd5c9186d8e6312980f5b040916bb31cc",
+            "payment_slot_decision": "ADR0306",
+            "payment_slot_arm": "candidate",
+            "customer_outcome_decision": "ADR0305",
+            "customer_outcome_contract_sha256": "3f6cef57504aa710b3ac141fa05d98fc38eaec0a2590287989eb1b6b320ea977",
+            "verification_decision": "ADR0285",
+            "verification_contract_sha256": "47929b98d8d6c0103edb8d12fceb3a8db2e21f38837f5e9312f564ebb7a0df96",
+            "verification_prerequisite_sha256": "dfaf9b3e14dbc4d28f2daf3996e7651bb9df6e2ec6933aeeb70f3b3d9b459039",
+            "metric_admission_decision": "ADR0287",
+            "metric_admission_contract_sha256": "795e3f4bf13ba0fbdeb9026d20ffef01be2fe1dd27e4cba113f675891e2c7e8c",
+            "ingress_route_decision": "ADR0291",
+            "ingress_route_contract_sha256": "be190f1bf59db855dd4abddcda9ca9aece9143954e41383e2c97acacd9779cd6",
+            "ingress_route_arm": "candidate",
+            "committed_status_decision": "ADR0298",
+            "committed_status_arm": "candidate",
+            "committed_status_receipt_sha256": "e566044814b05b2ebaf1a8cedf0ce2701b70e6f75b87884b26c75459d5983cae",
+            "control_ledger": "bounded_cce_paid_comparison__13e4bf4513e3",
+            "control_report_path": "tmp/adr0151-d06ab9835e96/cce-comparison.private.json",
+            "inventory_renewal_decision": "ADR0307",
+            "inventory_renewal_contract_sha256": "dcb69e0f507c72316ecc435b8d6c6ce8e64d2c7c2da8aa67c0509cf53384118a",
+            "payment_slot_snapshot_path": "tmp/adr0306-slots-bdb8c023179d/snapshot.private.json",
+            "hourly_qualification_decision": "ADR0281",
+            "hourly_verification_scope_decision": "ADR0286",
+            "ingress_hourly_decision": "ADR0293",
+            "ingress_hourly_prerequisite_sha256": "48bf7f5a7995bef34e3d683fd259d4470837576f60c2dbf218fad1b67098c2a0",
+            "hourly_observer_bootstrap_decision": "ADR0294",
+            "committed_hourly_decision": "ADR0308",
+            "qualification_short_ledger": "bounded_cce_paid_comparison__654542a2d503",
+            "qualification_short_report_path": "tmp/adr0151-a41a9f162b93/cce-comparison.private.json",
+            "hourly_adapters_sha256": "0af7b2ff94cbabfd5e37829e5ba7532b3939d80e02bbc0def9942beeaae891c4",
+            "terminal_audit_admission_decision": "ADR0309",
+            "terminal_audit_admission_contract_sha256": "47654a4abbad3a9605b8a926e48e6c5544a3fbbf4a7956210e4765d7fb88824d"
+          },
+          "superseded_by": "ADR0308-hourly",
+          "superseded_at_utc": "2026-10-13T08:02:23.695147+00:00"
         }
       ]
     },
