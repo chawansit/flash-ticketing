@@ -1,0 +1,570 @@
+{
+  "decision": "ADR0301",
+  "run": "adr0151-43fb55d3f651",
+  "ledger": "bounded_cce_paid_comparison__30646dcdf494",
+  "status": "PASSED_RESTORED",
+  "paid_runs_started": 1,
+  "customers_dispatched": true,
+  "pass": true,
+  "raw_result_sha256": "6ad3a50b9630968d46b7979b67c0c9fd51b90eed985d5e5d0219d1b198981b3f",
+  "binding_sha256": "71128f24a8451382f6eac9040a3174d597e4a690fb9b5717ccc749ed154e79d9",
+  "offered_journeys_per_second": 84,
+  "offered_seconds": 300,
+  "image_sha256": "sha256:1c14f990325a5e408f63ec87b721401bd84ff844a05fbfb3449ec05df4dc06a4",
+  "image_receipt_sha256": "e566044814b05b2ebaf1a8cedf0ce2701b70e6f75b87884b26c75459d5983cae",
+  "factor_changed": false,
+  "committed_status_snapshot": "1",
+  "customer": {
+    "rate_target_per_second": 84,
+    "dispatch_seconds": 300,
+    "generator_shards": 2,
+    "generator_max_in_flight": 500,
+    "scheduled": 25200,
+    "dispatched": 25200,
+    "generator_drops": 0,
+    "completed": 25200,
+    "fulfilled": 25200,
+    "fulfilled_by_deadline": 25200,
+    "distinct_orders": 25200,
+    "distinct_tickets": 25200,
+    "retry_attempts": 0,
+    "hold_app_timing_samples": 25200,
+    "payment_app_timing_samples": 25200,
+    "first_attempt_error_journeys": 0,
+    "payment_operation_checks": 0,
+    "recovered_journeys": 0,
+    "final_customer_failures": 0,
+    "recovery_max_attempts": 3,
+    "dispatch_lag_p95_ms": 1.4043278060853481,
+    "dispatch_lag_max_ms": 96.87430842313915,
+    "hold_http_p95_ms": 13.02133605349809,
+    "hold_app_p95_ms": 8.3,
+    "hold_client_excess_p95_ms": 5.652654987201094,
+    "command_durable_wait_p95_ms": 1052.863511024043,
+    "durable_p95_ms": 1070.7809769082814,
+    "payment_http_p95_ms": 104.87369599286467,
+    "payment_app_p95_ms": 98.44,
+    "payment_client_excess_p95_ms": 6.0578840010985715,
+    "ticket_wait_p95_ms": 617.7807190688327,
+    "payment_to_ticket_p95_ms": 682.6064699562266,
+    "hold_to_ticket_p95_ms": 1779.8446180531755,
+    "total_journey_p95_ms": 1779.8917349427938,
+    "pass": true,
+    "measurement_complete": true,
+    "accounting_complete": true
+  },
+  "customer_latency_ms": {
+    "dispatch_lag_p95_ms": 1.4043278060853481,
+    "hold_http_p95_ms": 13.02133605349809,
+    "hold_app_p95_ms": 8.3,
+    "hold_client_excess_p95_ms": 5.652654987201094,
+    "command_durable_wait_p95_ms": 1052.863511024043,
+    "durable_p95_ms": 1070.7809769082814,
+    "payment_http_p95_ms": 104.87369599286467,
+    "payment_app_p95_ms": 98.44,
+    "payment_client_excess_p95_ms": 6.0578840010985715,
+    "ticket_wait_p95_ms": 617.7807190688327,
+    "payment_to_ticket_p95_ms": 682.6064699562266,
+    "hold_to_ticket_p95_ms": 1779.8446180531755,
+    "total_journey_p95_ms": 1779.8917349427938,
+    "transport_phase_p95_ms": {
+      "holds": {
+        "connect_ms": 14.92238906212151,
+        "headers_to_pool_release_ms": 0.9406899334862828,
+        "pre_send_ms": 1.103804912418127,
+        "request_to_pool_release_ms": 12.74094101972878,
+        "response_body_ms": 0.34225801937282085,
+        "response_wait_ms": 10.725712985731661,
+        "stream_close_ms": 0.6678119534626603
+      },
+      "orders": {
+        "connect_ms": 6.433326052501798,
+        "headers_to_pool_release_ms": 1.0859230533242226,
+        "pre_send_ms": 1.3950789580121636,
+        "request_to_pool_release_ms": 23.114462033845484,
+        "response_body_ms": 0.36020693369209766,
+        "response_wait_ms": 21.280287066474557,
+        "stream_close_ms": 0.7776389829814434
+      },
+      "payment_operations": {
+        "connect_ms": null,
+        "headers_to_pool_release_ms": null,
+        "pre_send_ms": null,
+        "request_to_pool_release_ms": null,
+        "response_body_ms": null,
+        "response_wait_ms": null,
+        "stream_close_ms": null
+      },
+      "payments": {
+        "connect_ms": 3.414367907680571,
+        "headers_to_pool_release_ms": 1.106500974856317,
+        "pre_send_ms": 1.074106083251536,
+        "request_to_pool_release_ms": 104.57622504327446,
+        "response_body_ms": 0.36335503682494164,
+        "response_wait_ms": 102.46308706700802,
+        "stream_close_ms": 0.793679035268724
+      },
+      "reservation_commands": {
+        "connect_ms": 12.717730947770178,
+        "headers_to_pool_release_ms": 0.9832320502027869,
+        "pre_send_ms": 0.9693179745227098,
+        "request_to_pool_release_ms": 8.17921303678304,
+        "response_body_ms": 0.3307249862700701,
+        "response_wait_ms": 6.45015703048557,
+        "stream_close_ms": 0.7100410293787718
+      }
+    }
+  },
+  "latency_summary_mode": "worst_shard_p95_not_combined_percentile",
+  "first_attempt_errors": {},
+  "measurement_gates": {
+    "customer_load": true,
+    "post_ttl_financial": true,
+    "zero_double_booking": true,
+    "payment_durability": true,
+    "full_queue_drain": true,
+    "native_observer": true,
+    "native_cpu": true,
+    "unchanged_background": true,
+    "unchanged_native_pods": true,
+    "live_admission": true,
+    "unchanged_ingress_route": true
+  },
+  "financial": {
+    "orders": 25200,
+    "fulfilled_orders": 25200,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 25200,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 25200,
+    "bookings": 25200,
+    "tickets": 25200,
+    "payment_callbacks": 25200,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 25200,
+    "callback_delivery_target": 25200,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 25200,
+    "expected_paid": 25200,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true,
+    "hold_deadlines_elapsed": true
+  },
+  "financial_checks": {
+    "post_ttl_complete": true,
+    "payments_durable": true,
+    "ticket_relationships_valid": true
+  },
+  "issuance_window": {
+    "unique_paid_issued_tickets": 25097,
+    "unique_orders": 25097,
+    "unique_payments": 25097,
+    "joined_rows": 25097,
+    "conservative_inner_window_tickets": 24887,
+    "inner_window_guard_seconds": 2,
+    "first_issued_at": "2026-10-13T09:13:19.798303+07:00",
+    "last_issued_at": "2026-10-13T09:18:18.550673+07:00",
+    "pass": false
+  },
+  "issued_inside_offered_window_per_second": 83.65666666666667,
+  "restoration_complete": true,
+  "integrity_verified": true,
+  "cleanup_complete": true,
+  "transport_credentials_cleared": true,
+  "diagnostics": {
+    "api_cpu_cores": 1.5874141606664642,
+    "worker_cpu_cores": 1.2985336847607287,
+    "database_wait_capture": {
+      "decision": "ADR0173",
+      "complete": true,
+      "rows": 365,
+      "error_counts": {},
+      "counter_continuity": true,
+      "max_collection_ms": 35.58108804281801,
+      "max_statistics_gap_seconds": 1.014674,
+      "discontinuity_counts": {},
+      "wal_timing_available_throughout": false,
+      "counter_deltas": {
+        "wal": {
+          "wal_records": 3314483,
+          "wal_fpi": 475791,
+          "wal_bytes": 2996566876,
+          "wal_buffers_full": 0,
+          "wal_write": 158388,
+          "wal_sync": 158388,
+          "wal_write_time": 0,
+          "wal_sync_time": 0
+        },
+        "checkpointer": {
+          "num_timed": 1,
+          "num_requested": 0,
+          "write_time": 0,
+          "sync_time": 0,
+          "buffers_written": 42977
+        },
+        "database": {
+          "xact_commit": 279576,
+          "xact_rollback": 33,
+          "blks_read": 278970,
+          "blks_hit": 53866493,
+          "blk_read_time": 177831.21100000106,
+          "blk_write_time": 508.75399999998626,
+          "deadlocks": 0,
+          "temp_bytes": 0
+        }
+      },
+      "observed_active_wait_peaks": {
+        "IO:WalSync": 2,
+        "None:None": 10,
+        "Client:ClientRead": 6,
+        "LWLock:WALWrite": 22,
+        "IO:DataFileRead": 8,
+        "Lock:transactionid": 2,
+        "IO:WalWrite": 1,
+        "IO:DataFilePrefetch": 1,
+        "IO:WalInitSync": 1,
+        "IO:WalInitWrite": 1
+      },
+      "scope": "Observer lifetime, cluster WAL/checkpoints and current-database activity; one-second snapshots may miss brief waits. Correlation does not prove causality.",
+      "independent_sampling": true,
+      "offered_window_covered": true,
+      "first_statistics_utc": "2026-10-13T09:12:22.718463+07:00",
+      "last_statistics_utc": "2026-10-13T09:18:26.747339+07:00"
+    },
+    "pgbouncer_maxwait_peak_ms": 79.141,
+    "api_database": {
+      "observed_replicas": 4,
+      "counter_deltas": {
+        "pool_acquire:ok": 76108.0,
+        "order_cache:miss": 25391.0,
+        "order_cache:fill": 25388.0,
+        "process_cpu_seconds_total": 481.82000000000005,
+        "order_cache:hit": 25530.0,
+        "order_cache:fill_raced": 3.0
+      },
+      "duration_mean_ms": {
+        "db_query:SELECT": 2.3373481571539303,
+        "db_pool_acquire:ok": 8.742854024517957,
+        "db_query:BEGIN": 4.301639092986412,
+        "db_query:INSERT": 2.6414752413228433,
+        "db_connection_hold:all": 28.609609016988856,
+        "event_loop_lag:all": 0.6173241543827214,
+        "db_query:UPDATE": 2.331777332841402,
+        "db_commit:all": 3.787985244549838
+      },
+      "event_loop_lag_current_peak_ms": 13.409323000132645,
+      "pool_peaks_per_replica": {
+        "pool_acquiring": 9.0,
+        "pool_in_use": 4.0,
+        "pool_state:pool_size": 4.0,
+        "pool_state:general_pool_size": 2.0,
+        "pool_state:payment_pool_size": 2.0,
+        "pool_state:pool_available": 4.0,
+        "pool_state:general_pool_available": 2.0,
+        "pool_state:payment_pool_available": 2.0,
+        "pool_state:requests_waiting": 9.0,
+        "pool_state:general_requests_waiting": 0,
+        "pool_state:payment_requests_waiting": 9.0,
+        "pool_state:pool_max": 4.0,
+        "pool_state:general_pool_max": 2.0,
+        "pool_state:payment_pool_max": 2.0,
+        "pool_state:pool_max_waiting": 20.0,
+        "pool_state:shared_acquisition_limit": 20.0,
+        "pool_state:shared_acquisition_used": 9.0,
+        "pool_state:shared_acquisition_acquiring": 9.0,
+        "pool_state:shared_acquisition_retained": 0,
+        "pool_state:general_max_waiting": 18.0,
+        "pool_state:payment_max_waiting": 18.0
+      },
+      "counter_reset_detected": false
+    },
+    "role_database": {
+      "simulator": {
+        "observed_replicas": 1,
+        "counter_deltas": {
+          "pool_acquire:ok": 83223.0,
+          "process_cpu_seconds_total": 57.230000000000004,
+          "pool_acquire:error": 4.0
+        },
+        "duration_mean_ms": {
+          "db_query:SELECT": 1.6159115823127108,
+          "db_query:BEGIN": 2.7916155463633814,
+          "db_connection_hold:all": 9.287960414508643,
+          "db_pool_acquire:ok": 0.12349800652462352,
+          "db_query:UPDATE": 1.6300316466794798,
+          "db_commit:all": 2.6304548681792066,
+          "db_pool_acquire:error": 150.8610402500068
+        },
+        "event_loop_lag_current_peak_ms": 0.0,
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 2.0,
+          "pool_in_use": 10.0,
+          "pool_state:pool_size": 10.0,
+          "pool_state:pool_available": 10.0,
+          "pool_state:requests_waiting": 0,
+          "pool_state:pool_max": 10.0
+        },
+        "counter_reset_detected": false
+      },
+      "consumer": {
+        "observed_replicas": 6,
+        "counter_deltas": {
+          "pool_acquire:ok": 50410.0,
+          "order_cache:event_fill_raced": 5.0,
+          "order_cache:event_read_deduplicated": 25195.0,
+          "process_cpu_seconds_total": 182.57,
+          "order_cache:committed_read_avoided": 25195.0,
+          "order_cache:hit": 25195.0,
+          "order_cache:event_fill": 25200.0
+        },
+        "duration_mean_ms": {
+          "db_query:SELECT": 2.09425298214418,
+          "db_query:BEGIN": 3.8483716769493514,
+          "db_query:INSERT": 2.675246274732482,
+          "db_connection_hold:all": 18.899616735290742,
+          "db_pool_acquire:ok": 0.01699003705569005,
+          "db_query:UPDATE": 2.0809692934136232,
+          "db_commit:all": 4.060152218291652
+        },
+        "event_loop_lag_current_peak_ms": 0.0,
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 0,
+          "pool_in_use": 1.0,
+          "pool_state:pool_size": 1.0,
+          "pool_state:pool_available": 1.0,
+          "pool_state:requests_waiting": 0,
+          "pool_state:pool_max": 7.0
+        },
+        "counter_reset_detected": false
+      },
+      "publisher": {
+        "observed_replicas": 1,
+        "counter_deltas": {
+          "pool_acquire:ok": 17091.0,
+          "process_cpu_seconds_total": 43.03999999999999
+        },
+        "duration_mean_ms": {
+          "db_query:SELECT": 2.3366412541283474,
+          "db_query:BEGIN": 4.092043974023442,
+          "db_connection_hold:all": 15.8556003823422,
+          "db_pool_acquire:ok": 0.015887710140054453,
+          "db_query:UPDATE": 2.7793732289631774,
+          "db_commit:all": 4.014598178855907
+        },
+        "event_loop_lag_current_peak_ms": 0.0,
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 0,
+          "pool_in_use": 1.0,
+          "pool_state:pool_size": 2.0,
+          "pool_state:pool_available": 2.0,
+          "pool_state:requests_waiting": 0,
+          "pool_state:pool_max": 12.0
+        },
+        "counter_reset_detected": false
+      },
+      "writer": {
+        "observed_replicas": 3,
+        "counter_deltas": {
+          "pool_acquire:ok": 7669.0,
+          "process_cpu_seconds_total": 77.31
+        },
+        "duration_mean_ms": {
+          "db_query:SELECT": 2.015514191798716,
+          "db_query:BEGIN": 3.648321746773404,
+          "db_query:INSERT": 0.3785597211838662,
+          "db_connection_hold:all": 80.50897056056681,
+          "db_pool_acquire:ok": 0.019318637502053895,
+          "db_query:UPDATE": 0.06291533742022859,
+          "db_commit:all": 4.474800770995681
+        },
+        "event_loop_lag_current_peak_ms": 0.0,
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 0,
+          "pool_in_use": 1.0,
+          "pool_state:pool_size": 1.0,
+          "pool_state:pool_available": 1.0,
+          "pool_state:requests_waiting": 0,
+          "pool_state:pool_max": 12.0
+        },
+        "counter_reset_detected": false
+      },
+      "maintenance": {
+        "observed_replicas": 1,
+        "counter_deltas": {
+          "pool_acquire:ok": 19656.0,
+          "process_cpu_seconds_total": 22.11
+        },
+        "duration_mean_ms": {
+          "db_query:SELECT": 2.199656225658752,
+          "db_query:BEGIN": 4.063012615403611,
+          "db_connection_hold:all": 13.985773282713284,
+          "db_pool_acquire:ok": 0.015035892296633059,
+          "db_query:OTHER": 3.3527684935373796,
+          "db_query:UPDATE": 2.398275607113721,
+          "db_commit:all": 3.0648504649352546
+        },
+        "event_loop_lag_current_peak_ms": 0.0,
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 0,
+          "pool_in_use": 1.0,
+          "pool_state:pool_size": 2.0,
+          "pool_state:pool_available": 2.0,
+          "pool_state:requests_waiting": 0,
+          "pool_state:pool_max": 12.0
+        },
+        "counter_reset_detected": false
+      },
+      "reconciler": {
+        "observed_replicas": 1,
+        "counter_deltas": {
+          "pool_acquire:ok": 7193.0,
+          "process_cpu_seconds_total": 10.83
+        },
+        "duration_mean_ms": {
+          "db_query:SELECT": 1.6584812059130303,
+          "db_query:BEGIN": 2.883451922157753,
+          "db_query:INSERT": 2.0759722999979533,
+          "db_connection_hold:all": 9.222780974280823,
+          "db_pool_acquire:ok": 0.017818018072610447,
+          "db_query:DELETE": 2.4004237636388965,
+          "db_query:UPDATE": 1.6670769956629148,
+          "db_commit:all": 1.9842398640352676
+        },
+        "event_loop_lag_current_peak_ms": 0.0,
+        "pool_peaks_per_replica": {
+          "pool_acquiring": 0,
+          "pool_in_use": 1.0,
+          "pool_state:pool_size": 2.0,
+          "pool_state:pool_available": 2.0,
+          "pool_state:requests_waiting": 0,
+          "pool_state:pool_max": 12.0
+        },
+        "counter_reset_detected": false
+      }
+    },
+    "consumer_batch_failure_counts": {
+      "other": 5.0
+    },
+    "collection_failures": [],
+    "slot_failures": {
+      "complete": true,
+      "count": 0,
+      "events": []
+    }
+  },
+  "query_attribution": {
+    "before": {
+      "path": "tmp/adr0151-43fb55d3f651/candidate/query-statistics-before.private.json",
+      "sha256": "a4d646578706b852896a9e62a3f6523267c6149351331fa5cd6f33cc24576637",
+      "run": "adr0151-43fb55d3f651",
+      "binding_sha256": "71128f24a8451382f6eac9040a3174d597e4a690fb9b5717ccc749ed154e79d9",
+      "helper_sha256": "4818ae77ae6f739a93cad668f0b261f3480a5864e2461c36cbaf99ab125d33bc",
+      "wrapper_sha256": "8873e02864657a66b35d11cf59b69b3570fd7eb522bd499570cd226178b9a398",
+      "captured_at": "2026-10-13T09:12:51.299723+07:00",
+      "statements": 426
+    },
+    "after": {
+      "path": "tmp/adr0151-43fb55d3f651/candidate/query-statistics-after.private.json",
+      "sha256": "d9d887c2e1eda76e9f194fe7ef37a1cbea001be9916b731772fc3e1e8a774081",
+      "run": "adr0151-43fb55d3f651",
+      "binding_sha256": "71128f24a8451382f6eac9040a3174d597e4a690fb9b5717ccc749ed154e79d9",
+      "helper_sha256": "4818ae77ae6f739a93cad668f0b261f3480a5864e2461c36cbaf99ab125d33bc",
+      "wrapper_sha256": "8873e02864657a66b35d11cf59b69b3570fd7eb522bd499570cd226178b9a398",
+      "captured_at": "2026-10-13T09:18:23.826801+07:00",
+      "statements": 426
+    },
+    "complete": true,
+    "summary_path": "tmp/adr0151-43fb55d3f651/candidate/query-attribution-summary.json",
+    "summary_sha256": "39ede512f1f4b408ca6f50999b5dee49328e2ee968a9271657ad9715a40d23a0"
+  },
+  "hourly_qualified": false,
+  "capacity_improvement_measured": false,
+  "note": "Unchanged committed-status candidate repeat with supplemental query snapshots; not an observer-query or capacity comparison.",
+  "previous_candidate_evidence": "docs/capacity/cce/committed-fulfillment-status-candidate-result-2026-10-13.json",
+  "comparison_scope": "Unchanged candidate repeat; no new performance correction or A/B capacity improvement.",
+  "api_replicas": 4,
+  "api_resources": {
+    "limits": {
+      "cpu": "1",
+      "memory": "2Gi"
+    },
+    "requests": {
+      "cpu": "1",
+      "memory": "2Gi"
+    }
+  },
+  "owned_workers": 14,
+  "worker_counts": {
+    "consumer": 6,
+    "projection-consumer": 1,
+    "reservation-writer": 3,
+    "publisher": 1,
+    "maintenance": 1,
+    "reconciler": 1,
+    "simulator": 1
+  },
+  "worker_resources": {
+    "requests": {
+      "cpu": "250m",
+      "memory": "512Mi"
+    },
+    "limits": {
+      "cpu": "250m",
+      "memory": "512Mi"
+    }
+  },
+  "pooler_server_connections": 24,
+  "admission_budget": 20,
+  "global_queues": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 6,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "split",
+    "projection_kafka_total_lag": 0,
+    "projection_kafka_members": 1
+  },
+  "unchanged_repeat_comparison": {
+    "generator_drops": {
+      "previous": 0,
+      "repeat": 0
+    },
+    "first_attempt_error_journeys": {
+      "previous": 4,
+      "repeat": 0
+    },
+    "final_customer_failures": {
+      "previous": 0,
+      "repeat": 0
+    },
+    "total_journey_p95_ms": {
+      "previous": 2607.2704329853877,
+      "repeat": 1779.8917349427938
+    },
+    "payment_http_p95_ms": {
+      "previous": 113.91852295491844,
+      "repeat": 104.87369599286467
+    },
+    "inside_window_tickets": {
+      "previous": 25102,
+      "repeat": 25097
+    },
+    "interpretation": "Latency and errors vary between unchanged runs. No new application correction, permanent error fix or capacity increase is proven."
+  },
+  "source_identity_sha256": "099bdb706c419eb18850fd7ee6a02986b489118d9f0f350a5754e113edba4104",
+  "configuration_sha256": "sha256:eb54f55a7cb17161310c99b6c6222e64bbb45fb92c696f839dd3877fe31a8112"
+}

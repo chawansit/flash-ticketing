@@ -264,3 +264,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0299: Expose preloaded query statistics](0299-expose-preloaded-query-statistics.md)
 
 - [ADR0300: Compare cohort observer query cost](0300-compare-cohort-observer-query-cost.md)
+
+- [ADR0301: Attribute unchanged paid-stage database cost](0301-attribute-unchanged-paid-stage-database-cost.md)

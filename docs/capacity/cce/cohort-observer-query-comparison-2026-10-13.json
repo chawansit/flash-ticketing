@@ -330,9 +330,10 @@
   "limitations": [
     "Two samples per query; caches warm and completed cohort only.",
     "No comparison under contention, hourly-sized cohort or customer throughput improvement.",
-    "Current warm SELECT 214.54ms versus alternative 195.48-195.85ms; do not use the first 317.66ms current SELECT as a fair percentage baseline."
+    "Current warm SELECT 214.54ms versus alternative 195.48-195.85ms; do not use the first 317.66ms current SELECT as a fair percentage baseline.",
+    "ADR0301 discovered the actual runner already applies ADR0283 LATERAL rewrites. This comparison used base SQL, not that live rewritten query; it does not justify changing live monitoring."
   ],
-  "recommendation": "Prepare isolated integration of the existing ADR0247 query; retain nine exact counters and sampling cadence; measure fresh 84/s comparison before adoption or rate increase.",
+  "recommendation": "Do not activate this alternative from these measurements. Attribute the unchanged actual paid stage before selecting a correction.",
   "query_sources": {
     "current": {
       "path": "scripts/observe_paid_pipeline.py",
