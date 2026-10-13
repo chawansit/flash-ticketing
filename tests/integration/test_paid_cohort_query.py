@@ -2,6 +2,7 @@
 import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from types import SimpleNamespace
 from uuid import uuid4
 
 import pytest
@@ -9,6 +10,8 @@ from psycopg.rows import tuple_row
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 import paid_cohort_query as candidate
+from observe_cce_paid_pipeline import install_indexed_cohort_query
+from observe_paid_pipeline import PAID_COHORT_QUERY as base_query
 from observe_paid_pipeline import sample as baseline
 
 pytestmark = pytest.mark.integration
@@ -46,10 +49,16 @@ def snapshot(db, shows):
             # Match the real observer connection, rather than the API's dict rows.
             conn.row_factory = tuple_row
             original = baseline(conn, shows)
-            modified = candidate.sample(conn, shows)
+            runtime = SimpleNamespace(PAID_COHORT_QUERY=base_query)
+            install_indexed_cohort_query(runtime)
+            row = conn.execute(runtime.PAID_COHORT_QUERY, (shows, shows)).fetchone()
+            indexed = dict(zip(candidate.SAMPLE_COLUMNS, row, strict=True))
+            candidate.install_runtime_candidate(runtime)
+            row = conn.execute(runtime.PAID_COHORT_QUERY, (shows, shows)).fetchone()
+            modified = dict(zip(candidate.SAMPLE_COLUMNS, row, strict=True))
         finally:
             conn.row_factory = factory
-    assert modified == original
+    assert modified == indexed == original
     return modified
 
 

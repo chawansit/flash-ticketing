@@ -1,0 +1,170 @@
+{
+  "decision": "ADR0302",
+  "pass": true,
+  "cohort_run": "adr0151-43fb55d3f651",
+  "fixture_sha256": "cd6ec744766ce2175f7ce6e7e86fb5823e46b86bd940bd2233a721900ad9aaea",
+  "sql_sha256": {
+    "actual_runtime": "304b87b37cd635ea178cb69adf19291c33e1218e6652651af9f8ed08e930b5c2",
+    "alternative": "cc440cabc192b8037f1e3dfa52d0aa9f501d3af2dfc3af5694d13f470076beef"
+  },
+  "runtime_adapter_sha256": "e60f03b1d6c7b44faa0b9064d403820e57fc02aebd9bf49b5250294e0842ae79",
+  "execution_wrapper_sha256": "8648d6f6ae4e60a0eb133b3b70e854110f4d56a8764c962450ab70ca6c7049f3",
+  "raw_evidence_sha256": "9c8a285806542c99dbb676c43628b4fceeb2bdb3183a0da483f625ca697de21c",
+  "all_nine_counters_equal": true,
+  "runtime_unchanged": true,
+  "customer_load_started": false,
+  "comparison_order": [
+    "actual_runtime_lateral",
+    "array_candidate",
+    "array_candidate",
+    "actual_runtime_lateral",
+    "actual_runtime_lateral",
+    "array_candidate"
+  ],
+  "measurements": [
+    {
+      "query": "actual_runtime_lateral",
+      "counters": {
+        "pending_orders": 0,
+        "paid_unfulfilled": 0,
+        "fulfilled_orders": 25200,
+        "pending_callback_deliveries": 0,
+        "pending_payment_attempts": 0,
+        "delivered_callbacks": 25200,
+        "issued_tickets": 25200,
+        "unpublished_outbox": 0,
+        "db_lock_waiters": 0
+      },
+      "select_elapsed_ms": 350.9814130375162,
+      "planning_ms": 0.631,
+      "execution_ms": 247.215,
+      "shared_hit_blocks": 203179,
+      "shared_read_blocks": 0
+    },
+    {
+      "query": "array_candidate",
+      "counters": {
+        "pending_orders": 0,
+        "paid_unfulfilled": 0,
+        "fulfilled_orders": 25200,
+        "pending_callback_deliveries": 0,
+        "pending_payment_attempts": 0,
+        "delivered_callbacks": 25200,
+        "issued_tickets": 25200,
+        "unpublished_outbox": 0,
+        "db_lock_waiters": 0
+      },
+      "select_elapsed_ms": 200.33597794827074,
+      "planning_ms": 0.574,
+      "execution_ms": 207.871,
+      "shared_hit_blocks": 142291,
+      "shared_read_blocks": 0
+    },
+    {
+      "query": "array_candidate",
+      "counters": {
+        "pending_orders": 0,
+        "paid_unfulfilled": 0,
+        "fulfilled_orders": 25200,
+        "pending_callback_deliveries": 0,
+        "pending_payment_attempts": 0,
+        "delivered_callbacks": 25200,
+        "issued_tickets": 25200,
+        "unpublished_outbox": 0,
+        "db_lock_waiters": 0
+      },
+      "select_elapsed_ms": 201.6382870497182,
+      "planning_ms": 0.572,
+      "execution_ms": 209.534,
+      "shared_hit_blocks": 142291,
+      "shared_read_blocks": 0
+    },
+    {
+      "query": "actual_runtime_lateral",
+      "counters": {
+        "pending_orders": 0,
+        "paid_unfulfilled": 0,
+        "fulfilled_orders": 25200,
+        "pending_callback_deliveries": 0,
+        "pending_payment_attempts": 0,
+        "delivered_callbacks": 25200,
+        "issued_tickets": 25200,
+        "unpublished_outbox": 0,
+        "db_lock_waiters": 0
+      },
+      "select_elapsed_ms": 232.82771999947727,
+      "planning_ms": 0.593,
+      "execution_ms": 241.29,
+      "shared_hit_blocks": 203179,
+      "shared_read_blocks": 0
+    },
+    {
+      "query": "actual_runtime_lateral",
+      "counters": {
+        "pending_orders": 0,
+        "paid_unfulfilled": 0,
+        "fulfilled_orders": 25200,
+        "pending_callback_deliveries": 0,
+        "pending_payment_attempts": 0,
+        "delivered_callbacks": 25200,
+        "issued_tickets": 25200,
+        "unpublished_outbox": 0,
+        "db_lock_waiters": 0
+      },
+      "select_elapsed_ms": 239.32430206332356,
+      "planning_ms": 0.642,
+      "execution_ms": 247.462,
+      "shared_hit_blocks": 203179,
+      "shared_read_blocks": 0
+    },
+    {
+      "query": "array_candidate",
+      "counters": {
+        "pending_orders": 0,
+        "paid_unfulfilled": 0,
+        "fulfilled_orders": 25200,
+        "pending_callback_deliveries": 0,
+        "pending_payment_attempts": 0,
+        "delivered_callbacks": 25200,
+        "issued_tickets": 25200,
+        "unpublished_outbox": 0,
+        "db_lock_waiters": 0
+      },
+      "select_elapsed_ms": 201.12061803229153,
+      "planning_ms": 0.92,
+      "execution_ms": 241.957,
+      "shared_hit_blocks": 142291,
+      "shared_read_blocks": 0
+    }
+  ],
+  "mean_execution_ms": {
+    "actual_runtime_lateral": 245.32233333333332,
+    "array_candidate": 219.78733333333332
+  },
+  "mean_shared_hit_blocks": {
+    "actual_runtime_lateral": 203179,
+    "array_candidate": 142291
+  },
+  "execution_reduction_percent": 10.408754740362003,
+  "buffer_hit_reduction_percent": 29.967663981021666,
+  "statistics_epoch": [
+    {
+      "dealloc": 0,
+      "stats_reset": "2026-09-13 08:44:05.348317+07:00"
+    }
+  ],
+  "local_preflight_failure": {
+    "failure_type": "AttributeError",
+    "cause": "Wrong explicit acquire call; existing RunLock acquires in its constructor.",
+    "database_statements_started": false,
+    "lock_removed": true,
+    "corrected_before_fresh_attempt": true
+  },
+  "limitations": [
+    "Three samples per query on an idle completed cohort, not under contention or an hour-sized cohort.",
+    "First current SELECT included cache warming; all samples are retained. EXPLAIN means use the separately executed plans.",
+    "The final candidate plan was slower than its earlier samples; timing variability is retained.",
+    "No deployed correction or paid-ticket capacity improvement is claimed."
+  ],
+  "recommendation": "Prepare guarded opt-in runtime replacement and verify mixed-state result equality before identity-bound paid-run integration. Preserve cadence and independent financial audits."
+}

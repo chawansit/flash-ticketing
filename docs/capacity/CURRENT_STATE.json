@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-13",
   "branch": "codex/customer-recovery-2026-10-10",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "ADR0301 unchanged 84/s repeat PASSED_RESTORED: 25,200 dispatched and fulfilled; zero drops, initial errors, retries or final failures. 25,097 tickets issued inside 300s (83.6567/s), all 25,200 after drain. All quality, financial, durability, queue-drain and restoration gates passed. Complete query attribution identifies substantial observer buffer work and durable write/WAL work. No new application correction, 100/s result or hourly qualification.",
+  "status": "ADR0301 last paid 84/s repeat PASSED_RESTORED with 25,200 dispatched/fulfilled, zero drops or customer errors and 83.6567 tickets/s inside 300s. ADR0302 actual runtime query comparison matched all nine counters; array alternative reduced EXPLAIN execution 10.41% and buffer hits 29.97%. ADR0303 guarded opt-in replacement implemented and passed six unit and three PostgreSQL integration tests. It is not wired into the paid runner or deployed; no new paid capacity improvement or hourly qualification.",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -98,7 +98,7 @@
     "ADR0298 same-image comparison: both arms passed and restored, each with25,200 unique paid-and-issued journeys, zero drops/final customer failures, zero double-booking/payment loss and full queue drain. Consumer acquisitions fell75,603 to50,405 (33.3%). Candidate had four recovered initial payment503s (0.01587%);100/s and hourly qualification remain unproven."
   ],
   "unresolved": "100 successful paid-and-issued tickets/s and300000 inside one hour remain unqualified. ADR0298 short candidate issued25,102 tickets within300 seconds and25,200 after drain. Consumer acquisitions fell33.3%, but four initial payment503s required recovery. Near-failure WAL/DataFileRead observations and API holders narrow the investigation; precise query/backend attribution and underlying storage cause remain unproven. Prior ADR0295 failed hourly qualification remains failed.",
-  "next_on_resume": "Follow ADR0301 query-attribution evidence; no active cloud run remains. Prepare the actual runtime query comparison first, with an ADR before implementation and a fresh bounded scope for subsequent paid traffic.",
+  "next_on_resume": "No active cloud run remains. Continue ADR0303 identity-bound runner wiring and fresh control/candidate comparison. The guarded correction is locally tested but inactive.",
   "authorization": "Standing ADR0172 workflow: routine engineering within recorded boundaries, no cumulative time cap, bounded experiments and current quality gates, zero payment loss/double-booking. Reviewed code/evidence may be pushed to codex branch; main merge requires explicit approval. User approved the proposed consumer correction. Cloud runs need fresh registered scope; no spent ADR0263 stage is reused.",
   "scope": "ADR0287 capture correction passed short and hourly admission-history gates. Hourly business, durability, zero-double-booking, queue drain and restoration checks passed; independent statistics continuity failed. No load or recovery is active. Full production/flash-opening qualification is not claimed.",
   "bounded_control": {
@@ -1111,7 +1111,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Compare the actual ADR0283 LATERAL observer query against any proposed alternative on the verified cohort. Require all nine counters to match and measure execution/buffer costs before selecting one isolated correction. Preserve cadence, financial audits, budgets and workload. Do not activate ADR0247 from the base-SQL benchmark or treat this unchanged clean repeat as a permanent fix.",
+  "next_action": "Integrate the guarded ADR0303 observer replacement into the existing paid runner with explicit control/candidate selection and source/query fingerprints. Keep the same immutable application image and committed-status flag 1 in both arms, four APIs, 14 workers, 24 physical DB connections, admission 20, workload 84/s for 300s, sampling cadence and financial audits. Run a fresh unchanged control first, then candidate only if gates pass. Evaluate customer outcomes and database work before rate increase.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -10438,7 +10438,7 @@
     "scope": "Fresh ADR0228 experiment under ADR0172 standing boundaries; exact registered rate only, no replay",
     "cce_result_sha256": "55ec85ff7a06663a7066dd1b8be209add98a32b800bd4d09d31d51f6e9694295"
   },
-  "next_step": "Use ADR0301 measured query costs to select and validate one correction, then run the same 84/s comparison before increasing successful ticket throughput.",
+  "next_step": "Bind and compare the one validated observer correction at the same 84/s workload. Do not enable it by silently altering defaults, reuse spent scopes or claim 100/s capacity from an idle SQL benchmark.",
   "bounded_cce_dependency_probe__8c7a392324b5": {
     "authorization_id": "work-envelope-8c7a392324b5",
     "binding": {
@@ -18407,5 +18407,19 @@
     "new_performance_correction_implemented": false,
     "hourly_qualified": false,
     "capacity_improvement_measured": false
+  },
+  "guarded_runtime_cohort_correction_progress": {
+    "decision": "ADR0303",
+    "implemented": true,
+    "unit_tests_passed": 6,
+    "postgresql_integration_tests_passed": 3,
+    "owned_database_removed": true,
+    "helper_source_sha256": "40f30d8ad6d1920ce33d88dfc62c1623303672f71da955ff0cecfdf7926f1705",
+    "actual_runtime_query_comparison": "docs/capacity/cce/actual-runtime-cohort-query-comparison-2026-10-13.json",
+    "validation_evidence": "docs/capacity/cce/guarded-runtime-cohort-correction-validation-2026-10-13.json",
+    "paid_runner_integrated": false,
+    "deployed": false,
+    "new_paid_load_started": false,
+    "paid_capacity_improvement_measured": false
   }
 }

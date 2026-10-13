@@ -266,3 +266,7 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0300: Compare cohort observer query cost](0300-compare-cohort-observer-query-cost.md)
 
 - [ADR0301: Attribute unchanged paid-stage database cost](0301-attribute-unchanged-paid-stage-database-cost.md)
+
+- [ADR0302: Compare actual runtime cohort query](0302-compare-actual-runtime-cohort-query.md)
+
+- [ADR0303: Guard batched runtime cohort replacement](0303-guard-batched-runtime-cohort-replacement.md)

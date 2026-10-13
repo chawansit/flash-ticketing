@@ -1,4 +1,6 @@
-"""ADR0247 isolated observer SQL; not activated in the frozen paid runner."""
+"""ADR0247/ADR0303 opt-in observer SQL; inactive in the frozen paid runner."""
+
+import hashlib
 
 PAID_COHORT_QUERY = """WITH cohort AS MATERIALIZED (
   SELECT id,status FROM orders WHERE event_id=ANY(%s::uuid[])
@@ -33,3 +35,18 @@ def sample(conn, show_ids):
     """Read the same exact cohort counters in one database snapshot."""
     row = conn.execute(PAID_COHORT_QUERY, (show_ids, show_ids)).fetchone()
     return dict(zip(SAMPLE_COLUMNS, row, strict=True))
+
+
+# Exact effective SQL measured against the ADR0301 cohort in ADR0302.
+RUNTIME_BASELINE_SHA256 = "304b87b37cd635ea178cb69adf19291c33e1218e6652651af9f8ed08e930b5c2"
+
+
+def install_runtime_candidate(module):
+    """Replace only the measured indexed query, once, without changing defaults."""
+    current = getattr(module, "PAID_COHORT_QUERY", None)
+    if not isinstance(current, str) or hashlib.sha256(current.encode()).hexdigest() != RUNTIME_BASELINE_SHA256:
+        raise ValueError("Exact measured runtime cohort query required")
+    module.PAID_COHORT_QUERY = PAID_COHORT_QUERY
+    return {"decision": "ADR0303", "baseline_query_sha256": RUNTIME_BASELINE_SHA256,
+            "candidate_query_sha256": hashlib.sha256(PAID_COHORT_QUERY.encode()).hexdigest(),
+            "sample_columns": list(SAMPLE_COLUMNS)}

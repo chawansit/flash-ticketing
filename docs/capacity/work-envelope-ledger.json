@@ -3053,6 +3053,18 @@
       "infrastructure_changes": false,
       "runtime_unchanged": true,
       "evidence": "tmp/adr0249-payment-comparison/preflight.private.json"
+    },
+    {
+      "decision": "ADR0302",
+      "kind": "read_only_actual_runtime_query_comparison",
+      "finished_at_utc": "2026-10-13T02:49:38.882439+00:00",
+      "pass": true,
+      "customer_load_started": false,
+      "runtime_unchanged": true,
+      "evidence": "docs/capacity/cce/actual-runtime-cohort-query-comparison-2026-10-13.json",
+      "local_preflight_failure_preserved": true,
+      "subsequent_implementation": "ADR0303",
+      "local_owned_database_removed": true
     }
   ]
 }

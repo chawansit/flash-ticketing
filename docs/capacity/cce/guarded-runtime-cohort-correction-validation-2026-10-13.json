@@ -1,0 +1,30 @@
+{
+  "decision": "ADR0303",
+  "database_image": "postgres:17.6",
+  "cloud_load_started": false,
+  "server_version": "17.6 (Debian 17.6-2.pgdg13+1)",
+  "exit_code": 0,
+  "owned_database_removed": true,
+  "pass": true,
+  "unit_tests_passed": 6,
+  "integration_tests_passed": 3,
+  "ruff_passed": true,
+  "helper_source_sha256": "40f30d8ad6d1920ce33d88dfc62c1623303672f71da955ff0cecfdf7926f1705",
+  "baseline_query_sha256": "304b87b37cd635ea178cb69adf19291c33e1218e6652651af9f8ed08e930b5c2",
+  "candidate_query_sha256": "cc440cabc192b8037f1e3dfa52d0aa9f501d3af2dfc3af5694d13f470076beef",
+  "runtime_defaults_changed": false,
+  "paid_runner_integrated": false,
+  "candidate_runtime_activated": false,
+  "paid_capacity_improvement_measured": false,
+  "baseline_evidence": "docs/capacity/cce/actual-runtime-cohort-query-comparison-2026-10-13.json",
+  "tested_behavior": [
+    "exact measured baseline fingerprint required",
+    "unmeasured or repeated installation rejected before mutation",
+    "receipt survives JSON roundtrip unchanged",
+    "empty cohort retains global counts",
+    "mixed order/payment statuses and partial callback delivery",
+    "multiple seats and missing tickets/payments",
+    "unrelated shows and duplicate cohort IDs"
+  ],
+  "next_action": "Bind the explicit observer variant and helper fingerprints into the existing runner; use a fresh unchanged control before candidate paid traffic."
+}
