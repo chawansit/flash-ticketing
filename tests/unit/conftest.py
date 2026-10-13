@@ -4,7 +4,9 @@ import copy
 import pytest
 
 HISTORICAL_MODULES = {"test_cce_api_adapter", "test_cce_ecs_transition",
-                      "test_cce_paid_observers", "test_cce_transaction_profile", "test_observe_cce_paid_pipeline"}
+                      "test_cce_paid_observers", "test_cce_transaction_profile", "test_observe_cce_paid_pipeline",
+                      "test_cce_paid_lifecycle", "test_cce_hourly_integration",
+                      "test_cce_hourly_observer_bootstrap"}
 
 
 @pytest.fixture(autouse=True)

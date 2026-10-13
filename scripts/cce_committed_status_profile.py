@@ -26,12 +26,14 @@ def selected(goal):
     keys = {"committed_status_decision", "committed_status_arm", "committed_status_receipt_sha256"}
     if goal is None or not keys.intersection(goal):
         return False
+    from cce_committed_hourly_profile import selected as hourly_selected
+    hourly = hourly_selected(goal)
     if (goal.get("committed_status_decision") != "ADR0298"
             or goal.get("committed_status_arm") not in {"control", "candidate"}
             or goal.get("committed_status_receipt_sha256") != pins.RECEIPT_SHA256
-            or goal.get("extension_decision") != "ADR0271" or goal.get("profile") != "cce_paid_comparison"
-            or goal.get("offered_journeys_per_second") != 84 or goal.get("offered_seconds") != 300
-            or goal.get("maximum_paid_stages") != 1 or goal.get("maximum_experiment_seconds") != 3600
+            or goal.get("extension_decision") != "ADR0271" or goal.get("profile") != ("cce_hourly_qualification" if hourly else "cce_paid_comparison")
+            or goal.get("offered_journeys_per_second") != 84 or goal.get("offered_seconds") != (3600 if hourly else 300)
+            or goal.get("maximum_paid_stages") != 1 or goal.get("maximum_experiment_seconds") != (5400 if hourly else 3600)
             or goal.get("acquisition_budget") != 20 or goal.get("generator_concurrency") != 500
             or goal.get("ingress_route_arm") != "candidate"
             or goal.get("pod_vcpu") != 1 or goal.get("pod_memory_gib") != 2
@@ -55,6 +57,10 @@ def selected(goal):
 def require_control(goal):
     if not selected(goal) or goal["committed_status_arm"] != "candidate":
         raise ValueError("Candidate-only control prerequisite")
+    from cce_committed_hourly_profile import selected as hourly_selected
+    if hourly_selected(goal):
+        from cce_committed_hourly_profile import require_short
+        return require_short(goal)
     from cce_payment_slot_profile import BASELINE as slot_baseline
     from cce_payment_slot_profile import require_control as slot_control
     from cce_payment_slot_profile import selected as slot_selected

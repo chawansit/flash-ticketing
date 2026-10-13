@@ -27,16 +27,18 @@ def compatible_sources(original, current):
 def selected(goal):
     if goal is None or not KEYS.intersection(goal):
         return False
+    from cce_committed_hourly_profile import selected as hourly_selected
+    hourly = hourly_selected(goal)
     if (goal.get("payment_slot_decision") != "ADR0306"
             or goal.get("payment_slot_arm") not in {"control", "candidate"}
             or goal.get("extension_decision") != "ADR0271"
-            or goal.get("profile") != "cce_paid_comparison"
+            or goal.get("profile") != ("cce_hourly_qualification" if hourly else "cce_paid_comparison")
             or goal.get("committed_status_decision") != "ADR0298"
             or goal.get("committed_status_arm") != "candidate"
             or goal.get("offered_journeys_per_second") != 84
-            or goal.get("offered_seconds") != 300
+            or goal.get("offered_seconds") != (3600 if hourly else 300)
             or goal.get("maximum_paid_stages") != 1
-            or goal.get("maximum_experiment_seconds") != 3600
+            or goal.get("maximum_experiment_seconds") != (5400 if hourly else 3600)
             or goal.get("acquisition_budget") != 20
             or goal.get("observer_cost_decision") != "ADR0283"
             or any(k.startswith(("payment_pipeline_", "runtime_cohort_")) for k in goal)
@@ -52,6 +54,10 @@ def connections(goal):
 def require_control(goal):
     if not selected(goal) or goal["payment_slot_arm"] != "candidate":
         raise ValueError("Candidate requires a fresh payment-slot control")
+    from cce_committed_hourly_profile import selected as hourly_selected
+    if hourly_selected(goal):
+        from cce_committed_hourly_profile import require_short
+        return require_short(goal)
     ledger, relative = goal.get("control_ledger", ""), goal.get("control_report_path", "")
     path = Path(relative)
     if (not re.fullmatch(r"bounded_cce_paid_comparison__[0-9a-f]{12}", ledger)

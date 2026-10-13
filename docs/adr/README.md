@@ -278,3 +278,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0306: Rebalance payment slots on the committed-status runtime](0306-rebalance-payment-slots-on-committed-status.md)
 
 - [ADR0307: Renew CCE admission from live identities](0307-renew-cce-admission-from-live-identities.md)
+
+- [ADR0308: Qualify the committed runtime at the approved customer target](0308-qualify-committed-runtime-at-approved-customer-target.md)

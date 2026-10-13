@@ -217,7 +217,11 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     if cohort_selected(goal) and goal["runtime_cohort_arm"] == "candidate":
         from cce_runtime_cohort_profile import validate_candidate_binding
         validate_candidate_binding(goal, binding)
-    if slot_selected(goal) and goal["payment_slot_arm"] == "candidate":
+    from cce_committed_hourly_profile import selected as committed_hourly
+    if committed_hourly(goal):
+        from cce_committed_hourly_profile import validate_binding as validate_hourly
+        binding["cce_committed_hourly_qualification"] = validate_hourly(goal, binding)
+    elif slot_selected(goal) and goal["payment_slot_arm"] == "candidate":
         from cce_payment_slot_profile import validate_candidate_binding as validate_slots
         validate_slots(goal, binding)
     return binding

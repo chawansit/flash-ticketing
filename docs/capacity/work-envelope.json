@@ -142,7 +142,7 @@
           "maximum_additional_spend": null,
           "no_spending_cap_explicitly_authorized": true
         },
-        "ledger_start_index": 116,
+        "ledger_start_index": 119,
         "candidate_factor": {
           "name": "event_lane_worker_placement",
           "comparison_arm": "correction",
@@ -169,10 +169,10 @@
           "database_connections_unchanged": true,
           "gateway_delay_unchanged": true
         },
-        "authorization": "User Continue under ADR0306: execute fresh two/two control then one/three payment-partition candidate at84/s300s with supplementary pre/post query snapshots; unchanged resources and gates;3600s including cleanup",
-        "authorized_at_bangkok": "2026-10-13T11:23:08.762439+07:00",
+        "authorization": "User approved plan: fresh candidate from the fully passed/restored control; reviewed admission-validator lineage only; unchanged image/resources/budgets/paid workload",
+        "authorized_at_bangkok": "2026-10-13T12:04:22.360505+07:00",
         "image_correction_decision": "ADR0267",
-        "authorized_at_utc": "2026-10-13T04:23:08.762439+00:00",
+        "authorized_at_utc": "2026-10-13T05:43:42.932374+00:00",
         "scope_note": "ADR0306 one fixed-budget payment-partition arm;25200 journeys; one fresh paid stage with supplementary dispatch-boundary query snapshots",
         "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
         "baseline_sha256": "6e04b6008fcd08a8e0a3727dab2a6dd6b910c6d1d2fa4ff051911e835993b254",
@@ -190,23 +190,26 @@
         "observer_cost_sha256": "fdee59f7b83e384c5464d3166e644c769b030f9108c91bbd1d939f197f088435",
         "latest_short_prerequisite_evidence": "docs/capacity/cce/observer-cost-paid-result-2026-10-12.json",
         "latest_short_prerequisite_sha256": "5f37fa264394116be33008f8dac924ebd5c9186d8e6312980f5b040916bb31cc",
+        "payment_slot_decision": "ADR0306",
+        "payment_slot_arm": "candidate",
+        "customer_outcome_decision": "ADR0305",
+        "customer_outcome_contract_sha256": "3f6cef57504aa710b3ac141fa05d98fc38eaec0a2590287989eb1b6b320ea977",
         "verification_decision": "ADR0285",
-        "verification_contract_sha256": "ffe78f94bbcf7e0984b528ccda4afc36f195851cb34c7daf0a7533a0c3856b7f",
+        "verification_contract_sha256": "56ee4ce9c4e7a2c60cb83c07b994add310165f8c45e92e88afa678142748d41c",
         "verification_prerequisite_sha256": "dfaf9b3e14dbc4d28f2daf3996e7651bb9df6e2ec6933aeeb70f3b3d9b459039",
         "metric_admission_decision": "ADR0287",
-        "metric_admission_contract_sha256": "85017a8ae55420983bc3e2242bd58d33d0f6994a1e919155521a7545372db9d7",
+        "metric_admission_contract_sha256": "795e3f4bf13ba0fbdeb9026d20ffef01be2fe1dd27e4cba113f675891e2c7e8c",
         "ingress_route_decision": "ADR0291",
         "ingress_route_contract_sha256": "be190f1bf59db855dd4abddcda9ca9aece9143954e41383e2c97acacd9779cd6",
         "ingress_route_arm": "candidate",
         "committed_status_decision": "ADR0298",
         "committed_status_arm": "candidate",
         "committed_status_receipt_sha256": "e566044814b05b2ebaf1a8cedf0ce2701b70e6f75b87884b26c75459d5983cae",
-        "control_ledger": "bounded_cce_paid_comparison__e89c96258e72",
-        "control_report_path": "tmp/adr0151-22ce221dfb9e/cce-comparison.private.json",
-        "payment_slot_decision": "ADR0306",
-        "payment_slot_arm": "control",
-        "customer_outcome_decision": "ADR0305",
-        "customer_outcome_contract_sha256": "3f6cef57504aa710b3ac141fa05d98fc38eaec0a2590287989eb1b6b320ea977"
+        "control_ledger": "bounded_cce_paid_comparison__13e4bf4513e3",
+        "control_report_path": "tmp/adr0151-d06ab9835e96/cce-comparison.private.json",
+        "inventory_renewal_decision": "ADR0307",
+        "inventory_renewal_contract_sha256": "dcb69e0f507c72316ecc435b8d6c6ce8e64d2c7c2da8aa67c0509cf53384118a",
+        "payment_slot_snapshot_path": "tmp/adr0306-slots-bdb8c023179d/snapshot.private.json"
       },
       "bounded_scaling_permission": {
         "authorized": true,
@@ -3467,6 +3470,367 @@
           },
           "superseded_by": "ADR0306",
           "superseded_at_utc": "2026-10-13T04:23:08.762439+00:00"
+        },
+        {
+          "goal": {
+            "decision": "ADR0228",
+            "profile": "cce_paid_comparison",
+            "extension_decision": "ADR0271",
+            "comparison_arm": "correction",
+            "maximum_paid_stages": 1,
+            "maximum_pods": 18,
+            "pod_vcpu": 1,
+            "pod_memory_gib": 2,
+            "offered_journeys_per_second": 84,
+            "offered_seconds": 300,
+            "maximum_experiment_seconds": 3600,
+            "acquisition_budget": 20,
+            "unlimited_cumulative_time_explicitly_authorized": true,
+            "spending_allowance": {
+              "status": "APPROVED",
+              "maximum_additional_spend": null,
+              "no_spending_cap_explicitly_authorized": true
+            },
+            "ledger_start_index": 116,
+            "candidate_factor": {
+              "name": "event_lane_worker_placement",
+              "comparison_arm": "correction",
+              "worker_counts": {
+                "consumer": 6,
+                "projection-consumer": 1,
+                "reservation-writer": 3,
+                "publisher": 1,
+                "maintenance": 1,
+                "reconciler": 1,
+                "simulator": 1
+              },
+              "worker_resources": {
+                "requests": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                },
+                "limits": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                }
+              },
+              "image_receipt_sha256": "86e7655ecdd8496a7f95af5b8f805bbf351779344b0103168cbd22c61225b80a",
+              "database_connections_unchanged": true,
+              "gateway_delay_unchanged": true
+            },
+            "authorization": "User Continue under ADR0306: execute fresh two/two control then one/three payment-partition candidate at84/s300s with supplementary pre/post query snapshots; unchanged resources and gates;3600s including cleanup",
+            "authorized_at_bangkok": "2026-10-13T11:23:08.762439+07:00",
+            "image_correction_decision": "ADR0267",
+            "authorized_at_utc": "2026-10-13T04:23:08.762439+00:00",
+            "scope_note": "ADR0306 one fixed-budget payment-partition arm;25200 journeys; one fresh paid stage with supplementary dispatch-boundary query snapshots",
+            "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
+            "baseline_sha256": "6e04b6008fcd08a8e0a3727dab2a6dd6b910c6d1d2fa4ff051911e835993b254",
+            "worker_resources": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            },
+            "generator_concurrency": 500,
+            "timeout_retention_decision": "ADR0278",
+            "native_database_bridge_decision": "ADR0279",
+            "native_database_bridge_sha256": "11b72a0bd7cb5dbaec8d9396d279a32b97daa892a6aa83d9f622d2bc0fceeaf1",
+            "status_refresh_reuse_decision": "ADR0280",
+            "status_refresh_reuse_sha256": "9a3942c87ff8a71a6d2954b65198e15dbcdab14ac3e4ae535d7aaffff26e094f",
+            "observer_cost_decision": "ADR0283",
+            "observer_cost_sha256": "fdee59f7b83e384c5464d3166e644c769b030f9108c91bbd1d939f197f088435",
+            "latest_short_prerequisite_evidence": "docs/capacity/cce/observer-cost-paid-result-2026-10-12.json",
+            "latest_short_prerequisite_sha256": "5f37fa264394116be33008f8dac924ebd5c9186d8e6312980f5b040916bb31cc",
+            "verification_decision": "ADR0285",
+            "verification_contract_sha256": "ffe78f94bbcf7e0984b528ccda4afc36f195851cb34c7daf0a7533a0c3856b7f",
+            "verification_prerequisite_sha256": "dfaf9b3e14dbc4d28f2daf3996e7651bb9df6e2ec6933aeeb70f3b3d9b459039",
+            "metric_admission_decision": "ADR0287",
+            "metric_admission_contract_sha256": "85017a8ae55420983bc3e2242bd58d33d0f6994a1e919155521a7545372db9d7",
+            "ingress_route_decision": "ADR0291",
+            "ingress_route_contract_sha256": "be190f1bf59db855dd4abddcda9ca9aece9143954e41383e2c97acacd9779cd6",
+            "ingress_route_arm": "candidate",
+            "committed_status_decision": "ADR0298",
+            "committed_status_arm": "candidate",
+            "committed_status_receipt_sha256": "e566044814b05b2ebaf1a8cedf0ce2701b70e6f75b87884b26c75459d5983cae",
+            "control_ledger": "bounded_cce_paid_comparison__e89c96258e72",
+            "control_report_path": "tmp/adr0151-22ce221dfb9e/cce-comparison.private.json",
+            "payment_slot_decision": "ADR0306",
+            "payment_slot_arm": "control",
+            "customer_outcome_decision": "ADR0305",
+            "customer_outcome_contract_sha256": "3f6cef57504aa710b3ac141fa05d98fc38eaec0a2590287989eb1b6b320ea977"
+          },
+          "superseded_by": "ADR0306",
+          "superseded_at_utc": "2026-10-13T04:34:18.416871+00:00"
+        },
+        {
+          "goal": {
+            "decision": "ADR0228",
+            "profile": "cce_paid_comparison",
+            "extension_decision": "ADR0271",
+            "comparison_arm": "correction",
+            "maximum_paid_stages": 1,
+            "maximum_pods": 18,
+            "pod_vcpu": 1,
+            "pod_memory_gib": 2,
+            "offered_journeys_per_second": 84,
+            "offered_seconds": 300,
+            "maximum_experiment_seconds": 3600,
+            "acquisition_budget": 20,
+            "unlimited_cumulative_time_explicitly_authorized": true,
+            "spending_allowance": {
+              "status": "APPROVED",
+              "maximum_additional_spend": null,
+              "no_spending_cap_explicitly_authorized": true
+            },
+            "ledger_start_index": 117,
+            "candidate_factor": {
+              "name": "event_lane_worker_placement",
+              "comparison_arm": "correction",
+              "worker_counts": {
+                "consumer": 6,
+                "projection-consumer": 1,
+                "reservation-writer": 3,
+                "publisher": 1,
+                "maintenance": 1,
+                "reconciler": 1,
+                "simulator": 1
+              },
+              "worker_resources": {
+                "requests": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                },
+                "limits": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                }
+              },
+              "image_receipt_sha256": "86e7655ecdd8496a7f95af5b8f805bbf351779344b0103168cbd22c61225b80a",
+              "database_connections_unchanged": true,
+              "gateway_delay_unchanged": true
+            },
+            "authorization": "User Continue under ADR0306: execute fresh two/two control then one/three payment-partition candidate at84/s300s with supplementary pre/post query snapshots; unchanged resources and gates;3600s including cleanup",
+            "authorized_at_bangkok": "2026-10-13T11:34:18.416871+07:00",
+            "image_correction_decision": "ADR0267",
+            "authorized_at_utc": "2026-10-13T04:34:18.416871+00:00",
+            "scope_note": "ADR0306 one fixed-budget payment-partition arm;25200 journeys; one fresh paid stage with supplementary dispatch-boundary query snapshots",
+            "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
+            "baseline_sha256": "6e04b6008fcd08a8e0a3727dab2a6dd6b910c6d1d2fa4ff051911e835993b254",
+            "worker_resources": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            },
+            "generator_concurrency": 500,
+            "timeout_retention_decision": "ADR0278",
+            "native_database_bridge_decision": "ADR0279",
+            "native_database_bridge_sha256": "11b72a0bd7cb5dbaec8d9396d279a32b97daa892a6aa83d9f622d2bc0fceeaf1",
+            "status_refresh_reuse_decision": "ADR0280",
+            "status_refresh_reuse_sha256": "9a3942c87ff8a71a6d2954b65198e15dbcdab14ac3e4ae535d7aaffff26e094f",
+            "observer_cost_decision": "ADR0283",
+            "observer_cost_sha256": "fdee59f7b83e384c5464d3166e644c769b030f9108c91bbd1d939f197f088435",
+            "latest_short_prerequisite_evidence": "docs/capacity/cce/observer-cost-paid-result-2026-10-12.json",
+            "latest_short_prerequisite_sha256": "5f37fa264394116be33008f8dac924ebd5c9186d8e6312980f5b040916bb31cc",
+            "payment_slot_decision": "ADR0306",
+            "payment_slot_arm": "control",
+            "customer_outcome_decision": "ADR0305",
+            "customer_outcome_contract_sha256": "3f6cef57504aa710b3ac141fa05d98fc38eaec0a2590287989eb1b6b320ea977",
+            "verification_decision": "ADR0285",
+            "verification_contract_sha256": "ffe78f94bbcf7e0984b528ccda4afc36f195851cb34c7daf0a7533a0c3856b7f",
+            "verification_prerequisite_sha256": "dfaf9b3e14dbc4d28f2daf3996e7651bb9df6e2ec6933aeeb70f3b3d9b459039",
+            "metric_admission_decision": "ADR0287",
+            "metric_admission_contract_sha256": "85017a8ae55420983bc3e2242bd58d33d0f6994a1e919155521a7545372db9d7",
+            "ingress_route_decision": "ADR0291",
+            "ingress_route_contract_sha256": "be190f1bf59db855dd4abddcda9ca9aece9143954e41383e2c97acacd9779cd6",
+            "ingress_route_arm": "candidate",
+            "committed_status_decision": "ADR0298",
+            "committed_status_arm": "candidate",
+            "committed_status_receipt_sha256": "e566044814b05b2ebaf1a8cedf0ce2701b70e6f75b87884b26c75459d5983cae",
+            "control_ledger": "bounded_cce_paid_comparison__e89c96258e72",
+            "control_report_path": "tmp/adr0151-22ce221dfb9e/cce-comparison.private.json"
+          },
+          "superseded_by": "ADR0306",
+          "superseded_at_utc": "2026-10-13T05:04:22.360505+00:00"
+        },
+        {
+          "goal": {
+            "decision": "ADR0228",
+            "profile": "cce_paid_comparison",
+            "extension_decision": "ADR0271",
+            "comparison_arm": "correction",
+            "maximum_paid_stages": 1,
+            "maximum_pods": 18,
+            "pod_vcpu": 1,
+            "pod_memory_gib": 2,
+            "offered_journeys_per_second": 84,
+            "offered_seconds": 300,
+            "maximum_experiment_seconds": 3600,
+            "acquisition_budget": 20,
+            "unlimited_cumulative_time_explicitly_authorized": true,
+            "spending_allowance": {
+              "status": "APPROVED",
+              "maximum_additional_spend": null,
+              "no_spending_cap_explicitly_authorized": true
+            },
+            "ledger_start_index": 118,
+            "candidate_factor": {
+              "name": "event_lane_worker_placement",
+              "comparison_arm": "correction",
+              "worker_counts": {
+                "consumer": 6,
+                "projection-consumer": 1,
+                "reservation-writer": 3,
+                "publisher": 1,
+                "maintenance": 1,
+                "reconciler": 1,
+                "simulator": 1
+              },
+              "worker_resources": {
+                "requests": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                },
+                "limits": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                }
+              },
+              "image_receipt_sha256": "86e7655ecdd8496a7f95af5b8f805bbf351779344b0103168cbd22c61225b80a",
+              "database_connections_unchanged": true,
+              "gateway_delay_unchanged": true
+            },
+            "authorization": "User Continue under ADR0306: execute fresh two/two control then one/three payment-partition candidate at84/s300s with supplementary pre/post query snapshots; unchanged resources and gates;3600s including cleanup",
+            "authorized_at_bangkok": "2026-10-13T12:04:22.360505+07:00",
+            "image_correction_decision": "ADR0267",
+            "authorized_at_utc": "2026-10-13T05:04:22.360505+00:00",
+            "scope_note": "ADR0306 one fixed-budget payment-partition arm;25200 journeys; one fresh paid stage with supplementary dispatch-boundary query snapshots",
+            "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
+            "baseline_sha256": "6e04b6008fcd08a8e0a3727dab2a6dd6b910c6d1d2fa4ff051911e835993b254",
+            "worker_resources": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            },
+            "generator_concurrency": 500,
+            "timeout_retention_decision": "ADR0278",
+            "native_database_bridge_decision": "ADR0279",
+            "native_database_bridge_sha256": "11b72a0bd7cb5dbaec8d9396d279a32b97daa892a6aa83d9f622d2bc0fceeaf1",
+            "status_refresh_reuse_decision": "ADR0280",
+            "status_refresh_reuse_sha256": "9a3942c87ff8a71a6d2954b65198e15dbcdab14ac3e4ae535d7aaffff26e094f",
+            "observer_cost_decision": "ADR0283",
+            "observer_cost_sha256": "fdee59f7b83e384c5464d3166e644c769b030f9108c91bbd1d939f197f088435",
+            "latest_short_prerequisite_evidence": "docs/capacity/cce/observer-cost-paid-result-2026-10-12.json",
+            "latest_short_prerequisite_sha256": "5f37fa264394116be33008f8dac924ebd5c9186d8e6312980f5b040916bb31cc",
+            "payment_slot_decision": "ADR0306",
+            "payment_slot_arm": "control",
+            "customer_outcome_decision": "ADR0305",
+            "customer_outcome_contract_sha256": "3f6cef57504aa710b3ac141fa05d98fc38eaec0a2590287989eb1b6b320ea977",
+            "verification_decision": "ADR0285",
+            "verification_contract_sha256": "56ee4ce9c4e7a2c60cb83c07b994add310165f8c45e92e88afa678142748d41c",
+            "verification_prerequisite_sha256": "dfaf9b3e14dbc4d28f2daf3996e7651bb9df6e2ec6933aeeb70f3b3d9b459039",
+            "metric_admission_decision": "ADR0287",
+            "metric_admission_contract_sha256": "795e3f4bf13ba0fbdeb9026d20ffef01be2fe1dd27e4cba113f675891e2c7e8c",
+            "ingress_route_decision": "ADR0291",
+            "ingress_route_contract_sha256": "be190f1bf59db855dd4abddcda9ca9aece9143954e41383e2c97acacd9779cd6",
+            "ingress_route_arm": "candidate",
+            "committed_status_decision": "ADR0298",
+            "committed_status_arm": "candidate",
+            "committed_status_receipt_sha256": "e566044814b05b2ebaf1a8cedf0ce2701b70e6f75b87884b26c75459d5983cae",
+            "control_ledger": "bounded_cce_paid_comparison__e89c96258e72",
+            "control_report_path": "tmp/adr0151-22ce221dfb9e/cce-comparison.private.json",
+            "inventory_renewal_decision": "ADR0307",
+            "inventory_renewal_contract_sha256": "dcb69e0f507c72316ecc435b8d6c6ce8e64d2c7c2da8aa67c0509cf53384118a"
+          },
+          "superseded_by": "ADR0306-candidate",
+          "superseded_at_utc": "2026-10-13T05:26:59.378923+00:00"
+        },
+        {
+          "goal": {
+            "decision": "ADR0228",
+            "profile": "cce_paid_comparison",
+            "extension_decision": "ADR0271",
+            "comparison_arm": "correction",
+            "maximum_paid_stages": 1,
+            "maximum_pods": 18,
+            "pod_vcpu": 1,
+            "pod_memory_gib": 2,
+            "offered_journeys_per_second": 84,
+            "offered_seconds": 300,
+            "maximum_experiment_seconds": 3600,
+            "acquisition_budget": 20,
+            "unlimited_cumulative_time_explicitly_authorized": true,
+            "spending_allowance": {
+              "status": "APPROVED",
+              "maximum_additional_spend": null,
+              "no_spending_cap_explicitly_authorized": true
+            },
+            "ledger_start_index": 119,
+            "candidate_factor": {
+              "name": "event_lane_worker_placement",
+              "comparison_arm": "correction",
+              "worker_counts": {
+                "consumer": 6,
+                "projection-consumer": 1,
+                "reservation-writer": 3,
+                "publisher": 1,
+                "maintenance": 1,
+                "reconciler": 1,
+                "simulator": 1
+              },
+              "worker_resources": {
+                "requests": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                },
+                "limits": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                }
+              },
+              "image_receipt_sha256": "86e7655ecdd8496a7f95af5b8f805bbf351779344b0103168cbd22c61225b80a",
+              "database_connections_unchanged": true,
+              "gateway_delay_unchanged": true
+            },
+            "authorization": "User Continue under ADR0306: execute fresh two/two control then one/three payment-partition candidate at84/s300s with supplementary pre/post query snapshots; unchanged resources and gates;3600s including cleanup",
+            "authorized_at_bangkok": "2026-10-13T12:04:22.360505+07:00",
+            "image_correction_decision": "ADR0267",
+            "authorized_at_utc": "2026-10-13T05:26:59.378923+00:00",
+            "scope_note": "ADR0306 one fixed-budget payment-partition arm;25200 journeys; one fresh paid stage with supplementary dispatch-boundary query snapshots",
+            "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
+            "baseline_sha256": "6e04b6008fcd08a8e0a3727dab2a6dd6b910c6d1d2fa4ff051911e835993b254",
+            "worker_resources": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            },
+            "generator_concurrency": 500,
+            "timeout_retention_decision": "ADR0278",
+            "native_database_bridge_decision": "ADR0279",
+            "native_database_bridge_sha256": "11b72a0bd7cb5dbaec8d9396d279a32b97daa892a6aa83d9f622d2bc0fceeaf1",
+            "status_refresh_reuse_decision": "ADR0280",
+            "status_refresh_reuse_sha256": "9a3942c87ff8a71a6d2954b65198e15dbcdab14ac3e4ae535d7aaffff26e094f",
+            "observer_cost_decision": "ADR0283",
+            "observer_cost_sha256": "fdee59f7b83e384c5464d3166e644c769b030f9108c91bbd1d939f197f088435",
+            "latest_short_prerequisite_evidence": "docs/capacity/cce/observer-cost-paid-result-2026-10-12.json",
+            "latest_short_prerequisite_sha256": "5f37fa264394116be33008f8dac924ebd5c9186d8e6312980f5b040916bb31cc",
+            "payment_slot_decision": "ADR0306",
+            "payment_slot_arm": "candidate",
+            "customer_outcome_decision": "ADR0305",
+            "customer_outcome_contract_sha256": "3f6cef57504aa710b3ac141fa05d98fc38eaec0a2590287989eb1b6b320ea977",
+            "verification_decision": "ADR0285",
+            "verification_contract_sha256": "56ee4ce9c4e7a2c60cb83c07b994add310165f8c45e92e88afa678142748d41c",
+            "verification_prerequisite_sha256": "dfaf9b3e14dbc4d28f2daf3996e7651bb9df6e2ec6933aeeb70f3b3d9b459039",
+            "metric_admission_decision": "ADR0287",
+            "metric_admission_contract_sha256": "795e3f4bf13ba0fbdeb9026d20ffef01be2fe1dd27e4cba113f675891e2c7e8c",
+            "ingress_route_decision": "ADR0291",
+            "ingress_route_contract_sha256": "be190f1bf59db855dd4abddcda9ca9aece9143954e41383e2c97acacd9779cd6",
+            "ingress_route_arm": "candidate",
+            "committed_status_decision": "ADR0298",
+            "committed_status_arm": "candidate",
+            "committed_status_receipt_sha256": "e566044814b05b2ebaf1a8cedf0ce2701b70e6f75b87884b26c75459d5983cae",
+            "control_ledger": "bounded_cce_paid_comparison__13e4bf4513e3",
+            "control_report_path": "tmp/adr0151-d06ab9835e96/cce-comparison.private.json",
+            "inventory_renewal_decision": "ADR0307",
+            "inventory_renewal_contract_sha256": "dcb69e0f507c72316ecc435b8d6c6ce8e64d2c7c2da8aa67c0509cf53384118a",
+            "payment_slot_snapshot_path": "tmp/adr0306-slots-bdb8c023179d/snapshot.private.json"
+          },
+          "superseded_by": "ADR0306-validated-candidate",
+          "superseded_at_utc": "2026-10-13T05:43:42.932374+00:00"
         }
       ]
     },

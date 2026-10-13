@@ -46,6 +46,10 @@ def baseline():
 
 
 def short_view(goal):
+    from cce_committed_hourly_profile import selected as committed_hourly
+    if committed_hourly(goal):
+        from cce_committed_hourly_profile import short_view as committed_view
+        return committed_view(goal)
     return {k: v for k, v in {**goal, "decision": "ADR0228", "profile": "cce_paid_comparison",
                               "offered_seconds": 300}.items()
             if k not in {"hourly_qualification_decision", "hourly_adapters_sha256",
@@ -53,6 +57,10 @@ def short_view(goal):
 
 
 def active(goal):
+    from cce_committed_hourly_profile import selected as committed_hourly
+    if committed_hourly(goal):
+        from cce_committed_hourly_profile import active as committed_active
+        return committed_active(goal)
     if not selected(goal):
         raise ValueError("Explicit hourly status reuse required")
     from cce_nginx_ingress import HOURLY_BASELINE_SHA256, hourly_baseline
@@ -82,6 +90,10 @@ def active(goal):
 
 
 def plan(goal):
+    from cce_committed_hourly_profile import selected as committed_hourly
+    if committed_hourly(goal):
+        from cce_committed_hourly_profile import plan as committed_plan
+        return committed_plan(goal)
     active(goal)
     from cce_worker_rebalance_profile import plan as placement_plan
     value = placement_plan(short_view(goal))
