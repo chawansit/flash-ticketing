@@ -40,6 +40,7 @@ def identity():
         "scripts/cce_bounded_financial_audit.py", "scripts/independent_database_sampling.py",
         "scripts/cce_runtime_cohort_profile.py", "scripts/paid_cohort_query.py",
         "scripts/cce_customer_outcome_slo.py", "scripts/cce_payment_slot_profile.py",
+        "scripts/cce_inventory_renewal.py",
         "scripts/cce_committed_status_identity.py", "scripts/cce_committed_status_profile.py",
         "scripts/cce_committed_status_contract.py",
         "docs/capacity/cce/committed-fulfillment-status-image-2026-10-13.json",

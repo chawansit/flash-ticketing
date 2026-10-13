@@ -1,0 +1,22 @@
+{
+  "decision": "ADR0307",
+  "date_bangkok": "2026-10-13",
+  "focused_tests_passed": 45,
+  "inventory_freshness_seconds": 300,
+  "original_snapshot_retained": true,
+  "additional_database_connections": 0,
+  "failed_scope": {
+    "run": "adr0151-0e87334f0eb5",
+    "paid_stages_started": 0,
+    "status": "FAILED_RESTORED",
+    "exact_restoration_complete": true
+  },
+  "cloud_paid_result": null,
+  "capacity_improvement_measured": false,
+  "normalized_source_sha256": {
+    "scripts/cce_inventory_renewal.py": "6468f22e1cbd525fe9fbe670fde16f3f823a0b726330ce7fbd0d7ad9250f4530",
+    "scripts/cce_paid_observers.py": "cba442650a9b288fc5454360231c02546eb0c7ed114fdefee447dacfc3850842",
+    "scripts/cce_paid_stage.py": "5a9138fed5e1df9bbff54eaecba3d45aaaba082ca177324ad49d87815b5ce20d",
+    "scripts/run_cce_paid_comparison.py": "134866aad247c779aabec03d8d3f621cfaa1ed0cf2e1c59058ad4a1192a91a97"
+  }
+}

@@ -193,6 +193,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     if slot_selected(goal):
         extra.update(cce_payment_slot_decision="ADR0306", cce_payment_slot_arm=goal["payment_slot_arm"],
                      cce_payment_pool_max=connections(goal), cce_transaction_arm=goal["payment_slot_arm"])
+    from cce_inventory_renewal import contract as renewal_contract
+    from cce_inventory_renewal import selected as renewal_selected
+    if renewal_selected(goal):
+        extra.update(cce_inventory_renewal_contract=renewal_contract())
     binding = {
         **extra,
         "configuration_sha256": policy.digest(config),
@@ -603,6 +607,24 @@ def run(config, output, guard, manifests, kubeconfig, context):
                 ingress_route=ingress_route,
                 early_hourly_observers=goal is not None and goal.get("hourly_observer_bootstrap_decision") == "ADR0294",
             )
+
+            from cce_inventory_renewal import renew
+            from cce_inventory_renewal import selected as renewal_selected
+            if renewal_selected(goal):
+                from cce_paid_observers import background_unchanged, receipt_bundle
+                def renew_inventory(value, admitted):
+                    def live_workers():
+                        transition.verify_workers()
+                        return transition.worker_runtime.bundle
+                    return renew(value, run=run_id, binding=guard.binding,
+                        native_before=receipt_bundle(run_id, admitted), workers_before=observers.native_workers,
+                        observe_native=lambda: receipt_bundle(run_id, deployment.observe(
+                            manifests, lambda ip: http_reader(session, ip, "/health/ready"),
+                            lambda ip: http_reader(session, ip, "/metrics", metrics=True), previous=admitted)),
+                        observe_workers=live_workers,
+                        verify_background=lambda: background_unchanged(
+                            lifecycle.background_before, session.call("primary", driver.INSPECT, 45)))
+                observers.renew_inventory = renew_inventory
 
             record["native"] = lifecycle.run(
                 lambda ip: http_reader(session, ip, "/health/ready"),

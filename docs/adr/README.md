@@ -276,3 +276,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0305: Bound final customer failures after recovery](0305-bound-final-customer-failures-after-recovery.md)
 
 - [ADR0306: Rebalance payment slots on the committed-status runtime](0306-rebalance-payment-slots-on-committed-status.md)
+
+- [ADR0307: Renew CCE admission from live identities](0307-renew-cce-admission-from-live-identities.md)

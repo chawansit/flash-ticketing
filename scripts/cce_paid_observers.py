@@ -322,6 +322,10 @@ class Observers:
                 self.context,
             )
         )
+        if getattr(self, "renew_inventory", None) is not None:
+            policy.write(self.stage.output / "observer-original-inventory.private.json", self.inventory)
+            self.inventory, self.record["inventory_renewal"] = self.renew_inventory(self.inventory, receipts)
+            self.checkpoint()
         qualify_bound_inventory(self.contract, self.inventory, self.record, self.stage.output)
         self.upload("inventory.private.json", json.dumps(self.inventory))
         self.upload("native-receipts.json", json.dumps(self.native))
