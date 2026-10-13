@@ -1,0 +1,28 @@
+{
+  "decision": "ADR0304",
+  "implemented": true,
+  "existing_paid_runner_integrated": true,
+  "default_query_unchanged": true,
+  "short_only": true,
+  "validation": {
+    "unit_tests": 77,
+    "unit_pass": true,
+    "ruff_pass": true,
+    "source_compile_pass": true,
+    "previous_sql_equivalence": "ADR0303: three executed PostgreSQL 17.6 integration cases; SQL text unchanged"
+  },
+  "sources": {
+    "scripts/paid_cohort_query.py": "0d36c934ecb146ee95733cbdcea00560a348e00bda354d405f7c47c6e708ad60",
+    "scripts/cce_runtime_cohort_profile.py": "9d0634b3552a88f6f07eb89e18e88a18d127bde946180e534c92d0d041dd4275",
+    "scripts/observe_cce_paid_pipeline.py": "990ee5f5266ed6e55b3a779b3278823ad4579e33fe1de05ec4190bd3d072b5b1",
+    "scripts/cce_paid_observers.py": "8c8372ef802152aa39e4dac0bde94114bd23cecd2d7b94ec8f606edea798a08f",
+    "scripts/cce_paid_stage.py": "1ab6cf16127ab380ac1b4ef737da26a9592ce1cd640e67ec6396f9d1d3d6eacb",
+    "scripts/run_cce_paid_comparison.py": "4a08c6431e79e19699bae13f2f1217a3e72b6ffc9a74fa3fd6bb1e1d9a527515",
+    "scripts/cce_worker_rebalance_profile.py": "f9261d0c5dda66d3d4bae28e2c9946e7a170aefb3d082e22a8709e9fa188bef3",
+    "scripts/cce_committed_status_profile.py": "0f40ce5ab90bb584b21c888837dfc90f7dc9f68518e263fe529628415af5df7e"
+  },
+  "readonly_cloud_preflight_pass": true,
+  "preflight_runtime_restored": true,
+  "new_paid_result_available": false,
+  "capacity_improvement_measured": false
+}

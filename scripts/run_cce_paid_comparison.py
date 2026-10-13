@@ -180,7 +180,11 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     if goal is not None and goal.get("hourly_observer_bootstrap_decision") == "ADR0294":
         extra.update(cce_hourly_observer_bootstrap_decision="ADR0294",
                      cce_hourly_observer_seconds=4200)
-    return {
+    from cce_runtime_cohort_profile import selected as cohort_selected
+    if cohort_selected(goal):
+        from paid_cohort_query import runtime_contract
+        extra.update(cce_runtime_cohort_contract=runtime_contract(goal["runtime_cohort_arm"]))
+    binding = {
         **extra,
         "configuration_sha256": policy.digest(config),
         "cce_acquisition_budget": native.admission_budget(),
@@ -197,6 +201,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
         "saved_api_service_sha256": policy.digest(api_semantics(service_for(snapshot))),
         "baseline_sha256": entry.plan()["baseline_sha256"],
     }
+    if cohort_selected(goal) and goal["runtime_cohort_arm"] == "candidate":
+        from cce_runtime_cohort_profile import validate_candidate_binding
+        validate_candidate_binding(goal, binding)
+    return binding
 
 
 

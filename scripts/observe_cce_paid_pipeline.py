@@ -45,13 +45,18 @@ def validate_receipts(value):
     return {r["private_ipv4"]: r["process_start_time_seconds"] for r in entries}
 
 
-def install(module, value, *, fetch=urlopen, hourly=False, observer_seconds=3780):
+def install(module, value, *, fetch=urlopen, hourly=False, observer_seconds=3780, runtime_cohort=None):
     if type(hourly) is not bool:
         raise ValueError("Explicit hourly observer mode required")
+    if hourly and runtime_cohort is not None:
+        raise ValueError("Runtime cohort comparison is short-only")
     if hourly:
         install_hourly_sampling(module, observer_seconds=observer_seconds)
     else:
         install_indexed_cohort_query(module)
+    if runtime_cohort is not None:
+        from paid_cohort_query import install_runtime_comparison
+        install_runtime_comparison(module, runtime_cohort)
     starts = validate_receipts(value)
     discover = module.api_replicas
     previous = {}
@@ -173,6 +178,8 @@ def install_hourly_sampling(module, *, now=None, observer_seconds=3780):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--runtime-cohort-contract", type=Path)
+    parser.add_argument("--runtime-cohort-contract-sha256")
     parser.add_argument("--hourly", action="store_true")
     parser.add_argument("--early-hourly-bootstrap", action="store_true")
     parser.add_argument("--native-workers", type=Path)
@@ -200,12 +207,23 @@ def main(argv=None):
         validate_bundle(workers)
         if digest(workers) != args.native_workers_sha256 or workers["run"] != value["run"]:
             raise ValueError("Worker receipt transfer/run differs")
+    runtime_cohort = None
+    if args.runtime_cohort_contract is not None or args.runtime_cohort_contract_sha256 is not None:
+        from paid_cohort_query import runtime_contract
+        if args.hourly or args.runtime_cohort_contract is None or args.runtime_cohort_contract_sha256 is None:
+            raise ValueError("Complete short runtime cohort binding required")
+        runtime_cohort = json.loads(args.runtime_cohort_contract.read_text())
+        if (runtime_cohort != runtime_contract(runtime_cohort.get("arm"))
+                or hashlib.sha256(json.dumps(runtime_cohort, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+                != args.runtime_cohort_contract_sha256):
+            raise ValueError("Runtime cohort transfer changed")
     original = observer.install_adapter
 
     def adapter(module, *params, **kwargs):
         original(module, *params, **kwargs)  # Retain workers, diagnostics, budgets and metric parsing.
         result = install(module, value, hourly=args.hourly,
-                         observer_seconds=4200 if args.early_hourly_bootstrap else 3780)
+                         observer_seconds=4200 if args.early_hourly_bootstrap else 3780,
+                         runtime_cohort=runtime_cohort)
         if workers is not None:
             from observe_cce_workers import install as worker_install
             worker_install(module, workers)

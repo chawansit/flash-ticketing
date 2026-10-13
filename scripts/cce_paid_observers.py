@@ -244,7 +244,16 @@ class Observers:
             self.inventory["verification_contract"] = verification_contract()
             self.record["independent_database_sampling"] = True
         self.event_lanes = extended and transaction.active()["extension_decision"] in {"ADR0266", "ADR0271", "ADR0277"}
+        from cce_runtime_cohort_profile import selected as cohort_selected
+        self.runtime_cohort = None
+        if cohort_selected(goal):
+            from paid_cohort_query import runtime_contract
+            self.runtime_cohort = runtime_contract(goal["runtime_cohort_arm"])
+            if self.stage.guard.binding.get("cce_runtime_cohort_contract") != self.runtime_cohort:
+                raise ValueError("Observer query differs from reserved identity")
+            self.record["runtime_cohort_contract"] = self.runtime_cohort
         helpers = (
+            *(("paid_cohort_query.py",) if self.runtime_cohort is not None else ()),
             "observe_cce_paid_pipeline.py",
             "observe_two_host_pipeline.py",
             "prepare_two_host_scaling.py",
@@ -316,6 +325,8 @@ class Observers:
         qualify_bound_inventory(self.contract, self.inventory, self.record, self.stage.output)
         self.upload("inventory.private.json", json.dumps(self.inventory))
         self.upload("native-receipts.json", json.dumps(self.native))
+        if self.runtime_cohort is not None:
+            self.upload("runtime-cohort-contract.json", json.dumps(self.runtime_cohort))
         if getattr(self, "native_workers", None) is not None:
             # Retain admission proofs locally after transition cleanup replaces its checkpoint.
             policy.write(self.stage.output / "native-workers.private.json", self.native_workers)
@@ -339,6 +350,9 @@ class Observers:
             "pipeline": [
                 "python",
                 self.directory + ("/observe_slot_paid_pipeline.py" if extended else "/observe_cce_paid_pipeline.py"),
+                *(["--runtime-cohort-contract", self.directory + "/runtime-cohort-contract.json",
+                   "--runtime-cohort-contract-sha256", policy.digest(self.runtime_cohort)]
+                  if self.runtime_cohort is not None else []),
                 "--native-receipts",
                 self.directory + "/native-receipts.json",
                 "--native-receipts-sha256",
@@ -406,6 +420,8 @@ class Observers:
             if time.monotonic() >= deadline:
                 raise TimeoutError("Native observer startup exceeded bound")
             time.sleep(1)
+        if self.runtime_cohort is not None and status["pipeline"].get("runtime_cohort_contract") != self.runtime_cohort:
+            raise ValueError("Runtime observer query receipt missing before dispatch")
         self.record["pipeline_startup"] = pipeline_startup_view(status["pipeline"], 6)
         self.record["kafka_startup"] = kafka_startup_view(status["kafka"], 6)
         if (
@@ -569,6 +585,11 @@ class Observers:
                     self.record["database_wait_trace_sha256"] = policy.digest(rows)
                     continue
                 if name == "pipeline":
+                    contract = getattr(self, "runtime_cohort", None)
+                    if contract is not None:
+                        if not rows or any(row.get("runtime_cohort_contract") != contract for row in rows):
+                            raise ValueError("Runtime cohort query identity missing or changed")
+                        self.record["runtime_cohort_receipts_complete"] = True
                     from database_wait_evidence import summarize as summarize_waits
                     from slot_failure_evidence import summarize as summarize_slots
                     failures.extend(summarize_independent_diagnostics(

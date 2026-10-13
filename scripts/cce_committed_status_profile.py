@@ -55,6 +55,13 @@ def selected(goal):
 def require_control(goal):
     if not selected(goal) or goal["committed_status_arm"] != "candidate":
         raise ValueError("Candidate-only control prerequisite")
+    from cce_runtime_cohort_profile import BASELINE
+    from cce_runtime_cohort_profile import require_control as cohort_control
+    from cce_runtime_cohort_profile import selected as cohort_selected
+    if cohort_selected(goal):
+        if goal["runtime_cohort_arm"] == "candidate":
+            return cohort_control(goal)
+        return BASELINE, policy.read(policy.ROOT / BASELINE)
     import cce_transaction_profile as transaction
     relative, report = transaction.control_receipt(goal)
     binding = policy.read(policy.STATE)[goal["control_ledger"]]["binding"]

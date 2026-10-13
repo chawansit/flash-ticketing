@@ -50,3 +50,38 @@ def install_runtime_candidate(module):
     return {"decision": "ADR0303", "baseline_query_sha256": RUNTIME_BASELINE_SHA256,
             "candidate_query_sha256": hashlib.sha256(PAID_COHORT_QUERY.encode()).hexdigest(),
             "sample_columns": list(SAMPLE_COLUMNS)}
+
+
+def runtime_contract(arm):
+    from pathlib import Path
+
+    if arm not in {"control", "candidate"}:
+        raise ValueError("Explicit cohort query arm required")
+    candidate = hashlib.sha256(PAID_COHORT_QUERY.encode()).hexdigest()
+    return {"decision": "ADR0304", "arm": arm,
+            "baseline_query_sha256": RUNTIME_BASELINE_SHA256,
+            "candidate_query_sha256": candidate,
+            "active_query_sha256": RUNTIME_BASELINE_SHA256 if arm == "control" else candidate,
+            "helper_sha256": hashlib.sha256(Path(__file__).read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
+            "sample_columns": list(SAMPLE_COLUMNS), "interval_seconds": 1,
+            "additional_database_connections": 0, "hourly": False}
+
+
+def install_runtime_comparison(module, contract):
+    # Validate the transferred contract before touching the query or sampler.
+    expected = runtime_contract(contract.get("arm"))
+    current = getattr(module, "PAID_COHORT_QUERY", None)
+    if (getattr(module, "RUNTIME_COHORT_CONTRACT", None) is not None
+            or contract != expected or not isinstance(current, str)
+            or hashlib.sha256(current.encode()).hexdigest() != RUNTIME_BASELINE_SHA256):
+        raise ValueError("Exact source-bound runtime cohort comparison required")
+    original = module.sample
+    if contract["arm"] == "candidate":
+        install_runtime_candidate(module)
+
+    def observed(conn, shows):
+        return {**original(conn, shows), "runtime_cohort_contract": expected}
+
+    module.sample = observed
+    module.RUNTIME_COHORT_CONTRACT = expected
+    return expected

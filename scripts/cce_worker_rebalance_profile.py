@@ -81,4 +81,5 @@ def plan(goal):
     from cce_metric_admission import extend_plan as extend_capture
     from cce_nginx_ingress import extend_plan as extend_ingress
     from cce_payment_pipeline_profile import extend_plan
-    return extend_committed(extend_ingress(extend_capture(extend_plan(plan, goal), goal), goal), goal)
+    from cce_runtime_cohort_profile import extend_plan as extend_cohort
+    return extend_cohort(extend_committed(extend_ingress(extend_capture(extend_plan(plan, goal), goal), goal), goal), goal)

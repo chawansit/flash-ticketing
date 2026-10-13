@@ -270,3 +270,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0302: Compare actual runtime cohort query](0302-compare-actual-runtime-cohort-query.md)
 
 - [ADR0303: Guard batched runtime cohort replacement](0303-guard-batched-runtime-cohort-replacement.md)
+
+- [ADR0304: Bind the runtime cohort comparison](0304-bind-runtime-cohort-comparison.md)
