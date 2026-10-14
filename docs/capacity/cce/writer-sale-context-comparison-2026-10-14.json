@@ -1,0 +1,193 @@
+{
+  "decision": "ADR0321",
+  "status": "FAILED_RESTORED",
+  "capacity_qualified": false,
+  "capacity_improvement_measured": false,
+  "customer_quality_improvement_observed": true,
+  "run": "adr0151-7b637d7b8a0f",
+  "ledger": "bounded_cce_ticket_target__384290e57344",
+  "original_result_sha256": "3d5e62a71e367cb340f62c74b652917c3297cc9da5f7f07a5838cac740064a1e",
+  "controlled_factors": {
+    "single_application_change": "writer_sale_and_clock_lookup_after_seat_locks",
+    "offered_journeys_per_second": 102,
+    "offered_seconds": 300,
+    "scheduled_journeys": 30600,
+    "api_pods": 4,
+    "api_general_payment_slots": [
+      2,
+      2
+    ],
+    "reservation_writers": 4,
+    "writer_batch_size": 4,
+    "shared_backend_connections": 24,
+    "generator_concurrency": 500,
+    "owned_pods": 19,
+    "all_other_resources_gateway_recovery_and_quality_gates_unchanged": true
+  },
+  "measurements": [
+    {
+      "run": "adr0151-6fd6d0275799",
+      "original_result_sha256": "250aa2541308119f8da10a7ba3ebdf8024d99fb8a1fffbb796e8eead55fbfa2a",
+      "scheduled": 30600,
+      "dispatched": 30529,
+      "fulfilled_customer_journeys": 30529,
+      "undispatched": 71,
+      "initial_customer_error_journeys": 39,
+      "recovered_journeys": 39,
+      "final_customer_failures": 0,
+      "in_window_tickets": 30370,
+      "conservative_inner_tickets": 30155,
+      "in_window_tickets_per_second": 101.23333333333333,
+      "conservative_tickets_per_300_seconds": 100.51666666666667,
+      "durable_worst_shard_p95_ms": 2022.464044042863,
+      "ticket_wait_worst_shard_p95_ms": 2027.7499350486323,
+      "total_journey_worst_shard_p95_ms": 3353.260642965324,
+      "writer_batch_mean_ms": 78.68700536531726,
+      "api_cpu_cores_offered_window": 1.5092191979020355,
+      "background_cpu_cores_offered_window": 1.3456105485289747
+    },
+    {
+      "run": "adr0151-7b637d7b8a0f",
+      "original_result_sha256": "3d5e62a71e367cb340f62c74b652917c3297cc9da5f7f07a5838cac740064a1e",
+      "scheduled": 30600,
+      "dispatched": 30600,
+      "fulfilled_customer_journeys": 30600,
+      "undispatched": 0,
+      "initial_customer_error_journeys": 0,
+      "recovered_journeys": 0,
+      "final_customer_failures": 0,
+      "in_window_tickets": 30221,
+      "conservative_inner_tickets": 29981,
+      "in_window_tickets_per_second": 100.73666666666666,
+      "conservative_tickets_per_300_seconds": 99.93666666666667,
+      "durable_worst_shard_p95_ms": 1104.098920011893,
+      "ticket_wait_worst_shard_p95_ms": 6330.010397010483,
+      "total_journey_worst_shard_p95_ms": 7433.793321950361,
+      "writer_batch_mean_ms": 79.04537802391593,
+      "api_cpu_cores_offered_window": 1.6886967725660766,
+      "background_cpu_cores_offered_window": 1.4518061740460175
+    }
+  ],
+  "window_bangkok": {
+    "start": "2026-10-14T11:40:14.671789+07:00",
+    "end": "2026-10-14T11:45:14.671789+07:00"
+  },
+  "gates": {
+    "customer_load": true,
+    "post_ttl_financial": true,
+    "zero_double_booking": true,
+    "payment_durability": true,
+    "full_queue_drain": true,
+    "native_observer": true,
+    "native_cpu": true,
+    "unchanged_background": true,
+    "unchanged_native_pods": true,
+    "live_admission": true,
+    "ticket_target_issuance": false,
+    "unchanged_ingress_route": true
+  },
+  "strict_ticket_target": {
+    "minimum_conservative_tickets": 30000,
+    "actual_conservative_tickets": 29981,
+    "shortfall": 19,
+    "inner_window_guard_seconds": 2,
+    "pass": false,
+    "threshold_weakened": false
+  },
+  "correctness": {
+    "actual_paid_and_issued_tickets": 30600,
+    "financial_audit_pass": true,
+    "zero_double_booking": true,
+    "zero_duplicate_financial_effects": true,
+    "zero_payment_loss": true,
+    "full_queue_drain": true,
+    "runtime_restored": true,
+    "native_namespace_and_helpers_removed": true,
+    "temporary_credentials_removed": true,
+    "original_result_preserved": true,
+    "no_active_experiment": true
+  },
+  "attribution": {
+    "paid_unfulfilled_peak": 157,
+    "paid_unfulfilled_sample_mean": 65.41666666666667,
+    "fulfillment_kafka_max_total_lag": 733,
+    "fulfillment_kafka_partition_peak_lags": {
+      "0": 26,
+      "1": 661,
+      "2": 37,
+      "3": 31,
+      "4": 20,
+      "5": 62
+    },
+    "fulfillment_kafka_partition_mean_lags": {
+      "0": 3.4966666666666666,
+      "1": 258.48,
+      "2": 5.8,
+      "3": 3.6766666666666667,
+      "4": 3.8466666666666667,
+      "5": 9.093333333333334
+    },
+    "fulfillment_kafka_assignment_versions": 1,
+    "fulfillment_kafka_members_and_partitions": [
+      6,
+      6
+    ],
+    "partition1_records_appended_during_sample_interval": 19563,
+    "other_partition_records_appended_min_max": [
+      20206,
+      20521
+    ],
+    "partition1_terminal_lag_during_window": 636,
+    "consumer_cpu_cores_mean_range": [
+      0.0910292156568811,
+      0.12009034291839084
+    ],
+    "consumer_cpu_limit_cores": 0.25,
+    "cpu_average_does_not_rule_out_burst_throttling": true,
+    "consumer_generic_errors": 5,
+    "generic_error_counter_reached_five_by_offered_seconds": 2.362,
+    "later_partition_lag_growth_not_attributed_to_startup_errors": true,
+    "reservation_batch_error_operations": 3,
+    "simulator_delivery_error_operations": 14,
+    "internal_errors_not_reclassified_as_zero": true,
+    "slow_consumer_exact_cause_confirmed": false
+  },
+  "server_latency": {
+    "decision": "ADR0321",
+    "run": "adr0151-7b637d7b8a0f",
+    "original_result_sha256": "3d5e62a71e367cb340f62c74b652917c3297cc9da5f7f07a5838cac740064a1e",
+    "fixture_identity_sha256": "ec3736b49a3cc88945b71b776d05833abda4f209bafc732d00970f13e2381099",
+    "source_sql_sha256": "037e8528e9efab035851f850125d16d2a4790967de0151e4fb4cf4f9bdf6e9a4",
+    "read_only": true,
+    "statement_timeout_ms": 2000,
+    "additional_cloud_load": false,
+    "measurements": {
+      "joined_rows": 30600,
+      "unique_orders": 30600,
+      "negative_intervals": 0,
+      "due_to_issued_mean_ms": 858.0758096405228,
+      "due_to_issued_p50_ms": 173.0025,
+      "due_to_issued_p95_ms": 6039.310399999999,
+      "due_to_issued_p99_ms": 9058.877259999945,
+      "due_to_issued_max_ms": 15943.585
+    },
+    "limitations": [
+      "due_at is scheduled callback eligibility, not payment commit or gateway receipt time",
+      "issued_at is ticket row creation time, not transaction commit",
+      "server cohort percentiles and customer worst-shard percentiles are not paired or subtractable"
+    ],
+    "runtime_restored": {
+      "primary_runtime_semantics_restored": true,
+      "primary_api_count": 4
+    }
+  },
+  "diagnostic_limits": [
+    "One non-simultaneous trial does not establish that the writer correction caused clean customer outcomes.",
+    "Database and writer means cover the retained observer stream; CPU averages use the offered window.",
+    "Customer percentiles are worst-shard values, not pooled percentiles.",
+    "Server due-to-issued timing includes callback eligibility/processing and fulfillment, and excludes transaction-commit timing.",
+    "The separate callback-to-ticket full-cohort query hit its two-second statement timeout and produced no result.",
+    "No new hourly qualification or production capacity claim."
+  ],
+  "next_step": "Attribute the slower fulfillment consumer on Kafka partition1, retaining exact pod/client identity and bounded exception context before cleanup. Correct one confirmed source of serial processing delay, then repeat the unchanged short comparison; do not increase offered rate or weaken the conservative boundary gate."
+}

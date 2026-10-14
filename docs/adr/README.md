@@ -305,4 +305,4 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0320: Pipeline reservation transaction boundaries](0320-pipeline-reservation-transaction-boundaries.md) - Local pipeline rejected before cloud load; application changes restored.
 
-- [ADR0321: Read writer sale context after seat locks](0321-read-writer-sale-context-after-seat-locks.md) - One removed writer lookup; exact-image validation pending.
+- [ADR0321: Read writer sale context after seat locks](0321-read-writer-sale-context-after-seat-locks.md) - Clean102/s customer journeys; conservative100-ticket/s gate missed19 tickets, all services restored.
