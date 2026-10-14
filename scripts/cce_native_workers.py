@@ -25,7 +25,7 @@ def environment(role, values, primary_ip, decision="ADR0259"):
         if result.get("API_URL") != "http://load-balancer:8000":
             raise ValueError("Shared callback route required")
         result["API_URL"] = "http://" + cce.private_ip(primary_ip) + ":8000"
-    if decision in {"ADR0298", "ADR0315", "ADR0319"}:
+    if decision in {"ADR0298", "ADR0315", "ADR0319", "ADR0321"}:
         from cce_committed_status_profile import selected
         from cce_transaction_profile import active
         goal = active()
@@ -55,8 +55,10 @@ def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None):
         raise ValueError("Complete worker environments required")
     namespace = cce.dependency.namespace_for(run)
     result = []
-    if decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319"}:
-        if decision == "ADR0319":
+    if decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321"}:
+        if decision == "ADR0321":
+            from cce_writer_sale_context_profile import image
+        elif decision == "ADR0319":
             from cce_measured_payment_context_profile import image
         elif decision in {"ADR0298", "ADR0315"}:
             from cce_committed_status_profile import image
@@ -216,8 +218,10 @@ class Workers:
                     continue
                 views.append(receipt(pod, expected, self.deployment.run, self.uids[name], log, metrics, self.decision))
             if not pending:
-                if self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319"}:
-                    if self.decision == "ADR0319":
+                if self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321"}:
+                    if self.decision == "ADR0321":
+                        from cce_writer_sale_context_profile import image
+                    elif self.decision == "ADR0319":
                         from cce_measured_payment_context_profile import image
                     elif self.decision in {"ADR0298", "ADR0315"}:
                         from cce_committed_status_profile import image

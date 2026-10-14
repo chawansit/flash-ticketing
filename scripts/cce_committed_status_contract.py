@@ -13,10 +13,14 @@ class CommittedStatusContract(EventLaneContract):
         self.status_arm = arm
         self.api_settings = {**self.api_settings, "ORDER_STATUS_COMMITTED_SNAPSHOT": "0"}
         import cce_measured_payment_context_identity as payment_pins
-        if identity not in (pins, payment_pins):
+        import cce_writer_sale_context_identity as writer_pins
+        if identity not in (pins, payment_pins, writer_pins):
             raise ValueError("Reviewed immutable shared-image identity required")
         self.identity = identity
-        if identity is payment_pins:
+        if identity is writer_pins:
+            from cce_writer_sale_context_profile import image
+            self.shared = image()
+        elif identity is payment_pins:
             from cce_measured_payment_context_profile import image
             self.shared = image()
         else:

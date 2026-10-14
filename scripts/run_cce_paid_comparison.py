@@ -171,6 +171,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     from cce_measured_payment_context_profile import selected as context_selected
     if context_selected(goal):
         extra["cce_measured_payment_context_contract"] = context_contract()
+    from cce_writer_sale_context_profile import contract as writer_context_contract
+    from cce_writer_sale_context_profile import selected as writer_context_selected
+    if writer_context_selected(goal):
+        extra["cce_writer_sale_context_contract"] = writer_context_contract()
     from cce_metric_admission import contract as metric_contract
     from cce_metric_admission import selected as metric_selected
     if metric_selected(goal):
@@ -470,6 +474,11 @@ def activate_scope(guard, run):
 def worker_contract():
     import cce_transaction_profile as transaction
     goal = transaction.active()
+    from cce_writer_sale_context_profile import selected as writer_context_selected
+    if writer_context_selected(goal):
+        import cce_writer_sale_context_identity as writer_pins
+        from cce_committed_status_contract import CommittedStatusContract
+        return CommittedStatusContract(arm=goal["committed_status_arm"], identity=writer_pins)
     from cce_measured_payment_context_profile import selected as context_selected
     if context_selected(goal):
         import cce_measured_payment_context_identity as context_pins

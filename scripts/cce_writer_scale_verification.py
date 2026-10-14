@@ -3,7 +3,7 @@ from cce_worker_identity import validate_bundle
 
 
 def selected(bundle):
-    if bundle is None or bundle.get("decision") not in {"ADR0315", "ADR0319"}:
+    if bundle is None or bundle.get("decision") not in {"ADR0315", "ADR0319", "ADR0321"}:
         return False
     validate_bundle(bundle)
     return True

@@ -302,3 +302,7 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0318: Rebalance isolated backend slots toward fulfillment](0318-rebalance-isolated-backends-toward-fulfillment.md)
 
 - [ADR0319: Apply post-lock payment context to the measured shared image](0319-apply-post-lock-payment-context-to-measured-image.md) - Controlled102/s candidate rejected; failed experiment independently reconciled and restored.
+
+- [ADR0320: Pipeline reservation transaction boundaries](0320-pipeline-reservation-transaction-boundaries.md) - Local pipeline rejected before cloud load; application changes restored.
+
+- [ADR0321: Read writer sale context after seat locks](0321-read-writer-sale-context-after-seat-locks.md) - One removed writer lookup; exact-image validation pending.

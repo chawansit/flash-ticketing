@@ -188,17 +188,17 @@ class PostgresReservations:
                 raise Failure("RESERVATION_COMMAND_MISMATCH", 409)
             return replay
 
-        sale = conn.execute(
-            "SELECT * FROM events WHERE id=%s", (payload["event_id"],)
-        ).fetchone()
-        if not sale:
-            raise Failure("EVENT_NOT_FOUND", 404)
         rows = conn.execute(
             """SELECT * FROM event_seats WHERE event_id=%s
             AND seat_id=ANY(%s) ORDER BY seat_id FOR UPDATE NOWAIT""",
             (payload["event_id"], sorted(payload["seat_ids"])),
         ).fetchall()
-        now = conn.execute("SELECT clock_timestamp() AS now").fetchone()["now"]
+        sale = conn.execute(
+            "SELECT *, clock_timestamp() AS now FROM events WHERE id=%s", (payload["event_id"],)
+        ).fetchone()
+        if not sale:
+            raise Failure("EVENT_NOT_FOUND", 404)
+        now = sale["now"]
         if not sale["sale_starts"] <= now < sale["sale_ends"]:
             raise Failure("SALE_CLOSED")
         if len(rows) != len(payload["seat_ids"]):

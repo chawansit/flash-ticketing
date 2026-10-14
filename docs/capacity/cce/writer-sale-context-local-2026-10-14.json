@@ -1,0 +1,250 @@
+{
+  "decision": "ADR0321",
+  "scope": "owned Linux image and PostgreSQL17.6, eight fresh four-command batches per arm; control then candidate; no cloud inference",
+  "measurements": [
+    {
+      "decision": "ADR0321",
+      "scope": "owned local PostgreSQL, four fresh one-seat commands per batch; alternating arms; no cloud capacity inference",
+      "postgres_version": "17.6 (Debian 17.6-2.pgdg13+1)",
+      "psycopg_version": "3.3.5",
+      "source_identity_sha256": "099bdb706c419eb18850fd7ee6a02986b489118d9f0f350a5754e113edba4104",
+      "trials": [
+        {
+          "post_lock_context": false,
+          "batch_ms": 68.30082810483873,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 36
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        },
+        {
+          "post_lock_context": false,
+          "batch_ms": 64.54537296667695,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 36
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        },
+        {
+          "post_lock_context": false,
+          "batch_ms": 55.774778011254966,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 36
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        },
+        {
+          "post_lock_context": false,
+          "batch_ms": 61.502667027525604,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 36
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        },
+        {
+          "post_lock_context": false,
+          "batch_ms": 62.14301101863384,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 36
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        },
+        {
+          "post_lock_context": false,
+          "batch_ms": 55.87228597141802,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 36
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        },
+        {
+          "post_lock_context": false,
+          "batch_ms": 56.45562498830259,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 36
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        },
+        {
+          "post_lock_context": false,
+          "batch_ms": 75.3854070790112,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 36
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        }
+      ],
+      "arms": {
+        "False": {
+          "trials": 8,
+          "median_batch_ms": 61.82283902307972,
+          "protocol_sync_counts": [
+            20
+          ],
+          "protocol_flush_counts": [
+            4
+          ],
+          "ready_for_query_counts": [
+            36
+          ]
+        }
+      },
+      "cloud_load_started": false,
+      "capacity_improvement_measured": false,
+      "arm": "control"
+    },
+    {
+      "decision": "ADR0321",
+      "scope": "owned local PostgreSQL, four fresh one-seat commands per batch; alternating arms; no cloud capacity inference",
+      "postgres_version": "17.6 (Debian 17.6-2.pgdg13+1)",
+      "psycopg_version": "3.3.5",
+      "source_identity_sha256": "bef091508770102428b9f8c51203220b4e7e005a2aa504c65bddbd8e24791323",
+      "trials": [
+        {
+          "post_lock_context": true,
+          "batch_ms": 61.75208301283419,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 32
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        },
+        {
+          "post_lock_context": true,
+          "batch_ms": 71.35283399838954,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 32
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        },
+        {
+          "post_lock_context": true,
+          "batch_ms": 53.952254937030375,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 32
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        },
+        {
+          "post_lock_context": true,
+          "batch_ms": 54.059962974861264,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 32
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        },
+        {
+          "post_lock_context": true,
+          "batch_ms": 58.24964598286897,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 32
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        },
+        {
+          "post_lock_context": true,
+          "batch_ms": 52.26814199704677,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 32
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        },
+        {
+          "post_lock_context": true,
+          "batch_ms": 49.012720002792776,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 32
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        },
+        {
+          "post_lock_context": true,
+          "batch_ms": 50.24450400378555,
+          "protocol": {
+            "Sync": 20,
+            "Flush": 4,
+            "ReadyForQuery": 32
+          },
+          "durable": 4,
+          "replay_without_duplicate_order": true
+        }
+      ],
+      "arms": {
+        "True": {
+          "trials": 8,
+          "median_batch_ms": 54.00610895594582,
+          "protocol_sync_counts": [
+            20
+          ],
+          "protocol_flush_counts": [
+            4
+          ],
+          "ready_for_query_counts": [
+            32
+          ]
+        }
+      },
+      "cloud_load_started": false,
+      "capacity_improvement_measured": false,
+      "arm": "candidate"
+    }
+  ],
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "owned_test_resources_removed": true,
+  "status": "LOCALLY_VALIDATED_CLOUD_PENDING",
+  "local_integration_cases_passed": 72,
+  "focused_unit_cases_passed": 17,
+  "image_published_and_remotely_source_verified": true,
+  "slot_history_gap_preserved": {
+    "decision": "ADR0319",
+    "missing_records": 25,
+    "total_failures": 131,
+    "maximum_one_second_burst": 32,
+    "ring_capacity": 16
+  }
+}
