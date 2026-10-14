@@ -2,7 +2,7 @@
 
 ## Status
 
-Implemented and locally validated bounded experiment, default batch size one. Recorded before implementation. Exact candidate immutably published; no ADR0324 cloud deployment, load or capacity claim. Retain ADR0323 as an experimental, failed reference, not an accepted optimization. This decision changes only the opted-in fulfillment transaction grouping; all existing durable financial and replay guarantees remain.
+Experimental, default batch size one. Recorded before implementation; implemented, locally verified and immutably published. The controlled five-minute cloud comparison passed all gates at a conservative 100.90 paid-and-issued tickets/s. No new hourly or production qualification; normal runtime restored. Retain ADR0323 as an experimental, failed reference, not an accepted optimization. This decision changes only the opted-in fulfillment transaction grouping; all existing durable financial and replay guarantees remain.
 
 ## Context
 
@@ -47,3 +47,16 @@ The image derives from the exact ADR0323 digest and changes only workers.py and 
 ## Runner integration verification
 
 The existing bounded runner now selects the exact ADR0324 image and preserves the ADR0323 profile and identity files unchanged. API and ECS bootstrap batch size is explicitly one; only six native fulfillment consumers activate four, with all other workers remaining at one. Eighty-one focused runner/admission/recovery checks passed, including old and new profile activation. A full offline binding comparison passed against the retained ADR0323 failure and its independent recovery, unchanged resources/budgets, role environments, frozen helpers and customer gates. The first full binding rejected a missing receipt declaration; the exact public receipt was added to the frozen source list before deployment. No validator was weakened. The separately bounded cloud comparison is next; no result is claimed at this checkpoint.
+
+
+## Executed controlled cloud comparison
+
+Run adr0151-01b0b010f053 / ledger bounded_cce_ticket_target__5bd6f0e59156 passed and restored. Raw SHA 311ce962b75be217eda88b6811f0272d4e1e74b3b4a386fffc12ce806f5a1e8d. The 14 October 2026 Bangkok window was 19:27:50–19:32:50. At unchanged 102 offered journeys/s, all 30,600 scheduled journeys dispatched and fulfilled. No generator drops or final customer failures occurred. Five initial payment503 journeys recovered with five retries and five operation lookups; initial error rate 0.01634%. No payment loss, duplicate bookings or ticket relationship errors; both safety scopes passed, all queues drained, credentials cleared and original runtime restored.
+
+30,477 unique paid tickets were issued within the timestamp window; the unchanged conservative inner-window check counted 30,269, or 100.8967 tickets/s over the 300second denominator. This qualifies this five-minute point, not an hourly capacity ceiling or a real concert opening.
+
+Compared with ADR0323's failed but independently reconciled reference, generator drops fell from 13 to zero, initial-error journeys from 74 to five, and captured slot rejections from 115 to eight. Worst-shard total journey p95 improved from 3,060.68ms to 2,614.88ms, durable p95 from 2,022.00ms to 1,107.11ms and ticket-wait p95 from 1,623.52ms to 1,061.09ms. Actual COMMIT statement deltas fell from 305,381 to 280,522 (8.14%) across the recorded dispatch/completion scope. These are one-trial observations; the fixed offered rate does not identify a higher maximum throughput.
+
+Do not claim CPU or WAL-byte reductions: measured API process CPU increased from 1.475 to 1.537 cores and worker CPU from 1.409 to 1.510. Attributed WAL bytes increased from 2.959GB to 3.531GB; the candidate observed one timed checkpoint while the reference observed none. Five recoverable payment errors and captured COMMIT holds up to 354.443ms remain. The underlying storage/fsync cause is unconfirmed, and the separate idle bridge issue has not been corrected. Default one remains; sustained qualification is required before adopting batch four.
+
+[Full sanitized comparison, financial and restoration evidence](../capacity/cce/fulfillment-transaction-batching-comparison-2026-10-14.json). No higher-load or hourly stage followed this comparison.
