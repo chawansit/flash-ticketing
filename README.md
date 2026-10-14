@@ -84,6 +84,8 @@ E2E tests book one seed seat and create a fresh one-seat event for 100 synchroni
 
 ## Architecture
 
+For implementing these patterns in another language, use the [customer transfer pack](docs/customer-integration/pattern-transfer/README.md), including transaction pseudocode, proposed NATS/PGpool integration and customer acceptance scenarios.
+
 For developer-team discussions in Thai, see [adding Redis and Kafka to an existing concert-ticketing application](docs/customer-integration/redis-kafka-adoption-th.md), including numbered synchronous/asynchronous flows, migration stages and measured limitations. [Local/GitHub documentation synchronization](docs/customer-integration/repository-sync-2026-10-11.md) distinguishes the working branch from main.
 
 - [Application flow](docs/application-flow.md): reservation, payment, expiry and failure paths.

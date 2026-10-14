@@ -312,3 +312,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0323: Remove duplicate driver transaction starts](0323-remove-duplicate-driver-transaction-starts.md) - Default-off experiment: latency improved, but 13 generator drops failed the short comparison; actual 30,587 payments reconciled and runtime restored. Late commit stalls remain.
 
 - [ADR0324: Bound fulfillment transaction batches](0324-bound-fulfillment-transaction-batches.md) - Default-one experiment: five-minute comparison passed at 100.90 paid-issued tickets/s, no drops/final failures; hourly qualification pending and runtime restored.
+
+- [ADR0325: Transfer ticketing patterns to the customer stack](0325-transfer-ticketing-patterns-to-customer-stack.md) - Proposed language-neutral customer contracts and acceptance checklist; no customer port or deployment implemented.
