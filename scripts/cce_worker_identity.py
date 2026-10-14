@@ -12,6 +12,13 @@ RESOURCES = {k: {"cpu": "250m", "memory": "512Mi"} for k in ("requests", "limits
 
 
 def specification(decision="ADR0259"):
+    if decision in {"ADR0323", "ADR0323-bootstrap"}:
+        import cce_explicit_start_identity as explicit_pins
+        parent = specification("ADR0298")
+        counts = {**parent["counts"], "reservation-writer": 4} if decision == "ADR0323" else parent["counts"]
+        return {**parent, "decision": decision, "counts": counts,
+                "manifest": explicit_pins.IMAGE_ID, "image_id": explicit_pins.IMAGE_ID,
+                "source": explicit_pins.SOURCE}
     if decision in {"ADR0322", "ADR0322-bootstrap"}:
         import cce_notification_dedup_identity as notification_pins
         parent = specification("ADR0298")

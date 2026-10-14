@@ -309,7 +309,7 @@ def test_order_read_actor_isolation_and_consistent_ticket_shape(system):
 def test_order_read_lock_timeout_releases_connection_and_recovers(system):
     svc, db, event_id = system
     hold = svc.reserve("one", event_id, ["A"], "blocked-status-read")
-    with db.connection() as blocker:
+    with db.transaction() as blocker:
         blocker.execute("LOCK TABLE orders IN ACCESS EXCLUSIVE MODE")
         with pytest.raises(LockNotAvailable):
             svc.get_order("one", hold["order_id"])

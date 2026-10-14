@@ -46,6 +46,8 @@ def identity():
         "scripts/cce_backend_partition.py", "scripts/cce_backend_partition_runtime.py",
         "scripts/cce_measured_payment_context_profile.py", "scripts/cce_measured_payment_context_identity.py",
         "docs/capacity/cce/measured-payment-context-image-2026-10-14.json",
+        "scripts/cce_explicit_start_profile.py", "scripts/cce_explicit_start_identity.py",
+        "docs/capacity/cce/explicit-transaction-start-image-2026-10-14.json",
         "scripts/cce_notification_dedup_profile.py", "scripts/cce_notification_dedup_identity.py",
         "docs/capacity/cce/ticket-notification-dedup-image-2026-10-14.json",
         "scripts/cce_writer_sale_context_profile.py", "scripts/cce_writer_sale_context_identity.py",

@@ -63,6 +63,7 @@ async def lifespan(app):
         settings.pool_max_waiting, settings.api_payment_pool_max, settings.api_pool_shared_waiting,
         settings.api_partial_timeout_reclaim,
         settings.db_failure_diagnostics,
+        **({"explicit_start": True} if settings.db_explicit_transaction_start else {}),
     )
     db.order_status_read_pipeline = settings.order_status_read_pipeline
     payment_db.payment_write_pipeline = settings.payment_write_pipeline

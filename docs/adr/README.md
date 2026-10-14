@@ -307,4 +307,6 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0321: Read writer sale context after seat locks](0321-read-writer-sale-context-after-seat-locks.md) - Clean102/s customer journeys; conservative100-ticket/s gate missed19 tickets, all services restored.
 
-- [ADR0322: Bound redundant ticket-notification reads](0322-bound-redundant-ticket-notification-reads.md) - Bounded advisory suppression locally verified; registry authentication blocks cloud comparison.
+- [ADR0322: Bound redundant ticket-notification reads](0322-bound-redundant-ticket-notification-reads.md) - Measured short comparison improved ticket latency but failed zero-drop gate; independently reconciled and restored.
+
+- [ADR0323: Remove duplicate driver transaction starts](0323-remove-duplicate-driver-transaction-starts.md) - Default-off correction; protocol and financial validation required before cloud comparison.

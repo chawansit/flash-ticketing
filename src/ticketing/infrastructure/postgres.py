@@ -66,7 +66,9 @@ class MeasuredCursor(Cursor):
 
 
 class Postgres:
-    def __init__(self, url: str, maximum: int = 12, wait_ms: int = 150, maximum_waiting: int | None = None):
+    def __init__(self, url: str, maximum: int = 12, wait_ms: int = 150, maximum_waiting: int | None = None, *, explicit_start=False):
+        if type(explicit_start) is not bool:
+            raise TypeError("Explicit transaction start selection must be boolean")
         self.pool = ConnectionPool(
             url,
             open=True,
@@ -74,7 +76,7 @@ class Postgres:
             max_size=maximum,
             timeout=wait_ms / 1000,
             max_waiting=maximum if maximum_waiting is None else maximum_waiting,
-            kwargs={"row_factory": dict_row, "prepare_threshold": None, "cursor_factory": MeasuredCursor, "autocommit": False},
+            kwargs={"row_factory": dict_row, "prepare_threshold": None, "cursor_factory": MeasuredCursor, "autocommit": explicit_start},
         )
 
     @contextmanager
@@ -425,17 +427,20 @@ def api_pool_budgets(maximum: int, maximum_waiting: int | None, payment_maximum:
     }
 
 
-def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum=0, shared_waiting=False, reclaim_partial_timeouts=False, failure_diagnostics=False):
+def create_api_databases(url, maximum, wait_ms, maximum_waiting, payment_maximum=0, shared_waiting=False, reclaim_partial_timeouts=False, failure_diagnostics=False, explicit_start=False):
     """Return general/payment adapters, sharing one pool when disabled."""
     if reclaim_partial_timeouts and not shared_waiting:
         raise ValueError("Partial timeout reclamation requires shared acquisition admission")
+    if type(explicit_start) is not bool:
+        raise TypeError("Explicit transaction start selection must be boolean")
+    start_options = {"explicit_start": True} if explicit_start else {}
     budgets = api_pool_budgets(maximum, maximum_waiting, payment_maximum, shared_waiting)
     with ExitStack() as resources:
-        general = Postgres(url, wait_ms=wait_ms, **budgets["general"])
+        general = Postgres(url, wait_ms=wait_ms, **start_options, **budgets["general"])
         resources.callback(general.close)
         payment = general
         if budgets["payment"] is not None:
-            payment = Postgres(url, wait_ms=wait_ms, **budgets["payment"])
+            payment = Postgres(url, wait_ms=wait_ms, **start_options, **budgets["payment"])
             resources.callback(payment.close)
         shared = None
         if shared_waiting:

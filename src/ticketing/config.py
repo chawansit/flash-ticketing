@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Settings:
+    db_explicit_transaction_start: bool = os.getenv("DB_EXPLICIT_TRANSACTION_START", "0") == "1"
     database_url: str = os.getenv("DATABASE_URL", "postgresql://ticketing:ticketing@localhost:5432/ticketing")
     redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     kafka_bootstrap: str = os.getenv("KAFKA_BOOTSTRAP", "localhost:9092")

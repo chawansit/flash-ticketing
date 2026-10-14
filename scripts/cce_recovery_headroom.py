@@ -34,6 +34,7 @@ CHANGED_SOURCES = {
     "scripts/cce_dependency_probe.py", "scripts/work_envelope.py", "scripts/customer_gateway_read_bundle.py",
     "scripts/cce_worker_identity.py", "scripts/cce_worker_transition.py", "scripts/cce_bounded_financial_audit.py", "scripts/fixture_identity_evidence.py",
     "artifacts/cce-transaction-runner/manifest.json",
+    "scripts/cce_explicit_start_profile.py", "scripts/cce_explicit_start_identity.py",
     "scripts/cce_committed_status_contract.py", "scripts/observe_slot_paid_pipeline.py", "scripts/cce_metric_admission.py",
     "scripts/observe_cce_workers.py",
 }
@@ -94,12 +95,14 @@ def selected(goal):
         if (not scale or batch or goal.get("backend_partition_decision") not in {"ADR0317","ADR0318"}
                 or goal.get("backend_partition_contract_sha256") != policy.digest(partition_contract(goal.get("backend_partition_decision")))):
             raise ValueError("Exact four-writer batch-four backend isolation required")
+    from cce_explicit_start_profile import selected as explicit_selected
     from cce_measured_payment_context_profile import selected as context_selected
     from cce_notification_dedup_profile import selected as notification_selected
     from cce_writer_sale_context_profile import selected as writer_context_selected
+    explicit = explicit_selected(goal)
     notification = notification_selected(goal)
     writer_context = writer_context_selected(goal)
-    context = context_selected(goal) or writer_context or notification
+    context = context_selected(goal) or writer_context or notification or explicit
     expected = {"headroom_decision": "ADR0312", "decision": "ADR0277",
                 "extension_decision": "ADR0277", "profile": "cce_ticket_target",
                 "offered_journeys_per_second": RATE, "offered_seconds": 300,
@@ -109,7 +112,7 @@ def selected(goal):
                 "payment_slot_arm": "control" if correction else "candidate", "gateway_read_recovery_decision": "ADR0311"}
     if (any(type(goal.get(k)) is not type(v) or goal.get(k) != v for k, v in expected.items())
             or goal.get("headroom_contract_sha256") != policy.digest(contract())
-            or goal.get("baseline_sha256") != (__import__("cce_notification_dedup_profile").BASELINE if notification else WRITER_SHA256 if batch or partition or context else SLOT_SHA256 if scale else FAILURE_SHA256 if correction else BASELINE_SHA256)):
+            or goal.get("baseline_sha256") != (__import__("cce_explicit_start_profile").BASELINE if explicit else __import__("cce_notification_dedup_profile").BASELINE if notification else WRITER_SHA256 if batch or partition or context else SLOT_SHA256 if scale else FAILURE_SHA256 if correction else BASELINE_SHA256)):
         raise ValueError("Exact102/s fixed-budget recovery headroom authorization required")
     return True
 
@@ -236,8 +239,12 @@ def writer_batch_contract():
 
 
 def require_writer_failure(goal):
+    from cce_explicit_start_profile import selected as explicit_selected
     from cce_notification_dedup_profile import require_parent
     from cce_notification_dedup_profile import selected as notification_selected
+    if explicit_selected(goal):
+        from cce_explicit_start_profile import require_parent as explicit_parent
+        return explicit_parent()
     if notification_selected(goal):
         return require_parent()
 
@@ -287,12 +294,14 @@ def extend_plan(plan, goal):
     partition = partition_selected(goal)
     if partition:
         relative, report = require_writer_failure(goal)
+    from cce_explicit_start_profile import selected as explicit_selected
     from cce_measured_payment_context_profile import selected as context_selected
     from cce_notification_dedup_profile import selected as notification_selected
     from cce_writer_sale_context_profile import selected as writer_context_selected
+    explicit = explicit_selected(goal)
     notification = notification_selected(goal)
     writer_context = writer_context_selected(goal)
-    context = context_selected(goal) or writer_context or notification
+    context = context_selected(goal) or writer_context or notification or explicit
     if context:
         relative, report = require_writer_failure(goal)
     payment = 2 if correction else 3
@@ -305,8 +314,8 @@ def extend_plan(plan, goal):
     partition_fields = ({"backend_partition_contract":partition_contract(goal["backend_partition_decision"]),
                          "backend_partition_decision":goal["backend_partition_decision"]} if partition else {})
     return {**plan, **scale_fields, **batch_fields, **partition_fields, "decision": "ADR0277", "extension_decision": "ADR0277",
-            "kind": "ticket_notification_dedup_headroom" if notification else "post_lock_writer_sale_context_headroom" if writer_context else "post_lock_payment_context_headroom" if context else "foreground_backend_isolation_headroom" if partition else "writer_batch_headroom" if batch else "writer_concurrency_headroom" if scale else "corrective_general_slot_headroom" if correction else "bounded_recovery_runtime_headroom",
-            "single_changed_factor": "bounded_ticket_notification_refresh_suppression" if notification else "post_lock_writer_sale_context" if writer_context else "post_lock_payment_context" if context else "foreground_background_backend_partition" if partition else "RESERVATION_WRITER_BATCH_SIZE" if batch else "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
+            "kind": "explicit_driver_start_headroom" if explicit else "ticket_notification_dedup_headroom" if notification else "post_lock_writer_sale_context_headroom" if writer_context else "post_lock_payment_context_headroom" if context else "foreground_backend_isolation_headroom" if partition else "writer_batch_headroom" if batch else "writer_concurrency_headroom" if scale else "corrective_general_slot_headroom" if correction else "bounded_recovery_runtime_headroom",
+            "single_changed_factor": "one_explicit_driver_transaction_start" if explicit else "bounded_ticket_notification_refresh_suppression" if notification else "post_lock_writer_sale_context" if writer_context else "post_lock_payment_context" if context else "foreground_background_backend_partition" if partition else "RESERVATION_WRITER_BATCH_SIZE" if batch else "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
             "common": {"buyer_journeys_per_second": RATE, "duration_seconds": 300},
             "expected_journeys": EXPECTED, "target_unique_tickets": TARGET,
             "fixture_shows": SHOWS, "generator_concurrency": 500,
@@ -346,24 +355,33 @@ def validate_binding(goal, binding):
     if partition:
         require_writer_failure(goal)
         old = policy.read(policy.STATE)[WRITER_LEDGER]["binding"]
+    from cce_explicit_start_profile import selected as explicit_selected
     from cce_measured_payment_context_profile import contract as context_contract
     from cce_measured_payment_context_profile import selected as context_selected
     from cce_notification_dedup_profile import selected as notification_selected
     from cce_writer_sale_context_profile import selected as writer_context_selected
+    explicit = explicit_selected(goal)
     notification = notification_selected(goal)
     writer_context = writer_context_selected(goal)
-    context = context_selected(goal) or writer_context or notification
+    context = context_selected(goal) or writer_context or notification or explicit
     if context:
         require_writer_failure(goal)
         old = policy.read(policy.STATE)[WRITER_LEDGER]["binding"]
-        if notification:
+        if explicit:
+            old = policy.read(policy.STATE)["bounded_cce_ticket_target__88dc5ceb63ad"]["binding"]
+        elif notification:
             old = policy.read(policy.STATE)["bounded_cce_ticket_target__384290e57344"]["binding"]
     ignored = {"cce_paid_entry_sources", "cce_paid_core_sources", "cce_manifest_sha256",
                "baseline_sha256", "cce_verification_contract_sha256", "cce_headroom_contract",
                "cce_gateway_read_recovery_contract", "cce_inventory_renewal_contract",
                "cce_metric_admission_contract_sha256"}
     if context:
-        if notification:
+        if explicit:
+            import cce_explicit_start_identity as context_pins
+            from cce_explicit_start_profile import contract as context_contract
+            context_binding_key = "cce_explicit_start_contract"
+            ignored.add("cce_notification_dedup_contract")
+        elif notification:
             import cce_notification_dedup_identity as context_pins
             from cce_notification_dedup_profile import contract as context_contract
             context_binding_key = "cce_notification_dedup_contract"
@@ -379,7 +397,13 @@ def validate_binding(goal, binding):
         saved = policy.read(policy.ROOT / goal["payment_slot_snapshot_path"])["saved"]
         semantics = core.api_semantics(core.service_for(saved))
         original_semantics = dict(semantics)
-        if notification:
+        if explicit:
+            import copy
+            original_semantics = copy.deepcopy(semantics)
+            if original_semantics["environment"].pop("DB_EXPLICIT_TRANSACTION_START", "0") != "1":
+                raise ValueError("Exactly the selected driver mode must be enabled on APIs")
+            ignored.add("saved_api_service_sha256")
+        elif notification:
             import copy
             original_semantics = copy.deepcopy(semantics)
             if original_semantics["environment"].pop("ORDER_STATUS_NOTIFICATION_DEDUP", "0") != "0":
@@ -451,6 +475,9 @@ def validate_binding(goal, binding):
                   "docs/capacity/cce/writer-sale-context-image-2026-10-14.json"}
         added |= {"scripts/cce_notification_dedup_profile.py", "scripts/cce_notification_dedup_identity.py",
                   "docs/capacity/cce/ticket-notification-dedup-image-2026-10-14.json"}
+        if explicit:
+            added |= {"scripts/cce_explicit_start_profile.py", "scripts/cce_explicit_start_identity.py",
+                      "docs/capacity/cce/explicit-transaction-start-image-2026-10-14.json"}
         if (set(after) != set(before) | added
                 or any(before[k] != after[k] for k in before if k not in CHANGED_SOURCES)):
             raise ValueError("Headroom source changed outside the declared rate integration")

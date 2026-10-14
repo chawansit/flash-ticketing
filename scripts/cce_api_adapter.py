@@ -82,6 +82,9 @@ def contract():
     from cce_recovery_headroom import selected as headroom_selected
     if headroom_selected(goal):
         data["workload"].update(offered_journeys_per_second=RATE, concurrency=500)
+    from cce_explicit_start_profile import selected as explicit_selected
+    if explicit_selected(goal):
+        data["api_settings"]["DB_EXPLICIT_TRANSACTION_START"] = "1"
     return data
 
 

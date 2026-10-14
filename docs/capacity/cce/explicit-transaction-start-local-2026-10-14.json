@@ -1,0 +1,345 @@
+{
+  "decision": "ADR0323",
+  "status": "IMPLEMENTED_PUBLISHED_VERIFIED_PENDING_PAID_COMPARISON",
+  "feature_default": false,
+  "capacity_improvement_measured": false,
+  "cloud_paid_load_started": false,
+  "image_manifest": "sha256:b8689b9296c603a5bd9858fcbb9bac6b0735ffe9576b5a293ae8061eaf1b358c",
+  "source_identity_sha256": "afd8f151f4dc45faa632aa826eab1bb635810e5b568be53715e4a6f487097592",
+  "protocol_evidence": {
+    "server": "PostgreSQL17.6",
+    "reference_begin_per_transaction": 2,
+    "candidate_begin_per_transaction": 1,
+    "commit_per_transaction_both_modes": 1,
+    "test": "tests/integration/test_explicit_transaction_start.py"
+  },
+  "executed_checks": {
+    "real_transaction_mode_tests": 8,
+    "exact_candidate_financial_integration": 56,
+    "existing_kafka_skip": 1,
+    "api_pool_default_unit": 47,
+    "bounded_runner_admission": 140,
+    "counts_overlap_and_must_not_be_summed": true,
+    "initial_failures_retained": true
+  },
+  "idle_readonly_live_comparison": {
+    "decision": "ADR0323",
+    "read_only": true,
+    "pairs": 20,
+    "samples": [
+      {
+        "pair": 0,
+        "explicit_start": false,
+        "elapsed_ms": 7.1438460145145655,
+        "commit_ms": 1.1510299518704414,
+        "connection_hold_ms": 7.101218914613128
+      },
+      {
+        "pair": 0,
+        "explicit_start": true,
+        "elapsed_ms": 5.793601972982287,
+        "commit_ms": 1.0837289737537503,
+        "connection_hold_ms": 5.751042044721544
+      },
+      {
+        "pair": 1,
+        "explicit_start": true,
+        "elapsed_ms": 5.912180058658123,
+        "commit_ms": 1.1416770284995437,
+        "connection_hold_ms": 5.87131199426949
+      },
+      {
+        "pair": 1,
+        "explicit_start": false,
+        "elapsed_ms": 7.033830974251032,
+        "commit_ms": 1.1005069827660918,
+        "connection_hold_ms": 6.9924440467730165
+      },
+      {
+        "pair": 2,
+        "explicit_start": false,
+        "elapsed_ms": 7.213673903606832,
+        "commit_ms": 1.1615959228947759,
+        "connection_hold_ms": 7.170269964262843
+      },
+      {
+        "pair": 2,
+        "explicit_start": true,
+        "elapsed_ms": 6.043942063115537,
+        "commit_ms": 1.1926150182262063,
+        "connection_hold_ms": 6.0006530256941915
+      },
+      {
+        "pair": 3,
+        "explicit_start": true,
+        "elapsed_ms": 6.340833962894976,
+        "commit_ms": 1.165269990451634,
+        "connection_hold_ms": 6.2984449323266745
+      },
+      {
+        "pair": 3,
+        "explicit_start": false,
+        "elapsed_ms": 7.230903021991253,
+        "commit_ms": 1.0971640003845096,
+        "connection_hold_ms": 7.18299497384578
+      },
+      {
+        "pair": 4,
+        "explicit_start": false,
+        "elapsed_ms": 7.216096040792763,
+        "commit_ms": 1.126785995438695,
+        "connection_hold_ms": 7.17201002407819
+      },
+      {
+        "pair": 4,
+        "explicit_start": true,
+        "elapsed_ms": 5.998676992021501,
+        "commit_ms": 1.1121350107714534,
+        "connection_hold_ms": 5.95207407604903
+      },
+      {
+        "pair": 5,
+        "explicit_start": true,
+        "elapsed_ms": 5.986131029203534,
+        "commit_ms": 1.08643202111125,
+        "connection_hold_ms": 5.942882038652897
+      },
+      {
+        "pair": 5,
+        "explicit_start": false,
+        "elapsed_ms": 6.986960070207715,
+        "commit_ms": 1.113969017751515,
+        "connection_hold_ms": 6.946115987375379
+      },
+      {
+        "pair": 6,
+        "explicit_start": false,
+        "elapsed_ms": 7.014230010099709,
+        "commit_ms": 1.0861660121008754,
+        "connection_hold_ms": 6.974425981752574
+      },
+      {
+        "pair": 6,
+        "explicit_start": true,
+        "elapsed_ms": 5.917523056268692,
+        "commit_ms": 1.0953790042549372,
+        "connection_hold_ms": 5.876437993720174
+      },
+      {
+        "pair": 7,
+        "explicit_start": true,
+        "elapsed_ms": 5.728631978854537,
+        "commit_ms": 1.0734549723565578,
+        "connection_hold_ms": 5.686878925189376
+      },
+      {
+        "pair": 7,
+        "explicit_start": false,
+        "elapsed_ms": 6.842551054432988,
+        "commit_ms": 1.1246289359405637,
+        "connection_hold_ms": 6.800915929488838
+      },
+      {
+        "pair": 8,
+        "explicit_start": false,
+        "elapsed_ms": 6.884283968247473,
+        "commit_ms": 1.0794249828904867,
+        "connection_hold_ms": 6.8431750405579805
+      },
+      {
+        "pair": 8,
+        "explicit_start": true,
+        "elapsed_ms": 5.905514000914991,
+        "commit_ms": 1.0934500023722649,
+        "connection_hold_ms": 5.865048966370523
+      },
+      {
+        "pair": 9,
+        "explicit_start": true,
+        "elapsed_ms": 5.7018951047211885,
+        "commit_ms": 1.0648630559444427,
+        "connection_hold_ms": 5.661831004545093
+      },
+      {
+        "pair": 9,
+        "explicit_start": false,
+        "elapsed_ms": 6.917290040291846,
+        "commit_ms": 1.093630911782384,
+        "connection_hold_ms": 6.877248990349472
+      },
+      {
+        "pair": 10,
+        "explicit_start": false,
+        "elapsed_ms": 6.874469923786819,
+        "commit_ms": 1.1277840239927173,
+        "connection_hold_ms": 6.833571009337902
+      },
+      {
+        "pair": 10,
+        "explicit_start": true,
+        "elapsed_ms": 5.765305017121136,
+        "commit_ms": 1.085174037143588,
+        "connection_hold_ms": 5.724602029658854
+      },
+      {
+        "pair": 11,
+        "explicit_start": true,
+        "elapsed_ms": 5.747744929976761,
+        "commit_ms": 1.1052540503442287,
+        "connection_hold_ms": 5.706024006940424
+      },
+      {
+        "pair": 11,
+        "explicit_start": false,
+        "elapsed_ms": 7.073277956806123,
+        "commit_ms": 1.0810710955411196,
+        "connection_hold_ms": 7.01794505584985
+      },
+      {
+        "pair": 12,
+        "explicit_start": false,
+        "elapsed_ms": 7.510768016800284,
+        "commit_ms": 1.0841969633474946,
+        "connection_hold_ms": 7.458647014573216
+      },
+      {
+        "pair": 12,
+        "explicit_start": true,
+        "elapsed_ms": 5.663031013682485,
+        "commit_ms": 1.0230990592390299,
+        "connection_hold_ms": 5.608209990896285
+      },
+      {
+        "pair": 13,
+        "explicit_start": true,
+        "elapsed_ms": 5.4924399591982365,
+        "commit_ms": 1.0303210001438856,
+        "connection_hold_ms": 5.449354997836053
+      },
+      {
+        "pair": 13,
+        "explicit_start": false,
+        "elapsed_ms": 6.43560104072094,
+        "commit_ms": 1.0026500094681978,
+        "connection_hold_ms": 6.3907100120559335
+      },
+      {
+        "pair": 14,
+        "explicit_start": false,
+        "elapsed_ms": 6.604574038647115,
+        "commit_ms": 1.025523990392685,
+        "connection_hold_ms": 6.562069058418274
+      },
+      {
+        "pair": 14,
+        "explicit_start": true,
+        "elapsed_ms": 5.487591028213501,
+        "commit_ms": 1.0399309685453773,
+        "connection_hold_ms": 5.445531918667257
+      },
+      {
+        "pair": 15,
+        "explicit_start": true,
+        "elapsed_ms": 5.43724000453949,
+        "commit_ms": 1.0310690850019455,
+        "connection_hold_ms": 5.39566099178046
+      },
+      {
+        "pair": 15,
+        "explicit_start": false,
+        "elapsed_ms": 6.510484963655472,
+        "commit_ms": 0.9971040999516845,
+        "connection_hold_ms": 6.468942039646208
+      },
+      {
+        "pair": 16,
+        "explicit_start": false,
+        "elapsed_ms": 6.483732955530286,
+        "commit_ms": 1.0453870054334402,
+        "connection_hold_ms": 6.441685021854937
+      },
+      {
+        "pair": 16,
+        "explicit_start": true,
+        "elapsed_ms": 5.528487032279372,
+        "commit_ms": 1.0139188962057233,
+        "connection_hold_ms": 5.4853439796715975
+      },
+      {
+        "pair": 17,
+        "explicit_start": true,
+        "elapsed_ms": 5.448091076686978,
+        "commit_ms": 0.9964850032702088,
+        "connection_hold_ms": 5.4039700189605355
+      },
+      {
+        "pair": 17,
+        "explicit_start": false,
+        "elapsed_ms": 6.469559972174466,
+        "commit_ms": 1.0171979665756226,
+        "connection_hold_ms": 6.4269640715792775
+      },
+      {
+        "pair": 18,
+        "explicit_start": false,
+        "elapsed_ms": 6.502245902083814,
+        "commit_ms": 1.0077739134430885,
+        "connection_hold_ms": 6.450470071285963
+      },
+      {
+        "pair": 18,
+        "explicit_start": true,
+        "elapsed_ms": 5.3701590513810515,
+        "commit_ms": 1.0492400033399463,
+        "connection_hold_ms": 5.328383995220065
+      },
+      {
+        "pair": 19,
+        "explicit_start": true,
+        "elapsed_ms": 5.419038003310561,
+        "commit_ms": 0.9924109326675534,
+        "connection_hold_ms": 5.37760101724416
+      },
+      {
+        "pair": 19,
+        "explicit_start": false,
+        "elapsed_ms": 6.444368977099657,
+        "commit_ms": 1.0014950530603528,
+        "connection_hold_ms": 6.400668993592262
+      }
+    ],
+    "connections_per_mode": 1,
+    "scope": "Warm alternating idle read-only transaction timings; not paid traffic or capacity",
+    "owned_helper_removed": true,
+    "temporary_credentials_removed": true,
+    "summary": {
+      "False": {
+        "mean_hold_ms": 6.825624610064551,
+        "mean_elapsed_ms": 6.869637442287058,
+        "mean_commit_ms": 1.076254341751337
+      },
+      "True": {
+        "mean_hold_ms": 5.691564397420734,
+        "mean_elapsed_ms": 5.734402866801247,
+        "mean_commit_ms": 1.0737954056821764
+      }
+    },
+    "normal_runtime_unchanged": true,
+    "cloud_paid_load_started": false
+  },
+  "mean_connection_hold_reduction_percent": 16.61474630426668,
+  "correctness": {
+    "atomic_financial_transactions_preserved": true,
+    "synchronous_commit_on": true,
+    "explicit_begin_and_commit_preserved": true,
+    "connection_budgets_unchanged": true,
+    "original_runtime_unchanged": true,
+    "no_paid_load_started": true
+  },
+  "limitations": [
+    "Read-only transaction timing is not ticket throughput.",
+    "Commit timing was effectively unchanged; underlying WAL/storage stall cause remains unconfirmed.",
+    "ADR0239/ADR0242 rejected an earlier API-only remove-BEGIN experiment; that rejection remains valid.",
+    "Customer quality, drops, latency, actual-cohort durability and complete drain still require a separately bounded paid comparison."
+  ]
+}
