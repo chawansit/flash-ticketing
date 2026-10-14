@@ -279,3 +279,51 @@ def test_payment_context_failure_closes_exact_actual_cohort_without_changing_qua
         assert r.validate(report, entry, scope, evidence, fixture)
     assert (report, entry, scope, evidence, fixture) == original
     assert report["pass"] is False and report["paid_stage"]["customer"]["generator_drops"] == 320
+
+
+@pytest.mark.parametrize("fault", [None, "payment_loss", "missing_restore", "changed_snapshot", "namespace", "capacity_claim", "hidden_drop"])
+def test_notification_failed_cleanup_requires_fresh_financial_and_original_runtime(proof, monkeypatch, fault):
+    import cce_notification_dedup_profile as profile
+    report, entry, scope, evidence, fixture = copy.deepcopy(proof)
+    monkeypatch.setattr(profile, "contract", lambda: {"decision": "ADR0322"})
+    saved = {"owned": "original_snapshot"}
+    monkeypatch.setattr(p, "read", lambda path: {"saved": saved})
+    scope["binding"]["cce_notification_dedup_contract"] = profile.contract()
+    binding_sha = p.digest(scope["binding"])
+    report.update(run=r.NOTIFICATION_RUN, restoration_complete=False, binding_sha256=binding_sha)
+    stage = report["paid_stage"]
+    stage.update(private_cleanup_pass=False, ticket_target_issuance={"pass": True})
+    stage["customer"].update(dispatched=30581, completed=30581, fulfilled=30581, generator_drops=19,
+        final_customer_failures=0, outcomes={"fulfilled": 30581}, first_attempt_error_journeys=20,
+        recovered_journeys=20, retry_attempts=20, measurement_complete=True,
+        accounting_complete=True, shard_evidence_states=["final", "final"])
+    for counts in (stage["financial"]["counts"], evidence["fresh_financial"]["counts"]):
+        counts.update({k: 30581 for k in r.PAID_COUNTS})
+        counts.update(orders=30581, expired_orders=0)
+    evidence["fresh_financial"]["counts"].update(expected=30581, expected_paid=30581)
+    for relationships in (stage["financial"]["relationships"], evidence["fresh_financial"]["relationships"]):
+        relationships["unique_issued_tickets"] = 30581
+    report["native"].update(cleanup_complete=False, cleanup_failures=[
+        {"operation": "candidate_restore", "type": "ValueError"},
+        {"operation": "stage_cleanup", "type": "ValueError"},
+        {"operation": "global_drain", "type": "RuntimeError"}])
+    sha = p.digest(report)
+    monkeypatch.setattr(r, "NOTIFICATION_RESULT", sha)
+    entry.update(ledger=r.NOTIFICATION_LEDGER, result_sha256=sha, binding_sha256=binding_sha)
+    scope.update(active_run=r.NOTIFICATION_RUN, cce_paid_result_sha256=sha)
+    evidence.update(run=r.NOTIFICATION_RUN, ledger=r.NOTIFICATION_LEDGER, original_result_sha256=sha,
+        binding_sha256=binding_sha, restoration_repair={"saved_snapshot_sha256": p.digest(saved),
+        **dict.fromkeys(("saved_semantics_match", "owned_restore_model_match", "all_fixture_shows_retired",
+        "extra_workers_removed", "credential_snapshots_removed"), True)})
+    if fault == "payment_loss": evidence["fresh_financial"]["counts"]["tickets"] -= 1
+    elif fault == "missing_restore": evidence["restoration_repair"]["extra_workers_removed"] = False
+    elif fault == "changed_snapshot": evidence["restoration_repair"]["saved_snapshot_sha256"] = "0" * 64
+    elif fault == "namespace": evidence["gates"]["namespace_absent"] = False
+    elif fault == "capacity_claim": evidence["capacity_qualified"] = True
+    elif fault == "hidden_drop": report["paid_stage"]["customer"]["generator_drops"] = 0
+    original = copy.deepcopy(report)
+    if fault is None:
+        assert r.validate(report, entry, scope, evidence, fixture)
+        assert report == original and report["pass"] is False
+    else:
+        with pytest.raises(ValueError): r.validate(report, entry, scope, evidence, fixture)

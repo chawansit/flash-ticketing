@@ -62,7 +62,7 @@
     "requirements.lock": "4c45aa6d68478b8f81e57eeb808f7ba55ad59275647cdc1bac28fdb795aaf14d",
     "pyproject.toml": "c1ce0fcb261c6788d55b0532ba249af7a23e29d1d094b44310ebfc39c3b13dbd"
   },
-  "registry_published": false,
+  "registry_published": true,
   "cloud_deployed": false,
   "cloud_load_started": false,
   "capacity_improvement_measured": false,
@@ -78,8 +78,28 @@
     "payment_recovery_endpoint_present": true,
     "order_status_read_pipeline_default_off": true
   },
-  "status": "LOCAL_VERIFIED_REGISTRY_BLOCKED",
-  "registry_pulled_runtime_verified": false,
+  "registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:c64ef9e7df3f4864f1019cbe496ce4526654b71abd906cfd93a30e363f4ff554",
+  "registry_manifest_digest": "sha256:c64ef9e7df3f4864f1019cbe496ce4526654b71abd906cfd93a30e363f4ff554",
+  "registry_configuration_digest": "sha256:5ef7a0b3017ed8413b01e520e91b0e1e276ce64279cc8e321ba7b11592ce8386",
+  "local_digest_pulled": true,
+  "registry_pulled_runtime_verified": true,
+  "remote_runtime_verification": {
+    "modules_verified": 22,
+    "manifest_role_settings_validated": [],
+    "installed_and_copied_sources_match": true,
+    "all_modules_imported": true,
+    "role_settings_validated": 8,
+    "writer_pipeline_capability_verified": true,
+    "invalid_simulator_settings_rejected": true,
+    "payment_recovery_endpoint_present": true,
+    "order_status_read_pipeline_default_off": true,
+    "registry_pulled_runtime_verified": true,
+    "registry_configuration_digest": "sha256:5ef7a0b3017ed8413b01e520e91b0e1e276ce64279cc8e321ba7b11592ce8386",
+    "owned_container_removed": true,
+    "credentials_removed": true
+  },
+  "normal_runtime_unchanged": true,
+  "status": "IMMUTABLE_PUBLISHED_VERIFIED",
   "verified_modules": 22,
   "feature_default": false
 }

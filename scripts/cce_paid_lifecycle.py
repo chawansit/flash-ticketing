@@ -89,6 +89,23 @@ class Lifecycle:
         self.persist(copy.deepcopy(self.record))
         self.stage.checkpoint()
 
+    def retain_cleanup_failure(self, operation, error):
+        """Keep the original cause privately; never let diagnostics skip other cleanup."""
+        try:
+            import traceback
+
+            path = self.stage.output / ("cleanup-" + operation + "-failure.private.json")
+            if path.exists() or path.is_symlink():
+                raise ValueError("Original cleanup failure evidence already exists")
+            evidence = {"operation": operation, "failure_type": type(error).__name__,
+                        "traceback": traceback.format_exc()[-65536:]}
+            policy.write(path, evidence)
+            self.record.setdefault("cleanup_failure_evidence", []).append({
+                "operation": operation, "file": path.name, "sha256": policy.digest(evidence)})
+        except Exception as capture_error:  # noqa: BLE001 - Diagnostics must never prevent restoration.
+            self.record.setdefault("cleanup_failure_capture_errors", []).append({
+                "operation": operation, "type": type(capture_error).__name__})
+
     def capture_admission_diagnostics(self):
         """Retain bounded failure-time context without masking customer results."""
         if self.metric_admission:
@@ -330,6 +347,7 @@ class Lifecycle:
                 try:
                     self.record[name] = operation()
                 except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - One failure cannot skip financial/queue verification.
+                    self.retain_cleanup_failure(name, error)
                     failures.append({"operation": name, "type": type(error).__name__})
                 self.checkpoint()
             # Unknown jobs keep audit/inputs and pods recoverable; never claim cleanup.
@@ -345,6 +363,7 @@ class Lifecycle:
                     try:
                         self.record[name] = operation()
                     except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Attempt separately owned removals.
+                        self.retain_cleanup_failure(name, error)
                         failures.append({"operation": name, "type": type(error).__name__})
                     self.checkpoint()
             else:

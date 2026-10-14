@@ -39,6 +39,11 @@ CONTEXT_LEDGER = "bounded_cce_ticket_target__9333a9ca13e4"
 CONTEXT_RESULT = "83c12a2c781ecbfdec4119c0fa6c9bcc83e2a6c89ccebe10bf1b4ea9b2b44606"
 
 
+NOTIFICATION_RUN = "adr0151-1c21f024998b"
+NOTIFICATION_LEDGER = "bounded_cce_ticket_target__88dc5ceb63ad"
+NOTIFICATION_RESULT = "cbb3eda22fa6990483b4be9c89bef9a9a69df6184ccc406f3801101b6c43a84c"
+
+
 def case(run):
     if run == RUN:
         return RUN, LEDGER, RESULT, ORDERS, PAID, EXPIRED, 26636, 2583, 1381, {"fulfilled": 26636, "order_http_503": 1305, "payment_http_503": 76}
@@ -54,6 +59,8 @@ def case(run):
         return REBALANCE_RUN, REBALANCE_LEDGER, REBALANCE_RESULT, 25064, 22869, 2195, 20710, 5177, 4713, {"fulfilled":20710,"order_http_503":2159,"payment_http_503":1851,"hold_http_503":358,"command_http_503":344,"hold_http_502":1}
     if run == CONTEXT_RUN:
         return CONTEXT_RUN, CONTEXT_LEDGER, CONTEXT_RESULT, 30280, 30280, 0, 30280, 320, 0, {"fulfilled": 30280}
+    if run == NOTIFICATION_RUN:
+        return NOTIFICATION_RUN, NOTIFICATION_LEDGER, NOTIFICATION_RESULT, 30581, 30581, 0, 30581, 19, 0, {"fulfilled": 30581}
     raise ValueError("Unknown failed headroom recovery case")
 GATES = ("runtime_restored", "runtime_stable", "namespace_absent", "helpers_absent",
          "secondary_empty", "generator_idle", "queues_zero")
@@ -73,17 +80,18 @@ def validate(report, entry, scope, evidence, fixture):
     elapsed = evidence.get("actual_elapsed_seconds")
     required = (
         policy.digest(report) == result, report.get("run") == run, report.get("pass") is False,
-        report.get("integrity_verified") is False, report.get("restoration_complete") is True,
+        report.get("integrity_verified") is False, report.get("restoration_complete") is (run != NOTIFICATION_RUN),
         report.get("transport_credentials_cleared") is True,
         entry.get("ledger") == ledger, entry.get("profile") == "cce_ticket_target",
         entry.get("status") == "RECOVERY_REQUIRED", entry.get("result_sha256") == result,
         scope.get("cce_paid_result_sha256") == result,
         entry.get("binding_sha256") == report.get("binding_sha256") == policy.digest(scope.get("binding", {})),
         scope.get("active_run") == run, scope.get("paid_runs_started") == report.get("capacity_stages_started") == 1,
-        native.get("cleanup_complete") is True, native.get("cleanup_failures") == [],
+        native.get("cleanup_complete") is (run != NOTIFICATION_RUN),
+        native.get("cleanup_failures") == ([{"operation": "candidate_restore", "type": "ValueError"}, {"operation": "stage_cleanup", "type": "ValueError"}, {"operation": "global_drain", "type": "RuntimeError"}] if run == NOTIFICATION_RUN else []),
         native.get("namespace_cleanup", {}).get("namespace_removed") is True,
         native.get("resource_cleanup", {}).get("owned_resources_removed") is True,
-        stage.get("private_cleanup_pass") is True, stage.get("private_manifests_removed") is True,
+        stage.get("private_cleanup_pass") is (run != NOTIFICATION_RUN), stage.get("private_manifests_removed") is True,
         stage.get("generator_idle_after_stop") is True, stage.get("job_cleanup_errors") == [],
         stage.get("retired_shows") == 102, len(set(fixture.get("show_ids", []))) == 102,
         policy.digest(fixture) == stage.get("fixture_identity", {}).get("fixture_identity_sha256"),
@@ -92,7 +100,7 @@ def validate(report, entry, scope, evidence, fixture):
         c.get("final_customer_failures") == failures,
         c.get("outcomes") == outcomes,
         stage.get("customer_outcome_gate", {}).get("pass") is False,
-        stage.get("ticket_target_issuance", {}).get("pass") is (run == WRITER_RUN),
+        stage.get("ticket_target_issuance", {}).get("pass") is (run in {WRITER_RUN, NOTIFICATION_RUN}),
         raw_counts.get("orders") == orders, raw_counts.get("expired_orders") == expired,
         all(raw_counts.get(k) == paid for k in PAID_COUNTS),
         all(raw_counts.get(k) == 0 for k in ZERO_COUNTS),
@@ -117,6 +125,19 @@ def validate(report, entry, scope, evidence, fixture):
     if (not all(required) or type(elapsed) not in (float, int)
             or not math.isfinite(elapsed) or not 0 <= elapsed <= 900):
         raise ValueError("Exact failed headroom and independently reconciled retained cohort required")
+    if run == NOTIFICATION_RUN:
+        from cce_notification_dedup_profile import contract as notification_contract
+        repair = evidence.get("restoration_repair", {})
+        saved_path = policy.ROOT / "tmp/adr0306-slots-bdb8c023179d/snapshot.private.json"
+        saved = policy.read(saved_path)["saved"]
+        if (scope.get("binding", {}).get("cce_notification_dedup_contract") != notification_contract()
+                or c.get("first_attempt_error_journeys") != 20 or c.get("recovered_journeys") != 20
+                or c.get("retry_attempts") != 20 or c.get("measurement_complete") is not True
+                or c.get("accounting_complete") is not True or c.get("shard_evidence_states") != ["final", "final"]
+                or repair.get("saved_snapshot_sha256") != policy.digest(saved)
+                or any(repair.get(k) is not True for k in ("saved_semantics_match", "owned_restore_model_match",
+                    "all_fixture_shows_retired", "extra_workers_removed", "credential_snapshots_removed"))):
+            raise ValueError("Exact notification cohort and independent original runtime repair required")
     if run == CONTEXT_RUN:
         from cce_measured_payment_context_profile import contract as context_contract
         if (scope.get("binding", {}).get("cce_measured_payment_context_contract") != context_contract()

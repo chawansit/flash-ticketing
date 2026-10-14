@@ -313,3 +313,32 @@ def test_dispatch_exception_preserves_failure_context_before_restore(area):
     with pytest.raises(ValueError, match="dispatch"):
         value.run(None, None, "global audit")
     assert calls.index("dispatch") < calls.index("diagnostics") < calls.index("restore")
+
+
+def test_cleanup_cause_survives_without_masking_other_cleanup(area, tmp_path):
+    import json
+
+    value, calls, failures, _ = area
+    value.stage.output = tmp_path
+    failures.update({"restore", "resource_cleanup"})
+    with pytest.raises(ValueError):
+        value.run(None, None, "global audit")
+    for name, cause in (("candidate_restore", "restore"), ("resource_cleanup", "resource_cleanup")):
+        evidence = json.loads((tmp_path / ("cleanup-" + name + "-failure.private.json")).read_text())
+        assert evidence["operation"] == name and evidence["failure_type"] == "ValueError"
+        assert "ValueError: " + cause in evidence["traceback"]
+    assert "namespace_cleanup" in calls and "stage_cleanup" in calls
+    assert {row["operation"] for row in value.record["cleanup_failure_evidence"]} == {"candidate_restore", "resource_cleanup"}
+
+
+def test_cleanup_diagnostic_collision_cannot_skip_resource_removal(area, tmp_path):
+    value, calls, failures, _ = area
+    value.stage.output = tmp_path
+    path = tmp_path / "cleanup-candidate_restore-failure.private.json"
+    path.write_text("original")
+    failures.add("restore")
+    with pytest.raises(ValueError):
+        value.run(None, None, "global audit")
+    assert path.read_text() == "original"
+    assert value.record["cleanup_failure_capture_errors"][0]["operation"] == "candidate_restore"
+    assert "namespace_cleanup" in calls and "resource_cleanup" in calls

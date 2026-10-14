@@ -3441,6 +3441,57 @@
       "finished_at_utc": "2026-10-14T04:50:52.028969+00:00",
       "paid_runs_started": 1,
       "result_sha256": "3d5e62a71e367cb340f62c74b652917c3297cc9da5f7f07a5838cac740064a1e"
+    },
+    {
+      "ledger": "bounded_cce_ticket_target__e2c695b954fb",
+      "authorization_id": "work-envelope-e2c695b954fb",
+      "envelope_sha256": "9050b125697ef1637b80bea0675759462dc6c44bd244787cced4e7a95bd025ce",
+      "binding_sha256": "73f5f1c60e3cfb0e9bfae1d38cc7897301c6a503e979274aca1091d07f7a92ca",
+      "plan_sha256": "42cd4503b378e6589b7314abd29a2366a8d7604639c11263ada865422cd7834c",
+      "profile": "cce_ticket_target",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 363.1720000000205,
+      "started_at_utc": "2026-10-14T06:55:12.343019+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-9f0a856a9d5b",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-14T07:01:14.839316+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "09a93d7ea90db82cd828aa6b1d510831a342c876a56464eb36bed91b50779282"
+    },
+    {
+      "ledger": "bounded_cce_ticket_target__88dc5ceb63ad",
+      "authorization_id": "work-envelope-88dc5ceb63ad",
+      "envelope_sha256": "01fbbe4e8498364a7c11a769547506cf95868099c7baa22b56898796c9a31c17",
+      "binding_sha256": "693ce45f2607c07e880ac6f622aa9997f7340a596900a1660c2d9c3cbd6447de",
+      "plan_sha256": "42cd4503b378e6589b7314abd29a2366a8d7604639c11263ada865422cd7834c",
+      "profile": "cce_ticket_target",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1701.594685760443,
+      "started_at_utc": "2026-10-14T07:08:25.271381+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-1c21f024998b",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-14T07:31:47.896059+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "cbb3eda22fa6990483b4be9c89bef9a9a69df6184ccc406f3801101b6c43a84c",
+      "initial_status": "RECOVERY_REQUIRED",
+      "initial_actual_elapsed_seconds": 1403.4689999999246,
+      "recovery": {
+        "decision": "ADR0313",
+        "evidence": "tmp/adr0151-1c21f024998b/headroom-recovery.private.json",
+        "sha256": "1c12d1a8a61ce4ec65d2fea27b633923b9c2d4c18dd21adcd0f33f0ff07a95b5",
+        "actual_elapsed_seconds": 298.12568576051854,
+        "capacity_qualified": false
+      }
     }
   ],
   "verified_aborts": {

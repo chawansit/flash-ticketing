@@ -95,3 +95,44 @@ def test_candidate_rejects_load_budget_baseline_and_image_drift(change):
         g["notification_dedup_receipt_sha256"] = "0" * 64
     with patch.object(profile, "image", return_value=prepared()), pytest.raises(ValueError):
         profile.selected(g)
+
+
+def test_capture_builds_adr0322_binding_and_worker_runtime_before_dispatch(monkeypatch):
+    from types import SimpleNamespace
+
+    import cce_worker_transition as transition
+    g = headroom.runtime_view(goal())
+    contract = CommittedStatusContract(arm="candidate", identity=profile.pins)
+    obj = transition.WorkerTransition.__new__(transition.WorkerTransition)
+    obj.decision, obj.normal_decision, obj.arm = "ADR0322", "ADR0322-bootstrap", "correction"
+    obj.normal_selected = native.identity.specification(obj.normal_decision)
+    obj.selected = native.identity.specification(obj.decision)
+    rows = []
+    for role, count in obj.normal_selected["counts"].items():
+        env = {**contract.settings(role), "DATABASE_URL": "postgresql://ticketing:test@pgbouncer:5432/ticketing"}
+        if role == "simulator":
+            env["API_URL"] = "http://load-balancer:8000"
+        for i in range(count):
+            rows.append({"Id": f"{role}-{i}", "Image": obj.normal_selected["image_id"],
+                         "State": {"Running": True}, "HostConfig": {}, "Mounts": [],
+                         "Config": {"Labels": {"com.docker.compose.service": role},
+                                    "Env": [f"{k}={v}" for k, v in env.items()]}})
+    obj.session = SimpleNamespace(config={"primary": {"private_ipv4": "10.1.1.1"}}, call=lambda *args: rows)
+    obj.goal, obj.run, obj.record = g, "adr0151-123456abcdef", {}
+    obj.worker_rows, obj.worker_runtime = [], None
+    obj.service, obj.deployment = {}, SimpleNamespace(run=obj.run)
+    obj.guard = SimpleNamespace(key="bounded_cce_ticket_target__123456abcdef",
+                                binding={"cce_headroom_contract": headroom.contract()})
+    obj.read_metrics = lambda _: {}
+    obj.persist = obj.failure_persist = obj.checkpoint = lambda *args: None
+    bindings = []
+    obj.comparison_persist = bindings.append
+    monkeypatch.setattr(transition.Transition, "capture", lambda _: None)
+    monkeypatch.setattr(transition.cce, "api_environment", lambda *args, **kwargs: {"verified": "api"})
+    monkeypatch.setattr(transaction, "active", lambda: g)
+    monkeypatch.setattr(transition.comparison, "arm_binding", lambda *args: pytest.fail("legacy branch selected"))
+    obj.capture()
+    assert bindings[0]["decision"] == "ADR0322" and bindings[0]["comparison_arm"] == "correction"
+    assert bindings[0]["pooler_server_connections"] == 24
+    assert obj.worker_runtime is not None and obj.worker_runtime.decision == "ADR0322"
+    assert len([item for item in obj.worker_runtime.manifests if item["kind"] == "Pod"]) == 15
