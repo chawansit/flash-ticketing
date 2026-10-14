@@ -44,6 +44,11 @@ NOTIFICATION_LEDGER = "bounded_cce_ticket_target__88dc5ceb63ad"
 NOTIFICATION_RESULT = "cbb3eda22fa6990483b4be9c89bef9a9a69df6184ccc406f3801101b6c43a84c"
 
 
+EXPLICIT_RUN = "adr0151-c54f25a7ba82"
+EXPLICIT_LEDGER = "bounded_cce_ticket_target__e2efadbfaac3"
+EXPLICIT_RESULT = "0063b73eb56e44b535b703573637ede4faf3d15a66dfee74483c11c92f2dcaff"
+
+
 def case(run):
     if run == RUN:
         return RUN, LEDGER, RESULT, ORDERS, PAID, EXPIRED, 26636, 2583, 1381, {"fulfilled": 26636, "order_http_503": 1305, "payment_http_503": 76}
@@ -61,6 +66,8 @@ def case(run):
         return CONTEXT_RUN, CONTEXT_LEDGER, CONTEXT_RESULT, 30280, 30280, 0, 30280, 320, 0, {"fulfilled": 30280}
     if run == NOTIFICATION_RUN:
         return NOTIFICATION_RUN, NOTIFICATION_LEDGER, NOTIFICATION_RESULT, 30581, 30581, 0, 30581, 19, 0, {"fulfilled": 30581}
+    if run == EXPLICIT_RUN:
+        return EXPLICIT_RUN, EXPLICIT_LEDGER, EXPLICIT_RESULT, 30587, 30587, 0, 30587, 13, 0, {"fulfilled": 30587}
     raise ValueError("Unknown failed headroom recovery case")
 GATES = ("runtime_restored", "runtime_stable", "namespace_absent", "helpers_absent",
          "secondary_empty", "generator_idle", "queues_zero")
@@ -100,7 +107,7 @@ def validate(report, entry, scope, evidence, fixture):
         c.get("final_customer_failures") == failures,
         c.get("outcomes") == outcomes,
         stage.get("customer_outcome_gate", {}).get("pass") is False,
-        stage.get("ticket_target_issuance", {}).get("pass") is (run in {WRITER_RUN, NOTIFICATION_RUN}),
+        stage.get("ticket_target_issuance", {}).get("pass") is (run in {WRITER_RUN, NOTIFICATION_RUN, EXPLICIT_RUN}),
         raw_counts.get("orders") == orders, raw_counts.get("expired_orders") == expired,
         all(raw_counts.get(k) == paid for k in PAID_COUNTS),
         all(raw_counts.get(k) == 0 for k in ZERO_COUNTS),
@@ -125,6 +132,14 @@ def validate(report, entry, scope, evidence, fixture):
     if (not all(required) or type(elapsed) not in (float, int)
             or not math.isfinite(elapsed) or not 0 <= elapsed <= 900):
         raise ValueError("Exact failed headroom and independently reconciled retained cohort required")
+    if run == EXPLICIT_RUN:
+        from cce_explicit_start_profile import contract as explicit_contract
+        if (scope.get("binding", {}).get("cce_explicit_start_contract") != explicit_contract()
+                or c.get("first_attempt_error_journeys") != 74 or c.get("recovered_journeys") != 74
+                or c.get("retry_attempts") != 84 or c.get("measurement_complete") is not True
+                or c.get("accounting_complete") is not True
+                or c.get("shard_evidence_states") != ["final", "final"]):
+            raise ValueError("Exact explicit-start customer and complete shard evidence required")
     if run == NOTIFICATION_RUN:
         from cce_notification_dedup_profile import contract as notification_contract
         repair = evidence.get("restoration_repair", {})

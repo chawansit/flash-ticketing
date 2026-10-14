@@ -327,3 +327,39 @@ def test_notification_failed_cleanup_requires_fresh_financial_and_original_runti
         assert report == original and report["pass"] is False
     else:
         with pytest.raises(ValueError): r.validate(report, entry, scope, evidence, fixture)
+
+
+@pytest.mark.parametrize("fault", [None, "payment_loss", "hidden_drop", "capacity_claim", "missing_shard"])
+def test_explicit_start_failed_load_closes_only_with_actual_cohort(proof, monkeypatch, fault):
+    import cce_explicit_start_profile as profile
+    report, entry, scope, evidence, fixture = copy.deepcopy(proof)
+    monkeypatch.setattr(profile, "contract", lambda: {"decision": "ADR0323"})
+    scope["binding"]["cce_explicit_start_contract"] = profile.contract()
+    binding_sha = p.digest(scope["binding"])
+    report.update(run=r.EXPLICIT_RUN, binding_sha256=binding_sha)
+    stage = report["paid_stage"]
+    stage["ticket_target_issuance"] = {"pass": True}
+    stage["customer"].update(dispatched=30587, completed=30587, fulfilled=30587, generator_drops=13,
+        final_customer_failures=0, outcomes={"fulfilled": 30587}, first_attempt_error_journeys=74,
+        recovered_journeys=74, retry_attempts=84, measurement_complete=True,
+        accounting_complete=True, shard_evidence_states=["final", "final"])
+    for counts in (stage["financial"]["counts"], evidence["fresh_financial"]["counts"]):
+        counts.update({k: 30587 for k in r.PAID_COUNTS})
+        counts.update(orders=30587, expired_orders=0)
+    evidence["fresh_financial"]["counts"].update(expected=30587, expected_paid=30587)
+    for relationships in (stage["financial"]["relationships"], evidence["fresh_financial"]["relationships"]):
+        relationships["unique_issued_tickets"] = 30587
+    sha = p.digest(report); monkeypatch.setattr(r, "EXPLICIT_RESULT", sha)
+    entry.update(ledger=r.EXPLICIT_LEDGER, result_sha256=sha, binding_sha256=binding_sha)
+    scope.update(active_run=r.EXPLICIT_RUN, cce_paid_result_sha256=sha)
+    evidence.update(run=r.EXPLICIT_RUN, ledger=r.EXPLICIT_LEDGER,
+                    original_result_sha256=sha, binding_sha256=binding_sha)
+    if fault == "payment_loss": evidence["fresh_financial"]["counts"]["tickets"] -= 1
+    elif fault == "hidden_drop": stage["customer"]["generator_drops"] = 0
+    elif fault == "capacity_claim": evidence["capacity_qualified"] = True
+    elif fault == "missing_shard": stage["customer"]["shard_evidence_states"][0] = "missing"
+    if fault is None:
+        assert r.validate(report, entry, scope, evidence, fixture)
+        assert report["pass"] is False and not evidence["capacity_qualified"]
+    else:
+        with pytest.raises(ValueError): r.validate(report, entry, scope, evidence, fixture)
