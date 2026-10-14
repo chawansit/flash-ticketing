@@ -300,3 +300,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0317: Isolate foreground backend slots at fixed budget](0317-isolate-foreground-backend-slots-at-fixed-budget.md)
 
 - [ADR0318: Rebalance isolated backend slots toward fulfillment](0318-rebalance-isolated-backends-toward-fulfillment.md)
+
+- [ADR0319: Apply post-lock payment context to the measured shared image](0319-apply-post-lock-payment-context-to-measured-image.md) - One-method candidate locally tested and SWR/ECS source-verified; paid comparison pending.

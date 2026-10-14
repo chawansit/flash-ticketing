@@ -10,6 +10,52 @@ from urllib.request import urlopen
 import observe_two_host_pipeline as observer
 
 
+def collect_api_metrics(module):
+    """One attempt per endpoint; retain successes and sanitized failure provenance."""
+    from urllib.error import HTTPError
+
+    readings, failures = {}, []
+    for index, address in enumerate(module.api_replicas()):
+        try:
+            readings[address] = module.api_metrics(address)
+        except (OSError, ValueError) as exc:
+            failure = {"endpoint_index": index, "error_class": type(exc).__name__}
+            if isinstance(exc, HTTPError):
+                failure["http_status"] = exc.code
+                exc.close()
+            failures.append(failure)
+    result = {"api_replicas": readings}
+    if failures:
+        result.update(api_metrics_error=failures[0]["error_class"], api_metrics_failures=failures)
+    return result
+
+
+def install_metrics_collection(module):
+    """Replace just the hash-verified frozen observer's endpoint comprehension."""
+    import ast
+    import inspect
+
+    tree = ast.parse(inspect.getsource(module.main))
+    expected = ast.parse('result["api_replicas"] = '
+                         '{address: api_metrics(address) for address in api_replicas()}').body[0]
+    replacements = 0
+    class Collection(ast.NodeTransformer):
+        def visit_Assign(self, node):
+            nonlocal replacements
+            if ast.dump(node) == ast.dump(expected):
+                replacements += 1
+                replacement = ast.parse('result.update(_native_metric_collection())').body[0]
+                return ast.copy_location(replacement, node)
+            return node
+    updated = Collection().visit(tree)
+    if replacements != 1:
+        raise ValueError("Exactly one frozen API collection statement required")
+    module._native_metric_collection = lambda: collect_api_metrics(module)
+    ast.fix_missing_locations(updated)
+    # The frozen source was hash-verified before loading; only the exact collection AST is replaced.
+    exec(compile(updated, inspect.getsourcefile(module.main), "exec"), module.__dict__)  # noqa: S102
+
+
 def validate_receipts(value):
     """These are native admission receipts, never Docker inventory entries."""
     if (
@@ -233,6 +279,7 @@ def main(argv=None):
 
     def adapter(module, *params, **kwargs):
         original(module, *params, **kwargs)  # Retain workers, diagnostics, budgets and metric parsing.
+        install_metrics_collection(module)
         result = install(module, value, hourly=args.hourly,
                          observer_seconds=4200 if args.early_hourly_bootstrap else 3780,
                          runtime_cohort=runtime_cohort)

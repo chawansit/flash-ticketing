@@ -51,8 +51,13 @@ def validate_binding(binding):
 def summarize(rows, receipts, start, end, *, hourly=False):
     try:
         starts = native.validate_receipts(receipts)
+        if any(row.get("api_metrics_error") or set(row.get("api_replicas", {})) != set(starts)
+               for row in rows):
+            raise CaptureError("endpoint_missing")
         coverage = pipeline.summarize_endpoint_distribution(
             rows, set(starts), offered_start_utc=start, offered_end_utc=end, hourly=hourly)
+    except CaptureError:
+        raise
     except (ValueError, KeyError, TypeError) as error:
         raise CaptureError("window_or_receipt_invalid") from error
     if len(rows) > (4400 if hourly else 600):
