@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-14",
   "branch": "codex/customer-recovery-2026-10-10",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "ADR0323:30587 dispatched/fulfilled,13 generator drops,74 initial-error journeys all recovered in84 retries,0 final failures. Conservative100.86tickets/s observed in five minutes; zero-drop gate failed, not capacity-qualified. Actual30587-payment cohort independently reconciled and original runtime restored; no hourly run.",
+  "status": "ADR0324 local correction implemented, tested and immutably published; no new cloud deployment/load. Latest ADR0323 load remains failed on13 drops, with30587 actual payments reconciled and original runtime restored.",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -97,7 +97,8 @@
     "ADR0285 fresh pipeline-off/on84journeys/s300s pair passed/restored25200terminal tickets each,0drops/initial/final errors/doubles/payment loss; complete bounded audits and independent stats/14workerCPU. Mixed performance;defaultoff retained, no capacity increase/hourly qualification claimed.",
     "ADR0298 same-image comparison: both arms passed and restored, each with25,200 unique paid-and-issued journeys, zero drops/final customer failures, zero double-booking/payment loss and full queue drain. Consumer acquisitions fell75,603 to50,405 (33.3%). Candidate had four recovered initial payment503s (0.01587%);100/s and hourly qualification remain unproven.",
     "ADR0322 published exact shared image and enabled bounded notification suppression only on six native consumers. Five-minute102/s comparison observed30291in-window/30047conservative tickets;19drops block qualification. Fresh actual-cohort audit reconciled30581payments/tickets, both safety payments, zero doubles/loss/queues. Original failure preserved; FAILED_RESTORED after independent owned runtime repair. No new hourly run.",
-    "ADR0323 removed redundant driver BEGIN while preserving explicit transactions. Journey p95 improved4.519s to3.061s; conservative tickets30047to30258 in300s. Initial errors increased20to74, all recovered;13drops block qualification. All30587payments/tickets and both safety payments reconciled; no doubles/loss/queues and full restoration. Late slot capture115events includes537.414ms COMMIT; idle bridge300s separately reproduces stale-client OperationalError locally. No hourly escalation or accepted capacity gain."
+    "ADR0323 removed redundant driver BEGIN while preserving explicit transactions. Journey p95 improved4.519s to3.061s; conservative tickets30047to30258 in300s. Initial errors increased20to74, all recovered;13drops block qualification. All30587payments/tickets and both safety payments reconciled; no doubles/loss/queues and full restoration. Late slot capture115events includes537.414ms COMMIT; idle bridge300s separately reproduces stale-client OperationalError locally. No hourly escalation or accepted capacity gain.",
+    "ADR0324:67 unit and65 exact-candidate PostgreSQL/Redis integration checks passed;1 existing integration skip. Three paid events used3actual COMMITs at batch1 versus1at batch4 in both driver modes; rollback, replay/restart, cache authorization and Kafka offset boundaries verified. Only2of22modules changed; no cloud load/capacity claim."
   ],
   "unresolved": "100 successful paid-and-issued tickets/s and300000 inside one hour remain unqualified. ADR0298 short candidate issued25,102 tickets within300 seconds and25,200 after drain. Consumer acquisitions fell33.3%, but four initial payment503s required recovery. Near-failure WAL/DataFileRead observations and API holders narrow the investigation; precise query/backend attribution and underlying storage cause remain unproven. Prior ADR0295 failed hourly qualification remains failed.",
   "next_on_resume": "No active cloud run remains. Continue ADR0303 identity-bound runner wiring and fresh control/candidate comparison. The guarded correction is locally tested but inactive.",
@@ -27614,5 +27615,20 @@
       "actual_elapsed_seconds": 77.93700000003446,
       "capacity_qualified": false
     }
+  },
+  "latest_engineering_result": "docs/capacity/cce/fulfillment-transaction-batching-local-2026-10-14.json",
+  "next": "Bind the exact candidate into the existing bounded comparison and repeat102/s300s with unchanged resources and gates. No hourly or escalation without a full short-stage pass.",
+  "adr0324_fulfillment_transaction_batching": {
+    "decision": "ADR0324",
+    "source_identity_sha256": "0087ce3078532a8fd05b668c4d286988a3165d95295c51ebbf2c60d4a702ce0d",
+    "registry_manifest_digest": "sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+    "image_receipt": "docs/capacity/cce/fulfillment-transaction-batching-local-2026-10-14.json",
+    "feature_default": 1,
+    "candidate_batch_size": 4,
+    "cloud_deployed": false,
+    "cloud_load_started": false,
+    "capacity_improvement_measured": false,
+    "runner_integration_complete": false,
+    "reference_result_sha256": "0063b73eb56e44b535b703573637ede4faf3d15a66dfee74483c11c92f2dcaff"
   }
 }

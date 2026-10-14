@@ -751,65 +751,125 @@ def consume_event(db, cache, envelope, order_status_projector=None):
 
 @measured_consumer_event
 def _consume_event_transaction(db, cache, envelope, *, capture_status=False):
+    # Keep malformed events off the database on the default single-event path.
+    if envelope["schema_version"] != 1:
+        raise ValueError("Unsupported event schema")
+    _kind, _data = envelope["event_type"], envelope["payload"]
+    with db.transaction() as conn:
+        return _apply_consumer_event(conn, cache, envelope, capture_status=capture_status)
+
+
+def _apply_consumer_event(conn, cache, envelope, *, capture_status=False):
     if envelope["schema_version"] != 1:
         raise ValueError("Unsupported event schema")
     kind, data = envelope["event_type"], envelope["payload"]
-    with db.transaction() as conn:
-        inserted = conn.execute(
-            """INSERT INTO consumer_inbox VALUES ('fulfillment',%s)
-            ON CONFLICT DO NOTHING RETURNING event_id""",
-            (envelope["event_id"],),
-        ).fetchone()
-        if not inserted:
-            return
-        if kind == "SeatsChanged":
-            if "seats" in data:
-                request_refresh(conn, data["event_id"], data["seats"])
-            else:
-                request_refresh(conn, data["event_id"])
-        elif kind == "OrderPaid":
-            order = conn.execute(
-                "SELECT * FROM orders WHERE id=%s FOR UPDATE", (data["order_id"],)
-            ).fetchone()
-            if order["status"] not in {"PAID", "FULFILLED"}:
-                raise ValueError("OrderPaid has no paid order")
-            booking_query = (
-                "SELECT b.id,b.seat_id,t.id AS ticket_id FROM bookings b "
-                "LEFT JOIN tickets t ON t.booking_id=b.id WHERE b.order_id=%s ORDER BY b.seat_id"
-                if capture_status else "SELECT id FROM bookings WHERE order_id=%s")
-            bookings = conn.execute(booking_query, (order["id"],)).fetchall()
-            captured_tickets = []
-            for booking in bookings:
-                result = conn.execute(
-                    "INSERT INTO tickets(id,booking_id) VALUES (%s,%s) ON CONFLICT DO NOTHING"
-                    + (" RETURNING id" if capture_status else ""),
-                    (uuid4(), booking["id"]),
-                )
-                if capture_status:
-                    inserted = result.fetchone()
-                    identifier = inserted["id"] if inserted else booking["ticket_id"]
-                    if identifier is not None:
-                        captured_tickets.append({"id": identifier, "seat_id": booking["seat_id"]})
-            conn.execute("UPDATE orders SET status='FULFILLED' WHERE id=%s", (order["id"],))
-            event(conn, order["id"], "TicketsIssued", {"order_id": str(order["id"])})
-            if capture_status and len(captured_tickets) == len(bookings) and captured_tickets:
-                # Return exits the context first; a commit failure cannot release this snapshot.
-                return {**order, "status": "FULFILLED", "tickets": captured_tickets}
-        elif kind == "RefundRequested":
-            # Simulator's financial effect is this durable row. A real gateway requires
-            # a separate idempotent external dispatch/reconciliation adapter.
-            conn.execute("SELECT id FROM orders WHERE id=%s FOR UPDATE", (data["order_id"],))
-            conn.execute(
-                "UPDATE refund_requests SET status='REFUNDED' WHERE payment_id=%s", (data["payment_id"],)
-            )
-            conn.execute(
-                "UPDATE orders SET status='REFUNDED' WHERE id=%s AND status='REFUND_PENDING'",
-                (data["order_id"],),
-            )
-        elif kind == "TicketsIssued":
-            log.info("development_notification", extra={"fields": data})
+    inserted = conn.execute(
+        """INSERT INTO consumer_inbox VALUES ('fulfillment',%s)
+        ON CONFLICT DO NOTHING RETURNING event_id""",
+        (envelope["event_id"],),
+    ).fetchone()
+    if not inserted:
+        return
+    if kind == "SeatsChanged":
+        if "seats" in data:
+            request_refresh(conn, data["event_id"], data["seats"])
         else:
-            raise ValueError("Unknown event type")
+            request_refresh(conn, data["event_id"])
+    elif kind == "OrderPaid":
+        order = conn.execute(
+            "SELECT * FROM orders WHERE id=%s FOR UPDATE", (data["order_id"],)
+        ).fetchone()
+        if order["status"] not in {"PAID", "FULFILLED"}:
+            raise ValueError("OrderPaid has no paid order")
+        booking_query = (
+            "SELECT b.id,b.seat_id,t.id AS ticket_id FROM bookings b "
+            "LEFT JOIN tickets t ON t.booking_id=b.id WHERE b.order_id=%s ORDER BY b.seat_id"
+            if capture_status else "SELECT id FROM bookings WHERE order_id=%s")
+        bookings = conn.execute(booking_query, (order["id"],)).fetchall()
+        captured_tickets = []
+        for booking in bookings:
+            result = conn.execute(
+                "INSERT INTO tickets(id,booking_id) VALUES (%s,%s) ON CONFLICT DO NOTHING"
+                + (" RETURNING id" if capture_status else ""),
+                (uuid4(), booking["id"]),
+            )
+            if capture_status:
+                inserted = result.fetchone()
+                identifier = inserted["id"] if inserted else booking["ticket_id"]
+                if identifier is not None:
+                    captured_tickets.append({"id": identifier, "seat_id": booking["seat_id"]})
+        conn.execute("UPDATE orders SET status='FULFILLED' WHERE id=%s", (order["id"],))
+        event(conn, order["id"], "TicketsIssued", {"order_id": str(order["id"])})
+        if capture_status and len(captured_tickets) == len(bookings) and captured_tickets:
+            # Return exits the context first; a commit failure cannot release this snapshot.
+            return {**order, "status": "FULFILLED", "tickets": captured_tickets}
+    elif kind == "RefundRequested":
+        # Simulator's financial effect is this durable row. A real gateway requires
+        # a separate idempotent external dispatch/reconciliation adapter.
+        conn.execute("SELECT id FROM orders WHERE id=%s FOR UPDATE", (data["order_id"],))
+        conn.execute(
+            "UPDATE refund_requests SET status='REFUNDED' WHERE payment_id=%s", (data["payment_id"],)
+        )
+        conn.execute(
+            "UPDATE orders SET status='REFUNDED' WHERE id=%s AND status='REFUND_PENDING'",
+            (data["order_id"],),
+        )
+    elif kind == "TicketsIssued":
+        log.info("development_notification", extra={"fields": data})
+    else:
+        raise ValueError("Unknown event type")
+
+
+@measured_consumer_event
+def _consume_group_event(conn, cache, envelope, *, capture_status=False):
+    return _apply_consumer_event(conn, cache, envelope, capture_status=capture_status)
+
+
+def _consume_fulfillment_group(db, cache, envelopes, order_status_projector):
+    if len(envelopes) == 1:
+        consume_event(db, cache, envelopes[0], order_status_projector)
+        return
+    captures = []
+    for envelope in envelopes:
+        capture = None
+        if (order_status_projector is not None and order_status_projector.capture_committed is True
+                and envelope["event_type"] == "OrderPaid"):
+            capture = order_status_projector.begin_capture(envelope["payload"]["order_id"])
+        captures.append(capture)
+    order_ids = sorted({UUID(str(e["payload"]["order_id"])) for e in envelopes
+                        if e["event_type"] in {"OrderPaid", "RefundRequested"}})
+    snapshots = []
+    with consumer_phase("fulfillment_batch"), db.transaction() as conn:
+        if order_ids:
+            conn.execute("SELECT id FROM orders WHERE id=ANY(%s::uuid[]) ORDER BY id FOR UPDATE", (order_ids,)).fetchall()
+        for envelope, capture in zip(envelopes, captures, strict=True):
+            snapshots.append(_consume_group_event(conn, cache, envelope, capture_status=capture is not None))
+    # The entire group committed and released its connection before cache work.
+    if order_status_projector is not None:
+        for envelope, snapshot, capture in zip(envelopes, snapshots, captures, strict=True):
+            if snapshot is not None and capture is not None:
+                order_status_projector.publish_committed(snapshot, *capture)
+            else:
+                order_status_projector.refresh(envelope["payload"]["order_id"], event_type=envelope["event_type"])
+
+
+def consume_fulfillment_events(db, cache, envelopes, order_status_projector=None, *, limit=1):
+    if type(limit) is not int or not 1 <= limit <= 4:
+        raise ValueError("Fulfillment transaction batch must be an integer between 1 and 4")
+    group, orders = [], set()
+    for envelope in envelopes:
+        if (not isinstance(envelope, dict) or envelope.get("schema_version") != 1
+                or envelope.get("event_type") not in BUSINESS_EVENTS
+                or not isinstance(envelope.get("payload"), dict)):
+            raise ValueError("Validated fulfillment event required")
+        order_id = UUID(str(envelope["payload"].get("order_id")))
+        if group and (len(group) == limit or order_id in orders):
+            _consume_fulfillment_group(db, cache, group, order_status_projector)
+            group, orders = [], set()
+        group.append(envelope)
+        orders.add(order_id)
+    if group:
+        _consume_fulfillment_group(db, cache, group, order_status_projector)
 
 
 @measured_work("consume_refresh_batch")
@@ -912,7 +972,7 @@ def create_event_consumer(settings, role):
     )
 
 
-def consume_lane_events(db, cache, envelopes, order_status_projector=None, *, lane="mixed"):
+def consume_lane_events(db, cache, envelopes, order_status_projector=None, *, lane="mixed", fulfillment_batch_size=1):
     if lane not in CONSUMER_LANES:
         raise ValueError("Unknown consumer lane")
     if lane != "mixed":
@@ -929,6 +989,13 @@ def consume_lane_events(db, cache, envelopes, order_status_projector=None, *, la
                 selected.append(envelope)
         envelopes = selected
     if not envelopes:
+        return
+    if type(fulfillment_batch_size) is not int or not 1 <= fulfillment_batch_size <= 4:
+        raise ValueError("Fulfillment transaction batch must be an integer between 1 and 4")
+    if fulfillment_batch_size > 1:
+        if lane != "fulfillment":
+            raise ValueError("Fulfillment transaction batching requires the fulfillment lane")
+        consume_fulfillment_events(db, cache, envelopes, order_status_projector, limit=fulfillment_batch_size)
         return
     # Keep mixed-mode calling conventions and the accepted batching implementation.
     if order_status_projector is None:
@@ -950,14 +1017,18 @@ def dead_letter_message(db, message):
         )
 
 
-def consume_kafka_messages(db, cache, messages, order_status_projector=None, *, lane="mixed"):
+def consume_kafka_messages(db, cache, messages, order_status_projector=None, *, lane="mixed", fulfillment_batch_size=1):
     if lane not in CONSUMER_LANES:
         raise ValueError("Unknown consumer lane")
+    if (type(fulfillment_batch_size) is not int or not 1 <= fulfillment_batch_size <= 4
+            or (fulfillment_batch_size > 1 and lane != "fulfillment")):
+        raise ValueError("Valid fulfillment-only transaction batch required")
     EVENT_CONSUMER_BATCH_SIZE.observe(len(messages))
+    batch_kwargs = {"fulfillment_batch_size": fulfillment_batch_size} if fulfillment_batch_size != 1 else {}
     for attempt in range(5):
         try:
             envelopes = [json.loads(message.value) for message in messages]
-            consume_lane_events(db, cache, envelopes, order_status_projector, lane=lane)
+            consume_lane_events(db, cache, envelopes, order_status_projector, lane=lane, **batch_kwargs)
             return
         except Exception as exc:
             observe_consumer_batch_error(exc)
@@ -972,7 +1043,7 @@ def consume_kafka_messages(db, cache, messages, order_status_projector=None, *, 
         try:
             envelope = json.loads(message.value)
             if lane != "mixed":
-                consume_lane_events(db, cache, [envelope], order_status_projector, lane=lane)
+                consume_lane_events(db, cache, [envelope], order_status_projector, lane=lane, **batch_kwargs)
             elif order_status_projector is None:
                 consume_event(db, cache, envelope)
             else:
@@ -981,11 +1052,16 @@ def consume_kafka_messages(db, cache, messages, order_status_projector=None, *, 
             dead_letter_message(db, message)
             log.exception("dead_letter")
 
-def consume_iteration(consumer, db, cache, batch_size, order_status_projector=None, *, lane="mixed"):
+def consume_iteration(consumer, db, cache, batch_size, order_status_projector=None, *, lane="mixed", fulfillment_batch_size=1):
     """Advance only this group after its selected events have durable outcomes."""
     if lane not in CONSUMER_LANES:
         raise ValueError("Unknown consumer lane")
+    if (type(fulfillment_batch_size) is not int or not 1 <= fulfillment_batch_size <= 4
+            or (fulfillment_batch_size > 1 and lane != "fulfillment")):
+        raise ValueError("Valid fulfillment-only transaction batch required")
     handler_kwargs = {}
+    if fulfillment_batch_size != 1:
+        handler_kwargs["fulfillment_batch_size"] = fulfillment_batch_size
     if order_status_projector is not None:
         handler_kwargs["order_status_projector"] = order_status_projector
     if lane != "mixed":
@@ -1237,7 +1313,9 @@ def main():
                 else:
                     work = consume_iteration(
                         consumer, db, cache, settings.consumer_batch_size,
-                        order_status_projector=order_status_projector, lane=consumer_lane
+                        order_status_projector=order_status_projector, lane=consumer_lane,
+                        **({"fulfillment_batch_size": settings.fulfillment_transaction_batch_size}
+                           if consumer_lane == "fulfillment" and settings.fulfillment_transaction_batch_size > 1 else {})
                     )
                 if not work:
                     time.sleep(0.1)

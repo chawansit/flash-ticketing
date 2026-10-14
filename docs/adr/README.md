@@ -310,3 +310,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0322: Bound redundant ticket-notification reads](0322-bound-redundant-ticket-notification-reads.md) - Measured short comparison improved ticket latency but failed zero-drop gate; independently reconciled and restored.
 
 - [ADR0323: Remove duplicate driver transaction starts](0323-remove-duplicate-driver-transaction-starts.md) - Default-off experiment: latency improved, but 13 generator drops failed the short comparison; actual 30,587 payments reconciled and runtime restored. Late commit stalls remain.
+
+- [ADR0324: Bound fulfillment transaction batches](0324-bound-fulfillment-transaction-batches.md) - Default-one experiment: local atomicity/replay checks passed and exact image published; cloud comparison and capacity improvement remain unmeasured.

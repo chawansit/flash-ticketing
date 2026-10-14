@@ -50,6 +50,7 @@ class Settings:
     reservation_writer_batch_size: int = int(os.getenv("RESERVATION_WRITER_BATCH_SIZE", "1"))
     publisher_batch_size: int = int(os.getenv("PUBLISHER_BATCH_SIZE", "32"))
     event_consumer_separation: bool = os.getenv("EVENT_CONSUMER_SEPARATION", "0") == "1"
+    fulfillment_transaction_batch_size: int = int(os.getenv("FULFILLMENT_TRANSACTION_BATCH_SIZE", "1"))
     consumer_batch_size: int = int(os.getenv("CONSUMER_BATCH_SIZE", "100"))
     consumer_batch_wait_ms: int = int(os.getenv("CONSUMER_BATCH_WAIT_MS", "10"))
     simulator_dispatch_mode: str = os.getenv("SIMULATOR_DISPATCH_MODE", "batch")
@@ -160,6 +161,10 @@ class Settings:
             raise RuntimeError("RESERVATION_WRITER_BATCH_SIZE must be between 1 and 8")
         if not 1 <= self.publisher_batch_size <= 100:
             raise RuntimeError("PUBLISHER_BATCH_SIZE must be between 1 and 100")
+        if type(self.fulfillment_transaction_batch_size) is not int or not 1 <= self.fulfillment_transaction_batch_size <= 4:
+            raise RuntimeError("FULFILLMENT_TRANSACTION_BATCH_SIZE must be an integer between 1 and 4")
+        if self.fulfillment_transaction_batch_size > 1 and not self.event_consumer_separation:
+            raise RuntimeError("FULFILLMENT_TRANSACTION_BATCH_SIZE requires EVENT_CONSUMER_SEPARATION")
         if not 1 <= self.consumer_batch_size <= 100:
             raise RuntimeError("CONSUMER_BATCH_SIZE must be between 1 and 100")
         if not 1 <= self.consumer_batch_wait_ms <= 100:
