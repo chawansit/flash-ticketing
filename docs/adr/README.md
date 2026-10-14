@@ -314,3 +314,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0324: Bound fulfillment transaction batches](0324-bound-fulfillment-transaction-batches.md) - Default-one experiment: five-minute comparison passed at 100.90 paid-issued tickets/s, no drops/final failures; hourly qualification pending and runtime restored.
 
 - [ADR0325: Transfer ticketing patterns to the customer stack](0325-transfer-ticketing-patterns-to-customer-stack.md) - Proposed language-neutral customer contracts and acceptance checklist; no customer port or deployment implemented.
+
+- [ADR0326: Compare the upgraded RDS at unchanged ticketing load](0326-compare-upgraded-rds-at-fixed-load.md) - Five-minute upgraded-RDS repeat passed at 100.89 paid-issued tickets/s with zero customer errors; runtime restored; 102/s hourly profile pending.
