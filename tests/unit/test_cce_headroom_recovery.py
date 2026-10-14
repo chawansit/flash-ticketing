@@ -204,3 +204,35 @@ def test_partition_closure_requires_actual_payment_and_pooler_proof(proof,monkey
         assert report["pass"] is False and evidence["capacity_qualified"] is False
     else:
         with pytest.raises(ValueError):r.validate(report,entry,scope,evidence,fixture)
+
+
+@pytest.mark.parametrize("fault",[None,"paid_but_unconfirmed","expired","pooler"])
+def test_rebalance_closure_preserves_paid_customer_failure(proof,monkeypatch,fault):
+    from cce_backend_partition import ORIGINAL_CONFIG, POOLER_IMAGE
+    report,entry,scope,evidence,fixture=copy.deepcopy(proof)
+    report["run"]=r.REBALANCE_RUN
+    stage=report["paid_stage"]
+    stage["customer"].update(dispatched=25423,completed=25423,fulfilled=20710,
+        generator_drops=5177,final_customer_failures=4713,outcomes=r.case(r.REBALANCE_RUN)[-1],
+        measurement_complete=True,accounting_complete=True,shard_evidence_states=["final","final"])
+    stage["financial"]["counts"].update({k:22869 for k in r.PAID_COUNTS})
+    stage["financial"]["counts"].update(orders=25064,expired_orders=2195)
+    stage["financial"]["relationships"]["unique_issued_tickets"]=22869
+    fresh=evidence["fresh_financial"]
+    fresh["counts"].update({k:22869 for k in r.PAID_COUNTS})
+    fresh["counts"].update(orders=25064,expected=25064,expected_paid=22869,expired_orders=2195)
+    fresh["relationships"]["unique_issued_tickets"]=22869
+    evidence["pooler_rollback"]={"configuration_sha256":ORIGINAL_CONFIG,"image":POOLER_IMAGE,
+        "aliases_removed":True,"native_rollback_verified":True,"fresh_live_verified":True}
+    if fault=="paid_but_unconfirmed":stage["customer"]["fulfilled"]=22869
+    sha=p.digest(report);monkeypatch.setattr(r,"REBALANCE_RESULT",sha)
+    entry.update(ledger=r.REBALANCE_LEDGER,result_sha256=sha)
+    scope.update(active_run=r.REBALANCE_RUN,cce_paid_result_sha256=sha)
+    evidence.update(run=r.REBALANCE_RUN,ledger=r.REBALANCE_LEDGER,original_result_sha256=sha)
+    if fault=="expired":fresh["counts"]["expired_orders"]-=1
+    if fault=="pooler":evidence["pooler_rollback"]["aliases_removed"]=False
+    if fault is None:
+        assert r.validate(report,entry,scope,evidence,fixture)
+        assert stage["customer"]["final_customer_failures"]==4713
+    else:
+        with pytest.raises(ValueError):r.validate(report,entry,scope,evidence,fixture)

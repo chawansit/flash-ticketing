@@ -32,3 +32,5 @@ Extension for ADR0316: only cohort adr0151-3f899bb32f0e, ledger bounded_cce_tick
 
 
 ADR0317 adds one exact case: adr0151-c816742577d3 / bb26a572a41bd4dad7d2f119a80202e00eb419b447686e0ff4fd649b4d2e6174. The actual paid cohort is15,398, all recorded orders paid; one dispatched hold_http_502 has no recorded order. Require original alias/configuration rollback plus fresh financial/runtime and safety checks. Capacity remains failed. This extension is financial closure, not relaxation of the successful-ticket or zero-drop gates.
+
+ADR0318 extends closure for adr0151-2afe2aa585ce / SHA 0f54c4714069bb725172b73f06847316efcac875d7a5fe2c2b5177d5d1bd9749:25,064 actual orders,22,869 paid/issued,2,195 expired unpaid. Preserve 25,423 dispatched / 20,710 confirmed journeys and all 4,713 final failures; 359 failed holds created no order and 2,159 customers failed status retrieval after payment. Require original pooler rollback and independent complete financial/runtime audits; no capacity qualification or suppression of missing diagnostics.

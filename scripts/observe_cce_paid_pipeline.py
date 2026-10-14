@@ -225,7 +225,7 @@ def main(argv=None):
         if args.backend_partition_contract is None or args.backend_partition_contract_sha256 is None:
             raise ValueError("Complete backend partition transfer binding required")
         partition_value=json.loads(args.backend_partition_contract.read_text())
-        if (partition_value!=contract() or hashlib.sha256(
+        if (partition_value!=contract(partition_value.get("decision")) or hashlib.sha256(
             json.dumps(partition_value,sort_keys=True,separators=(",",":")).encode()).hexdigest()
                 !=args.backend_partition_contract_sha256):
             raise ValueError("Exact declared backend partition observer contract required")
@@ -241,7 +241,7 @@ def main(argv=None):
             worker_install(module, workers)
         if partition_value is not None:
             from cce_backend_partition import view
-            module.pgbouncer_view = lambda conn,target:view(conn,target,module.PG_POOL_FIELDS,module.PG_STATS_FIELDS)
+            module.pgbouncer_view = lambda conn,target:view(conn,target,module.PG_POOL_FIELDS,module.PG_STATS_FIELDS,decision=partition_value["decision"])
         return result
 
     if args.hourly:

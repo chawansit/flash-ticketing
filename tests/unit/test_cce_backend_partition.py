@@ -209,3 +209,31 @@ def test_admin_dsn_timeout_is_overridden_once(monkeypatch):
     assert captured["connect_timeout"]==5 and captured["dbname"]=="pgbouncer"
     assert captured["autocommit"] is True and captured["user"]=="ticketing"
     assert json.loads(output.getvalue())=={"SERVERS":[]}
+
+
+@pytest.mark.parametrize("decision,limits",[("ADR0317",(16,7,1)),("ADR0318",(8,15,1))])
+def test_allocation_is_explicit_and_original_budget_preserved(original,decision,limits):
+    caps=b.allocation(decision)
+    assert tuple(caps.values())==limits and sum(caps.values())==24
+    assert b.contract(decision)["aliases"]==caps
+    config=configparser.ConfigParser(interpolation=None)
+    config.read_string(b.render(original,decision=decision).decode())
+    for alias,cap in caps.items():
+        assert "pool_size="+str(cap) in config["databases"][alias]
+        assert "max_db_connections="+str(cap) in config["databases"][alias]
+    pools,stats=sample()
+    for row in pools:row["sv_active"]=caps[row["database"]]
+    view=b.view(connection(pools,stats),"ticketing",("sv_active",),("total_xact_count",),decision=decision)
+    assert view["physical_backends"]==24 and view["partition_decision"]==decision
+    pools[1]["sv_active"]+=1
+    with pytest.raises(ValueError):b.view(connection(pools,stats),"ticketing",("sv_active",),("total_xact_count",),decision=decision)
+
+
+def test_rebalanced_goal_cannot_mislabel_legacy_allocation():
+    import work_envelope as p
+    goal=isolation_goal()
+    goal["backend_partition_decision"]="ADR0318"
+    with pytest.raises(ValueError):b.selected(goal)
+    goal["backend_partition_contract_sha256"]=p.digest(b.contract("ADR0318"))
+    assert b.selected(goal)
+    with pytest.raises(ValueError):b.allocation("ADR0319")

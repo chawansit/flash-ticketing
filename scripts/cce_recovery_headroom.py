@@ -89,8 +89,8 @@ def selected(goal):
     partition = bool(PARTITION_KEYS.intersection(goal))
     if partition:
         from cce_backend_partition import contract as partition_contract
-        if (not scale or batch or goal.get("backend_partition_decision") != "ADR0317"
-                or goal.get("backend_partition_contract_sha256") != policy.digest(partition_contract())):
+        if (not scale or batch or goal.get("backend_partition_decision") not in {"ADR0317","ADR0318"}
+                or goal.get("backend_partition_contract_sha256") != policy.digest(partition_contract(goal.get("backend_partition_decision")))):
             raise ValueError("Exact four-writer batch-four backend isolation required")
     expected = {"headroom_decision": "ADR0312", "decision": "ADR0277",
                 "extension_decision": "ADR0277", "profile": "cce_ticket_target",
@@ -230,6 +230,8 @@ def writer_batch_contract():
 def require_writer_failure(goal):
     if not selected(goal) or not (BATCH_KEYS|PARTITION_KEYS).intersection(goal):
         raise ValueError("Explicit four-writer-reference comparison required")
+    if goal.get("backend_partition_decision") == "ADR0318":
+        require_rejected_partition()
     report_path = policy.ROOT / "tmp" / WRITER_RUN / "cce-comparison.private.json"
     report = policy.read(report_path)
     scope = policy.read(policy.STATE)[WRITER_LEDGER]
@@ -279,8 +281,8 @@ def extend_plan(plan, goal):
                      "writer_scale_contract": writer_scale_contract()} if scale else {})
     batch_fields = ({"writer_batch_contract": writer_batch_contract(),
                      "reservation_writer_batch_size": 8} if batch else {})
-    partition_fields = ({"backend_partition_contract":partition_contract(),
-                         "backend_partition_decision":"ADR0317"} if partition else {})
+    partition_fields = ({"backend_partition_contract":partition_contract(goal["backend_partition_decision"]),
+                         "backend_partition_decision":goal["backend_partition_decision"]} if partition else {})
     return {**plan, **scale_fields, **batch_fields, **partition_fields, "decision": "ADR0277", "extension_decision": "ADR0277",
             "kind": "foreground_backend_isolation_headroom" if partition else "writer_batch_headroom" if batch else "writer_concurrency_headroom" if scale else "corrective_general_slot_headroom" if correction else "bounded_recovery_runtime_headroom",
             "single_changed_factor": "foreground_background_backend_partition" if partition else "RESERVATION_WRITER_BATCH_SIZE" if batch else "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
@@ -329,7 +331,7 @@ def validate_binding(goal, binding):
                "cce_metric_admission_contract_sha256"}
     if partition:
         ignored.add("cce_backend_partition_contract")
-        if binding.get("cce_backend_partition_contract") != partition_contract():
+        if binding.get("cce_backend_partition_contract") != partition_contract(goal["backend_partition_decision"]):
             raise ValueError("Exact reserved backend partition required")
         import copy
         from urllib.parse import urlsplit, urlunsplit
@@ -429,3 +431,27 @@ def issuance_program(events, start):
     from cce_hourly_window import QUERY
     query = QUERY.replace("3598", "298").replace("3600", "300").replace("300000", str(TARGET)).replace("302400", str(EXPECTED))
     return "events=" + repr(events) + "\nstart=" + repr(start) + "\n" + query
+
+
+def require_rejected_partition():
+    from cce_backend_partition import PRIOR_PARTITION_RESULT
+    from cce_headroom_recovery import PARTITION_LEDGER, PARTITION_RUN, validate
+    root = policy.ROOT / "tmp" / PARTITION_RUN
+    report = policy.read(root / "cce-comparison.private.json")
+    evidence = policy.read(root / "headroom-recovery.private.json")
+    entries = [e for e in policy.journal(policy.envelope())["experiments"] if e.get("ledger") == PARTITION_LEDGER]
+    scope = policy.read(policy.STATE)[PARTITION_LEDGER]
+    if len(entries) != 1:
+        raise ValueError("Exact reconciled partition ledger required")
+    entry = entries[0]
+    receipt = entry.get("recovery", {})
+    if (policy.digest(report) != PRIOR_PARTITION_RESULT or entry.get("status") != "FAILED_RESTORED"
+            or scope.get("active_run") or receipt.get("sha256") != policy.digest(evidence)
+            or receipt.get("evidence") != (root / "headroom-recovery.private.json").relative_to(policy.ROOT).as_posix()
+            or receipt.get("decision") != "ADR0313" or receipt.get("capacity_qualified") is not False):
+        raise ValueError("Exact independently reconciled rejected allocation required")
+    pending = {**entry, "status":"RECOVERY_REQUIRED"}
+    retained_scope = {**scope, "active_run":PARTITION_RUN}
+    fixture = policy.read(root / "candidate/fixture-identity.json")["fixture_identity"]
+    validate(report,pending,retained_scope,evidence,fixture)
+    return True

@@ -298,3 +298,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0316: Test larger reservation batches at fixed four-writer capacity](0316-test-reservation-batch-eight-at-fixed-budget.md)
 
 - [ADR0317: Isolate foreground backend slots at fixed budget](0317-isolate-foreground-backend-slots-at-fixed-budget.md)
+
+- [ADR0318: Rebalance isolated backend slots toward fulfillment](0318-rebalance-isolated-backends-toward-fulfillment.md)

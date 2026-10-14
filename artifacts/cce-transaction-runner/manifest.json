@@ -112,7 +112,7 @@
       "historical_sha256": "0fed16ed4aeb02c22a277c9b81bfc8efce29eeaaefa3c1165eb1e3216a22cd12"
     },
     "scripts/cce_paid_observers.py": {
-      "current_sha256": "53e74e73332b28668b4a895d25605a436322b804aeb193e3ecfbb7cb7001562f",
+      "current_sha256": "5aef36f468e49205530858871be631b7b810c476eb2d9f7ddb22ead54796901b",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/e5e712961d9f6725d45468f0feac95ad50f6591c4f5ee095ac41074257e63257",
       "historical_sha256": "e5e712961d9f6725d45468f0feac95ad50f6591c4f5ee095ac41074257e63257"
     },
@@ -157,7 +157,7 @@
       "historical_sha256": "dfe4ccea42819e1aa90144153a89bf0e7755cf6f64a788ced0ed656291d38902"
     },
     "scripts/observe_cce_paid_pipeline.py": {
-      "current_sha256": "17cdc95e2160137189f47e50d5f80c73cc870cbb33aacfad50e7847524f7616f",
+      "current_sha256": "30c92c33c5c8605b59b341dce6876a0aa0406e5307e266a4bef24de3251aa958",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/b0e0a7aa5142a517301ba7314ca3cdda83529e32f5864c2a9d6dd2aeb3c048a8",
       "historical_sha256": "b0e0a7aa5142a517301ba7314ca3cdda83529e32f5864c2a9d6dd2aeb3c048a8"
     },
@@ -182,7 +182,7 @@
       "historical_sha256": "c5bada5a5d99360f0b8ab823e086b4459ed4b3c5701f3c862396862944f9ee8d"
     },
     "scripts/run_cce_paid_comparison.py": {
-      "current_sha256": "48209cb27cd355581bb3f229af3c04bed86d19662bb005f80196bc5a4ce1c1d9",
+      "current_sha256": "36d771209415a511a54ba2c97ba961bfe9287c1e1f19e382be73ff1b00530940",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
       "historical_sha256": "cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017"
     },

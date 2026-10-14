@@ -29,6 +29,11 @@ PARTITION_LEDGER = "bounded_cce_ticket_target__b7177356a0c3"
 PARTITION_RESULT = "bb26a572a41bd4dad7d2f119a80202e00eb419b447686e0ff4fd649b4d2e6174"
 
 
+REBALANCE_RUN = "adr0151-2afe2aa585ce"
+REBALANCE_LEDGER = "bounded_cce_ticket_target__fb41a8fc8ec6"
+REBALANCE_RESULT = "0f54c4714069bb725172b73f06847316efcac875d7a5fe2c2b5177d5d1bd9749"
+
+
 def case(run):
     if run == RUN:
         return RUN, LEDGER, RESULT, ORDERS, PAID, EXPIRED, 26636, 2583, 1381, {"fulfilled": 26636, "order_http_503": 1305, "payment_http_503": 76}
@@ -40,6 +45,8 @@ def case(run):
         return BATCH_RUN, BATCH_LEDGER, BATCH_RESULT, 27975, 27974, 1, 27974, 2625, 1, {"fulfilled": 27974, "command_http_502": 1}
     if run == PARTITION_RUN:
         return PARTITION_RUN, PARTITION_LEDGER, PARTITION_RESULT, 15398, 15398, 0, 15398, 15201, 1, {"fulfilled": 15398, "hold_http_502": 1}
+    if run == REBALANCE_RUN:
+        return REBALANCE_RUN, REBALANCE_LEDGER, REBALANCE_RESULT, 25064, 22869, 2195, 20710, 5177, 4713, {"fulfilled":20710,"order_http_503":2159,"payment_http_503":1851,"hold_http_503":358,"command_http_503":344,"hold_http_502":1}
     raise ValueError("Unknown failed headroom recovery case")
 GATES = ("runtime_restored", "runtime_stable", "namespace_absent", "helpers_absent",
          "secondary_empty", "generator_idle", "queues_zero")
@@ -73,7 +80,7 @@ def validate(report, entry, scope, evidence, fixture):
         stage.get("generator_idle_after_stop") is True, stage.get("job_cleanup_errors") == [],
         stage.get("retired_shows") == 102, len(set(fixture.get("show_ids", []))) == 102,
         policy.digest(fixture) == stage.get("fixture_identity", {}).get("fixture_identity_sha256"),
-        c.get("scheduled") == 30600, c.get("dispatched") == c.get("completed") == orders + (1 if run == PARTITION_RUN else 0),
+        c.get("scheduled") == 30600, c.get("dispatched") == c.get("completed") == orders + (1 if run == PARTITION_RUN else 359 if run == REBALANCE_RUN else 0),
         c.get("fulfilled") == fulfilled, c.get("generator_drops") == drops,
         c.get("final_customer_failures") == failures,
         c.get("outcomes") == outcomes,
@@ -103,7 +110,7 @@ def validate(report, entry, scope, evidence, fixture):
     if (not all(required) or type(elapsed) not in (float, int)
             or not math.isfinite(elapsed) or not 0 <= elapsed <= 900):
         raise ValueError("Exact failed headroom and independently reconciled retained cohort required")
-    if run == PARTITION_RUN:
+    if run in {PARTITION_RUN,REBALANCE_RUN}:
         from cce_backend_partition import ORIGINAL_CONFIG, POOLER_IMAGE
         proof = evidence.get("pooler_rollback", {})
         if (proof.get("configuration_sha256") != ORIGINAL_CONFIG or proof.get("image") != POOLER_IMAGE

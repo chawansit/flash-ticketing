@@ -225,7 +225,7 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     from cce_backend_partition import contract as partition_contract
     from cce_backend_partition import selected as partition_selected
     if partition_selected(goal):
-        extra.update(cce_backend_partition_contract=partition_contract())
+        extra.update(cce_backend_partition_contract=partition_contract(goal["backend_partition_decision"]))
     binding = {
         **extra,
         "configuration_sha256": policy.digest(config),

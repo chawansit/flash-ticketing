@@ -10,17 +10,28 @@ ORIGINAL_CONFIG = "f77cde46c5f069a445030d6091495ba7777ade8e3da7a707d00be96fe263d
 POOLER_IMAGE = "sha256:3db3d7223e93af52b4116f642951a1a5fa44702a88c2a59cf7562cac19320c9e"
 ALIASES = {"ticketing_foreground":16, "ticketing_background":7, "ticketing":1}
 DATA_USER = "ticketing"
+REBALANCED_ALIASES = {"ticketing_foreground":8, "ticketing_background":15, "ticketing":1}
+PRIOR_PARTITION_RESULT = "bb26a572a41bd4dad7d2f119a80202e00eb419b447686e0ff4fd649b4d2e6174"
+
+
+def allocation(decision="ADR0317"):
+    if decision == "ADR0317":
+        return dict(ALIASES)
+    if decision == "ADR0318":
+        return dict(REBALANCED_ALIASES)
+    raise ValueError("Unknown backend allocation decision")
 
 
 def sha(raw):
     return hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
 
 
-def contract():
+def contract(decision="ADR0317"):
     from pathlib import Path
-    return {"decision":"ADR0317", "baseline_result_sha256":BASELINE,
+    return {"decision":decision, "baseline_result_sha256":BASELINE,
+            "prior_rejected_partition_sha256":PRIOR_PARTITION_RESULT if decision == "ADR0318" else None,
             "original_pooler_config_sha256":ORIGINAL_CONFIG, "pooler_image":POOLER_IMAGE,
-            "aliases":dict(ALIASES), "physical_backend_limit":24, "shared_data_user_limit":24,
+            "aliases":allocation(decision), "physical_backend_limit":24, "shared_data_user_limit":24,
             "data_user":DATA_USER, "backend_database":"ticketing", "transaction_pooling":True,
             "reserve_pool_size":0, "helper_sha256":sha(Path(__file__).read_bytes()),
             "runtime_sha256":sha(Path(__file__).with_name("cce_backend_partition_runtime.py").read_bytes()),
@@ -33,8 +44,8 @@ def selected(goal):
         return False
     import cce_recovery_headroom as h
     import work_envelope as p
-    if (not h.selected(goal) or goal.get("backend_partition_decision") != "ADR0317"
-            or goal.get("backend_partition_contract_sha256") != p.digest(contract())):
+    if (not h.selected(goal) or goal.get("backend_partition_decision") not in {"ADR0317","ADR0318"}
+            or goal.get("backend_partition_contract_sha256") != p.digest(contract(goal.get("backend_partition_decision")))):
         raise ValueError("Exactly declared fixed backend partition required")
     return True
 
@@ -48,7 +59,8 @@ def route(url, alias):
     return urlunsplit(parsed._replace(path="/"+alias))
 
 
-def render(raw, *, phase="active"):
+def render(raw, *, phase="active", decision="ADR0317"):
+    aliases = allocation(decision)
     if hashlib.sha256(raw).hexdigest() != ORIGINAL_CONFIG or phase not in {"prepare","active"}:
         raise ValueError("Exact original pooler bytes and declared phase required")
     config = configparser.ConfigParser(interpolation=None)
@@ -65,7 +77,7 @@ def render(raw, *, phase="active"):
     if (set(authority) != {"host","port","auth_user"} or authority["auth_user"] != DATA_USER):
         raise ValueError("Exact existing backend authority/authentication required")
     settings["max_user_connections"] = "24"
-    for alias, limit in ALIASES.items():
+    for alias, limit in aliases.items():
         if phase == "prepare" and alias == "ticketing":
             limit = 24
         config["databases"][alias] = (original+" dbname=ticketing"
@@ -83,13 +95,14 @@ def number(value):
     return result
 
 
-def view(conn, target_database, fields, stats_fields):
+def view(conn, target_database, fields, stats_fields, *, decision="ADR0317"):
+    aliases = allocation(decision)
     if target_database != "ticketing":
         raise ValueError("Exact diagnostic alias required")
     raw_pools = conn.execute("SHOW POOLS").fetchall()
     raw_stats = conn.execute("SHOW STATS").fetchall()
     by_alias = {}
-    for alias, cap in ALIASES.items():
+    for alias, cap in aliases.items():
         pools = [r for r in raw_pools if r["database"] == alias]
         stats = [r for r in raw_stats if r["database"] == alias]
         if not pools or not stats or any(r.get("user") != DATA_USER for r in pools):
@@ -103,7 +116,7 @@ def view(conn, target_database, fields, stats_fields):
             "stats":{k:sum(number(r.get(k)) for r in stats) for k in stats_fields},
             "maxwait_seconds":max(number(r.get("maxwait"))+number(r.get("maxwait_us"))/1e6 for r in pools),
             "physical_backends":physical, "limit":cap}
-    if any(r["database"] not in {*ALIASES,"pgbouncer"} for r in raw_pools):
+    if any(r["database"] not in {*aliases,"pgbouncer"} for r in raw_pools):
         raise ValueError("Unknown data pool must not bypass total budget")
     total = sum(r["physical_backends"] for r in by_alias.values())
     if total > 24:
@@ -112,4 +125,4 @@ def view(conn, target_database, fields, stats_fields):
             "stats":{k:sum(r["stats"][k] for r in by_alias.values()) for k in stats_fields},
             "maxwait_seconds":max(r["maxwait_seconds"] for r in by_alias.values()),
             "aliases":by_alias, "physical_backends":total, "budget":24,
-            "partition_decision":"ADR0317"}
+            "partition_decision":decision}

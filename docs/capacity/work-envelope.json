@@ -142,7 +142,7 @@
           "maximum_additional_spend": null,
           "no_spending_cap_explicitly_authorized": true
         },
-        "ledger_start_index": 131,
+        "ledger_start_index": 132,
         "candidate_factor": {
           "name": "event_lane_worker_placement",
           "comparison_arm": "correction",
@@ -169,10 +169,10 @@
           "database_connections_unchanged": true,
           "gateway_delay_unchanged": true
         },
-        "authorization": "Standing workflow authorizes one corrective102/s300s30600journey backend isolation comparison: sixteen foreground, seven background, one diagnostic PgBouncer backends; four APIs2+2slots, four writers batch4, nineteen owned pods, unchanged image/resources/admission20/concurrency500/gateway/recovery. Physical total24 unchanged. Require all customer/financial/drain gates and exact pooler bytes/identity rollback before original ECS restart; ADR0317.",
-        "authorized_at_bangkok": "2026-10-14T00:49:45.431606+07:00",
+        "authorization": "Standing workflow authorizes one corrective102/s300s30600journey backend isolation comparison: eight foreground, fifteen background, one diagnostic PgBouncer backends; four APIs2+2slots, four writers batch4, nineteen owned pods, unchanged image/resources/admission20/concurrency500/gateway/recovery. Physical total24 unchanged. Require all customer/financial/drain gates and exact pooler bytes/identity rollback before original ECS restart; ADR0318.",
+        "authorized_at_bangkok": "2026-10-14T08:08:41.097472+07:00",
         "image_correction_decision": "ADR0267",
-        "authorized_at_utc": "2026-10-13T17:49:45.431606+00:00",
+        "authorized_at_utc": "2026-10-14T01:08:41.097472+00:00",
         "scope_note": "One102/s300s30600journey repeat with4reservationwriters;4APIs+15background=19ownedpods; API2+2/24physicalconnections/admission20/concurrency500unchanged; sameimage/client/gateway/batch4;30000in-window plus allquality/financialgates.",
         "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
         "baseline_sha256": "250aa2541308119f8da10a7ba3ebdf8024d99fb8a1fffbb796e8eead55fbfa2a",
@@ -195,10 +195,10 @@
         "customer_outcome_decision": "ADR0305",
         "customer_outcome_contract_sha256": "58b2d8743b61552d4052eb82086906cae13c432a62d23e6b50d433bbd1f0cf74",
         "verification_decision": "ADR0285",
-        "verification_contract_sha256": "a18741ca689d884660362cec36b1ecc6210a32077e3de42b0f22fa3acad0ec4b",
+        "verification_contract_sha256": "6d9d2d505734b606054b1264f8703cdfb7a50ac7d0bf147e661405dfbc485860",
         "verification_prerequisite_sha256": "dfaf9b3e14dbc4d28f2daf3996e7651bb9df6e2ec6933aeeb70f3b3d9b459039",
         "metric_admission_decision": "ADR0287",
-        "metric_admission_contract_sha256": "e3666d443566531cc2bf4d7e3a540565558b5041461a413a70ce1d60417a342f",
+        "metric_admission_contract_sha256": "1ef25d857b610b0df14cbf5bb2508badd5f8c3c195bbfd0ecfc76303a0433627",
         "ingress_route_decision": "ADR0291",
         "ingress_route_contract_sha256": "be190f1bf59db855dd4abddcda9ca9aece9143954e41383e2c97acacd9779cd6",
         "ingress_route_arm": "candidate",
@@ -214,13 +214,13 @@
         "gateway_read_recovery_contract_sha256": "8c382ffdab0a64485ac14b57ee4a44be2254f6308a7147a4ed4bc6f7881c5a55",
         "gateway_read_reference_sha256": "ca365cfead5c2d60a6635515cabccc66853ab0200d8e4c583dacbb8c372c59a4",
         "headroom_decision": "ADR0312",
-        "headroom_contract_sha256": "57bdafae689757fa32770235f94448e733f76d1a8f2a9791806b78116dd20aed",
+        "headroom_contract_sha256": "6f37064ff3d8533e2301a5b08f80eeb707366d7a0123e85a53ef9b084992967a",
         "headroom_slot_correction_decision": "ADR0314",
         "headroom_slot_failure_sha256": "463e92253a3613ea9bc5e591823596681b890611290d224bc8ad9a83618b1424",
         "reservation_writer_scale_decision": "ADR0315",
         "reservation_writer_failure_sha256": "d5a00a534026bce91b131a968f036e38c816e076f95e056e842a011127f4ae01",
-        "backend_partition_decision": "ADR0317",
-        "backend_partition_contract_sha256": "daa8aea496a04d52758e7623b9f690e39aab6f5fe054c937c1cb52cd0bed858f"
+        "backend_partition_decision": "ADR0318",
+        "backend_partition_contract_sha256": "d518d82329d159df4a012da67b2becccb8fbf8e78503745582cc28e404f1b453"
       },
       "bounded_scaling_permission": {
         "authorized": true,
@@ -5142,6 +5142,109 @@
           },
           "superseded_by": "ADR0317-backend-partition",
           "superseded_at_utc": "2026-10-13T17:49:45.431606+00:00"
+        },
+        {
+          "goal": {
+            "decision": "ADR0277",
+            "profile": "cce_ticket_target",
+            "extension_decision": "ADR0277",
+            "comparison_arm": "correction",
+            "maximum_paid_stages": 1,
+            "maximum_pods": 19,
+            "pod_vcpu": 1,
+            "pod_memory_gib": 2,
+            "offered_journeys_per_second": 102,
+            "offered_seconds": 300,
+            "maximum_experiment_seconds": 3600,
+            "acquisition_budget": 20,
+            "unlimited_cumulative_time_explicitly_authorized": true,
+            "spending_allowance": {
+              "status": "APPROVED",
+              "maximum_additional_spend": null,
+              "no_spending_cap_explicitly_authorized": true
+            },
+            "ledger_start_index": 131,
+            "candidate_factor": {
+              "name": "event_lane_worker_placement",
+              "comparison_arm": "correction",
+              "worker_counts": {
+                "consumer": 6,
+                "projection-consumer": 1,
+                "reservation-writer": 3,
+                "publisher": 1,
+                "maintenance": 1,
+                "reconciler": 1,
+                "simulator": 1
+              },
+              "worker_resources": {
+                "requests": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                },
+                "limits": {
+                  "cpu": "250m",
+                  "memory": "512Mi"
+                }
+              },
+              "image_receipt_sha256": "86e7655ecdd8496a7f95af5b8f805bbf351779344b0103168cbd22c61225b80a",
+              "database_connections_unchanged": true,
+              "gateway_delay_unchanged": true
+            },
+            "authorization": "Standing workflow authorizes one corrective102/s300s30600journey backend isolation comparison: sixteen foreground, seven background, one diagnostic PgBouncer backends; four APIs2+2slots, four writers batch4, nineteen owned pods, unchanged image/resources/admission20/concurrency500/gateway/recovery. Physical total24 unchanged. Require all customer/financial/drain gates and exact pooler bytes/identity rollback before original ECS restart; ADR0317.",
+            "authorized_at_bangkok": "2026-10-14T00:49:45.431606+07:00",
+            "image_correction_decision": "ADR0267",
+            "authorized_at_utc": "2026-10-13T17:49:45.431606+00:00",
+            "scope_note": "One102/s300s30600journey repeat with4reservationwriters;4APIs+15background=19ownedpods; API2+2/24physicalconnections/admission20/concurrency500unchanged; sameimage/client/gateway/batch4;30000in-window plus allquality/financialgates.",
+            "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
+            "baseline_sha256": "250aa2541308119f8da10a7ba3ebdf8024d99fb8a1fffbb796e8eead55fbfa2a",
+            "worker_resources": {
+              "cpu": "250m",
+              "memory": "512Mi"
+            },
+            "generator_concurrency": 500,
+            "timeout_retention_decision": "ADR0278",
+            "native_database_bridge_decision": "ADR0279",
+            "native_database_bridge_sha256": "11b72a0bd7cb5dbaec8d9396d279a32b97daa892a6aa83d9f622d2bc0fceeaf1",
+            "status_refresh_reuse_decision": "ADR0280",
+            "status_refresh_reuse_sha256": "9a3942c87ff8a71a6d2954b65198e15dbcdab14ac3e4ae535d7aaffff26e094f",
+            "observer_cost_decision": "ADR0283",
+            "observer_cost_sha256": "fdee59f7b83e384c5464d3166e644c769b030f9108c91bbd1d939f197f088435",
+            "latest_short_prerequisite_evidence": "docs/capacity/cce/observer-cost-paid-result-2026-10-12.json",
+            "latest_short_prerequisite_sha256": "5f37fa264394116be33008f8dac924ebd5c9186d8e6312980f5b040916bb31cc",
+            "payment_slot_decision": "ADR0306",
+            "payment_slot_arm": "control",
+            "customer_outcome_decision": "ADR0305",
+            "customer_outcome_contract_sha256": "58b2d8743b61552d4052eb82086906cae13c432a62d23e6b50d433bbd1f0cf74",
+            "verification_decision": "ADR0285",
+            "verification_contract_sha256": "a18741ca689d884660362cec36b1ecc6210a32077e3de42b0f22fa3acad0ec4b",
+            "verification_prerequisite_sha256": "dfaf9b3e14dbc4d28f2daf3996e7651bb9df6e2ec6933aeeb70f3b3d9b459039",
+            "metric_admission_decision": "ADR0287",
+            "metric_admission_contract_sha256": "e3666d443566531cc2bf4d7e3a540565558b5041461a413a70ce1d60417a342f",
+            "ingress_route_decision": "ADR0291",
+            "ingress_route_contract_sha256": "be190f1bf59db855dd4abddcda9ca9aece9143954e41383e2c97acacd9779cd6",
+            "ingress_route_arm": "candidate",
+            "committed_status_decision": "ADR0298",
+            "committed_status_arm": "candidate",
+            "committed_status_receipt_sha256": "e566044814b05b2ebaf1a8cedf0ce2701b70e6f75b87884b26c75459d5983cae",
+            "control_ledger": "bounded_cce_paid_comparison__13e4bf4513e3",
+            "control_report_path": "tmp/adr0151-d06ab9835e96/cce-comparison.private.json",
+            "inventory_renewal_decision": "ADR0307",
+            "inventory_renewal_contract_sha256": "8918aefc7200e69e4d3bfb43502ac8c343f82eb8d7e5c8c0d3a6d2f580e0717a",
+            "payment_slot_snapshot_path": "tmp/adr0306-slots-bdb8c023179d/snapshot.private.json",
+            "gateway_read_recovery_decision": "ADR0311",
+            "gateway_read_recovery_contract_sha256": "8c382ffdab0a64485ac14b57ee4a44be2254f6308a7147a4ed4bc6f7881c5a55",
+            "gateway_read_reference_sha256": "ca365cfead5c2d60a6635515cabccc66853ab0200d8e4c583dacbb8c372c59a4",
+            "headroom_decision": "ADR0312",
+            "headroom_contract_sha256": "57bdafae689757fa32770235f94448e733f76d1a8f2a9791806b78116dd20aed",
+            "headroom_slot_correction_decision": "ADR0314",
+            "headroom_slot_failure_sha256": "463e92253a3613ea9bc5e591823596681b890611290d224bc8ad9a83618b1424",
+            "reservation_writer_scale_decision": "ADR0315",
+            "reservation_writer_failure_sha256": "d5a00a534026bce91b131a968f036e38c816e076f95e056e842a011127f4ae01",
+            "backend_partition_decision": "ADR0317",
+            "backend_partition_contract_sha256": "daa8aea496a04d52758e7623b9f690e39aab6f5fe054c937c1cb52cd0bed858f"
+          },
+          "superseded_by": "ADR0318-backend-partition",
+          "superseded_at_utc": "2026-10-14T01:08:41.097472+00:00"
         }
       ]
     },

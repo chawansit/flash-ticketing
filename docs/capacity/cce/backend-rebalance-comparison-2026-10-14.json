@@ -1,0 +1,242 @@
+{
+  "decision": "ADR0318",
+  "status": "REJECTED_FAILED_RESTORED",
+  "capacity_qualified": false,
+  "immutable_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:1c14f990325a5e408f63ec87b721401bd84ff844a05fbfb3449ec05df4dc06a4",
+  "controlled_factors": {
+    "same_image": true,
+    "same_api_pods": 4,
+    "same_api_slots_per_pod": {
+      "general": 2,
+      "payment": 2
+    },
+    "same_reservation_writers": 4,
+    "same_writer_batch_size": 4,
+    "same_other_workers_resources_gateway_recovery": true,
+    "same_offered_load": {
+      "journeys_per_second": 102,
+      "seconds": 300
+    },
+    "same_generator_concurrency": 500,
+    "same_physical_pgbouncer_backend_budget": 24,
+    "single_changed_factor": "Foreground/background backend allocation:8/15/1 instead of16/7/1; shared-pool reference retained."
+  },
+  "measurements": [
+    {
+      "decision": "ADR0315",
+      "run": "adr0151-6fd6d0275799",
+      "original_result_sha256": "250aa2541308119f8da10a7ba3ebdf8024d99fb8a1fffbb796e8eead55fbfa2a",
+      "original_pass": false,
+      "status": "FAILED_RESTORED",
+      "capacity_qualified": false,
+      "offered_journeys_per_second": 102,
+      "offered_seconds": 300,
+      "scheduled": 30600,
+      "dispatched": 30529,
+      "fulfilled_customers": 30529,
+      "undispatched_journeys": 71,
+      "first_attempt_error_journeys": 39,
+      "recovered_journeys": 39,
+      "retry_attempts": 42,
+      "final_customer_failures": 0,
+      "final_customer_failure_percent": 0.0,
+      "outcomes": {
+        "fulfilled": 30529
+      },
+      "reported_total_journey_p95_ms": 3353.260642965324,
+      "p95_scope": "Maximum per-shard p95 including failures/recovery, not merged quantile.",
+      "ticket_wait_p95_ms": 2027.7499350486323,
+      "durable_wait_p95_ms": 2015.029033063911,
+      "unique_paid_issued_in_window": 30370,
+      "in_window_paid_issued_per_second": 101.23333333333333,
+      "conservative_inner_window_tickets": 30155,
+      "in_window_target_pass": true,
+      "validated_api_process_cpu_cores": 1.5092191979020355,
+      "validated_worker_process_cpu_cores": 1.3456105485289747,
+      "observation_failures": []
+    },
+    {
+      "decision": "ADR0317",
+      "run": "adr0151-c816742577d3",
+      "original_result_sha256": "bb26a572a41bd4dad7d2f119a80202e00eb419b447686e0ff4fd649b4d2e6174",
+      "original_pass": false,
+      "status": "FAILED_RESTORED",
+      "capacity_qualified": false,
+      "offered_journeys_per_second": 102,
+      "offered_seconds": 300,
+      "scheduled": 30600,
+      "dispatched": 15399,
+      "fulfilled_customers": 15398,
+      "undispatched_journeys": 15201,
+      "first_attempt_error_journeys": 1,
+      "recovered_journeys": 0,
+      "retry_attempts": 0,
+      "final_customer_failures": 1,
+      "final_customer_failure_percent": 0.006493928177154361,
+      "outcomes": {
+        "fulfilled": 15398,
+        "hold_http_502": 1
+      },
+      "reported_total_journey_p95_ms": 15826.75087894313,
+      "p95_scope": "Maximum per-shard p95 including failures/recovery, not merged quantile.",
+      "ticket_wait_p95_ms": 14576.601637061685,
+      "durable_wait_p95_ms": 1459.301379043609,
+      "unique_paid_issued_in_window": 14914,
+      "in_window_paid_issued_per_second": 49.71333333333333,
+      "conservative_inner_window_tickets": 14811,
+      "in_window_target_pass": false,
+      "validated_api_process_cpu_cores": 1.9686041846392803,
+      "validated_worker_process_cpu_cores": 0.7626370544796467,
+      "observation_failures": []
+    },
+    {
+      "decision": "ADR0318",
+      "run": "adr0151-2afe2aa585ce",
+      "original_result_sha256": "0f54c4714069bb725172b73f06847316efcac875d7a5fe2c2b5177d5d1bd9749",
+      "original_pass": false,
+      "status": "FAILED_RESTORED",
+      "capacity_qualified": false,
+      "offered_journeys_per_second": 102,
+      "offered_seconds": 300,
+      "scheduled": 30600,
+      "dispatched": 25423,
+      "fulfilled_customers": 20710,
+      "undispatched_journeys": 5177,
+      "first_attempt_error_journeys": 17058,
+      "recovered_journeys": 12345,
+      "retry_attempts": 39950,
+      "final_customer_failures": 4713,
+      "final_customer_failure_percent": 18.538331432167723,
+      "outcomes": {
+        "fulfilled": 20710,
+        "order_http_503": 2159,
+        "payment_http_503": 1851,
+        "hold_http_503": 358,
+        "command_http_503": 344,
+        "hold_http_502": 1
+      },
+      "reported_total_journey_p95_ms": 18476.48403805215,
+      "p95_scope": "Maximum per-shard p95 including failures/recovery, not merged quantile.",
+      "ticket_wait_p95_ms": 16807.865381939337,
+      "durable_wait_p95_ms": 1678.0358529649675,
+      "unique_paid_issued_in_window": 22384,
+      "in_window_paid_issued_per_second": 74.61333333333333,
+      "conservative_inner_window_tickets": 22232,
+      "in_window_target_pass": false,
+      "validated_api_process_cpu_cores": null,
+      "validated_worker_process_cpu_cores": 1.4109531388920338,
+      "observation_failures": [
+        {
+          "operation": "slot_failure_capture",
+          "type": "CaptureError",
+          "reason_code": "window_or_receipt_invalid"
+        },
+        {
+          "operation": "native_api_cpu",
+          "type": "ValueError"
+        }
+      ]
+    }
+  ],
+  "offered_window_alias_measurements": {
+    "samples": 300,
+    "max_aggregate_physical_backends": 24.0,
+    "aliases": {
+      "ticketing_foreground": {
+        "limit": 8,
+        "mean_physical_backends": 7.98,
+        "max_physical_backends": 8.0,
+        "mean_active_backends": 7.79,
+        "mean_idle_backends": 0.19,
+        "mean_waiting_clients": 4.763333333333334,
+        "max_waiting_clients": 8.0,
+        "wait_ms_per_assignment": 13.067071316444988,
+        "counter_deltas": {
+          "total_xact_count": 106390.0,
+          "total_wait_time": 1390140382.0,
+          "total_server_assignment_count": 106385.0
+        }
+      },
+      "ticketing_background": {
+        "limit": 15,
+        "mean_physical_backends": 14.973333333333333,
+        "max_physical_backends": 15.0,
+        "mean_active_backends": 9.503333333333334,
+        "mean_idle_backends": 5.47,
+        "mean_waiting_clients": 0.04666666666666667,
+        "max_waiting_clients": 3.0,
+        "wait_ms_per_assignment": 0.1929590243228303,
+        "counter_deltas": {
+          "total_xact_count": 159192.0,
+          "total_wait_time": 30717533.0,
+          "total_server_assignment_count": 159192.0
+        }
+      },
+      "ticketing": {
+        "limit": 1,
+        "mean_physical_backends": 1.0,
+        "max_physical_backends": 1.0,
+        "mean_active_backends": 0.09333333333333334,
+        "mean_idle_backends": 0.9066666666666666,
+        "mean_waiting_clients": 0.0,
+        "max_waiting_clients": 0.0,
+        "wait_ms_per_assignment": 0.14966395663956641,
+        "counter_deltas": {
+          "total_xact_count": 5904.0,
+          "total_wait_time": 883616.0,
+          "total_server_assignment_count": 5904.0
+        }
+      }
+    },
+    "scope": "Per-second sampled pools. Stats deltas use first/last offered-window samples."
+  },
+  "recovery": {
+    "original_raw_report_preserved": true,
+    "independent_recovery_sha256": "ff182277ee5529cb93a19fdce3168486e937f4d19df6fd87c0b0a0404ef1193d",
+    "actual_orders": 25064,
+    "paid_orders_and_unique_issued_tickets": 22869,
+    "expired_unpaid_orders": 2195,
+    "failed_holds_without_recorded_order": 359,
+    "paid_orders_with_failed_customer_status_retrieval": 2159,
+    "final_customer_failures_preserved": 4713,
+    "financial_integrity_violations": 0,
+    "safety_payments_durable": 2,
+    "queues_zero": true,
+    "native_namespace_helpers_removed": true,
+    "original_pooler_and_normal_runtime_restored": true,
+    "gates": {
+      "runtime_restored": true,
+      "runtime_stable": true,
+      "namespace_absent": true,
+      "helpers_absent": true,
+      "secondary_empty": true,
+      "generator_idle": true,
+      "queues_zero": true
+    }
+  },
+  "observability_limitations": [
+    {
+      "operation": "slot_failure_capture",
+      "type": "CaptureError",
+      "reason_code": "window_or_receipt_invalid"
+    },
+    {
+      "operation": "native_api_cpu",
+      "type": "ValueError"
+    }
+  ],
+  "interpretation": "Reject8/15/1: foreground was saturated while background had spare backends. Fixed isolation shifted the bottleneck and caused a retry storm. Both tested static allocations underperformed the shared pool. Financial closure does not qualify customer experience or suppress diagnostic failures.",
+  "next_step": "Retain the original shared pool. Diagnose original shared-pool payment-slot stalls and transaction/WAL cost from retained evidence; avoid another arbitrary static allocation or resource increase. Close failure-capture coverage gaps before the next comparison.",
+  "validation": {
+    "focused_unit_checks_passed": 275,
+    "local_exact_pooler_TLS_isolation_and_rollback_passed": true,
+    "production_qualified": false
+  },
+  "earlier_hourly_qualification": "Remains specific to its original configuration; not superseded by these failed headroom trials.",
+  "offline_diagnostic_followup": {
+    "coverage_rejection": "Missing replica observation",
+    "in_window_samples_with_missing_api_metrics": 5,
+    "retained_process_start_values_per_endpoint": 1,
+    "scope": "Retained trace only. Missing samples remain missing; no native CPU/completeness pass is inferred."
+  }
+}

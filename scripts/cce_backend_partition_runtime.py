@@ -36,9 +36,11 @@ class Partition:
     def __init__(self, session, guard, run, audit_cid, owner, persist):
         if (not re.fullmatch(r"adr0151-[0-9a-f]{12}",run)
                 or owner!=session.config["primary"]["repo"]+"/tmp/"+run
-                or guard.binding.get("cce_backend_partition_contract")!=partition.contract()):
+                or guard.binding.get("cce_backend_partition_contract")!=partition.contract(guard.binding.get("cce_backend_partition_contract",{}).get("decision"))):
             raise ValueError("Exactly owned backend partition required")
         self.session,self.guard,self.run,self.cid,self.owner,self.persist=session,guard,run,audit_cid,owner,persist
+        self.decision=guard.binding["cce_backend_partition_contract"]["decision"]
+        self.aliases=partition.allocation(self.decision)
         self.info=None
         self.record={"attempted":False,"restored":False,"paused":False}
         self.original=self.prepared=self.active=None
@@ -111,7 +113,7 @@ class Partition:
         self.info=info;self.original=base64.b64decode(info["config_b64"])
         self.record.update(backup_path=backup.relative_to(policy.ROOT).as_posix(),
                            backup_sha256=policy.digest(info))
-        self.prepared=partition.render(self.original,phase="prepare");self.active=partition.render(self.original)
+        self.prepared=partition.render(self.original,phase="prepare",decision=self.decision);self.active=partition.render(self.original,decision=self.decision)
         self.admin(["DATABASES","CONFIG","SERVERS"])
         self.record.update(attempted=True,container_id=info["container_id"],original_config_sha256=info["config_sha256"])
         self.checkpoint()
@@ -129,7 +131,8 @@ class Partition:
     def verify(self, *, phase="active"):
         data=self.admin(["DATABASES","SERVERS","CONFIG"])
         rows={r["name"]:r for r in data["DATABASES"] if r["name"]!="pgbouncer"}
-        caps={**partition.ALIASES,"ticketing":24} if phase=="prepare" else partition.ALIASES
+        aliases=getattr(self,"aliases",partition.ALIASES)
+        caps={**aliases,"ticketing":24} if phase=="prepare" else aliases
         settings={r["key"]:r["value"] for r in data["CONFIG"]}
         if (set(rows)!=set(caps) or settings.get("max_user_connections")!="24"
                 or settings.get("pool_mode")!="transaction" or settings.get("reserve_pool_size")!="0"

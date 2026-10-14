@@ -277,7 +277,7 @@ class Observers:
         from cce_backend_partition import selected as partition_selected
         if partition_selected(goal):
             helpers += ("cce_backend_partition.py","cce_backend_partition_runtime.py")
-            self.backend_partition = partition_contract()
+            self.backend_partition = partition_contract(self.stage.guard.binding["cce_backend_partition_contract"]["decision"])
             self.upload("backend-partition.json",json.dumps(self.backend_partition))
         expected = {}
         for name in helpers:
