@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "decisions": [
+    "ADR0237",
+    "ADR0238",
+    "ADR0324"
+  ],
+  "status": "LOCAL_CHECKS_PASSED_WITH_RELEASE_SCOPE_LIMITATION",
+  "completed_at_bangkok": "2026-10-14T23:13:34.283976+07:00",
+  "pr_heads_rechecked": [
+    {
+      "number": 6,
+      "url": "https://github.com/chawansit/flash-ticketing/pull/6",
+      "title": "Integrate source-pinned paid backend and worker corrections",
+      "head": "codex/tested-backend-workers-2026-10-09",
+      "head_sha": "a72d0b5a37bd3732580536c5c8f349f2b7b41712",
+      "base": "main",
+      "base_sha": "4b23a5e681354f9c6c387b07e3554c88c46e0695",
+      "draft": false,
+      "state": "open",
+      "mergeable": true
+    },
+    {
+      "number": 7,
+      "url": "https://github.com/chawansit/flash-ticketing/pull/7",
+      "title": "Integrate pinned CCE deployment and reproducible paid-load runner",
+      "head": "codex/cce-paid-runner-integration-2026-10-09",
+      "head_sha": "f4dd430332774915d3c09b22c64db9943076be5e",
+      "base": "codex/tested-backend-workers-2026-10-09",
+      "base_sha": "a72d0b5a37bd3732580536c5c8f349f2b7b41712",
+      "draft": false,
+      "state": "open",
+      "mergeable": true
+    },
+    {
+      "number": 8,
+      "url": "https://github.com/chawansit/flash-ticketing/pull/8",
+      "title": "Prepare payment DB optimization and independent callback dispatch bound",
+      "head": "codex/hourly-slot-attribution-2026-10-09",
+      "head_sha": "be4cbd884f8dc3160bf67625e0249bfaf9bcded4",
+      "base": "codex/cce-paid-runner-integration-2026-10-09",
+      "base_sha": "f4dd430332774915d3c09b22c64db9943076be5e",
+      "draft": true,
+      "state": "open",
+      "mergeable": true
+    }
+  ],
+  "main_base_sha": "4b23a5e681354f9c6c387b07e3554c88c46e0695",
+  "dependency_lock_sha256": "4c45aa6d68478b8f81e57eeb808f7ba55ad59275647cdc1bac28fdb795aaf14d",
+  "native_python": "3.12.14",
+  "dependency_versions_match_lock": true,
+  "prs": [
+    {
+      "pr": 6,
+      "head_sha": "a72d0b5a37bd3732580536c5c8f349f2b7b41712",
+      "fresh_local_checks": [
+        {
+          "check": "lint",
+          "exit_code": 0,
+          "seconds": 0.81,
+          "log_sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+        },
+        {
+          "check": "unit",
+          "exit_code": 0,
+          "seconds": 37.73,
+          "log_sha256": "5125cd42dc7e890336c6155fde14407a132a2c79f027784d5fe682a10d8b79d8"
+        }
+      ],
+      "native_unit": {
+        "passed": 328,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "promotion_source_modules": 21,
+      "promotion_source_hashes_match": true,
+      "latest_measured_source_matches": false,
+      "latest_measured_source_differences": [
+        "src/ticketing/api.py",
+        "src/ticketing/config.py",
+        "src/ticketing/http.py",
+        "src/ticketing/observability.py",
+        "src/ticketing/workers.py",
+        "src/ticketing/application/ports.py",
+        "src/ticketing/application/reservations.py",
+        "src/ticketing/infrastructure/order_status_projector.py",
+        "src/ticketing/infrastructure/postgres.py",
+        "src/ticketing/infrastructure/reservations.py",
+        "src/ticketing/infrastructure/slot_diagnostics.py"
+      ],
+      "payment_operation_route_present": false
+    },
+    {
+      "pr": 7,
+      "head_sha": "f4dd430332774915d3c09b22c64db9943076be5e",
+      "fresh_local_checks": [
+        {
+          "check": "lint",
+          "exit_code": 0,
+          "seconds": 0.84,
+          "log_sha256": "a4443afdcfb6d7363adb285762515ccf7cf50473b1a05c20c1a50f6bed4d26b0"
+        },
+        {
+          "check": "check_repository_names.py",
+          "exit_code": 0,
+          "seconds": 14.98,
+          "log_sha256": "6cc1b1876157ffe25285e49e401871fb57350ab6ede221bbf4fb195415253670"
+        },
+        {
+          "check": "check_cce_reproducibility.py",
+          "exit_code": 0,
+          "seconds": 9.64,
+          "log_sha256": "430bc68bda8fb792de249e380ab7609f5d62dd00bbce114c71527bb2b0c68b0b"
+        },
+        {
+          "check": "unit",
+          "exit_code": 0,
+          "seconds": 114.14,
+          "log_sha256": "3f5e0831ca2e5aa8790db5ee9dea41aadf40d3b83d9b5cd309609075bc13921b"
+        }
+      ],
+      "native_unit": {
+        "passed": 1802,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "promotion_source_modules": 21,
+      "promotion_source_hashes_match": true,
+      "latest_measured_source_matches": false,
+      "latest_measured_source_differences": [
+        "src/ticketing/api.py",
+        "src/ticketing/config.py",
+        "src/ticketing/http.py",
+        "src/ticketing/observability.py",
+        "src/ticketing/workers.py",
+        "src/ticketing/application/ports.py",
+        "src/ticketing/application/reservations.py",
+        "src/ticketing/infrastructure/order_status_projector.py",
+        "src/ticketing/infrastructure/postgres.py",
+        "src/ticketing/infrastructure/reservations.py",
+        "src/ticketing/infrastructure/slot_diagnostics.py"
+      ],
+      "payment_operation_route_present": false
+    }
+  ],
+  "shared_backend_inputs_identical": {
+    "src": true,
+    "migrations": true,
+    "tests/integration": true,
+    "tests/end_to_end": true,
+    "compose.yaml": true
+  },
+  "shared_linux_full_stack": {
+    "counts": {
+      "passed": 586,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "breakdown": {
+      "unit": 328,
+      "integration": 256,
+      "end_to_end": 2
+    },
+    "covers_prs": [
+      6,
+      7
+    ],
+    "coverage_basis": "Application source, migrations, lockfile, Dockerfile, Compose, integration and end-to-end tests are byte-identical. Each PR also has its own fresh unit run.",
+    "junit_sha256": "c0c6f6c018a129c1216ffb0ebf4972deb477235b9f8728a5ee2e94d2559ac229"
+  },
+  "pr7_platform_case": {
+    "native_skip": "Symlink creation unavailable on Windows",
+    "linux_execution": {
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "junit_sha256": "18c0588190510d680bfefe2ee50e2b3166742e2ae6a2211551387cbf2e26e108"
+  },
+  "installed_image_verification": {
+    "pass": true,
+    "installed_modules_verified": 21,
+    "configuration_defaults_verified": 14,
+    "pr6_pr7_runtime_identical": true,
+    "local_image_id": "sha256:960e806aa1c1f26a886aad7f09f1558cb2ba77f90054cfc12fe79db66f05fd02",
+    "container_python": "3.12.14",
+    "image_scope": "Fresh local integration image; not a published benchmark image"
+  },
+  "default_settings_verified": {
+    "api_payment_pool_max": 0,
+    "hold_seconds": 120,
+    "order_status_cache_ms": 0,
+    "order_status_event_refresh": false,
+    "order_status_event_refresh_dedup": false,
+    "order_status_poll_ms": 0,
+    "payment_confirmation_async": false,
+    "pool_max": 12,
+    "pool_wait_ms": 150,
+    "reservation_mode": "postgres",
+    "reservation_write_pipeline": false,
+    "reservation_writer_batch_size": 1,
+    "simulator_concurrency": 4,
+    "simulator_dispatch_mode": "batch"
+  },
+  "local_compose_api_overrides": {
+    "DB_POOL_MAX": "12",
+    "ENVIRONMENT": "development",
+    "EXPIRY_BATCH_SIZE": "8",
+    "HOLD_SECONDS": "120",
+    "PUBLISHER_BATCH_SIZE": "32",
+    "RECONCILE_BACKOFF_MS": "1000",
+    "RECONCILE_BATCH_SIZE": "8",
+    "RECONCILE_BUDGET_MS": "500",
+    "RECONCILE_INTERVAL_SECONDS": "20",
+    "RECONCILE_LEASE_SECONDS": "30",
+    "RECONCILE_SEED_BATCH": "200",
+    "RECONCILE_WINDOW_SECONDS": "300",
+    "REDIS_RESERVATION_MAX_BACKLOG": "10000",
+    "REDIS_RESERVATION_REPLICA_ACKS": "0",
+    "REDIS_RESERVATION_WAIT_MS": "100",
+    "REDIS_RESERVE_CONCURRENCY": "128",
+    "REFRESH_BATCH_SIZE": "2",
+    "REFRESH_COOLDOWN_MS": "250",
+    "RESERVATION_MODE": "postgres",
+    "RESERVE_CONCURRENCY": "12",
+    "SIMULATOR_CONCURRENCY": "4"
+  },
+  "test_overlay": "Owned local project/network/volumes, no host port bindings; original application environment and commands preserved.",
+  "setup_attempts": [
+    {
+      "issue": "Compose resolution initially omitted seed/test profiles",
+      "outcome": "Preserved failure; regenerated with original profile definitions before tests."
+    },
+    {
+      "issue": "Two Linux-case setup copies hit Windows shared-filesystem read errors before pytest started",
+      "outcome": "Copied exact inputs through a Docker build; Linux regression then passed."
+    }
+  ],
+  "hosted_ci": {
+    "status": "UNVERIFIED",
+    "reason": "Codex GitHub CI connector requested account connection; local equivalents were executed. No hosted check success is inferred."
+  },
+  "draft_pr8": {
+    "head_sha": "be4cbd884f8dc3160bf67625e0249bfaf9bcded4",
+    "full_checks_executed": false,
+    "reason": "Draft outside the final-PR scope; do not promote as an approved release."
+  },
+  "latest_capacity_image": "sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+  "release_scope": {
+    "older_foundation_local_checks_pass": true,
+    "contains_latest_customer_recovery": false,
+    "represents_latest_100_90_tickets_per_second_runtime": false,
+    "next": "Promote the selected recovery/runtime source and evidence in separate reviewed follow-up PRs before claiming main reproduces the latest result."
+  },
+  "warnings": [
+    "Starlette/AnyIO deprecation warnings during tests.",
+    "Linux focused check passed with a nonfunctional pytest cache-directory permission warning."
+  ],
+  "cleanup": {
+    "owned_test_containers_removed": true,
+    "owned_test_volumes_removed": true,
+    "owned_test_network_removed": true,
+    "temporary_local_images_retained_for_audit": true
+  },
+  "cloud_load_started": false,
+  "cloud_deployments_changed": false,
+  "main_merge_performed": false,
+  "new_capacity_measurement": false
+}
