@@ -1,0 +1,32 @@
+{
+  "decision": "ADR0327",
+  "pass": true,
+  "unit_tests_passed": 294,
+  "unit_operator_state_isolated": true,
+  "ruff_pass": true,
+  "exact_new_goal_and_real_binding_verified": true,
+  "fixture120_ownership_and_program_verified": true,
+  "generator_rate120_concurrency500_verified": true,
+  "source_contract_sha256": "514443fe6ccde2220b01c8162d816b9990e3e0cd6765ff3cb32b6571cbfc91de",
+  "customer_dispatches": 0,
+  "checked_at_utc": "2026-10-14T18:39:17.901522+00:00",
+  "application_image_unchanged": true,
+  "registry_manifest_digest": "sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+  "reference_result_sha256": "6058404afe336e9851ff0ade5b9c2277b26af72b917d186fb2401f34455a3cd0",
+  "offered_journeys_per_second": 120,
+  "offered_seconds": 300,
+  "expected_journeys": 36000,
+  "minimum_conservative_paid_issued": 35400,
+  "generator_concurrency": 500,
+  "physical_database_backends": 24,
+  "api_pods": 4,
+  "background_pods": 15,
+  "cloud_capacity_measured": false,
+  "audit_correction_verification": {
+    "tests_passed": 55,
+    "terminal_audit120_show_program_executed_locally": true,
+    "unsupported_terminal_audit_rejected_before_manifest_upload": true,
+    "source_contract_sha256": "fe2d825672c4d6cc683f3086b7b82535afb4bbb511cfa5ce0e255e01e9c74417",
+    "scope": "Post-run correction; original pre-load receipt and failed cloud result preserved."
+  }
+}

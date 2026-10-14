@@ -36,12 +36,22 @@ TICKET_TARGET = StageProfile("cce_ticket_target", "bounded_cce_ticket_target", 3
 HEADROOM = StageProfile("cce_ticket_target", "bounded_cce_ticket_target", 300, 102, 30600, 420, 3600, 1, 3600)
 
 
+RATE_PUSH = StageProfile("cce_ticket_target", "bounded_cce_ticket_target", 300, 120, 36000, 420, 3600, 1, 3600)
+
+
 def for_guard(guard):
     prefix = guard.key.split("__")[0]
     if prefix == HEADROOM.ledger_prefix and getattr(guard, "binding", {}).get("cce_headroom_contract"):
         from cce_recovery_headroom import contract
-        if guard.binding["cce_headroom_contract"] != contract():
+        goal = __import__("work_envelope").envelope()["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"]
+        if guard.binding["cce_headroom_contract"] != contract(goal):
             raise ValueError("Exact declared headroom binding required")
+        from cce_throughput_push import contract as push_contract
+        from cce_throughput_push import selected as push_selected
+        if push_selected(goal):
+            if guard.binding.get("cce_throughput_push_contract") != push_contract():
+                raise ValueError("Exact120/s stage binding required")
+            return RATE_PUSH
         return HEADROOM
     for profile in (SHORT, HOURLY, TICKET_TARGET):
         if prefix == profile.ledger_prefix:

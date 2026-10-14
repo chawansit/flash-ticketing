@@ -49,12 +49,14 @@ def contract():
 def selected(goal):
     if goal is None or not KEYS.intersection(goal):
         return False
+    from cce_throughput_push import bounds
+    rate = bounds(goal)[0]
     view = goal.get("_headroom_runtime_view") is True
     expected = {"fulfillment_batch_decision": "ADR0324", "fulfillment_batch_receipt_sha256": pins.RECEIPT_SHA256,
                 "fulfillment_batch_contract_sha256": policy.digest(contract()), "baseline_sha256": BASELINE,
                 "extension_decision": "ADR0271" if view else "ADR0277",
                 "profile": "cce_paid_comparison" if view else "cce_ticket_target",
-                "offered_journeys_per_second": 84 if view else 102, "offered_seconds": 300,
+                "offered_journeys_per_second": 84 if view else rate, "offered_seconds": 300,
                 "maximum_paid_stages": 1, "maximum_experiment_seconds": 3600,
                 "maximum_pods": 18 if view else 19, "generator_concurrency": 500,
                 "acquisition_budget": 20, "pod_vcpu": 1, "pod_memory_gib": 2,

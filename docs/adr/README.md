@@ -316,3 +316,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0325: Transfer ticketing patterns to the customer stack](0325-transfer-ticketing-patterns-to-customer-stack.md) - Proposed language-neutral customer contracts and acceptance checklist; no customer port or deployment implemented.
 
 - [ADR0326: Compare the upgraded RDS at unchanged ticketing load](0326-compare-upgraded-rds-at-fixed-load.md) - Five-minute upgraded-RDS repeat passed at 100.89 paid-issued tickets/s with zero customer errors; runtime restored; 102/s hourly profile pending.
+
+- [ADR0327: Push five-minute throughput at the existing cloud budget](0327-push-fixed-budget-five-minute-throughput.md) - Observed118.65 paid-issued tickets/s with zero customer errors; original audit guard failed, independent36000-ticket reconciliation passed and runtime restored. Clean repeat pending.

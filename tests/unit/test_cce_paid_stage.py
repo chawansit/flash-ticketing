@@ -404,3 +404,20 @@ def test_explicit_recovery_stage_transfers_sealed_sdk_and_coordinator(recovery_s
     assert transferred["run_synchronized_paid_generator.py"] == stage.sha(recovery_sources[1])
     assert candidate.record["customer_recovery_max_attempts"] == 3
     assert candidate.prepared and not candidate.record["customers_dispatched"]
+
+
+def test_terminal_audit_mismatch_stops_before_manifest_upload_or_dispatch(area, monkeypatch):
+    import cce_bounded_financial_audit as audit
+    from cce_paid_profiles import RATE_PUSH
+    paid, calls, fixture, manifest, _admission = area
+    paid.profile = RATE_PUSH
+    fixture = {**fixture, "shows": 120, "show_ids": [str(uuid4()) for _ in range(120)]}
+    def reject(events, expected):
+        assert len(events) == 120 and expected == 36000
+        raise ValueError("Unsupported terminal audit cohort")
+    monkeypatch.setattr(audit, "program", reject)
+    with pytest.raises(ValueError, match="terminal audit"):
+        paid.prepare(fixture, manifest)
+    assert paid.record["customers_dispatched"] is False
+    assert "private_manifest_uploaded" not in paid.record
+    assert not any(name in {"put", "launch"} for name, _value in calls)

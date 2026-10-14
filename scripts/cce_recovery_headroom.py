@@ -3,6 +3,7 @@ import hashlib
 from uuid import UUID
 
 import work_envelope as policy
+from cce_throughput_push import bounds
 
 RATE, SHOWS, EXPECTED, TARGET = 102, 102, 30600, 30000
 BASELINE_LEDGER = "bounded_cce_paid_comparison__018812d8ffb1"
@@ -45,10 +46,11 @@ def sha(raw):
     return hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
 
 
-def contract():
-    return {"decision": "ADR0312", "offered_rate": RATE, "offered_seconds": 300,
-            "expected_journeys": EXPECTED, "fixture_shows": SHOWS,
-            "minimum_unique_inside_window": TARGET, "concurrency": 500,
+def contract(goal=None):
+    rate, shows, expected, target = bounds(goal)
+    return {"decision": "ADR0312", "offered_rate": rate, "offered_seconds": 300,
+            "expected_journeys": expected, "fixture_shows": shows,
+            "minimum_unique_inside_window": target, "concurrency": 500,
             "max_attempts": 3, "experiment_limit": 3600,
             "helper_sha256": sha((policy.ROOT / SOURCE).read_bytes()),
             "sealed_client_unchanged": True, "resources_and_budgets_unchanged": True,
@@ -69,9 +71,10 @@ def runtime_view(goal):
 def selected(goal):
     if goal is None or not {"headroom_decision", "headroom_contract_sha256"}.intersection(goal):
         return False
+    rate = bounds(goal)[0]
     if "_headroom_runtime_view" in goal:
         actual = {**goal, "decision": "ADR0277", "extension_decision": "ADR0277",
-                  "profile": "cce_ticket_target", "offered_journeys_per_second": RATE,
+                  "profile": "cce_ticket_target", "offered_journeys_per_second": rate,
                   "maximum_pods": 19 if SCALE_KEYS.intersection(goal) else 18}
         actual.pop("_headroom_runtime_view")
         if goal.get("_headroom_runtime_view") is not True or goal != runtime_view(actual):
@@ -108,21 +111,25 @@ def selected(goal):
     context = context_selected(goal) or writer_context or notification or explicit or fulfillment
     expected = {"headroom_decision": "ADR0312", "decision": "ADR0277",
                 "extension_decision": "ADR0277", "profile": "cce_ticket_target",
-                "offered_journeys_per_second": RATE, "offered_seconds": 300,
+                "offered_journeys_per_second": rate, "offered_seconds": 300,
                 "maximum_experiment_seconds": 3600, "maximum_paid_stages": 1,
                 "generator_concurrency": 500, "acquisition_budget": 20,
                 "maximum_pods": 19 if scale else 18, "pod_vcpu": 1, "pod_memory_gib": 2,
                 "payment_slot_arm": "control" if correction else "candidate", "gateway_read_recovery_decision": "ADR0311"}
     if (any(type(goal.get(k)) is not type(v) or goal.get(k) != v for k, v in expected.items())
-            or goal.get("headroom_contract_sha256") != policy.digest(contract())
+            or goal.get("headroom_contract_sha256") != policy.digest(contract(goal))
             or goal.get("baseline_sha256") != (__import__("cce_fulfillment_batch_profile").BASELINE if fulfillment else __import__("cce_explicit_start_profile").BASELINE if explicit else __import__("cce_notification_dedup_profile").BASELINE if notification else WRITER_SHA256 if batch or partition or context else SLOT_SHA256 if scale else FAILURE_SHA256 if correction else BASELINE_SHA256)):
-        raise ValueError("Exact102/s fixed-budget recovery headroom authorization required")
+        raise ValueError("Exact declared fixed-budget recovery headroom authorization required")
     return True
 
 
 def require_short(goal):
     if not selected(goal):
         raise ValueError("Explicit recovery headroom prerequisite required")
+    from cce_throughput_push import require_reference
+    from cce_throughput_push import selected as push_selected
+    if push_selected(goal):
+        require_reference()
     report = policy.read(policy.ROOT / BASELINE_PATH)
     state = policy.read(policy.STATE)[BASELINE_LEDGER]
     binding = state["binding"]
@@ -313,6 +320,12 @@ def extend_plan(plan, goal):
     context = context_selected(goal) or writer_context or notification or explicit or fulfillment
     if context:
         relative, report = require_writer_failure(goal)
+    from cce_throughput_push import require_reference
+    from cce_throughput_push import selected as push_selected
+    push = push_selected(goal)
+    if push:
+        relative, report = require_reference()
+    rate, shows, expected, target = bounds(goal)
     payment = 2 if correction else 3
     scale_fields = ({"worker_counts": writer_scale_contract()["native_counts"],
                      "maximum_pods": 19, "total_requested_vcpu": 7.75,
@@ -324,16 +337,16 @@ def extend_plan(plan, goal):
                          "backend_partition_decision":goal["backend_partition_decision"]} if partition else {})
     return {**plan, **scale_fields, **batch_fields, **partition_fields, "decision": "ADR0277", "extension_decision": "ADR0277",
             "kind": "fulfillment_transaction_batch_headroom" if fulfillment else "explicit_driver_start_headroom" if explicit else "ticket_notification_dedup_headroom" if notification else "post_lock_writer_sale_context_headroom" if writer_context else "post_lock_payment_context_headroom" if context else "foreground_backend_isolation_headroom" if partition else "writer_batch_headroom" if batch else "writer_concurrency_headroom" if scale else "corrective_general_slot_headroom" if correction else "bounded_recovery_runtime_headroom",
-            "single_changed_factor": "bounded_fulfillment_transaction_grouping" if fulfillment else "one_explicit_driver_transaction_start" if explicit else "bounded_ticket_notification_refresh_suppression" if notification else "post_lock_writer_sale_context" if writer_context else "post_lock_payment_context" if context else "foreground_background_backend_partition" if partition else "RESERVATION_WRITER_BATCH_SIZE" if batch else "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
-            "common": {"buyer_journeys_per_second": RATE, "duration_seconds": 300},
-            "expected_journeys": EXPECTED, "target_unique_tickets": TARGET,
-            "fixture_shows": SHOWS, "generator_concurrency": 500,
+            "single_changed_factor": "offered_workload" if push else "bounded_fulfillment_transaction_grouping" if fulfillment else "one_explicit_driver_transaction_start" if explicit else "bounded_ticket_notification_refresh_suppression" if notification else "post_lock_writer_sale_context" if writer_context else "post_lock_payment_context" if context else "foreground_background_backend_partition" if partition else "RESERVATION_WRITER_BATCH_SIZE" if batch else "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
+            "common": {"buyer_journeys_per_second": rate, "duration_seconds": 300},
+            "expected_journeys": expected, "target_unique_tickets": target,
+            "fixture_shows": shows, "generator_concurrency": 500,
             "payment_connections_per_api": payment, "general_connections_per_api": 4 - payment,
             "connections_per_api": 4, "baseline_evidence": relative,
-            "baseline_sha256": policy.digest(report), "baseline_is_passing_control": not correction,
+            "baseline_sha256": policy.digest(report), "baseline_is_passing_control": push or not correction,
             "slot_correction_decision": "ADR0314" if correction else None,
-            "matched_performance_comparison": False, "headroom_contract": contract(),
-            "duration_reason": "One102offered/s300s headroom test; require30000unique paid-issued tickets in-window; unchanged app/resources/budgets and bounded recovery."}
+            "matched_performance_comparison": False, "headroom_contract": contract(goal),
+            "duration_reason": f"One{rate}offered/s300s test; require{target}unique paid-issued tickets in-window; unchanged app/resources/budgets and bounded recovery."}
 
 
 def plan(goal):
@@ -387,7 +400,7 @@ def validate_binding(goal, binding):
     ignored = {"cce_paid_entry_sources", "cce_paid_core_sources", "cce_manifest_sha256",
                "baseline_sha256", "cce_verification_contract_sha256", "cce_headroom_contract",
                "cce_gateway_read_recovery_contract", "cce_inventory_renewal_contract",
-               "cce_metric_admission_contract_sha256"}
+               "cce_metric_admission_contract_sha256", "cce_throughput_push_contract"}
     if context:
         if fulfillment:
             import cce_fulfillment_batch_identity as context_pins
@@ -502,6 +515,7 @@ def validate_binding(goal, binding):
         added |= {"scripts/cce_notification_dedup_profile.py", "scripts/cce_notification_dedup_identity.py",
                   "docs/capacity/cce/ticket-notification-dedup-image-2026-10-14.json"}
         if fulfillment:
+            added |= {"scripts/cce_throughput_push.py"}
             added |= {"scripts/cce_fulfillment_batch_profile.py", "scripts/cce_fulfillment_batch_identity.py",
                       "docs/capacity/cce/fulfillment-transaction-batching-local-2026-10-14.json"}
         if explicit:
@@ -523,12 +537,12 @@ def validate_binding(goal, binding):
             or {k:v for k,v in actual_client.items() if k != "helper_sha256"}
                != {k:v for k,v in old_client.items() if k != "helper_sha256"}):
         raise ValueError("Sealed client or recovery semantics changed")
-    if (binding.get("cce_headroom_contract") != contract()
+    if (binding.get("cce_headroom_contract") != contract(goal)
             or binding.get("cce_verification_contract_sha256") != policy.digest(verification_contract())):
         raise ValueError("Exact sealed headroom and financial verification contracts required")
 
 
-def qualify_workload(parent, coordinator):
+def qualify_workload(parent, coordinator, goal=None):
     from customer_gateway_read_bundle import CLIENT, receipt
     if len(parent) != 80 or sha(parent[CLIENT]) != receipt()["child_client_sha256"]:
         raise ValueError("Unchanged sealed gateway-read client required")
@@ -539,7 +553,7 @@ def qualify_workload(parent, coordinator):
             or sha(coordinator) != data["files"]["artifacts/customer-timeout/coordinator.py"]):
         raise ValueError("Exact timeout-retaining sharded parent and coordinator required")
     old = b"if not 2 <= args.rate <= 100 or not 1 <= args.seconds <= 300:"
-    new = b"if not 2 <= args.rate <= 102 or not 1 <= args.seconds <= 300:"
+    new = f"if not 2 <= args.rate <= {bounds(goal)[0]} or not 1 <= args.seconds <= 300:".encode()
     if parent[name].count(old) != 1:
         raise ValueError("Exact prior sharded ceiling required")
     source = parent[name].replace(old, new)
@@ -549,14 +563,15 @@ def qualify_workload(parent, coordinator):
     return {**parent, name: source}, coordinator.replace(before, after)
 
 
-def issuance_program(events, start):
+def issuance_program(events, start, goal=None):
     import math
-    if (len(events) != SHOWS or len(set(events)) != SHOWS
+    _, shows, expected, target = bounds(goal)
+    if (len(events) != shows or len(set(events)) != shows
             or any(str(UUID(v)) != v for v in events)
             or type(start) not in (int, float) or not math.isfinite(start) or start <= 0):
-        raise ValueError("Exact102-show cohort and finite offered start required")
+        raise ValueError("Exact declared cohort and finite offered start required")
     from cce_hourly_window import QUERY
-    query = QUERY.replace("3598", "298").replace("3600", "300").replace("300000", str(TARGET)).replace("302400", str(EXPECTED))
+    query = QUERY.replace("3598", "298").replace("3600", "300").replace("300000", str(target)).replace("302400", str(expected))
     return "events=" + repr(events) + "\nstart=" + repr(start) + "\n" + query
 
 

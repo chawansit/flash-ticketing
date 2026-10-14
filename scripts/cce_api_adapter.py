@@ -78,10 +78,10 @@ def contract():
     from cce_payment_slot_profile import selected as slot_selected
     if slot_selected(goal):
         data["api_settings"]["API_PAYMENT_POOL_MAX"] = str(connections(goal))
-    from cce_recovery_headroom import RATE
     from cce_recovery_headroom import selected as headroom_selected
+    from cce_throughput_push import bounds
     if headroom_selected(goal):
-        data["workload"].update(offered_journeys_per_second=RATE, concurrency=500)
+        data["workload"].update(offered_journeys_per_second=bounds(goal)[0], concurrency=500)
     from cce_explicit_start_profile import selected as explicit_selected
     if explicit_selected(goal):
         data["api_settings"]["DB_EXPLICIT_TRANSACTION_START"] = "1"
@@ -279,9 +279,9 @@ os.execvp(command[0],command)
 
 
 def objects(run, service, primary_ip, registry_username, registry_password, *, acquisition_budget=12, profile=None):
-    from cce_paid_profiles import HEADROOM, HOURLY, SHORT, TICKET_TARGET
+    from cce_paid_profiles import HEADROOM, HOURLY, RATE_PUSH, SHORT, TICKET_TARGET
     profile = SHORT if profile is None else profile
-    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM):
+    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, RATE_PUSH):
         raise ValueError("Exact native lifetime profile required")
     """Private payloads: never publish returned Secrets."""
     import cce_transaction_profile as transaction

@@ -43,8 +43,9 @@ def authorized_today(envelope, now=None):
     if mode == "goal_bounded":
         goal = exception.get("goal_bounded_authorization", {})
         budget = goal.get("spending_allowance", {})
-        from cce_recovery_headroom import RATE, runtime_view
+        from cce_recovery_headroom import runtime_view
         from cce_recovery_headroom import selected as headroom_selected
+        from cce_throughput_push import bounds
         actual_goal = goal
         headroom = headroom_selected(goal)
         if headroom:
@@ -89,10 +90,10 @@ def authorized_today(envelope, now=None):
             from cce_ticket_target_profile import active
             active(goal)
             decision = "ADR0277"
-            from cce_recovery_headroom import RATE
             from cce_recovery_headroom import selected as headroom_selected
+            from cce_throughput_push import bounds
             expected.update(profile="cce_ticket_target", maximum_pods=18, pod_memory_gib=2,
-                            offered_journeys_per_second=RATE if headroom_selected(goal) else 168)
+                            offered_journeys_per_second=bounds(goal)[0] if headroom_selected(goal) else 168)
             if goal.get("worker_resources") != {"cpu": "250m", "memory": "512Mi"}:
                 raise ValueError("Exact ticket-target worker resources required")
         if goal.get("profile") == "cce_hourly_qualification":
@@ -112,7 +113,7 @@ def authorized_today(envelope, now=None):
             goal = actual_goal
             decision = "ADR0277"
             from cce_recovery_headroom import writer_scale_selected
-            expected.update(profile="cce_ticket_target", offered_journeys_per_second=RATE,
+            expected.update(profile="cce_ticket_target", offered_journeys_per_second=bounds(goal)[0],
                             maximum_pods=19 if writer_scale_selected(goal) else 18)
         if (
             now.tzinfo is None or exception.get("decision") != "ADR0220"
