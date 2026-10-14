@@ -236,3 +236,46 @@ def test_rebalance_closure_preserves_paid_customer_failure(proof,monkeypatch,fau
         assert stage["customer"]["final_customer_failures"]==4713
     else:
         with pytest.raises(ValueError):r.validate(report,entry,scope,evidence,fixture)
+
+
+@pytest.mark.parametrize("fault", [None, "recovery_counts", "retry_count", "missing_shard", "wrong_contract", "ticket_loss"])
+def test_payment_context_failure_closes_exact_actual_cohort_without_changing_quality(proof, monkeypatch, fault):
+    from cce_measured_payment_context_profile import contract
+    report, entry, scope, evidence, fixture = copy.deepcopy(proof)
+    binding = {"cce_measured_payment_context_contract": contract()}
+    report.update(run=r.CONTEXT_RUN, binding_sha256=p.digest(binding))
+    stage = report["paid_stage"]
+    stage["customer"].update(scheduled=30600, dispatched=30280, completed=30280, fulfilled=30280,
+        generator_drops=320, final_customer_failures=0, outcomes={"fulfilled": 30280},
+        first_attempt_error_journeys=114, recovered_journeys=114, retry_attempts=119,
+        measurement_complete=True, accounting_complete=True, shard_evidence_states=["final", "final"])
+    stage["financial"]["counts"].update({k: 30280 for k in r.PAID_COUNTS})
+    stage["financial"]["counts"].update(orders=30280, expired_orders=0)
+    stage["financial"]["relationships"]["unique_issued_tickets"] = 30280
+    evidence["fresh_financial"]["counts"].update({k: 30280 for k in r.PAID_COUNTS})
+    evidence["fresh_financial"]["counts"].update(orders=30280, expected=30280, expected_paid=30280, expired_orders=0)
+    evidence["fresh_financial"]["relationships"]["unique_issued_tickets"] = 30280
+    sha = p.digest(report)
+    monkeypatch.setattr(r, "CONTEXT_RESULT", sha)
+    entry.update(ledger=r.CONTEXT_LEDGER, result_sha256=sha, binding_sha256=p.digest(binding))
+    scope.update(active_run=r.CONTEXT_RUN, cce_paid_result_sha256=sha, binding=binding)
+    evidence.update(run=r.CONTEXT_RUN, ledger=r.CONTEXT_LEDGER, original_result_sha256=sha,
+                    binding_sha256=p.digest(binding))
+    if fault == "recovery_counts":
+        stage["customer"]["recovered_journeys"] -= 1
+    elif fault == "retry_count":
+        stage["customer"]["retry_attempts"] -= 1
+    elif fault == "missing_shard":
+        stage["customer"]["shard_evidence_states"] = ["final", "running"]
+    elif fault == "wrong_contract":
+        scope["binding"]["cce_measured_payment_context_contract"]["backend_connections"] = 25
+    elif fault == "ticket_loss":
+        evidence["fresh_financial"]["counts"]["tickets"] -= 1
+    original = copy.deepcopy((report, entry, scope, evidence, fixture))
+    if fault:
+        with pytest.raises(ValueError):
+            r.validate(report, entry, scope, evidence, fixture)
+    else:
+        assert r.validate(report, entry, scope, evidence, fixture)
+    assert (report, entry, scope, evidence, fixture) == original
+    assert report["pass"] is False and report["paid_stage"]["customer"]["generator_drops"] == 320

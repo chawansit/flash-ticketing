@@ -273,6 +273,9 @@ class Observers:
         from cce_committed_status_profile import selected as committed_selected
         if committed_selected(goal):
             helpers += ("cce_committed_status_identity.py",)
+            from cce_measured_payment_context_profile import selected as context_selected
+            if context_selected(goal):
+                helpers += ("cce_measured_payment_context_identity.py",)
         from cce_backend_partition import contract as partition_contract
         from cce_backend_partition import selected as partition_selected
         if partition_selected(goal):

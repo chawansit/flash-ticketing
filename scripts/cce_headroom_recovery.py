@@ -34,6 +34,11 @@ REBALANCE_LEDGER = "bounded_cce_ticket_target__fb41a8fc8ec6"
 REBALANCE_RESULT = "0f54c4714069bb725172b73f06847316efcac875d7a5fe2c2b5177d5d1bd9749"
 
 
+CONTEXT_RUN = "adr0151-6b6940b14bd8"
+CONTEXT_LEDGER = "bounded_cce_ticket_target__9333a9ca13e4"
+CONTEXT_RESULT = "83c12a2c781ecbfdec4119c0fa6c9bcc83e2a6c89ccebe10bf1b4ea9b2b44606"
+
+
 def case(run):
     if run == RUN:
         return RUN, LEDGER, RESULT, ORDERS, PAID, EXPIRED, 26636, 2583, 1381, {"fulfilled": 26636, "order_http_503": 1305, "payment_http_503": 76}
@@ -47,6 +52,8 @@ def case(run):
         return PARTITION_RUN, PARTITION_LEDGER, PARTITION_RESULT, 15398, 15398, 0, 15398, 15201, 1, {"fulfilled": 15398, "hold_http_502": 1}
     if run == REBALANCE_RUN:
         return REBALANCE_RUN, REBALANCE_LEDGER, REBALANCE_RESULT, 25064, 22869, 2195, 20710, 5177, 4713, {"fulfilled":20710,"order_http_503":2159,"payment_http_503":1851,"hold_http_503":358,"command_http_503":344,"hold_http_502":1}
+    if run == CONTEXT_RUN:
+        return CONTEXT_RUN, CONTEXT_LEDGER, CONTEXT_RESULT, 30280, 30280, 0, 30280, 320, 0, {"fulfilled": 30280}
     raise ValueError("Unknown failed headroom recovery case")
 GATES = ("runtime_restored", "runtime_stable", "namespace_absent", "helpers_absent",
          "secondary_empty", "generator_idle", "queues_zero")
@@ -110,6 +117,14 @@ def validate(report, entry, scope, evidence, fixture):
     if (not all(required) or type(elapsed) not in (float, int)
             or not math.isfinite(elapsed) or not 0 <= elapsed <= 900):
         raise ValueError("Exact failed headroom and independently reconciled retained cohort required")
+    if run == CONTEXT_RUN:
+        from cce_measured_payment_context_profile import contract as context_contract
+        if (scope.get("binding", {}).get("cce_measured_payment_context_contract") != context_contract()
+                or c.get("first_attempt_error_journeys") != 114 or c.get("recovered_journeys") != 114
+                or c.get("retry_attempts") != 119 or c.get("measurement_complete") is not True
+                or c.get("accounting_complete") is not True
+                or c.get("shard_evidence_states") != ["final", "final"]):
+            raise ValueError("Exact corrected-image customer and complete-shard evidence required")
     if run in {PARTITION_RUN,REBALANCE_RUN}:
         from cce_backend_partition import ORIGINAL_CONFIG, POOLER_IMAGE
         proof = evidence.get("pooler_rollback", {})

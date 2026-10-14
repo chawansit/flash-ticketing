@@ -8,7 +8,7 @@ HISTORICAL_MODULES = {"test_cce_api_adapter", "test_cce_worker_rebalance", "test
                       "test_cce_paid_lifecycle", "test_cce_paid_stage", "test_cce_hourly_integration",
                       "test_cce_hourly_observer_bootstrap", "test_cce_native_database_bridge",
                       "test_cce_complete_verification", "test_cce_metric_admission",
-                      "test_paid_metrics_failures"}
+                      "test_paid_metrics_failures", "test_cce_committed_status_comparison"}
 
 
 @pytest.fixture(autouse=True)

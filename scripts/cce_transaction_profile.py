@@ -101,6 +101,11 @@ def active(envelope=None):
 
 
 def proof_digest(goal):
+    from cce_measured_payment_context_profile import selected as context_selected
+    if context_selected(goal):
+        import cce_measured_payment_context_identity as pins
+        return pins.RECEIPT_SHA256
+
     from cce_committed_status_profile import selected as committed_selected
     if committed_selected(goal):
         from cce_committed_status_identity import RECEIPT_SHA256
@@ -138,6 +143,11 @@ def pair_receipt(goal):
 
 
 def image_for(goal):
+    from cce_measured_payment_context_profile import selected as context_selected
+    if context_selected(goal):
+        from cce_measured_payment_context_profile import image
+        return image()
+
     from cce_committed_status_profile import image as committed_image
     from cce_committed_status_profile import selected as committed_selected
     if committed_selected(goal):

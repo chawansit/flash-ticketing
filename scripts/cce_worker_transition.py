@@ -60,6 +60,10 @@ class WorkerTransition(Transition):
         from cce_recovery_headroom import writer_scale_selected
         if writer_scale_selected(self.goal):
             self.decision = "ADR0315"
+        from cce_measured_payment_context_profile import selected as context_selected
+        if context_selected(self.goal):
+            self.decision, self.normal_decision = "ADR0319", "ADR0319-bootstrap"
+            self.normal_selected = identity.specification(self.normal_decision)
         self.selected = identity.specification(self.decision)
 
     def capture(self):
@@ -82,7 +86,7 @@ class WorkerTransition(Transition):
         ip = self.session.config["primary"]["private_ipv4"]
         hashes = {role: policy.digest(workers.environment(role, values, ip, self.decision)) for role, values in envs.items()}
         hashes["api"] = policy.digest(cce.api_environment(self.service, ip, acquisition_budget=20))
-        if self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315"}:
+        if self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319"}:
             binding = {"decision": self.decision, "comparison_arm": self.arm,
                        "role_environment_sha256": hashes, "worker_counts": self.selected["counts"],
                        "manifest_digest": self.selected["manifest"], "source_identity_sha256": self.selected["source"],
@@ -96,7 +100,7 @@ class WorkerTransition(Transition):
         self.comparison_persist(binding)
         self.record["captured_worker_execution_sha256"] = policy.digest([execution_identity(r) for r in self.worker_rows])
         self.checkpoint()
-        if self.arm == "candidate" or self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315"}:
+        if self.arm == "candidate" or self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319"}:
             self.worker_runtime = workers.Workers(self.deployment, workers.objects(self.run, envs, ip, self.decision, profile=for_guard(self.guard)), self.read_metrics,
                                                   lambda value: self.persist({"workers": copy.deepcopy(value)}), decision=self.decision, failure_persist=self.failure_persist)
 

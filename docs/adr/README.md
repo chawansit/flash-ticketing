@@ -301,4 +301,4 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0318: Rebalance isolated backend slots toward fulfillment](0318-rebalance-isolated-backends-toward-fulfillment.md)
 
-- [ADR0319: Apply post-lock payment context to the measured shared image](0319-apply-post-lock-payment-context-to-measured-image.md) - One-method candidate locally tested and SWR/ECS source-verified; paid comparison pending.
+- [ADR0319: Apply post-lock payment context to the measured shared image](0319-apply-post-lock-payment-context-to-measured-image.md) - Controlled102/s candidate rejected; failed experiment independently reconciled and restored.

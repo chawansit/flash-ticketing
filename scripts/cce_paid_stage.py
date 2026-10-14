@@ -44,6 +44,8 @@ def identity():
         "scripts/cce_inventory_renewal.py", "scripts/cce_recovery_headroom.py",
         "scripts/cce_writer_scale_verification.py",
         "scripts/cce_backend_partition.py", "scripts/cce_backend_partition_runtime.py",
+        "scripts/cce_measured_payment_context_profile.py", "scripts/cce_measured_payment_context_identity.py",
+        "docs/capacity/cce/measured-payment-context-image-2026-10-14.json",
         "scripts/cce_gateway_read_profile.py", "scripts/customer_gateway_read_bundle.py",
         "scripts/customer_gateway_read_recovery.py", "scripts/cce_customer_slo_reevaluation.py",
         "artifacts/customer-gateway-read-recovery/manifest.json",
