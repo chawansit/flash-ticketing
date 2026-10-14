@@ -101,6 +101,10 @@ def active(envelope=None):
 
 
 def proof_digest(goal):
+    from cce_fulfillment_batch_profile import selected as fulfillment_selected
+    if fulfillment_selected(goal):
+        from cce_fulfillment_batch_identity import RECEIPT_SHA256
+        return RECEIPT_SHA256
     from cce_explicit_start_profile import selected as explicit_selected
     if explicit_selected(goal):
         from cce_explicit_start_identity import RECEIPT_SHA256
@@ -157,6 +161,10 @@ def pair_receipt(goal):
 
 
 def image_for(goal):
+    from cce_fulfillment_batch_profile import selected as fulfillment_selected
+    if fulfillment_selected(goal):
+        from cce_fulfillment_batch_profile import image
+        return image()
     from cce_explicit_start_profile import selected as explicit_selected
     if explicit_selected(goal):
         from cce_explicit_start_profile import image

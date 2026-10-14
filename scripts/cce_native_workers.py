@@ -25,7 +25,7 @@ def environment(role, values, primary_ip, decision="ADR0259"):
         if result.get("API_URL") != "http://load-balancer:8000":
             raise ValueError("Shared callback route required")
         result["API_URL"] = "http://" + cce.private_ip(primary_ip) + ":8000"
-    if decision in {"ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323"}:
+    if decision in {"ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324"}:
         from cce_committed_status_profile import selected
         from cce_transaction_profile import active
         goal = active()
@@ -37,6 +37,15 @@ def environment(role, values, primary_ip, decision="ADR0259"):
         if not notification_selected(goal) or result.get("ORDER_STATUS_NOTIFICATION_DEDUP") != "0":
             raise ValueError("Explicit disabled notification bootstrap required")
         result["ORDER_STATUS_NOTIFICATION_DEDUP"] = "1" if role == "consumer" else "0"
+    if decision == "ADR0324":
+        from cce_fulfillment_batch_profile import selected as fulfillment_selected
+        if (not fulfillment_selected(goal) or result.get("DB_EXPLICIT_TRANSACTION_START") != "0"
+                or result.get("ORDER_STATUS_NOTIFICATION_DEDUP") != "0"
+                or result.get("FULFILLMENT_TRANSACTION_BATCH_SIZE") != "1"):
+            raise ValueError("Default-one disabled ECS bootstrap required before native fulfillment activation")
+        result["DB_EXPLICIT_TRANSACTION_START"] = "1"
+        result["ORDER_STATUS_NOTIFICATION_DEDUP"] = "1" if role == "consumer" else "0"
+        result["FULFILLMENT_TRANSACTION_BATCH_SIZE"] = "4" if role == "consumer" else "1"
     if decision == "ADR0323":
         from cce_explicit_start_profile import selected as explicit_selected
         if not explicit_selected(goal) or result.get("DB_EXPLICIT_TRANSACTION_START") != "0" or result.get("ORDER_STATUS_NOTIFICATION_DEDUP") != "0":
@@ -66,8 +75,10 @@ def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None):
         raise ValueError("Complete worker environments required")
     namespace = cce.dependency.namespace_for(run)
     result = []
-    if decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323"}:
-        if decision == "ADR0323":
+    if decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324"}:
+        if decision == "ADR0324":
+            from cce_fulfillment_batch_profile import image
+        elif decision == "ADR0323":
             from cce_explicit_start_profile import image
         elif decision == "ADR0322":
             from cce_notification_dedup_profile import image
@@ -233,8 +244,10 @@ class Workers:
                     continue
                 views.append(receipt(pod, expected, self.deployment.run, self.uids[name], log, metrics, self.decision))
             if not pending:
-                if self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323"}:
-                    if self.decision == "ADR0323":
+                if self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324"}:
+                    if self.decision == "ADR0324":
+                        from cce_fulfillment_batch_profile import image
+                    elif self.decision == "ADR0323":
                         from cce_explicit_start_profile import image
                     elif self.decision == "ADR0322":
                         from cce_notification_dedup_profile import image

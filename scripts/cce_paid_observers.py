@@ -279,6 +279,9 @@ class Observers:
             from cce_writer_sale_context_profile import selected as writer_context_selected
             if writer_context_selected(goal):
                 helpers += ("cce_writer_sale_context_identity.py",)
+            from cce_fulfillment_batch_profile import selected as fulfillment_selected
+            if fulfillment_selected(goal):
+                helpers += ("cce_fulfillment_batch_identity.py", "cce_explicit_start_identity.py", "cce_notification_dedup_identity.py")
             from cce_explicit_start_profile import selected as explicit_selected
             if explicit_selected(goal):
                 helpers += ("cce_explicit_start_identity.py", "cce_notification_dedup_identity.py")

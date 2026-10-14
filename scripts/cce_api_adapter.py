@@ -85,6 +85,9 @@ def contract():
     from cce_explicit_start_profile import selected as explicit_selected
     if explicit_selected(goal):
         data["api_settings"]["DB_EXPLICIT_TRANSACTION_START"] = "1"
+    from cce_fulfillment_batch_profile import selected as fulfillment_selected
+    if fulfillment_selected(goal):
+        data["api_settings"].update(DB_EXPLICIT_TRANSACTION_START="1", FULFILLMENT_TRANSACTION_BATCH_SIZE="1")
     return data
 
 

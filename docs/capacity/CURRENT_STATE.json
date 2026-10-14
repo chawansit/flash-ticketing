@@ -27617,7 +27617,7 @@
     }
   },
   "latest_engineering_result": "docs/capacity/cce/fulfillment-transaction-batching-local-2026-10-14.json",
-  "next": "Bind the exact candidate into the existing bounded comparison and repeat102/s300s with unchanged resources and gates. No hourly or escalation without a full short-stage pass.",
+  "next": "Read-only preflight, then one bounded ADR0324 comparison at102 offered journeys/s300seconds; unchanged budgets/gates. No hourly or higher load from a failed short stage.",
   "adr0324_fulfillment_transaction_batching": {
     "decision": "ADR0324",
     "source_identity_sha256": "0087ce3078532a8fd05b668c4d286988a3165d95295c51ebbf2c60d4a702ce0d",
@@ -27628,7 +27628,8 @@
     "cloud_deployed": false,
     "cloud_load_started": false,
     "capacity_improvement_measured": false,
-    "runner_integration_complete": false,
-    "reference_result_sha256": "0063b73eb56e44b535b703573637ede4faf3d15a66dfee74483c11c92f2dcaff"
+    "runner_integration_complete": true,
+    "reference_result_sha256": "0063b73eb56e44b535b703573637ede4faf3d15a66dfee74483c11c92f2dcaff",
+    "runner_checks_passed": 81
   }
 }

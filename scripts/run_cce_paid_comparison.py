@@ -171,6 +171,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     from cce_measured_payment_context_profile import selected as context_selected
     if context_selected(goal):
         extra["cce_measured_payment_context_contract"] = context_contract()
+    from cce_fulfillment_batch_profile import contract as fulfillment_contract
+    from cce_fulfillment_batch_profile import selected as fulfillment_selected
+    if fulfillment_selected(goal):
+        extra["cce_fulfillment_batch_contract"] = fulfillment_contract()
     from cce_explicit_start_profile import contract as explicit_contract
     from cce_explicit_start_profile import selected as explicit_selected
     if explicit_selected(goal):
@@ -484,6 +488,11 @@ def worker_contract():
     import cce_transaction_profile as notification_transaction
     from cce_notification_dedup_profile import selected as notification_selected
     notification_goal = notification_transaction.active()
+    from cce_fulfillment_batch_profile import selected as fulfillment_selected
+    if fulfillment_selected(notification_goal):
+        import cce_fulfillment_batch_identity as fulfillment_pins
+        from cce_committed_status_contract import CommittedStatusContract
+        return CommittedStatusContract(arm="candidate", identity=fulfillment_pins)
     from cce_explicit_start_profile import selected as explicit_selected
     if explicit_selected(notification_goal):
         import cce_explicit_start_identity as explicit_pins

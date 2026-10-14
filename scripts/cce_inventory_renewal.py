@@ -37,7 +37,7 @@ def renew(inventory, *, run, binding, native_before, workers_before, observe_nat
         from cce_recovery_headroom import writer_scale_contract
         from cce_worker_identity import validate_bundle
         if (binding["cce_writer_scale_contract"] != writer_scale_contract()
-                or workers_before.get("decision") not in {"ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323"}):
+                or workers_before.get("decision") not in {"ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324"}):
             raise ValueError("Exactly declared native writer scale required")
         if workers_before.get("decision") == "ADR0319":
             from cce_measured_payment_context_profile import contract as context_contract
@@ -47,6 +47,10 @@ def renew(inventory, *, run, binding, native_before, workers_before, observe_nat
             from cce_writer_sale_context_profile import contract as writer_context_contract
             if binding.get("cce_writer_sale_context_contract") != writer_context_contract():
                 raise ValueError("Writer correction requires its reserved source-bound comparison")
+        if workers_before.get("decision") == "ADR0324":
+            from cce_fulfillment_batch_profile import contract as fulfillment_contract
+            if binding.get("cce_fulfillment_batch_contract") != fulfillment_contract():
+                raise ValueError("Fulfillment grouping requires its exact source-bound comparison")
         if workers_before.get("decision") == "ADR0323":
             from cce_explicit_start_profile import contract as explicit_contract
             if binding.get("cce_explicit_start_contract") != explicit_contract():
