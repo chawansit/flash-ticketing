@@ -9,7 +9,7 @@ import work_envelope as policy
 
 def contract():
     return {"decision": "ADR0307", "inventory_freshness_seconds": 300,
-            "apis": 4, "workers": 14, "native_worker_scale_counts": {"ADR0315": 15, "ADR0319": 15, "ADR0321": 15},
+            "apis": 4, "workers": 14, "native_worker_scale_counts": {"ADR0315": 15, "ADR0319": 15, "ADR0321": 15, "ADR0322": 15},
             "additional_database_connections": 0,
             "helper_sha256": hashlib.sha256(Path(__file__).read_bytes().replace(b"\r\n", b"\n")).hexdigest()}
 
@@ -37,7 +37,7 @@ def renew(inventory, *, run, binding, native_before, workers_before, observe_nat
         from cce_recovery_headroom import writer_scale_contract
         from cce_worker_identity import validate_bundle
         if (binding["cce_writer_scale_contract"] != writer_scale_contract()
-                or workers_before.get("decision") not in {"ADR0315", "ADR0319", "ADR0321"}):
+                or workers_before.get("decision") not in {"ADR0315", "ADR0319", "ADR0321", "ADR0322"}):
             raise ValueError("Exactly declared native writer scale required")
         if workers_before.get("decision") == "ADR0319":
             from cce_measured_payment_context_profile import contract as context_contract
@@ -47,6 +47,10 @@ def renew(inventory, *, run, binding, native_before, workers_before, observe_nat
             from cce_writer_sale_context_profile import contract as writer_context_contract
             if binding.get("cce_writer_sale_context_contract") != writer_context_contract():
                 raise ValueError("Writer correction requires its reserved source-bound comparison")
+        if workers_before.get("decision") == "ADR0322":
+            from cce_notification_dedup_profile import contract as notification_contract
+            if binding.get("cce_notification_dedup_contract") != notification_contract():
+                raise ValueError("Notification correction requires its reserved source-bound comparison")
         validate_bundle(workers_before)
         worker_count = 15
     if len(native_before.get("receipts", [])) != 4 or len(workers_before.get("receipts", [])) != worker_count:

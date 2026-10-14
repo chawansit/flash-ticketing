@@ -25,13 +25,18 @@ def environment(role, values, primary_ip, decision="ADR0259"):
         if result.get("API_URL") != "http://load-balancer:8000":
             raise ValueError("Shared callback route required")
         result["API_URL"] = "http://" + cce.private_ip(primary_ip) + ":8000"
-    if decision in {"ADR0298", "ADR0315", "ADR0319", "ADR0321"}:
+    if decision in {"ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322"}:
         from cce_committed_status_profile import selected
         from cce_transaction_profile import active
         goal = active()
         if not selected(goal) or result.get("ORDER_STATUS_COMMITTED_SNAPSHOT") != "0":
             raise ValueError("Explicit disabled ECS bootstrap required before consumer activation")
         result["ORDER_STATUS_COMMITTED_SNAPSHOT"] = "1" if role == "consumer" and goal["committed_status_arm"] == "candidate" else "0"
+    if decision == "ADR0322":
+        from cce_notification_dedup_profile import selected as notification_selected
+        if not notification_selected(goal) or result.get("ORDER_STATUS_NOTIFICATION_DEDUP") != "0":
+            raise ValueError("Explicit disabled notification bootstrap required")
+        result["ORDER_STATUS_NOTIFICATION_DEDUP"] = "1" if role == "consumer" else "0"
     if decision == "ADR0315":
         from cce_recovery_headroom import writer_batch_selected
         if writer_batch_selected(goal) and role == "reservation-writer":
@@ -55,8 +60,10 @@ def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None):
         raise ValueError("Complete worker environments required")
     namespace = cce.dependency.namespace_for(run)
     result = []
-    if decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321"}:
-        if decision == "ADR0321":
+    if decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322"}:
+        if decision == "ADR0322":
+            from cce_notification_dedup_profile import image
+        elif decision == "ADR0321":
             from cce_writer_sale_context_profile import image
         elif decision == "ADR0319":
             from cce_measured_payment_context_profile import image
@@ -218,8 +225,10 @@ class Workers:
                     continue
                 views.append(receipt(pod, expected, self.deployment.run, self.uids[name], log, metrics, self.decision))
             if not pending:
-                if self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321"}:
-                    if self.decision == "ADR0321":
+                if self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322"}:
+                    if self.decision == "ADR0322":
+                        from cce_notification_dedup_profile import image
+                    elif self.decision == "ADR0321":
                         from cce_writer_sale_context_profile import image
                     elif self.decision == "ADR0319":
                         from cce_measured_payment_context_profile import image

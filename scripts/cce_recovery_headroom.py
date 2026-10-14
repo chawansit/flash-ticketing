@@ -35,6 +35,7 @@ CHANGED_SOURCES = {
     "scripts/cce_worker_identity.py", "scripts/cce_worker_transition.py", "scripts/cce_bounded_financial_audit.py", "scripts/fixture_identity_evidence.py",
     "artifacts/cce-transaction-runner/manifest.json",
     "scripts/cce_committed_status_contract.py", "scripts/observe_slot_paid_pipeline.py", "scripts/cce_metric_admission.py",
+    "scripts/observe_cce_workers.py",
 }
 
 
@@ -94,9 +95,11 @@ def selected(goal):
                 or goal.get("backend_partition_contract_sha256") != policy.digest(partition_contract(goal.get("backend_partition_decision")))):
             raise ValueError("Exact four-writer batch-four backend isolation required")
     from cce_measured_payment_context_profile import selected as context_selected
+    from cce_notification_dedup_profile import selected as notification_selected
     from cce_writer_sale_context_profile import selected as writer_context_selected
+    notification = notification_selected(goal)
     writer_context = writer_context_selected(goal)
-    context = context_selected(goal) or writer_context
+    context = context_selected(goal) or writer_context or notification
     expected = {"headroom_decision": "ADR0312", "decision": "ADR0277",
                 "extension_decision": "ADR0277", "profile": "cce_ticket_target",
                 "offered_journeys_per_second": RATE, "offered_seconds": 300,
@@ -106,7 +109,7 @@ def selected(goal):
                 "payment_slot_arm": "control" if correction else "candidate", "gateway_read_recovery_decision": "ADR0311"}
     if (any(type(goal.get(k)) is not type(v) or goal.get(k) != v for k, v in expected.items())
             or goal.get("headroom_contract_sha256") != policy.digest(contract())
-            or goal.get("baseline_sha256") != (WRITER_SHA256 if batch or partition or context else SLOT_SHA256 if scale else FAILURE_SHA256 if correction else BASELINE_SHA256)):
+            or goal.get("baseline_sha256") != (__import__("cce_notification_dedup_profile").BASELINE if notification else WRITER_SHA256 if batch or partition or context else SLOT_SHA256 if scale else FAILURE_SHA256 if correction else BASELINE_SHA256)):
         raise ValueError("Exact102/s fixed-budget recovery headroom authorization required")
     return True
 
@@ -233,6 +236,11 @@ def writer_batch_contract():
 
 
 def require_writer_failure(goal):
+    from cce_notification_dedup_profile import require_parent
+    from cce_notification_dedup_profile import selected as notification_selected
+    if notification_selected(goal):
+        return require_parent()
+
     if not selected(goal) or not (BATCH_KEYS|PARTITION_KEYS|{"payment_context_decision", "writer_sale_context_decision"}).intersection(goal):
         raise ValueError("Explicit four-writer-reference comparison required")
     if goal.get("backend_partition_decision") == "ADR0318":
@@ -280,9 +288,11 @@ def extend_plan(plan, goal):
     if partition:
         relative, report = require_writer_failure(goal)
     from cce_measured_payment_context_profile import selected as context_selected
+    from cce_notification_dedup_profile import selected as notification_selected
     from cce_writer_sale_context_profile import selected as writer_context_selected
+    notification = notification_selected(goal)
     writer_context = writer_context_selected(goal)
-    context = context_selected(goal) or writer_context
+    context = context_selected(goal) or writer_context or notification
     if context:
         relative, report = require_writer_failure(goal)
     payment = 2 if correction else 3
@@ -295,8 +305,8 @@ def extend_plan(plan, goal):
     partition_fields = ({"backend_partition_contract":partition_contract(goal["backend_partition_decision"]),
                          "backend_partition_decision":goal["backend_partition_decision"]} if partition else {})
     return {**plan, **scale_fields, **batch_fields, **partition_fields, "decision": "ADR0277", "extension_decision": "ADR0277",
-            "kind": "post_lock_writer_sale_context_headroom" if writer_context else "post_lock_payment_context_headroom" if context else "foreground_backend_isolation_headroom" if partition else "writer_batch_headroom" if batch else "writer_concurrency_headroom" if scale else "corrective_general_slot_headroom" if correction else "bounded_recovery_runtime_headroom",
-            "single_changed_factor": "post_lock_writer_sale_context" if writer_context else "post_lock_payment_context" if context else "foreground_background_backend_partition" if partition else "RESERVATION_WRITER_BATCH_SIZE" if batch else "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
+            "kind": "ticket_notification_dedup_headroom" if notification else "post_lock_writer_sale_context_headroom" if writer_context else "post_lock_payment_context_headroom" if context else "foreground_backend_isolation_headroom" if partition else "writer_batch_headroom" if batch else "writer_concurrency_headroom" if scale else "corrective_general_slot_headroom" if correction else "bounded_recovery_runtime_headroom",
+            "single_changed_factor": "bounded_ticket_notification_refresh_suppression" if notification else "post_lock_writer_sale_context" if writer_context else "post_lock_payment_context" if context else "foreground_background_backend_partition" if partition else "RESERVATION_WRITER_BATCH_SIZE" if batch else "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
             "common": {"buyer_journeys_per_second": RATE, "duration_seconds": 300},
             "expected_journeys": EXPECTED, "target_unique_tickets": TARGET,
             "fixture_shows": SHOWS, "generator_concurrency": 500,
@@ -338,18 +348,27 @@ def validate_binding(goal, binding):
         old = policy.read(policy.STATE)[WRITER_LEDGER]["binding"]
     from cce_measured_payment_context_profile import contract as context_contract
     from cce_measured_payment_context_profile import selected as context_selected
+    from cce_notification_dedup_profile import selected as notification_selected
     from cce_writer_sale_context_profile import selected as writer_context_selected
+    notification = notification_selected(goal)
     writer_context = writer_context_selected(goal)
-    context = context_selected(goal) or writer_context
+    context = context_selected(goal) or writer_context or notification
     if context:
         require_writer_failure(goal)
         old = policy.read(policy.STATE)[WRITER_LEDGER]["binding"]
+        if notification:
+            old = policy.read(policy.STATE)["bounded_cce_ticket_target__384290e57344"]["binding"]
     ignored = {"cce_paid_entry_sources", "cce_paid_core_sources", "cce_manifest_sha256",
                "baseline_sha256", "cce_verification_contract_sha256", "cce_headroom_contract",
                "cce_gateway_read_recovery_contract", "cce_inventory_renewal_contract",
                "cce_metric_admission_contract_sha256"}
     if context:
-        if writer_context:
+        if notification:
+            import cce_notification_dedup_identity as context_pins
+            from cce_notification_dedup_profile import contract as context_contract
+            context_binding_key = "cce_notification_dedup_contract"
+            ignored.add("cce_writer_sale_context_contract")
+        elif writer_context:
             import cce_writer_sale_context_identity as context_pins
             from cce_writer_sale_context_profile import contract as context_contract
             context_binding_key = "cce_writer_sale_context_contract"
@@ -359,12 +378,19 @@ def validate_binding(goal, binding):
         import run_cce_paid_comparison as core
         saved = policy.read(policy.ROOT / goal["payment_slot_snapshot_path"])["saved"]
         semantics = core.api_semantics(core.service_for(saved))
+        original_semantics = dict(semantics)
+        if notification:
+            import copy
+            original_semantics = copy.deepcopy(semantics)
+            if original_semantics["environment"].pop("ORDER_STATUS_NOTIFICATION_DEDUP", "0") != "0":
+                raise ValueError("Notification correction must remain disabled on APIs")
+            ignored.add("saved_api_service_sha256")
         expected_image = "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@" + context_pins.IMAGE_ID
         if (core.native.api_image() != expected_image
                 or binding.get(context_binding_key) != context_contract()
                 or binding.get("cce_transaction_pair_sha256") != context_pins.RECEIPT_SHA256
                 or binding.get("saved_api_service_sha256") != policy.digest(semantics)
-                or binding.get("saved_api_service_sha256") != old["saved_api_service_sha256"]):
+                or policy.digest(original_semantics) != old["saved_api_service_sha256"]):
             raise ValueError("Only the reviewed shared image and declared single method may change")
         ignored |= {context_binding_key, "cce_transaction_pair_sha256"}
     if partition:
@@ -423,6 +449,8 @@ def validate_binding(goal, binding):
                   "docs/capacity/cce/measured-payment-context-image-2026-10-14.json"}
         added |= {"scripts/cce_writer_sale_context_profile.py", "scripts/cce_writer_sale_context_identity.py",
                   "docs/capacity/cce/writer-sale-context-image-2026-10-14.json"}
+        added |= {"scripts/cce_notification_dedup_profile.py", "scripts/cce_notification_dedup_identity.py",
+                  "docs/capacity/cce/ticket-notification-dedup-image-2026-10-14.json"}
         if (set(after) != set(before) | added
                 or any(before[k] != after[k] for k in before if k not in CHANGED_SOURCES)):
             raise ValueError("Headroom source changed outside the declared rate integration")

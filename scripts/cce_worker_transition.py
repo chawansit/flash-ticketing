@@ -68,6 +68,10 @@ class WorkerTransition(Transition):
         if writer_context_selected(self.goal):
             self.decision, self.normal_decision = "ADR0321", "ADR0321-bootstrap"
             self.normal_selected = identity.specification(self.normal_decision)
+        from cce_notification_dedup_profile import selected as notification_selected
+        if notification_selected(self.goal):
+            self.decision, self.normal_decision = "ADR0322", "ADR0322-bootstrap"
+            self.normal_selected = identity.specification(self.normal_decision)
         self.selected = identity.specification(self.decision)
 
     def capture(self):

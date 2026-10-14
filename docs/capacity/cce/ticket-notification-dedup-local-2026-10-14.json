@@ -1,0 +1,88 @@
+{
+  "decision": "ADR0322",
+  "status": "LOCAL_VERIFIED_REGISTRY_BLOCKED",
+  "date_bangkok": "2026-10-14",
+  "cloud_load_started": false,
+  "cloud_deployed": false,
+  "capacity_improvement_measured": false,
+  "initiating_partition_delay_confirmed": false,
+  "measured_avoidable_work": {
+    "baseline_run": "adr0151-7b637d7b8a0f",
+    "baseline_result_sha256": "3d5e62a71e367cb340f62c74b652917c3297cc9da5f7f07a5838cac740064a1e",
+    "consumer": "consumer-1",
+    "begin_count": 12145,
+    "peer_begin_count_range": [
+      10113,
+      10271
+    ],
+    "advisory_fills_beyond_committed_captures": 2712,
+    "peer_extra_fill_range": [
+      6,
+      14
+    ],
+    "fresh_notification_reads_deduplicated": 1937,
+    "peer_fresh_notification_dedup_range": [
+      5039,
+      5125
+    ],
+    "pod_to_partition_binding_missing_in_old_evidence": true
+  },
+  "implementation": {
+    "flag": "ORDER_STATUS_NOTIFICATION_DEDUP",
+    "default": false,
+    "only_native_fulfillment_consumers_enabled_in_candidate": true,
+    "hint_seconds": 30,
+    "maximum_hints": 1024,
+    "customer_snapshot_ttl_unchanged": true,
+    "hint_never_served_to_customer": true,
+    "failed_publication_restart_refund_eviction_expiry_preserve_fallback": true,
+    "financial_transaction_and_kafka_offsets_unchanged": true
+  },
+  "executed_checks": {
+    "application_observer_unit_checks": 124,
+    "real_postgresql_redis_checks_passed": 48,
+    "real_postgresql_redis_checks_skipped": 1,
+    "local_postgresql_version": "17.6",
+    "exact_image_imported_modules": 22,
+    "role_defaults_verified": 8,
+    "existing_runner_admission_regressions": 74,
+    "new_candidate_admission_regressions": 7,
+    "counts_overlap_do_not_sum": true,
+    "initial_failed_tests_preserved": {
+      "uuid_string_assertion_corrected": 3,
+      "local_connection_acquisition_timeout_rerun_passed": 1,
+      "runner_constructor_order_fixed_before_cloud": true,
+      "native_role_fixture_corrected_before_cloud": true
+    }
+  },
+  "diagnostics": {
+    "per_endpoint_partition_phase_counters": true,
+    "per_endpoint_sqlstate_and_bounded_exception_category": true,
+    "extra_metric_scrapes": 0,
+    "extra_database_queries": 0,
+    "retained_sampling_and_coverage_gates": true
+  },
+  "planned_comparison": {
+    "offered_journeys_per_second": 102,
+    "offered_seconds": 300,
+    "expected_journeys": 30600,
+    "api_pods": 4,
+    "native_background_pods": 15,
+    "physical_database_connections": 24,
+    "api_general_payment_slots": [
+      2,
+      2
+    ],
+    "writers": 4,
+    "writer_batch_size": 4,
+    "generator_concurrency": 500,
+    "minimum_conservative_in_window_tickets": 30000,
+    "final_customer_failure_percent_max": 0.01,
+    "zero_generator_drops": true,
+    "zero_payment_integrity_violations": true,
+    "complete_queue_drain_and_restoration": true
+  },
+  "blocker": "SWR rejected both supplied login and existing Docker authentication; renewed credentials required before actual publication, remote proof and paid load",
+  "original_runtime_verified_unchanged": true,
+  "hourly_qualification_started": false
+}

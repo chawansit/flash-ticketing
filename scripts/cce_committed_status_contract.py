@@ -9,15 +9,20 @@ class CommittedStatusContract(EventLaneContract):
     def __init__(self, *, arm, identity=pins):
         if arm not in {"control", "candidate"}:
             raise ValueError("Explicit committed-status arm required")
+        import cce_measured_payment_context_identity as payment_pins
+        import cce_notification_dedup_identity as notification_pins
+        import cce_writer_sale_context_identity as writer_pins
+        if identity not in (pins, payment_pins, writer_pins, notification_pins):
+            raise ValueError("Reviewed immutable shared-image identity required")
+        self.identity = identity
         super().__init__(status_refresh_reuse=True)
         self.status_arm = arm
         self.api_settings = {**self.api_settings, "ORDER_STATUS_COMMITTED_SNAPSHOT": "0"}
-        import cce_measured_payment_context_identity as payment_pins
-        import cce_writer_sale_context_identity as writer_pins
-        if identity not in (pins, payment_pins, writer_pins):
-            raise ValueError("Reviewed immutable shared-image identity required")
-        self.identity = identity
-        if identity is writer_pins:
+        if identity is notification_pins:
+            from cce_notification_dedup_profile import image
+            self.shared = image()
+            self.api_settings["ORDER_STATUS_NOTIFICATION_DEDUP"] = "0"
+        elif identity is writer_pins:
             from cce_writer_sale_context_profile import image
             self.shared = image()
         elif identity is payment_pins:
@@ -30,13 +35,19 @@ class CommittedStatusContract(EventLaneContract):
 
     def settings(self, role):
         # ECS bootstrap stays off. Activation occurs only on native fulfillment pods.
-        return {**super().settings(role), "ORDER_STATUS_COMMITTED_SNAPSHOT": "0"}
+        values = {**super().settings(role), "ORDER_STATUS_COMMITTED_SNAPSHOT": "0"}
+        if self.identity.DECISION == "ADR0322":
+            values["ORDER_STATUS_NOTIFICATION_DEDUP"] = "0"
+        return values
 
     def image_program(self, roles):
         return super().image_program(roles).replace(repr(legacy_pins.SOURCE), repr(self.identity.SOURCE))
 
     def inventory_marker(self):
-        return {**super().inventory_marker(), "shared_image_decision": self.identity.DECISION,
+        additional = ({"notification_dedup_decision": "ADR0322",
+                       "notification_dedup_enabled": "1" if self.status_arm == "candidate" else "0"}
+                      if self.identity.DECISION == "ADR0322" else {})
+        return {**super().inventory_marker(), **additional, "shared_image_decision": self.identity.DECISION,
                 "shared_image_source_sha256": self.identity.SOURCE, "shared_image_configuration_digest": self.identity.CONFIG,
                 "shared_image_receipt_sha256": self.identity.RECEIPT_SHA256, "committed_status_decision": "ADR0298",
                 "committed_status_arm": self.status_arm,

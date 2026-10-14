@@ -24,7 +24,9 @@ def correction_inventory(inventory, approved_digest):
         if marker.get("committed_status_decision") is not None:
             if identity is not None:
                 raise ValueError("Cannot combine publication and payment-pipeline factors")
-            if marker.get("shared_image_decision") == "ADR0321":
+            if marker.get("shared_image_decision") == "ADR0322":
+                import cce_notification_dedup_identity as identity
+            elif marker.get("shared_image_decision") == "ADR0321":
                 import cce_writer_sale_context_identity as identity
             elif marker.get("shared_image_decision") == "ADR0319":
                 import cce_measured_payment_context_identity as identity

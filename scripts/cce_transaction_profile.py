@@ -101,6 +101,11 @@ def active(envelope=None):
 
 
 def proof_digest(goal):
+    from cce_notification_dedup_profile import selected as notification_selected
+    if notification_selected(goal):
+        from cce_notification_dedup_identity import RECEIPT_SHA256
+        return RECEIPT_SHA256
+
     from cce_writer_sale_context_profile import selected as writer_context_selected
     if writer_context_selected(goal):
         from cce_writer_sale_context_identity import RECEIPT_SHA256
@@ -148,6 +153,11 @@ def pair_receipt(goal):
 
 
 def image_for(goal):
+    from cce_notification_dedup_profile import selected as notification_selected
+    if notification_selected(goal):
+        from cce_notification_dedup_profile import image
+        return image()
+
     from cce_writer_sale_context_profile import image as writer_context_image
     from cce_writer_sale_context_profile import selected as writer_context_selected
     if writer_context_selected(goal):

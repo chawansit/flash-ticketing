@@ -204,7 +204,17 @@ CONSUMER_BATCH_FAILURES = Counter(
 )
 
 
+CONSUMER_FAILURE_CLASSES = Counter(
+    "ticketing_consumer_failure_classes_total", "Bounded consumer exception categories", ["category"]
+)
+
+
 def observe_consumer_batch_error(exc):
+    category = type(exc).__name__
+    allowed_classes = {"ValueError", "KeyError", "TypeError", "OperationalError", "InterfaceError",
+                       "PoolTimeout", "TimeoutError", "ConnectionError", "KafkaError", "KafkaTimeoutError",
+                       "UnknownTopicOrPartitionError", "NoBrokersAvailable"}
+    CONSUMER_FAILURE_CLASSES.labels(category if category in allowed_classes else "other").inc()
     state = getattr(exc, "sqlstate", None)
     allowed = {"40P01", "40001", "55P03", "57014", "08006", "53300"}
     CONSUMER_BATCH_FAILURES.labels(state if state in allowed else "other").inc()

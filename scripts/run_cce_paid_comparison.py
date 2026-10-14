@@ -171,6 +171,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     from cce_measured_payment_context_profile import selected as context_selected
     if context_selected(goal):
         extra["cce_measured_payment_context_contract"] = context_contract()
+    from cce_notification_dedup_profile import contract as notification_contract
+    from cce_notification_dedup_profile import selected as notification_selected
+    if notification_selected(goal):
+        extra["cce_notification_dedup_contract"] = notification_contract()
     from cce_writer_sale_context_profile import contract as writer_context_contract
     from cce_writer_sale_context_profile import selected as writer_context_selected
     if writer_context_selected(goal):
@@ -472,6 +476,13 @@ def activate_scope(guard, run):
 
 
 def worker_contract():
+    import cce_transaction_profile as notification_transaction
+    from cce_notification_dedup_profile import selected as notification_selected
+    notification_goal = notification_transaction.active()
+    if notification_selected(notification_goal):
+        import cce_notification_dedup_identity as notification_pins
+        from cce_committed_status_contract import CommittedStatusContract
+        return CommittedStatusContract(arm=notification_goal["committed_status_arm"], identity=notification_pins)
     import cce_transaction_profile as transaction
     goal = transaction.active()
     from cce_writer_sale_context_profile import selected as writer_context_selected

@@ -1153,6 +1153,7 @@ def main():
             db, RedisOrderStatusCache(cache.redis, settings.order_status_cache_ms),
             deduplicate=settings.order_status_event_refresh_dedup,
             capture_committed=settings.order_status_committed_snapshot,
+            notification_dedup=settings.order_status_notification_dedup,
         )
         if role == "consumer" and settings.order_status_event_refresh else None
     )

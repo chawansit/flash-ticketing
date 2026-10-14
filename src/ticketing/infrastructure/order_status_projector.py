@@ -12,15 +12,22 @@ from ticketing.observability import ORDER_STATUS_CACHE
 
 log = logging.getLogger("ticketing.order_status_projector")
 MAX_HINTS = 1024
+NOTIFICATION_HINT_SECONDS = 30
 ORDER_EVENTS = frozenset({"OrderPaid", "TicketsIssued", "RefundRequested"})
 
 
 class CommittedOrderStatusProjector:
-    def __init__(self, database, cache, *, deduplicate=False, capture_committed=False):
+    def __init__(self, database, cache, *, deduplicate=False, capture_committed=False, notification_dedup=False):
         if type(deduplicate) is not bool:
             raise TypeError("Explicit deduplication boolean required")
         if type(capture_committed) is not bool:
             raise TypeError("Explicit capture boolean required")
+        if type(notification_dedup) is not bool:
+            raise TypeError("Explicit notification dedup boolean required")
+        if notification_dedup and not (deduplicate and capture_committed):
+            raise ValueError("Notification dedup requires deduplication and committed capture")
+        self.notification_dedup = notification_dedup
+        self._published = OrderedDict()
         self.database, self.cache, self.deduplicate = database, cache, deduplicate
         self.capture_committed = capture_committed
         # One existing consumer thread owns this bounded, non-authoritative hint table.
@@ -60,11 +67,31 @@ class CommittedOrderStatusProjector:
             while len(self._recent) > MAX_HINTS:
                 self._recent.popitem(last=False)
 
+    def _remember_publication(self, identifier):
+        # This records a completed notification effect, never a fresh customer snapshot.
+        now = time.monotonic()
+        while self._published and next(iter(self._published.values())) <= now:
+            self._published.popitem(last=False)
+        self._published.pop(identifier, None)
+        self._published[identifier] = now + NOTIFICATION_HINT_SECONDS
+        while len(self._published) > MAX_HINTS:
+            self._published.popitem(last=False)
+
+    def _notification_covered(self, identifier):
+        deadline = self._published.get(identifier)
+        if deadline is None:
+            return False
+        if time.monotonic() >= deadline:
+            self._published.pop(identifier, None)
+            return False
+        return True
+
     def begin_capture(self, order_id):
         """Start advisory freshness before the financial connection is acquired."""
         try:
             identifier = UUID(str(order_id))
             self._recent.pop(identifier, None)
+            self._published.pop(identifier, None)
             started = time.monotonic()
             stamp = self.cache.snapshot_start()
             if type(stamp) is not int:
@@ -89,6 +116,8 @@ class CommittedOrderStatusProjector:
                 ORDER_STATUS_CACHE.labels("committed_read_avoided").inc()
                 if self.deduplicate and snapshot["status"] == "FULFILLED":
                     self._remember(identifier, snapshot, started)
+                    if self.notification_dedup:
+                        self._remember_publication(identifier)
         except Exception:  # Advisory failures never undo financial commit.
             ORDER_STATUS_CACHE.labels("committed_publish_error").inc()
             log.warning("committed_order_status_publish_failed", exc_info=True)
@@ -96,6 +125,12 @@ class CommittedOrderStatusProjector:
     def refresh(self, order_id, *, event_type=None):
         try:
             identifier = UUID(str(order_id))
+            if event_type in {"OrderPaid", "RefundRequested"}:
+                self._published.pop(identifier, None)
+            if (self.notification_dedup and event_type == "TicketsIssued"
+                    and self._notification_covered(identifier)):
+                ORDER_STATUS_CACHE.labels("event_notification_read_avoided").inc()
+                return
             if self.deduplicate:
                 if event_type in {"OrderPaid", "RefundRequested"}:
                     self._recent.pop(identifier, None)

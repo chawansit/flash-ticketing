@@ -30,6 +30,7 @@ def install(module, bundle, *, fetch=urlopen):
         if actual not in by_role:
             return original_counters(role, operation, url)
         captured = {}
+        consumer_details = {}
 
         def measured_fetch(address, timeout):
             from urllib.parse import urlsplit
@@ -49,6 +50,29 @@ def install(module, bundle, *, fetch=urlopen):
                     if key in values:
                         raise ValueError("Duplicate worker cumulative metric")
                     values[key] = float(fields[1])
+            if role == "consumer":
+                import re
+                details = {"phases": {}, "sqlstates": {}, "exception_classes": {}}
+                for line in raw.decode().splitlines():
+                    if not line or line.startswith("#") or " " not in line:
+                        continue
+                    name, raw_value = line.rsplit(" ", 1)
+                    phase_key = getattr(module, "consumer_phase_metric", lambda _: None)(name)
+                    match = re.fullmatch(r'ticketing_consumer_batch_failures_total\{sqlstate="([a-zA-Z0-9_]+)"\}', name)
+                    classes = re.fullmatch(r'ticketing_consumer_failure_classes_total\{category="([a-zA-Z0-9_]+)"\}', name)
+                    if phase_key and phase_key.endswith((":count", ":sum")):
+                        target, key = details["phases"], phase_key
+                    elif match:
+                        target, key = details["sqlstates"], match[1]
+                    elif classes:
+                        target, key = details["exception_classes"], classes[1]
+                    else:
+                        continue
+                    value = float(raw_value)
+                    if key in target or not math.isfinite(value) or value < 0:
+                        raise ValueError("Invalid consumer diagnostic counter")
+                    target[key] = value
+                consumer_details[parsed.hostname] = details
             values.setdefault("calls", 0)
             if (values.get("process_start_time_seconds") != starts[parsed.hostname]
                     or any(type(values.get(k)) not in (int, float) or not math.isfinite(values[k]) or values[k] < 0 for k in ("calls", "process_cpu_seconds_total"))
@@ -67,6 +91,8 @@ def install(module, bundle, *, fetch=urlopen):
         if set(captured) != set(by_role[actual]):
             raise ValueError("Incomplete native worker metrics")
         result[role + "_native_processes"] = captured
+        if role == "consumer":
+            result["consumer_details_by_endpoint"] = consumer_details
         return result
 
     module.api_replicas, module.worker_counters = discover, counters
