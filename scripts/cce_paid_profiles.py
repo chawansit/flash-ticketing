@@ -39,6 +39,9 @@ HEADROOM = StageProfile("cce_ticket_target", "bounded_cce_ticket_target", 300, 1
 RATE_PUSH = StageProfile("cce_ticket_target", "bounded_cce_ticket_target", 300, 120, 36000, 420, 3600, 1, 3600)
 
 
+HIGHER_RATE_PUSH = StageProfile("cce_ticket_target", "bounded_cce_ticket_target", 300, 140, 42000, 420, 3600, 1, 3600)
+
+
 def for_guard(guard):
     prefix = guard.key.split("__")[0]
     if prefix == HEADROOM.ledger_prefix and getattr(guard, "binding", {}).get("cce_headroom_contract"):
@@ -49,9 +52,9 @@ def for_guard(guard):
         from cce_throughput_push import contract as push_contract
         from cce_throughput_push import selected as push_selected
         if push_selected(goal):
-            if guard.binding.get("cce_throughput_push_contract") != push_contract():
+            if guard.binding.get("cce_throughput_push_contract") != push_contract(goal):
                 raise ValueError("Exact120/s stage binding required")
-            return RATE_PUSH
+            return HIGHER_RATE_PUSH if push_contract(goal)["offered_rate"] == 140 else RATE_PUSH
         return HEADROOM
     for profile in (SHORT, HOURLY, TICKET_TARGET):
         if prefix == profile.ledger_prefix:

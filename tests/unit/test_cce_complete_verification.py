@@ -14,7 +14,7 @@ import independent_database_sampling as sampling
 import pytest
 
 
-@pytest.mark.parametrize("shows", [1, 84, 102, 120, 1008])
+@pytest.mark.parametrize("shows", [1, 84, 102, 120, 140, 1008])
 def test_generated_audit_keeps_all_predicates_and_total_deadline(shows):
     source = audit.program([str(uuid4()) for _ in range(shows)], shows * 300)
     assert "REPEATABLE READ READ ONLY" in source

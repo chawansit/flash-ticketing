@@ -129,7 +129,7 @@ def require_short(goal):
     from cce_throughput_push import require_reference
     from cce_throughput_push import selected as push_selected
     if push_selected(goal):
-        require_reference()
+        require_reference(goal)
     report = policy.read(policy.ROOT / BASELINE_PATH)
     state = policy.read(policy.STATE)[BASELINE_LEDGER]
     binding = state["binding"]
@@ -324,7 +324,7 @@ def extend_plan(plan, goal):
     from cce_throughput_push import selected as push_selected
     push = push_selected(goal)
     if push:
-        relative, report = require_reference()
+        relative, report = require_reference(goal)
     rate, shows, expected, target = bounds(goal)
     payment = 2 if correction else 3
     scale_fields = ({"worker_counts": writer_scale_contract()["native_counts"],

@@ -66,9 +66,9 @@ def environment(role, values, primary_ip, decision="ADR0259"):
 
 
 def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None):
-    from cce_paid_profiles import HEADROOM, HOURLY, RATE_PUSH, SHORT, TICKET_TARGET
+    from cce_paid_profiles import HEADROOM, HIGHER_RATE_PUSH, HOURLY, RATE_PUSH, SHORT, TICKET_TARGET
     profile = SHORT if profile is None else profile
-    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, RATE_PUSH):
+    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH):
         raise ValueError("Exact worker lifetime profile required")
     selected = identity.specification(decision)
     if set(environments) != set(selected["counts"]):

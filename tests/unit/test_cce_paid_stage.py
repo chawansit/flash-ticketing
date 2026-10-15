@@ -406,14 +406,15 @@ def test_explicit_recovery_stage_transfers_sealed_sdk_and_coordinator(recovery_s
     assert candidate.prepared and not candidate.record["customers_dispatched"]
 
 
-def test_terminal_audit_mismatch_stops_before_manifest_upload_or_dispatch(area, monkeypatch):
+@pytest.mark.parametrize("shows", [120, 140])
+def test_terminal_audit_mismatch_stops_before_manifest_upload_or_dispatch(area, monkeypatch, shows):
     import cce_bounded_financial_audit as audit
-    from cce_paid_profiles import RATE_PUSH
+    from cce_paid_profiles import HIGHER_RATE_PUSH, RATE_PUSH
     paid, calls, fixture, manifest, _admission = area
-    paid.profile = RATE_PUSH
-    fixture = {**fixture, "shows": 120, "show_ids": [str(uuid4()) for _ in range(120)]}
+    paid.profile = HIGHER_RATE_PUSH if shows == 140 else RATE_PUSH
+    fixture = {**fixture, "shows": shows, "show_ids": [str(uuid4()) for _ in range(shows)]}
     def reject(events, expected):
-        assert len(events) == 120 and expected == 36000
+        assert len(events) == shows and expected == shows * 300
         raise ValueError("Unsupported terminal audit cohort")
     monkeypatch.setattr(audit, "program", reject)
     with pytest.raises(ValueError, match="terminal audit"):

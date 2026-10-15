@@ -96,3 +96,54 @@ def test_same_baseline_settings_and_source_closure_are_enforced():
     binding["cce_acquisition_budget"] += 1
     with pytest.raises(ValueError):
         push.validate_binding(actual, binding)
+
+
+@pytest.mark.parametrize("rate,decision,expected,target", [(120,"ADR0327",36000,35400),(140,"ADR0328",42000,41400)])
+def test_complete_exact_rate_profile(rate, decision, expected, target, monkeypatch):
+    from cce_bounded_financial_audit import program as audit_program
+    from cce_paid_inputs import fixture_program
+    from cce_paid_profiles import HIGHER_RATE_PUSH
+    value = original_goal()
+    value.update(throughput_push_decision=decision, offered_journeys_per_second=rate)
+    value["throughput_push_contract_sha256"] = policy.digest(push.contract(value))
+    value["headroom_contract_sha256"] = policy.digest(h.contract(value))
+    assert h.selected(value) and fulfillment.selected(value)
+    assert push.bounds(value) == (rate, rate, expected, target)
+    path, report = push.require_reference(value)
+    assert path == push.reference(value)[0] and policy.digest(report) == push.reference(value)[2]
+    envelope = policy.envelope()
+    envelope["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"] = value
+    monkeypatch.setattr(policy, "envelope", lambda: envelope)
+    binding = {"cce_headroom_contract": h.contract(value), "cce_throughput_push_contract": push.contract(value)}
+    profile = HIGHER_RATE_PUSH if rate == 140 else RATE_PUSH
+    assert for_guard(SimpleNamespace(key="bounded_cce_ticket_target__0123456789ab", binding=binding)) == profile
+    events = [str(uuid4()) for _ in range(rate)]
+    compile(audit_program(events, expected), "terminal-audit", "exec")
+    compile(fixture_program("/tmp/adr0328-fixture", rate, "0" * 64), "fixture", "exec")
+    source = h.issuance_program(events, 1000.0, value)
+    assert str(expected) in source and str(target) in source
+    bundle, coordinator = parent()
+    bundle, coordinator = reads(bundle, coordinator)
+    after, _ = h.qualify_workload(bundle, coordinator, value)
+    assert f"args.rate <= {rate}".encode() in after["scripts/paid_ticket_sharded_generator.py"]
+    original = policy.read(policy.STATE)[push.reference(value)[1]]["binding"]
+    candidate = copy.deepcopy(original)
+    candidate.update(cce_throughput_push_contract=push.contract(value), baseline_sha256=push.reference(value)[2])
+    for name in ("cce_paid_entry_sources", "cce_paid_core_sources"):
+        candidate[name]["scripts/cce_throughput_push.py"] = "new-source-hash"
+    assert push.validate_binding(value, candidate)
+    candidate["cce_acquisition_budget"] += 1
+    with pytest.raises(ValueError):
+        push.validate_binding(value, candidate)
+
+
+def test_140_requires_its_own_contract_and_cannot_expand_rate():
+    value = goal()
+    value.update(throughput_push_decision="ADR0328", offered_journeys_per_second=140)
+    with pytest.raises(ValueError):
+        h.selected(value)
+    value["throughput_push_contract_sha256"] = policy.digest(push.contract(value))
+    value["headroom_contract_sha256"] = policy.digest(h.contract(value))
+    assert h.selected(value)
+    with pytest.raises(ValueError):
+        h.selected({**value,"offered_journeys_per_second":150})

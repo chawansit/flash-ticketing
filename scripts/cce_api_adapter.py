@@ -279,9 +279,9 @@ os.execvp(command[0],command)
 
 
 def objects(run, service, primary_ip, registry_username, registry_password, *, acquisition_budget=12, profile=None):
-    from cce_paid_profiles import HEADROOM, HOURLY, RATE_PUSH, SHORT, TICKET_TARGET
+    from cce_paid_profiles import HEADROOM, HIGHER_RATE_PUSH, HOURLY, RATE_PUSH, SHORT, TICKET_TARGET
     profile = SHORT if profile is None else profile
-    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, RATE_PUSH):
+    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH):
         raise ValueError("Exact native lifetime profile required")
     """Private payloads: never publish returned Secrets."""
     import cce_transaction_profile as transaction

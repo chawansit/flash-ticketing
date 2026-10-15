@@ -1,0 +1,25 @@
+{
+  "decision": "ADR0328",
+  "pass": true,
+  "executed_tests": 358,
+  "test_batches": [
+    {
+      "tests": 93,
+      "scope": "Exact120/140 profile selection, sealed customer behavior, complete financial audit, pre-dispatch rejection, headroom and fulfillment guards"
+    },
+    {
+      "tests": 265,
+      "scope": "API adapter, live admission, entry binding, paid lifecycle, resources, dependencies and fixture admission"
+    }
+  ],
+  "ruff_import_and_undefined_name_check": "passed",
+  "full_source_binding_verified": true,
+  "passing_reference_result_sha256": "d4fc2f65bd725745f836989ed43fe98cc49f3dce9b88f3e05f855ac67935c94e",
+  "terminal_audit_shows": 140,
+  "terminal_audit_expected_tickets": 42000,
+  "source_contract_sha256": "765ca5f5ff625cd9de2781dd8b3b9ef49de2b328c1ab81849826f17546320432",
+  "application_image_rebuilt": false,
+  "resource_budgets_changed": false,
+  "cloud_result_pending_at_capture": true,
+  "evidence_scope": "Executed preflight; completed cloud outcome is recorded separately in fixed-budget-140-throughput-result-2026-10-15.json"
+}

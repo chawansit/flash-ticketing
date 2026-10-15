@@ -8,9 +8,9 @@ from slot_failure_evidence import validate_record
 
 class Capture:
     def __init__(self, deployment, *, now=time.monotonic, profile=None):
-        from cce_paid_profiles import HEADROOM, HOURLY, RATE_PUSH, SHORT, TICKET_TARGET
+        from cce_paid_profiles import HEADROOM, HIGHER_RATE_PUSH, HOURLY, RATE_PUSH, SHORT, TICKET_TARGET
         profile = SHORT if profile is None else profile
-        if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, RATE_PUSH):
+        if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH):
             raise ValueError("Exact bounded admission lifetime required")
         self.maximum_seconds = 4300 if profile == HOURLY else 600
         self.maximum_samples = 440 if profile == HOURLY else 64
