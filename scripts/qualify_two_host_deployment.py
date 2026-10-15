@@ -67,8 +67,10 @@ class Session:
             "ssh_reconnect_attempts": {},
             "ssh_routes": {},
         }
+        if __import__("cce_primary_bootstrap").enabled(config):
+            self.state.update(cce_bootstrap_topology=config["cce_bootstrap_topology"], connected_host_roles=["primary", "generator"], secondary_access_attempts=0, retired_secondary_cleanup="not_applicable")
         try:
-            for role in ("primary", "secondary", "generator"):
+            for role in __import__("cce_primary_bootstrap").connection_roles(config):
                 self.clients[role] = self._open(role)
         except BaseException:
             self.close()
@@ -77,6 +79,9 @@ class Session:
     def _open(self, role):
         import paramiko
 
+        if role not in __import__("cce_primary_bootstrap").connection_roles(getattr(self,"config",{})):
+            self.state["secondary_access_attempts"] = self.state.get("secondary_access_attempts", 0) + 1
+            raise ValueError("Retired or unknown SSH host is forbidden")
         item = self.config[role]
 
         def client():
@@ -119,6 +124,7 @@ class Session:
             raise
 
     def reconnect(self, role):
+        self.require_role(role)
         if self._closed or role not in {"primary", "secondary", "generator"}:
             raise ValueError("Closed or unknown SSH role")
         attempts = self.state["ssh_reconnect_attempts"]
@@ -164,7 +170,13 @@ class Session:
         if guard is not None and not getattr(self, "cleanup_mode", False):
             guard.check(timeout)
 
+    def require_role(self, role):
+        if role not in __import__("cce_primary_bootstrap").connection_roles(getattr(self,"config",{})):
+            self.state["secondary_access_attempts"] = self.state.get("secondary_access_attempts",0) + 1
+            raise ValueError("Retired or unknown SSH host is forbidden")
+
     def call(self, role, code, timeout=180):
+        self.require_role(role)
         self.check_action(timeout)
         compile(code, "owned_remote_action", "exec")
         i, o, e = self.clients[role].exec_command("python3 -", timeout=timeout)
@@ -186,6 +198,7 @@ class Session:
         return json.loads(payload)
 
     def put(self, role, path, content, fresh=False):
+        self.require_role(role)
         self.check_action(180)
         s = self.clients[role].open_sftp()
         try:
@@ -380,8 +393,9 @@ def run(config, output, *, stage_hook=None, runtime_policy=None, action_guard=No
         owner + "/live.compose.json",
         owner + "/nginx.conf",
     )
-    secondary_owner = config["secondary"]["prepared_directory"] + "/" + output.name
-    secondary_path = secondary_owner + "/compose.json"
+    primary_only = __import__("cce_primary_bootstrap").enabled(config)
+    secondary_owner = None if primary_only else config["secondary"]["prepared_directory"] + "/" + output.name
+    secondary_path = None if primary_only else secondary_owner + "/compose.json"
     try:
         session.phase("snapshot-and-preflight")
         cfg = session.call(
@@ -425,13 +439,14 @@ def run(config, output, *, stage_hook=None, runtime_policy=None, action_guard=No
         if before["pass"] is not True or before["kafka_members"] != 1:
             raise ValueError("Initial global queues/Kafka not drained")
         session.state["queue_before"] = before
-        secondary = session.call(
-            "secondary",
-            "import json,subprocess;print(json.dumps(subprocess.check_output(['docker','ps','-aq'],text=True).split()))",
-        )
-        if secondary:
-            raise ValueError("Secondary already has resources")
-        for role, directory in (("primary", owner), ("secondary", secondary_owner)):
+        if not primary_only:
+            secondary = session.call(
+                "secondary",
+                "import json,subprocess;print(json.dumps(subprocess.check_output(['docker','ps','-aq'],text=True).split()))",
+            )
+            if secondary:
+                raise ValueError("Secondary already has resources")
+        for role, directory in ([("primary", owner)] if primary_only else [("primary", owner), ("secondary", secondary_owner)]):
             session.call(
                 role,
                 "import json;from pathlib import Path;p=Path("
@@ -487,37 +502,43 @@ def run(config, output, *, stage_hook=None, runtime_policy=None, action_guard=No
         if stage_hook is not None:
             session.phase("control-stage")
             stage_hook(session, "control", controls, saved, owner, output)
-        placement = getattr(runtime_policy, "measured_api_counts", {"primary": 2, "secondary": 2})
-        if placement not in ({"primary": 2, "secondary": 2}, {"primary": 1, "secondary": 3}):
-            raise ValueError("Unknown measured API placement")
-        session.phase("two-plus-two-topology" if placement["primary"] == 2 else "one-plus-three-topology")
-        session.up("primary", live_path, {**counts, "api": placement["primary"]}, ["api"])
-        primary_rows = session.wait("primary", placement["primary"])
-        secondary_model = json.loads(secondary_compose())
-        secondary_model["services"]["api"]["image"] = IMAGE
-        secondary_model["services"]["api"]["env_file"][0]["path"] = (
-            config["secondary"]["prepared_directory"] + "/api.env"
-        )
-        secondary_model["services"]["api"]["ports"] = [
-            {
-                "target": 8000,
-                "published": "8101-8104",
-                "host_ip": config["secondary"]["private_ipv4"],
-                "protocol": "tcp",
-            }
-        ]
-        if runtime_policy is not None:
-            secondary_model = runtime_policy.secondary_model(secondary_model)
-        session.put("secondary", secondary_path, json.dumps(secondary_model), True)
-        secondary_started = True
-        session.up("secondary", secondary_path, {"api": placement["secondary"]}, ["api"])
-        secondary_rows = session.wait("secondary", placement["secondary"])
-        routes = endpoints(primary_rows, "primary", primary["private_ipv4"], runtime_policy=runtime_policy) + endpoints(
-            secondary_rows, "secondary", config["secondary"]["private_ipv4"], runtime_policy=runtime_policy
-        )
-        session.put("primary", routes_path, nginx_config(routes))
-        session.up("primary", live_path, counts, ["load-balancer"])
-        session.phase("cross-host-private-readiness")
+        if primary_only:
+            if runtime_policy is None or getattr(runtime_policy,"measured_api_counts",None)!={"primary":4,"secondary":0}:
+                raise ValueError("Explicit primary-only runtime contract required")
+            routes = controls
+            session.phase("four-primary-bootstrap-readiness")
+        else:
+            placement = getattr(runtime_policy, "measured_api_counts", {"primary": 2, "secondary": 2})
+            if placement not in ({"primary": 2, "secondary": 2}, {"primary": 1, "secondary": 3}):
+                raise ValueError("Unknown measured API placement")
+            session.phase("two-plus-two-topology" if placement["primary"] == 2 else "one-plus-three-topology")
+            session.up("primary", live_path, {**counts, "api": placement["primary"]}, ["api"])
+            primary_rows = session.wait("primary", placement["primary"])
+            secondary_model = json.loads(secondary_compose())
+            secondary_model["services"]["api"]["image"] = IMAGE
+            secondary_model["services"]["api"]["env_file"][0]["path"] = (
+                config["secondary"]["prepared_directory"] + "/api.env"
+            )
+            secondary_model["services"]["api"]["ports"] = [
+                {
+                    "target": 8000,
+                    "published": "8101-8104",
+                    "host_ip": config["secondary"]["private_ipv4"],
+                    "protocol": "tcp",
+                }
+            ]
+            if runtime_policy is not None:
+                secondary_model = runtime_policy.secondary_model(secondary_model)
+            session.put("secondary", secondary_path, json.dumps(secondary_model), True)
+            secondary_started = True
+            session.up("secondary", secondary_path, {"api": placement["secondary"]}, ["api"])
+            secondary_rows = session.wait("secondary", placement["secondary"])
+            routes = endpoints(primary_rows, "primary", primary["private_ipv4"], runtime_policy=runtime_policy) + endpoints(
+                secondary_rows, "secondary", config["secondary"]["private_ipv4"], runtime_policy=runtime_policy
+            )
+            session.put("primary", routes_path, nginx_config(routes))
+            session.up("primary", live_path, counts, ["load-balancer"])
+            session.phase("cross-host-private-readiness")
         urls = [f"http://{r['private_ipv4']}:{r['port']}/health/ready" for r in routes]
         session.call(
             "primary",
@@ -574,7 +595,7 @@ def run(config, output, *, stage_hook=None, runtime_policy=None, action_guard=No
             + ",os.R_OK);print(json.dumps({'probe_readable':True}))",
             45,
         )
-        selected = [next(r for r in routes if r["host_role"] == role) for role in ("primary", "secondary")]
+        selected = routes[:2] if primary_only else [next(r for r in routes if r["host_role"] == role) for role in ("primary", "secondary")]
         command = [
             "python",
             container_dir + "/probe.py",
@@ -585,7 +606,7 @@ def run(config, output, *, stage_hook=None, runtime_policy=None, action_guard=No
         ]
         for route in selected:
             command += ["--origin", f"http://{route['private_ipv4']}:{route['port']}"]
-        session.phase("100-way-cross-host-safety-probe")
+        session.phase("100-way-primary-bootstrap-safety-probe" if primary_only else "100-way-cross-host-safety-probe")
         session.state["safety_probe_attempted"] = True
         session.checkpoint()
         payload = session.call("primary", probe_program(cid, command, container_dir, owner), 140)
@@ -655,7 +676,8 @@ with psycopg.connect(os.environ['DATABASE_URL'],autocommit=True) as conn:
                     + ",'down','--timeout','20'],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,timeout=60);assert not subprocess.check_output(['docker','ps','-aq','--filter','label=com.docker.compose.project=flash-ticketing-api-secondary'],text=True).split();print(json.dumps({'secondary_resources_removed':True}))",
                     90,
                 )
-            session.state["secondary_resources_removed"] = True
+            if not primary_only:
+                session.state["secondary_resources_removed"] = True
         except Exception as exc:  # noqa: BLE001 - preserve failure and continue teardown
             session.state["secondary_cleanup_error_type"] = type(exc).__name__
         try:
@@ -693,7 +715,7 @@ with psycopg.connect(os.environ['DATABASE_URL'],autocommit=True) as conn:
                     ]
                     if session.state["generator_idle_after"] is not True:
                         raise ValueError("Generator still active after restoration")
-                session.state["restore_pass"] = bool(session.state.get("secondary_resources_removed"))
+                session.state["restore_pass"] = (__import__("cce_primary_bootstrap").restoration_verified(session.state) if primary_only else bool(session.state.get("secondary_resources_removed")))
                 if session.state["restore_pass"]:
                     session.call("primary", cleanup_program(owner, None))
                     if secondary_started:

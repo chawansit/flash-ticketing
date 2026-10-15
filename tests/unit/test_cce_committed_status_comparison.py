@@ -155,9 +155,10 @@ def test_booleans_cannot_replace_integer_resource_bounds():
 def test_spending_guard_accepts_one_stage_and_rejects_second_stage():
     from cce_dependency_probe import authorized_today
     envelope = copy.deepcopy(policy.envelope())
-    existing = envelope["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"]
-    existing = {k: v for k, v in existing.items() if not k.startswith(("hourly_", "ingress_"))}
-    value = {**existing, **goal()}
+    # Authorization is a test fixture, independent of the operator's live/spent goal.
+    value = {**goal(), "unlimited_cumulative_time_explicitly_authorized": True,
+             "spending_allowance": {"status": "APPROVED", "maximum_additional_spend": None,
+                                    "no_spending_cap_explicitly_authorized": True}}
     envelope["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"] = value
     authorized_today(envelope)
     value["maximum_paid_stages"] = 2

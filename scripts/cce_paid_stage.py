@@ -36,6 +36,8 @@ def sha(raw):
 
 def identity():
     paths = (
+        "scripts/cce_primary_bootstrap.py", "scripts/qualify_cce_primary_bootstrap.py", "scripts/prepare_two_host_scaling.py",
+        "scripts/status_refresh_contract.py", "scripts/run_status_refresh_comparison.py",
         "scripts/cce_ingress_hourly_generator.py",
         "scripts/cce_bounded_financial_audit.py", "scripts/independent_database_sampling.py",
         "scripts/cce_runtime_cohort_profile.py", "scripts/paid_cohort_query.py",
@@ -123,6 +125,7 @@ def identity():
         "scripts/prepare_generator_completion.py",
         "docs/capacity/cce/api-adapter-contract-2026-10-08.json",
     )
+    paths = (*paths, *__import__("cce_primary_bootstrap").SOURCES)
     return {p: sha((policy.ROOT / p).read_bytes()) for p in paths}
 
 

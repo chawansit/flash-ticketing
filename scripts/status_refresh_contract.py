@@ -255,7 +255,8 @@ print(json.dumps({'artifact_roles_verified':list(values)}))
         if any(saved["model"]["services"][r]["image"] != self.parents[r] for r in self.roles if r != "confirmation"):
             raise ValueError("Saved per-role parents differ from artifact receipt")
         session.call("primary", self.image_program(self.roles), 120)
-        session.call("secondary", self.image_program(("api",)), 45)
+        if "secondary" in __import__("cce_primary_bootstrap").ecs_roles(session.config):
+            session.call("secondary", self.image_program(("api",)), 45)
 
     def pre_safety(self, session, routes, saved):
         from collect_two_host_inventory import observe

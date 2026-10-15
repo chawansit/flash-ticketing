@@ -16,6 +16,10 @@ def install(module, value, **kwargs):
 def correction_inventory(inventory, approved_digest):
     """Verify actual twelve-job evidence before projecting the legacy structural view."""
     marker = inventory.get("status_refresh_contract", {})
+    if "cce_primary_bootstrap_contract" in inventory:
+        from cce_primary_bootstrap import validate_observer_inventory
+        validate_observer_inventory(inventory, approved_digest, image_id=marker.get("api_image_id"))
+        return inventory, approved_digest
     if marker.get("event_lane_decision") == "ADR0266":
         from cce_event_lane_identity import historical_view
         identity = None

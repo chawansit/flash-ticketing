@@ -260,6 +260,11 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     from cce_backend_partition import selected as partition_selected
     if partition_selected(goal):
         extra.update(cce_backend_partition_contract=partition_contract(goal["backend_partition_decision"]))
+    import cce_primary_bootstrap as bootstrap
+    if bootstrap.enabled(config) != bootstrap.selected(goal):
+        raise ValueError("Primary-only configuration and authorization must match")
+    if bootstrap.selected(goal):
+        extra["cce_primary_bootstrap_contract"] = bootstrap.contract()
     binding = {
         **extra,
         "configuration_sha256": policy.digest(config),
@@ -570,7 +575,7 @@ def run(config, output, guard, manifests, kubeconfig, context):
         "transport_creation_attempted": False,
     }
 
-    contract = worker_contract()
+    contract = __import__("cce_primary_bootstrap").configure(worker_contract(), config)
 
     contract.diagnostic_context = context
 
@@ -690,7 +695,7 @@ def run(config, output, guard, manifests, kubeconfig, context):
                 fresh = contract.pre_safety(session, routes, saved)
                 if any(
                     fresh["hosts"][role]["machine_id_sha256"] != inventory["hosts"][role]["machine_id_sha256"]
-                    for role in ("primary", "secondary")
+                    for role in __import__("cce_primary_bootstrap").ecs_roles(config)
                 ):
                     raise ValueError("Transition inventory machine identity changed")
                 policy.write(local / "pre-transition-inventory.private.json", fresh)
@@ -707,7 +712,7 @@ def run(config, output, guard, manifests, kubeconfig, context):
                 qualify_safety=inputs.safety,
                 cleanup_safety=inputs.cleanup,
                 prepare_fixture=inputs.paid,
-                identities={r: inventory["hosts"][r]["machine_id_sha256"] for r in ("primary", "secondary")},
+                identities={r: inventory["hosts"][r]["machine_id_sha256"] for r in __import__("cce_primary_bootstrap").ecs_roles(config)},
                 background_before=background,
                 persist=lambda value: persist({"lifecycle": value}),
                 refresh_inventory=refresh_inventory,

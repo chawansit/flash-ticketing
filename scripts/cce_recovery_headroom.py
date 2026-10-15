@@ -397,10 +397,16 @@ def validate_binding(goal, binding):
             old = policy.read(policy.STATE)["bounded_cce_ticket_target__88dc5ceb63ad"]["binding"]
         elif notification:
             old = policy.read(policy.STATE)["bounded_cce_ticket_target__384290e57344"]["binding"]
+    import cce_primary_bootstrap as bootstrap
+    retirement = bootstrap.selected(goal)
+    if retirement:
+        bootstrap.validate_binding(goal,binding,old)
     ignored = {"cce_paid_entry_sources", "cce_paid_core_sources", "cce_manifest_sha256",
                "baseline_sha256", "cce_verification_contract_sha256", "cce_headroom_contract",
                "cce_gateway_read_recovery_contract", "cce_inventory_renewal_contract",
                "cce_metric_admission_contract_sha256", "cce_throughput_push_contract"}
+    if retirement:
+        ignored |= {"configuration_sha256", "cce_primary_bootstrap_contract", "cce_transition_source_sha256"}
     if context:
         if fulfillment:
             import cce_fulfillment_batch_identity as context_pins
@@ -521,8 +527,11 @@ def validate_binding(goal, binding):
         if explicit:
             added |= {"scripts/cce_explicit_start_profile.py", "scripts/cce_explicit_start_identity.py",
                       "docs/capacity/cce/explicit-transaction-start-image-2026-10-14.json"}
+        if retirement:
+            added |= set(bootstrap.SOURCES) - set(before)
+        allowed = CHANGED_SOURCES | (set(bootstrap.SOURCES) if retirement else set())
         if (set(after) != set(before) | added
-                or any(before[k] != after[k] for k in before if k not in CHANGED_SOURCES)):
+                or any(before[k] != after[k] for k in before if k not in allowed)):
             raise ValueError("Headroom source changed outside the declared rate integration")
     from cce_metric_admission import contract as metric_contract
     if binding.get("cce_metric_admission_contract_sha256") != policy.digest(metric_contract()):

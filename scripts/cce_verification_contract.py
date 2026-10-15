@@ -10,7 +10,7 @@ def digest(value):
 
 def contract():
     root = Path(__file__).parent
-    names = ("cce_bounded_financial_audit.py", "independent_database_sampling.py",
+    names = ("cce_primary_bootstrap.py", "cce_bounded_financial_audit.py", "independent_database_sampling.py",
              "database_wait_evidence.py", "audit_checkout_smoke.py", "cce_transaction_recovery.py",
              "cce_verification_contract.py", "observe_two_host_pipeline.py", "cce_paid_observers.py",
              "cce_paid_stage.py", "cce_slot_trace_transport.py", "observe_cce_workers.py",

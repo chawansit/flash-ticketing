@@ -146,7 +146,7 @@ class Lifecycle:
     def snapshots(self):
         rows = {
             role: self.session.call(role, program, 45)
-            for role, program in (("primary", INSPECT), ("secondary", SECONDARY_INSPECT))
+            for role, program in ((("primary", INSPECT),) if __import__("cce_primary_bootstrap").enabled(getattr(self.session,"config",{})) else (("primary", INSPECT), ("secondary", SECONDARY_INSPECT)))
         }
         from cce_ecs_transition import execution_identity
 

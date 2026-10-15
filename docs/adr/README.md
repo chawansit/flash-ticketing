@@ -322,3 +322,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0328: Test 140 offered journeys per second at the existing budget](0328-push-140-journeys-fixed-budget.md) - Passed all12 gates:138.49 conservative paid-issued tickets/s,42000 fulfilled,zero customer errors or drops; financial audit/drain/restoration passed; higher-rate hourly qualification pending.
 
 - [ADR0329: Test 160 offered journeys per second at the existing budget](0329-push-160-journeys-fixed-budget.md) - 160/s test failed arrival/zero-drop gates;47875 dispatched payments/tickets reconciled and runtime restored. Best clean short result remains138.49/s; generator calibration required.
+
+- [ADR0330: Retire the secondary ECS from the CCE workflow](0330-retire-secondary-ecs-from-cce-workflow.md) - Primary-only bootstrap implemented; 475 tests passed, 1 skipped. Live check blocked by RDS/Redis reachability; secondary VM retained.

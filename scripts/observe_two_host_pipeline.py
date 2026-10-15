@@ -315,7 +315,10 @@ def confirmation_startup(row):
 
 
 def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, approved_inventory_sha256=None):
-    if approved_inventory_sha256 is None:
+    if "cce_primary_bootstrap_contract" in inventory:
+        from cce_primary_bootstrap import validate_observer_inventory
+        validate_observer_inventory(inventory, approved_inventory_sha256, image_id=image_id, now=now)
+    elif approved_inventory_sha256 is None:
         validate_inventory(inventory, image_id=image_id, now=now)
     else:
         actual = hashlib.sha256(json.dumps(inventory, sort_keys=True, separators=(",", ":")).encode()).hexdigest()

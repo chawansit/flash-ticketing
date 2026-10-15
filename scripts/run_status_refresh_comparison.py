@@ -73,7 +73,7 @@ class RunLock:
 def restoration_complete(result):
     return (
         all(
-            result.get(key) is True
+            (__import__("cce_primary_bootstrap").restoration_verified(result) if key == "secondary_resources_removed" and result.get("cce_bootstrap_topology") else result.get(key) is True)
             for key in (
                 "restore_pass",
                 "primary_runtime_semantics_restored",

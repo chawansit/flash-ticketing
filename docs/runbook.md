@@ -143,3 +143,14 @@ outage, map expiry or `updating` marker. Do not interpret reuse as stale serving
 Restart discards local entries safely. Scale-out multiplies memory bounds and
 introduces cold caches; do not infer linear production scaling from hit rate.
 See [ADR 0017](adr/0017-validated-browse-body-cache.md).
+
+
+## Retiring the secondary ECS from CCE bootstrap (ADR0330)
+
+The opt-in primary-only bootstrap runs four temporary APIs on the primary ECS and retains the separate generator. Native CCE resources, application image and database budgets stay unchanged. Historical three-host configurations still select their original path.
+
+Create a fresh private configuration under repository `tmp` with `scripts/qualify_cce_primary_bootstrap.py --prepare-from-legacy <legacy-private-config> --config <fresh-private-config> --ssh-runtime <protected-ssh-runtime>`. Preparation alone makes no cloud calls. Add `--execute` only when RDS and Redis are reachable to run the bounded bootstrap safety check, post-TTL audit and restoration; it does not dispatch a paid capacity stage. It can create one simulated paid safety ticket. It does not exercise native CCE deployment live.
+
+A future paid experiment must use a fresh scope bound to `primary_bootstrap_decision=ADR0330`, the current `primary_bootstrap_contract_sha256`, and exact private paths in `primary_bootstrap_config_path` and `primary_bootstrap_legacy_config_path`. Only removal of the secondary and fallback flag plus the explicit topology marker is permitted. Never reuse a consumed scope or fabricate an absent-host observation.
+
+Before deleting the secondary, pass the live qualification and check its exact instance identity, containers, volumes and unrelated storage. Keep the primary and generator. See [ADR0330](adr/0330-retire-secondary-ecs-from-cce-workflow.md) and its evidence for the current blockers. Deletion has not occurred.

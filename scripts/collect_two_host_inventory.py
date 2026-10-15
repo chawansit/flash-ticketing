@@ -65,24 +65,26 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
     roles = BACKGROUND if contract is None else contract.background
     primary = session.call("primary", INSPECT)
     # Include all secondary resources, not just the expected project's running APIs.
-    secondary = session.call(
+    primary_only = __import__("cce_primary_bootstrap").enabled(session.config)
+    secondary = [] if primary_only else session.call(
         "secondary",
         "import json,subprocess;ids=subprocess.check_output(['docker','ps','-aq','--no-trunc'],text=True).split();print(json.dumps(json.loads(subprocess.check_output(['docker','inspect',*ids],text=True)) if ids else []))",
     )
-    host_rows = {role: session.call(role, host_program()) for role in ("primary", "secondary", "generator")}
+    host_rows = {role: session.call(role, host_program()) for role in __import__("cce_primary_bootstrap").connection_roles(session.config)}
     hosts = {}
     for role, row in host_rows.items():
         address = session.config[role]["private_ipv4"]
         if address not in row.pop("addresses"):
             raise ValueError("Configured address is not bound to its observed host")
         hosts[role] = {**row, "private_ipv4": address}
-    hosts["secondary"]["non_api_services"] = [
-        r["Id"]
-        for r in secondary
-        if r["Config"]["Labels"].get("com.docker.compose.project") != "flash-ticketing-api-secondary"
-        or r["Config"]["Labels"].get("com.docker.compose.service") != "api"
-        or not r["State"]["Running"]
-    ]
+    if not primary_only:
+        hosts["secondary"]["non_api_services"] = [
+            r["Id"]
+            for r in secondary
+            if r["Config"]["Labels"].get("com.docker.compose.project") != "flash-ticketing-api-secondary"
+            or r["Config"]["Labels"].get("com.docker.compose.service") != "api"
+            or not r["State"]["Running"]
+        ]
     by_id = {r["Id"]: r for r in [*primary, *secondary]}
     groups = grouped(primary)
     expected_counts = {
@@ -186,6 +188,9 @@ def observe(session, arm, routes, baseline_env, *, expected_worker_images, contr
         "global_queues_zero": queue["pass"],
         "identity_provenance": "Live DMI instance UUID, actual bound addresses and container inspection; authority values are fingerprinted.",
     }
+    if primary_only:
+        inventory["cce_primary_bootstrap_contract"] = __import__("cce_primary_bootstrap").marker(contract.api_settings)
+        inventory["primary_bootstrap_api_settings"] = dict(contract.api_settings)
     if contract is not None:
         inventory["status_refresh_contract"] = (
             contract.inventory_marker() if hasattr(contract, "inventory_marker") else

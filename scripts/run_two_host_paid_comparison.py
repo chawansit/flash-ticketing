@@ -1046,7 +1046,8 @@ def validate_config(config):
 
     from prepare_two_host_scaling import private_ipv4
 
-    for role, key in (("primary", "repo"), ("secondary", "prepared_directory"), ("generator", "repo")):
+    roles = (("primary", "repo"), ("generator", "repo")) if __import__("cce_primary_bootstrap").enabled(config) else (("primary", "repo"), ("secondary", "prepared_directory"), ("generator", "repo"))
+    for role, key in roles:
         if role not in config or key not in config[role]:
             raise ValueError("Missing required workspace path for " + role)
         path = PurePosixPath(config[role][key])

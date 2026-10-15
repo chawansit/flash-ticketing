@@ -44,6 +44,10 @@ class CommittedStatusContract(EventLaneContract):
         for role in self.background:
             self.images[role] = identity.IMAGE_ID
 
+    @property
+    def measured_api_counts(self):
+        return {"primary": 4, "secondary": 0} if getattr(self,"primary_only_bootstrap",False) else super().measured_api_counts
+
     def settings(self, role):
         # ECS bootstrap stays off. Activation occurs only on native fulfillment pods.
         values = {**super().settings(role), "ORDER_STATUS_COMMITTED_SNAPSHOT": "0"}
@@ -78,5 +82,7 @@ class CommittedStatusContract(EventLaneContract):
         StatusRefreshContract.verify_inventory(self, data)
         if data.get("status_refresh_contract") != self.inventory_marker():
             raise ValueError("Committed-status marker differs")
+        if getattr(self,"primary_only_bootstrap",False):
+            return __import__("cce_primary_bootstrap").verify_inventory(self, data)
         legacy, _ = legacy_pins.historical_view(data, legacy_pins.digest(data), identity=self.identity)
         verify_admission_factor_evidence(legacy)

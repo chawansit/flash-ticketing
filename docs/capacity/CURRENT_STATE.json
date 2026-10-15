@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-15",
   "branch": "codex/customer-recovery-2026-10-10",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "ADR0329 FAILED_RESTORED:160/s offered test scheduled48000,dispatched/fulfilled47875,dropped125. Sixteen initial payment503s all recovered,zero final customer failures. Generator dispatch lag p95=40.114s; both processes used99% of one core and reached250 active journeys. Arrival-quality failure prevents application-capacity inference. Original raw financial/completeness gates remainfailed; independent readonly recovery verifies47875 actual payments/tickets,zero doubles/paymentloss,queues0 and exact restoration. Best clean short throughput remains138.49/s fromADR0328. Supplemental user-supplied3h provider CPU chart peaks53.96%; sustained overall RDS CPU exhaustion is not shown.",
+  "status": "ADR0330 secondary retirement preparation implemented and offline verified (475 passed, 1 skipped). Live primary-only preflight stopped before mutation because RDS/Redis were unreachable. VM not deleted; primary and generator retained. ADR0329 failed160/s evidence and best clean138.49/s result unchanged.",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -1117,7 +1117,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Diagnose/calibrate generator CPU, dispatch pacing and in-flight pressure before a fresh160/s comparison. Preserve current application, API/worker resources,24 physical database backends and all gates. Increased generator parallelism with the same total500 concurrency is a candidate, subject to host headroom and a sealed ADR/tests. Do not infer application maximum from failed arrival timing or quietly raise concurrency.",
+  "next_action": "Restore RDS/Redis reachability; rerun fresh bounded no-paid primary-only safety qualification, then verify exact secondary instance/storage and retire it when cloud management access is available. Do not delete primary or generator. Resume generator calibration separately after retirement.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -10464,7 +10464,7 @@
     "scope": "Fresh ADR0228 experiment under ADR0172 standing boundaries; exact registered rate only, no replay",
     "cce_result_sha256": "55ec85ff7a06663a7066dd1b8be209add98a32b800bd4d09d31d51f6e9694295"
   },
-  "next_step": "Diagnose/calibrate generator CPU, dispatch pacing and in-flight pressure before a fresh160/s comparison. Preserve current application, API/worker resources,24 physical database backends and all gates. Increased generator parallelism with the same total500 concurrency is a candidate, subject to host headroom and a sealed ADR/tests. Do not infer application maximum from failed arrival timing or quietly raise concurrency.",
+  "next_step": "Restore RDS/Redis reachability; rerun fresh bounded no-paid primary-only safety qualification, then verify exact secondary instance/storage and retire it when cloud management access is available. Do not delete primary or generator. Resume generator calibration separately after retirement.",
   "bounded_cce_dependency_probe__8c7a392324b5": {
     "authorization_id": "work-envelope-8c7a392324b5",
     "binding": {
@@ -30773,5 +30773,11 @@
     "average_displayed_series_percent": 7.791,
     "window": "Last3h;max1minute",
     "exact_per_run_timeseries_captured": false
-  }
+  },
+  "adr0330_prior_handoff_fields": {
+    "status": "ADR0329 FAILED_RESTORED:160/s offered test scheduled48000,dispatched/fulfilled47875,dropped125. Sixteen initial payment503s all recovered,zero final customer failures. Generator dispatch lag p95=40.114s; both processes used99% of one core and reached250 active journeys. Arrival-quality failure prevents application-capacity inference. Original raw financial/completeness gates remainfailed; independent readonly recovery verifies47875 actual payments/tickets,zero doubles/paymentloss,queues0 and exact restoration. Best clean short throughput remains138.49/s fromADR0328. Supplemental user-supplied3h provider CPU chart peaks53.96%; sustained overall RDS CPU exhaustion is not shown.",
+    "next_action": "Diagnose/calibrate generator CPU, dispatch pacing and in-flight pressure before a fresh160/s comparison. Preserve current application, API/worker resources,24 physical database backends and all gates. Increased generator parallelism with the same total500 concurrency is a candidate, subject to host headroom and a sealed ADR/tests. Do not infer application maximum from failed arrival timing or quietly raise concurrency.",
+    "next_step": "Diagnose/calibrate generator CPU, dispatch pacing and in-flight pressure before a fresh160/s comparison. Preserve current application, API/worker resources,24 physical database backends and all gates. Increased generator parallelism with the same total500 concurrency is a candidate, subject to host headroom and a sealed ADR/tests. Do not infer application maximum from failed arrival timing or quietly raise concurrency."
+  },
+  "adr0330_secondary_retirement": "docs/capacity/cce/secondary-ecs-retirement-preparation-2026-10-15.json"
 }

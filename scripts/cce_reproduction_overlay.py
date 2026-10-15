@@ -5,16 +5,17 @@ from pathlib import Path
 
 OVERLAID = {
     'scripts/cce_paid_profiles.py', 'scripts/cce_paid_inputs.py', 'scripts/fixture_identity_evidence.py', 'scripts/run_two_host_paid_comparison.py',
-    "scripts/work_envelope.py",
+    "scripts/work_envelope.py", "scripts/qualify_two_host_deployment.py", "scripts/prepare_two_host_scaling.py", "scripts/status_refresh_contract.py", "scripts/run_status_refresh_comparison.py",
     "scripts/collect_two_host_inventory.py", "scripts/runtime_source_identity.py",
     "scripts/cce_paid_resources.py", "scripts/cce_paid_lifecycle.py",
     "scripts/cce_dependency_probe.py", "scripts/observe_cce_paid_pipeline.py", "scripts/observe_two_host_cpu.py",
-    "scripts/database_wait_evidence.py",
+    "scripts/database_wait_evidence.py", "scripts/observe_two_host_pipeline.py",
     "scripts/checkout_journey_probe.py", "scripts/paid_ticket_load_generator.py", "scripts/paid_ticket_sharded_generator.py",
     "scripts/cce_api_adapter.py", "scripts/cce_paid_stage.py", "scripts/cce_paid_observers.py",
     "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py",
     "scripts/run_cce_hourly_qualification.py", "scripts/cce_hourly_paid_generator.py", "scripts/cce_hourly_paid_leaf.py"}
 ADDITIONAL = {
+    "scripts/cce_primary_bootstrap.py", "scripts/qualify_cce_primary_bootstrap.py",
     "scripts/cce_bounded_financial_audit.py", "scripts/independent_database_sampling.py",
     "scripts/cce_committed_status_identity.py", "scripts/cce_committed_status_profile.py",
     "scripts/cce_committed_status_contract.py",

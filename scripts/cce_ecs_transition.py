@@ -105,11 +105,12 @@ class Transition:
             raise ValueError("Canonical experiment identity required")
         if owner != session.config["primary"]["repo"] + "/tmp/" + run:
             raise ValueError("Canonical existing owned route directory required")
+        primary_only = __import__("cce_primary_bootstrap").enabled(session.config)
         if (
             len(routes) != 4
             or len({r["container_id"] for r in routes}) != 4
-            or sum(r["host_role"] == "primary" for r in routes) != 1
-            or sum(r["host_role"] == "secondary" for r in routes) != 3
+            or sum(r["host_role"] == "primary" for r in routes) != (4 if primary_only else 1)
+            or sum(r["host_role"] == "secondary" for r in routes) != (0 if primary_only else 3)
             or any(not re.fullmatch(r"[0-9a-f]{64}", r["container_id"]) for r in routes)
             or any(r["private_ipv4"] != session.config[r["host_role"]]["private_ipv4"] for r in routes)
         ):
@@ -150,7 +151,7 @@ class Transition:
         self.check()
         if self.rows:
             raise ValueError("Fresh transition capture required")
-        for role, program in (("primary", INSPECT), ("secondary", SECONDARY_INSPECT)):
+        for role, program in (("primary", INSPECT),) if __import__("cce_primary_bootstrap").enabled(self.session.config) else (("primary", INSPECT), ("secondary", SECONDARY_INSPECT)):
             self.record["capture_phase"] = role + "_inventory"
             self.checkpoint()
             rows = self.session.call(role, program, 45)

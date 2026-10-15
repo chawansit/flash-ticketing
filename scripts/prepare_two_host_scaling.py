@@ -86,13 +86,14 @@ def validate_inventory(data, *, image_id, now=None, contract=None, placement=Non
     if captured.tzinfo is None or not 0 <= (now - captured).total_seconds() <= 300:
         raise ValueError("Observation is stale or future dated")
     hosts = data["hosts"]
-    if set(hosts) != {"primary", "secondary", "generator"}:
+    primary_only = getattr(contract, "primary_only_bootstrap", False)
+    if set(hosts) != ({"primary", "generator"} if primary_only else {"primary", "secondary", "generator"}):
         raise ValueError("All three host roles are required")
     ids = [digest(h["machine_id_sha256"]) for h in hosts.values()]
     addresses = [private_ipv4(h["private_ipv4"]) for h in hosts.values()]
-    if len(set(ids)) != 3 or len(set(addresses)) != 3:
+    if len(set(ids)) != len(hosts) or len(set(addresses)) != len(hosts):
         raise ValueError("API machines and generator must be independent")
-    for role in ("primary", "secondary"):
+    for role in (("primary",) if primary_only else ("primary", "secondary")):
         h = hosts[role]
         if (
             type(h["vcpus"]) is not int
@@ -101,12 +102,12 @@ def validate_inventory(data, *, image_id, now=None, contract=None, placement=Non
             or not 7 * 2**30 <= h["memory_bytes"] <= 9 * 2**30
         ):
             raise ValueError("Matching 4-vCPU/8-GiB API hosts required")
-    memory = [hosts[r]["memory_bytes"] for r in ("primary", "secondary")]
-    if abs(memory[0] - memory[1]) > min(memory) * 0.05:
+    memory = [hosts[r]["memory_bytes"] for r in (("primary",) if primary_only else ("primary", "secondary"))]
+    if len(memory) == 2 and abs(memory[0] - memory[1]) > min(memory) * 0.05:
         raise ValueError("API host memory must match within five percent")
     if hosts["generator"]["api_processes"] != 0:
         raise ValueError("Generator must remain dedicated")
-    if hosts["secondary"]["non_api_services"]:
+    if not primary_only and hosts["secondary"]["non_api_services"]:
         raise ValueError("Secondary must not add a pooler, broker or background services")
     if data["background"] != (BACKGROUND if contract is None else contract.background):
         raise ValueError("Background placement/settings changed")
@@ -169,7 +170,7 @@ def validate_inventory(data, *, image_id, now=None, contract=None, placement=Non
     expected = ({"primary": 4, "secondary": 0} if data["arm"] == "control" else {"primary": 2, "secondary": 2}) if contract is None else {"primary": 2, "secondary": 2}
     if contract is not None:
         expected = getattr(contract, "measured_api_counts", expected)
-        if expected not in ({"primary": 2, "secondary": 2}, {"primary": 1, "secondary": 3}):
+        if expected not in (({"primary": 4, "secondary": 0},) if primary_only else ({"primary": 2, "secondary": 2}, {"primary": 1, "secondary": 3})):
             raise ValueError("Unknown measured API placement")
     if placement is not None:
         marker = data.get("status_refresh_contract", {})

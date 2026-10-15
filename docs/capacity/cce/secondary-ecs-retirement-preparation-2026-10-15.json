@@ -1,0 +1,75 @@
+{
+  "decision": "ADR0330",
+  "status": "IMPLEMENTED_OFFLINE_VERIFIED_LIVE_BLOCKED",
+  "implemented": true,
+  "vm_deleted": false,
+  "retirement_candidate": "ecs-chawansit-de5e",
+  "retained_services": [
+    "primary ECS: Kafka, PgBouncer and fallback runtime",
+    "generator ECS: load generation"
+  ],
+  "offline_validation": {
+    "regression_tests_passed": 475,
+    "regression_tests_skipped": 1,
+    "seconds": 255.95,
+    "full_binding": {
+      "pass": true,
+      "source_contract_sha256": "b2ebd3882330a7f5e32e65c88f8c6e7c9821ac0dca71fcb77132a8f16734ba12",
+      "complete_primary_only_binding_verified": true,
+      "live_paid_goal_registered": false
+    },
+    "ruff_F_I": "passed",
+    "reproduction": {
+      "pass": true,
+      "checked_files": 535,
+      "current_overlays": 30,
+      "frozen_parent_files": 78
+    },
+    "final_source_targeted_tests": {
+      "passed": 106,
+      "seconds": 44.95,
+      "scope": "retirement, throughput binding, paid entry and historical reproduction after import-only cleanup"
+    },
+    "repository_naming": {
+      "pass": true,
+      "checked_documents": 1364,
+      "errors": 0
+    }
+  },
+  "live_preflight": {
+    "run": "adr0151-d54b7d9bccb9",
+    "qualification_pass": false,
+    "connected_host_roles": [
+      "primary",
+      "generator"
+    ],
+    "secondary_access_attempts": 0,
+    "service_mutations_started": false,
+    "safety_probe_executed": false,
+    "paid_capacity_stages_started": 0,
+    "rds_tcp_reachable": false,
+    "redis_tcp_reachable": false,
+    "pooler_running": true,
+    "credentials_removed": true,
+    "cause": "RDS connection failed; separate read-only primary-host check also found Redis connection refused. Exact service/network cause unconfirmed.",
+    "source_contract_at_attempt_sha256": "5b22434bf224ed93c745440d5ff91d42119e20babef152fb99548b4a129f1fe8",
+    "qualification_receipt_sha256": "9b739da42316eac7f5f2797e4a99864323a7a00f6800eb462e346d1097373850"
+  },
+  "management_access": {
+    "deletion_attempted": false,
+    "console_automation_available": false,
+    "configured_cloud_management_cli_available": false
+  },
+  "remaining": [
+    "Restore RDS/Redis reachability and run fresh bounded no-paid bootstrap qualification.",
+    "Verify exact secondary instance identity, emptiness and absence of unrelated storage.",
+    "Delete only the authorized secondary VM when management access is available."
+  ],
+  "capacity_improvement_measured": false,
+  "best_clean_short_paid_issued_per_second": 138.49,
+  "prior_capacity_evidence_unchanged": true,
+  "limitations": [
+    "Native CCE stop/start/restoration verified with composed offline tests; not executed live in this retirement attempt.",
+    "Live attempt used an earlier source seal and failed before mutation. Final source seal is recorded separately; no claim of final-source live qualification."
+  ]
+}

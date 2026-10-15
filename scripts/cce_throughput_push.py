@@ -103,6 +103,17 @@ def validate_binding(goal, binding):
     changed = {"cce_paid_entry_sources", "cce_paid_core_sources", "cce_manifest_sha256", "baseline_sha256",
                "cce_verification_contract_sha256", "cce_headroom_contract", "cce_fulfillment_batch_contract",
                "cce_throughput_push_contract"}
+    import cce_primary_bootstrap as bootstrap
+    retirement = bootstrap.selected(goal)
+    if retirement:
+        bootstrap.validate_binding(goal,binding,original)
+        changed |= {"configuration_sha256", "cce_primary_bootstrap_contract", "cce_transition_source_sha256",
+                    "cce_metric_admission_contract_sha256", "cce_inventory_renewal_contract"}
+        from cce_inventory_renewal import contract as renewal_contract
+        from cce_metric_admission import contract as metric_contract
+        if (binding.get("cce_metric_admission_contract_sha256") != policy.digest(metric_contract())
+                or binding.get("cce_inventory_renewal_contract") != renewal_contract()):
+            raise ValueError("Exact diagnostic contracts required after bootstrap retirement")
     if (any(original.get(k) != binding.get(k) for k in original.keys() | binding.keys() if k not in changed)
             or binding.get("cce_throughput_push_contract") != contract(goal)
             or binding.get("baseline_sha256") != policy.digest(report)):
@@ -111,6 +122,9 @@ def validate_binding(goal, binding):
         before, after = original[key], binding[key]
         added = {"scripts/cce_throughput_push.py"}
         allowed = {"scripts/" + name for name in SOURCES}
+        if retirement:
+            added |= set(bootstrap.SOURCES) - set(before)
+            allowed |= set(bootstrap.SOURCES)
         if (set(after) != set(before) | added
                 or any(before[k] != after[k] for k in before if k not in allowed)):
             raise ValueError("Rate push source drift outside the declared workload adapter")

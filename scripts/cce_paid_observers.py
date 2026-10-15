@@ -254,6 +254,7 @@ class Observers:
                 raise ValueError("Observer query differs from reserved identity")
             self.record["runtime_cohort_contract"] = self.runtime_cohort
         helpers = (
+            "cce_primary_bootstrap.py",
             *(("paid_cohort_query.py",) if self.runtime_cohort is not None else ()),
             "observe_cce_paid_pipeline.py",
             "observe_two_host_pipeline.py",
@@ -493,7 +494,7 @@ class Observers:
             raise ValueError("Qualified fresh native observations required")
         self.start_utc = datetime.fromtimestamp(start, UTC).isoformat()
         self.end_utc = (datetime.fromtimestamp(start, UTC) + timedelta(seconds=self.stage.profile.duration)).isoformat()
-        for role in ("primary", "secondary"):
+        for role in __import__("cce_primary_bootstrap").ecs_roles(getattr(self.session,"config",{})):
             spec = background_spec(role, snapshots[role], identities[role], policy.digest(self.native))
             if getattr(self, "native_workers", None) is not None:
                 spec.update(placement="cce-worker-isolation", decision="ADR0259")
@@ -570,13 +571,18 @@ class Observers:
             except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Preserve both hosts and traces independently.
                 failures.append({"operation": role + "_cpu", "type": type(error).__name__})
         try:
-            self.record["cpu_window"] = cpu.compare_windows(
-                self.record["primary_cpu"],
-                self.record["secondary_cpu"],
-                offered_start_utc=self.start_utc,
-                offered_end_utc=self.end_utc,
-                hourly=self.stage.profile.duration == 3600,
-            )
+            if __import__("cce_primary_bootstrap").enabled(getattr(self.session,"config",{})):
+                self.record["cpu_window"] = __import__("cce_primary_bootstrap").cpu_window(
+                    self.record["primary_cpu"], offered_start_utc=self.start_utc,
+                    offered_end_utc=self.end_utc, hourly=self.stage.profile.duration == 3600)
+            else:
+                self.record["cpu_window"] = cpu.compare_windows(
+                    self.record["primary_cpu"],
+                    self.record["secondary_cpu"],
+                    offered_start_utc=self.start_utc,
+                    offered_end_utc=self.end_utc,
+                    hourly=self.stage.profile.duration == 3600,
+                )
             # Native API CPU is reported independently, rather than invented for ECS.
             self.record["cpu_window"].pop("aggregate_api_cpu_cores", None)
         except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Never infer successful host coverage.
