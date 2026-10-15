@@ -1,4 +1,4 @@
-"""ADR0327/0328 exact120/140 workloads; no application or budget change."""
+"""ADR0327/0328/0329 exact120/140/160 workloads; no application or budget change."""
 import hashlib
 
 import work_envelope as policy
@@ -18,19 +18,30 @@ HIGHER_REFERENCE_LEDGER = "bounded_cce_ticket_target__ecd5af0cff30"
 HIGHER_REFERENCE_SHA256 = "d4fc2f65bd725745f836989ed43fe98cc49f3dce9b88f3e05f855ac67935c94e"
 
 
+PUSH160_REFERENCE_PATH = "tmp/adr0151-f832979c7331/cce-comparison.private.json"
+PUSH160_REFERENCE_LEDGER = "bounded_cce_ticket_target__323561612a41"
+PUSH160_REFERENCE_SHA256 = "7bcef05f2d006750fe2266cce9672abbe8d22d3967b8d1960c3537fe8dac461d"
+
+
+def push160(goal):
+    return goal is not None and goal.get("throughput_push_decision") == "ADR0329"
+
+
 def higher(goal):
     return goal is not None and goal.get("throughput_push_decision") == "ADR0328"
 
 
 def reference(goal=None):
+    if push160(goal):
+        return PUSH160_REFERENCE_PATH, PUSH160_REFERENCE_LEDGER, PUSH160_REFERENCE_SHA256, 42000
     if higher(goal):
         return HIGHER_REFERENCE_PATH, HIGHER_REFERENCE_LEDGER, HIGHER_REFERENCE_SHA256, 36000
     return REFERENCE_PATH, REFERENCE_LEDGER, REFERENCE_SHA256, 30600
 
 
 def contract(goal=None):
-    rate, shows, expected, target = (140, 140, 42000, 41400) if higher(goal) else (RATE, SHOWS, EXPECTED, TARGET)
-    return {"decision": "ADR0328" if higher(goal) else "ADR0327", "offered_rate": rate, "offered_seconds": 300,
+    rate, shows, expected, target = (160, 160, 48000, 47400) if push160(goal) else (140, 140, 42000, 41400) if higher(goal) else (RATE, SHOWS, EXPECTED, TARGET)
+    return {"decision": "ADR0329" if push160(goal) else "ADR0328" if higher(goal) else "ADR0327", "offered_rate": rate, "offered_seconds": 300,
             "expected_journeys": expected, "fixture_shows": shows,
             "minimum_unique_inside_window": target, "concurrency": 500,
             "experiment_seconds_limit": 3600, "physical_connections": 24,
@@ -42,17 +53,17 @@ def contract(goal=None):
 def selected(goal):
     if goal is None or not KEYS.intersection(goal):
         return False
-    if (goal.get("throughput_push_decision") not in ("ADR0327", "ADR0328")
+    if (goal.get("throughput_push_decision") not in ("ADR0327", "ADR0328", "ADR0329")
             or goal.get("throughput_push_contract_sha256") != policy.digest(contract(goal))
             or goal.get("fulfillment_batch_decision") != "ADR0324"):
-        raise ValueError("Exact source-bound120/140/s fulfillment workload required")
+        raise ValueError("Exact source-bound120/140/160/s fulfillment workload required")
     return True
 
 
 def bounds(goal=None):
     if not selected(goal):
         return 102, 102, 30600, 30000
-    return (140, 140, 42000, 41400) if higher(goal) else (RATE, SHOWS, EXPECTED, TARGET)
+    return (160, 160, 48000, 47400) if push160(goal) else (140, 140, 42000, 41400) if higher(goal) else (RATE, SHOWS, EXPECTED, TARGET)
 
 
 def require_reference(goal=None):

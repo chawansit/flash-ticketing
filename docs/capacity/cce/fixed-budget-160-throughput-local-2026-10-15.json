@@ -1,0 +1,25 @@
+{
+  "decision": "ADR0329",
+  "pass": true,
+  "cloud_result_pending_at_capture": true,
+  "executed_tests": 366,
+  "test_batches": [
+    {
+      "tests": 101,
+      "scope": "Exact120/140/160 profile selection, unchanged budgets, sealed workload, full terminal audit, pre-dispatch rejection, headroom and fulfillment guards"
+    },
+    {
+      "tests": 265,
+      "scope": "API adapter, live admission, entry binding, paid lifecycle, resources, dependencies and fixture admission"
+    }
+  ],
+  "ruff_import_and_undefined_name_check": "passed",
+  "full_source_binding_verified": true,
+  "passing_reference_result_sha256": "7bcef05f2d006750fe2266cce9672abbe8d22d3967b8d1960c3537fe8dac461d",
+  "terminal_audit_shows": 160,
+  "terminal_audit_expected_tickets": 48000,
+  "source_contract_sha256": "028c429fa8216df9452788f72458c2e19ff093ad8d666b070b2a02e5005529ee",
+  "application_image_rebuilt": false,
+  "resource_budgets_changed": false,
+  "evidence_scope": "Executed preflight; cloud outcome is recorded separately."
+}

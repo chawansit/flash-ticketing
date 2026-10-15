@@ -16,7 +16,16 @@ from cce_ecs_transition import Transition
 from cce_paid_inputs import Inputs
 from cce_paid_lifecycle import Lifecycle
 from cce_paid_observers import Observers
-from cce_paid_profiles import HEADROOM, HIGHER_RATE_PUSH, HOURLY, RATE_PUSH, SHORT, TICKET_TARGET, for_guard
+from cce_paid_profiles import (
+    HEADROOM,
+    HIGHER_RATE_PUSH,
+    HOURLY,
+    RATE_PUSH,
+    RATE_PUSH_160,
+    SHORT,
+    TICKET_TARGET,
+    for_guard,
+)
 from cce_paid_resources import BRIDGE_CPU_LIMIT, Resources
 from diagnostic_runner_connection import ProtectedContext, validate_target
 from run_status_refresh_comparison import RunLock, restoration_complete
@@ -290,7 +299,7 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
 
 
 def entry_for(profile):
-    if profile in (SHORT, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH):
+    if profile in (SHORT, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160):
         return sys.modules[__name__]
     if profile == HOURLY:
         import run_cce_hourly_qualification

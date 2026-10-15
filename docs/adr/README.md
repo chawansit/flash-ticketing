@@ -320,3 +320,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0327: Push five-minute throughput at the existing cloud budget](0327-push-fixed-budget-five-minute-throughput.md) - Clean120/s repeat passed all12 gates at118.63 paid-issued tickets/s with zero customer errors or drops; original failure and recovery preserved; hourly qualification pending.
 
 - [ADR0328: Test 140 offered journeys per second at the existing budget](0328-push-140-journeys-fixed-budget.md) - Passed all12 gates:138.49 conservative paid-issued tickets/s,42000 fulfilled,zero customer errors or drops; financial audit/drain/restoration passed; higher-rate hourly qualification pending.
+
+- [ADR0329: Test 160 offered journeys per second at the existing budget](0329-push-160-journeys-fixed-budget.md) - 160/s test failed arrival/zero-drop gates;47875 dispatched payments/tickets reconciled and runtime restored. Best clean short result remains138.49/s; generator calibration required.

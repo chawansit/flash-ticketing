@@ -98,11 +98,11 @@ def test_same_baseline_settings_and_source_closure_are_enforced():
         push.validate_binding(actual, binding)
 
 
-@pytest.mark.parametrize("rate,decision,expected,target", [(120,"ADR0327",36000,35400),(140,"ADR0328",42000,41400)])
+@pytest.mark.parametrize("rate,decision,expected,target", [(120,"ADR0327",36000,35400),(140,"ADR0328",42000,41400),(160,"ADR0329",48000,47400)])
 def test_complete_exact_rate_profile(rate, decision, expected, target, monkeypatch):
     from cce_bounded_financial_audit import program as audit_program
     from cce_paid_inputs import fixture_program
-    from cce_paid_profiles import HIGHER_RATE_PUSH
+    from cce_paid_profiles import HIGHER_RATE_PUSH, RATE_PUSH_160
     value = original_goal()
     value.update(throughput_push_decision=decision, offered_journeys_per_second=rate)
     value["throughput_push_contract_sha256"] = policy.digest(push.contract(value))
@@ -115,7 +115,7 @@ def test_complete_exact_rate_profile(rate, decision, expected, target, monkeypat
     envelope["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"] = value
     monkeypatch.setattr(policy, "envelope", lambda: envelope)
     binding = {"cce_headroom_contract": h.contract(value), "cce_throughput_push_contract": push.contract(value)}
-    profile = HIGHER_RATE_PUSH if rate == 140 else RATE_PUSH
+    profile = {120: RATE_PUSH, 140: HIGHER_RATE_PUSH, 160: RATE_PUSH_160}[rate]
     assert for_guard(SimpleNamespace(key="bounded_cce_ticket_target__0123456789ab", binding=binding)) == profile
     events = [str(uuid4()) for _ in range(rate)]
     compile(audit_program(events, expected), "terminal-audit", "exec")
@@ -147,3 +147,14 @@ def test_140_requires_its_own_contract_and_cannot_expand_rate():
     assert h.selected(value)
     with pytest.raises(ValueError):
         h.selected({**value,"offered_journeys_per_second":150})
+
+
+@pytest.mark.parametrize("field,value", [("offered_journeys_per_second",170),("maximum_paid_stages",2),("generator_concurrency",1000),("maximum_pods",20),("acquisition_budget",24)])
+def test_160_cannot_expand_approved_workload_or_budgets(field, value):
+    actual = original_goal()
+    actual.update(throughput_push_decision="ADR0329", offered_journeys_per_second=160)
+    actual["throughput_push_contract_sha256"] = policy.digest(push.contract(actual))
+    actual["headroom_contract_sha256"] = policy.digest(h.contract(actual))
+    assert h.selected(actual)
+    with pytest.raises(ValueError):
+        h.selected({**actual,field:value})
