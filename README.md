@@ -5,6 +5,10 @@ seat-ownership authority; Redis protects the reservation path and serves pre-war
 Kafka delivers post-payment work. ADR 0058 adds an opt-in Redis-first provisional intake path.
 No frontend and no waiting room.
 
+## Implementation for customer teams
+
+Use the [implementation guide for developers QA cloud engineers and architects](docs/customer-integration/implementation-guide.md) for transaction boundaries, source references, deployment responsibilities, qualification and rollout. It distinguishes measured reference results from customer integration and production requirements.
+
 ## Start locally
 
 Requires Docker Desktop with Linux containers (or Docker Engine + Compose), and free local

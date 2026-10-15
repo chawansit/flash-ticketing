@@ -2,6 +2,8 @@
 
 This pack is for the customer's developer team lead and backend engineers. Implement the booking and recovery contracts in the existing application language, while retaining CCE, PGpool and RDS. The deliverable is an implementation specification, not a completed customer port.
 
+For a shared developer, QA, cloud engineer and architect delivery plan, start with the [team implementation guide](../implementation-guide.md).
+
 Start with [the five contracts and pseudocode](contracts.md), then use [the acceptance checklist](acceptance-checklist.md) to verify the port. [ADR0325](../../adr/0325-transfer-ticketing-patterns-to-customer-stack.md) records the proposed integration boundary.
 
 ## Customer stack and proposed responsibilities
