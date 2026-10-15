@@ -317,4 +317,4 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0326: Compare the upgraded RDS at unchanged ticketing load](0326-compare-upgraded-rds-at-fixed-load.md) - Five-minute upgraded-RDS repeat passed at 100.89 paid-issued tickets/s with zero customer errors; runtime restored; 102/s hourly profile pending.
 
-- [ADR0327: Push five-minute throughput at the existing cloud budget](0327-push-fixed-budget-five-minute-throughput.md) - Observed118.65 paid-issued tickets/s with zero customer errors; original audit guard failed, independent36000-ticket reconciliation passed and runtime restored. Clean repeat pending.
+- [ADR0327: Push five-minute throughput at the existing cloud budget](0327-push-fixed-budget-five-minute-throughput.md) - Clean120/s repeat passed all12 gates at118.63 paid-issued tickets/s with zero customer errors or drops; original failure and recovery preserved; hourly qualification pending.

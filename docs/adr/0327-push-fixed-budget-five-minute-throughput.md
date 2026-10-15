@@ -2,7 +2,7 @@
 
 ## Status
 
-Measured higher ticket throughput with independent financial reconciliation. The automated run failed its audit coverage check; operational recovery is complete. This is not full automatic or hourly qualification. The user requested more throughput for five minutes on 15 October 2026. Supersedes no application, financial, locking or durability decision. ADR0312 remains the102/s historical workload; this opt-in profile adds exactly120/s.
+Clean same-rate repeat passed all twelve automatic measurement gates and restored the normal runtime. This qualifies the120/s five-minute profile only; hourly and maximum capacity remain unmeasured. The prior failed run and independent recovery remain preserved. The user requested more throughput for five minutes on 15 October 2026. Supersedes no application, financial, locking or durability decision. ADR0312 remains the102/s historical workload; this opt-in profile adds exactly120/s.
 
 ## Context
 
@@ -45,3 +45,17 @@ Correct that exact allowlist, exercise the full120-show audit program locally an
 After restoration, an independent repeatable-read read-only audit verified36000 payments, orders, bookings and tickets, zero duplicates or broken relationships, and all seven financial predicates. Both safety cohorts were re-audited; runtime stability, namespace/helper removal, secondary-host emptiness, generator idleness and zero queues were checked again. Recovery started no additional paid stage. The ledger is `FAILED_RESTORED`; raw hash `d6135abcc896a3f3de6c467e7fcfda0060f28f1417b62ebe341b53a73f226f94` is unchanged. The omitted final pod/background/configuration checks were not retroactively marked passed.
 
 The audit allowlist now recognizes exactly120 shows. Stage preparation constructs the complete terminal-audit program before uploading customer manifests. Executed55 correction regression tests passed, including120-show audit construction and rejection before dispatch when the audit cannot be built. The294 earlier tests passed but did not cover this missing terminal-audit case; their original receipt remains retained. A clean repeat at the same120/s is needed before treating this as a fully passed automated qualification. Do not claim an hourly maximum or increase load on this failed qualification.
+
+
+### Clean same-rate repeat
+
+The user instructed continuation. A fresh one-stage goal authorizes the same120/s300-second workload after the audit correction, without changing the application image, resources or connection budgets. The full120-show terminal audit was constructed locally before cloud access;55 focused regression tests passed again. The original failed run and its recovery remain immutable. New cloud outcome pending.
+
+
+### Clean repeat result
+
+[Fresh fully passed result](../capacity/cce/fixed-budget-throughput-clean-repeat-2026-10-15.json): run `adr0151-ac8debc44a23`, ledger `bounded_cce_ticket_target__ecd5af0cff30`, `PASSED_RESTORED`. The offered window was15 October2026,07:20:17-07:25:17 Bangkok time. All36000 journeys dispatched and completed with zero initial customer errors, retries, final failures or generator drops. Journey p95 was1761.06ms (worst-shard methodology); payment HTTP p95 was106.16ms and reservation durability p95 was1094.53ms.
+
+The same-run mandatory post-TTL financial audit completed successfully and verified36000 paid orders, payments, bookings and tickets, with zero double-booking, payment loss or broken relationships. PostgreSQL timestamps count35849 unique paid-and-issued tickets inside the five-minute window; the two-second inner guard counts35589, or118.63/s using the full300-second denominator. This is17.59% above the passed102/s offered-load reference; the prior120/s observation was118.65/s. No application or resource change caused that rate increase: only offered load increased from the reference. Latency variation between the two120/s samples is not attributed to the audit-only correction.
+
+All twelve measurement gates passed, including the final unchanged-pod/background/ingress checks omitted by the earlier failed audit. The new pre-dispatch terminal-audit marker was true before traffic. Both pre- and post-restoration queues were zero; owned namespace/resources and temporary credentials were removed; the generator was idle and normal runtime restored. No recovery exception or supplemental audit was required for this repeat. Hourly qualification, production concert-opening behavior and maximum capacity remain outside this five-minute result.

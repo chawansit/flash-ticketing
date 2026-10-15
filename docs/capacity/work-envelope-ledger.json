@@ -3596,6 +3596,27 @@
         "original_result_preserved": true,
         "only_recovery_cleared": true
       }
+    },
+    {
+      "ledger": "bounded_cce_ticket_target__ecd5af0cff30",
+      "authorization_id": "work-envelope-ecd5af0cff30",
+      "envelope_sha256": "7cc73dbbc9ab4142ea96c0e725f84560243fe02e306bc912f26755bfedf6568b",
+      "binding_sha256": "2d625bea6ec3265d265db1eaffc0d417467facef9fabab5ab68fc90c572589b8",
+      "plan_sha256": "c1157ba3647aa9fa995979bcd24d81b400f33d68e65783fd9335882ea44d3e11",
+      "profile": "cce_ticket_target",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1620.734999999986,
+      "started_at_utc": "2026-10-15T00:04:04.501615+00:00",
+      "status": "PASSED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-ac8debc44a23",
+          "pass": true
+        }
+      ],
+      "finished_at_utc": "2026-10-15T00:31:05.884740+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "d4fc2f65bd725745f836989ed43fe98cc49f3dce9b88f3e05f855ac67935c94e"
     }
   ],
   "verified_aborts": {
