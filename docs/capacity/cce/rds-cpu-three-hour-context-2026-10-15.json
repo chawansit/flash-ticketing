@@ -1,0 +1,29 @@
+{
+  "decision": "ADR0329",
+  "evidence_type": "User-supplied Huawei RDS CPU screenshot, supplemental to the completed experiment",
+  "screenshot": "docs/capacity/cce/rds-cpu-three-hour-user-screenshot-2026-10-15.png",
+  "screenshot_sha256": "48abda901854ba3f82ef3d0f57e6cca59e6c1005daf3e3049e4c074975d0ab82",
+  "displayed_window": "Last3h",
+  "aggregation": "Max /1minute",
+  "maximum_cpu_percent": 53.96,
+  "minimum_cpu_percent": 2.1,
+  "average_of_displayed_series_cpu_percent": 7.791,
+  "exact_start_end_and_display_timezone_visible": false,
+  "runner_captured_provider_timeseries": false,
+  "run_alignment": {
+    "method": "Visual inference from the three peaks and documented Bangkok load windows; exact per-run point values unavailable",
+    "known_load_windows_bangkok": {
+      "120_offered_per_second": "2026-10-15 07:20:17-07:25:17",
+      "140_offered_per_second": "2026-10-15 08:06:23-08:11:23",
+      "160_offered_per_second": "2026-10-15 09:21:29-09:26:29"
+    }
+  },
+  "interpretation": [
+    "The displayed window does not show sustained overall RDS CPU saturation.",
+    "The three-hour average includes long idle intervals and is not the average CPU during paid load.",
+    "One-minute aggregate CPU does not exclude short bursts, single-core pressure, commit/WAL/storage/lock waits or bounded connection-pool contention.",
+    "This supplements, and does not override, the measured generator CPU/arrival failure and19 database-slot failures in the160/s attempt.",
+    "No application throughput ceiling or linear capacity projection can be inferred from CPU percentage alone."
+  ],
+  "next": "Calibrate generator delivery before another160/s comparison; retain current database budget and investigate payment-slot waits from existing captures. No RDS resize justified by this screenshot alone."
+}

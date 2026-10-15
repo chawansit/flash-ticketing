@@ -164,8 +164,10 @@
     "candidate_api_process_cores": 1.9204829118080802,
     "reference_worker_process_cores": 1.6781659363448544,
     "candidate_worker_process_cores": 1.7895960101367057,
-    "provider_rds_cpu_unmeasured": true,
-    "node_cpu_and_throttling_unmeasured": true
+    "node_cpu_and_throttling_unmeasured": true,
+    "provider_rds_cpu_timeseries_not_captured_by_runner": true,
+    "user_supplied_three_hour_provider_cpu_max_percent": 53.96,
+    "user_supplied_three_hour_cpu_evidence": "docs/capacity/cce/rds-cpu-three-hour-context-2026-10-15.json"
   },
   "measurement_gates": {
     "customer_load": false,
@@ -367,7 +369,7 @@
   "comparison_limits": [
     "Offered rate changed; no application or infrastructure change.",
     "One five-minute sample does not establish an hourly maximum or actual concert-opening capacity.",
-    "RDS provider CPU and WAL timing are unavailable; brief waits may be missed by one-second samples.",
+    "Exact per-run RDS provider CPU series and WAL timing were not captured. A subsequently supplied three-hour CPU screenshot peaks at53.96%; brief waits may be missed by one-second sampling.",
     "Both generator processes were CPU-constrained and dispatch lag exceeded40seconds atp95; the offered160/s arrival schedule was not delivered. Arrival timing changed with overload, so application-only capacity cannot be inferred."
   ],
   "next": "160/s workload failed zero-drop, arrival timing, scheduled-count and issuance gates. Best clean short qualification remains138.49 paid-issued/s at140 offered/s. Calibrate generator CPU/concurrency/pacing before another controlled comparison; do not infer an application ceiling.",
@@ -436,5 +438,11 @@
     "both_safety_cohorts_reaudited": true,
     "original_scheduled_count_audit_remains_failed": true,
     "original_quality_verdict_remains_failed": true
+  },
+  "supplementary_provider_cpu_evidence": {
+    "evidence": "docs/capacity/cce/rds-cpu-three-hour-context-2026-10-15.json",
+    "sha256": "37027b013fa992ba3cbf38be50bdf4d6d26e93c2a688b47f8064a97f03c5242a",
+    "added_after_experiment": true,
+    "exact_per_run_series_available": false
   }
 }
