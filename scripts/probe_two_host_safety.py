@@ -17,7 +17,9 @@ import jwt
 import psycopg
 
 
-def validate_origins(origins):
+def validate_origins(origins, *, primary_only=False):
+    if type(primary_only) is not bool:
+        raise ValueError("Explicit boolean topology mode required")
     if len(origins) != 2:
         raise ValueError("Two API origins required")
     addresses = []
@@ -38,7 +40,10 @@ def validate_origins(origins):
         ):
             raise ValueError("Verified private published API origin required")
         addresses.append(address)
-    if len(set(addresses)) != 2:
+    if primary_only:
+        if len(set(addresses)) != 1 or len({urlsplit(o).port for o in origins}) != 2:
+            raise ValueError("Two distinct primary API ports required")
+    elif len(set(addresses)) != 2:
         raise ValueError("Distinct API hosts required")
 
 
@@ -95,8 +100,8 @@ def audit_one_owner(event_id, body, run_id):
     return True
 
 
-async def probe(event_id, origins, tokens, run_id, *, client=None, evidence=None):
-    validate_origins(origins)
+async def probe(event_id, origins, tokens, run_id, *, client=None, evidence=None, primary_only=False):
+    validate_origins(origins, primary_only=primary_only)
     UUID(event_id)
     if len(tokens) != 100 or len(set(tokens)) != 100:
         raise ValueError("100 distinct actors required")
@@ -144,7 +149,7 @@ async def probe(event_id, origins, tokens, run_id, *, client=None, evidence=None
             "Idempotency-Key": f"{run_id}-{winner['index']}",
         }
         other = 1 - winner["host_index"]
-        record("cross-host-hold-replay")
+        record("cross-api-hold-replay" if primary_only else "cross-host-hold-replay")
         replay = await client.post(
             origins[other] + "/v1/holds", json={"event_id": event_id, "seat_ids": ["S0"]}, headers=headers
         )
@@ -205,12 +210,13 @@ async def probe(event_id, origins, tokens, run_id, *, client=None, evidence=None
             "run_id": run_id,
             "event_id": event_id,
             "wave_requests": 100,
-            "requests_per_host": [50, 50],
+            ("requests_per_api" if primary_only else "requests_per_host"): [50, 50],
             "wave_statuses": statuses,
             "accepted_holds": 1,
             "one_durable_owner_before_payment": True,
-            "cross_host_hold_replay": True,
-            "cross_host_payment_replay": True,
+            "cross_host_hold_replay": not primary_only,
+            "cross_host_payment_replay": not primary_only,
+            **({"bootstrap_topology": "primary-only-ADR0330", "cross_api_hold_replay": True, "cross_api_payment_replay": True} if primary_only else {}),
             "other_actor_denied": True,
             "customer_ticket_confirmed": True,
             "hold_id": body["hold_id"],
@@ -228,6 +234,7 @@ def main():
     parser.add_argument("--event-id", required=True)
     parser.add_argument("--origin", action="append", required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--primary-only-bootstrap", action="store_true")
     args = parser.parse_args()
     if os.getenv("ENVIRONMENT") != "development" or args.output.exists():
         parser.error("Development and fresh owned output required")
@@ -261,7 +268,7 @@ def main():
 
         save("initializing", {})
         try:
-            result = asyncio.run(probe(args.event_id, args.origin, tokens, identifier, evidence=save))
+            result = asyncio.run(probe(args.event_id, args.origin, tokens, identifier, evidence=save, primary_only=args.primary_only_bootstrap))
         except BaseException as exc:
             save(state["phase"], {"failure_type": type(exc).__name__})
             raise

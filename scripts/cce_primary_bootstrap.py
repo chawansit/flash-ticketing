@@ -14,7 +14,7 @@ MARKER = "cce_bootstrap_topology"
 VALUE = "primary-only-ADR0330"
 SOURCE = "scripts/cce_primary_bootstrap.py"
 KEYS = {"primary_bootstrap_decision", "primary_bootstrap_contract_sha256", "primary_bootstrap_config_path", "primary_bootstrap_legacy_config_path"}
-SOURCES = (SOURCE, "scripts/qualify_cce_primary_bootstrap.py", "scripts/qualify_two_host_deployment.py", "scripts/collect_two_host_inventory.py",
+SOURCES = (SOURCE, "scripts/probe_two_host_safety.py", "scripts/qualify_cce_primary_bootstrap.py", "scripts/qualify_two_host_deployment.py", "scripts/collect_two_host_inventory.py",
            "scripts/prepare_two_host_scaling.py", "scripts/status_refresh_contract.py",
            "scripts/cce_committed_status_contract.py", "scripts/cce_ecs_transition.py",
            "scripts/cce_paid_lifecycle.py", "scripts/cce_paid_observers.py",

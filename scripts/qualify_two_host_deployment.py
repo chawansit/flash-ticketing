@@ -604,6 +604,8 @@ def run(config, output, *, stage_hook=None, runtime_policy=None, action_guard=No
             "--output",
             container_dir + "/probe.json",
         ]
+        if primary_only:
+            command += ["--primary-only-bootstrap"]
         for route in selected:
             command += ["--origin", f"http://{route['private_ipv4']}:{route['port']}"]
         session.phase("100-way-primary-bootstrap-safety-probe" if primary_only else "100-way-cross-host-safety-probe")
@@ -615,6 +617,10 @@ def run(config, output, *, stage_hook=None, runtime_policy=None, action_guard=No
         session.checkpoint()
         if payload.get("returncode") != 0 or not payload.get("safety", {}).get("pass"):
             raise ValueError("Safety probe failed; host-owned evidence retained")
+        if primary_only and (payload["safety"].get("bootstrap_topology")!="primary-only-ADR0330"
+                or any(payload["safety"].get(k) is not True for k in ("cross_api_hold_replay","cross_api_payment_replay"))
+                or any(payload["safety"].get(k) is not False for k in ("cross_host_hold_replay","cross_host_payment_replay"))):
+            raise ValueError("Explicit cross-API safety receipt required")
         session.phase("post-ttl-financial-and-global-drain")
         program = r"""import os,json,time,sys,psycopg
 sys.path.insert(0,'/app/scripts')

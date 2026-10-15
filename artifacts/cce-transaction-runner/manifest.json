@@ -42,9 +42,9 @@
     "scripts/cce_payment_pipeline_contract.py": "64d3156dacfcf7fbf1c9c58c9248c8f6d3c3a978b53a8e53e02c0038d3bccd74",
     "scripts/cce_payment_pipeline_identity.py": "2f16c936925566abd68e9b436c9ba353c5f90a7440bb15bef1c99382af3944dd",
     "scripts/cce_payment_pipeline_profile.py": "643cb7ff981344d080620518eba134ebbbf43896945a4311d73cb46ea7b71ebd",
-    "scripts/cce_primary_bootstrap.py": "e398619a27dd9043046e73efa5c4a86622ef0f7cb969827030e8bfdbe3b5f391",
+    "scripts/cce_primary_bootstrap.py": "bf9445fbda41456398adf921755319bc2745e2f76277133a4b7621573d87fbea",
     "scripts/cce_recovery_hourly_profile.py": "8061087896cfb0577f12125c8f49598d0ff28bb2d463dfa1d5496ab4ce5f0fd0",
-    "scripts/cce_reproduction_overlay.py": "52634724a4ba47804213529a24936146a91a04072647c690293f1bd032e819cd",
+    "scripts/cce_reproduction_overlay.py": "2e0c13c94ba9a06a023175f96d0b5b2e2257cef10031e03f3e96767044980f5b",
     "scripts/cce_shared_application.py": "bf73281cc9cff5bbb26513a73f23e7b311606580734526e48fb2fa2f53d986a5",
     "scripts/cce_shared_worker_comparison.py": "1c9f6bdde6c9bd5f35d4cf4ede84e7b934872d6e6320c252ab5983e930796adc",
     "scripts/cce_shared_worker_contract.py": "b85b5f1d3e15769cc15592227f281f06af85bc47dc18a5819f630908c8bed3fb",
@@ -188,8 +188,13 @@
       "historical_blob": "artifacts/cce-transaction-runner/blobs/665d0fce891da917b0d7a96c4404ae9269a9b543a79f9e02f1d59d6e6760746a",
       "historical_sha256": "665d0fce891da917b0d7a96c4404ae9269a9b543a79f9e02f1d59d6e6760746a"
     },
+    "scripts/probe_two_host_safety.py": {
+      "current_sha256": "5197f7fc9550e920b13fcb7b077d46a77baf8b9ca6013945b4e0cb374960c491",
+      "historical_blob": "artifacts/cce-transaction-runner/blobs/f61f3e718a19c158aa4c4f90a3411160facd9441d8dea9d7e53e20a0fe920bd2",
+      "historical_sha256": "f61f3e718a19c158aa4c4f90a3411160facd9441d8dea9d7e53e20a0fe920bd2"
+    },
     "scripts/qualify_two_host_deployment.py": {
-      "current_sha256": "711aad99545bac81953e5aee31e354025bac2de6745f92c990209c6778d78c12",
+      "current_sha256": "9864dfbbcd8f52439626fed22067d5bf1454131fc154ce475013f3514538f52b",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/2dc3f2081430d136100d0bc4e94f2e2533f77bb960e4e62596daa3a597c08894",
       "historical_sha256": "2dc3f2081430d136100d0bc4e94f2e2533f77bb960e4e62596daa3a597c08894"
     },

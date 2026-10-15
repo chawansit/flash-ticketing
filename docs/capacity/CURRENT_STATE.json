@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-15",
   "branch": "codex/customer-recovery-2026-10-10",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "ADR0330 secondary retirement preparation implemented and offline verified (475 passed, 1 skipped). Live primary-only preflight stopped before mutation because RDS/Redis were unreachable. VM not deleted; primary and generator retained. ADR0329 failed160/s evidence and best clean138.49/s result unchanged.",
+  "status": "ADR0330 primary-only bootstrap qualified live:100-way atomic hold/replay, one simulated paid-and-issued ticket, post-TTL financial checks, queue drain and exact restoration passed; zero secondary SSH attempts by qualifier. Secondary exact instance has no containers/volumes; deletion pending console access. No paid capacity stage; best clean short138.49/s unchanged.",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -1117,7 +1117,7 @@
     "last_runner_report": "tmp/adr0151-6cf227629f33/comparison-summary.json",
     "closed_after_failed_qualification": true
   },
-  "next_action": "Restore RDS/Redis reachability; rerun fresh bounded no-paid primary-only safety qualification, then verify exact secondary instance/storage and retire it when cloud management access is available. Do not delete primary or generator. Resume generator calibration separately after retirement.",
+  "next_action": "Delete only ecs-chawansit-de5e (verified secondary instance, private10.1.207.148) via Huawei console; automation unavailable. Keep primary and generator ECS. Retirement bootstrap is now live-qualified. Next performance work remains ADR0329 generator calibration before a fresh higher-rate test.",
   "bounded_partial_timeout_reclamation_v2": {
     "status": "CANDIDATE_FAILED_RESTORED_SCOPE_CLOSED",
     "authorization_id": "adr0165-partial-timeout-pair-2026-10-06",
@@ -10464,7 +10464,7 @@
     "scope": "Fresh ADR0228 experiment under ADR0172 standing boundaries; exact registered rate only, no replay",
     "cce_result_sha256": "55ec85ff7a06663a7066dd1b8be209add98a32b800bd4d09d31d51f6e9694295"
   },
-  "next_step": "Restore RDS/Redis reachability; rerun fresh bounded no-paid primary-only safety qualification, then verify exact secondary instance/storage and retire it when cloud management access is available. Do not delete primary or generator. Resume generator calibration separately after retirement.",
+  "next_step": "Delete only ecs-chawansit-de5e (verified secondary instance, private10.1.207.148) via Huawei console; automation unavailable. Keep primary and generator ECS. Retirement bootstrap is now live-qualified. Next performance work remains ADR0329 generator calibration before a fresh higher-rate test.",
   "bounded_cce_dependency_probe__8c7a392324b5": {
     "authorization_id": "work-envelope-8c7a392324b5",
     "binding": {
@@ -30779,5 +30779,6 @@
     "next_action": "Diagnose/calibrate generator CPU, dispatch pacing and in-flight pressure before a fresh160/s comparison. Preserve current application, API/worker resources,24 physical database backends and all gates. Increased generator parallelism with the same total500 concurrency is a candidate, subject to host headroom and a sealed ADR/tests. Do not infer application maximum from failed arrival timing or quietly raise concurrency.",
     "next_step": "Diagnose/calibrate generator CPU, dispatch pacing and in-flight pressure before a fresh160/s comparison. Preserve current application, API/worker resources,24 physical database backends and all gates. Increased generator parallelism with the same total500 concurrency is a candidate, subject to host headroom and a sealed ADR/tests. Do not infer application maximum from failed arrival timing or quietly raise concurrency."
   },
-  "adr0330_secondary_retirement": "docs/capacity/cce/secondary-ecs-retirement-preparation-2026-10-15.json"
+  "adr0330_secondary_retirement": "docs/capacity/cce/secondary-ecs-retirement-preparation-2026-10-15.json",
+  "adr0330_primary_only_live_result": "docs/capacity/cce/secondary-ecs-retirement-live-2026-10-15.json"
 }

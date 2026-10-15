@@ -1,7 +1,7 @@
 # ADR0330: Retire the secondary ECS from the CCE workflow
 
 ## Status
-Accepted; implemented and verified offline. Live qualification is blocked by RDS/Redis reachability. Secondary VM deletion remains pending.
+Accepted; primary-only bootstrap qualified live. Secondary VM deletion remains pending because cloud management access is unavailable.
 
 ## Context
 The primary ECS hosts Kafka, PgBouncer and restored fallback services. The generator ECS is dedicated to load generation. The secondary ECS (ecs-chawansit-de5e, private10.1.207.148) is empty after cleanup and is not used by the paid CCE workload, but historical setup, inventory, transition and CPU-observer code still require it. The user authorized removing this dependency and retiring that VM. Last verified clean short throughput remains138.49 paid-issued/s; the160/s run remains failed and recovered.
@@ -26,3 +26,13 @@ The regression suite executed: **475 passed, 1 skipped** in 255.95 seconds. It i
 Live run `adr0151-d54b7d9bccb9` connected only primary and generator, with zero secondary-access attempts, then failed preflight before service mutation or safety traffic: RDS was unreachable. A separate read-only check also found Redis connection refused. Credentials were removed and no paid capacity stage started. This attempt used an earlier source seal; it does not qualify the final source for live use. The native CCE lifecycle was verified offline, not exercised live here.
 
 [Retirement preparation evidence](../capacity/cce/secondary-ecs-retirement-preparation-2026-10-15.json) records the final source seal, test results and remaining checks. No VM was deleted. Management console automation and a configured cloud management CLI were unavailable. Keep the secondary until a fresh bounded qualification and exact-instance/storage checks pass. Best verified clean short throughput remains 138.49 paid-and-issued tickets/s; this work measures no capacity improvement.
+
+
+## Live follow-up correction
+After RDS/Redis restart, live run `adr0151-8eff27d6e599` passed connectivity and bootstrap readiness, then the legacy probe rejected same-host API origins before sending its hold wave. Runtime restoration and queue drain passed. Extend only the explicitly selected primary-only probe mode to require two distinct published ports on one private host; preserve the default distinct-host requirement, authorization, atomic-owner, replay, payment and post-TTL checks. Report cross-API evidence without claiming cross-host coverage. A fresh qualification is required.
+
+
+## Final live validation
+Fresh run `adr0151-2f1c18800987` passed on the final source seal: all four primary APIs ready, 100 concurrent hold attempts (one accepted and 99 expected seat conflicts), cross-API hold/payment replay, authorization, one issued ticket, post-TTL financial audit, full queue drain and exact runtime restoration. Only primary and generator were contacted by the qualifier, with zero secondary attempts. Protected credential snapshots were removed and the generator is idle. The final source regression subset passed 111 tests in 55.45 seconds; source binding, Ruff and historical reproduction checks passed (535 files, 31 current overlays).
+
+A separate read-only check confirmed the exact secondary instance, no containers, no Docker volumes and one 40 GB system disk. [Live evidence](../capacity/cce/secondary-ecs-retirement-live-2026-10-15.json) preserves both failed attempts and the passing receipt. Native CCE lifecycle remains offline-tested, not exercised live by this qualifier. No paid capacity stage or VM deletion occurred. Browser/Windows automation still cannot initialize and no cloud management credentials are configured, so the deletion itself requires console access.

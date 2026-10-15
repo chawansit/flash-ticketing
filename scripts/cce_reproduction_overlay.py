@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 OVERLAID = {
+    "scripts/probe_two_host_safety.py",
     'scripts/cce_paid_profiles.py', 'scripts/cce_paid_inputs.py', 'scripts/fixture_identity_evidence.py', 'scripts/run_two_host_paid_comparison.py',
     "scripts/work_envelope.py", "scripts/qualify_two_host_deployment.py", "scripts/prepare_two_host_scaling.py", "scripts/status_refresh_contract.py", "scripts/run_status_refresh_comparison.py",
     "scripts/collect_two_host_inventory.py", "scripts/runtime_source_identity.py",

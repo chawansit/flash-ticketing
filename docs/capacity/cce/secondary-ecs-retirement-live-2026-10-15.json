@@ -1,0 +1,143 @@
+{
+  "decision": "ADR0330",
+  "status": "PRIMARY_ONLY_BOOTSTRAP_QUALIFIED_VM_DELETION_PENDING",
+  "run": "adr0151-2f1c18800987",
+  "source_contract_sha256": "e3ea35178282c1f2dc92c84138ba1438d4c08e321fe0081e6831813ce67fb3af",
+  "configuration_sha256": "c4e5ca286162f59812bf7ec3abd49309b250391db08968c7f649300488a8e762",
+  "private_result_sha256": "3f9669a48e0c36b9c8a52b1f6d03f6357041ba74c3a66dbb6dc9532e6168b4dc",
+  "qualification": {
+    "decision": "ADR0330",
+    "run": "adr0151-2f1c18800987",
+    "configuration_sha256": "c4e5ca286162f59812bf7ec3abd49309b250391db08968c7f649300488a8e762",
+    "source_contract_sha256": "e3ea35178282c1f2dc92c84138ba1438d4c08e321fe0081e6831813ce67fb3af",
+    "bounded_seconds": 1800,
+    "no_paid_customer_load": true,
+    "paid_capacity_stages_started": 0,
+    "safety_only": "100 concurrent holds and one simulated paid ticket, with replay and post-TTL audit",
+    "bootstrap_api_counts": {
+      "primary": 4
+    },
+    "connected_host_roles": [
+      "primary",
+      "generator"
+    ],
+    "secondary_access_attempts": 0,
+    "historical_cross_host_safety_executed": false,
+    "native_cce_paid_lifecycle_executed": false,
+    "safety_pass": true,
+    "post_ttl_financial_pass": true,
+    "queues_drained": true,
+    "normal_runtime_restored": true,
+    "qualification_pass": true,
+    "original_failure_preserved": true,
+    "capacity_improvement_measured": false,
+    "vm_deleted": false
+  },
+  "financial": {
+    "orders": 1,
+    "fulfilled_orders": 1,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 1,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 1,
+    "bookings": 1,
+    "tickets": 1,
+    "payment_callbacks": 1,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 3,
+    "callback_delivery_target": 3,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 1,
+    "expected_paid": 1,
+    "expected_callback_deliveries_per_payment": 3,
+    "pass": true,
+    "hold_deadlines_elapsed": true
+  },
+  "safety": {
+    "wave_requests": 100,
+    "requests_per_api": [
+      50,
+      50
+    ],
+    "wave_statuses": {
+      "409": 99,
+      "202": 1
+    },
+    "accepted_holds": 1,
+    "one_durable_owner_before_payment": true,
+    "cross_api_hold_replay": true,
+    "cross_api_payment_replay": true,
+    "cross_host_hold_replay": false,
+    "cross_host_payment_replay": false,
+    "other_actor_denied": true,
+    "customer_ticket_confirmed": true
+  },
+  "restoration": {
+    "pass": true,
+    "generator_idle": true,
+    "credential_snapshots_removed": true,
+    "queues": {
+      "unpublished_outbox": 0,
+      "pending_refresh": 0,
+      "dead_letters": 0,
+      "pending_callback_deliveries": 0,
+      "pending_refunds": 0,
+      "reservation_stream_entries": 0,
+      "reservation_stream_pending": 0,
+      "kafka_total_lag": 0,
+      "kafka_members": 1,
+      "pass": true,
+      "pending_confirmation_receipts": 0,
+      "review_confirmation_receipts": 0,
+      "confirmation_capacity_outstanding": 0,
+      "confirmation_capacity_mismatches": 0,
+      "event_lane_mode": "normal"
+    }
+  },
+  "secondary_inventory": {
+    "hostname": "ecs-chawansit-de5e",
+    "instance_id_sha256": "087292bc4dd9ec4c535163b4e68553858dc7101eb707a77c57ae9fc93f93e163",
+    "containers": 0,
+    "docker_volumes": 0,
+    "disk_count": 1,
+    "system_disk_size": "40G",
+    "private_inventory_sha256": "6dbdea7593c5ed1bf25b73c50fe056484ef3167db2b33622993d5ff7d5474c7b"
+  },
+  "validation": {
+    "final_source_tests_passed": 111,
+    "seconds": 55.45,
+    "ruff_F_I_pass": true,
+    "full_binding_pass": true,
+    "reproduction_pass": true,
+    "historical_files_checked": 535,
+    "current_overlays": 31
+  },
+  "earlier_attempts_preserved": [
+    {
+      "run": "adr0151-d54b7d9bccb9",
+      "reason": "Dependencies unreachable; no service mutation."
+    },
+    {
+      "run": "adr0151-8eff27d6e599",
+      "reason": "Legacy safety validator required distinct hosts. Failed before hold requests; queues drained and runtime restored."
+    }
+  ],
+  "vm_deleted": false,
+  "deletion_blocker": "Browser and Windows automation kernels fail to initialize; no configured cloud management CLI or API credentials. No deletion attempted.",
+  "retained_vms": [
+    "primary ECS",
+    "generator ECS"
+  ],
+  "paid_capacity_stages_started": 0,
+  "capacity_improvement_measured": false,
+  "best_clean_short_paid_issued_per_second": 138.49,
+  "limits": [
+    "Live qualification covers primary-only ECS bootstrap; native CCE lifecycle remains offline-tested in this retirement work.",
+    "This is not a new throughput or production qualification.",
+    "Secondary inventory covers containers, Docker volumes and attached block-device layout; no wholesale filesystem audit was performed."
+  ]
+}
