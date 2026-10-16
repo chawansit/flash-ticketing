@@ -1,0 +1,134 @@
+{
+  "decision": "ADR0333",
+  "status": "FAILED_RESTORED",
+  "run": "adr0151-d56170529f15",
+  "ledger": "bounded_cce_ticket_target__0858b0b323a2",
+  "raw_result_sha256": "4875183ca090d4da0ba074a85cac7c05055d56355bff8f8ab5f3cdbc61214eb3",
+  "orchestration_commit": "8920548adca68a00784a7ea13510d20ee67d2a4f",
+  "cloud_load_started": false,
+  "cloud_deployed": true,
+  "short_capacity_qualified": false,
+  "hourly_qualified": false,
+  "capacity_ceiling_measured": false,
+  "production_qualified": false,
+  "image_receipt": "docs/capacity/cce/fulfillment-transaction-batching-local-2026-10-14.json",
+  "source_identity_sha256": "0087ce3078532a8fd05b668c4d286988a3165d95295c51ebbf2c60d4a702ce0d",
+  "registry_manifest_digest": "sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+  "controlled_factors": {
+    "application_change": "none; exact ADR0324 image and configuration",
+    "offered_journeys_per_second": 160,
+    "offered_seconds": 300,
+    "generator_concurrency": 500,
+    "api_pods": 4,
+    "api_resources": {
+      "cpu": "1",
+      "memory": "2Gi"
+    },
+    "background_pods": 15,
+    "background_resources": {
+      "cpu": "250m",
+      "memory": "512Mi"
+    },
+    "reservation_writers": 4,
+    "writer_batch_size": 4,
+    "physical_database_backends": 24,
+    "shared_admission": 20,
+    "api_general_slots_each": 2,
+    "api_payment_slots_each": 2,
+    "financial_writes_and_gateway_delay_unchanged": true,
+    "recovery_and_customer_status_freshness_unchanged": true,
+    "notification_suppression_unchanged": true,
+    "fulfillment_transaction_batch_size": 4,
+    "api_and_other_workers_batch_size": 1,
+    "native_fulfillment_consumers": 6,
+    "fixture_shows": 160,
+    "expected_journeys": 48000,
+    "minimum_conservative_inside_window": 47400,
+    "generator_processes": 4,
+    "generator_http_connections": 500,
+    "generator_http_clients": 16,
+    "per_process_concurrency": 125,
+    "per_process_http_clients": 4
+  },
+  "window_bangkok": null,
+  "customer": {},
+  "customer_outcome_gate": null,
+  "latencies_ms": {},
+  "latency_scope": "Worst-shard p95, including recovery; not a pooled percentile",
+  "issuance": {},
+  "generator_processes": [],
+  "cpu": {
+    "api_process_cores": null,
+    "worker_process_cores": null,
+    "rds_provider_cpu_unmeasured": true,
+    "node_cpu_and_throttling_unmeasured": true
+  },
+  "measurement_gates": {},
+  "financial": {
+    "pass": null,
+    "strict_audit_pass": null,
+    "hold_deadlines_elapsed": null,
+    "counts": null,
+    "relationships": null,
+    "customer_outcome_financial_checks": null
+  },
+  "queues_before_restoration": null,
+  "queues_after_restoration": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "restoration": {
+    "original_runtime_restored": true,
+    "integrity_verified": true,
+    "generator_idle": true,
+    "secondary_contacted": 0,
+    "retired_secondary_cleanup": "not_applicable",
+    "namespace_removed": true,
+    "cleanup_complete": true,
+    "transport_credentials_cleared": true,
+    "cleanup_failures": []
+  },
+  "fixture_clock_proofs": [],
+  "diagnostics": {
+    "slot_failure_capture": null,
+    "database_wait_capture": null,
+    "query_statistics_complete": null,
+    "query_statistics_totals": null,
+    "disk_before_dispatch": null
+  },
+  "references": {
+    "best_clean_short": {
+      "sha256": "7bcef05f2d006750fe2266cce9672abbe8d22d3967b8d1960c3537fe8dac461d",
+      "conservative_rate_per_second": 138.49
+    },
+    "failed_same_offered_rate_two_processes": {
+      "sha256": "f996f66ca42ed31b36af3a47a6dd2f224643228d16fa72517e28a33d52c066b0",
+      "status": "FAILED_RESTORED",
+      "dispatched": 47875,
+      "drops": 125,
+      "initial_errors": 16,
+      "final_failures": 0,
+      "dispatch_lag_p95_ms": 40113.71,
+      "original_result_preserved": true
+    }
+  },
+  "limitations": [
+    "One five-minute sample cannot establish hourly or maximum capacity.",
+    "The earlier160/s control failed arrival timing; it is not an application-only capacity baseline.",
+    "Synthetic calibration is distinct from this real paid test."
+  ],
+  "next": "Assess all quality, latency, financial, arrival and cleanup gates before any further rate increase."
+}

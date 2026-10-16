@@ -1,0 +1,29 @@
+{
+  "decision": "ADR0334",
+  "read_only_real_session_adapter_pass": true,
+  "no_fixture_or_payment_created": true,
+  "reference_utc": "2026-10-16T17:53:58.579322+00:00",
+  "contract": {
+    "decision": "ADR0334",
+    "maximum_clock_offset_seconds": 2,
+    "maximum_probe_round_trip_seconds": 5,
+    "raw_receipt_before_validation": true,
+    "strict_fixture_validator_unchanged": true,
+    "application_ttl_unchanged": true,
+    "source_sha256": "7f4052ca855ef1c46bd03fdd77ff01c0e003e6de24ae10cb71e9b1f2fca58cfe"
+  },
+  "clock_evidence": {
+    "decision": "ADR0334",
+    "creator_utc": "2026-10-16T17:53:58.297322+00:00",
+    "probe_round_trip_seconds": 0.2819999999992433,
+    "offset_min_seconds": 0.11908936500549316,
+    "offset_max_seconds": 0.4034457206726074
+  },
+  "followup_tests_passed": 107,
+  "prior_broader_tests_passed": 327,
+  "tests_overlap": true,
+  "cloud_load_started": false,
+  "application_capacity_measured": false,
+  "adapter_outer_timeout_seconds": 30,
+  "adapter_inner_timeout_seconds": 15
+}

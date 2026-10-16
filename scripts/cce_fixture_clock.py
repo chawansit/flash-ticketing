@@ -94,7 +94,7 @@ def sample_creator(stage, fixture):
         + ",'utc':datetime.now(UTC).isoformat()}))"
     )
     wall_start, mono_start = time.time(), time.monotonic()
-    sample = stage.session.api(stage.cid, program, 10)
+    sample = stage.session.api(stage.cid, program, 30)
     mono_end, wall_end = time.monotonic(), time.time()
     proof = evidence(
         fixture,

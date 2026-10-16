@@ -2,7 +2,7 @@ import copy
 import json
 import os
 import sys
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -109,3 +109,36 @@ def test_clock_admission_is_explicit_and_source_bound():
     assert clock.selected(goal)
     with pytest.raises(ValueError):
         clock.selected({**goal, "fixture_clock_contract_sha256": "0" * 64})
+
+
+def test_real_session_adapter_has_positive_inner_timeout_budget():
+    import ast
+
+    from qualify_two_host_deployment import Session
+
+    session = Session.__new__(Session)
+
+    def call(role, program, timeout):
+        assert role == "primary"
+        tree = ast.parse(program)
+        subprocess_call = next(
+            n
+            for n in ast.walk(tree)
+            if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr == "run"
+        )
+        inner_timeout = next(
+            ast.literal_eval(k.value) for k in subprocess_call.keywords if k.arg == "timeout"
+        )
+        assert 0 < inner_timeout < timeout
+        command = ast.literal_eval(subprocess_call.args[0])
+        source = ast.parse(command[-1])
+        dictionary = next(n for n in ast.walk(source) if isinstance(n, ast.Dict))
+        nonce = ast.literal_eval(dictionary.values[0])
+        return {"nonce": nonce, "utc": datetime.now(UTC).isoformat()}
+
+    session.call = call
+    stage = SimpleNamespace(session=session, cid="owned-audit", record={}, checkpoint=lambda: None)
+    value = fixture()
+    result = clock.sample_creator(stage, value)
+    assert result.tzinfo is not None
+    assert value["fixture_id"] in stage.record["fixture_clock_evidence"]

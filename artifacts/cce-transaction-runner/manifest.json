@@ -76,7 +76,7 @@
     "scripts/slot_failure_evidence.py": "5303920a2497d02f3bb42824bd775b7d065ce7dbf34c4020e2eef9404195b619",
     "scripts/cce_generator_process_scaling.py": "b9eee5f9a96747dff5818b07e4ec9df74862991be8c5e61d0358aaa0e54493e8",
     "docs/capacity/cce/generator-process-calibration-2026-10-17.json": "e6e54604847700b9d07b62ef453ee18e369a44992ea20613fb3a8ff39182cb64",
-    "scripts/cce_fixture_clock.py": "4a78896c8fa4de58844cb5f96594bcb08c989c7541e97ead8e9e03ac6bf7c282"
+    "scripts/cce_fixture_clock.py": "7f4052ca855ef1c46bd03fdd77ff01c0e003e6de24ae10cb71e9b1f2fca58cfe"
   },
   "decision": "ADR0242",
   "historical_lock_sha256": "3dabc984d879e7d59699ad74d9b26d5259a83ce338c60c2620536e7456d48fcd",

@@ -1,7 +1,7 @@
 # ADR0334: Validate fixture freshness with a bounded creator-clock reference
 
 ## Status
-Accepted for test admission only; implementation and validation pending.
+Implemented for test admission; local regressions and real read-only transport verified; paid outcome pending.
 
 ## Context
 The ADR0333 CCE attempt failed before native safety or paid journeys because a newly generated fixture failed the strict freshness guard. Runtime and queues were restored, with zero paid stages consumed. Independent clock probes show the primary ECS clock ahead of the controller by at least0.1438seconds (bounded interval0.1438..0.6342seconds), and the generator ahead by0.1442..0.3201seconds. Fixture creation occurs in an audit container on the primary ECS; a fast response can therefore look future-dated to the controller. No raw fixture receipt was retained before timestamp validation, leaving a diagnostic gap.
@@ -26,3 +26,11 @@ Measured clock intervals are recorded above; the failed ADR0333 raw result remai
 ### Executed local verification
 
 327 focused regressions passed, including the bounded clock proof, stale/closed fixture rejection, monotonic/process/fixture replay rejection, raw-receipt retention before failure, four-process accounting, historical profiles and lifecycle restoration. The535-file reproduction check, full160-show audit compilation and complete reservation admission in isolated state passed. No application source, image, customer TTL, payment policy, latency/error gate or database budget changed. The prior failed attempt remains FAILED_RESTORED with zero paid stages consumed; the pending retry retains the single paid-stage allowance.
+
+### Adapter correction and real transport validation
+
+A second pre-dispatch attempt (run `adr0151-d56170529f15`) correctly retained its raw fixture receipt but failed because the new clock call supplied a10-second outer timeout to `Session.api`, whose subprocess budget subtracts15seconds. No native safety or paid journeys started; all resources and runtime were restored (FAILED_RESTORED, zero paid stages). Preserve that failed result separately.
+
+Corrected the outer timeout to30seconds (15seconds inside the existing adapter), keeping the measured clock-probe RTT limit at5seconds. A new regression exercises the actual adapter's generated command and rejects nonpositive inner budgets.107 focused follow-up checks passed; the prior broader327-check result is retained with its original source identity (these test sets overlap).
+
+The real read-only SSH/container clock probe passed in0.282seconds without creating any fixture or payment. Its measured creator/controller offset interval was0.1191..0.4034seconds, inside the unchanged +/-2second admission bound. See [the transport receipt](../capacity/cce/fixture-clock-transport-2026-10-17.json). Reproduction, source/configuration binding and complete isolated reservation admission were rechecked before retry.
