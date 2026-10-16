@@ -3765,6 +3765,38 @@
         "original_result_preserved": true,
         "only_recovery_cleared": true
       }
+    },
+    {
+      "ledger": "bounded_cce_ticket_target__93dca53926e6",
+      "authorization_id": "work-envelope-93dca53926e6",
+      "envelope_sha256": "66b6ff51a65e9ef83f737664f0844b3e4374de44c542bd19f8d883fde4ad3828",
+      "binding_sha256": "4a807ead239f66532e5f58efa35af806abe8b1df2d7f20671c630386fcf46b93",
+      "plan_sha256": "40eea400d8bc7a448a0c3fd2540afa18e9c5f946b23c6d99de7cb7312731e3f3",
+      "profile": "cce_ticket_target",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1375.530999999999,
+      "started_at_utc": "2026-10-16T19:18:29.579783+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-3fa2832bb77c",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-16T19:40:36.586624+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "784f559ae4a76271170d72fb78dc2d00a8a34216822cf9a025cebb2f664ab17f",
+      "initial_status": "RECOVERY_REQUIRED",
+      "initial_actual_elapsed_seconds": 1327.75,
+      "recovery": {
+        "decision": "ADR0335",
+        "evidence": "docs/capacity/cce/generator-occupancy-800-recovery-2026-10-17.json",
+        "sha256": "4f2e2cbc470e2717df21646e66c09c2b6269874dbdfc995e9ece28062e0d39b6",
+        "actual_elapsed_seconds": 47.78099999999904,
+        "capacity_qualified": false,
+        "original_result_preserved": true,
+        "only_recovery_cleared": true
+      }
     }
   ],
   "verified_aborts": {
