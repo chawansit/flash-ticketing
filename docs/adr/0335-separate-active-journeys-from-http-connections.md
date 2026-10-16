@@ -1,7 +1,7 @@
 # ADR0335: Separate active journeys from HTTP connection capacity
 
 ## Status
-Accepted for implementation and local verification. A new paid-stage allowance has not been authorized or registered. No cloud capacity claim.
+Accepted for one bounded paid comparison after local verification. The user explicitly approved the concrete800/500-slot160/s300-second request; one fresh paid-stage allowance is now registered, with a3600-second whole-experiment bound and unchanged resources/quality gates. Cloud capacity is not yet measured.
 
 ## Context
 ADR0333 offered160 journeys/s for300 seconds with four processes and500 active journeys/500 HTTP connections/16 clients. Four complete raw reports recorded40095 dispatched/paid/issued and7905 active-capacity drops. Mean successful journey residence was3.68s and generator CPU approximately0.55 cores/process. Little's law suggests589 active journeys at160/s before headroom. Both initial payment errors recovered, and fresh financial reconciliation passed; the original quality test remains failed. Best qualified clean short throughput remains138.49 tickets/s. This is evidence of a generator occupancy constraint, not proof that the application will sustain160/s with more concurrency.
