@@ -1,0 +1,228 @@
+{
+  "decision": "ADR0332",
+  "kind": "synthetic_generator_process_calibration",
+  "pass": true,
+  "created_at_utc": "2026-10-16T17:01:23.739717+00:00",
+  "raw_result_sha256": "d897da08203b77f81b308e1c8e0b84d006d197730f41baa7b95eb5e342a7e98e",
+  "runtime_python": "Not separately captured; exact source hashes and HTTPX version captured",
+  "httpx_version": "0.28.1",
+  "logical_cpus": 8,
+  "source_sha256": {
+    "calibrate_generator_processes.py": "0652b39a968022ce8cc455d9b272796da938fe94caefa51f6a5c1198078df505",
+    "paid_fixture_layout.py": "7b9bc3d6acd3522dfcddfad00cecf049350bad38238dbeb4709a4ea71bf6cf32",
+    "paid_ticket_load_generator.py": "0b2368445965ab9c5ac36171e3d336ecedffcd15dc6d38a3e66150a3e9c28ea6",
+    "paid_ticket_sharded_generator.py": "b7475ab12771525b30e2317fa4151b6159ff0454d3ca2e57f40c1119a0397788",
+    "customer_recovery_client.py": "e1de470a2c01a9ec6d42104cc318393292e27818279182dcc84a392bcb94fa70",
+    "diagnose_paid_generator.py": "4ce764a6c71f3f4df4a81fe009ca5fb50b2769a3845256c1204ebb07525326ae",
+    "checkout_journey_probe.py": "a67e1597e14f70d896271ecca7926a0810a210e5381af67e7b076375aad95043"
+  },
+  "controls": [
+    {
+      "rate": 160,
+      "seconds": 45,
+      "shards": 2,
+      "concurrency": 500,
+      "http_clients": 16,
+      "http_connections": 500,
+      "poll_seconds": 1,
+      "response_ms": 30,
+      "command_seconds": 0.5,
+      "ticket_seconds": 0.5,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "gates": {
+        "responder_valid": true,
+        "complete_unique_accounting": true,
+        "dispatch_timing": true,
+        "pass": true
+      },
+      "scheduled": 7200,
+      "dispatched": 7200,
+      "fulfilled": 7200,
+      "generator_drops": 0,
+      "initial_customer_errors": 0,
+      "final_customer_failures": 0,
+      "dispatch_lag_worst_shard_p95_ms": 8.930678999831798,
+      "dispatch_lag_max_ms": 104.34187600003497,
+      "process_cpu_wall_ratios": [
+        0.7329381909556048,
+        0.7225792187502398
+      ],
+      "mean_fulfilled_journey_ms": [
+        2230.4719581058334,
+        2224.071554300834
+      ],
+      "responder": {
+        "requests": {
+          "other": 2,
+          "holds": 7200,
+          "reservation_commands": 14400,
+          "payments": 7200,
+          "orders": 14400
+        },
+        "accepted_connections": 148,
+        "closed_connections": 148,
+        "protocol_errors": 0,
+        "peak_handlers": 72,
+        "handler_p95_ms": 31.04425500009711,
+        "handler_max_ms": 32.181563999984064,
+        "loop_lag_p95_ms": 1.0001269999975193,
+        "loop_lag_max_ms": 1.19040300000961,
+        "synthetic_orders": 7200,
+        "unique_assigned_seats": 7200,
+        "duplicate_seat_attempts": 0
+      }
+    },
+    {
+      "rate": 160,
+      "seconds": 45,
+      "shards": 4,
+      "concurrency": 500,
+      "http_clients": 16,
+      "http_connections": 500,
+      "poll_seconds": 1,
+      "response_ms": 30,
+      "command_seconds": 0.5,
+      "ticket_seconds": 0.5,
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "gates": {
+        "responder_valid": true,
+        "complete_unique_accounting": true,
+        "dispatch_timing": true,
+        "pass": true
+      },
+      "scheduled": 7200,
+      "dispatched": 7200,
+      "fulfilled": 7200,
+      "generator_drops": 0,
+      "initial_customer_errors": 0,
+      "final_customer_failures": 0,
+      "dispatch_lag_worst_shard_p95_ms": 1.7605430000458,
+      "dispatch_lag_max_ms": 81.89991500012184,
+      "process_cpu_wall_ratios": [
+        0.3976002780519174,
+        0.39128284963915233,
+        0.4025311387060199,
+        0.3969288955843503
+      ],
+      "mean_fulfilled_journey_ms": [
+        2201.2159950522214,
+        2200.7076969938944,
+        2201.731148635,
+        2200.9922941077775
+      ],
+      "responder": {
+        "requests": {
+          "other": 4,
+          "holds": 7200,
+          "reservation_commands": 14400,
+          "payments": 7200,
+          "orders": 14400
+        },
+        "accepted_connections": 132,
+        "closed_connections": 132,
+        "protocol_errors": 0,
+        "peak_handlers": 59,
+        "handler_p95_ms": 31.054231000098298,
+        "handler_max_ms": 32.12132799990286,
+        "loop_lag_p95_ms": 1.0144130001208396,
+        "loop_lag_max_ms": 2.1003839999593765,
+        "synthetic_orders": 7200,
+        "unique_assigned_seats": 7200,
+        "duplicate_seat_attempts": 0
+      }
+    },
+    {
+      "rate": 200,
+      "seconds": 45,
+      "shards": 4,
+      "concurrency": 500,
+      "http_clients": 16,
+      "http_connections": 500,
+      "poll_seconds": 1,
+      "response_ms": 30,
+      "command_seconds": 0.5,
+      "ticket_seconds": 0.5,
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "gates": {
+        "responder_valid": true,
+        "complete_unique_accounting": true,
+        "dispatch_timing": true,
+        "pass": true
+      },
+      "scheduled": 9000,
+      "dispatched": 9000,
+      "fulfilled": 9000,
+      "generator_drops": 0,
+      "initial_customer_errors": 0,
+      "final_customer_failures": 0,
+      "dispatch_lag_worst_shard_p95_ms": 2.067750000151136,
+      "dispatch_lag_max_ms": 99.35745800021323,
+      "process_cpu_wall_ratios": [
+        0.49392443242203965,
+        0.4828646812843305,
+        0.4926890402554267,
+        0.49191913493377576
+      ],
+      "mean_fulfilled_journey_ms": [
+        2205.4279904973378,
+        2204.4559527751103,
+        2205.782090073774,
+        2205.880729373335
+      ],
+      "responder": {
+        "requests": {
+          "other": 4,
+          "holds": 9000,
+          "reservation_commands": 18000,
+          "payments": 9000,
+          "orders": 18000
+        },
+        "accepted_connections": 198,
+        "closed_connections": 198,
+        "protocol_errors": 0,
+        "peak_handlers": 81,
+        "handler_p95_ms": 31.0403270000279,
+        "handler_max_ms": 60.85046499993041,
+        "loop_lag_p95_ms": 0.9645960001307685,
+        "loop_lag_max_ms": 1.1050020000311633,
+        "synthetic_orders": 9000,
+        "unique_assigned_seats": 9000,
+        "duplicate_seat_attempts": 0
+      }
+    }
+  ],
+  "production_capacity_evidence": false,
+  "paid_load_started": false,
+  "best_qualified_paid_issued_per_second": 138.49,
+  "application_configuration_changed": false,
+  "database_connection_budget_changed": false,
+  "cloud_resources_resized": false,
+  "child_processes_exited": true,
+  "source_binding": "Sealed recovery, timeout-retention and gateway-read sources reconstructed and hash-verified before copying; report records the executed calibrator revision. The committed CLI adds source-receipt admission checks validated locally after these controls.",
+  "local_tests_passed": 9,
+  "exploratory_control_set": {
+    "raw_result_sha256": "0a65ebe0412ab96be833b8a3c6a048aa158216b152b3b1d74ffe316c3f883b6d",
+    "used_for_decision": false,
+    "reason": "Initial exploratory controls used development generator files; the sealed workload was then independently reconstructed and all controls repeated."
+  },
+  "limitations": [
+    "45-second synthetic controls, not five-minute paid comparisons",
+    "Small synthetic responses and deterministic service delays do not reproduce full production HTTP payloads, network behavior or downstream contention",
+    "Two-process control also passed: four processes increase generator CPU headroom but are not proven to resolve real paid-traffic drops",
+    "At the measured synthetic mean journey duration of approximately 2.2 seconds, 300 journeys/s requires approximately 660 active journeys before safety margin; current 500 may limit higher rates"
+  ],
+  "next": "Integrate an explicitly bound four-process profile into the paid runner, retaining aggregate concurrency500 and application/database budgets, then repeat160 offered journeys/s with all financial, latency and drain gates."
+}

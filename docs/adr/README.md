@@ -326,3 +326,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0330: Retire the secondary ECS from the CCE workflow](0330-retire-secondary-ecs-from-cce-workflow.md) - Primary-only bootstrap qualified live with post-TTL audit, drain and exact restoration; final subset 111 tests passed. Secondary VM empty; deletion pending console access.
 
 - [ADR0331: Add customer and engine demonstration views](0331-add-customer-and-engine-demonstration-ui.md) - Customer and engine views privately published in sample mode; 20 adapter/bridge tests and browser journeys passed. Actual engine financial integration remains unverified.
+
+- [ADR0332: Calibrate generator process scaling](0332-calibrate-generator-process-scaling.md) - Sealed synthetic160/s two/four-process and200/s four-process controls passed; no new paid capacity qualified.
