@@ -1,0 +1,36 @@
+{
+  "decision": "ADR0333",
+  "scope": "Offline coordinator completeness correction after failed live test; no new paid load.",
+  "source_contract_sha256": "a56b0099874861ac2c36df9aeab9636f70866f31cfa696ce97fe03e4d6a37a54",
+  "checks": [
+    {
+      "suite": "generator, paid stage, customer outcome and throughput binding",
+      "passed": 101,
+      "seconds": 5.96
+    },
+    {
+      "suite": "final primary-bootstrap and generator tests after import cleanup",
+      "passed": 45,
+      "seconds": 15.76
+    },
+    {
+      "check": "Ruff F/I",
+      "pass": true
+    },
+    {
+      "check": "CCE historical reproduction",
+      "pass": true,
+      "files": 535
+    }
+  ],
+  "child_run_cases": [
+    "clean four-child run",
+    "complete failed run with drops",
+    "missing result",
+    "valid checkpoint",
+    "invalid checkpoint"
+  ],
+  "original_failed_result_preserved": true,
+  "cloud_retested": false,
+  "capacity_improvement_measured": false
+}

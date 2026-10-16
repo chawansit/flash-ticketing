@@ -95,6 +95,10 @@ def qualify_workload(bundle, coordinator):
             raise ValueError("Sealed calibrated leaf behavior changed")
     patches = {
         b"len(shard_results) == 2": b"len(shard_results) == 4",
+        b'len(results) == 2': b'len(results) == 4',
+        b'evidence_states == ["final", "final"]': b'evidence_states == ["final"] * 4',
+        b'row.get("rate_target_per_second") != args.rate // 2': b'row.get("rate_target_per_second") != args.rate // 4',
+        b'row.get("scheduled") != args.rate // 2 * args.seconds': b'row.get("scheduled") != args.rate // 4 * args.seconds',
         b"exit_codes == [0, 0]": b"exit_codes == [0, 0, 0, 0]",
         b"args.rate % 2": b"args.rate % 4",
         b"args.concurrency % 2": b"args.concurrency % 4",

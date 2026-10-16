@@ -208,9 +208,10 @@ def test_composed_cce_lifecycle_keeps_all_safety_and_cleanup_without_secondary(l
 
 @pytest.mark.parametrize("fault", [None, "image", "flags", "authority", "seal", "marker"])
 def test_slot_entry_composition_validates_live_image_instead_of_frozen_parser(monkeypatch, fault):
+    from pathlib import Path
+
     import observe_slot_paid_pipeline as entry
     import observe_two_host_pipeline as observer
-    from pathlib import Path
 
     data, contract = inventory()
     assert contract.images["api"] != observer.FROZEN_IMAGE_ID

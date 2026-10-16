@@ -1,0 +1,664 @@
+{
+  "decision": "ADR0333",
+  "status": "FAILED_RESTORED",
+  "run": "adr0151-89d76200cc84",
+  "ledger": "bounded_cce_ticket_target__41e1f8253bf4",
+  "raw_result_sha256": "075031a9e6e2072cdb340fd32875092fcdab8ecd431c56eaf4b6f001609e6624",
+  "orchestration_commit": "3712be6da3b10e251beececdc0b483bd8f08f042",
+  "cloud_load_started": true,
+  "cloud_deployed": true,
+  "short_capacity_qualified": false,
+  "hourly_qualified": false,
+  "capacity_ceiling_measured": false,
+  "production_qualified": false,
+  "image_receipt": "docs/capacity/cce/fulfillment-transaction-batching-local-2026-10-14.json",
+  "source_identity_sha256": "0087ce3078532a8fd05b668c4d286988a3165d95295c51ebbf2c60d4a702ce0d",
+  "registry_manifest_digest": "sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+  "controlled_factors": {
+    "application_change": "none; exact ADR0324 image and configuration",
+    "offered_journeys_per_second": 160,
+    "offered_seconds": 300,
+    "generator_concurrency": 500,
+    "api_pods": 4,
+    "api_resources": {
+      "cpu": "1",
+      "memory": "2Gi"
+    },
+    "background_pods": 15,
+    "background_resources": {
+      "cpu": "250m",
+      "memory": "512Mi"
+    },
+    "reservation_writers": 4,
+    "writer_batch_size": 4,
+    "physical_database_backends": 24,
+    "shared_admission": 20,
+    "api_general_slots_each": 2,
+    "api_payment_slots_each": 2,
+    "financial_writes_and_gateway_delay_unchanged": true,
+    "recovery_and_customer_status_freshness_unchanged": true,
+    "notification_suppression_unchanged": true,
+    "fulfillment_transaction_batch_size": 4,
+    "api_and_other_workers_batch_size": 1,
+    "native_fulfillment_consumers": 6,
+    "fixture_shows": 160,
+    "expected_journeys": 48000,
+    "minimum_conservative_inside_window": 47400,
+    "generator_processes": 4,
+    "generator_http_connections": 500,
+    "generator_http_clients": 16,
+    "per_process_concurrency": 125,
+    "per_process_http_clients": 4
+  },
+  "window_bangkok": {
+    "start": "2026-10-17T01:30:35.791319+07:00",
+    "end": "2026-10-17T01:35:35.791319+07:00"
+  },
+  "customer": {
+    "scheduled": 48000,
+    "dispatched": null,
+    "completed": null,
+    "fulfilled": null,
+    "fulfilled_by_deadline": null,
+    "distinct_orders": null,
+    "distinct_tickets": null,
+    "generator_drops": null,
+    "first_attempt_error_journeys": null,
+    "first_attempt_errors": null,
+    "recovered_journeys": null,
+    "retry_attempts": null,
+    "final_customer_failures": null,
+    "payment_operation_checks": null,
+    "shard_exit_codes": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "generator_shards": 4,
+    "measurement_complete": false,
+    "accounting_complete": false
+  },
+  "customer_outcome_gate": null,
+  "latencies_ms": {
+    "dispatch_lag_p95_ms": null,
+    "dispatch_lag_max_ms": null,
+    "hold_http_p95_ms": null,
+    "durable_p95_ms": null,
+    "payment_http_p95_ms": null,
+    "ticket_wait_p95_ms": null,
+    "total_journey_p95_ms": null
+  },
+  "latency_scope": "Worst-shard p95, including recovery; not a pooled percentile",
+  "issuance": {
+    "window_start_epoch": 1792175435.791319,
+    "window_end_epoch": 1792175735.791319,
+    "unique_paid_issued_tickets": 39650,
+    "unique_orders": 39650,
+    "unique_payments": 39650,
+    "joined_rows": 39650,
+    "conservative_inner_window_tickets": 39370,
+    "inner_window_guard_seconds": 2,
+    "database_now_epoch": 1792175879.075538,
+    "api_helper_now_epoch": 1792175879.07854,
+    "first_issued_at": "2026-10-17T01:30:38.219106+07:00",
+    "last_issued_at": "2026-10-17T01:35:35.780994+07:00",
+    "pass": false,
+    "timestamp_window_rate_per_second": 132.16666666666666,
+    "conservative_rate_per_second": 131.23333333333332
+  },
+  "generator_processes": [
+    {
+      "scheduled": 12000,
+      "dispatched": 10037,
+      "drops": 1963,
+      "fulfilled_by_deadline": 10037,
+      "dispatch_lag_p95_ms": 2.82784899991384,
+      "lifecycle": {
+        "process_cpu_seconds": 166.965524561,
+        "process_cpu_wall_ratio": 0.5511893365325142,
+        "loop_lag_p95_ms": 2.429879999908735,
+        "loop_lag_max_ms": 104.94955000012851,
+        "journey_duration_by_outcome_ms": {
+          "fulfilled": {
+            "count": 10037,
+            "mean": 3672.4383590388566,
+            "p95": 4042.1704199998203,
+            "max": 34085.67156799927
+          }
+        }
+      }
+    },
+    {
+      "scheduled": 12000,
+      "dispatched": 9988,
+      "drops": 2012,
+      "fulfilled_by_deadline": 9988,
+      "dispatch_lag_p95_ms": 2.752010999756749,
+      "lifecycle": {
+        "process_cpu_seconds": 165.876297139,
+        "process_cpu_wall_ratio": 0.5479185001276724,
+        "loop_lag_p95_ms": 2.4842069988153526,
+        "loop_lag_max_ms": 121.93980699976237,
+        "journey_duration_by_outcome_ms": {
+          "fulfilled": {
+            "count": 9988,
+            "mean": 3689.898919423012,
+            "p95": 4212.722163999388,
+            "max": 33857.1019660003
+          }
+        }
+      }
+    },
+    {
+      "scheduled": 12000,
+      "dispatched": 10025,
+      "drops": 1975,
+      "fulfilled_by_deadline": 10025,
+      "dispatch_lag_p95_ms": 2.82143399999768,
+      "lifecycle": {
+        "process_cpu_seconds": 167.09925484599998,
+        "process_cpu_wall_ratio": 0.5514612111806139,
+        "loop_lag_p95_ms": 2.7042270003221347,
+        "loop_lag_max_ms": 104.82002499975351,
+        "journey_duration_by_outcome_ms": {
+          "fulfilled": {
+            "count": 10025,
+            "mean": 3678.7093412624467,
+            "p95": 4116.127534000043,
+            "max": 33973.464684000646
+          }
+        }
+      }
+    },
+    {
+      "scheduled": 12000,
+      "dispatched": 10045,
+      "drops": 1955,
+      "fulfilled_by_deadline": 10045,
+      "dispatch_lag_p95_ms": 2.705875999708951,
+      "lifecycle": {
+        "process_cpu_seconds": 166.174021612,
+        "process_cpu_wall_ratio": 0.54820227840475,
+        "loop_lag_p95_ms": 2.391708999311959,
+        "loop_lag_max_ms": 111.23184799998853,
+        "journey_duration_by_outcome_ms": {
+          "fulfilled": {
+            "count": 10045,
+            "mean": 3672.0849219986076,
+            "p95": 4101.473658999566,
+            "max": 34065.277726000204
+          }
+        }
+      }
+    }
+  ],
+  "cpu": {
+    "api_process_cores": 2.7862165370940772,
+    "worker_process_cores": 1.6273083184625436,
+    "rds_provider_cpu_unmeasured": true,
+    "node_cpu_and_throttling_unmeasured": true
+  },
+  "measurement_gates": {},
+  "financial": {
+    "pass": false,
+    "strict_audit_pass": null,
+    "hold_deadlines_elapsed": true,
+    "counts": {
+      "orders": 40095,
+      "fulfilled_orders": 40095,
+      "expired_orders": 0,
+      "pending_orders": 0,
+      "payment_attempts": 40095,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 40095,
+      "bookings": 40095,
+      "tickets": 40095,
+      "payment_callbacks": 40095,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 40095,
+      "callback_delivery_target": 40095,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 48000,
+      "expected_paid": 48000,
+      "expected_callback_deliveries_per_payment": 1,
+      "pass": false
+    },
+    "relationships": {
+      "hold_relationship_errors": 0,
+      "booking_relationship_errors": 0,
+      "order_item_relationship_errors": 0,
+      "inventory_relationship_errors": 0,
+      "fulfilled_ticket_relationship_errors": 0,
+      "unique_issued_tickets": 40095,
+      "holds_not_past_ttl": 0
+    },
+    "customer_outcome_financial_checks": null
+  },
+  "queues_before_restoration": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 6,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "split",
+    "projection_kafka_total_lag": 0,
+    "projection_kafka_members": 1
+  },
+  "queues_after_restoration": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "restoration": {
+    "original_runtime_restored": true,
+    "integrity_verified": false,
+    "generator_idle": true,
+    "secondary_contacted": 0,
+    "retired_secondary_cleanup": "not_applicable",
+    "namespace_removed": true,
+    "cleanup_complete": false,
+    "transport_credentials_cleared": true,
+    "cleanup_failures": [
+      {
+        "operation": "stage_cleanup",
+        "type": "ValueError"
+      }
+    ]
+  },
+  "fixture_clock_proofs": [
+    {
+      "decision": "ADR0334",
+      "probe_round_trip_seconds": 0.8130000000001019,
+      "offset_min_seconds": 0.08896613121032715,
+      "offset_max_seconds": 0.8989675045013428
+    },
+    {
+      "decision": "ADR0334",
+      "probe_round_trip_seconds": 0.7029999999995198,
+      "offset_min_seconds": 0.08989095687866211,
+      "offset_max_seconds": 0.7974574565887451
+    }
+  ],
+  "diagnostics": {
+    "slot_failure_capture": {
+      "complete": true,
+      "failure_total": 2,
+      "replicas": {
+        "api-1": [],
+        "api-2": [
+          {
+            "sequence": 1,
+            "captured_at_unix_seconds": 1792175594.3685598,
+            "role": "payment",
+            "reason": "role_limit",
+            "holders": [
+              {
+                "lease": 21798,
+                "role": "payment",
+                "operation": "payment_callback",
+                "phase": "commit",
+                "age_ms": 286.833,
+                "phase_age_ms": 248.41
+              },
+              {
+                "lease": 21802,
+                "role": "payment",
+                "operation": "payment_request",
+                "phase": "commit",
+                "age_ms": 274.108,
+                "phase_age_ms": 251.226
+              }
+            ]
+          },
+          {
+            "sequence": 2,
+            "captured_at_unix_seconds": 1792175594.420719,
+            "role": "payment",
+            "reason": "role_limit",
+            "holders": [
+              {
+                "lease": 21798,
+                "role": "payment",
+                "operation": "payment_callback",
+                "phase": "commit",
+                "age_ms": 339.003,
+                "phase_age_ms": 300.579
+              },
+              {
+                "lease": 21802,
+                "role": "payment",
+                "operation": "payment_request",
+                "phase": "commit",
+                "age_ms": 326.277,
+                "phase_age_ms": 303.395
+              }
+            ]
+          }
+        ],
+        "api-3": [],
+        "api-4": []
+      },
+      "historical_timeout_cause_established": false,
+      "decision": "ADR0287",
+      "source": "existing_one_second_api_metrics",
+      "contract_sha256": "c0edb37cf9792fac7a4ab05b791c4bc7857d1c0adb9d1d79d92213a3cfebb33d",
+      "receipt_sha256": "fd8fb468aef59cddaf7f200af6c5114938293139dd157622308ca68e5a81a860",
+      "samples": 402,
+      "coverage": {
+        "all_four_replicas_observed": true,
+        "per_replica_traffic_distribution": true,
+        "business_request_deltas": {
+          "10.2.11.54": 111762.0,
+          "10.2.190.207": 107411.0,
+          "10.2.251.160": 107297.0,
+          "10.2.79.96": 107619.0
+        },
+        "business_request_shares": {
+          "10.2.11.54": 0.2574633312523469,
+          "10.2.190.207": 0.24744004109756293,
+          "10.2.251.160": 0.2471774221415424,
+          "10.2.79.96": 0.2479192055085478
+        },
+        "observed_start_utc": "2026-10-16T18:30:35.034752+00:00",
+        "observed_end_utc": "2026-10-16T18:35:36.059453+00:00",
+        "scope": "Bracketing business HTTP counters; not paid ticket throughput or proof of balanced routing."
+      },
+      "additional_kubernetes_log_requests": 0
+    },
+    "database_wait_capture": {
+      "decision": "ADR0173",
+      "complete": true,
+      "rows": 402,
+      "error_counts": {},
+      "counter_continuity": true,
+      "max_collection_ms": 27.09978399980173,
+      "max_statistics_gap_seconds": 1.007274,
+      "discontinuity_counts": {},
+      "wal_timing_available_throughout": false,
+      "counter_deltas": {
+        "wal": {
+          "wal_records": 5210343,
+          "wal_fpi": 562487,
+          "wal_bytes": 3643408601,
+          "wal_buffers_full": 0,
+          "wal_write": 235527,
+          "wal_sync": 235526,
+          "wal_write_time": 0,
+          "wal_sync_time": 0
+        },
+        "checkpointer": {
+          "num_timed": 1,
+          "num_requested": 0,
+          "write_time": 147666,
+          "sync_time": 94,
+          "buffers_written": 1475
+        },
+        "database": {
+          "xact_commit": 408163,
+          "xact_rollback": 54,
+          "blks_read": 667315,
+          "blks_hit": 90654222,
+          "blk_read_time": 228787.20699999994,
+          "blk_write_time": 629.9780000000005,
+          "deadlocks": 0,
+          "temp_bytes": 0
+        }
+      },
+      "observed_active_wait_peaks": {
+        "Client:ClientRead": 6,
+        "None:None": 4,
+        "IO:DataFileRead": 3,
+        "IO:WalSync": 1,
+        "Lock:transactionid": 2,
+        "LWLock:WALWrite": 4,
+        "IO:WalWrite": 1
+      },
+      "scope": "Observer lifetime, cluster WAL/checkpoints and current-database activity; one-second snapshots may miss brief waits. Correlation does not prove causality.",
+      "independent_sampling": true,
+      "offered_window_covered": true,
+      "first_statistics_utc": "2026-10-17T01:29:06.047126+07:00",
+      "last_statistics_utc": "2026-10-17T01:35:47.077936+07:00"
+    },
+    "query_statistics_complete": null,
+    "query_statistics_totals": null,
+    "disk_before_dispatch": {
+      "free_bytes": 2001928192,
+      "total_bytes": 42157305856
+    }
+  },
+  "references": {
+    "best_clean_short": {
+      "sha256": "7bcef05f2d006750fe2266cce9672abbe8d22d3967b8d1960c3537fe8dac461d",
+      "conservative_rate_per_second": 138.49
+    },
+    "failed_same_offered_rate_two_processes": {
+      "sha256": "f996f66ca42ed31b36af3a47a6dd2f224643228d16fa72517e28a33d52c066b0",
+      "status": "FAILED_RESTORED",
+      "dispatched": 47875,
+      "drops": 125,
+      "initial_errors": 16,
+      "final_failures": 0,
+      "dispatch_lag_p95_ms": 40113.71,
+      "original_result_preserved": true
+    }
+  },
+  "limitations": [
+    "One five-minute sample cannot establish hourly or maximum capacity.",
+    "The earlier160/s control failed arrival timing; it is not an application-only capacity baseline.",
+    "Synthetic calibration is distinct from this real paid test.",
+    "Original aggregate counters are null because of the reporting defect; reconciled counts above come from immutable raw reports and a separate fresh financial audit.",
+    "Before-query snapshot exists, but the failed dispatch path did not collect an after snapshot; SQL attribution is incomplete.",
+    "RDS provider CPU, node CPU and throttling were not measured; observed commit waits do not identify a WAL or storage root cause."
+  ],
+  "next": "Do not increase offered load. Address active-journey capacity and commit stalls separately, then run a newly authorized bounded comparison. Current single paid-stage allowance is consumed.",
+  "reconciled_raw_shard_accounting": {
+    "scheduled": 48000,
+    "dispatched": 40095,
+    "generator_drops": 7905,
+    "completed": 40095,
+    "fulfilled": 40095,
+    "fulfilled_by_deadline": 40095,
+    "distinct_orders": 40095,
+    "distinct_tickets": 40095,
+    "retry_attempts": 2,
+    "first_attempt_error_journeys": 2,
+    "recovered_journeys": 2,
+    "final_customer_failures": 0,
+    "first_attempt_errors": {
+      "payment:http_503": 2
+    },
+    "raw_reports_complete": true,
+    "raw_shards_sha256": "fe24a5739414c844bf83d02b808e18f2e34dca5f1f238e3640e727d77828fa6e",
+    "source": "Four retained final raw reports, independently reconciled against PostgreSQL; original aggregate report remains unchanged.",
+    "generator_drop_percent_of_scheduled": 16.46875,
+    "first_attempt_error_percent_of_dispatched": 0.004988153136301285,
+    "final_customer_failure_percent_of_dispatched": 0
+  },
+  "operational_recovery": {
+    "evidence": "docs/capacity/cce/four-generator-160-recovery-2026-10-17.json",
+    "sha256": "4aa4c2c8fb160f4db26180ffdb868b71e258b768d167291351e9146db194ff1c",
+    "all_gates_passed": true,
+    "verified_paid_tickets": 40095,
+    "new_paid_stages": 0,
+    "original_result_preserved": true,
+    "capacity_qualified": false
+  },
+  "reconciled_latencies_ms": {
+    "dispatch_lag_p95_ms": 2.82784899991384,
+    "dispatch_lag_max_ms": 153.62471000116784,
+    "hold_http_p95_ms": 16.317055000399705,
+    "durable_p95_ms": 2023.0969819995153,
+    "payment_http_p95_ms": 163.14208499989036,
+    "ticket_wait_p95_ms": 2778.407452000465,
+    "total_journey_p95_ms": 4212.72136799962
+  },
+  "generator_capacity_diagnosis": {
+    "observed_mean_successful_journey_ms": 3678.2673252151662,
+    "active_slot_cap": 500,
+    "required_mean_concurrency_at160": 588.5227720344266,
+    "per_process_cpu_wall_ratio": [
+      0.5511893365325142,
+      0.5479185001276724,
+      0.5514612111806139,
+      0.54820227840475
+    ],
+    "drop_reasons": [
+      {
+        "active_journey_capacity": 1963
+      },
+      {
+        "active_journey_capacity": 2012
+      },
+      {
+        "active_journey_capacity": 1975
+      },
+      {
+        "active_journey_capacity": 1955
+      }
+    ],
+    "scope": "Little law estimate from successful-journey residence time; no promise that increasing concurrency will preserve latency or achieve160/s."
+  },
+  "reporting_defect": {
+    "four_raw_reports_complete": true,
+    "original_aggregate_measurement_complete": false,
+    "original_aggregate_accounting_complete": false,
+    "cause": "Two hard-coded two-shard completeness checks were not updated in the four-process coordinator adapter.",
+    "correction": "Use explicit four-shard final/checkpoint accounting; preserve unknown outcomes when evidence is missing.",
+    "tested_locally": true,
+    "cloud_retested": false
+  },
+  "payment_failure_evidence": {
+    "failure_capture_complete": true,
+    "events": [
+      {
+        "sequence": 1,
+        "captured_at_unix_seconds": 1792175594.3685598,
+        "role": "payment",
+        "reason": "role_limit",
+        "holders": [
+          {
+            "lease": 21798,
+            "role": "payment",
+            "operation": "payment_callback",
+            "phase": "commit",
+            "age_ms": 286.833,
+            "phase_age_ms": 248.41
+          },
+          {
+            "lease": 21802,
+            "role": "payment",
+            "operation": "payment_request",
+            "phase": "commit",
+            "age_ms": 274.108,
+            "phase_age_ms": 251.226
+          }
+        ]
+      },
+      {
+        "sequence": 2,
+        "captured_at_unix_seconds": 1792175594.420719,
+        "role": "payment",
+        "reason": "role_limit",
+        "holders": [
+          {
+            "lease": 21798,
+            "role": "payment",
+            "operation": "payment_callback",
+            "phase": "commit",
+            "age_ms": 339.003,
+            "phase_age_ms": 300.579
+          },
+          {
+            "lease": 21802,
+            "role": "payment",
+            "operation": "payment_request",
+            "phase": "commit",
+            "age_ms": 326.277,
+            "phase_age_ms": 303.395
+          }
+        ]
+      }
+    ],
+    "underlying_commit_delay_cause_confirmed": false
+  },
+  "database_wait_evidence": {
+    "decision": "ADR0173",
+    "complete": true,
+    "rows": 402,
+    "error_counts": {},
+    "counter_continuity": true,
+    "max_collection_ms": 27.09978399980173,
+    "max_statistics_gap_seconds": 1.007274,
+    "discontinuity_counts": {},
+    "wal_timing_available_throughout": false,
+    "counter_deltas": {
+      "wal": {
+        "wal_records": 5210343,
+        "wal_fpi": 562487,
+        "wal_bytes": 3643408601,
+        "wal_buffers_full": 0,
+        "wal_write": 235527,
+        "wal_sync": 235526,
+        "wal_write_time": 0,
+        "wal_sync_time": 0
+      },
+      "checkpointer": {
+        "num_timed": 1,
+        "num_requested": 0,
+        "write_time": 147666,
+        "sync_time": 94,
+        "buffers_written": 1475
+      },
+      "database": {
+        "xact_commit": 408163,
+        "xact_rollback": 54,
+        "blks_read": 667315,
+        "blks_hit": 90654222,
+        "blk_read_time": 228787.20699999994,
+        "blk_write_time": 629.9780000000005,
+        "deadlocks": 0,
+        "temp_bytes": 0
+      }
+    },
+    "observed_active_wait_peaks": {
+      "Client:ClientRead": 6,
+      "None:None": 4,
+      "IO:DataFileRead": 3,
+      "IO:WalSync": 1,
+      "Lock:transactionid": 2,
+      "LWLock:WALWrite": 4,
+      "IO:WalWrite": 1
+    },
+    "scope": "Observer lifetime, cluster WAL/checkpoints and current-database activity; one-second snapshots may miss brief waits. Correlation does not prove causality.",
+    "independent_sampling": true,
+    "offered_window_covered": true,
+    "first_statistics_utc": "2026-10-17T01:29:06.047126+07:00",
+    "last_statistics_utc": "2026-10-17T01:35:47.077936+07:00"
+  },
+  "financial_evidence_scope": "Original audit expected48000 and remains failed; separate read-only recovery passes all original financial predicates for40095 dispatched journeys."
+}
