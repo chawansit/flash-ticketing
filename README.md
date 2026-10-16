@@ -9,6 +9,10 @@ No frontend and no waiting room.
 
 Use the [implementation guide for developers QA cloud engineers and architects](docs/customer-integration/implementation-guide.md) for transaction boundaries, source references, deployment responsibilities, qualification and rollout. It distinguishes measured reference results from customer integration and production requirements.
 
+## Customer demonstration
+
+[Encore customer and engine demo](web/demo/README.md) provides a clearly labeled interactive sample and a separate loopback bridge for the existing API. Start it with `python web/demo/serve.py --port 4080`. The hosted preview is sample-only; live engine financial correctness requires separate verification.
+
 ## Start locally
 
 Requires Docker Desktop with Linux containers (or Docker Engine + Compose), and free local

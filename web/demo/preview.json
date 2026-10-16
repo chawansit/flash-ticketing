@@ -1,0 +1,8 @@
+{
+  "project_id": "appgprj_6ad10fac4c7081919c5356f107103e47",
+  "audience": "owner-private",
+  "expected_url": "https://encore-ticketing-engine-demo.robust-tang-9828.chatgpt.site",
+  "site_checkout": "tmp/sites-encore-demo-20261016",
+  "static_directory": "dist",
+  "hosted_mode": "sample-only"
+}

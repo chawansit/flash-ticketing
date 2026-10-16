@@ -1,0 +1,70 @@
+{
+  "decision": "ADR0331",
+  "status": "PRIVATE_SAMPLE_PUBLISHED_LOCAL_LIVE_ADAPTER_TESTED",
+  "date_bangkok": "2026-10-16",
+  "views": [
+    "Customer journey",
+    "Engine dashboard"
+  ],
+  "private_preview": {
+    "project_id": "appgprj_6ad10fac4c7081919c5356f107103e47",
+    "source_commit": "e103d87ce8993f66f895565b9003cb04282d643f",
+    "deployment_id": "appgdep_6ad24bd536e88191a37459adde8b1ec9",
+    "version_id": "appgprj_6ad10fac4c7081919c5356f107103e47~appgver_f96ade8912d4819186e391e7fac919fe",
+    "url": "https://encore-ticketing-engine-demo.robust-tang-9828.chatgpt.site",
+    "audience": "owner-private",
+    "status": "succeeded",
+    "mode": "browser sample only"
+  },
+  "validation": {
+    "python_bridge_tests": {
+      "passed": 11,
+      "seconds": 10.05
+    },
+    "javascript_recovery_tests": {
+      "passed": 9
+    },
+    "sample_browser": {
+      "pass": true,
+      "normalTwoSeatJourney": true,
+      "lostResponseRecovery": true,
+      "onePaymentPerOrder": true,
+      "sharedDashboardTrace": true,
+      "mobileNoOverflow": true,
+      "unconfiguredLiveDisabled": true,
+      "pageErrors": []
+    },
+    "live_contract_browser": {
+      "pass": true,
+      "scope": "Browser UI with intercepted API contract responses; not a real engine or financial test",
+      "lostResponseInquiry": true,
+      "samePaymentKey": true,
+      "noDuplicateInitiation": true,
+      "refreshRetrievesExistingOrder": true,
+      "tokenNotPersisted": true,
+      "failedLiveConnectionDoesNotShowSampleSeats": true,
+      "ambiguousHoldIdentitySurvivesRefresh": true,
+      "failedDurabilityBlocksPayment": true,
+      "pageErrors": []
+    },
+    "desktop_mobile_screenshots_visually_reviewed": true,
+    "python_F_I_checks": "passed",
+    "static_assets_match_published_source": true
+  },
+  "sources": {
+    "web/demo/dist/api.mjs": "062b7ed3c1fb73a379f7140c6a7d254419b87a14a82a70e04a3889247b6b7694",
+    "web/demo/dist/app.mjs": "9baa527d4365536f36d3a94759fb6912d89c4b20b0cdf5a8903483915b481ddc",
+    "web/demo/dist/index.html": "1fa393b22d37918f83f938ba4abe5db78da65cdbc4840db1be256590423825a2",
+    "web/demo/dist/style.css": "501aaf9b0c29ceb3212c6a1ad9ade1b9ef69fb3eb8d775a5d99901d6c05ae258",
+    "web/demo/serve.py": "5d64028eb3d90bd74a02ec92e378b40e009bacb7d53ce304030d2e35665f48a8"
+  },
+  "limits": [
+    "No actual engine, PostgreSQL, Redis or Kafka transaction was executed in this frontend round.",
+    "Docker Desktop was stopped; live adapter browser checks used intercepted API contract responses and bridge checks used a local HTTP stub.",
+    "No real payment gateway, public deployment, production authentication or cloud load test.",
+    "Kafka lag, RDS CPU and global queue drain remain explicitly unavailable in the dashboard."
+  ],
+  "backend_application_changed": false,
+  "cloud_paid_load_started": false,
+  "capacity_improvement_measured": false
+}
