@@ -317,7 +317,12 @@ def confirmation_startup(row):
 def install_adapter(module, inventory, *, image_id, now=None, fetch=urlopen, approved_inventory_sha256=None):
     if "cce_primary_bootstrap_contract" in inventory:
         from cce_primary_bootstrap import validate_observer_inventory
-        validate_observer_inventory(inventory, approved_inventory_sha256, image_id=image_id, now=now)
+        # The frozen parser's image identifies its historical harness, not the
+        # source-qualified bootstrap APIs. Validate against the sealed live image.
+        bootstrap_image = inventory.get("status_refresh_contract", {}).get("api_image_id")
+        if not isinstance(bootstrap_image, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", bootstrap_image):
+            raise ValueError("Sealed primary-only API image required")
+        validate_observer_inventory(inventory, approved_inventory_sha256, image_id=bootstrap_image, now=now)
     elif approved_inventory_sha256 is None:
         validate_inventory(inventory, image_id=image_id, now=now)
     else:

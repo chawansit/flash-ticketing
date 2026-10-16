@@ -204,3 +204,41 @@ def test_composed_cce_lifecycle_keeps_all_safety_and_cleanup_without_secondary(l
     assert result["pass"] and result["cleanup_complete"]
     assert all(result["measurement_gates"].values())
     assert calls.index("safety")<calls.index("dispatch")<calls.index("audit")
+
+
+@pytest.mark.parametrize("fault", [None, "image", "flags", "authority", "seal", "marker"])
+def test_slot_entry_composition_validates_live_image_instead_of_frozen_parser(monkeypatch, fault):
+    import observe_slot_paid_pipeline as entry
+    import observe_two_host_pipeline as observer
+    from pathlib import Path
+
+    data, contract = inventory()
+    assert contract.images["api"] != observer.FROZEN_IMAGE_ID
+    if fault == "image":
+        data["apis"][0]["image_id"] = observer.FROZEN_IMAGE_ID
+    elif fault == "flags":
+        data["apis"][0]["settings"]["API_PAYMENT_POOL_MAX"] = "9"
+    elif fault == "authority":
+        data["apis"][0]["auth_secrets_sha256"] = "0" * 64
+    elif fault == "marker":
+        data["status_refresh_contract"]["api_image_id"] = None
+    retained = copy.deepcopy(data)
+    sealed = "0" * 64 if fault == "seal" else topology.digest(data)
+    frozen = observer.load_frozen(Path(__file__).resolve().parents[2] /
+                                  "artifacts/cce-frozen-harness/scripts/observe_paid_pipeline.py")
+    original = observer.install_adapter
+
+    def native_main(_argv):
+        observer.install_adapter(frozen, data, image_id=observer.FROZEN_IMAGE_ID,
+                                 approved_inventory_sha256=sealed)
+
+    monkeypatch.setattr(entry.native, "main", native_main)
+    if fault:
+        with pytest.raises(ValueError):
+            entry.main([])
+    else:
+        entry.main([])
+        assert len(frozen.api_replicas()) == 4
+        assert all(label.startswith("primary:") for label in frozen.api_replicas())
+    assert data == retained
+    assert observer.install_adapter is original
