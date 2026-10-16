@@ -8,6 +8,8 @@ SOURCE = "scripts/cce_generator_process_scaling.py"
 KEYS = {"generator_process_decision", "generator_process_contract_sha256"}
 CHANGED_SOURCES = {
     SOURCE,
+    "scripts/cce_fixture_clock.py",
+    "scripts/cce_paid_inputs.py",
     "scripts/cce_paid_stage.py",
     "scripts/cce_api_adapter.py",
     "scripts/cce_customer_outcome_slo.py",
@@ -69,6 +71,12 @@ def active_goal():
 def validate_binding(goal, binding):
     if not selected(goal) or binding.get("cce_generator_process_contract") != contract():
         raise ValueError("Four-process source/budget binding required")
+    import cce_fixture_clock as clock
+    if clock.selected(goal):
+        if binding.get("cce_fixture_clock_contract") != clock.contract():
+            raise ValueError("Exactly bound creator-clock proof required")
+    elif "cce_fixture_clock_contract" in binding:
+        raise ValueError("Unselected creator-clock proof")
     return True
 
 

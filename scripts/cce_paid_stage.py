@@ -128,7 +128,7 @@ def identity():
     paths = (*paths, *__import__("cce_primary_bootstrap").SOURCES)
     import cce_generator_process_scaling as generator_scaling
     if generator_scaling.selected(generator_scaling.active_goal()):
-        paths = (*paths, generator_scaling.SOURCE)
+        paths = (*paths, generator_scaling.SOURCE, "scripts/cce_fixture_clock.py")
     return {p: sha((policy.ROOT / p).read_bytes()) for p in paths}
 
 
@@ -354,6 +354,9 @@ class PaidStage:
         if self.prepared:
             raise ValueError("A stage cannot reuse a prepared fixture")
         self.record["fixture_creation_attempted"] = True
+        import cce_fixture_clock as clock
+        import cce_transaction_profile as transaction
+        fixture_now = clock.reference_now(self.record, fixture) if clock.selected(transaction.active()) else None
         retain_fixture_identity(
             self.output,
             self.record,
@@ -361,6 +364,7 @@ class PaidStage:
             self.profile.shows,
             producer_sha256=sha(self.bundle["scripts/prepare_capacity_fixture.py"]),
             persist_stage=False,
+            now=fixture_now,
         )
         self.checkpoint()
         self.events = list(fixture["show_ids"])

@@ -513,7 +513,7 @@ def validate_binding(goal, binding):
     process_scaling = generator_scaling.selected(goal)
     if process_scaling:
         generator_scaling.validate_binding(goal, binding)
-        ignored |= {"cce_generator_process_contract", "cce_customer_outcome_contract"}
+        ignored |= {"cce_generator_process_contract", "cce_customer_outcome_contract", "cce_fixture_clock_contract"}
         prior_outcome = old["cce_customer_outcome_contract"]
         actual_outcome = binding.get("cce_customer_outcome_contract", {})
         if ({k:v for k,v in actual_outcome.items() if k != "helper_sha256"}
@@ -541,7 +541,7 @@ def validate_binding(goal, binding):
             added |= set(bootstrap.SOURCES) - set(before)
         allowed = CHANGED_SOURCES | (set(bootstrap.SOURCES) if retirement else set())
         if process_scaling:
-            added.add(generator_scaling.SOURCE)
+            added |= {generator_scaling.SOURCE, "scripts/cce_fixture_clock.py"}
             allowed |= generator_scaling.CHANGED_SOURCES
         if (set(after) != set(before) | added
                 or any(before[k] != after[k] for k in before if k not in allowed)):

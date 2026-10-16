@@ -1,0 +1,23 @@
+{
+  "pass": true,
+  "decision": "ADR0334",
+  "executed_tests": 327,
+  "source_contract_sha256": "61abbc77f7aaf55c25c5b73eb27783afacb3d1a919eeea35a29959dd7e8fa9c5",
+  "fixture_clock_contract": {
+    "decision": "ADR0334",
+    "maximum_clock_offset_seconds": 2,
+    "maximum_probe_round_trip_seconds": 5,
+    "raw_receipt_before_validation": true,
+    "strict_fixture_validator_unchanged": true,
+    "application_ttl_unchanged": true,
+    "source_sha256": "4a78896c8fa4de58844cb5f96594bcb08c989c7541e97ead8e9e03ac6bf7c282"
+  },
+  "full_160_show_audit_compiled": true,
+  "expected_tickets": 48000,
+  "full_source_binding_verified": true,
+  "complete_reservation_admission_in_isolated_state": true,
+  "historical_reproduction_files": 535,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "prior_pre_dispatch_abort_preserved": true
+}

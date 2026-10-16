@@ -183,20 +183,33 @@ class Inputs:
                     + ").read_text())",
                     45,
                 )
-                self.record["fixtures"][name] = fixture_identity(fixture, shows, producer_sha256=producer)
+                self.record["fixtures"][name] = self.validate_fixture_receipt(name, fixture, shows, producer)
                 self.checkpoint()
             except Exception:  # noqa: BLE001 - Unknown fixture ownership must block progression.
                 self.record["unknown_fixture_identity"] = True
                 self.stage.record["recovery_identity_unknown"] = True
                 self.checkpoint()
             raise
-        self.record["fixtures"][name] = fixture_identity(fixture, shows, producer_sha256=producer)
+        self.record["fixtures"][name] = self.validate_fixture_receipt(name, fixture, shows, producer)
         self.checkpoint()
         if name == "paid":
             self.stage.events = list(fixture["show_ids"])
             self.stage.record["fixture_creation_attempted"] = True
             self.stage.checkpoint()
         return fixture
+
+    def validate_fixture_receipt(self, name, fixture, shows, producer):
+        if name not in {"safety", "paid"}:
+            raise ValueError("Known fixture purpose required")
+        receipt_path = self.stage.output / ("fixture-raw-" + name + ".private.json")
+        policy.write(receipt_path, fixture)
+        self.stage.record.setdefault("fixture_raw_receipts", {})[name] = {
+            "path": receipt_path.relative_to(policy.ROOT).as_posix(), "sha256": policy.digest(fixture)}
+        self.checkpoint()
+        import cce_fixture_clock as clock
+        import cce_transaction_profile as transaction
+        now = clock.sample_creator(self.stage, fixture) if clock.selected(transaction.active()) else None
+        return fixture_identity(fixture, shows, now=now, producer_sha256=producer)
 
     def safety(self, receipts):
         fixture = self.fixture("safety", 1)

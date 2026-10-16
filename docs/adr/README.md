@@ -330,3 +330,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0332: Calibrate generator process scaling](0332-calibrate-generator-process-scaling.md) - Sealed synthetic160/s two/four-process and200/s four-process controls passed; no new paid capacity qualified.
 
 - [ADR0333: Repeat160/s with four generator processes](0333-compare-four-generator-processes-at-160.md) - Explicit source-bound process split; unchanged application/database budgets; paid outcome pending.
+
+- [ADR0334: Use a bounded creator-clock reference for fixture admission](0334-validate-fixture-freshness-against-bounded-creator-clock.md) - Preserve strict freshness and retain raw receipts across small measured clock offsets; no application TTL change.

@@ -268,6 +268,9 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
     import cce_generator_process_scaling as generator_scaling
     if generator_scaling.selected(goal):
         extra["cce_generator_process_contract"] = generator_scaling.contract()
+        import cce_fixture_clock as clock
+        if clock.selected(goal):
+            extra["cce_fixture_clock_contract"] = clock.contract()
     binding = {
         **extra,
         "configuration_sha256": policy.digest(config),
