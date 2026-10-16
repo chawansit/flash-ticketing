@@ -337,7 +337,7 @@ def extend_plan(plan, goal):
                          "backend_partition_decision":goal["backend_partition_decision"]} if partition else {})
     return {**plan, **scale_fields, **batch_fields, **partition_fields, "decision": "ADR0277", "extension_decision": "ADR0277",
             "kind": "fulfillment_transaction_batch_headroom" if fulfillment else "explicit_driver_start_headroom" if explicit else "ticket_notification_dedup_headroom" if notification else "post_lock_writer_sale_context_headroom" if writer_context else "post_lock_payment_context_headroom" if context else "foreground_backend_isolation_headroom" if partition else "writer_batch_headroom" if batch else "writer_concurrency_headroom" if scale else "corrective_general_slot_headroom" if correction else "bounded_recovery_runtime_headroom",
-            "single_changed_factor": "offered_workload" if push else "bounded_fulfillment_transaction_grouping" if fulfillment else "one_explicit_driver_transaction_start" if explicit else "bounded_ticket_notification_refresh_suppression" if notification else "post_lock_writer_sale_context" if writer_context else "post_lock_payment_context" if context else "foreground_background_backend_partition" if partition else "RESERVATION_WRITER_BATCH_SIZE" if batch else "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
+            "single_changed_factor": "generator_process_split_2_to_4" if __import__("cce_generator_process_scaling").selected(goal) else "offered_workload" if push else "bounded_fulfillment_transaction_grouping" if fulfillment else "one_explicit_driver_transaction_start" if explicit else "bounded_ticket_notification_refresh_suppression" if notification else "post_lock_writer_sale_context" if writer_context else "post_lock_payment_context" if context else "foreground_background_backend_partition" if partition else "RESERVATION_WRITER_BATCH_SIZE" if batch else "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
             "common": {"buyer_journeys_per_second": rate, "duration_seconds": 300},
             "expected_journeys": expected, "target_unique_tickets": target,
             "fixture_shows": shows, "generator_concurrency": 500,
@@ -509,6 +509,16 @@ def validate_binding(goal, binding):
         prior["environment"]["API_PAYMENT_POOL_MAX"] = "3"
         if policy.digest(prior) != old["saved_api_service_sha256"]:
             raise ValueError("API service changed outside the declared payment partition")
+    import cce_generator_process_scaling as generator_scaling
+    process_scaling = generator_scaling.selected(goal)
+    if process_scaling:
+        generator_scaling.validate_binding(goal, binding)
+        ignored |= {"cce_generator_process_contract", "cce_customer_outcome_contract"}
+        prior_outcome = old["cce_customer_outcome_contract"]
+        actual_outcome = binding.get("cce_customer_outcome_contract", {})
+        if ({k:v for k,v in actual_outcome.items() if k != "helper_sha256"}
+                != {k:v for k,v in prior_outcome.items() if k != "helper_sha256"}):
+            raise ValueError("Generator split must preserve customer/error/latency gates")
     if any(old.get(k) != binding.get(k) for k in old.keys() | binding.keys() if k not in ignored):
         raise ValueError("Headroom changed application, recovery, route, resources or database budgets")
     for key in ("cce_paid_entry_sources", "cce_paid_core_sources"):
@@ -530,6 +540,9 @@ def validate_binding(goal, binding):
         if retirement:
             added |= set(bootstrap.SOURCES) - set(before)
         allowed = CHANGED_SOURCES | (set(bootstrap.SOURCES) if retirement else set())
+        if process_scaling:
+            added.add(generator_scaling.SOURCE)
+            allowed |= generator_scaling.CHANGED_SOURCES
         if (set(after) != set(before) | added
                 or any(before[k] != after[k] for k in before if k not in allowed)):
             raise ValueError("Headroom source changed outside the declared rate integration")

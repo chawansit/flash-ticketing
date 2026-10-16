@@ -114,6 +114,16 @@ def validate_binding(goal, binding):
         if (binding.get("cce_metric_admission_contract_sha256") != policy.digest(metric_contract())
                 or binding.get("cce_inventory_renewal_contract") != renewal_contract()):
             raise ValueError("Exact diagnostic contracts required after bootstrap retirement")
+    import cce_generator_process_scaling as generator_scaling
+    process_scaling = generator_scaling.selected(goal)
+    if process_scaling:
+        generator_scaling.validate_binding(goal, binding)
+        changed |= {"cce_generator_process_contract", "cce_customer_outcome_contract"}
+        prior_outcome = original["cce_customer_outcome_contract"]
+        actual_outcome = binding.get("cce_customer_outcome_contract", {})
+        if ({k:v for k,v in actual_outcome.items() if k != "helper_sha256"}
+                != {k:v for k,v in prior_outcome.items() if k != "helper_sha256"}):
+            raise ValueError("Generator split must preserve customer/error/latency gates")
     if (any(original.get(k) != binding.get(k) for k in original.keys() | binding.keys() if k not in changed)
             or binding.get("cce_throughput_push_contract") != contract(goal)
             or binding.get("baseline_sha256") != policy.digest(report)):
@@ -122,6 +132,9 @@ def validate_binding(goal, binding):
         before, after = original[key], binding[key]
         added = {"scripts/cce_throughput_push.py"}
         allowed = {"scripts/" + name for name in SOURCES}
+        if process_scaling:
+            added.add(generator_scaling.SOURCE)
+            allowed |= generator_scaling.CHANGED_SOURCES
         if retirement:
             added |= set(bootstrap.SOURCES) - set(before)
             allowed |= set(bootstrap.SOURCES)

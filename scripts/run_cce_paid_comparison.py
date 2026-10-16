@@ -265,6 +265,9 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
         raise ValueError("Primary-only configuration and authorization must match")
     if bootstrap.selected(goal):
         extra["cce_primary_bootstrap_contract"] = bootstrap.contract()
+    import cce_generator_process_scaling as generator_scaling
+    if generator_scaling.selected(goal):
+        extra["cce_generator_process_contract"] = generator_scaling.contract()
     binding = {
         **extra,
         "configuration_sha256": policy.digest(config),

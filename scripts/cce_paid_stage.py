@@ -126,6 +126,9 @@ def identity():
         "docs/capacity/cce/api-adapter-contract-2026-10-08.json",
     )
     paths = (*paths, *__import__("cce_primary_bootstrap").SOURCES)
+    import cce_generator_process_scaling as generator_scaling
+    if generator_scaling.selected(generator_scaling.active_goal()):
+        paths = (*paths, generator_scaling.SOURCE)
     return {p: sha((policy.ROOT / p).read_bytes()) for p in paths}
 
 
@@ -288,6 +291,17 @@ class PaidStage:
                         raise ValueError("Exact hourly timeout-retention adapters required")
                 elif selected(transaction.active()) or guard.binding.get("cce_recovery_hourly_decision") != "ADR0256":
                     raise ValueError("Explicit hourly recovery binding required")
+        import cce_generator_process_scaling as generator_scaling
+        self.expected_generator_shards = 2
+        if generator_scaling.selected(transaction.active()):
+            from cce_paid_profiles import RATE_PUSH_160
+            if self.profile != RATE_PUSH_160:
+                raise ValueError("Four-process integration requires the160/s profile")
+            generator_scaling.validate_binding(transaction.active(), guard.binding)
+            self.bundle, self.coordinator = generator_scaling.qualify_workload(self.bundle, self.coordinator)
+            self.expected_generator_shards = 4
+        elif "cce_generator_process_contract" in guard.binding:
+            raise ValueError("Unselected generator process binding")
         self.jobs = jobs or OwnedJobs()
         self.job_list = []
         self.record = {
@@ -296,6 +310,7 @@ class PaidStage:
             "pass": False,
             "capacity_stages_started": 0,
             "pinned_harness_files": len(self.bundle),
+            "expected_generator_processes": self.expected_generator_shards,
             "customer_recovery_max_attempts": 3 if self.recovery_enabled else 1,
             "gateway_read_recovery_contract": (gateway_contract() if self.recovery_enabled
                 and gateway_selected(transaction.active()) else None),
@@ -513,7 +528,7 @@ class PaidStage:
             from cce_customer_outcome_slo import evaluate
             customer = self.record["customer"]
             customer["strict_generator_pass"] = customer["pass"]
-            outcome = evaluate(customer, self.profile.expected)
+            outcome = evaluate(customer, self.profile.expected, **({"expected_shards": 4} if getattr(self, "expected_generator_shards", 2) == 4 else {}))
             self.record["customer_outcome_gate"] = outcome
             customer["pass"] = outcome["pass"]
             self.checkpoint()
@@ -545,7 +560,7 @@ class PaidStage:
                 self.record[name] = operation()
                 if name == "financial" and self.outcome_enabled and "customer" in self.record:
                     from cce_customer_outcome_slo import financial
-                    self.record[name] = financial(self.record[name], self.record["customer"], self.profile.expected)
+                    self.record[name] = financial(self.record[name], self.record["customer"], self.profile.expected, **({"expected_shards": 4} if getattr(self, "expected_generator_shards", 2) == 4 else {}))
             except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 - Preserve independent mandatory recovery operations.
                 self.record[name + "_failure_type"] = type(error).__name__
                 errors.append(name)

@@ -42,7 +42,9 @@ def count(value):
     return value
 
 
-def evaluate(customer, expected):
+def evaluate(customer, expected, *, expected_shards=2):
+    if type(expected_shards) is not int or expected_shards not in (2, 4):
+        raise ValueError("Explicit two/four-process accounting required")
     names = ("scheduled", "dispatched", "completed", "fulfilled", "fulfilled_by_deadline",
              "distinct_orders", "distinct_tickets", "generator_drops", "final_customer_failures",
              "first_attempt_error_journeys", "recovered_journeys", "retry_attempts")
@@ -53,7 +55,7 @@ def evaluate(customer, expected):
     for value in outcomes.values():
         count(value)
     shards = customer.get("shards", [])
-    if not isinstance(shards, list) or len(shards) != 2:
+    if not isinstance(shards, list) or len(shards) != expected_shards:
         raise ValueError("Two complete generator shards required")
     shard_counts = {k: 0 for k in ("scheduled", "dispatched", "generator_drops", "fulfilled_by_deadline")}
     combined = {}
@@ -87,8 +89,10 @@ def evaluate(customer, expected):
         "zero_generator_drops": values["generator_drops"] == 0,
         "complete_shards": all(shard_checks) and combined == outcomes
             and all(shard_counts[k] == values[k] for k in shard_counts)
-            and customer.get("generator_shards") == 2
-            and customer.get("shard_exit_codes") in ([0, 0], [0, 1], [1, 0], [1, 1]),
+            and customer.get("generator_shards") == expected_shards
+            and isinstance(customer.get("shard_exit_codes"), list)
+            and len(customer["shard_exit_codes"]) == expected_shards
+            and all(type(code) is int and code in (0, 1) for code in customer["shard_exit_codes"]),
         "known_customer_failures": all(k == "fulfilled" or k in TRANSIENT_OUTCOMES or v == 0
                                      for k, v in outcomes.items()),
         "bounded_final_failures": failures * DENOMINATOR <= dispatched,
@@ -106,9 +110,9 @@ def evaluate(customer, expected):
             "total_journey_p95_ms": lag[2], "checks": checks, "pass": all(checks.values())}
 
 
-def financial(result, customer, expected):
+def financial(result, customer, expected, *, expected_shards=2):
     """All original predicates ran; only unpaid/customer-confirmation counts may differ."""
-    outcome = evaluate(customer, expected)
+    outcome = evaluate(customer, expected, expected_shards=expected_shards)
     counts = result.get("counts", {})
     relationships = result.get("relationships", {})
     from worker_separation_audits import RELATIONSHIP_NAMES

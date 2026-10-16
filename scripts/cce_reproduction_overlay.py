@@ -16,6 +16,8 @@ OVERLAID = {
     "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py",
     "scripts/run_cce_hourly_qualification.py", "scripts/cce_hourly_paid_generator.py", "scripts/cce_hourly_paid_leaf.py"}
 ADDITIONAL = {
+    "scripts/cce_generator_process_scaling.py",
+    "docs/capacity/cce/generator-process-calibration-2026-10-17.json",
     "scripts/cce_primary_bootstrap.py", "scripts/qualify_cce_primary_bootstrap.py",
     "scripts/cce_bounded_financial_audit.py", "scripts/independent_database_sampling.py",
     "scripts/cce_committed_status_identity.py", "scripts/cce_committed_status_profile.py",

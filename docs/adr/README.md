@@ -328,3 +328,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0331: Add customer and engine demonstration views](0331-add-customer-and-engine-demonstration-ui.md) - Customer and engine views privately published in sample mode; 20 adapter/bridge tests and browser journeys passed. Actual engine financial integration remains unverified.
 
 - [ADR0332: Calibrate generator process scaling](0332-calibrate-generator-process-scaling.md) - Sealed synthetic160/s two/four-process and200/s four-process controls passed; no new paid capacity qualified.
+
+- [ADR0333: Repeat160/s with four generator processes](0333-compare-four-generator-processes-at-160.md) - Explicit source-bound process split; unchanged application/database budgets; paid outcome pending.
