@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-17",
   "branch": "codex/customer-recovery-2026-10-10",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "ADR0333 four-process160/s test FAILED_RESTORED:48000 scheduled,40095 dispatched/paid/issued,7905 active-capacity drops; two payment errors recovered, zero final failures.39650 tickets in offered window;39370 conservative (131.23/s), not qualified. Fresh read-only financial reconciliation passed; original result preserved. Runtime restored, owned CCE resources removed, queues zero, no active experiment. Best qualified clean short138.49/s unchanged. Four-shard accounting correction offline-tested; single paid-stage allowance consumed.",
+  "status": "ADR0335 generator occupancy preparation implemented and locally verified:800 active journeys,500 HTTP connections,16 clients, four processes;270 tests and isolated full admission passed. No paid allowance registered or cloud action in preparation. Prior ADR0333 test FAILED_RESTORED, best qualified clean short138.49/s unchanged.",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -15,6 +15,7 @@
   "current_run": null,
   "revision_note": "ADR0310 separately qualifies immutable hourly evidence under approved0.01% SLO:302278in-hour tickets,302066conservative, one final retrieval failure and no financial loss. Original hourly FAILED_RESTORED classifier result preserved. ADR0311 fresh84/s300s sealed-client test passed;ADR0324 qualifies100.90paid-issued/s for five minutes; sustained100/s remains unqualified.",
   "confirmed": [
+    "ADR0335 preparation: docs/capacity/cce/generator-occupancy-800-local-2026-10-17.json;270 focused tests passed, full source/configuration binding and isolated reservation passed, no new paid traffic or capacity improvement.",
     "ADR0333:160/s four-process paid run FAILED_RESTORED;40095 paid/issued,7905 undispatched, two initial errors recovered, zero final failures. Fresh financial/queue/runtime reconciliation passed; original result preserved. See docs/capacity/cce/four-generator-160-result-2026-10-17.json and four-generator-160-recovery-2026-10-17.json. Best qualified clean short138.49/s unchanged; no new paid allowance.",
     "ADR0147 matched60/s300s pair9738b5fd822b passed all32 gates each arm:18000 paid issued/customer confirmed, no drops/errors/doubles, queues0. Primary CPU83.107% one-host versus69.562% two-host; secondary17.573%.",
     "Corrected ADR0148 replacement dry024bb753d219 passed safety/replay/post-TTL/observer/diagnostic/restoration.215 focused tests and Ruff executed before live qualification.",

@@ -114,3 +114,24 @@ def summarize(before, after):
             "new_query_identities": len(set(right) - set(left)),
             "totals": {c: sum(r[c] for r in rows) for c in COUNTERS},
             "queries": sorted(rows, key=lambda r: r["total_exec_time"], reverse=True)}
+
+
+
+def dispatch_with_after_snapshot(dispatch, collect_after, record):
+    """Attempt diagnostics before cleanup; preserve an original dispatch failure."""
+    primary_error = None
+    try:
+        return dispatch()
+    except BaseException as error:
+        primary_error = error
+        raise
+    finally:
+        record["after_snapshot_attempted"] = True
+        try:
+            collect_after()
+            record["after_snapshot_complete"] = True
+        except (Exception, KeyboardInterrupt) as error:
+            record["after_snapshot_complete"] = False
+            record["after_snapshot_failure_type"] = type(error).__name__
+            if primary_error is None:
+                raise

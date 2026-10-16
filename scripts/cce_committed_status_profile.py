@@ -34,7 +34,7 @@ def selected(goal):
             or goal.get("extension_decision") != "ADR0271" or goal.get("profile") != ("cce_hourly_qualification" if hourly else "cce_paid_comparison")
             or goal.get("offered_journeys_per_second") != 84 or goal.get("offered_seconds") != (3600 if hourly else 300)
             or goal.get("maximum_paid_stages") != 1 or goal.get("maximum_experiment_seconds") != (5400 if hourly else 3600)
-            or goal.get("acquisition_budget") != 20 or goal.get("generator_concurrency") != 500
+            or goal.get("acquisition_budget") != 20 or goal.get("generator_concurrency") != __import__("cce_generator_process_scaling").active_concurrency(goal)
             or goal.get("ingress_route_arm") != "candidate"
             or goal.get("pod_vcpu") != 1 or goal.get("pod_memory_gib") != 2
             or goal.get("maximum_pods") != 18

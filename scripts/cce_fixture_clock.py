@@ -32,7 +32,7 @@ def selected(goal):
     if (
         goal.get("fixture_clock_decision") != "ADR0334"
         or goal.get("fixture_clock_contract_sha256") != policy.digest(contract())
-        or goal.get("generator_process_decision") != "ADR0333"
+        or goal.get("generator_process_decision") not in {"ADR0333", "ADR0335"}
     ):
         raise ValueError("Explicit source-bound creator-clock admission required")
     return True

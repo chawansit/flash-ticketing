@@ -160,6 +160,10 @@ def generator_arguments(directory, origin, start_at_epoch, *, profile=None, reco
         raise ValueError("Existing private shared load-balancer origin required")
     if type(start_at_epoch) not in (int, float) or not math.isfinite(start_at_epoch):
         raise ValueError("Finite synchronized start required")
+    import cce_generator_process_scaling as generator_scaling
+    generator_goal = transaction.active()
+    generator_slots = (generator_scaling.active_concurrency(generator_goal)
+                       if generator_scaling.selected(generator_goal) else 500)
     ingress_hourly = profile == HOURLY and (transaction.active() or {}).get("ingress_hourly_decision") == "ADR0293"
     return [
         "/root/http-load-venv/bin/python",
@@ -181,7 +185,7 @@ def generator_arguments(directory, origin, start_at_epoch, *, profile=None, reco
         "--completion-deadline-seconds",
         str(profile.completion_deadline),
         "--concurrency",
-        "1000" if profile == TICKET_TARGET else "500",
+        "1000" if profile == TICKET_TARGET else str(generator_slots),
         "--http-client-count",
         "8",
         "--poll-seconds",
@@ -298,7 +302,7 @@ class PaidStage:
             if self.profile != RATE_PUSH_160:
                 raise ValueError("Four-process integration requires the160/s profile")
             generator_scaling.validate_binding(transaction.active(), guard.binding)
-            self.bundle, self.coordinator = generator_scaling.qualify_workload(self.bundle, self.coordinator)
+            self.bundle, self.coordinator = generator_scaling.qualify_workload(self.bundle, self.coordinator, transaction.active())
             self.expected_generator_shards = 4
         elif "cce_generator_process_contract" in guard.binding:
             raise ValueError("Unselected generator process binding")

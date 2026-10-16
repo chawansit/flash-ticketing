@@ -43,7 +43,7 @@ def contract(goal=None):
     rate, shows, expected, target = (160, 160, 48000, 47400) if push160(goal) else (140, 140, 42000, 41400) if higher(goal) else (RATE, SHOWS, EXPECTED, TARGET)
     return {"decision": "ADR0329" if push160(goal) else "ADR0328" if higher(goal) else "ADR0327", "offered_rate": rate, "offered_seconds": 300,
             "expected_journeys": expected, "fixture_shows": shows,
-            "minimum_unique_inside_window": target, "concurrency": 500,
+            "minimum_unique_inside_window": target, "concurrency": __import__("cce_generator_process_scaling").active_concurrency(goal),
             "experiment_seconds_limit": 3600, "physical_connections": 24,
             "reference_result_sha256": reference(goal)[2],
             "sources": {name: hashlib.sha256((policy.ROOT / "scripts" / name).read_bytes().replace(

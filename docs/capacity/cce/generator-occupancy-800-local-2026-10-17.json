@@ -1,0 +1,67 @@
+{
+  "decision": "ADR0335",
+  "status": "PREPARED_LOCALLY_NO_CLOUD_TEST",
+  "source_contract_sha256": "f610ba5516ca105c6a11f001b77191b03916781cd0f919924703323ab5c9f29f",
+  "profile": {
+    "decision": "ADR0335",
+    "generator_processes": 4,
+    "rate": 160,
+    "seconds": 300,
+    "total_concurrency": 800,
+    "total_http_connections": 500,
+    "total_http_clients": 16,
+    "per_process_concurrency": 200,
+    "per_process_http_clients": 4,
+    "leaf_unchanged": false,
+    "leaf_change": "exact200-active/125-HTTP/4-client resource validation only",
+    "reference_result_sha256": "075031a9e6e2072cdb340fd32875092fcdab8ecd431c56eaf4b6f001609e6624",
+    "diagnostics_helper_sha256": "cc3fdf7d776b7edee74d98eda461136681cd1c7ad733fac236b30b63900bb2d6",
+    "application_and_database_budgets_unchanged": true,
+    "calibration_sha256": "e6e54604847700b9d07b62ef453ee18e369a44992ea20613fb3a8ff39182cb64",
+    "sources": {
+      "scripts/cce_api_adapter.py": "1b60e4d010f70555c3da14b575c375d99bdaecfa0a820f3cffbc8f2d5eab9f9c",
+      "scripts/cce_committed_status_profile.py": "1eee0e76c95be618964b7199cad9e11433893de9303eb33f705cd75804c24a23",
+      "scripts/cce_customer_outcome_slo.py": "00a4e02d248d58311b1b3a1767454e89b37209d1f112e65765362e5dea3b1c3f",
+      "scripts/cce_fixture_clock.py": "ce668850879905d5f746282dea4a30890607725989be74e4f13c6bf5f0099019",
+      "scripts/cce_fulfillment_batch_profile.py": "47f8544148853c3dac51b0ee6dbf949deac44785ad729446a102f8cdc6c57cc4",
+      "scripts/cce_generator_process_scaling.py": "bfb1e3ffb1a34bb3c61db11f429202c04a1ad5f8a5a89cabb791202f4d1279ab",
+      "scripts/cce_paid_inputs.py": "9b6887a6051700dd21f05e95999f95cb4b645eb4e0f94403b9bc03e7c718ba2b",
+      "scripts/cce_paid_stage.py": "cf5b615a359705498a47acd9faddc9ec9ed2aaa04dc5080fcb60b9f14a582fa4",
+      "scripts/cce_recovery_headroom.py": "67497cd9926ede0c245937f911935b2c90635ef010fffb647e27710d2d607a79",
+      "scripts/cce_throughput_push.py": "3bcc8c2f88534a2a3c071b590f5588bc813a2b5d6f84ad67584384ea5944b298",
+      "scripts/run_cce_paid_comparison.py": "bce1884ed16533c300e634f9dff6dc06e32424bfe2f01495a56fe4dbe16d0c45"
+    }
+  },
+  "unit_checks": {
+    "passed": 270,
+    "seconds": 25.01,
+    "coverage": [
+      "500/800-slot actual coordinator execution with fake children",
+      "500 fixed HTTP connections and16 clients",
+      "exact leaf resource validator",
+      "complete failed/missing/checkpoint evidence",
+      "sealed failed-control recovery and unchanged app/budgets",
+      "after diagnostics on success/failure without masking original exception",
+      "historical profiles, paid stage, headroom, customer SLO, fulfillment, API and clock"
+    ]
+  },
+  "complete_source_binding_passed": true,
+  "simulated_reservation_passed": true,
+  "actual_allowance_registered": false,
+  "cloud_calls": 0,
+  "paid_traffic_started": false,
+  "capacity_improvement_measured": false,
+  "production_qualified": false,
+  "historical_reproduction": {
+    "pass": true,
+    "checked_files": 535
+  },
+  "ruff_F_I_pass": true,
+  "protected_wrapper": {
+    "sha256": "a02724d941f71c84aaeb9da7b9efb48ef74d72d991ea763175df3e79cfbf7930",
+    "compiled": true,
+    "executed": false
+  },
+  "reference_result_sha256": "075031a9e6e2072cdb340fd32875092fcdab8ecd431c56eaf4b6f001609e6624",
+  "next": "One bounded160/s300-second cloud comparison after registering fresh user authorization."
+}

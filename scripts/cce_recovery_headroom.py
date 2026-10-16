@@ -50,10 +50,10 @@ def contract(goal=None):
     rate, shows, expected, target = bounds(goal)
     return {"decision": "ADR0312", "offered_rate": rate, "offered_seconds": 300,
             "expected_journeys": expected, "fixture_shows": shows,
-            "minimum_unique_inside_window": target, "concurrency": 500,
+            "minimum_unique_inside_window": target, "concurrency": __import__("cce_generator_process_scaling").active_concurrency(goal),
             "max_attempts": 3, "experiment_limit": 3600,
             "helper_sha256": sha((policy.ROOT / SOURCE).read_bytes()),
-            "sealed_client_unchanged": True, "resources_and_budgets_unchanged": True,
+            "sealed_client_unchanged": __import__("cce_generator_process_scaling").active_concurrency(goal) == 500, "resources_and_budgets_unchanged": True,
             "slot_correction_decision": "ADR0314", "per_api_total": 4,
             "baseline_payment_pool_max": 3, "corrective_payment_pool_max": 2,
             "writer_scale_decision": "ADR0315", "native_writers": [3, 4],
@@ -113,7 +113,7 @@ def selected(goal):
                 "extension_decision": "ADR0277", "profile": "cce_ticket_target",
                 "offered_journeys_per_second": rate, "offered_seconds": 300,
                 "maximum_experiment_seconds": 3600, "maximum_paid_stages": 1,
-                "generator_concurrency": 500, "acquisition_budget": 20,
+                "generator_concurrency": __import__("cce_generator_process_scaling").active_concurrency(goal), "acquisition_budget": 20,
                 "maximum_pods": 19 if scale else 18, "pod_vcpu": 1, "pod_memory_gib": 2,
                 "payment_slot_arm": "control" if correction else "candidate", "gateway_read_recovery_decision": "ADR0311"}
     if (any(type(goal.get(k)) is not type(v) or goal.get(k) != v for k, v in expected.items())
@@ -337,10 +337,10 @@ def extend_plan(plan, goal):
                          "backend_partition_decision":goal["backend_partition_decision"]} if partition else {})
     return {**plan, **scale_fields, **batch_fields, **partition_fields, "decision": "ADR0277", "extension_decision": "ADR0277",
             "kind": "fulfillment_transaction_batch_headroom" if fulfillment else "explicit_driver_start_headroom" if explicit else "ticket_notification_dedup_headroom" if notification else "post_lock_writer_sale_context_headroom" if writer_context else "post_lock_payment_context_headroom" if context else "foreground_backend_isolation_headroom" if partition else "writer_batch_headroom" if batch else "writer_concurrency_headroom" if scale else "corrective_general_slot_headroom" if correction else "bounded_recovery_runtime_headroom",
-            "single_changed_factor": "generator_process_split_2_to_4" if __import__("cce_generator_process_scaling").selected(goal) else "offered_workload" if push else "bounded_fulfillment_transaction_grouping" if fulfillment else "one_explicit_driver_transaction_start" if explicit else "bounded_ticket_notification_refresh_suppression" if notification else "post_lock_writer_sale_context" if writer_context else "post_lock_payment_context" if context else "foreground_background_backend_partition" if partition else "RESERVATION_WRITER_BATCH_SIZE" if batch else "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
+            "single_changed_factor": "generator_active_journeys_500_to_800" if __import__("cce_generator_process_scaling").active_concurrency(goal) == 800 else "generator_process_split_2_to_4" if __import__("cce_generator_process_scaling").selected(goal) else "offered_workload" if push else "bounded_fulfillment_transaction_grouping" if fulfillment else "one_explicit_driver_transaction_start" if explicit else "bounded_ticket_notification_refresh_suppression" if notification else "post_lock_writer_sale_context" if writer_context else "post_lock_payment_context" if context else "foreground_background_backend_partition" if partition else "RESERVATION_WRITER_BATCH_SIZE" if batch else "reservation_writer_replicas" if scale else "API_PAYMENT_POOL_MAX" if correction else "offered_workload",
             "common": {"buyer_journeys_per_second": rate, "duration_seconds": 300},
             "expected_journeys": expected, "target_unique_tickets": target,
-            "fixture_shows": shows, "generator_concurrency": 500,
+            "fixture_shows": shows, "generator_concurrency": __import__("cce_generator_process_scaling").active_concurrency(goal),
             "payment_connections_per_api": payment, "general_connections_per_api": 4 - payment,
             "connections_per_api": 4, "baseline_evidence": relative,
             "baseline_sha256": policy.digest(report), "baseline_is_passing_control": push or not correction,

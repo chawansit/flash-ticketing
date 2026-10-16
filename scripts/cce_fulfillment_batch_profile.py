@@ -58,7 +58,7 @@ def selected(goal):
                 "profile": "cce_paid_comparison" if view else "cce_ticket_target",
                 "offered_journeys_per_second": 84 if view else rate, "offered_seconds": 300,
                 "maximum_paid_stages": 1, "maximum_experiment_seconds": 3600,
-                "maximum_pods": 18 if view else 19, "generator_concurrency": 500,
+                "maximum_pods": 18 if view else 19, "generator_concurrency": __import__("cce_generator_process_scaling").active_concurrency(goal),
                 "acquisition_budget": 20, "pod_vcpu": 1, "pod_memory_gib": 2,
                 "reservation_writer_scale_decision": "ADR0315", "payment_slot_arm": "control",
                 "committed_status_arm": "candidate"}

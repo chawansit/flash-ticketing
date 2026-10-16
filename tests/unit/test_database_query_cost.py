@@ -70,3 +70,31 @@ def test_invalid_catalog_oid_rejected(value):
     after["statements"][0]["userid"] = value
     with pytest.raises(ValueError):
         cost.summarize(snapshot(), after)
+
+
+
+@pytest.mark.parametrize("dispatch_fails,diagnostics_fail", [(False,False),(True,False),(False,True),(True,True)])
+def test_after_snapshot_runs_once_and_preserves_original_error(dispatch_fails, diagnostics_fail):
+    record, calls = {}, []
+    original = ValueError("customer dispatch failure")
+    diagnostic = RuntimeError("after snapshot failed")
+    def dispatch():
+        calls.append("dispatch")
+        if dispatch_fails:
+            raise original
+        return {"pass":False}
+    def after():
+        calls.append("after")
+        if diagnostics_fail:
+            raise diagnostic
+    if dispatch_fails or diagnostics_fail:
+        with pytest.raises(type(original if dispatch_fails else diagnostic)) as caught:
+            cost.dispatch_with_after_snapshot(dispatch, after, record)
+        assert caught.value is (original if dispatch_fails else diagnostic)
+    else:
+        assert cost.dispatch_with_after_snapshot(dispatch, after, record) == {"pass":False}
+    assert calls == ["dispatch", "after"]
+    assert record["after_snapshot_attempted"]
+    assert record["after_snapshot_complete"] is not diagnostics_fail
+    if diagnostics_fail:
+        assert record["after_snapshot_failure_type"] == "RuntimeError"

@@ -155,12 +155,14 @@ def test_drop_and_latency_gates_unchanged_with_four_processes():
         assert not slo.evaluate({**four_customer(), key: value}, 48000, expected_shards=4)["pass"]
 
 
+@pytest.mark.parametrize("slots", [500, 800])
 @pytest.mark.parametrize("case", ["clean", "drops", "missing", "checkpoint", "bad_checkpoint"])
-def test_actual_four_child_run_retains_complete_failed_measurements(tmp_path, monkeypatch, case):
+def test_actual_four_child_run_retains_complete_failed_measurements(tmp_path, monkeypatch, case, slots):
     import json
 
     bundle, coord = workload()
-    changed, _ = scaling.qualify_workload(bundle, coord)
+    g = occupancy_goal() if slots == 800 else None
+    changed, _ = scaling.qualify_workload(bundle, coord, g)
     name = "scripts/paid_ticket_sharded_generator.py"
     module = ModuleType("four_child_run")
     module.__file__ = str(tmp_path / "paid_ticket_sharded_generator.py")
@@ -194,7 +196,7 @@ def test_actual_four_child_run_retains_complete_failed_measurements(tmp_path, mo
         return SimpleNamespace(returncode=code, wait=wait)
 
     monkeypatch.setattr(module.asyncio, "create_subprocess_exec", launch)
-    args = SimpleNamespace(rate=160, seconds=300, concurrency=500, http_client_count=8,
+    args = SimpleNamespace(rate=160, seconds=300, concurrency=slots, http_client_count=8,
                            poll_seconds=1, duplicates=1, recovery_max_attempts=3,
                            origin="http://synthetic.invalid", completion_deadline_seconds=420)
     manifest = {"schema_version": 1, "environment": "development", "fixture_layout": "distributed",
@@ -202,6 +204,9 @@ def test_actual_four_child_run_retains_complete_failed_measurements(tmp_path, mo
                 "seats_per_show": 300, "seat_offset": 0}
     result = asyncio.run(module.run(args, manifest))
     assert len(calls) == 4
+    assert all(command[command.index("--concurrency") + 1] == str(slots // 4) for command in calls)
+    assert all(command[command.index("--http-max-connections") + 1] == "125" for command in calls)
+    assert all(command[command.index("--http-client-count") + 1] == "4" for command in calls)
     assert all(command[command.index("--rate") + 1] == "40" for command in calls)
     assert result["pass"] is (case == "clean")
     if case in {"clean", "drops"}:
@@ -215,3 +220,117 @@ def test_actual_four_child_run_retains_complete_failed_measurements(tmp_path, mo
         assert result["dispatched"] is None
         assert result["shard_evidence_states"][-1] == {
             "missing": "missing", "checkpoint": "checkpoint", "bad_checkpoint": "invalid"}[case]
+
+
+
+def occupancy_goal():
+    value = goal()
+    value.update(generator_process_decision="ADR0335", generator_concurrency=800)
+    value["generator_process_contract_sha256"] = policy.digest(scaling.contract(value))
+    value["throughput_push_contract_sha256"] = policy.digest(push.contract(value))
+    value["headroom_contract_sha256"] = policy.digest(headroom.contract(value))
+    return value
+
+
+def test_occupancy_metadata_launch_and_leaf_change_agree(monkeypatch):
+    import cce_api_adapter as api
+    import cce_paid_stage as stage
+    import cce_transaction_profile as transaction
+    from cce_paid_profiles import RATE_PUSH_160
+
+    g = occupancy_goal()
+    assert scaling.selected(g) and scaling.selected(headroom.runtime_view(g))
+    assert headroom.selected(g)
+    assert scaling.contract(g)["total_concurrency"] == 800
+    assert scaling.contract(g)["total_http_connections"] == 500
+    assert scaling.contract(g)["total_http_clients"] == 16
+    assert scaling.contract()["total_concurrency"] == 500
+    monkeypatch.setattr(transaction, "active", lambda: headroom.runtime_view(g))
+    workload_metadata = api.contract()["workload"]
+    assert workload_metadata["concurrency"] == 800
+    assert workload_metadata["http_max_connections"] == 500
+    args = stage.generator_arguments("/root/load/tmp/adr0151-0123456789ab-cce-candidate",
+                                     __import__("cce_nginx_ingress").origin(transaction.active()),
+                                     1234567890, profile=RATE_PUSH_160, recovery_max_attempts=3)
+    assert args[args.index("--concurrency") + 1] == "800"
+    bundle, coord = workload()
+    candidate, _ = scaling.qualify_workload(bundle, coord, g)
+    assert {k for k in bundle if bundle[k] != candidate[k]} == {
+        "scripts/paid_ticket_sharded_generator.py", "scripts/paid_ticket_load_generator.py"}
+    leaf = "scripts/paid_ticket_load_generator.py"
+    before = b"if not args.concurrency <= args.http_max_connections <= 4000:"
+    after = b"if (args.concurrency, args.http_max_connections, client_count) != (200, 125, 4):"
+    assert candidate[leaf] == bundle[leaf].replace(before, after)
+
+
+@pytest.mark.parametrize("fault,value", [("generator_concurrency", 500), ("generator_concurrency", 801),
+    ("offered_journeys_per_second", 200), ("maximum_paid_stages", 2),
+    ("maximum_experiment_seconds", 7200), ("generator_process_contract_sha256", "0" * 64)])
+def test_occupancy_cannot_expand_or_partially_select(fault, value):
+    with pytest.raises(ValueError):
+        scaling.selected({**occupancy_goal(), fault: value})
+
+
+@pytest.mark.parametrize("active,http,clients", [(200,125,4), (200,200,4), (201,125,4), (200,125,8)])
+def test_real_leaf_validation_decouples_only_exact_resource_pair(tmp_path, active, http, clients):
+    import ast
+    from datetime import UTC, datetime, timedelta
+
+    from paid_fixture_layout import validate_child_allocation
+
+    bundle, coord = workload()
+    candidate, _ = scaling.qualify_workload(bundle, coord, occupancy_goal())
+    tree = ast.parse(candidate["scripts/paid_ticket_load_generator.py"])
+    node = next(v for v in tree.body if isinstance(v, ast.FunctionDef) and v.name == "validate")
+    namespace = {"datetime": datetime, "UTC": UTC, "timedelta": timedelta,
+                 "validate_child_allocation": validate_child_allocation}
+    exec(compile(ast.Module(body=[node], type_ignores=[]), "actual_leaf_validate", "exec"), namespace)
+    args = SimpleNamespace(origin="http://synthetic.invalid", rate=40, seconds=300,
+                           recovery_max_attempts=3, concurrency=active, http_max_connections=http,
+                           http_client_count=clients, duplicates=1, timeout_seconds=30,
+                           poll_seconds=1, completion_deadline_seconds=420, output=tmp_path/"fresh.json")
+    manifest = {"schema_version":1,"environment":"development","origin":args.origin,
+                "show_ids":[str(i) for i in range(40)],"viewer_tokens":["synthetic"],
+                "seat_offset":0,"seats_per_show":300,
+                "expires_at":(datetime.now(UTC)+timedelta(hours=1)).isoformat()}
+    if (active,http,clients) == (200,125,4):
+        assert namespace["validate"](args, manifest) == 12000
+    else:
+        with pytest.raises(ValueError):
+            namespace["validate"](args, manifest)
+
+
+
+@pytest.mark.parametrize("fault", [None,"active","reference","recovery","status","budget","paid_count"])
+def test_occupancy_reference_requires_sealed_recovery_and_same_application(monkeypatch, fault):
+    prior = {"application_image":"pinned", "database_connections":24}
+    report = {"binding_sha256":policy.digest(prior), "pass":False,"restoration_complete":True,
+              "integrity_verified":False,"transport_credentials_cleared":True}
+    expected = policy.digest(report)
+    recovery = {"original_result_sha256":expected,"pass":True,"gates":{"all_financial_predicates":True},
+                "raw_shard_accounting":{"dispatched":40095,"generator_drops":7905},
+                "fresh_financial":{"pass":True,"hold_deadlines_elapsed":True}}
+    entry = {"ledger":scaling.OCCUPANCY_REFERENCE_LEDGER,"status":"FAILED_RESTORED",
+             "result_sha256":expected,"paid_runs_started":1,"recovery":{"sha256":policy.digest(recovery)}}
+    scope = {"binding":prior,"active_run":None,"paid_runs_started":1}
+    actual = copy.deepcopy(prior)
+    if fault == "active":scope["active_run"]="unresolved"
+    elif fault == "reference":report["pass"]=True
+    elif fault == "recovery":recovery["pass"]=False
+    elif fault == "status":entry["status"]="RECOVERY_REQUIRED"
+    elif fault == "budget":actual["database_connections"]=25
+    elif fault == "paid_count":scope["paid_runs_started"]=2
+    original_read = policy.read
+    def read(path):
+        if Path(path) == policy.STATE:return {scaling.OCCUPANCY_REFERENCE_LEDGER:scope}
+        if str(path).endswith("cce-comparison.private.json"):return report
+        if str(path).endswith("four-generator-160-recovery-2026-10-17.json"):return recovery
+        return original_read(path)
+    monkeypatch.setattr(policy,"read",read)
+    monkeypatch.setattr(policy,"envelope",lambda:{})
+    monkeypatch.setattr(policy,"journal",lambda _: {"experiments":[entry]})
+    monkeypatch.setattr(scaling,"OCCUPANCY_REFERENCE_SHA256",expected)
+    if fault:
+        with pytest.raises(ValueError):scaling.validate_occupancy_reference(actual)
+    else:
+        assert scaling.validate_occupancy_reference(actual)

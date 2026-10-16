@@ -1,7 +1,7 @@
 # ADR0333: Repeat 160 journeys/s with four generator processes
 
 ## Status
-Accepted for one bounded paid comparison; not yet executed.
+Executed; failed and operationally restored. One paid-stage allowance consumed. ADR0335 proposes a separately selected active-capacity comparison.
 
 ## Context
 ADR0329 failed arrival timing and dropped125 journeys with two saturated generator processes. ADR0332 verified the sealed paid leaf in synthetic two/four-process160/s controls and a four-process200/s control. These do not qualify backend capacity. The user authorizes continuing to integrate four processes and repeat real160/s traffic.

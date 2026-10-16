@@ -91,6 +91,8 @@ def contract():
     import cce_generator_process_scaling as generator_scaling
     if generator_scaling.selected(goal):
         data["workload"].update(shards=4, http_clients_per_shard=4)
+        if generator_scaling.active_concurrency(goal) == 800:
+            data["workload"].update(concurrency=800, http_max_connections=500)
     return data
 
 
