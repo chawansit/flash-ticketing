@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-17",
+  "scope": "two-view frontend and loopback development bridge",
+  "source_assets_sha256": {
+    "api.mjs": "062b7ed3c1fb73a379f7140c6a7d254419b87a14a82a70e04a3889247b6b7694",
+    "app.mjs": "9baa527d4365536f36d3a94759fb6912d89c4b20b0cdf5a8903483915b481ddc",
+    "index.html": "1fa393b22d37918f83f938ba4abe5db78da65cdbc4840db1be256590423825a2",
+    "style.css": "501aaf9b0c29ceb3212c6a1ad9ade1b9ef69fb3eb8d775a5d99901d6c05ae258"
+  },
+  "checks": {
+    "python_bridge": {
+      "passed": 11,
+      "failed": 0
+    },
+    "javascript_recovery": {
+      "passed": 9,
+      "failed": 0
+    },
+    "sample_browser": {
+      "pass": true,
+      "normalTwoSeatJourney": true,
+      "lostResponseRecovery": true,
+      "onePaymentPerOrder": true,
+      "sharedDashboardTrace": true,
+      "mobileNoOverflow": true,
+      "unconfiguredLiveDisabled": true,
+      "pageErrors": []
+    },
+    "live_adapter_browser": {
+      "pass": true,
+      "scope": "browser with HTTP contract doubles; no real engine",
+      "checks": [
+        "recover",
+        "lost-hold",
+        "failed-command",
+        "expired",
+        "unavailable"
+      ]
+    },
+    "visual_review": [
+      "customer desktop",
+      "engine desktop",
+      "tickets desktop",
+      "customer mobile",
+      "engine mobile"
+    ]
+  },
+  "publication": {
+    "site_id": "appgprj_6ad10fac4c7081919c5356f107103e47",
+    "url": "https://encore-ticketing-engine-demo.robust-tang-9828.chatgpt.site",
+    "audience": "owner-private",
+    "version": 1,
+    "source_commit": "e103d87ce8993f66f895565b9003cb04282d643f",
+    "deployment_id": "appgdep_6ad24bd536e88191a37459adde8b1ec9",
+    "deployment_status": "succeeded",
+    "canonical_assets_match_published_source": true,
+    "new_deployment_this_turn": false,
+    "asset_identity_basis": "Git source blobs (LF); Windows checkout line endings excluded"
+  },
+  "limits": {
+    "real_engine_journey_tested": false,
+    "real_gateway_tested": false,
+    "cloud_load_started": false,
+    "backend_modified": false,
+    "production_qualified": false,
+    "capacity_improvement_claimed": false,
+    "live_browser_evidence_uses": "local HTTP contract doubles"
+  }
+}
