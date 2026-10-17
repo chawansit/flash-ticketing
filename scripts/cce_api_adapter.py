@@ -292,11 +292,12 @@ def objects(run, service, primary_ip, registry_username, registry_password, *, a
         HOURLY,
         RATE_PUSH,
         RATE_PUSH_160,
+        RATE_PUSH_180,
         SHORT,
         TICKET_TARGET,
     )
     profile = SHORT if profile is None else profile
-    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160):
+    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180):
         raise ValueError("Exact native lifetime profile required")
     """Private payloads: never publish returned Secrets."""
     import cce_transaction_profile as transaction

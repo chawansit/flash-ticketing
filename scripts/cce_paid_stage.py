@@ -152,13 +152,14 @@ def generator_arguments(directory, origin, start_at_epoch, *, profile=None, reco
         HOURLY,
         RATE_PUSH,
         RATE_PUSH_160,
+        RATE_PUSH_180,
         SHORT,
         TICKET_TARGET,
     )
     profile = SHORT if profile is None else profile
-    if recovery_max_attempts not in (1, 3) or (recovery_max_attempts == 3 and profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160)):
+    if recovery_max_attempts not in (1, 3) or (recovery_max_attempts == 3 and profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180)):
         raise ValueError("Recovery requires the explicit registered comparison or hourly binding")
-    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160):
+    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180):
         raise ValueError("Exact CCE stage profile required")
     if not re.fullmatch(r"/[^\x00\r\n]*?/tmp/adr0151-[0-9a-f]{12}-cce-candidate", directory):
         raise ValueError("Canonical owned generator directory required")
@@ -265,8 +266,14 @@ class PaidStage:
             from customer_timeout_bundle import qualify as retain_timeout
             from customer_timeout_bundle import selected
             if selected(transaction.active()):
-                from cce_paid_profiles import HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160
-                if (self.profile.name not in {"cce_paid_comparison", "cce_hourly_qualification"} and self.profile not in (HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160)
+                from cce_paid_profiles import (
+                    HEADROOM,
+                    HIGHER_RATE_PUSH,
+                    RATE_PUSH,
+                    RATE_PUSH_160,
+                    RATE_PUSH_180,
+                )
+                if (self.profile.name not in {"cce_paid_comparison", "cce_hourly_qualification"} and self.profile not in (HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180)
                         or guard.binding.get("cce_timeout_retention_decision") != "ADR0278"
                         or guard.binding.get("cce_timeout_bundle_sha256") != timeout_sha):
                     raise ValueError("Exact timeout-retention binding required")
@@ -282,8 +289,8 @@ class PaidStage:
                 self.bundle, self.coordinator = gateway_qualify(self.bundle, self.coordinator)
             elif "cce_gateway_read_recovery_contract" in guard.binding:
                 raise ValueError("Unselected gateway-read workload binding")
-            from cce_paid_profiles import HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160
-            if self.profile in (HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160):
+            from cce_paid_profiles import HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180
+            if self.profile in (HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180):
                 from cce_recovery_headroom import contract as headroom_contract
                 from cce_recovery_headroom import qualify_workload
                 if guard.binding.get("cce_headroom_contract") != headroom_contract(transaction.active()):
@@ -305,9 +312,9 @@ class PaidStage:
         import cce_generator_process_scaling as generator_scaling
         self.expected_generator_shards = 2
         if generator_scaling.selected(transaction.active()):
-            from cce_paid_profiles import RATE_PUSH_160
-            if self.profile != RATE_PUSH_160:
-                raise ValueError("Four-process integration requires the160/s profile")
+            from cce_paid_profiles import RATE_PUSH_160, RATE_PUSH_180
+            if self.profile not in (RATE_PUSH_160, RATE_PUSH_180):
+                raise ValueError("Four-process integration requires the160/180/s profile")
             generator_scaling.validate_binding(transaction.active(), guard.binding)
             self.bundle, self.coordinator = generator_scaling.qualify_workload(self.bundle, self.coordinator, transaction.active())
             self.expected_generator_shards = 4
@@ -379,8 +386,8 @@ class PaidStage:
         )
         self.checkpoint()
         self.events = list(fixture["show_ids"])
-        from cce_paid_profiles import HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160
-        if self.profile in (HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160):
+        from cce_paid_profiles import HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180
+        if self.profile in (HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180):
             from cce_bounded_financial_audit import program
             program(self.events, self.profile.expected)
             self.record["financial_audit_program_preflight_pass"] = True
@@ -581,10 +588,10 @@ class PaidStage:
                 errors.append(name)
             self.checkpoint()
         import cce_transaction_profile as transaction
-        from cce_paid_profiles import HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160
+        from cce_paid_profiles import HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180
         from customer_timeout_bundle import issuance_program as short_window
         from customer_timeout_bundle import selected
-        if selected(transaction.active()) and self.profile.duration == 300 and self.profile not in (HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160):
+        if selected(transaction.active()) and self.profile.duration == 300 and self.profile not in (HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180):
             try:
                 start = datetime.fromisoformat(self.record["scheduled_offered_start_utc"]).timestamp()
                 self.record["short_issuance_window"] = self.session.api(self.cid, short_window(self.events, start), 90)
@@ -593,12 +600,12 @@ class PaidStage:
                 errors.append("short_issuance_window")
             self.checkpoint()
         if self.profile.name == "cce_ticket_target":
-            if self.profile in (HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160):
+            if self.profile in (HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180):
                 from cce_recovery_headroom import issuance_program
             else:
                 from cce_ticket_target_profile import issuance_program
             start = datetime.fromisoformat(self.record["scheduled_offered_start_utc"]).timestamp()
-            self.record["ticket_target_issuance"] = self.session.api(self.cid, issuance_program(self.events, start, transaction.active()) if self.profile in (HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160) else issuance_program(self.events, start), 90)
+            self.record["ticket_target_issuance"] = self.session.api(self.cid, issuance_program(self.events, start, transaction.active()) if self.profile in (HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180) else issuance_program(self.events, start), 90)
             self.checkpoint()
         if self.profile.duration == 3600:
             try:

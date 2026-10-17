@@ -1,0 +1,27 @@
+{
+  "decision": "ADR0339",
+  "status": "LOCAL_QUALIFIED_CLOUD_PENDING",
+  "focused_checks_passed": 153,
+  "historical_regression_checks_passed": 228,
+  "reproduction_files_verified": 535,
+  "generated_manifest_and_reservation_pass": true,
+  "publication_mocked": false,
+  "live_accounting_unchanged_during_isolated_admission": true,
+  "application_image_changed": false,
+  "offered_journeys_per_second": 180,
+  "offered_seconds": 300,
+  "expected_journeys": 54000,
+  "minimum_conservative_in_window": 53400,
+  "api_pools_each": [
+    3,
+    3
+  ],
+  "physical_backends": 24,
+  "generator_active_journeys": 800,
+  "generator_http_connections": 500,
+  "generator_processes": 4,
+  "simulator_delivery_slots": 16,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "initial_test_failures": "Archived fake-receipt tests inherited a consumed source-bound live goal; rerun with isolated empty goal passed. No production guard was relaxed."
+}

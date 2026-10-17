@@ -14,11 +14,12 @@ class Capture:
             HOURLY,
             RATE_PUSH,
             RATE_PUSH_160,
+            RATE_PUSH_180,
             SHORT,
             TICKET_TARGET,
         )
         profile = SHORT if profile is None else profile
-        if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160):
+        if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180):
             raise ValueError("Exact bounded admission lifetime required")
         self.maximum_seconds = 4300 if profile == HOURLY else 600
         self.maximum_samples = 440 if profile == HOURLY else 64

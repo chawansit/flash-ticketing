@@ -23,6 +23,10 @@ PUSH160_REFERENCE_LEDGER = "bounded_cce_ticket_target__323561612a41"
 PUSH160_REFERENCE_SHA256 = "7bcef05f2d006750fe2266cce9672abbe8d22d3967b8d1960c3537fe8dac461d"
 
 
+def push180(goal):
+    return goal is not None and goal.get("throughput_push_decision") == "ADR0339"
+
+
 def push160(goal):
     return goal is not None and goal.get("throughput_push_decision") == "ADR0329"
 
@@ -32,6 +36,8 @@ def higher(goal):
 
 
 def reference(goal=None):
+    if push180(goal):
+        return "tmp/adr0151-c83348917efc/cce-comparison.private.json", "bounded_cce_ticket_target__ee0f97a1a26d", "5ec10ec764bc349911b28e2c5d20883eb7c2f1df58a02bc55e792b181ccaf05b", 48000
     if push160(goal):
         return PUSH160_REFERENCE_PATH, PUSH160_REFERENCE_LEDGER, PUSH160_REFERENCE_SHA256, 42000
     if higher(goal):
@@ -40,8 +46,8 @@ def reference(goal=None):
 
 
 def contract(goal=None):
-    rate, shows, expected, target = (160, 160, 48000, 47400) if push160(goal) else (140, 140, 42000, 41400) if higher(goal) else (RATE, SHOWS, EXPECTED, TARGET)
-    return {"decision": "ADR0329" if push160(goal) else "ADR0328" if higher(goal) else "ADR0327", "offered_rate": rate, "offered_seconds": 300,
+    rate, shows, expected, target = (180, 180, 54000, 53400) if push180(goal) else (160, 160, 48000, 47400) if push160(goal) else (140, 140, 42000, 41400) if higher(goal) else (RATE, SHOWS, EXPECTED, TARGET)
+    return {"decision": "ADR0339" if push180(goal) else "ADR0329" if push160(goal) else "ADR0328" if higher(goal) else "ADR0327", "offered_rate": rate, "offered_seconds": 300,
             "expected_journeys": expected, "fixture_shows": shows,
             "minimum_unique_inside_window": target, "concurrency": __import__("cce_generator_process_scaling").active_concurrency(goal),
             "experiment_seconds_limit": 3600, "physical_connections": 24,
@@ -53,17 +59,19 @@ def contract(goal=None):
 def selected(goal):
     if goal is None or not KEYS.intersection(goal):
         return False
-    if (goal.get("throughput_push_decision") not in ("ADR0327", "ADR0328", "ADR0329")
+    if (goal.get("throughput_push_decision") not in ("ADR0327", "ADR0328", "ADR0329", "ADR0339")
             or goal.get("throughput_push_contract_sha256") != policy.digest(contract(goal))
             or goal.get("fulfillment_batch_decision") != "ADR0324"):
-        raise ValueError("Exact source-bound120/140/160/s fulfillment workload required")
+        raise ValueError("Exact source-bound120/140/160/180/s fulfillment workload required")
+    if push180(goal) and (goal.get("api_client_pool_decision") != "ADR0338" or goal.get("generator_process_decision") != "ADR0335"):
+        raise ValueError("180/s requires qualified3+3 pools and four800-slot generator processes")
     return True
 
 
 def bounds(goal=None):
     if not selected(goal):
         return 102, 102, 30600, 30000
-    return (160, 160, 48000, 47400) if push160(goal) else (140, 140, 42000, 41400) if higher(goal) else (RATE, SHOWS, EXPECTED, TARGET)
+    return (180, 180, 54000, 53400) if push180(goal) else (160, 160, 48000, 47400) if push160(goal) else (140, 140, 42000, 41400) if higher(goal) else (RATE, SHOWS, EXPECTED, TARGET)
 
 
 def require_reference(goal=None):

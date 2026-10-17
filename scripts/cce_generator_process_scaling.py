@@ -34,7 +34,7 @@ def contract(goal=None):
     return {
         "decision": "ADR0335" if occupancy else "ADR0333",
         "generator_processes": 4,
-        "rate": 160,
+        "rate": 180 if goal is not None and goal.get("throughput_push_decision") == "ADR0339" else 160,
         "seconds": 300,
         "total_concurrency": active_concurrency(goal),
         "total_http_connections": 500,
@@ -61,8 +61,8 @@ def selected(goal):
     if (
         goal.get("generator_process_decision") not in {"ADR0333", "ADR0335"}
         or goal.get("generator_process_contract_sha256") != policy.digest(contract(goal))
-        or goal.get("throughput_push_decision") != "ADR0329"
-        or goal.get("offered_journeys_per_second") != (84 if runtime else 160)
+        or goal.get("throughput_push_decision") not in {"ADR0329", "ADR0339"}
+        or goal.get("offered_journeys_per_second") != (84 if runtime else contract(goal)["rate"])
         or goal.get("offered_seconds") != 300
         or goal.get("generator_concurrency") != active_concurrency(goal)
         or goal.get("maximum_paid_stages") != 1
@@ -204,6 +204,11 @@ def qualify_workload(bundle, coordinator, goal=None):
             raise ValueError("Exact sealed leaf resource validator required")
         changed[leaf_name] = leaf.replace(before, after)
         compile(changed[leaf_name], leaf_name, "exec")
+    if goal is not None and goal.get("throughput_push_decision") == "ADR0339":
+        before = b"(160, 300, 800, 8, 1, 1, 3, 'distributed')"
+        if source.count(before) != 1:
+            raise ValueError("Exact qualified800-slot coordinator required before180/s")
+        source = source.replace(before, b"(180, 300, 800, 8, 1, 1, 3, 'distributed')")
     before, after = (hashlib.sha256(value).hexdigest().encode() for value in (bundle[name], source))
     if coordinator.count(before) != 1:
         raise ValueError("Exact coordinator-to-source binding required")

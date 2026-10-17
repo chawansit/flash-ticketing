@@ -1,0 +1,31 @@
+# ADR0339: Test 180 journeys/s with qualified API pools
+
+## Status
+
+Accepted for preparing and executing one bounded five-minute workload step under the user's request to improve paid-and-issued tickets/s for five minutes first. No second stage, hourly test, machine resize or physical database budget increase is authorized.
+
+## Context
+
+ADR0338 passed 160 offered journeys/s: 48,000 journeys completed without generator drops or customer errors, 47,419 conservative in-window tickets (158.0633/s), journey p95 3.71s, all payment-integrity and restoration gates passed. Four API pods used 3 general and 3 payment clients each while PgBouncer remained capped at 24 physical backends. API CPU averaged 2.40 cores out of four; pool acquisition mean was 11ms. Reservation durability p95 was 3.04s and writer command age mean 1.56s. These measurements justify a modest workload step, not unlimited scaling or another code change.
+
+## Decision
+
+Offer exactly 180 journeys/s for 300 seconds (54,000 journeys) over 180 distributed fixture shows. Require at least 53,400 conservative in-window unique paid-and-issued tickets (178/s), all unchanged quality gates, zero generator drops, and the approved final customer-error ceiling of 0.01%. Keep four generator processes, 800 aggregate active journeys, 500 HTTP connections, sixteen clients, four 1-vCPU/2Gi API pods and fifteen unchanged background pods. Keep API pools 3+3, shared admission 20, acquisition deadline 500ms, simulator 16 delivery jobs/10 clients, physical backends 24 with no reserve. Pin the same ADR0324 application image and all existing financial, polling, recovery, expiry and messaging behavior. Only offered rate and proportional fixture/expected counts change from ADR0338.
+
+## Alternatives
+
+Repeat 160/s first for reproducibility: useful for qualification, but this request prioritizes improving five-minute throughput. Jump directly to 300/s: unsupported. Add compute or database connections immediately: changes multiple factors without proving the next bottleneck. Increase retries, relax latency, or hide undispatched journeys: rejected.
+
+## Consequences
+
+Higher load may saturate reservation writers, API payment pools, PgBouncer or RDS and increase active journey occupancy. Report all scheduled/dispatched counts, first errors, recovery, final failures, latency, conservative issuance and CPU/database waits. A passing sample demonstrates only this short workload; it does not establish hourly, maximum or production capacity.
+
+## Failure and recovery behavior
+
+Preserve atomic seat holds, customer authorization, TTL, payment idempotency, payment/outbox atomic commit and duplicate-safe issuance. Stop escalation on any failed gate. Always reconcile paid tickets, drain queues and restore the exact original runtime within the 60-minute experiment boundary; cleanup may continue if needed for safety. Preserve original failed evidence. No automatic retry stage.
+
+## Validation evidence
+
+Pending focused workload/binding checks, historical profile regression, generated manifest/admission verification and the actual cloud stage. The completed ADR0338 report remains the immutable passing baseline. No higher capacity has yet been measured.
+
+Local validation executed: 153 focused workload/profile tests and 228 isolated historical resource/lifecycle checks passed. Ruff F/I passed. Historical/current reproduction verified 535 files. Full generated four-API/fifteen-worker manifests, exact source/image binding and reservation passed in isolated files using actual existing publication, with no publication mock or live accounting changes. Original broader regression failures came from archived receipts inheriting a consumed live goal; isolated test context fixed collection without relaxing runtime guards. One fresh allowance registered at ledger index 152. Cloud load and higher capacity remain pending.
