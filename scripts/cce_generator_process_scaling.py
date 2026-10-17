@@ -93,7 +93,11 @@ def validate_binding(goal, binding):
     if active_concurrency(goal) == 800:
         from cce_auth_dispatch_profile import reference as authentication_reference
         from cce_auth_dispatch_profile import selected as authentication_selected
-        if authentication_selected(goal):
+        from cce_payment_delivery_headroom import selected as delivery_selected
+        if delivery_selected(goal):
+            from cce_payment_delivery_headroom import reference as delivery_reference
+            delivery_reference()
+        elif authentication_selected(goal):
             authentication_reference()
         else:
             validate_occupancy_reference(binding)

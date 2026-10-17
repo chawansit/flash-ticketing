@@ -115,7 +115,8 @@ def test_dispatch_upper_bound_is_not_a_database_pool_size():
     replace(Settings(), simulator_concurrency=32, pool_max=2).validate()
 
 
-def test_twelve_slot_refill_stop_drains_only_owned_inflight_jobs(monkeypatch):
+@pytest.mark.parametrize("slots", [12, 32])
+def test_refill_stop_drains_only_owned_inflight_jobs(monkeypatch, slots):
     all_started, release, stop = [threading.Event() for _ in range(3)]
     guard = threading.Lock()
     calls = active = peak = 0
@@ -127,7 +128,7 @@ def test_twelve_slot_refill_stop_drains_only_owned_inflight_jobs(monkeypatch):
             calls += 1
             active += 1
             peak = max(peak, active)
-            if active == 12:
+            if active == slots:
                 all_started.set()
         try:
             if not release.wait(5):
@@ -139,8 +140,8 @@ def test_twelve_slot_refill_stop_drains_only_owned_inflight_jobs(monkeypatch):
 
     def dispatch():
         try:
-            with ThreadPoolExecutor(max_workers=12) as executor:
-                workers.simulate_refill(None, replace(Settings(), simulator_concurrency=12, pool_max=2),
+            with ThreadPoolExecutor(max_workers=slots) as executor:
+                workers.simulate_refill(None, replace(Settings(), simulator_concurrency=slots, pool_max=2),
                                         executor, lambda: not stop.is_set())
         except Exception as exc:  # noqa: BLE001 - propagate failures from the scheduler thread
             failures.append(exc)
@@ -157,4 +158,4 @@ def test_twelve_slot_refill_stop_drains_only_owned_inflight_jobs(monkeypatch):
         release.set()
         thread.join(5)
     assert not thread.is_alive() and not failures
-    assert calls == peak == 12 and active == 0
+    assert calls == peak == slots and active == 0

@@ -1,0 +1,130 @@
+{
+  "decision": "ADR0337",
+  "status": "LOCAL_QUALIFIED_CLOUD_RUNNER_PENDING",
+  "cloud_deployed": false,
+  "new_paid_stages": 0,
+  "capacity_improvement_measured": false,
+  "candidate_adopted": false,
+  "measured_evidence": {
+    "ADR0335": {
+      "run": "adr0151-3fa2832bb77c",
+      "simulator_delivery_slots": 16.0,
+      "due_to_claim_mean_ms": 4223.518035499333,
+      "delivery_mean_ms": 107.3862459759644,
+      "ack_mean_ms": 6.758965631810343,
+      "claim_mean_ms_including_empty_polls": 7.680999430901131,
+      "backlog": {
+        "pending_payment_attempts": {
+          "max": 631,
+          "last": 0,
+          "delta": 0,
+          "p95": 606
+        },
+        "paid_unfulfilled": {
+          "max": 30,
+          "last": 0,
+          "delta": 0,
+          "p95": 12
+        }
+      },
+      "scope": "Observer lifetime includes safety and drain; claim mean includes empty polls, so phase means cannot prove a hard throughput ceiling."
+    },
+    "ADR0336": {
+      "run": "adr0151-9ff8944fc495",
+      "simulator_delivery_slots": 16.0,
+      "due_to_claim_mean_ms": 4447.226319519827,
+      "delivery_mean_ms": 104.71795058896639,
+      "ack_mean_ms": 10.292001541713125,
+      "claim_mean_ms_including_empty_polls": 11.834170323455632,
+      "backlog": {
+        "pending_payment_attempts": {
+          "max": 638,
+          "last": 0,
+          "delta": 0,
+          "p95": 608
+        },
+        "paid_unfulfilled": {
+          "max": 32,
+          "last": 0,
+          "delta": 0,
+          "p95": 13
+        }
+      },
+      "scope": "Observer lifetime includes safety and drain; claim mean includes empty polls, so phase means cannot prove a hard throughput ceiling."
+    }
+  },
+  "candidate": {
+    "single_factor": "SIMULATOR_CONCURRENCY",
+    "baseline": 16,
+    "candidate": 32,
+    "simulator_sql_pool": 10,
+    "physical_database_backends": 24,
+    "api_pools": [
+      2,
+      2
+    ],
+    "shared_admission": 20,
+    "gateway_delay_unchanged": true,
+    "workload_and_polling_unchanged": true,
+    "application_image_unchanged": "sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+    "authentication_candidate_used": false,
+    "image_rebuild_required": false
+  },
+  "executed_local_validation": {
+    "decision": "ADR0337",
+    "image_manifest": "sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+    "returncode": 0,
+    "elapsed_seconds": 50.70300000000134,
+    "cloud_calls": 0,
+    "application_changed": false,
+    "owned_test_container": "adr0337-13d2cf969e-test",
+    "owned_postgres_container": "adr0337-13d2cf969e-db",
+    "owned_resources_removed": true,
+    "passed": 44,
+    "skipped": 0,
+    "test_duration_seconds": 27.62,
+    "postgres_version": "17.6",
+    "sql_slot_combinations": [
+      [
+        12,
+        2
+      ],
+      [
+        16,
+        2
+      ],
+      [
+        16,
+        10
+      ],
+      [
+        32,
+        2
+      ],
+      [
+        32,
+        10
+      ]
+    ],
+    "scenarios": [
+      "SQL remains borrowable while all callback HTTP deliveries are parked",
+      "lost response after committed callback and safe replay",
+      "stale lease token cannot acknowledge new ownership",
+      "duplicate event replay issues one ticket",
+      "bounded refill shutdown drains owned work",
+      "transport reuses bounded HTTP connections without inline retry"
+    ],
+    "warning": "Integration marker was unregistered in the isolated mounted test layout; no test skipped."
+  },
+  "test_sources_sha256": {
+    "tests/integration/test_simulator_concurrency.py": "7989583a5b2752408e02954cc03332ba062421b6e3d8f6827ba51b35926a3ce5",
+    "tests/unit/test_simulator_dispatch.py": "dc77a117eda7d6198ed59e22c71e593d32ade88008d3b5b43d8eb19024550b71",
+    "tests/unit/test_callback_transport.py": "3a4eb7fb3ddd1fd54c0456fc216e717ecce77b9548b1f2eca38263e4ad1a5a3d"
+  },
+  "remaining": [
+    "Integrate explicitly selected32-slot environment into the bounded cloud runner and verify unchanged source/configuration budgets.",
+    "Obtain one fresh bounded paid-comparison allowance; previous allowance consumed.",
+    "Measure cloud arrival quality, paid-issued in-window throughput, latency, recovery and all financial/drain/restoration gates."
+  ],
+  "qualification_limits": "Local correctness evidence only. More callback concurrency can expose API/database contention and does not establish300/s or prove the sole cloud bottleneck."
+}

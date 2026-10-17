@@ -1,4 +1,4 @@
-"""Real SQL: twelve/sixteen HTTP waits release bounded SQL pools and replay safely."""
+"""Real SQL: bounded HTTP waits release SQL pools and replay safely."""
 import json
 import threading
 from concurrent.futures import ThreadPoolExecutor
@@ -16,7 +16,7 @@ from ticketing.workers import consume_event, simulate_one
 pytestmark = pytest.mark.integration
 
 
-@pytest.mark.parametrize("slots,pool", [(12, 2), (16, 2), (16, 10)])
+@pytest.mark.parametrize("slots,pool", [(12, 2), (16, 2), (16, 10), (32, 2), (32, 10)])
 @pytest.mark.parametrize("uncertainty", ["none", "lost_response", "stale_token"])
 def test_deliveries_release_sql_and_preserve_replay(system, uncertainty, slots, pool):
     svc, original, event_id = system

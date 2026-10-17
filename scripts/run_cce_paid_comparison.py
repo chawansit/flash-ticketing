@@ -136,6 +136,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
                      cce_simulator_concurrency=16, cce_simulator_database_pool_max=10,
                      cce_recovery_max_attempts=3, cce_recovery_bundle_sha256=MANIFEST_SHA256,
                      cce_order_status_read_pipeline="0")
+    from cce_payment_delivery_headroom import selected as delivery_selected
+    if delivery_selected(goal):
+        from cce_payment_delivery_headroom import contract as delivery_contract
+        extra.update(cce_simulator_concurrency=32, cce_payment_delivery_contract=delivery_contract())
     if goal is not None and goal["extension_decision"] == "ADR0263":
         from customer_recovery_bundle import MANIFEST_SHA256
         extra.update(cce_dispatch_decision="ADR0263", cce_simulator_concurrency=16,
