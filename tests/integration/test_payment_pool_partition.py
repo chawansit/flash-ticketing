@@ -76,15 +76,15 @@ def test_shared_pool_reads_can_exhaust_payment_capacity(system):
     finally:
         small.close()
 
-@pytest.mark.parametrize('payment_maximum,shared',[(1,False),(2,False),(2,True)])
-def test_general_read_saturation_leaves_payment_initiation_and_callback_usable(system,payment_maximum,shared):
+@pytest.mark.parametrize('maximum,payment_maximum,shared',[(4,1,False),(4,2,False),(4,2,True),(6,3,True)])
+def test_general_read_saturation_leaves_payment_initiation_and_callback_usable(system,maximum,payment_maximum,shared):
     from ticketing.infrastructure.postgres import create_api_databases
     from ticketing.workers import consume_event
 
     svc, db, show = system
     hold, payload = make_payment(svc, show)
-    general, payment = create_api_databases(db.pool.conninfo,4,50,12,payment_maximum,shared)
-    general_maximum=4-payment_maximum
+    general, payment = create_api_databases(db.pool.conninfo,maximum,50,12,payment_maximum,shared)
+    general_maximum=maximum-payment_maximum
     general.pool.resize(general_maximum,general_maximum)
     general.pool.wait(timeout=10)
     payment.pool.resize(payment_maximum,payment_maximum)
@@ -114,7 +114,7 @@ def test_general_read_saturation_leaves_payment_initiation_and_callback_usable(s
         with db.transaction() as conn:
             for table in ("bookings","tickets","payment_attempts","payment_callbacks"):
                 assert conn.execute(f"SELECT count(*) AS n FROM {table}").fetchone()["n"] == 1
-        assert general.pool.max_size + payment.pool.max_size == 4
+        assert general.pool.max_size + payment.pool.max_size == maximum
         assert general.pool.get_stats()["pool_available"] == general_maximum
         assert payment.pool.get_stats()["pool_available"] == payment_maximum
     finally:
@@ -159,8 +159,8 @@ def test_payment_saturation_has_bounded_waiters_visible_errors_and_no_borrowing(
         payment.close()
         general.close()
 
-@pytest.mark.parametrize('payment_maximum,shared',[(1,False),(2,False),(2,True)])
-def test_real_api_routes_complete_payment_while_general_reads_hold_every_general_connection(system, monkeypatch,payment_maximum,shared):
+@pytest.mark.parametrize('maximum,payment_maximum,shared',[(4,1,False),(4,2,False),(4,2,True),(6,3,True)])
+def test_real_api_routes_complete_payment_while_general_reads_hold_every_general_connection(system, monkeypatch,maximum,payment_maximum,shared):
     import hashlib
     import hmac
     import json
@@ -177,7 +177,7 @@ def test_real_api_routes_complete_payment_while_general_reads_hold_every_general
     hold,payload = make_payment(svc,show)
     monkeypatch.setattr(api,"settings",replace(
         api.settings,database_url=db.pool.conninfo,redis_url=os.environ["TEST_REDIS_URL"],
-        pool_max=4,pool_max_waiting=12,api_payment_pool_max=payment_maximum,api_pool_shared_waiting=shared,simulator_concurrency=1,
+        pool_max=maximum,pool_max_waiting=12,api_payment_pool_max=payment_maximum,api_pool_shared_waiting=shared,simulator_concurrency=1,
         reservation_mode="postgres",order_status_cache_ms=0,
     ))
     names=("db","payment_db","cache","reservations","payment_reservations","reservation_intake")
@@ -190,7 +190,7 @@ def test_real_api_routes_complete_payment_while_general_reads_hold_every_general
             general=api.app.state.db
             financial=api.app.state.payment_db
             assert general is not financial
-            general_maximum=4-payment_maximum
+            general_maximum=maximum-payment_maximum
             general.pool.resize(general_maximum,general_maximum)
             general.pool.wait(timeout=10)
             financial.pool.wait(timeout=10)
@@ -222,7 +222,7 @@ def test_real_api_routes_complete_payment_while_general_reads_hold_every_general
                 assert all(f.result(timeout=2).status_code==200 for f in futures)
             api.app.state.reservations.store.db=general
             response=client.get("/metrics")
-            for marker in ['state="pool_max"} 4.0',f'state="general_pool_max"}} {general_maximum}.0',
+            for marker in [f'state="pool_max"}} {maximum}.0',f'state="general_pool_max"}} {general_maximum}.0',
                            f'state="payment_pool_max"}} {payment_maximum}.0','state="pool_max_waiting"} 12.0',
                            f'state="general_max_waiting"}} {12-payment_maximum if shared else 3*general_maximum}.0',f'state="payment_max_waiting"}} {12-general_maximum if shared else 3*payment_maximum}.0']:
                 assert marker in response.text

@@ -1,0 +1,73 @@
+{
+  "decision": "ADR0338",
+  "status": "LOCAL_CORRECTNESS_QUALIFIED_RUNNER_PENDING",
+  "cloud_deployed": false,
+  "new_paid_stages": 0,
+  "capacity_improvement_measured": false,
+  "application_image_unchanged": "sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+  "application_source_changed": false,
+  "candidate": {
+    "api_pods": 4,
+    "baseline_general_payment_client_pools": [
+      2,
+      2
+    ],
+    "candidate_general_payment_client_pools": [
+      3,
+      3
+    ],
+    "baseline_aggregate_api_client_connections": 16,
+    "candidate_aggregate_api_client_connections": 24,
+    "physical_server_connections": 24,
+    "shared_admission_per_API": 20,
+    "native_role_acquisition_limit": 17,
+    "wait_ms": 500,
+    "simulator_delivery_slots": 16,
+    "simulator_SQL_pool": 10,
+    "gateway_delays_and_recovery_unchanged": true
+  },
+  "evidence": {
+    "failed32slot_reference_run": "adr0151-c5faf196218b",
+    "api_acquire_mean_ms": 70.08437270553769,
+    "api_connection_hold_mean_ms": 17.686119300148366,
+    "commit_mean_ms": 2.3939145731179656,
+    "pgbouncer_sampled_maxwait_peak_ms": 9.809,
+    "scope": "Means and sampled peaks have different scopes; do not prove all waits are local or that RDS has spare capacity."
+  },
+  "executed_local_validation": {
+    "decision": "ADR0338",
+    "image_manifest": "sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+    "returncode": 0,
+    "elapsed_seconds": 18.7190000000046,
+    "cloud_calls": 0,
+    "application_changed": false,
+    "owned_test_container": "adr0338-0f5f651a98-test",
+    "owned_postgres_container": "adr0338-0f5f651a98-db",
+    "owned_resources_removed": true,
+    "integration_checks_passed": 24,
+    "integration_seconds": 11.99,
+    "unit_checks_passed": 48,
+    "skipped": 0,
+    "PostgreSQL": "17.6",
+    "Redis": "7.4.5",
+    "scenarios": [
+      "3+3 pools preserve payment/callback progress while general reads saturated",
+      "HTTP authentication and cross-actor denial",
+      "idempotent payment and duplicate callback/issuance replay",
+      "six client maximum, finite role/global admission and timeout reclamation",
+      "pool cleanup"
+    ]
+  },
+  "test_source_sha256": {
+    "tests/integration/test_payment_pool_partition.py": "3b2bde6d41b345648838cfbe18883f1b3b1820d5d812be7d6eb6d9cb8680f211",
+    "tests/integration/test_shared_api_acquisition_budget.py": "329e1d3b637cedd9bb2563bd04d598b3469b8b7ad28e088b695cc8a92f280b83"
+  },
+  "initial_local_failures": [
+    "Mixed unit/integration collection resolved a different conftest; split the processes.",
+    "HTTP suite initially lacked TEST_REDIS_URL; added isolated Redis and reran the complete suite."
+  ],
+  "limitations": [
+    "No new paid load or cloud capacity improvement.",
+    "More API clients may move waiting to PostgreSQL/PgBouncer or saturate CPU."
+  ]
+}

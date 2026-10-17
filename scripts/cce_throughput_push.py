@@ -96,6 +96,10 @@ def require_reference(goal=None):
 
 
 def validate_binding(goal, binding):
+    from cce_api_client_headroom import selected as client_selected
+    if client_selected(goal):
+        from cce_api_client_headroom import validate_binding as client_binding
+        return client_binding(goal, binding)
     from cce_payment_delivery_headroom import selected as delivery_selected
     if delivery_selected(goal):
         from cce_payment_delivery_headroom import validate_binding as delivery_binding

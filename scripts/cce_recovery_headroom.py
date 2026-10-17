@@ -354,12 +354,17 @@ def plan(goal):
     if not selected(goal):
         raise ValueError("Explicit headroom profile required")
     view = goal if goal.get("_headroom_runtime_view") else runtime_view(goal)
+    from cce_api_client_headroom import extend_plan as client_plan
     from cce_auth_dispatch_profile import extend_plan as authentication_plan
     from cce_payment_delivery_headroom import extend_plan as delivery_plan
-    return delivery_plan(goal, authentication_plan(goal, placement_plan(view)))
+    return client_plan(goal, delivery_plan(goal, authentication_plan(goal, placement_plan(view))))
 
 
 def validate_binding(goal, binding):
+    from cce_api_client_headroom import selected as client_selected
+    if client_selected(goal):
+        from cce_api_client_headroom import validate_binding as client_binding
+        return client_binding(goal, binding)
     from cce_payment_delivery_headroom import selected as delivery_selected
     if delivery_selected(goal):
         from cce_payment_delivery_headroom import validate_binding as delivery_binding

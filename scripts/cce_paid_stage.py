@@ -131,6 +131,8 @@ def identity():
              "docs/capacity/cce/authentication-dispatch-image-2026-10-17.json")
     paths = (*paths, "scripts/cce_payment_delivery_headroom.py",
              "docs/capacity/cce/payment-delivery-headroom-local-2026-10-17.json")
+    paths = (*paths, "scripts/cce_api_client_headroom.py",
+             "docs/capacity/cce/api-client-pool-headroom-local-2026-10-17.json")
     import cce_generator_process_scaling as generator_scaling
     if generator_scaling.selected(generator_scaling.active_goal()):
         paths = (*paths, generator_scaling.SOURCE, "scripts/cce_fixture_clock.py")

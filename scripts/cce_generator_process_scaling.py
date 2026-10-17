@@ -91,10 +91,14 @@ def validate_binding(goal, binding):
     elif "cce_fixture_clock_contract" in binding:
         raise ValueError("Unselected creator-clock proof")
     if active_concurrency(goal) == 800:
+        from cce_api_client_headroom import selected as client_selected
         from cce_auth_dispatch_profile import reference as authentication_reference
         from cce_auth_dispatch_profile import selected as authentication_selected
         from cce_payment_delivery_headroom import selected as delivery_selected
-        if delivery_selected(goal):
+        if client_selected(goal):
+            from cce_api_client_headroom import reference as client_reference
+            client_reference()
+        elif delivery_selected(goal):
             from cce_payment_delivery_headroom import reference as delivery_reference
             delivery_reference()
         elif authentication_selected(goal):

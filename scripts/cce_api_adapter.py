@@ -88,6 +88,8 @@ def contract():
     from cce_fulfillment_batch_profile import selected as fulfillment_selected
     if fulfillment_selected(goal):
         data["api_settings"].update(DB_EXPLICIT_TRANSACTION_START="1", FULFILLMENT_TRANSACTION_BATCH_SIZE="1")
+    from cce_api_client_headroom import api_settings as client_settings
+    data["api_settings"] = client_settings(data["api_settings"], goal)
     import cce_generator_process_scaling as generator_scaling
     if generator_scaling.selected(goal):
         data["workload"].update(shards=4, http_clients_per_shard=4)

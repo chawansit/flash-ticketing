@@ -118,28 +118,29 @@ def test_mixed_http_burst_static_boundary_vs_shared_exact_financial_replay(syste
             elif hasattr(api.app.state,name):delattr(api.app.state,name)
 
 @pytest.mark.parametrize("dominant",["general","payment"])
-def test_shared_native_headroom_combined_overflow_timeout_and_recovery(system,dominant):
+@pytest.mark.parametrize("maximum,per_role,waiting",[(4,2,12),(6,3,20)])
+def test_shared_native_headroom_combined_overflow_timeout_and_recovery(system,dominant,maximum,per_role,waiting):
     _,db,_=system
-    general,payment=create_api_databases(db.pool.conninfo,4,500,12,2,True)
+    general,payment=create_api_databases(db.pool.conninfo,maximum,500,waiting,per_role,True)
     adapters={"general":general,"payment":payment}
     other="payment" if dominant=="general" else "general"
     for adapter in adapters.values():
-        adapter.pool.resize(2,2)
+        adapter.pool.resize(per_role,per_role)
         adapter.pool.wait(timeout=10)
     budget=general._shared_acquisition_budget
     try:
-        with ExitStack() as held,ThreadPoolExecutor(max_workers=12) as executor:
+        with ExitStack() as held,ThreadPoolExecutor(max_workers=waiting) as executor:
             for adapter in adapters.values():
-                held.enter_context(adapter.transaction())
-                held.enter_context(adapter.transaction())
-            futures=[executor.submit(adapters[dominant].pool.getconn) for _ in range(10)]
+                for _ in range(per_role):
+                    held.enter_context(adapter.transaction())
+            futures=[executor.submit(adapters[dominant].pool.getconn) for _ in range(waiting-per_role)]
             deadline=time.monotonic()+.3
-            wait_queue(adapters[dominant].pool,10,deadline)
+            wait_queue(adapters[dominant].pool,waiting-per_role,deadline)
             with pytest.raises(TooManyRequests):
                 adapters[dominant].pool.getconn()
-            futures.extend(executor.submit(adapters[other].pool.getconn) for _ in range(2))
-            wait_queue(adapters[other].pool,2,deadline)
-            assert budget.snapshot()["used"]==12
+            futures.extend(executor.submit(adapters[other].pool.getconn) for _ in range(per_role))
+            wait_queue(adapters[other].pool,per_role,deadline)
+            assert budget.snapshot()["used"]==waiting
             with pytest.raises(TooManyRequests):
                 adapters[other].pool.getconn()
             for future in futures:
@@ -147,8 +148,8 @@ def test_shared_native_headroom_combined_overflow_timeout_and_recovery(system,do
                     future.result(timeout=2)
             # Native waiting positions remain until return. Their budget slots
             # must remain occupied even after the requesting threads timed out.
-            assert sum(a.pool.get_stats()["requests_waiting"] for a in adapters.values())==12
-            assert budget.snapshot()["retained"]==budget.snapshot()["used"]==12
+            assert sum(a.pool.get_stats()["requests_waiting"] for a in adapters.values())==waiting
+            assert budget.snapshot()["retained"]==budget.snapshot()["used"]==waiting
             with pytest.raises(TooManyRequests):
                 adapters[other].pool.getconn()
             held.close()
