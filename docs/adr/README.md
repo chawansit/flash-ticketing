@@ -341,4 +341,4 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0338: Test API client pool headroom with a fixed server cap](0338-test-api-client-pool-headroom-with-fixed-server-cap.md) - Five-minute cloud comparison passed: 48,000 dispatched/confirmed, zero drops or customer errors; 158.0633/s conservative, all financial/drain/restoration gates passed. APIs 3+3 clients, 24 physical backends unchanged; hourly and maximum capacity unqualified.
 
-- [ADR0339: Test 180 journeys/s with qualified API pools](0339-test-180-journeys-with-qualified-api-pools.md) - One bounded five-minute workload step using ADR0338 pools, unchanged image/resources and physical database cap. Validation and measured capacity pending.
+- [ADR0339: Test 180 journeys/s with qualified API pools](0339-test-180-journeys-with-qualified-api-pools.md) - 180/s test failed:11,145 drops;42,855 completed,892 initial-error journeys recovered,zero final failures.139.43/s conservative. Independent financial/queue/restoration audit passed; original failure retained. Best passing158.0633/s unchanged.

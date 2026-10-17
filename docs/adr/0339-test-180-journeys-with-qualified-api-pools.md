@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted and explicitly authorized: the user replied Approved to one180/s300s cloud stage including mandatory financial audit, drain and restoration within60minutes. Earlier automatic-review rejection is retained in validation history; no stage had started or been reserved at approval. No second stage, hourly test, machine resize or physical database budget increase is authorized.
+Completed: the paid180/s300s stage failed; independent financial/restoration reconciliation passed and operational status is FAILED_RESTORED. This workload is not qualified. The single paid allowance is consumed; no further stage is authorized. ADR0338 remains the best passing short reference.
 
 ## Context
 
@@ -37,3 +37,17 @@ Fresh authorization: the user replied Approved to the exact180/s300s cloud test 
 Run `adr0151-b8a36980ef01` stopped before paid dispatch: the fixture-identity validator retained a fixed show-count allowlist without 180. The financial-audit validator also lacked 180 and would have blocked the next step. This is a missing workload integration, not an application capacity result. The run restored all services with integrity and cleanup verified; zero paid stages started. Extend only these explicit allowlists, preserve all identity/ownership/freshness/financial checks, and test complete local 180-show fixture preparation with simulated transports before retrying the unused paid allowance. Retain the failed report and bind fresh source hashes; no load gate is weakened.
 
 Correction validation executed: 34 fixture/180-workload checks passed, including complete PaidStage.prepare with 54,000 tokens and simulated remote transfers, retained identity, compiled financial audit and duplicate-ID rejection. Revalidated the actual failed180-show fixture with its creator time and pinned legacy producer. Full generated admission/reservation and535-file reproduction passed again. The failed run used zero paid stages and restored all resources; fresh source contracts retain the same single unused180/s approval. See qualified-pools-180-predispatch-abort-2026-10-17.json.
+
+### Executed paid result
+
+Run `adr0151-fa8e65219b30` offered 180 journeys/s from **12:53:56 to 12:58:56 Bangkok** on 2026-10-17. Of 54,000 scheduled journeys, 42,855 dispatched and confirmed tickets; **11,145 were undispatched (20.6389%)**. All 892 initial-error journeys recovered using 940 retry attempts; zero final customer failures. Initial operation errors were 793 order-status503,114 payment503 and five payment-operation503; operation counts are distinct from error-journey counts. Arrival/completeness and observation requirements failed; journey latency worsened. The normal aggregate measurement-gate evaluation was not reached after the observer error. Worst-shard journey p95 rose from 3.71s to 6.92s; durability p95 was 5.06s, payment HTTP p95 266.97ms and ticket-wait p95 4.84s.
+
+Observer-lifetime API process CPU rose from 2.40 to 3.55 cores of four allocated; acquisition mean rose from 11.00 to 21.34ms. Shared acquisition reached20 and991 API admission/pool errors were observed, including callbacks and safety/drain. Payment pickup mean rose from104.83ms to3146.14ms, while callback delivery mean rose60.92to76.74ms. Reservation-writer command-age mean was approximately stable (1.56to1.51s), as was successful PostgreSQL batch wall time (77.91to76.91ms). Cache misses rose48,759to138,178 and hits49,725to168,170 despite fewer completed journeys. These observations support investigating confirmation backlog and amplified status work; they do not establish a single causal database holder or prove additional compute alone fixes the problem.
+
+Slot-history observation was incomplete and raised before the normal terminal financial/window audit. The original run therefore reported RECOVERY_REQUIRED with integrity unqualified. A separate read-only repeatable-read audit verified42,855 actual orders/payments/bookings/unique tickets and both safety cohorts, no double-booking/payment loss/invalid relationships, complete callbacks, elapsed hold TTLs and empty queues. Independent database timestamps counted42,117 tickets inside300s and41,829 conservatively, or **139.43/s**, below the passing158.0633/s reference and the predeclared53,400-ticket target. This independent evidence does not rewrite the failed load or observation result.
+
+Fresh read-only verification proved exact original runtime stability, absent owned CCE namespace/helpers, idle generator and empty queues. Local operational recovery was closed as FAILED_RESTORED; the original report remains unchanged. No further paid stage started. Retain the passing160/s3+3 reference and isolate confirmation pickup/status-read amplification before another180/s test. More generator occupancy alone is not a service-capacity improvement.
+
+[Measured failed result](../capacity/cce/qualified-pools-180-result-2026-10-17.json) and [independent reconciliation](../capacity/cce/qualified-pools-180-recovery-2026-10-17.json).
+
+Original paid result SHA256: `666ca45c36f2b1a1394b5d9a5471f0755905e8a6a033da70e1ef7fb0433555b1`. Recovery SHA256: `521621f46c4dad8faf2b9a474accc536b2ffb505e3828199f03858c0e93e653c`.
