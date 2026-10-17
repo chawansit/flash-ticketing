@@ -3797,6 +3797,38 @@
         "original_result_preserved": true,
         "only_recovery_cleared": true
       }
+    },
+    {
+      "ledger": "bounded_cce_ticket_target__5cced9b1f3ae",
+      "authorization_id": "work-envelope-5cced9b1f3ae",
+      "envelope_sha256": "4fa8a243853cd773c5e50a419e74ebca8467296224f7e3ad547931a51ee922bb",
+      "binding_sha256": "edf55f175a951befbb53a31b3732cf7ea64d288bbe46310200e0c47677e25d68",
+      "plan_sha256": "a4183f3b5782150a888c543955ca3a2f60aeeb7ac79e9aa11a09627d18feab94",
+      "profile": "cce_ticket_target",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1376.1870000000054,
+      "started_at_utc": "2026-10-17T02:18:06.213907+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-9ff8944fc495",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-17T02:40:08.748808+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "1fd019a91dcf79f09ec3d6e4f144b91a7dd6fa9be2ac0f9c6226f1be9a17d04d",
+      "initial_status": "RECOVERY_REQUIRED",
+      "initial_actual_elapsed_seconds": 1323.4060000000027,
+      "recovery": {
+        "decision": "ADR0336",
+        "evidence": "docs/capacity/cce/authentication-dispatch-recovery-2026-10-17.json",
+        "sha256": "6a56e97ced973d1ee64c45ae78ba874ea4d7be898868d5ea96de73a430f7040e",
+        "actual_elapsed_seconds": 52.78100000000268,
+        "capacity_qualified": false,
+        "original_result_preserved": true,
+        "only_recovery_cleared": true
+      }
     }
   ],
   "verified_aborts": {

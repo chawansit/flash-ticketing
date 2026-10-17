@@ -75,3 +75,17 @@ See [release evidence](../capacity/cce/authentication-dispatch-release-2026-10-1
 ### Fresh bounded comparison authorization
 
 The user replied Continue to the concrete one-run approval request after publication and unmocked local admission. Registered one fresh allowance at journal index149:160offered journeys/s for300seconds, unchanged800 active journeys/500 HTTP connections/16 clients, four API/fifteen worker pods and24 physical DB backends with2+2 API pools. Mandatory safety, post-TTL financial audit, drain and exact restoration remain inside3600seconds. Prior ADR0335 allowance and failed evidence remain consumed/preserved. This authorization is not a test result. No further stage or load increase is authorized by it.
+
+### Executed cloud comparison: not adopted
+
+Executed one 160 offered journeys/s, 300-second comparison on 17 October 2026, 09:31:44–09:36:44 Bangkok. Four CCE APIs verified the candidate digest; fifteen unchanged workers verified ADR0324. Resources, 800 active journeys, four generator processes, 500 connections, sixteen clients and 24 physical DB backends stayed fixed.
+
+48,000 journeys were scheduled, 37,542 dispatched and all 37,542 customer-confirmed. All 349 initially failing journeys recovered in 381 retries; zero final customer failures. However, 10,458 generator drops (21.79%) failed arrival quality. The database recorded 36,798 unique paid-and-issued tickets within the five-minute window, or 36,532 with the conservative boundary guard: 121.77/s. Worst-shard total journey p95 was 7,284.96 ms. API process CPU averaged 3.253 of four allocated cores; this does not measure node CPU or throttling.
+
+Compared with the same-budget ADR0335 failed reference, conservative throughput fell from 127.15/s and p95 increased from 6,726.12 ms, despite lower API CPU and fewer initial errors. One sample does not prove the scheduling change caused the regression, but it does not demonstrate an improvement. Do not adopt the candidate as a capacity fix. Best qualified clean short capacity remains 138.49/s; no hourly or maximum capacity claim is added.
+
+Independent read-only post-TTL reconciliation verified all 37,542 actual payments/tickets, both safety cohorts, zero double-booking, valid relationships and empty queues. Original services are restored and stable; temporary namespace/helpers are absent and the generator is idle. The original 48,000-completeness audit remains failed, not relabeled as passing. Only operational recovery was cleared; ledger is FAILED_RESTORED, one paid allowance consumed.
+
+Independent database wait sampling and query snapshots were complete, but slot failure history remains incomplete. Pending payment attempts peaked at 638 while paid-but-unissued orders peaked at 32; these snapshots suggest focusing on payment progress and polling pressure, but do not establish the exact holder or root cause. Inspect existing evidence before selecting another isolated correction; do not increase offered load.
+
+[Cloud result](../capacity/cce/authentication-dispatch-result-2026-10-17.json) and [independent reconciliation](../capacity/cce/authentication-dispatch-recovery-2026-10-17.json).
