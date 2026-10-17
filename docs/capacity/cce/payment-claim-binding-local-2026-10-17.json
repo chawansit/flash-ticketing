@@ -121,9 +121,18 @@
     "registry_published": false,
     "approval_gate": "AUTO_REVIEW_REJECTED_EXACT_PRIVATE_IMAGE_EGRESS_APPROVAL_REQUIRED",
     "destination": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing:adr0341-046b8b0fe4ea",
-    "risk": "Transfer of the private application image and internal source contents to the existing external registry requires explicit user approval."
+    "risk": "Transfer of the private application image and internal source contents to the existing external registry requires explicit user approval.",
+    "subsequently_approved_and_verified": true
   },
-  "next_action": "Obtain explicit image-transfer approval, verify immutable publication/pull, reconcile live snapshot and register with existing guard; then separately approve160/s300s control/candidate within60minutes, stopping after failed control.",
+  "next_action": "Reconcile the actual service snapshot and register with the existing guard before separately approving160/s300s control/candidate; stop after failed control.",
   "new_paid_runs": 0,
-  "best_passing_conservative_tickets_per_second": 158.0633
+  "best_passing_conservative_tickets_per_second": 158.0633,
+  "subsequent_registry_verification": {
+    "receipt": "docs/capacity/cce/payment-claim-cutoff-registry-2026-10-17.json",
+    "receipt_sha256": "f5ac44d3dfd3a5bfeb92ebdc817e64a69ffe3e682e3bef5e49a20e5a06e368d3",
+    "registry_published": true,
+    "registry_pulled_runtime_verified": true,
+    "live_runner_registered": false,
+    "cloud_measured": false
+  }
 }
