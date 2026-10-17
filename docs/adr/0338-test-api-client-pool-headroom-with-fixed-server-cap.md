@@ -2,11 +2,11 @@
 
 ## Status
 
-Accepted for local qualification and preparation of one configuration comparison. Cloud execution requires a fresh paid-stage approval. Existing defaults and historical profiles remain unchanged. ADR0337's32-slot simulator candidate and ADR0336's authentication candidate remain unadopted.
+Accepted and qualified in one five-minute cloud comparison. The explicit 3+3 API client configuration passed; defaults and historical profiles remain unchanged. ADR0337's 32-slot simulator candidate and ADR0336's authentication candidate remain unadopted. No further paid stage is authorized.
 
 ## Context
 
-The failed ADR0337 test increased simulator delivery jobs16to32, retaining four APIs with2general+2payment client connections each and24 physical PgBouncer backends. API acquisition mean was70.08ms; successful connection hold mean17.69ms, query means about2–3ms and commit mean2.39ms. Independent resource samples recorded PgBouncer maxwait peak9.809ms and full server occupancy at some samples. These different scopes and sampling intervals do not prove every API wait occurs locally or that PostgreSQL has spare capacity. They support testing the application client-pool ceiling rather than increasing callbacks again.
+The failed ADR0337 test increased simulator delivery jobs16to32, retaining four APIs with2general+2payment client connections each and24 physical PgBouncer backends. API acquisition mean was70.08ms; successful connection hold mean17.69ms, query means about2â€“3ms and commit mean2.39ms. Independent resource samples recorded PgBouncer maxwait peak9.809ms and full server occupancy at some samples. These different scopes and sampling intervals do not prove every API wait occurs locally or that PostgreSQL has spare capacity. They support testing the application client-pool ceiling rather than increasing callbacks again.
 
 The same-image sixteen-slot ADR0335 reference had31.25ms API acquisition mean,127.15/s conservative throughput, drops and five final customer failures. Best qualified clean short capacity remains138.49/s. Neither failed reference is a passing control.
 
@@ -45,3 +45,15 @@ Full generated API/worker manifests, binding and reservation admission passed ag
 ### Fresh single-run authorization
 
 The user replied Continue to the concrete approval request. Registered a fresh allowance at journal index151:160 offered journeys/s300seconds; API client pools2+2to3+3 each(16to24 aggregate), retaining24 physical backends,simulator16/pool10,unchanged image/resources/four APIs/fifteen workers/gateway/gates. Mandatory safety,financial audit,drain and exact restoration remain inside3600seconds. Prior allowance is consumed; no second paid stage or rate increase authorized. This is authorization, not performance evidence.
+
+### Executed cloud comparison
+
+On 2026-10-17, 11:43:43–11:48:43 Bangkok, run `adr0151-c83348917efc` passed all twelve measurement gates and finished `PASSED_RESTORED`. All 48,000 offered journeys dispatched and confirmed unique paid tickets. Generator drops, initial customer-error journeys, recovery attempts and final customer failures were zero. Database timestamps establish 47,753 tickets within the 300-second window; the conservative two-second boundary guard counts 47,419, or **158.0633 paid-and-issued tickets/s**, exceeding the 47,400 minimum. This is 14.13% above the prior qualified clean short record of 138.49/s.
+
+Worst-shard journey p95 was 3,709.13ms; payment HTTP p95 97.70ms. Aggregate API process CPU was 2.40 cores of four allocated. Observer-lifetime API acquisition mean fell from 31.25ms in the matched same-image failed 2+2 reference to 11.00ms; payment pickup fell from 4,223.52ms to 104.83ms. These observations support testing the client-pool ceiling as the bottleneck, but do not prove every historical stall's cause. PgBouncer still reached 24 active backends and a sampled maxwait peak of 128.08ms. Cluster WAL timing and provider CPU remain unavailable; no claim of unlimited database headroom is justified.
+
+Post-TTL financial checks reconciled 48,000 payments, bookings, callbacks and unique tickets with no double-booking, lost payments or invalid relationships. Every queue drained. Internal worker/simulator errors were observed and recovered; zero customer errors does not mean zero internal errors. The runner verified exact original-runtime restoration, removed the owned CCE namespace/helpers, confirmed the generator idle and cleared transport credentials. No secondary host was contacted.
+
+The application image, worker settings, resources and 24 physical backend cap were unchanged. The explicit API client configuration is short-run qualified; application defaults have not been changed and the experiment was restored. Repeat this configuration before increasing load. One sample does not qualify an hour, maximum capacity, production operation or 300/s. The single paid allowance is consumed.
+
+[Verified cloud result](../capacity/cce/api-client-pool-headroom-result-2026-10-17.json). Raw result SHA256: `5ec10ec764bc349911b28e2c5d20883eb7c2f1df58a02bc55e792b181ccaf05b`.
