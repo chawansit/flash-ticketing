@@ -67,6 +67,7 @@ async def lifespan(app):
     )
     db.order_status_read_pipeline = settings.order_status_read_pipeline
     payment_db.payment_write_pipeline = settings.payment_write_pipeline
+    payment_db.payment_callback_write_pipeline = settings.payment_callback_write_pipeline
     with ExitStack() as resources:
         resources.callback(db.close)
         if payment_db is not db:

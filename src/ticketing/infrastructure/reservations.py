@@ -529,46 +529,48 @@ class PostgresReservations:
             )
         )
         decision = payment_decision(order["status"], valid, payload["outcome"])
-        conn.execute(
-            "UPDATE payment_attempts SET status=%s WHERE id=%s", (payload["outcome"], payment["id"])
-        )
-        if decision == "BOOK":
-            for seat in seats:
-                conn.execute(
-                    "INSERT INTO bookings VALUES (%s,%s,%s,%s)",
-                    (uuid4(), order["event_id"], seat["seat_id"], order["id"]),
-                )
+        pipeline = decision == "BOOK" and getattr(self.db, "payment_callback_write_pipeline", False)
+        with conn.pipeline() if pipeline else nullcontext():
             conn.execute(
-                """UPDATE event_seats SET booked_order_id=%s,hold_id=NULL,
-                    reserved_until=NULL,version=version+1 WHERE hold_id=%s""",
-                (order["id"], hold["id"]),
+                "UPDATE payment_attempts SET status=%s WHERE id=%s", (payload["outcome"], payment["id"])
             )
-            conn.execute("UPDATE holds SET status='CONSUMED' WHERE id=%s", (hold["id"],))
-            conn.execute("UPDATE orders SET status='PAID' WHERE id=%s", (order["id"],))
-            event(conn, order["id"], "OrderPaid", {"order_id": str(order["id"])})
-        elif decision in {"REFUND", "FAILED"}:
-            self._release(conn, order, "EXPIRED" if decision == "REFUND" else "RELEASED")
-            conn.execute(
-                "UPDATE orders SET status=%s WHERE id=%s",
-                ("REFUND_PENDING" if decision == "REFUND" else "FAILED", order["id"]),
-            )
-            if decision == "REFUND":
+            if decision == "BOOK":
+                for seat in seats:
+                    conn.execute(
+                        "INSERT INTO bookings VALUES (%s,%s,%s,%s)",
+                        (uuid4(), order["event_id"], seat["seat_id"], order["id"]),
+                    )
                 conn.execute(
-                    "INSERT INTO refund_requests VALUES (%s,%s,'PENDING') ON CONFLICT DO NOTHING",
-                    (payment["id"], order["id"]),
+                    """UPDATE event_seats SET booked_order_id=%s,hold_id=NULL,
+                        reserved_until=NULL,version=version+1 WHERE hold_id=%s""",
+                    (order["id"], hold["id"]),
                 )
-                event(
-                    conn,
-                    order["id"],
-                    "RefundRequested",
-                    {"payment_id": str(payment["id"]), "order_id": str(order["id"])},
+                conn.execute("UPDATE holds SET status='CONSUMED' WHERE id=%s", (hold["id"],))
+                conn.execute("UPDATE orders SET status='PAID' WHERE id=%s", (order["id"],))
+                event(conn, order["id"], "OrderPaid", {"order_id": str(order["id"])})
+            elif decision in {"REFUND", "FAILED"}:
+                self._release(conn, order, "EXPIRED" if decision == "REFUND" else "RELEASED")
+                conn.execute(
+                    "UPDATE orders SET status=%s WHERE id=%s",
+                    ("REFUND_PENDING" if decision == "REFUND" else "FAILED", order["id"]),
                 )
-        event(
-            conn,
-            order["id"],
-            "SeatsChanged",
-            {"event_id": str(order["event_id"]), "seats": [r["seat_id"] for r in seats]},
-        )
+                if decision == "REFUND":
+                    conn.execute(
+                        "INSERT INTO refund_requests VALUES (%s,%s,'PENDING') ON CONFLICT DO NOTHING",
+                        (payment["id"], order["id"]),
+                    )
+                    event(
+                        conn,
+                        order["id"],
+                        "RefundRequested",
+                        {"payment_id": str(payment["id"]), "order_id": str(order["id"])},
+                    )
+            event(
+                conn,
+                order["id"],
+                "SeatsChanged",
+                {"event_id": str(order["event_id"]), "seats": [r["seat_id"] for r in seats]},
+            )
         return {"status": decision.lower()}
 
 

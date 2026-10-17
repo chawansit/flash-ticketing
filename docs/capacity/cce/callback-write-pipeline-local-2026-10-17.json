@@ -1,0 +1,152 @@
+{
+  "decision": "ADR0346",
+  "parent_registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+  "parent_runtime_source_sha256": {
+    "src/ticketing/api.py": "52e4806e5aad90e009d5933cef57480dc470a3cee72fa5b43f8bc9589737fac1",
+    "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+    "src/ticketing/config.py": "a8fad87b1e9ae0506ca93793a276d41deac16a52a9edf08d2663e9557a0088ec",
+    "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+    "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
+    "src/ticketing/observability.py": "2985480a7d21af0be1e2126d9e556d55738e9ae30dbccd05fa368ea1ab75d6f8",
+    "src/ticketing/workers.py": "37915068f744b42726f1574b6d8009614c07f2aff0b19dcc2a0a1a9359a2bb61",
+    "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+    "src/ticketing/application/ports.py": "b2115020590e7b21c56792e7735c68c5d823504ce9a1abcdf3f47b94cb9c82f5",
+    "src/ticketing/application/reservations.py": "a3195a029d2cd6a00ae68abac125349ebfb5db70a7f40e4199660f78ff402114",
+    "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+    "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+    "src/ticketing/infrastructure/order_status_projector.py": "f9e1a6809227cb81a6e620cbf1d20906202fcc061e011bdc356f6a491ce0c510",
+    "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "9090d8bf233c32a993636e382226c79472517eb23fdb7062d24797522622680a",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/reservations.py": "f8f63c853fae8814537aa489e008cbe050705ec7cd179ea86134a6009ccbba0c",
+    "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a",
+    "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "parent_source_identity_sha256": "0087ce3078532a8fd05b668c4d286988a3165d95295c51ebbf2c60d4a702ce0d",
+  "runtime_source_sha256": {
+    "src/ticketing/api.py": "ff0ba117a10fb8a18541978f93484f2133a85523510feea35d980f9828833cdd",
+    "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+    "src/ticketing/config.py": "c05d86e800efe15b430b915b5e3bfb64986deff20aed47201f58bbc426442c97",
+    "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+    "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
+    "src/ticketing/observability.py": "2985480a7d21af0be1e2126d9e556d55738e9ae30dbccd05fa368ea1ab75d6f8",
+    "src/ticketing/workers.py": "87b048e644ed65b1a53495e8d97d7ef5f9bdb5b419abba63fbe251ee346db2ab",
+    "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+    "src/ticketing/application/ports.py": "b2115020590e7b21c56792e7735c68c5d823504ce9a1abcdf3f47b94cb9c82f5",
+    "src/ticketing/application/reservations.py": "a3195a029d2cd6a00ae68abac125349ebfb5db70a7f40e4199660f78ff402114",
+    "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+    "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+    "src/ticketing/infrastructure/order_status_projector.py": "f9e1a6809227cb81a6e620cbf1d20906202fcc061e011bdc356f6a491ce0c510",
+    "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "9090d8bf233c32a993636e382226c79472517eb23fdb7062d24797522622680a",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/reservations.py": "f79bf4936144f935ced02a4c81af7431db57dc65bbae9830b3eef2083f6eb8c4",
+    "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a",
+    "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "source_identity_sha256": "19da6fb554d1e592e3eba59a52427b10510c213ab62c2a80181b8d5d27123925",
+  "changed_modules": [
+    "src/ticketing/api.py",
+    "src/ticketing/config.py",
+    "src/ticketing/infrastructure/reservations.py",
+    "src/ticketing/workers.py"
+  ],
+  "changed_factor": "confirmation_and_successful_callback_roundtrips",
+  "dependency_input_sha256": {
+    "requirements.lock": "4c45aa6d68478b8f81e57eeb808f7ba55ad59275647cdc1bac28fdb795aaf14d",
+    "pyproject.toml": "c1ce0fcb261c6788d55b0532ba249af7a23e29d1d094b44310ebfc39c3b13dbd"
+  },
+  "local_tag": "flash-ticketing-shared:adr0346-19da6fb554d1",
+  "preparation_recipe_sha256": "99d72b274caab91a9360641e954e83f3cc7b553aa23d24fc2967fbbf1274e24c",
+  "built": true,
+  "registry_published": false,
+  "cloud_deployed": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "validation": {
+    "modules_verified": 22,
+    "imported_worker_matches": true,
+    "lease_clock_preserved": true
+  },
+  "local_image_id": "sha256:b114f6b15e4e07f11da19e98a82a21d910c39879b7aadf1bc96e8e11a74595ba",
+  "status": "LOCAL_QUALIFIED_DEFAULT_OFF",
+  "benchmark": {
+    "decision": "ADR0346",
+    "scope": "Six alternating64-callback trials per arm; actual PostgreSQL transaction; no HTTP delay or cloud contention.",
+    "callback_transaction_ms": {
+      "off": [
+        12.294056250084395,
+        13.16932812505911,
+        15.465096875004747,
+        12.60973749981531,
+        13.465651562682979,
+        15.691292187511863
+      ],
+      "on": [
+        9.88052812499518,
+        9.702403124947523,
+        11.418020312476074,
+        11.08195937513301,
+        9.758228125065216,
+        10.797790625019843
+      ]
+    },
+    "median_ms": {
+      "off": 13.317489843871044,
+      "on": 10.339159375007512
+    },
+    "local_reduction_percent": 22.36405286416806,
+    "statements_per64_callbacks": {
+      "BEGIN": 64,
+      "SELECT": 448,
+      "INSERT": 256,
+      "UPDATE": 256
+    },
+    "financial_statements_unchanged": true,
+    "successful_callbacks_each_arm": 384,
+    "local_improvement_demonstrated": true,
+    "source_sha256": {
+      "src/ticketing/api.py": "2f648ecb2488eb8a9b020e09ab6ed0a62a3a66896af5c8c6177b86cb33379a01",
+      "src/ticketing/config.py": "c05d86e800efe15b430b915b5e3bfb64986deff20aed47201f58bbc426442c97",
+      "src/ticketing/infrastructure/reservations.py": "1289d0578093050a297fd257c15372c2f2a18e1c8aa868696d4550c289bd96c0"
+    },
+    "cloud_calls": 0,
+    "cloud_capacity_improvement_measured": false
+  },
+  "checks": {
+    "native_financial_and_signed_http": 24,
+    "preparation_guards": 5,
+    "total_passed": 29,
+    "ruff_passed": true
+  },
+  "packaging": {
+    "basis": "Immutable ADR0324 parent plus reviewed ADR0344 worker and ADR0346 callback-only changes",
+    "excluded_checkout_drift": [
+      "async authentication dependency",
+      "payment-initiation context/pipeline changes"
+    ],
+    "component_tests": "Executed on checkout; callback method is hash-pinned into image",
+    "image_validation": "Actual build and network-disabled verification of all22 runtime modules; parent synchronous authentication retained"
+  },
+  "necessary_300_budget": {
+    "scope": "Necessary concurrency budgets for existing one-ticket/one-callback workload; not sufficient capacity proof",
+    "delivery_slots": 16,
+    "maximum_mean_occupied_delivery_cycle_ms": 53.333333333333336,
+    "observed_delivery_mean_ms": 78.230863935,
+    "conditional_delivery_only_ceiling_per_second": 204.52285958766842,
+    "api_cores": 4,
+    "maximum_cpu_ms_per_journey": 13.333333333333334,
+    "physical_database_backends": 24,
+    "maximum_backend_ms_per_journey": 80.0,
+    "active_journeys": 800,
+    "maximum_mean_journey_seconds": 2.6666666666666665
+  },
+  "next_action": "Qualify combined candidate in existing guarded runner before any separately authorized publication or paid comparison; retain unchanged financial, quality, freshness and infrastructure gates.160/s is a regression gate;300/s remains the target.",
+  "cloud_financial_status": "No new cloud run or reconciliation; latest ADR0343 remains FAILED_RESTORED."
+}

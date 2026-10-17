@@ -354,3 +354,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0344: Reduce simulator transaction round trips](0344-reduce-simulator-transaction-round-trips.md) - Atomic claim and simulator transaction pipeline locally qualified:53 checks,22-module image verification and22.18% lower local DB operation time; cloud unmeasured.
 
 - [ADR0345: Bind the simulator round-trip comparison](0345-bind-simulator-roundtrip-comparison.md) - Guarded160/s pair locally qualified:233 unique checks,535-file reproduction and8-role/22-module offline validation; unpublished, no paid allowance.
+
+- [ADR0346: Reduce successful callback write waits](0346-reduce-successful-callback-write-waits.md) -300/s occupancy budget and default-off successful callback write pipeline;29 checks,22-module local build and22.364% lower local callback time; cloud unmeasured.
