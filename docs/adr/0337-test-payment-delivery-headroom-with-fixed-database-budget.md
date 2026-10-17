@@ -45,3 +45,8 @@ Implemented explicit ADR0337 selection in the existing bounded runner. Only the 
 Executed155 focused runner regressions; Ruff F/I and535-file historical/current reproduction passed. Full generated four-API/fifteen-worker manifests, configuration binding and reservation admission passed using the actual existing publication receipt, without a publication mock. Approval/reservation accounting used isolated local copies only; live envelope/journal/state hashes were unchanged. Verified generated simulator settings32/10. Prepared an unauthorized source-bound goal for160/s300seconds,800 active journeys,500 HTTP connections, sixteen HTTP clients, one paid stage and3600seconds including mandatory safety/audits/drain/restoration. The prior allowance is consumed; a new bounded comparison needs approval.
 
 [Runner readiness](../capacity/cce/payment-delivery-headroom-runner-2026-10-17.json) supersedes the local receipt's pending-integration scope. No cloud capacity improvement has been measured.
+
+
+### Fresh single-run authorization
+
+The user explicitly approved one bounded comparison after reviewing runner readiness. Registered one fresh allowance at journal index150:160 offered journeys/s for300seconds; only simulator delivery slots change16-to32, retaining the immutableADR0324 image, four APIs/fifteen workers,800 active journeys,500 HTTP connections, sixteen HTTP clients,24 physical DB backends and unchanged gateway delays. Safety, financial audit, full drain and exact restoration remain mandatory within3600seconds. The prior allowance is consumed; this approval permits no second paid stage or rate increase. Authorization is not a performance result.
