@@ -238,7 +238,10 @@ def binding_fixture(monkeypatch):
     import cce_verification_contract as verification
     import run_cce_paid_comparison as core
     actual = goal()
-    binding = {'baseline_sha256': profile.REFERENCE[2],
+    from cce_inventory_renewal import contract as renewal_contract
+    from cce_metric_admission import contract as metric_contract
+    binding = {'cce_metric_admission_contract_sha256': policy.digest(metric_contract()),
+               'cce_inventory_renewal_contract': renewal_contract(), 'baseline_sha256': profile.REFERENCE[2],
                'cce_simulator_roundtrip_contract': profile.binding_contract(actual),
                'cce_transaction_pair_sha256': profile.sha(profile.PUBLICATION),
                'cce_paid_entry_sources': core.identity(), 'cce_paid_core_sources': paid.identity(),
@@ -273,7 +276,7 @@ def test_preview_binding_validates_all_declared_sources(monkeypatch):
     ('cce_api_client_pool_max', 8), ('cce_payment_pool_max', 4),
     ('cce_simulator_concurrency', 32), ('saved_api_service_sha256', 'different'),
     ('cce_transaction_pair_sha256', '0'*64), ('cce_generator_process_contract', {}),
-    ('cce_simulator_roundtrip_contract', {}),
+    ('cce_simulator_roundtrip_contract', {}), ('cce_inventory_renewal_contract', {}), ('cce_metric_admission_contract_sha256', '0'*64),
 ])
 def test_binding_budget_and_contract_drift_is_rejected(monkeypatch, field, value):
     actual, binding = binding_fixture(monkeypatch)

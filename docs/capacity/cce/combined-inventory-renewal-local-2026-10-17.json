@@ -1,0 +1,29 @@
+{
+  "decision": "ADR0348",
+  "status": "LOCALLY_QUALIFIED_FRESH_PAIR_APPROVAL_REQUIRED",
+  "change": "Exact source-bound combined worker adapter accepted by inventory renewal; native worker proof retained before renewal.",
+  "tests": {
+    "focused_regressions_passed": 212,
+    "skipped": 1,
+    "initial_renewal_checks_passed": 20,
+    "initial_checks_overlap_final_suite": true,
+    "ruff_passed": true,
+    "actual_manifest_preparation_passed": true,
+    "actual_isolated_reservation_passed": true,
+    "skip_reason": "Symlink creation unavailable on this Windows host"
+  },
+  "proof_scope": "Synthetic fully validated runtime bundles exercise actual renewal and observer.start failure-retention; actual published image proof used in generated binding/reservation. These are not new cloud throughput evidence.",
+  "application_image_changed": false,
+  "registry_published": true,
+  "registry_manifest_digest": "sha256:b114f6b15e4e07f11da19e98a82a21d910c39879b7aadf1bc96e8e11a74595ba",
+  "original_cloud_run": "adr0151-5363d2b5b94c",
+  "original_run_status": "FAILED_RESTORED",
+  "original_paid_stages_started": 0,
+  "original_raw_result_sha256": "d5d702386ebee31e91307985631d27b5cee543b0e5ef199a7ef44332edc95949",
+  "stopped_pair_reset": false,
+  "new_paid_allowance_opened": false,
+  "new_cloud_run_started": false,
+  "next_action": "Fresh explicit160/s300s control and conditional candidate pair approval; keep fixed resources, existing gates and original stopped result.",
+  "prepared_goal_path": "tmp/adr0348-control-goal.prepared.private.json",
+  "admission_proof_path": "tmp/adr0348-control-admission-qualified.json"
+}

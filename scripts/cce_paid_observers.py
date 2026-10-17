@@ -345,6 +345,9 @@ class Observers:
                 self.context,
             )
         )
+        if getattr(self, "native_workers", None) is not None:
+            # Keep immutable worker proofs even if renewal rejects before upload.
+            policy.write(self.stage.output / "native-workers.private.json", self.native_workers)
         if getattr(self, "renew_inventory", None) is not None:
             policy.write(self.stage.output / "observer-original-inventory.private.json", self.inventory)
             self.inventory, self.record["inventory_renewal"] = self.renew_inventory(self.inventory, receipts)
@@ -355,8 +358,6 @@ class Observers:
         if self.runtime_cohort is not None:
             self.upload("runtime-cohort-contract.json", json.dumps(self.runtime_cohort))
         if getattr(self, "native_workers", None) is not None:
-            # Retain admission proofs locally after transition cleanup replaces its checkpoint.
-            policy.write(self.stage.output / "native-workers.private.json", self.native_workers)
             self.upload("native-workers.json", json.dumps(self.native_workers))
         early = getattr(self, "hourly_early_bootstrap", False)
         observation_seconds = str(4200 if early else self.stage.profile.observer_seconds)

@@ -357,4 +357,6 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0346: Reduce successful callback write waits](0346-reduce-successful-callback-write-waits.md) -300/s occupancy budget and default-off successful callback write pipeline;29 checks,22-module local build and22.364% lower local callback time; cloud unmeasured.
 
-- [ADR0347: Qualify the combined confirmation path](0347-qualify-combined-confirmation-path.md) - Required cloud spending authorized; combined160/s runner locally qualified with235 checks and8-role image validation; specific registry-upload approval pending after automatic review rejection.
+- [ADR0347: Qualify the combined confirmation path](0347-qualify-combined-confirmation-path.md) - Combined image published after explicit approval; control stopped before paid dispatch on inventory-role integration and fully restored; candidate not run.
+
+- [ADR0348: Bind combined worker inventory renewal](0348-bind-combined-worker-inventory-renewal.md) - Corrected final pre-dispatch role integration/evidence retention;212 checks and actual preparation/admission passed locally; no automatic cloud retry.

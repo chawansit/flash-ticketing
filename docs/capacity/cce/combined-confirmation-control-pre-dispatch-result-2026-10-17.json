@@ -1,0 +1,86 @@
+{
+  "decision": "ADR0347",
+  "run": "adr0151-5363d2b5b94c",
+  "ledger": "bounded_cce_ticket_target__41e0385b3538",
+  "status": "FAILED_RESTORED",
+  "raw_result_sha256": "d5d702386ebee31e91307985631d27b5cee543b0e5ef199a7ef44332edc95949",
+  "arm": "control",
+  "quality": "NOT_MEASURED_PRE_DISPATCH_FAILURE",
+  "short_capacity_qualified": false,
+  "offered_rate_per_second": 160,
+  "offered_window_seconds": 300,
+  "offered_window_executed": false,
+  "capacity_stages_started": 0,
+  "paid_runs_started": 0,
+  "customer": {
+    "scheduled": 0,
+    "dispatched": 0,
+    "generator_drops": null,
+    "first_attempt_error_journeys": null,
+    "recovered_journeys": null,
+    "final_customer_failures": null
+  },
+  "issuance": {
+    "conservative_inner_window_tickets": null,
+    "conservative_rate_per_second": null
+  },
+  "latencies_ms": {},
+  "failure": {
+    "type": "ValueError",
+    "code": "Exactly declared native writer scale required",
+    "path": "cce_paid_observers.start -> renew_inventory -> cce_inventory_renewal.renew",
+    "cause": "Inventory renewal excludes ADR0345 worker role adapter used by the ADR0347 combined runner."
+  },
+  "safety": {
+    "primary_bootstrap_financial_pass": true,
+    "native_gates": {
+      "all_four_pods_exercised": true,
+      "exactly_one_hold": true,
+      "one_durable_owner": true,
+      "cross_pod_hold_replay": true,
+      "cross_pod_payment_replay": true,
+      "other_actor_denied": true,
+      "customer_ticket_confirmed": true,
+      "post_ttl_durable": true,
+      "duplicate_callbacks_durable": true,
+      "zero_double_booking": true,
+      "full_queue_drain": true
+    },
+    "native_post_ttl_financial_pass": true
+  },
+  "financial_evidence_scope": "Both safety cohorts audited by existing runner; paid load never dispatched, so no paid throughput/financial load qualification.",
+  "queues_after_restoration": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "restoration": {
+    "original_runtime_restored": true,
+    "integrity_verified": true,
+    "generator_idle": true,
+    "namespace_removed": true,
+    "cleanup_complete": true,
+    "owned_resources_removed": true,
+    "transport_credentials_cleared": true,
+    "private_stage_cleanup_pass": true,
+    "secondary_contacted": false
+  },
+  "candidate_started": false,
+  "candidate_permitted": false,
+  "limiting_evidence": [
+    "Pre-dispatch admission integration failure; no rate or latency inference is possible."
+  ],
+  "next": "Fix inventory-renewal role integration and qualify the actual observer preparation path offline. Keep failed/stopped pair unchanged; no automatic cloud repeat."
+}

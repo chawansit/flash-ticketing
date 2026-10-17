@@ -27,7 +27,7 @@ INPUTS = {LOCAL, PUBLICATION, 'scripts/cce_simulator_roundtrip_profile.py',
           'scripts/prepare_callback_write_pipeline_image.py',
           'docs/capacity/cce/simulator-roundtrip-local-2026-10-17.json',
           'docs/capacity/cce/simulator-roundtrip-registry-2026-10-17.json'}
-CHANGED = {'scripts/cce_api_adapter.py','scripts/cce_transaction_profile.py', 'scripts/run_cce_paid_comparison.py',
+CHANGED = {'scripts/cce_inventory_renewal.py', 'scripts/cce_paid_observers.py','scripts/cce_api_adapter.py','scripts/cce_transaction_profile.py', 'scripts/run_cce_paid_comparison.py',
            'scripts/cce_recovery_headroom.py', 'scripts/cce_throughput_push.py',
            'scripts/cce_native_workers.py', 'scripts/cce_worker_identity.py',
            'scripts/cce_worker_transition.py', 'scripts/cce_paid_stage.py',
@@ -261,10 +261,13 @@ def validate_binding(goal, binding, *, preparation_only=False):
     varied = {'cce_paid_entry_sources', 'cce_paid_core_sources', 'cce_manifest_sha256', 'baseline_sha256',
               'cce_headroom_contract', 'cce_throughput_push_contract', 'cce_generator_process_contract',
               'cce_api_client_pool_contract', 'cce_primary_bootstrap_contract', 'cce_verification_contract_sha256',
-              'cce_transaction_pair_sha256', 'cce_simulator_roundtrip_contract'}
+              'cce_transaction_pair_sha256', 'cce_simulator_roundtrip_contract', 'cce_inventory_renewal_contract', 'cce_metric_admission_contract_sha256'}
     if any(original.get(k) != binding.get(k) for k in original.keys() | binding.keys() if k not in varied):
         raise ValueError('Roundtrip comparison changed unrelated resources, routes, settings or recovery')
-    expected = {'baseline_sha256': REFERENCE[2], 'cce_simulator_roundtrip_contract': binding_contract(goal),
+    from cce_inventory_renewal import contract as renewal_contract
+    from cce_metric_admission import contract as metric_contract
+    expected = {'cce_metric_admission_contract_sha256': policy.digest(metric_contract()),
+                'cce_inventory_renewal_contract': renewal_contract(), 'baseline_sha256': REFERENCE[2], 'cce_simulator_roundtrip_contract': binding_contract(goal),
                 'cce_transaction_pair_sha256': sha(PUBLICATION), 'cce_api_client_pool_contract': client_contract(goal),
                 'cce_headroom_contract': headroom.contract(goal), 'cce_throughput_push_contract': push.contract(goal),
                 'cce_generator_process_contract': generator.contract(goal), 'cce_primary_bootstrap_contract': bootstrap.contract(),
