@@ -1,0 +1,91 @@
+{
+  "decision": "ADR0336",
+  "status": "LOCAL_INTEGRATION_VERIFIED_PUBLICATION_BLOCKED",
+  "tests": {
+    "focused_passed": 240,
+    "ruff_F_I_passed": true
+  },
+  "isolated_composed_admission": {
+    "pass": true,
+    "decision": "ADR0336",
+    "scope": "full generated manifests/binding and reservation in isolated files with simulated publication",
+    "publication_mocked": true,
+    "actual_publication_verified": false,
+    "live_ledger_and_goal_unchanged": true,
+    "cloud_calls": 0,
+    "paid_traffic_started": false,
+    "candidate_api_manifest": "sha256:cde635d647a83758065d6e7bb6d36efaed79aa7baeb0dab91368dcd047aecde3",
+    "workers_unchanged": true,
+    "source_contract_sha256": "a59d20363bc82bcfb3eca4cdb64d52197b5e239efe09ada86e3d8cab7a22938a"
+  },
+  "historical_reproduction": {
+    "decision": "ADR0238",
+    "pass": true,
+    "checked_files": 535,
+    "approved_working_overlay_files": 31,
+    "frozen_parent_files": 78,
+    "runtime_generator_files": 78,
+    "historical_contract_constructor_verified": true,
+    "historical_role_count": 8,
+    "cce_api_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:2fdad0b429603e01ce28eb0a578e8e0c87d98401868e389c1d92350c8969c38d",
+    "workload_profiles": {
+      "short": {
+        "rate": 84,
+        "seconds": 300,
+        "tickets": 25200
+      },
+      "hourly": {
+        "rate": 84,
+        "seconds": 3600,
+        "tickets": 302400
+      }
+    },
+    "historical_images_match_pr6_combined_source": false,
+    "cloud_calls": 0,
+    "customer_dispatches": 0,
+    "capacity_improvement_measured": false,
+    "production_qualified": false
+  },
+  "api_only_rollout": {
+    "candidate_manifest": "sha256:cde635d647a83758065d6e7bb6d36efaed79aa7baeb0dab91368dcd047aecde3",
+    "candidate_configuration": "sha256:527aec6fa481e6774d4508e420cf3e394155cc8ec9ba12021971e351101044d0",
+    "candidate_source": "bf8bc89d0dac9da1f318976fcecdb7899f2f883cd0fea1cab9f3d67d6140e477",
+    "api_pods": 4,
+    "worker_pods": 15,
+    "worker_and_ecs_bootstrap_manifest": "sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2"
+  },
+  "comparison": {
+    "reference_run": "adr0151-3fa2832bb77c",
+    "reference_result_sha256": "784f559ae4a76271170d72fb78dc2d00a8a34216822cf9a025cebb2f664ab17f",
+    "reference_is_passing_control": false,
+    "offered_journeys_per_second": 160,
+    "offered_seconds": 300,
+    "expected_journeys": 48000,
+    "active_journeys": 800,
+    "generator_processes": 4,
+    "http_connections": 500,
+    "http_clients": 16,
+    "physical_db_backends": 24,
+    "api_general_payment_slots": [
+      2,
+      2
+    ],
+    "admission": 20,
+    "maximum_experiment_seconds": 3600,
+    "maximum_paid_stages": 1
+  },
+  "source_contract_sha256": "a59d20363bc82bcfb3eca4cdb64d52197b5e239efe09ada86e3d8cab7a22938a",
+  "real_publication_gate": "REJECTED unpublished/unpulled candidate as expected",
+  "registry_upload_attempt": "Authentication rejected; fresh SWR login required",
+  "registry_published": false,
+  "cloud_deployed": false,
+  "paid_load_started": false,
+  "new_live_allowance_registered": false,
+  "capacity_improvement_measured": false,
+  "limitations": [
+    "Full composed reservation used simulated publication in isolated envelope/journal/state copies.",
+    "Actual registry pull verification and actual unmocked reservation remain pending.",
+    "Previous one-stage paid allowance is consumed; a fresh allowance is required before load.",
+    "API-only overlay is locally tested; cloud execution and performance remain unqualified."
+  ]
+}

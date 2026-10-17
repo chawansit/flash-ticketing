@@ -126,6 +126,9 @@ def identity():
         "docs/capacity/cce/api-adapter-contract-2026-10-08.json",
     )
     paths = (*paths, *__import__("cce_primary_bootstrap").SOURCES)
+    paths = (*paths, "scripts/cce_auth_dispatch_profile.py",
+             "docs/capacity/cce/authentication-dispatch-local-2026-10-17.json",
+             "docs/capacity/cce/authentication-dispatch-image-2026-10-17.json")
     import cce_generator_process_scaling as generator_scaling
     if generator_scaling.selected(generator_scaling.active_goal()):
         paths = (*paths, generator_scaling.SOURCE, "scripts/cce_fixture_clock.py")

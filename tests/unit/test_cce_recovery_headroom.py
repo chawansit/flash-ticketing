@@ -26,7 +26,9 @@ def goal():
             "payment_slot_arm": "candidate", "gateway_read_recovery_decision": "ADR0311"}
 
 
-def test_profile_selection_does_not_mutate_historical_bounds():
+def test_profile_selection_does_not_mutate_historical_bounds(monkeypatch):
+    monkeypatch.setattr(p, "envelope", lambda: {"spending": {"temporary_cce_pilot_exception":
+                                               {"goal_bounded_authorization": goal()}}})
     assert (SHORT.expected, HOURLY.expected, TICKET_TARGET.expected) == (25200, 302400, 50400)
     assert for_guard(SimpleNamespace(key="bounded_cce_ticket_target__000000000000", binding={})) == TICKET_TARGET
     guard = SimpleNamespace(key="bounded_cce_ticket_target__000000000000",

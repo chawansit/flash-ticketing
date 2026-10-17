@@ -111,6 +111,8 @@ def test_capture_builds_adr0322_binding_and_worker_runtime_before_dispatch(monke
     from types import SimpleNamespace
 
     import cce_worker_transition as transition
+    monkeypatch.setattr(policy, "envelope", lambda: {"spending": {"temporary_cce_pilot_exception":
+                                                    {"goal_bounded_authorization": goal()}}})
     g = headroom.runtime_view(goal())
     contract = CommittedStatusContract(arm="candidate", identity=profile.pins)
     obj = transition.WorkerTransition.__new__(transition.WorkerTransition)

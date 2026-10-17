@@ -16,6 +16,9 @@ OVERLAID = {
     "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py",
     "scripts/run_cce_hourly_qualification.py", "scripts/cce_hourly_paid_generator.py", "scripts/cce_hourly_paid_leaf.py"}
 ADDITIONAL = {
+    "scripts/cce_auth_dispatch_profile.py",
+    "docs/capacity/cce/authentication-dispatch-local-2026-10-17.json",
+    "docs/capacity/cce/authentication-dispatch-image-2026-10-17.json",
     "scripts/database_query_cost.py",
     "scripts/cce_fixture_clock.py",
     "scripts/cce_generator_process_scaling.py",

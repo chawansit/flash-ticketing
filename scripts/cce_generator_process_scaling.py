@@ -91,7 +91,12 @@ def validate_binding(goal, binding):
     elif "cce_fixture_clock_contract" in binding:
         raise ValueError("Unselected creator-clock proof")
     if active_concurrency(goal) == 800:
-        validate_occupancy_reference(binding)
+        from cce_auth_dispatch_profile import reference as authentication_reference
+        from cce_auth_dispatch_profile import selected as authentication_selected
+        if authentication_selected(goal):
+            authentication_reference()
+        else:
+            validate_occupancy_reference(binding)
     return True
 
 

@@ -96,6 +96,10 @@ def require_reference(goal=None):
 
 
 def validate_binding(goal, binding):
+    from cce_auth_dispatch_profile import selected as authentication_selected
+    if authentication_selected(goal):
+        from cce_auth_dispatch_profile import validate_binding as authentication_binding
+        return authentication_binding(goal, binding)
     if not selected(goal):
         raise ValueError("Explicit120/140/s source-bound workload required")
     _, report = require_reference(goal)

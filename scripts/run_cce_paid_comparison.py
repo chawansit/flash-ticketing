@@ -110,6 +110,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
               "cce_transaction_pair_sha256": transaction.proof_digest(transaction.active())}
              if transaction.active() is not None else {})
     goal = transaction.active()
+    from cce_auth_dispatch_profile import contract as authentication_contract
+    from cce_auth_dispatch_profile import selected as authentication_selected
+    if authentication_selected(goal):
+        extra["cce_auth_dispatch_contract"] = authentication_contract()
     from cce_status_reuse_hourly import adapters
     from cce_status_reuse_hourly import selected as hourly_selected
     if hourly_selected(goal):

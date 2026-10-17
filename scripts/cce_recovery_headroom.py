@@ -354,10 +354,15 @@ def plan(goal):
     if not selected(goal):
         raise ValueError("Explicit headroom profile required")
     view = goal if goal.get("_headroom_runtime_view") else runtime_view(goal)
-    return placement_plan(view)
+    from cce_auth_dispatch_profile import extend_plan as authentication_plan
+    return authentication_plan(goal, placement_plan(view))
 
 
 def validate_binding(goal, binding):
+    from cce_auth_dispatch_profile import selected as authentication_selected
+    if authentication_selected(goal):
+        from cce_auth_dispatch_profile import validate_binding as authentication_binding
+        return authentication_binding(goal, binding)
     require_short(goal)
     old = policy.read(policy.STATE)[BASELINE_LEDGER]["binding"]
     correction = correction_selected(goal)

@@ -161,6 +161,10 @@ def pair_receipt(goal):
 
 
 def image_for(goal):
+    from cce_auth_dispatch_profile import image as authentication_image
+    from cce_auth_dispatch_profile import selected as authentication_selected
+    if authentication_selected(goal):
+        return authentication_image()
     from cce_fulfillment_batch_profile import selected as fulfillment_selected
     if fulfillment_selected(goal):
         from cce_fulfillment_batch_profile import image
