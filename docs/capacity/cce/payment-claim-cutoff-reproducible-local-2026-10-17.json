@@ -1,0 +1,25 @@
+{
+  "decision": "ADR0341",
+  "parent_registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+  "source_identity_sha256": "046b8b0fe4ea571822fc2f3e17af49dac61bf216acc6d185e7c6efabf25364b5",
+  "local_tag": "flash-ticketing-shared:adr0341-046b8b0fe4ea",
+  "local_image_id": "sha256:730bff63781ccffa1aa8ab081e5ab73621d01ea86269d4e6aa74846857e57ff4",
+  "preparation_recipe_sha256": "b9f55f1c107dcadc670a19bc24941e9c9badb4ca2cf67f18a15cb084805b668f",
+  "validation": {
+    "modules_verified": 22,
+    "imported_worker_matches": true,
+    "lease_clock_preserved": true
+  },
+  "built": true,
+  "registry_published": false,
+  "cloud_deployed": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "preparation_script": "scripts/prepare_payment_claim_cutoff_image.py",
+  "unit_preparation_checks_passed": 4,
+  "earlier_functional_receipt": "docs/capacity/cce/payment-claim-cutoff-local-2026-10-17.json",
+  "same_runtime_sources_as_original_candidate": true,
+  "other_runtime_modules_unchanged": 21,
+  "network_disabled_build_and_verification": true,
+  "runner_candidate_binding_ready": false
+}
