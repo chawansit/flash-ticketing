@@ -34,6 +34,12 @@ from run_status_refresh_comparison import RunLock, restoration_complete
 BASELINE = "docs/capacity/flash-sale-opening/cce-admission-control-2026-10-09.json"
 
 
+def prepare_payment_claim_proposal(goal, service, environments, primary_ip):
+    """Local-only ADR0342 preparation; never reserves or dispatches a paid stage."""
+    from cce_payment_claim_binding import prepare
+    return prepare(goal, service, environments, primary_ip)
+
+
 def identity():
 
     return {

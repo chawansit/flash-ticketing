@@ -1,0 +1,129 @@
+{
+  "decision": "ADR0342",
+  "local_only": true,
+  "deployment_admitted": false,
+  "fixed": {
+    "offered_rate": 160,
+    "offered_seconds": 300,
+    "maximum_experiment_seconds": 3600,
+    "proposed_paid_arms": 2,
+    "api_pods": 4,
+    "worker_pods": 15,
+    "physical_backends": 24,
+    "api_general_slots": 3,
+    "api_payment_slots": 3,
+    "shared_admission": 20,
+    "aggregate_api_client_slots": 24,
+    "physical_backend_reserve": 0,
+    "acquisition_wait_ms": 500,
+    "simulator_delivery_slots": 16,
+    "simulator_database_pool_max": 10,
+    "generator_processes": 4,
+    "active_journeys": 800,
+    "http_connections": 500,
+    "http_clients": 16
+  },
+  "preparation_sources": {
+    "scripts/cce_payment_claim_binding.py": "92d7c89f4823e6690eed04a92fde8795484ce57ae0a8f1e09d7a02e73d02080e",
+    "scripts/run_cce_paid_comparison.py": "f706633556042587b4324426bb10602573eb319f0a1fe0ba46778452297cd92a",
+    "scripts/cce_api_adapter.py": "134178b3c200c587b4a1dd74f1fcc09645947f75a32cdc5a0597b683de133488",
+    "scripts/cce_native_workers.py": "2f605206cf94a3dc3b2455e9f14e019cfee30ca8a09155c4165aa6dd6605df7c",
+    "scripts/prepare_payment_claim_cutoff_image.py": "b9f55f1c107dcadc670a19bc24941e9c9badb4ca2cf67f18a15cb084805b668f"
+  },
+  "stop_after_failed_control": true,
+  "arms": {
+    "control": {
+      "image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+      "runtime_sources": {
+        "src/ticketing/api.py": "52e4806e5aad90e009d5933cef57480dc470a3cee72fa5b43f8bc9589737fac1",
+        "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+        "src/ticketing/config.py": "a8fad87b1e9ae0506ca93793a276d41deac16a52a9edf08d2663e9557a0088ec",
+        "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+        "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
+        "src/ticketing/observability.py": "2985480a7d21af0be1e2126d9e556d55738e9ae30dbccd05fa368ea1ab75d6f8",
+        "src/ticketing/workers.py": "37915068f744b42726f1574b6d8009614c07f2aff0b19dcc2a0a1a9359a2bb61",
+        "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+        "src/ticketing/application/ports.py": "b2115020590e7b21c56792e7735c68c5d823504ce9a1abcdf3f47b94cb9c82f5",
+        "src/ticketing/application/reservations.py": "a3195a029d2cd6a00ae68abac125349ebfb5db70a7f40e4199660f78ff402114",
+        "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+        "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+        "src/ticketing/infrastructure/order_status_projector.py": "f9e1a6809227cb81a6e620cbf1d20906202fcc061e011bdc356f6a491ce0c510",
+        "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+        "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+        "src/ticketing/infrastructure/postgres.py": "9090d8bf233c32a993636e382226c79472517eb23fdb7062d24797522622680a",
+        "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+        "src/ticketing/infrastructure/reservations.py": "f8f63c853fae8814537aa489e008cbe050705ec7cd179ea86134a6009ccbba0c",
+        "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a",
+        "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      "manifest_sha256": "2a7efc44b98ead5e352daf77e9bd0c679471f3c38d942690fa477b02c8eb3571"
+    },
+    "candidate": {
+      "image": "sha256:730bff63781ccffa1aa8ab081e5ab73621d01ea86269d4e6aa74846857e57ff4",
+      "runtime_sources": {
+        "src/ticketing/api.py": "52e4806e5aad90e009d5933cef57480dc470a3cee72fa5b43f8bc9589737fac1",
+        "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+        "src/ticketing/config.py": "a8fad87b1e9ae0506ca93793a276d41deac16a52a9edf08d2663e9557a0088ec",
+        "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+        "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
+        "src/ticketing/observability.py": "2985480a7d21af0be1e2126d9e556d55738e9ae30dbccd05fa368ea1ab75d6f8",
+        "src/ticketing/workers.py": "aa77d4e409eeb0104da015d395589eea2cc3d11f91f7658618cdc90ab12402a4",
+        "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+        "src/ticketing/application/ports.py": "b2115020590e7b21c56792e7735c68c5d823504ce9a1abcdf3f47b94cb9c82f5",
+        "src/ticketing/application/reservations.py": "a3195a029d2cd6a00ae68abac125349ebfb5db70a7f40e4199660f78ff402114",
+        "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+        "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+        "src/ticketing/infrastructure/order_status_projector.py": "f9e1a6809227cb81a6e620cbf1d20906202fcc061e011bdc356f6a491ce0c510",
+        "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+        "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+        "src/ticketing/infrastructure/postgres.py": "9090d8bf233c32a993636e382226c79472517eb23fdb7062d24797522622680a",
+        "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+        "src/ticketing/infrastructure/reservations.py": "f8f63c853fae8814537aa489e008cbe050705ec7cd179ea86134a6009ccbba0c",
+        "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a",
+        "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      "manifest_sha256": "89a3f309ddb2dd35fb6b766b8451f25959604e5894642f61f61af67f44c79a9d"
+    }
+  },
+  "local_runner_binding_ready": true,
+  "registry_verified": false,
+  "live_runner_registration_ready": false,
+  "cloud_measured": false,
+  "live_snapshot_reconciled": false,
+  "configuration_scope": "synthetic local fixture; actual live snapshot reconciliation pending",
+  "generated_role_validation": {
+    "generated_role_configurations_validated": 8,
+    "network": "none",
+    "services_started": 0
+  },
+  "registry_access": {
+    "credential_available": true,
+    "repository_push_permission_verified": true,
+    "published": false,
+    "repository_pull_permission_verified": true,
+    "failure_code": null
+  },
+  "checks": {
+    "binding_tests_passed": 19,
+    "existing_compatibility_cases_passed": 109,
+    "ruff": "PASS",
+    "generated_role_configurations_validated": 8,
+    "network_disabled": true,
+    "services_started": 0,
+    "compatibility_note": "109 cases passed in the earlier combined invocation; 14 new-fixture setup errors were corrected and all19 binding cases then passed after the final edit."
+  },
+  "publication": {
+    "executed": false,
+    "registry_published": false,
+    "approval_gate": "AUTO_REVIEW_REJECTED_EXACT_PRIVATE_IMAGE_EGRESS_APPROVAL_REQUIRED",
+    "destination": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing:adr0341-046b8b0fe4ea",
+    "risk": "Transfer of the private application image and internal source contents to the existing external registry requires explicit user approval."
+  },
+  "next_action": "Obtain explicit image-transfer approval, verify immutable publication/pull, reconcile live snapshot and register with existing guard; then separately approve160/s300s control/candidate within60minutes, stopping after failed control.",
+  "new_paid_runs": 0,
+  "best_passing_conservative_tickets_per_second": 158.0633
+}

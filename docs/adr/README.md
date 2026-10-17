@@ -346,3 +346,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0340: Use compact local run monitoring and handoffs](0340-use-compact-local-run-monitoring-and-handoffs.md) - Local summary/watcher/evidence checker implemented;15 unit checks and both retained-run evidence audits passed. No cloud calls or capacity change.
 
 - [ADR0341: Bound payment eligibility at claim statement start](0341-bound-payment-claim-eligibility.md) - Local SQL correction; 20 focused checks and immutable-parent local build passed. No cloud run or capacity gain claimed.
+
+- [ADR0342: Bind the local payment claim comparison through existing builders](0342-bind-local-payment-claim-comparison.md) - Local configuration preparation; registry and paid admission remain incomplete.

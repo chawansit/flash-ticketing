@@ -49,13 +49,13 @@ def legacy_contract():
     return data
 
 
-def contract():
+def contract(*, goal=None, image_receipt=None):
     import cce_transaction_profile as transaction
     data = legacy_contract()
-    goal = transaction.active()
+    goal = transaction.active() if goal is None else goal
     if goal is not None:
         data = copy.deepcopy(data)
-        data["api_sources"] = transaction.image_for(goal)["runtime_sources_sha256"]
+        data["api_sources"] = (transaction.image_for(goal) if image_receipt is None else image_receipt)["runtime_sources_sha256"]
         data["api_settings"]["DB_FAILURE_DIAGNOSTICS"] = "1"
         if goal["extension_decision"] in {"ADR0259", "ADR0263", "ADR0266", "ADR0271", "ADR0277"}:
             data["resources"] = {k: {"cpu": "1", "memory": "2Gi"} for k in ("requests", "limits")}
@@ -187,9 +187,9 @@ def private_ip(value):
     return str(addr)
 
 
-def api_environment(service, primary_ip, *, acquisition_budget=12):
+def api_environment(service, primary_ip, *, acquisition_budget=12, goal=None):
     """Preserve authority and query options; change only the pooler route."""
-    data = contract()
+    data = contract(goal=goal)
     if service.get("image") != dependency.INDEX or service.get("volumes"):
         raise ValueError("Exact frozen API image and supported mount-free service required")
     env = copy.deepcopy(service["environment"])
@@ -214,7 +214,7 @@ def api_environment(service, primary_ip, *, acquisition_budget=12):
     from cce_backend_partition import route as partition_route
     from cce_backend_partition import selected as partition_selected
     from cce_transaction_profile import active
-    if partition_selected(active()):
+    if partition_selected(active() if goal is None else goal):
         env["DATABASE_URL"] = partition_route(env["DATABASE_URL"],"ticketing_foreground")
     redis = urlsplit(env["REDIS_URL"])
     if redis.scheme not in {"redis", "rediss"} or redis.hostname != "10.1.245.61" or redis.port != 6379:
@@ -226,9 +226,9 @@ def api_environment(service, primary_ip, *, acquisition_budget=12):
     return env
 
 
-def startup_program(sources, environment_sha256, command):
+def startup_program(sources, environment_sha256, command, *, goal=None, image_receipt=None):
     if (
-        sources != contract()["api_sources"]
+        sources != contract(goal=goal, image_receipt=image_receipt)["api_sources"]
         or not re.fullmatch(r"[0-9a-f]{64}", environment_sha256)
         or command
         != [
@@ -285,7 +285,8 @@ os.execvp(command[0],command)
 """
 
 
-def objects(run, service, primary_ip, registry_username, registry_password, *, acquisition_budget=12, profile=None):
+def objects(run, service, primary_ip, registry_username, registry_password, *, acquisition_budget=12, profile=None,
+            goal=None, image_receipt=None):
     from cce_paid_profiles import (
         HEADROOM,
         HIGHER_RATE_PUSH,
@@ -301,15 +302,17 @@ def objects(run, service, primary_ip, registry_username, registry_password, *, a
         raise ValueError("Exact native lifetime profile required")
     """Private payloads: never publish returned Secrets."""
     import cce_transaction_profile as transaction
+    goal = transaction.active() if goal is None else goal
     pull_secrets = ([{"name": "default-secret"}, {"name": "swr-pull"}]
-                    if transaction.active() is not None else [{"name": "swr-pull"}])
+                    if goal is not None else [{"name": "swr-pull"}])
     namespace = dependency.namespace_for(run)
-    env = api_environment(service, primary_ip, acquisition_budget=acquisition_budget)
+    env = api_environment(service, primary_ip, acquisition_budget=acquisition_budget, goal=goal)
     program = (
         "environment_keys="
         + repr(sorted(env))
         + "\n"
-        + startup_program(contract()["api_sources"], policy.digest(env), service["command"])
+        + startup_program(contract(goal=goal, image_receipt=image_receipt)["api_sources"], policy.digest(env), service["command"],
+                          goal=goal, image_receipt=image_receipt)
     )
     labels = {"codex-owner": run}
     auth = base64.b64encode((registry_username + ":" + registry_password).encode()).decode()
@@ -339,7 +342,7 @@ def objects(run, service, primary_ip, registry_username, registry_password, *, a
                 "metadata": {
                     "name": f"api-{index}",
                     "labels": {**labels, **({"codex-api-route": run}
-                        if __import__("cce_nginx_ingress").selected(transaction.active()) else {})},
+                        if __import__("cce_nginx_ingress").selected(goal) else {})},
                     "annotations": {
                         "codex-environment-sha256": policy.digest(env),
                         "codex-command-sha256": policy.digest(service["command"]),
@@ -359,7 +362,7 @@ def objects(run, service, primary_ip, registry_username, registry_password, *, a
                     "containers": [
                         {
                             "name": "api",
-                            "image": api_image(),
+                            "image": api_image() if image_receipt is None else image_receipt["registry_image"],
                             "imagePullPolicy": "Always",
                             "command": ["python", "-u", "-c", program],
                             "workingDir": "/app",
@@ -377,7 +380,7 @@ def objects(run, service, primary_ip, registry_username, registry_password, *, a
                                 "allowPrivilegeEscalation": False,
                                 "capabilities": {"drop": ["ALL"]},
                             },
-                            "resources": copy.deepcopy(contract()["resources"]),
+                            "resources": copy.deepcopy(contract(goal=goal)["resources"]),
                             "readinessProbe": {
                                 "httpGet": {"path": "/health/ready", "port": 8000, "scheme": "HTTP"},
                                 "periodSeconds": 10,

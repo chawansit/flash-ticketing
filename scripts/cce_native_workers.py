@@ -11,7 +11,7 @@ import cce_worker_identity as identity
 import work_envelope as policy
 
 
-def environment(role, values, primary_ip, decision="ADR0259"):
+def environment(role, values, primary_ip, decision="ADR0259", *, goal=None):
     if role not in identity.specification(decision)["counts"] or not isinstance(values, dict) or any(not isinstance(k, str) or not isinstance(v, str) for k, v in values.items()):
         raise ValueError("Resolved known worker environment required")
     result = copy.deepcopy(values)
@@ -28,7 +28,7 @@ def environment(role, values, primary_ip, decision="ADR0259"):
     if decision in {"ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324"}:
         from cce_committed_status_profile import selected
         from cce_transaction_profile import active
-        goal = active()
+        goal = active() if goal is None else goal
         if not selected(goal) or result.get("ORDER_STATUS_COMMITTED_SNAPSHOT") != "0":
             raise ValueError("Explicit disabled ECS bootstrap required before consumer activation")
         result["ORDER_STATUS_COMMITTED_SNAPSHOT"] = "1" if role == "consumer" and goal["committed_status_arm"] == "candidate" else "0"
@@ -66,7 +66,7 @@ def environment(role, values, primary_ip, decision="ADR0259"):
     return delivery_environment(role, result, goal if decision == "ADR0324" else None)
 
 
-def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None):
+def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None, goal=None, image_receipt=None):
     from cce_paid_profiles import (
         HEADROOM,
         HIGHER_RATE_PUSH,
@@ -105,10 +105,12 @@ def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None):
         receipt_image = image()
     else:
         receipt_image = comparison.selected_receipt()
+    if image_receipt is not None:
+        receipt_image = image_receipt
     sources = receipt_image["runtime_source_sha256"]
     image_ref = receipt_image["registry_image"]
     for role, count in selected["counts"].items():
-        env = environment(role, environments[role], primary_ip, decision)
+        env = environment(role, environments[role], primary_ip, decision, goal=goal)
         command = ["python", "-m", "ticketing.workers", role]
         program = ("expected=" + repr(sources) + "\nenv_sha=" + repr(policy.digest(env)) + "\ncommand=" + repr(command)
                    + "\nenvironment_keys=" + repr(sorted(env)) + "\n" + cce.STARTUP.replace("CCE_API_STARTUP", "CCE_WORKER_STARTUP"))
