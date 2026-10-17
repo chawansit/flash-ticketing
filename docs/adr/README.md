@@ -360,3 +360,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0347: Qualify the combined confirmation path](0347-qualify-combined-confirmation-path.md) - Combined image published after explicit approval; control stopped before paid dispatch on inventory-role integration and fully restored; candidate not run.
 
 - [ADR0348: Bind combined worker inventory renewal](0348-bind-combined-worker-inventory-renewal.md) - Corrected final pre-dispatch role integration/evidence retention;212 checks and actual preparation/admission passed locally; no automatic cloud retry.
+
+- [ADR0349: Seal transferred combined worker verification](0349-seal-transferred-combined-worker-verification.md) - Portable observer verification qualified with both actual images,22 transferred helpers and267 regressions; fresh control stopped before traffic and independently restored.

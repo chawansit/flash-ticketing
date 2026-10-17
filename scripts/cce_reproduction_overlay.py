@@ -16,6 +16,7 @@ OVERLAID = {
     "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py",
     "scripts/run_cce_hourly_qualification.py", "scripts/cce_hourly_paid_generator.py", "scripts/cce_hourly_paid_leaf.py"}
 ADDITIONAL = {
+    "scripts/cce_combined_worker_identity.py",
     "scripts/prepare_callback_write_pipeline_image.py",
     "docs/capacity/cce/callback-write-pipeline-local-2026-10-17.json",
     "docs/capacity/cce/callback-write-pipeline-registry-2026-10-17.json",

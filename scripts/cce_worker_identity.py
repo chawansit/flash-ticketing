@@ -83,22 +83,41 @@ def digest(value):
 
 
 def verify_sources(sources, decision="ADR0259"):
+    return _verify_sources(sources, specification(decision)["source"])
+
+
+def _verify_sources(sources, expected_source):
     if (not isinstance(sources, dict) or len(sources) != 22
             or any(not re.fullmatch(r"src/ticketing/[a-z_/]+\.py", k) or not re.fullmatch(r"[0-9a-f]{64}", v) for k, v in sources.items())
-            or hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest() != specification(decision)["source"]):
+            or hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest() != expected_source):
         raise ValueError("Exact shared 22-module source identity required")
     return True
 
 
 def validate_bundle(value):
-    selected = specification(value.get("decision"))
+    # Local admission remains bound to its active exact arm/pair.
+    return _validate_bundle(value, specification(value.get("decision")))
+
+
+def validate_transferred_bundle(value):
+    # The observer receives an already hash-sealed admitted bundle. Only the
+    # two independently pinned immutable images can use this portable path.
+    if value.get("decision") == "ADR0345":
+        from cce_combined_worker_identity import specification as transferred_specification
+        selected = transferred_specification(value)
+    else:
+        selected = specification(value.get("decision"))
+    return _validate_bundle(value, selected)
+
+
+def _validate_bundle(value, selected):
     counts, manifest = selected["counts"], selected["manifest"]
     size = sum(counts.values())
     if (set(value) != {"decision", "run", "sources", "manifest_digest", "resources", "receipts"}
             or not re.fullmatch(r"adr0151-[0-9a-f]{12}", value["run"])
             or value["manifest_digest"] != manifest or value["resources"] != RESOURCES):
         raise ValueError("Exact native worker admission bundle required")
-    verify_sources(value["sources"], value["decision"])
+    _verify_sources(value["sources"], selected["source"])
     expected = {f"{role}-{i}" for role, count in counts.items() for i in range(count)}
     rows = value["receipts"]
     if (len(rows) != size or {r["pod_name"] for r in rows} != expected

@@ -248,11 +248,11 @@ def main(argv=None):
     validate_receipts(value)
     workers = None
     if args.native_workers is not None or args.native_workers_sha256 is not None:
-        from cce_worker_identity import digest, validate_bundle
+        from cce_worker_identity import digest, validate_transferred_bundle
         if args.native_workers is None or args.native_workers_sha256 is None:
             raise ValueError("Complete native worker transfer binding required")
         workers = json.loads(args.native_workers.read_text())
-        validate_bundle(workers)
+        validate_transferred_bundle(workers)
         if digest(workers) != args.native_workers_sha256 or workers["run"] != value["run"]:
             raise ValueError("Worker receipt transfer/run differs")
     runtime_cohort = None

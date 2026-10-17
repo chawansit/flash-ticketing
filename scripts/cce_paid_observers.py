@@ -295,6 +295,9 @@ class Observers:
             helpers += ("cce_backend_partition.py","cce_backend_partition_runtime.py")
             self.backend_partition = partition_contract(self.stage.guard.binding["cce_backend_partition_contract"]["decision"])
             self.upload("backend-partition.json",json.dumps(self.backend_partition))
+        from cce_simulator_roundtrip_profile import selected as roundtrip_selected
+        if roundtrip_selected(goal):
+            helpers += ("cce_combined_worker_identity.py",)
         expected = {}
         for name in helpers:
             raw = (policy.ROOT / "scripts" / name).read_text()

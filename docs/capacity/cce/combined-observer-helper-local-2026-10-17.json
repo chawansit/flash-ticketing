@@ -1,0 +1,62 @@
+{
+  "decision": "ADR0349",
+  "arms": {
+    "control": {
+      "pass": true,
+      "helper_files_verified": 22,
+      "api_receipts": 4,
+      "worker_receipts": 15,
+      "actual_cli_validation_passed": true,
+      "outer_entry_installation_passed": true,
+      "retained_inventory_structure_validated": true,
+      "inventory_timestamp_scope": "synthetic local replay",
+      "changed_transfer_hash_rejected": true,
+      "worker_installation_passed": true,
+      "network_disabled": true,
+      "local_authority_profile_imported": false,
+      "cloud_calls": 0,
+      "registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+      "source_identity_sha256": "0087ce3078532a8fd05b668c4d286988a3165d95295c51ebbf2c60d4a702ce0d"
+    },
+    "candidate": {
+      "pass": true,
+      "helper_files_verified": 22,
+      "api_receipts": 4,
+      "worker_receipts": 15,
+      "actual_cli_validation_passed": true,
+      "outer_entry_installation_passed": true,
+      "retained_inventory_structure_validated": true,
+      "inventory_timestamp_scope": "synthetic local replay",
+      "changed_transfer_hash_rejected": true,
+      "worker_installation_passed": true,
+      "network_disabled": true,
+      "local_authority_profile_imported": false,
+      "cloud_calls": 0,
+      "registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:b114f6b15e4e07f11da19e98a82a21d910c39879b7aadf1bc96e8e11a74595ba",
+      "source_identity_sha256": "19da6fb554d1e592e3eba59a52427b10510c213ab62c2a80181b8d5d27123925"
+    }
+  },
+  "capacity_improvement_measured": false,
+  "status": "ACTUAL_IMAGE_HELPER_PACKAGE_LOCALLY_QUALIFIED",
+  "focused_checks_passed": 17,
+  "full_entry_rehearsal_passed": true,
+  "proof_scope": "Exact22-file helper map captured from actual observer.start helper-selection/upload path with offline sessions. Both real immutable images, hash-sealed synthetic API/worker bundles, outer observer entry/CLI/installation and retained cloud inventory structural replay with synthetic fresh timestamp. No DB/network calls or cloud capacity proof.",
+  "full_manifest_and_binding_preparation_passed": true,
+  "actual_publication_isolated_reservation_passed": true,
+  "application_image_changed": false,
+  "cloud_retry_started": false,
+  "latest_cloud_result": "docs/capacity/cce/combined-confirmation-fresh-pre-dispatch-result-2026-10-17.json",
+  "original_stopped_pair_reset": false,
+  "additional_paid_allowance_opened": false,
+  "next_action": "Fresh explicitly approved pair only after final regression and retained-evidence checks.",
+  "regressions": {
+    "passed": 267,
+    "skipped": 2,
+    "skip_reasons": [
+      "Explicit Docker rehearsal disabled in broad regression invocation; executed separately for both actual images.",
+      "Symlink creation unavailable on this Windows host."
+    ],
+    "explicit_full_helper_rehearsal_passed": true,
+    "ruff_passed": true
+  }
+}

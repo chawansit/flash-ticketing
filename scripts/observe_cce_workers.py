@@ -5,7 +5,7 @@ from datetime import datetime
 from itertools import pairwise
 from urllib.request import urlopen
 
-from cce_worker_identity import validate_bundle
+from cce_worker_identity import validate_transferred_bundle as validate_bundle
 
 ROLE_ALIAS = {"writer": "reservation-writer", "projection": "projection-consumer"}
 

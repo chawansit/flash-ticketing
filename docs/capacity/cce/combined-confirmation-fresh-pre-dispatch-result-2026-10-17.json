@@ -1,0 +1,70 @@
+{
+  "decision": "ADR0349",
+  "run": "adr0151-d47e3c15103e",
+  "ledger": "bounded_cce_ticket_target__a03b05b78bdd",
+  "status": "FAILED_RESTORED",
+  "original_status": "RECOVERY_REQUIRED",
+  "raw_result_sha256": "6d8592d8c4739485edbeccbd23bb7f24f3a03fcde0523727f73e99bdb0977987",
+  "arm": "fresh control after ADR0348",
+  "quality": "NOT_MEASURED_AGENT_PRE_DISPATCH_STOP",
+  "short_capacity_qualified": false,
+  "offered_rate_per_second": 160,
+  "offered_window_seconds": 300,
+  "offered_window_executed": false,
+  "paid_runs_started": 0,
+  "customer": {
+    "scheduled": 0,
+    "dispatched": 0,
+    "generator_drops": null,
+    "first_attempt_error_journeys": null,
+    "recovered_journeys": null,
+    "final_customer_failures": null
+  },
+  "issuance": {
+    "conservative_inner_window_tickets": null,
+    "conservative_rate_per_second": null
+  },
+  "latencies_ms": {},
+  "failure": {
+    "code": "TRANSFERRED_HELPER_DEPENDENCY_MISSING",
+    "module": "cce_simulator_roundtrip_profile",
+    "evidence": "Network-disabled replay in actual immutable parent image failed before correction.",
+    "stop_provenance": "Agent-owned operational stop marker; no human pause requested."
+  },
+  "financial_evidence_scope": "No safety fixture or paid stage started; independent runtime/queue restoration audit only. No load financial qualification.",
+  "operational_recovery_evidence": "docs/capacity/cce/combined-confirmation-fresh-pre-dispatch-recovery-2026-10-17.json",
+  "queues_after_restoration": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "restoration": {
+    "original_runtime_restored": true,
+    "integrity_verified": false,
+    "fresh_independent_integrity_verified": true,
+    "generator_idle": true,
+    "namespace_removed": true,
+    "cleanup_complete": true,
+    "owned_containers_absent": true,
+    "credential_snapshots_removed": true,
+    "owned_stop_marker_removed": true
+  },
+  "candidate_started": false,
+  "candidate_permitted": false,
+  "limiting_evidence": [
+    "No paid or safety fixture/window started; no performance/financial load conclusion is possible."
+  ],
+  "next": "Qualify the full transferred helper package with actual images and outer observer entry; retain stopped pair and require fresh approval for any cloud comparison."
+}

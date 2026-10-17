@@ -36,6 +36,7 @@ def sha(raw):
 
 def identity():
     paths = (
+        "scripts/cce_combined_worker_identity.py",
         "scripts/prepare_callback_write_pipeline_image.py",
         "docs/capacity/cce/callback-write-pipeline-local-2026-10-17.json",
         "docs/capacity/cce/callback-write-pipeline-registry-2026-10-17.json",

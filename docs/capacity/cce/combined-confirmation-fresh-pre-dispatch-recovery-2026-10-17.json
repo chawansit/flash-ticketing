@@ -1,0 +1,42 @@
+{
+  "decision": "ADR0349",
+  "run": "adr0151-d47e3c15103e",
+  "original_result_sha256": "6d8592d8c4739485edbeccbd23bb7f24f3a03fcde0523727f73e99bdb0977987",
+  "original_status": "RECOVERY_REQUIRED",
+  "operational_status": "FAILED_RESTORED",
+  "pass": true,
+  "capacity_qualified": false,
+  "remote_data_mutations": 0,
+  "new_paid_stages": 0,
+  "gates": {
+    "runtime_restored_and_stable": true,
+    "queues": true,
+    "generator_idle": true,
+    "owned_containers_absent": true,
+    "namespace_absent": true,
+    "credential_snapshots_removed": true,
+    "no_secondary_access": true,
+    "owned_stop_marker_removed": true,
+    "no_paid_or_safety_stage": true
+  },
+  "queues": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "financial_scope": "No safety fixture or paid stage started; independent runtime/queue restoration audit only. No load financial qualification.",
+  "stop_provenance": "Agent-owned pre-dispatch stop after actual-image helper check proved a missing module; not a human pause.",
+  "original_result_preserved": true
+}
