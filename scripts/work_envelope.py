@@ -151,6 +151,12 @@ def reserve(binding, plan, *, profile=PROFILE):
             or not re.fullmatch(r"adr0151-[0-9a-f]{12}", read(LOCK).get("run", ""))):
         raise ValueError("Exclusive owned experiment lock required")
     data = envelope()
+    if "cce_simulator_roundtrip_contract" in binding:
+        from cce_simulator_roundtrip_profile import require_live
+        goal = data["spending"]["temporary_cce_pilot_exception"]["goal_bounded_authorization"]
+        if (not require_live(goal, 1200)
+                or binding["cce_simulator_roundtrip_contract"] != __import__("cce_simulator_roundtrip_profile").binding_contract(goal)):
+            raise ValueError("Exactly bound live simulator-roundtrip goal required")
     records = journal(data)
     state = read(STATE)
     check_available(data, records, state)

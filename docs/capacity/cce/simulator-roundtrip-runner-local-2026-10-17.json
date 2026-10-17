@@ -1,0 +1,129 @@
+{
+  "decision": "ADR0345",
+  "local_only": true,
+  "paid_authorized": false,
+  "registry_verified": false,
+  "live_snapshot_reconciled": false,
+  "identical_settings_and_resources": true,
+  "offered_rate_each": 160,
+  "offered_seconds_each": 300,
+  "pair_limit_seconds": 3600,
+  "stop_after_failed_control": true,
+  "arms": {
+    "control": {
+      "image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+      "source": "0087ce3078532a8fd05b668c4d286988a3165d95295c51ebbf2c60d4a702ce0d",
+      "manifest_sha256": "fe07425d2ddf6d9e2b1c9628a53b4e63fe484de421eff985956142f1dbab1111",
+      "binding_sha256": "91aa5487b786c1ae10e56d405ff38bdf20b175e8fa0b0a6e56ca7818d5a5563e",
+      "api_pods": 4,
+      "worker_pods": 15
+    },
+    "candidate": {
+      "image": "flash-ticketing-shared:adr0344-56af658a57e6",
+      "source": "56af658a57e6f230467b0b775dea09dac0c7cc82008926f83a3693db4ec20374",
+      "manifest_sha256": "182602322f7f62ce7b9ed1eed47c24a899acf31219e34c44bc342f94162c02b5",
+      "binding_sha256": "36d06a15392710ea0ef1b2eaa6b82721794fa96146235cc2b25fdb10b0b33b36",
+      "api_pods": 4,
+      "worker_pods": 15
+    }
+  },
+  "remaining_prerequisites": [
+    "Actual registry publication/pull verification for ADR0344.",
+    "Fresh human authorization and live pair start/journal boundary.",
+    "Live snapshot/readiness qualification; fully passed/restored fresh control before candidate."
+  ],
+  "status": "LOCAL_PREPARATION_QUALIFIED_LIVE_DISPATCH_BLOCKED",
+  "local_runner_integration_implemented": true,
+  "live_dispatch_admitted": false,
+  "registry_publication_status": "UNPUBLISHED",
+  "new_paid_allowance_opened": false,
+  "new_paid_stages": 0,
+  "live_bookkeeping_unchanged_by_preparation": true,
+  "live_snapshot_reconciliation_executed": false,
+  "new_cloud_database_reconciliation_executed": false,
+  "cloud_calls": 0,
+  "contract_sha256": "92bdb2bd7d6210ea89a4b6f6256e02e137aaa07cad4e5478b057cd9db8cefd78",
+  "local_receipt_sha256": "cb51f23a9863d9be99954128d09af4702d12903afe81ffdbaead01b6615d9e26",
+  "publication_status_sha256": "f351afe3fe63885bfa9bcaf9c1ebe35f58f2d36d3e65d492615363abb007e2d1",
+  "preparation_sources": {
+    "artifacts/cce-transaction-runner/manifest.json": "14908c2a43d3f50d6144dd25d305c63b4c784d24e344c698c1b3d95b15aae90f",
+    "docs/capacity/cce/simulator-roundtrip-local-2026-10-17.json": "cb51f23a9863d9be99954128d09af4702d12903afe81ffdbaead01b6615d9e26",
+    "docs/capacity/cce/simulator-roundtrip-registry-2026-10-17.json": "f351afe3fe63885bfa9bcaf9c1ebe35f58f2d36d3e65d492615363abb007e2d1",
+    "scripts/cce_native_workers.py": "c157d55dd11858efa69b012936221adae667ec85f752fc2b243ce37330d2a4b2",
+    "scripts/cce_paid_stage.py": "2cd6550f4f3a81d7bfbeac5e65c485b9b6d9039dffeacbe591ece034122a5aa7",
+    "scripts/cce_recovery_headroom.py": "c8116bf14540e441bade2017a3a8681d6f98cc30364eeb53db8e57431332fe31",
+    "scripts/cce_reproduction_overlay.py": "20eb327fe7e7393ff9e9245282c526d8b55d123a728760b104a2a00be65d12d4",
+    "scripts/cce_simulator_roundtrip_profile.py": "439f5c9e46a1760b27fe1da255bcd2a171418a1eb59c42c422fd3ac92c36ee72",
+    "scripts/cce_throughput_push.py": "21fbd9a53f58062f730e7c869f06a4b23d529e7fcae061cbb08c415c6d26f1b2",
+    "scripts/cce_transaction_profile.py": "70e817adc0ebd1bf068b926a0b027000b4bdca243c22122914f19943e3202a11",
+    "scripts/cce_worker_identity.py": "3d76c7153fba75f6cbe3b48a9d95e81b127b3909e26e01ce477f5f2f191867ae",
+    "scripts/cce_worker_transition.py": "29eee95618b9be1247ed149f8c115f71cfec0649005b26f0baa6b075cffa0ea9",
+    "scripts/prepare_simulator_roundtrip_comparison.py": "8e91b2001d3e1328698aa851ccf52c81226668116347f9125721b4c394e5c585",
+    "scripts/prepare_simulator_roundtrip_image.py": "29023a11651ffde6a97c2e85fc4259de71f7f3b9e7e81db375ebaf25da1f057a",
+    "scripts/run_cce_paid_comparison.py": "b1671c913efe310de59bd0ebf8fea3ed1f1bb190d6849341619cd597aaebfa83",
+    "scripts/work_envelope.py": "c0860ed885d317b646b5a8e96148e690b6b85158af1ee5e25a7f62afa637e909"
+  },
+  "executed_checks": {
+    "broad_focused_compatibility_suite_passed": 222,
+    "final_direct_profile_checks_passed": 54,
+    "overlapping_direct_checks": 43,
+    "unique_checks_passed": 233,
+    "ruff": "PASS",
+    "actual_two_arm_plan_manifest_binding_preparation": "PASS",
+    "historical_files_verified": 535,
+    "current_overlays_verified": 31,
+    "network_disabled_runtime": {
+      "pass": true,
+      "role_settings_verified": 8,
+      "modules_verified": 22,
+      "network_disabled": true,
+      "customer_dispatches": 0
+    }
+  },
+  "guard_coverage": [
+    "Preview rejected at reservation, execute and paid-stage action checks.",
+    "Actual unpublished receipt rejected for both live arms.",
+    "Changed source, manifest metadata, budgets, role settings and common bootstrap rejected.",
+    "Failed control, incomplete financial/TTL/drain/restoration/measurement rejected.",
+    "Historical/other-pair control, changed sources, expired shared deadline and consumed arm rejected."
+  ],
+  "fixed_settings": {
+    "api_pods": 4,
+    "worker_pods": 15,
+    "api_cpu_each": 1,
+    "api_memory_gib_each": 2,
+    "worker_cpu_each": 0.25,
+    "worker_memory_mib_each": 512,
+    "api_general_payment_clients": [
+      3,
+      3
+    ],
+    "physical_backends": 24,
+    "physical_reserve": 0,
+    "shared_admission": 20,
+    "acquisition_wait_ms": 500,
+    "simulator_delivery_slots": 16,
+    "simulator_database_clients": 10,
+    "generator_processes": 4,
+    "active_journeys": 800,
+    "http_connections": 500,
+    "http_clients": 16,
+    "cache_age_ms": 1000,
+    "poll_ms": 500
+  },
+  "comparison_source_reference": {
+    "run": "adr0151-a0d63f35960f",
+    "raw_sha256": "de6e008fad525f67d93fd15b83f0a8ddb105110f9806d31bcc8bdfa6d09ec06c",
+    "scope": "Reconciled orchestration source identity only; failed load is never a candidate permit."
+  },
+  "application_validation_reference": "docs/capacity/cce/simulator-roundtrip-local-2026-10-17.json",
+  "best_passing_conservative_tickets_per_second": 158.0633,
+  "cloud_improvement_demonstrated": false,
+  "limitations": [
+    "Real immutable registry publication and pulled-source verification have not executed for ADR0344.",
+    "Publication fixtures in unit tests are synthetic and grant no real proof.",
+    "Preview snapshot is retained preparation input; live reconciliation/readiness is still mandatory.",
+    "Fresh paid authorization has not been opened; shared pair clock is unstarted."
+  ],
+  "next_action": "After explicit publication and160/s matched-pair approval: publish/pull-verify exact ADR0344 image, refresh bound reproduction/goal proofs, register a fresh control. Candidate may follow only its fully passed/restored same-pair control within3600seconds."
+}

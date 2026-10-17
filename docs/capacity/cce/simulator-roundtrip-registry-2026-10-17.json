@@ -1,0 +1,9 @@
+{
+  "decision": "ADR0345",
+  "status": "UNPUBLISHED",
+  "registry_published": false,
+  "registry_pulled_runtime_verified": false,
+  "source_identity_sha256": "56af658a57e6f230467b0b775dea09dac0c7cc82008926f83a3693db4ec20374",
+  "local_image_id": "sha256:a3002fda9ae20d52a40e776374d87c34a0ec536ba6325a0b343fd2b8b9ae4d78",
+  "scope": "Publication status only. This file grants no registry, deployment or paid admission proof."
+}

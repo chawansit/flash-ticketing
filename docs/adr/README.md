@@ -352,3 +352,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0343: Qualify the payment claim cutoff at 180 offered journeys/s](0343-qualify-payment-claim-cutoff-at-180.md) - User approved180/s control then conditional180/s candidate; real control admission and535-file reproduction checks passed. Fresh control failed and independently restored; conditional candidate not run.
 
 - [ADR0344: Reduce simulator transaction round trips](0344-reduce-simulator-transaction-round-trips.md) - Atomic claim and simulator transaction pipeline locally qualified:53 checks,22-module image verification and22.18% lower local DB operation time; cloud unmeasured.
+
+- [ADR0345: Bind the simulator round-trip comparison](0345-bind-simulator-roundtrip-comparison.md) - Guarded160/s pair locally qualified:233 unique checks,535-file reproduction and8-role/22-module offline validation; unpublished, no paid allowance.

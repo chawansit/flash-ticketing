@@ -11,7 +11,13 @@ COUNTS = {"consumer": 6, "reservation-writer": 3, "publisher": 1, "maintenance":
 RESOURCES = {k: {"cpu": "250m", "memory": "512Mi"} for k in ("requests", "limits")}
 
 
-def specification(decision="ADR0259"):
+def specification(decision="ADR0259", *, goal=None):
+    if decision == "ADR0345":
+        from cce_simulator_roundtrip_profile import image
+        receipt = image(goal)
+        return {**specification("ADR0324"), "decision": decision,
+                "manifest": receipt.get("registry_manifest_digest") or receipt["local_image_id"],
+                "image_id": receipt["local_image_id"], "source": receipt["source_identity_sha256"]}
     if decision in {"ADR0324", "ADR0324-bootstrap"}:
         import cce_fulfillment_batch_identity as batch_pins
         parent = specification("ADR0298")

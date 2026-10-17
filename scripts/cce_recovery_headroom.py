@@ -357,10 +357,15 @@ def plan(goal):
     from cce_api_client_headroom import extend_plan as client_plan
     from cce_auth_dispatch_profile import extend_plan as authentication_plan
     from cce_payment_delivery_headroom import extend_plan as delivery_plan
-    return client_plan(goal, delivery_plan(goal, authentication_plan(goal, placement_plan(view))))
+    from cce_simulator_roundtrip_profile import extend_plan as roundtrip_plan
+    return roundtrip_plan(goal, client_plan(goal, delivery_plan(goal, authentication_plan(goal, placement_plan(view)))))
 
 
 def validate_binding(goal, binding):
+    from cce_simulator_roundtrip_profile import selected as roundtrip_selected
+    if roundtrip_selected(goal):
+        from cce_simulator_roundtrip_profile import validate_binding as roundtrip_binding
+        return roundtrip_binding(goal, binding)
     from cce_api_client_headroom import selected as client_selected
     if client_selected(goal):
         from cce_api_client_headroom import validate_binding as client_binding

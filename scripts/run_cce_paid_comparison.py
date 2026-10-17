@@ -105,7 +105,7 @@ def plan(*, profile=SHORT):
     }
 
 
-def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
+def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT, preparation_only=False):
     entry = entry_for(profile)
 
     native.dependency.validate_proof(proof)
@@ -117,6 +117,10 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
               "cce_transaction_pair_sha256": transaction.proof_digest(transaction.active())}
              if transaction.active() is not None else {})
     goal = transaction.active()
+    from cce_simulator_roundtrip_profile import selected as roundtrip_selected
+    if roundtrip_selected(goal):
+        from cce_simulator_roundtrip_profile import binding_contract
+        extra["cce_simulator_roundtrip_contract"] = binding_contract(goal)
     from cce_auth_dispatch_profile import contract as authentication_contract
     from cce_auth_dispatch_profile import selected as authentication_selected
     if authentication_selected(goal):
@@ -307,6 +311,12 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT):
         "saved_api_service_sha256": policy.digest(api_semantics(service_for(snapshot))),
         "baseline_sha256": entry.plan()["baseline_sha256"],
     }
+    if roundtrip_selected(goal):
+        from cce_simulator_roundtrip_profile import validate_binding as roundtrip_binding
+        roundtrip_binding(goal, binding, preparation_only=preparation_only)
+        return binding
+    if preparation_only:
+        raise ValueError("Preparation-only binding requires explicit roundtrip preview")
     if cohort_selected(goal) and goal["runtime_cohort_arm"] == "candidate":
         from cce_runtime_cohort_profile import validate_candidate_binding
         validate_candidate_binding(goal, binding)
@@ -851,6 +861,9 @@ def execute(
     registry_password,
     *, profile=SHORT,
 ):
+    from cce_simulator_roundtrip_profile import require_live
+    from cce_transaction_profile import active
+    require_live(active(), 1200)
     entry_module = entry_for(profile)
 
     native.authorized_creation(policy.envelope())

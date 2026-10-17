@@ -36,6 +36,10 @@ def sha(raw):
 
 def identity():
     paths = (
+        "scripts/cce_simulator_roundtrip_profile.py", "scripts/prepare_simulator_roundtrip_image.py",
+        "scripts/prepare_simulator_roundtrip_comparison.py",
+        "docs/capacity/cce/simulator-roundtrip-local-2026-10-17.json",
+        "docs/capacity/cce/simulator-roundtrip-registry-2026-10-17.json",
         "scripts/cce_primary_bootstrap.py", "scripts/qualify_cce_primary_bootstrap.py", "scripts/prepare_two_host_scaling.py",
         "scripts/status_refresh_contract.py", "scripts/run_status_refresh_comparison.py",
         "scripts/cce_ingress_hourly_generator.py",
@@ -350,6 +354,13 @@ class PaidStage:
         self.prepared = False
 
     def check(self, timeout=0):
+        from cce_simulator_roundtrip_profile import require_live
+        from cce_transaction_profile import active
+        goal = active()
+        if require_live(goal, timeout):
+            from cce_simulator_roundtrip_profile import binding_contract
+            if self.guard.binding.get("cce_simulator_roundtrip_contract") != binding_contract(goal):
+                raise ValueError("Exactly reserved roundtrip pair/arm required before paid action")
         if (
             self.guard is None
             or self.session.action_guard is not self.guard

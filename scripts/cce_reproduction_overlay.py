@@ -16,6 +16,10 @@ OVERLAID = {
     "scripts/cce_ecs_transition.py", "scripts/run_cce_paid_comparison.py", "scripts/check_cce_reproducibility.py",
     "scripts/run_cce_hourly_qualification.py", "scripts/cce_hourly_paid_generator.py", "scripts/cce_hourly_paid_leaf.py"}
 ADDITIONAL = {
+    "scripts/cce_simulator_roundtrip_profile.py", "scripts/prepare_simulator_roundtrip_image.py",
+    "scripts/prepare_simulator_roundtrip_comparison.py",
+    "docs/capacity/cce/simulator-roundtrip-local-2026-10-17.json",
+    "docs/capacity/cce/simulator-roundtrip-registry-2026-10-17.json",
     "scripts/cce_api_client_headroom.py",
     "docs/capacity/cce/api-client-pool-headroom-local-2026-10-17.json",
     "scripts/cce_payment_delivery_headroom.py",

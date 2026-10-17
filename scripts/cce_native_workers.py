@@ -25,7 +25,7 @@ def environment(role, values, primary_ip, decision="ADR0259", *, goal=None):
         if result.get("API_URL") != "http://load-balancer:8000":
             raise ValueError("Shared callback route required")
         result["API_URL"] = "http://" + cce.private_ip(primary_ip) + ":8000"
-    if decision in {"ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324"}:
+    if decision in {"ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324", "ADR0345"}:
         from cce_committed_status_profile import selected
         from cce_transaction_profile import active
         goal = active() if goal is None else goal
@@ -37,7 +37,7 @@ def environment(role, values, primary_ip, decision="ADR0259", *, goal=None):
         if not notification_selected(goal) or result.get("ORDER_STATUS_NOTIFICATION_DEDUP") != "0":
             raise ValueError("Explicit disabled notification bootstrap required")
         result["ORDER_STATUS_NOTIFICATION_DEDUP"] = "1" if role == "consumer" else "0"
-    if decision == "ADR0324":
+    if decision in {"ADR0324", "ADR0345"}:
         from cce_fulfillment_batch_profile import selected as fulfillment_selected
         if (not fulfillment_selected(goal) or result.get("DB_EXPLICIT_TRANSACTION_START") != "0"
                 or result.get("ORDER_STATUS_NOTIFICATION_DEDUP") != "0"
@@ -63,7 +63,7 @@ def environment(role, values, primary_ip, decision="ADR0259", *, goal=None):
     if decision == "ADR0315" and partition_selected(goal):
         result["DATABASE_URL"] = partition_route(result["DATABASE_URL"],"ticketing_background")
     from cce_payment_delivery_headroom import environment as delivery_environment
-    return delivery_environment(role, result, goal if decision == "ADR0324" else None)
+    return delivery_environment(role, result, goal if decision in {"ADR0324", "ADR0345"} else None)
 
 
 def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None, goal=None, image_receipt=None):
@@ -80,13 +80,15 @@ def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None, 
     profile = SHORT if profile is None else profile
     if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180):
         raise ValueError("Exact worker lifetime profile required")
-    selected = identity.specification(decision)
+    selected = identity.specification(decision, goal=goal)
     if set(environments) != set(selected["counts"]):
         raise ValueError("Complete worker environments required")
     namespace = cce.dependency.namespace_for(run)
     result = []
-    if decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324"}:
-        if decision == "ADR0324":
+    if decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324", "ADR0345"}:
+        if decision == "ADR0345":
+            from cce_simulator_roundtrip_profile import image
+        elif decision == "ADR0324":
             from cce_fulfillment_batch_profile import image
         elif decision == "ADR0323":
             from cce_explicit_start_profile import image
@@ -102,7 +104,7 @@ def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None, 
             from cce_payment_pipeline_profile import image
         else:
             from cce_event_lane_profile import image
-        receipt_image = image()
+        receipt_image = image(goal) if decision == "ADR0345" else image()
     else:
         receipt_image = comparison.selected_receipt()
     if image_receipt is not None:
@@ -256,8 +258,10 @@ class Workers:
                     continue
                 views.append(receipt(pod, expected, self.deployment.run, self.uids[name], log, metrics, self.decision))
             if not pending:
-                if self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324"}:
-                    if self.decision == "ADR0324":
+                if self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324", "ADR0345"}:
+                    if self.decision == "ADR0345":
+                        from cce_simulator_roundtrip_profile import image
+                    elif self.decision == "ADR0324":
                         from cce_fulfillment_batch_profile import image
                     elif self.decision == "ADR0323":
                         from cce_explicit_start_profile import image

@@ -104,6 +104,10 @@ def require_reference(goal=None):
 
 
 def validate_binding(goal, binding):
+    from cce_simulator_roundtrip_profile import selected as roundtrip_selected
+    if roundtrip_selected(goal):
+        from cce_simulator_roundtrip_profile import validate_binding as roundtrip_binding
+        return roundtrip_binding(goal, binding)
     from cce_api_client_headroom import selected as client_selected
     if client_selected(goal):
         from cce_api_client_headroom import validate_binding as client_binding
