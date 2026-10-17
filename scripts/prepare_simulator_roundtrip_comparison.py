@@ -1,4 +1,4 @@
-"""ADR0345 actual local plan/manifests/binding; no reservation or cloud calls."""
+"""ADR0347 actual local plan/manifests/binding; no reservation or cloud calls."""
 import argparse
 import base64
 import copy
@@ -105,27 +105,41 @@ def prepare(base, proof, target):
     normalized = {}
     for arm, value in arms.items():
         objects = copy.deepcopy(value['objects'])
+        api_secret = next(o for o in objects if o['kind'] == 'Secret' and o['metadata']['name'] == 'api-env')
+        api_env = {k: base64.b64decode(v).decode() for k,v in api_secret['data'].items()}
+        common_env = {k:v for k,v in api_env.items() if k != 'PAYMENT_CALLBACK_WRITE_PIPELINE'}
         for obj in objects:
+            if obj['kind'] == 'Secret' and obj['metadata']['name'] == 'api-env':
+                flag = obj['data'].pop('PAYMENT_CALLBACK_WRITE_PIPELINE', None)
+                assert flag == (base64.b64encode(b'1').decode() if arm == 'candidate' else None)
             if obj['kind'] == 'Pod':
                 container = obj['spec']['containers'][0]
                 container['image'] = 'matched-image'
                 container['command'][-1] = container['command'][-1].replace(
                     repr(value['image']['runtime_source_sha256']), 'matched-sources')
+                if container['name'] == 'api':
+                    annotations = obj['metadata']['annotations']
+                    assert annotations['codex-environment-sha256'] == policy.digest(api_env)
+                    annotations['codex-environment-sha256'] = policy.digest(common_env)
+                    container['command'][-1] = container['command'][-1].replace(
+                        repr(sorted(api_env)), repr(sorted(common_env))).replace(
+                            repr(policy.digest(api_env)), repr(policy.digest(common_env)))
         normalized[arm] = objects
-    assert normalized['control'] == normalized['candidate'], 'Arms differ beyond image/source identity'
+    assert normalized['control'] == normalized['candidate'], 'Arms differ beyond reviewed image/source and callback flag'
     return {'decision': roundtrip.DECISION, 'local_only': True, 'paid_authorized': False,
             'registry_verified': False, 'live_snapshot_reconciled': False, 'pair': pair, 'arms': arms}
 
 
 def public_summary(value):
     return {k: value[k] for k in ('decision', 'local_only', 'paid_authorized', 'registry_verified', 'live_snapshot_reconciled')} | {
-        'identical_settings_and_resources': True, 'offered_rate_each': 160, 'offered_seconds_each': 300,
+        'unchanged_resources_and_other_settings': True,
+        'candidate_only_setting': {'PAYMENT_CALLBACK_WRITE_PIPELINE': '1'}, 'offered_rate_each': 160, 'offered_seconds_each': 300,
         'pair_limit_seconds': 3600, 'stop_after_failed_control': True,
         'arms': {name: {'image': arm['image']['registry_image'], 'source': arm['image']['source_identity_sha256'],
                         'manifest_sha256': arm['manifest_sha256'], 'binding_sha256': policy.digest(arm['binding']),
                         'api_pods': 4, 'worker_pods': 15} for name, arm in value['arms'].items()},
-        'remaining_prerequisites': ['Actual registry publication/pull verification for ADR0344.',
-                                    'Fresh human authorization and live pair start/journal boundary.',
+        'remaining_prerequisites': ['Actual registry publication/pull verification for ADR0346.',
+                                    'Specific registry-upload approval and live pair start/journal boundary.',
                                     'Live snapshot/readiness qualification; fully passed/restored fresh control before candidate.']}
 
 

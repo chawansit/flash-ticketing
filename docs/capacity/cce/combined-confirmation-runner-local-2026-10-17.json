@@ -1,0 +1,64 @@
+{
+  "decision": "ADR0347",
+  "status": "LOCAL_QUALIFIED_PUBLICATION_APPROVAL_PENDING",
+  "goal": "verified paid-and-issued300/s",
+  "regression_pair": {
+    "offered_rate_each": 160,
+    "offered_seconds_each": 300,
+    "shared_pair_limit_seconds": 3600,
+    "candidate_requires_fresh_passed_restored_control": true
+  },
+  "checks": {
+    "guard_and_compatibility_passed": 235,
+    "final_direct_guard_passed": 56,
+    "direct_cases_overlap_broad_suite": true,
+    "ruff_passed": true,
+    "actual_generated_preparation_passed": true,
+    "role_settings": {
+      "pass": true,
+      "role_settings_verified": 8,
+      "modules_verified": 22,
+      "network_disabled": true,
+      "customer_dispatches": 0
+    },
+    "historical_reproduction": {
+      "pass": true,
+      "checked_files": 535,
+      "approved_working_overlay_files": 31
+    }
+  },
+  "candidate_only_setting": {
+    "PAYMENT_CALLBACK_WRITE_PIPELINE": "1"
+  },
+  "unchanged_other_settings_and_resources": true,
+  "arms": {
+    "control": {
+      "local_or_registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+      "source_identity_sha256": "0087ce3078532a8fd05b668c4d286988a3165d95295c51ebbf2c60d4a702ce0d",
+      "manifest_sha256": "fe07425d2ddf6d9e2b1c9628a53b4e63fe484de421eff985956142f1dbab1111",
+      "api_pods": 4,
+      "worker_pods": 15
+    },
+    "candidate": {
+      "local_or_registry_image": "flash-ticketing-shared:adr0346-19da6fb554d1",
+      "source_identity_sha256": "19da6fb554d1e592e3eba59a52427b10510c213ab62c2a80181b8d5d27123925",
+      "manifest_sha256": "76c1eac409dc935c5f3e85d3fca4d527fdde553f79d5459ea362be845abca572",
+      "api_pods": 4,
+      "worker_pods": 15
+    }
+  },
+  "authorization": {
+    "required_cloud_spending_authorized_by_user": true,
+    "automatic_review_rejected_registry_upload": true,
+    "specific_registry_upload_approval_pending": true,
+    "destination": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing",
+    "reason": "General cloud-spending approval did not specifically authorize uploading the application image to the registry."
+  },
+  "registry_published": false,
+  "cloud_deployed": false,
+  "cloud_load_started": false,
+  "paid_allowance_opened": false,
+  "live_snapshot_reconciled": false,
+  "capacity_improvement_measured": false,
+  "next_action": "Await specific upload approval, publish/pull-verify exact image, refresh source/reproduction contracts and live admission, then one control and conditional candidate. Stop on failed quality and retain financial/drain/restoration evidence."
+}

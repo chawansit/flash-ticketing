@@ -1,4 +1,4 @@
-"""ADR0345 matched160/s simulator source; preview can never admit paid work."""
+"""ADR0347 matched160/s combined confirmation source; preview can never admit paid work."""
 import copy
 import hashlib
 import json
@@ -8,12 +8,12 @@ from datetime import UTC, datetime
 import cce_fulfillment_batch_profile as parent
 import work_envelope as policy
 
-DECISION = 'ADR0345'
-LOCAL = 'docs/capacity/cce/simulator-roundtrip-local-2026-10-17.json'
-LOCAL_SHA = 'cb51f23a9863d9be99954128d09af4702d12903afe81ffdbaead01b6615d9e26'
-PUBLICATION = 'docs/capacity/cce/simulator-roundtrip-registry-2026-10-17.json'
-SOURCE = '56af658a57e6f230467b0b775dea09dac0c7cc82008926f83a3693db4ec20374'
-LOCAL_IMAGE = 'sha256:a3002fda9ae20d52a40e776374d87c34a0ec536ba6325a0b343fd2b8b9ae4d78'
+DECISION = 'ADR0347'
+LOCAL = 'docs/capacity/cce/callback-write-pipeline-local-2026-10-17.json'
+LOCAL_SHA = 'c0ed6437f5709b5c871faf53a816ae5cafda1b690043146cce1485b65ff1a813'
+PUBLICATION = 'docs/capacity/cce/callback-write-pipeline-registry-2026-10-17.json'
+SOURCE = '19da6fb554d1e592e3eba59a52427b10510c213ab62c2a80181b8d5d27123925'
+LOCAL_IMAGE = 'sha256:b114f6b15e4e07f11da19e98a82a21d910c39879b7aadf1bc96e8e11a74595ba'
 REFERENCE = ('tmp/adr0151-c83348917efc/cce-comparison.private.json',
              'bounded_cce_ticket_target__ee0f97a1a26d',
              '5ec10ec764bc349911b28e2c5d20883eb7c2f1df58a02bc55e792b181ccaf05b')
@@ -23,8 +23,11 @@ SOURCE_REFERENCE = ('tmp/adr0151-a0d63f35960f/cce-comparison.private.json',
 KEYS = {'simulator_roundtrip_decision', 'simulator_roundtrip_arm', 'simulator_roundtrip_contract_sha256',
         'simulator_roundtrip_pair', 'simulator_roundtrip_preview'}
 INPUTS = {LOCAL, PUBLICATION, 'scripts/cce_simulator_roundtrip_profile.py',
-          'scripts/prepare_simulator_roundtrip_image.py', 'scripts/prepare_simulator_roundtrip_comparison.py'}
-CHANGED = {'scripts/cce_transaction_profile.py', 'scripts/run_cce_paid_comparison.py',
+          'scripts/prepare_simulator_roundtrip_image.py', 'scripts/prepare_simulator_roundtrip_comparison.py',
+          'scripts/prepare_callback_write_pipeline_image.py',
+          'docs/capacity/cce/simulator-roundtrip-local-2026-10-17.json',
+          'docs/capacity/cce/simulator-roundtrip-registry-2026-10-17.json'}
+CHANGED = {'scripts/cce_api_adapter.py','scripts/cce_transaction_profile.py', 'scripts/run_cce_paid_comparison.py',
            'scripts/cce_recovery_headroom.py', 'scripts/cce_throughput_push.py',
            'scripts/cce_native_workers.py', 'scripts/cce_worker_identity.py',
            'scripts/cce_worker_transition.py', 'scripts/cce_paid_stage.py',
@@ -43,21 +46,22 @@ def local_image():
     if sha(LOCAL) != LOCAL_SHA:
         raise ValueError('Exact executed local qualification receipt required')
     receipt = policy.read(policy.ROOT / LOCAL)
-    item = receipt['local_image']
+    item = receipt
     control = parent.image()
     sources = item['runtime_source_sha256']
-    if (receipt.get('decision') != 'ADR0344' or receipt.get('cloud_load_started') is not False
+    if (receipt.get('decision') != 'ADR0346' or receipt.get('cloud_load_started') is not False
             or receipt.get('registry_published') is not False
             or item.get('local_image_id') != LOCAL_IMAGE or item.get('source_identity_sha256') != SOURCE
             or set(sources) != set(control['runtime_source_sha256'])
-            or {k for k in sources if sources[k] != control['runtime_source_sha256'][k]} != {'src/ticketing/workers.py'}
+            or {k for k in sources if sources[k] != control['runtime_source_sha256'][k]} != {'src/ticketing/workers.py', 'src/ticketing/api.py',
+                                                                 'src/ticketing/config.py', 'src/ticketing/infrastructure/reservations.py'}
             or hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest() != SOURCE
             or item.get('parent_registry_image') != control['registry_image']
             or item.get('dependency_input_sha256') != control['dependency_input_sha256']
-            or item.get('preparation_recipe_sha256') != sha('scripts/prepare_simulator_roundtrip_image.py')
+            or item.get('preparation_recipe_sha256') != sha('scripts/prepare_callback_write_pipeline_image.py')
             or item.get('validation') != {'modules_verified': 22, 'imported_worker_matches': True, 'lease_clock_preserved': True}):
         raise ValueError('Exact immutable-parent locally qualified simulator required')
-    return {**item, 'decision': 'ADR0344', 'registry_image': item['local_tag'],
+    return {**item, 'decision': 'ADR0346', 'registry_image': item['local_tag'],
             'runtime_sources_sha256': sources, 'registry_manifest_digest': None, 'local_only': True}
 
 
@@ -75,7 +79,7 @@ def registry_image():
             or manifest == config
             or value.get('registry_image') != 'swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@' + manifest):
         raise ValueError('REGISTRY_PROOF_REQUIRED: actual immutable publication and pulled-source verification required')
-    return {**expected, **value, 'decision': 'ADR0344', 'local_only': False,
+    return {**expected, **value, 'decision': 'ADR0346', 'local_only': False,
             'runtime_sources_sha256': expected['runtime_source_sha256']}
 
 
@@ -87,6 +91,7 @@ def contract():
             'physical_backends': 24, 'physical_reserve': 0, 'shared_admission': 20,
             'acquisition_wait_ms': 500, 'simulator_delivery_slots': 16, 'simulator_database_clients': 10,
             'generator_processes': 4, 'active_journeys': 800, 'http_connections': 500, 'http_clients': 16,
+            'candidate_api_callback_write_pipeline': '1', 'control_api_callback_write_pipeline': 'absent',
             'maximum_paid_stages_per_arm': 1, 'pair_seconds_limit': 3600,
             'source_reference_result_sha256': SOURCE_REFERENCE[2],
             'sources': {name: sha(name) for name in sorted(INPUTS | CHANGED)}}
@@ -137,7 +142,7 @@ def extend_plan(goal, plan):
     if not selected(goal):
         return plan
     return {**plan, 'kind': 'simulator_roundtrip_matched_160',
-            'single_changed_factor': 'simulator_atomic_claim_and_transaction_pipeline',
+            'single_changed_factor': 'combined_simulator_and_successful_callback_roundtrips',
             'baseline_evidence': REFERENCE[0], 'baseline_sha256': REFERENCE[2],
             'baseline_is_passing_control': True, 'matched_performance_comparison': True,
             'simulator_roundtrip_contract': binding_contract(goal),

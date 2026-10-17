@@ -356,3 +356,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0345: Bind the simulator round-trip comparison](0345-bind-simulator-roundtrip-comparison.md) - Guarded160/s pair locally qualified:233 unique checks,535-file reproduction and8-role/22-module offline validation; unpublished, no paid allowance.
 
 - [ADR0346: Reduce successful callback write waits](0346-reduce-successful-callback-write-waits.md) -300/s occupancy budget and default-off successful callback write pipeline;29 checks,22-module local build and22.364% lower local callback time; cloud unmeasured.
+
+- [ADR0347: Qualify the combined confirmation path](0347-qualify-combined-confirmation-path.md) - Required cloud spending authorized; combined160/s runner locally qualified with235 checks and8-role image validation; specific registry-upload approval pending after automatic review rejection.

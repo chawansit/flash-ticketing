@@ -360,9 +360,20 @@ def service_for(saved):
 
 
 def api_semantics(service):
+    environment = native.api_environment(service, "10.1.137.69")
+    from cce_simulator_roundtrip_profile import selected as roundtrip_selected
+    from cce_transaction_profile import active
+    goal = active()
+    if roundtrip_selected(goal):
+        # This digest binds the unchanged saved service. The exact candidate flag
+        # is bound separately by the generated manifest and pair contract.
+        flag = environment.pop("PAYMENT_CALLBACK_WRITE_PIPELINE", None)
+        expected = "1" if goal["simulator_roundtrip_arm"] == "candidate" else None
+        if flag != expected:
+            raise ValueError("Exact callback flag required before saved-service normalization")
     return {
         "image": service["image"],
-        "environment": native.api_environment(service, "10.1.137.69"),
+        "environment": environment,
         "command": service.get("command"),
         "volumes": service.get("volumes", []),
     }

@@ -62,7 +62,10 @@ def test_changed_budgets_or_discriminator_fail_closed(field, value):
         profile.selected(actual)
 
 
-def test_real_unpublished_receipt_rejects_both_live_images():
+def test_unpublished_receipt_rejects_both_live_images(monkeypatch):
+    original = policy.read
+    monkeypatch.setattr(policy, 'read', lambda path: {'registry_published': False}
+                        if path == policy.ROOT/profile.PUBLICATION else original(path))
     for arm in ('control', 'candidate'):
         with pytest.raises(ValueError, match='REGISTRY_PROOF_REQUIRED'):
             profile.image(goal(arm, preview=False))
@@ -72,7 +75,7 @@ def test_preview_cannot_execute_or_check_paid_stage(monkeypatch):
     import run_cce_paid_comparison as core
     from cce_paid_stage import PaidStage
     value = goal()
-    monkeypatch.setattr(transaction, 'active', lambda: value)
+    monkeypatch.setattr(transaction, 'active', lambda value=value: value)
     with pytest.raises(ValueError, match='LOCAL_ONLY'):
         core.execute(*([None]*10), profile=RATE_PUSH_160)
     stage = object.__new__(PaidStage)
@@ -106,7 +109,11 @@ def test_existing_bootstrap_and_native_environment_semantics_are_unchanged(monke
     pods = [v for v in native + apis if v['kind'] == 'Pod']
     assert len(pods) == 19
     assert all(v['spec']['containers'][0]['image'] == profile.local_image()['registry_image'] for v in pods)
+    api_secret = next(v for v in apis if v['kind'] == 'Secret' and v['metadata']['name'] == 'api-env')
+    assert base64.b64decode(api_secret['data']['PAYMENT_CALLBACK_WRITE_PIPELINE']) == b'1'
     for obj in native:
+        if obj['kind'] == 'Secret':
+            assert 'PAYMENT_CALLBACK_WRITE_PIPELINE' not in obj['data']
         if obj['kind'] == 'Secret' and obj['metadata']['name'] == 'simulator-env':
             assert base64.b64decode(obj['data']['DB_POOL_MAX']) == b'10'
             assert base64.b64decode(obj['data']['SIMULATOR_CONCURRENCY']) == b'16'
@@ -323,3 +330,25 @@ def test_synthetic_valid_publication_selects_distinct_live_arm_images(monkeypatc
     monkeypatch.setattr(policy, 'read', lambda path: publication if path == policy.ROOT/profile.PUBLICATION else original(path))
     assert profile.image(goal('candidate', preview=False))['registry_image'] == publication['registry_image']
     assert profile.image(goal('control', preview=False))['registry_image'] == profile.parent.image()['registry_image']
+
+
+def test_superseded_pair_cannot_reuse_old_authorization():
+    value = goal()
+    value['simulator_roundtrip_decision'] = 'ADR0345'
+    with pytest.raises(ValueError):
+        profile.selected(value)
+
+
+def test_callback_flag_is_candidate_only_and_saved_service_stays_bound(monkeypatch):
+    import cce_api_adapter as adapter
+    import run_cce_paid_comparison as core
+    _, service, _, _ = inputs()
+    from cce_recovery_headroom import runtime_view
+    semantics = {}
+    for arm in ('control', 'candidate'):
+        value = runtime_view(goal(arm))
+        monkeypatch.setattr(transaction, 'active', lambda value=value: value)
+        env = adapter.contract(goal=value)['api_settings']
+        assert env.get('PAYMENT_CALLBACK_WRITE_PIPELINE') == ('1' if arm == 'candidate' else None)
+        semantics[arm] = core.api_semantics(service)
+    assert semantics['control'] == semantics['candidate']

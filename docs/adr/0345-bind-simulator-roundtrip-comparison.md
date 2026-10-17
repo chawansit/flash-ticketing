@@ -2,6 +2,8 @@
 
 ## Status
 
+Active candidate selection superseded by [ADR0347](0347-qualify-combined-confirmation-path.md). Historical local image and receipt remain unchanged; this old authorization identity cannot admit the combined candidate.
+
 Implemented and locally qualified; live dispatch remains blocked by unpublished image proof and missing fresh paid authorization. Extends ADR0344 with a distinct guarded runner identity. Proposes160/s for300seconds per arm, control first and candidate only after a fully passed/restored fresh control. No image publication, paid authorization, cloud deployment or new load is granted by this decision. The consumed ADR0343 sequence is not resumed.
 
 ## Context

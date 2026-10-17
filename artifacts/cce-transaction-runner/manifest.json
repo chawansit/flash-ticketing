@@ -16,6 +16,8 @@
     "docs/capacity/cce/api-client-pool-headroom-local-2026-10-17.json": "09c1b025497b8a535a110f429fbfa93bb4302b1e8316260b677e181a863006e1",
     "docs/capacity/cce/authentication-dispatch-image-2026-10-17.json": "9fe7fdc0faa6cad6eabab2f15b74952858dd3f4f736b4eebc9398a5813df8215",
     "docs/capacity/cce/authentication-dispatch-local-2026-10-17.json": "453dc1a12c224017d6a1c8bac8fb3075eb06810424285ade77867f3defa24bc5",
+    "docs/capacity/cce/callback-write-pipeline-local-2026-10-17.json": "c0ed6437f5709b5c871faf53a816ae5cafda1b690043146cce1485b65ff1a813",
+    "docs/capacity/cce/callback-write-pipeline-registry-2026-10-17.json": "629c29778c53f452c3502914ad07ffac3073d7864ed2ce250c2b9d7cdd169653",
     "docs/capacity/cce/committed-fulfillment-status-image-2026-10-13.json": "e566044814b05b2ebaf1a8cedf0ce2701b70e6f75b87884b26c75459d5983cae",
     "docs/capacity/cce/committed-status-reuse-result-2026-10-11.json": "58ed94e88de2de0e282411ffcf5e17236bfea86cef637c53f305a4a8875d9924",
     "docs/capacity/cce/customer-recovery-comparison-2026-10-10.json": "4af065617e31ab7081f6fe97f34171447ef3ccab5e5bdc5e729db3d7af140ff0",
@@ -56,14 +58,14 @@
     "scripts/cce_payment_pipeline_profile.py": "643cb7ff981344d080620518eba134ebbbf43896945a4311d73cb46ea7b71ebd",
     "scripts/cce_primary_bootstrap.py": "bf9445fbda41456398adf921755319bc2745e2f76277133a4b7621573d87fbea",
     "scripts/cce_recovery_hourly_profile.py": "8061087896cfb0577f12125c8f49598d0ff28bb2d463dfa1d5496ab4ce5f0fd0",
-    "scripts/cce_reproduction_overlay.py": "20eb327fe7e7393ff9e9245282c526d8b55d123a728760b104a2a00be65d12d4",
+    "scripts/cce_reproduction_overlay.py": "0b179f681ce878c2db31af1e73403eb1d6e8397084b42b583c32123931b5c764",
     "scripts/cce_shared_application.py": "bf73281cc9cff5bbb26513a73f23e7b311606580734526e48fb2fa2f53d986a5",
     "scripts/cce_shared_worker_comparison.py": "1c9f6bdde6c9bd5f35d4cf4ede84e7b934872d6e6320c252ab5983e930796adc",
     "scripts/cce_shared_worker_contract.py": "b85b5f1d3e15769cc15592227f281f06af85bc47dc18a5819f630908c8bed3fb",
     "scripts/cce_shared_worker_image_identity.py": "7e9ff35920165698f99bba1b238445337f4e7e2487a6c95816a6a1d04ff86d9f",
     "scripts/cce_shared_worker_profile.py": "a757db861d1965276659df437e317cc5a0c0309ab272737221d282ebb39c43b2",
     "scripts/cce_simulator_dispatch_profile.py": "e3c7e6bdcbbde3317493f95e5ab6e5e4b87fda219c6462e9e8f8ebe55b0647b7",
-    "scripts/cce_simulator_roundtrip_profile.py": "439f5c9e46a1760b27fe1da255bcd2a171418a1eb59c42c422fd3ac92c36ee72",
+    "scripts/cce_simulator_roundtrip_profile.py": "032dadf18c4f3c760388e1c7b1ad845970bd4e695490e891c9f22957cd173823",
     "scripts/cce_slot_trace_transport.py": "e436d14ba737bb590785be153bc6bdc4a0cf0fa6256c9312fd8bf2469f1a8c2b",
     "scripts/cce_status_refresh_reuse.py": "d1243ca8b5de5da5578386e34ef2f103208468e4b153fbf33d1a862fdd9f4de6",
     "scripts/cce_status_reuse_hourly.py": "fd1e78f4e07d3ecff82e09c7b901898acebedb045645536299e8318c443a4914",
@@ -82,10 +84,11 @@
     "scripts/observe_projection_kafka.py": "837257afdd8d1cb74a60f31114a6a2cef3fd39b14461e1a3ab8007ec7fa196e7",
     "scripts/observe_slot_paid_pipeline.py": "008b664afb611c4136edb0302d2ed545d451f90a449375bcab478e55362b27ec",
     "scripts/paid_fixture_layout.py": "7b9bc3d6acd3522dfcddfad00cecf049350bad38238dbeb4709a4ea71bf6cf32",
+    "scripts/prepare_callback_write_pipeline_image.py": "99d72b274caab91a9360641e954e83f3cc7b553aa23d24fc2967fbbf1274e24c",
     "scripts/prepare_customer_recovery_image.py": "a761171cf8b8c3007352475238828aa2b2fe4f600bde2442c95e7c37b7c5d5ad",
     "scripts/prepare_payment_context_sources.py": "98c96cc3044dca7dd62386768a3b7b4774d2aa0d2803382bd757d59e76fe5781",
     "scripts/prepare_simulator_dispatch_sources.py": "620107eff675fb18aa18fb307cf44e90dca75af212efad30a0a7418ba42ca669",
-    "scripts/prepare_simulator_roundtrip_comparison.py": "8e91b2001d3e1328698aa851ccf52c81226668116347f9125721b4c394e5c585",
+    "scripts/prepare_simulator_roundtrip_comparison.py": "edfd82a94c04726acae06c17669d104816ce3eb31e250ed478e0f15a849bc8e0",
     "scripts/prepare_simulator_roundtrip_image.py": "29023a11651ffde6a97c2e85fc4259de71f7f3b9e7e81db375ebaf25da1f057a",
     "scripts/prepare_slot_comparison_sources.py": "fb192efa50afb95eb0b61efbf9c343bfe899a1af2810509a3376cf45f65442fd",
     "scripts/qualify_cce_primary_bootstrap.py": "ee4375edff0e25bb3d4a03d0da43aa0968b14cd1d86ce5c6c76d7d7babe54c5e",
@@ -95,7 +98,7 @@
   "historical_lock_sha256": "3dabc984d879e7d59699ad74d9b26d5259a83ce338c60c2620536e7456d48fcd",
   "overlays": {
     "scripts/cce_api_adapter.py": {
-      "current_sha256": "134178b3c200c587b4a1dd74f1fcc09645947f75a32cdc5a0597b683de133488",
+      "current_sha256": "07571f5e08feda2f1e7b4e9e75e62b7252afc5750e327dc7765a22d7b3558deb",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e",
       "historical_sha256": "634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e"
     },
@@ -145,7 +148,7 @@
       "historical_sha256": "42235326c5ed3a51cf0ad7b072bb7ad699fa93ef134bbe7cec630cbb7f70c79c"
     },
     "scripts/cce_paid_stage.py": {
-      "current_sha256": "2cd6550f4f3a81d7bfbeac5e65c485b9b6d9039dffeacbe591ece034122a5aa7",
+      "current_sha256": "139db0a00b786ce3db62b1b99c520e2123a87ee6ed8ded4bb97133f6630e9d01",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/c1acf89ae4544674f179f4615c10f359e3899bfd5dae8421c30e22f29e60c57a",
       "historical_sha256": "c1acf89ae4544674f179f4615c10f359e3899bfd5dae8421c30e22f29e60c57a"
     },
@@ -220,7 +223,7 @@
       "historical_sha256": "c5bada5a5d99360f0b8ab823e086b4459ed4b3c5701f3c862396862944f9ee8d"
     },
     "scripts/run_cce_paid_comparison.py": {
-      "current_sha256": "b1671c913efe310de59bd0ebf8fea3ed1f1bb190d6849341619cd597aaebfa83",
+      "current_sha256": "d03657e3f3300d135e03c3acdbba808547eeb6625553a4277942a7d491b73504",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
       "historical_sha256": "cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017"
     },

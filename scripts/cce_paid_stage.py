@@ -36,6 +36,9 @@ def sha(raw):
 
 def identity():
     paths = (
+        "scripts/prepare_callback_write_pipeline_image.py",
+        "docs/capacity/cce/callback-write-pipeline-local-2026-10-17.json",
+        "docs/capacity/cce/callback-write-pipeline-registry-2026-10-17.json",
         "scripts/cce_simulator_roundtrip_profile.py", "scripts/prepare_simulator_roundtrip_image.py",
         "scripts/prepare_simulator_roundtrip_comparison.py",
         "docs/capacity/cce/simulator-roundtrip-local-2026-10-17.json",

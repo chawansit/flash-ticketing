@@ -95,6 +95,9 @@ def contract(*, goal=None, image_receipt=None):
         data["workload"].update(shards=4, http_clients_per_shard=4)
         if generator_scaling.active_concurrency(goal) == 800:
             data["workload"].update(concurrency=800, http_max_connections=500)
+    from cce_simulator_roundtrip_profile import selected as roundtrip_selected
+    if roundtrip_selected(goal) and goal['simulator_roundtrip_arm'] == 'candidate':
+        data['api_settings']['PAYMENT_CALLBACK_WRITE_PIPELINE'] = '1'
     return data
 
 
