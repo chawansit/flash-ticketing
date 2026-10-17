@@ -344,3 +344,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0339: Test 180 journeys/s with qualified API pools](0339-test-180-journeys-with-qualified-api-pools.md) - 180/s test failed:11,145 drops;42,855 completed,892 initial-error journeys recovered,zero final failures.139.43/s conservative. Independent financial/queue/restoration audit passed; original failure retained. Best passing158.0633/s unchanged.
 
 - [ADR0340: Use compact local run monitoring and handoffs](0340-use-compact-local-run-monitoring-and-handoffs.md) - Local summary/watcher/evidence checker implemented;15 unit checks and both retained-run evidence audits passed. No cloud calls or capacity change.
+
+- [ADR0341: Bound payment eligibility at claim statement start](0341-bound-payment-claim-eligibility.md) - Local SQL correction; 20 focused checks and immutable-parent local build passed. No cloud run or capacity gain claimed.

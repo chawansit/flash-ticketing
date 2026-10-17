@@ -18,9 +18,13 @@ For ADR0339, incomplete slot-history observation skipped the normal terminal aud
 
 ## What to investigate next
 
+Local correction completed under [ADR0341](../adr/0341-bound-payment-claim-eligibility.md): only the simulator due-at predicate changes from volatile `clock_timestamp()` to `statement_timestamp()`, allowing the existing partial index to bound the scan. Lease clocks, locks, token-fenced ack, callback IDs, polling and cache freshness remain unchanged. [Local receipt](cce/payment-claim-cutoff-local-2026-10-17.json) pins the exact ADR0324 parent and sole changed module. This candidate is built locally, unpublished and cloud-unmeasured; it does not replace the passing reference.
+
+Executed focused checks: **20 passed**, including five isolated native PostgreSQL tests of actual claim/delivery/ack behavior and a future-heavy query-plan comparison (old filter visits at least20,000 future rows; candidate index bound filters zero). Ruff passed. Existing image preparation/installer and a network-disabled candidate run verified22 runtime modules and imported worker identity. ADR0339 retained-evidence audit passed; no new database reconciliation or cloud call occurred. Owned local logs/recipe: `tmp/adr0341-tests.log`, `tmp/adr0341-image-build.log`, `tmp/adr0341-prepare.py`.
+
 API CPU rose 2.40→3.55 cores out of four; acquisition mean 11.00→21.34ms. Payment pickup rose 0.105→3.146s; callback delivery 60.92→76.74ms. Cache misses rose 48,759→138,178 despite fewer completed journeys. Writer command-age mean stayed approximately stable at 1.56→1.51s. These observer-lifetime comparisons suggest confirmation backlog and status-read amplification; a single causal holder is not yet proven.
 
-Inspect the payment simulator's claim/delivery/ack loop, committed status caching and polling, and API admission using targeted searches. Make one evidence-supported local correction, with an ADR before an architectural choice. Test its actual changed path. Keep the proven baseline and do not merely increase generator concurrency or add retries. Prepare the next fixed-budget comparison; seek approval only when that concrete paid stage is ready.
+The corrected scan is a proven local inefficiency; its share of cloud confirmation backlog and status-read amplification is unknown, especially when most pending attempts are already due or leased. Next proposal: register/retain immutable candidate preparation, then seek a fresh allowance for matched160/s×300s control/candidate arms at the ADR0338 budget, stopping after a failed control. Compare pickup delay, misses/dispatched journey, API CPU/acquisition and conservative issuance under unchanged gates and existing financial/drain/restoration audits. No paid stage,180/s rerun, deployment or publication is currently authorized.
 
 ## Tested configuration and boundaries
 

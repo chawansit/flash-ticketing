@@ -1094,7 +1094,7 @@ def simulate_one(db, settings, transport=None):
     token = uuid4()
     with simulator_phase("claim"), db.transaction() as conn:
         row = conn.execute("""SELECT p.*,o.total,o.currency,clock_timestamp() AS claim_observed_at FROM payment_attempts p JOIN orders o ON o.id=p.order_id
-            WHERE p.deliveries<p.target_deliveries AND p.due_at<=clock_timestamp()
+            WHERE p.deliveries<p.target_deliveries AND p.due_at<=statement_timestamp()
             AND (p.lease_until IS NULL OR p.lease_until<clock_timestamp())
             ORDER BY p.due_at LIMIT 1 FOR UPDATE OF p SKIP LOCKED""").fetchone()
         if not row:
