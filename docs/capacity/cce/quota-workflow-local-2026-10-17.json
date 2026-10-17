@@ -1,0 +1,92 @@
+{
+  "decision": "ADR0340",
+  "scope": "Local quota workflow qualification; retained evidence only",
+  "unit_checks_passed": 15,
+  "lint_pass": true,
+  "network_or_database_calls": 0,
+  "capacity_improvement_measured": false,
+  "runs": [
+    {
+      "run": "adr0151-c83348917efc",
+      "status": "PASSED_RESTORED",
+      "phase": null,
+      "customer": {
+        "scheduled": 48000,
+        "dispatched": 48000,
+        "fulfilled": 48000,
+        "generator_drops": 0,
+        "first_attempt_error_journeys": 0,
+        "recovered_journeys": 0,
+        "retry_attempts": 0,
+        "final_customer_failures": 0
+      },
+      "conservative_tickets": 47419,
+      "conservative_tickets_per_second": 158.063,
+      "journey_p95_ms": 3709.13,
+      "cleanup_complete": true,
+      "quality": "PASS",
+      "report": "docs/capacity/cce/api-client-pool-headroom-result-2026-10-17.json",
+      "evidence_audit": {
+        "pass": true,
+        "checks": {
+          "raw_hash": true,
+          "run_identity": true,
+          "raw_restoration": true,
+          "independent_recovery_if_needed": true,
+          "financial_source": true,
+          "financial_audit": true,
+          "post_ttl": true,
+          "paid_ticket_counts": true,
+          "no_duplicates": true,
+          "no_pending_financial_work": true,
+          "relationships": true,
+          "queues": true,
+          "restoration": true,
+          "quality_classification": true
+        },
+        "scope": "Retained evidence only; no database audit executed; failed load quality is unchanged."
+      }
+    },
+    {
+      "run": "adr0151-fa8e65219b30",
+      "status": "FAILED_RESTORED",
+      "phase": null,
+      "customer": {
+        "scheduled": 54000,
+        "dispatched": 42855,
+        "fulfilled": 42855,
+        "generator_drops": 11145,
+        "first_attempt_error_journeys": 892,
+        "recovered_journeys": 892,
+        "retry_attempts": 940,
+        "final_customer_failures": 0
+      },
+      "conservative_tickets": 41829,
+      "conservative_tickets_per_second": 139.43,
+      "journey_p95_ms": 6917.95,
+      "cleanup_complete": true,
+      "quality": "FAIL",
+      "report": "docs/capacity/cce/qualified-pools-180-result-2026-10-17.json",
+      "evidence_audit": {
+        "pass": true,
+        "checks": {
+          "raw_hash": true,
+          "run_identity": true,
+          "raw_restoration": true,
+          "independent_recovery_if_needed": true,
+          "financial_source": true,
+          "financial_audit": true,
+          "post_ttl": true,
+          "paid_ticket_counts": true,
+          "no_duplicates": true,
+          "no_pending_financial_work": true,
+          "relationships": true,
+          "queues": true,
+          "restoration": true,
+          "quality_classification": true
+        },
+        "scope": "Retained evidence only; no database audit executed; failed load quality is unchanged."
+      }
+    }
+  ]
+}
