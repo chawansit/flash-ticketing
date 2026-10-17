@@ -1,0 +1,35 @@
+{
+  "decision": "ADR0339",
+  "status": "FAILED_RESTORED",
+  "run": "adr0151-b8a36980ef01",
+  "raw_result_sha256": "c6fcbd4b318470bbf2aeaddcbe90e6c71b94616a6269a369c46f689fd263fa6e",
+  "paid_stages_started": 0,
+  "customer_journeys_dispatched": 0,
+  "cause": "180-show fixture rejected by retained fixture-identity allowlist; financial-audit allowlist also lacked180.",
+  "correction": "Add exact180 count to both validators; all ownership, identity, freshness and financial predicates retained.",
+  "validation": {
+    "complete_local_180_fixture_prepare_passed": true,
+    "remote_transfers_simulated": true,
+    "actual_failed_fixture_revalidated": true,
+    "financial_program_compiled": true,
+    "focused_fixture_checks_passed": 34
+  },
+  "restoration": {
+    "original_runtime_restored": true,
+    "integrity_verified": true,
+    "generator_idle": true,
+    "namespace_removed": true,
+    "queues_empty": true,
+    "transport_credentials_cleared": true,
+    "cleanup_complete": true
+  },
+  "original_failed_result_preserved": true,
+  "capacity_improvement_measured": false,
+  "approved_paid_stage_still_unused": true,
+  "refreshed_contract_fields": [
+    "primary_bootstrap_contract_sha256",
+    "verification_contract_sha256",
+    "throughput_push_contract_sha256",
+    "api_client_pool_contract_sha256"
+  ]
+}
