@@ -1,0 +1,54 @@
+{
+  "decision": "ADR0343",
+  "status": "APPROVED_AWAITING_PROTECTED_INPUT",
+  "approved_sequence": [
+    "180/s control for300s",
+    "180/s candidate for300s only after fully passed/restored fresh control"
+  ],
+  "sequence_limit_seconds": 3600,
+  "offered_rate_each": 180,
+  "offered_seconds_each": 300,
+  "expected_journeys_each": 54000,
+  "control_image_manifest": "sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+  "candidate_image_manifest": "sha256:730bff63781ccffa1aa8ab081e5ab73621d01ea86269d4e6aa74846857e57ff4",
+  "physical_backends": 24,
+  "physical_reserve": 0,
+  "api_pods": 4,
+  "worker_pods": 15,
+  "api_general_payment_slots": [
+    3,
+    3
+  ],
+  "simulator_delivery_database_slots": [
+    16,
+    10
+  ],
+  "generator_processes": 4,
+  "active_journeys": 800,
+  "http_connections": 500,
+  "http_clients": 16,
+  "shared_admission": 20,
+  "acquisition_wait_ms": 500,
+  "control_allowance_registered": 1,
+  "control_allowance_consumed": 0,
+  "control_started": false,
+  "candidate_started": false,
+  "candidate_allowance_opened": false,
+  "cloud_deployed": false,
+  "checks": {
+    "actual_generated_manifests_binding_isolated_reservation": "PASS",
+    "publication_mocked": false,
+    "qualification_live_ledger_unchanged": true,
+    "reproduction_checked_files": 535,
+    "reproduction_current_overlays": 31,
+    "protected_launcher_compiled_and_help_executed": true,
+    "kube_material_parsed": true
+  },
+  "control_source_contract_sha256": "b613c94f3c2e07fcba157360312d8515e52e80cffae3d61e7121799f58e938d1",
+  "candidate_integration": "parked and unqualified; excluded from control source bundle",
+  "readiness_blocker": "Protected ECS SSH and diagnostic database input required; paths only may be supplied in chat, secret values through hidden terminal input.",
+  "financial_reconciliation_new_run": null,
+  "new_paid_runs": 0,
+  "best_passing_conservative_tickets_per_second": 158.0633,
+  "next_action": "Supply protected input and run the single approved control. On failure stop, audit/drain/restore; do not rerun or start candidate."
+}

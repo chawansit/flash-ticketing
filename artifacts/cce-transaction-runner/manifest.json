@@ -45,7 +45,7 @@
     "scripts/cce_generator_process_scaling.py": "d6584f7096ea8781abab9e3ad61f6403477d4ef766dac265fb6829080c5a5418",
     "scripts/cce_live_admission.py": "1336b395403554b1a58d7ae71fa6fade2fa06be4a994c8e15a0afcbb8b5da9b2",
     "scripts/cce_native_database_bridge.py": "6f899d82505fea59dda2ebdec8fb8a1f24f489b6024b3e67af1f0519867975b7",
-    "scripts/cce_native_workers.py": "31a51a96c742f09fb0d1f36f41fa3681ee6e3dccbc71964fb19b273d7f8bd8d0",
+    "scripts/cce_native_workers.py": "2f605206cf94a3dc3b2455e9f14e019cfee30ca8a09155c4165aa6dd6605df7c",
     "scripts/cce_payment_context_images.py": "cbc80a6226ea255766d23159c7a488c8cbbc69f9604eb94dbc3e55a55fbee160",
     "scripts/cce_payment_delivery_headroom.py": "1fb77f35f65c802c4213a4dccbbf0319d46dac0accebfc2e110374de385064c0",
     "scripts/cce_payment_dispatch_profile.py": "3ab1312e6d637d6e9d8537fcea55405c68ac13df25717a30870b4a245994c804",
@@ -90,7 +90,7 @@
   "historical_lock_sha256": "3dabc984d879e7d59699ad74d9b26d5259a83ce338c60c2620536e7456d48fcd",
   "overlays": {
     "scripts/cce_api_adapter.py": {
-      "current_sha256": "7743bf1a9cfb1785aeb1520a1147d5dcd6894775fc8feebd1fd9c072ee44f75d",
+      "current_sha256": "134178b3c200c587b4a1dd74f1fcc09645947f75a32cdc5a0597b683de133488",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e",
       "historical_sha256": "634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e"
     },
@@ -215,7 +215,7 @@
       "historical_sha256": "c5bada5a5d99360f0b8ab823e086b4459ed4b3c5701f3c862396862944f9ee8d"
     },
     "scripts/run_cce_paid_comparison.py": {
-      "current_sha256": "7b3e9061d28d8b9c783f9c80104450b31dc3a21cb444c0f502828e64caf17941",
+      "current_sha256": "f706633556042587b4324426bb10602573eb319f0a1fe0ba46778452297cd92a",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017",
       "historical_sha256": "cb8142079acf67fdb2ea2552e60696ec64b3b3f83b6d33b8368ff2837c3b6017"
     },
