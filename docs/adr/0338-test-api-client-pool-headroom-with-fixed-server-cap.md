@@ -40,3 +40,8 @@ Implemented the explicit ADR0338 API-only settings overlay. Unselected/default p
 Full generated API/worker manifests, binding and reservation admission passed against the actual existing image receipt, without publication mocks. Verified four APIs at6/3, fifteen unchanged workers and simulator16/10. Approval/reservation accounting used isolated copies only; live envelope/journal/state hashes remained unchanged. Prepared one unauthorized160/s300s goal with unchanged800 active journeys/500 HTTP connections/sixteen clients,24 physical backends and3600seconds including mandatory safety/audits/drain/restoration. No cloud service, application source, image or live paid allowance changed.
 
 [Local qualification](../capacity/cce/api-client-pool-headroom-local-2026-10-17.json) and [runner readiness](../capacity/cce/api-client-pool-headroom-runner-2026-10-17.json). A fresh comparison approval must explicitly include24 aggregate API clients instead of16 while retaining24 physical backends. No capacity improvement has been measured.
+
+
+### Fresh single-run authorization
+
+The user replied Continue to the concrete approval request. Registered a fresh allowance at journal index151:160 offered journeys/s300seconds; API client pools2+2to3+3 each(16to24 aggregate), retaining24 physical backends,simulator16/pool10,unchanged image/resources/four APIs/fifteen workers/gateway/gates. Mandatory safety,financial audit,drain and exact restoration remain inside3600seconds. Prior allowance is consumed; no second paid stage or rate increase authorized. This is authorization, not performance evidence.
