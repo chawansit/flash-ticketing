@@ -337,4 +337,4 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0336: Remove the extra authentication thread handoff](0336-remove-authentication-thread-handoff.md) - Live160/s comparison failed arrival quality:10458 drops,37542 paid/issued,349 initial errors recovered and zero final failures. Conservative121.77/s; candidate not adopted. Independent financial audit and restoration passed; best qualified138.49/s unchanged.
 
-- [ADR0337: Test payment delivery headroom with a fixed database budget](0337-test-payment-delivery-headroom-with-fixed-database-budget.md) - 44 local application/transport and155 runner checks passed; generated32-slot/10-SQL configuration and isolated admission verified. Unchanged image; fresh cloud comparison requires approval.
+- [ADR0337: Test payment delivery headroom with a fixed database budget](0337-test-payment-delivery-headroom-with-fixed-database-budget.md) - 32-slot cloud comparison failed:9361 drops,448 final failures,124.18/s conservative.38,260 paid/tickets and284 expired unpaid independently reconciled; original runtime restored. Retain sixteen slots; no capacity improvement.
