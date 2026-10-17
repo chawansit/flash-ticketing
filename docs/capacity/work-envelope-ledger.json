@@ -3932,6 +3932,35 @@
         "original_result_preserved": true,
         "only_recovery_cleared": true
       }
+    },
+    {
+      "ledger": "bounded_cce_ticket_target__03bf2cac8c9b",
+      "authorization_id": "work-envelope-03bf2cac8c9b",
+      "envelope_sha256": "bdb94a2b23365f374774b86bc039f96e718022c4e48931cc368454381d493095",
+      "binding_sha256": "b1e7069ddc758a5cf5363bb33ee7af24d0530bf4390a0b0157af987a47ed63f1",
+      "plan_sha256": "11cf1a6df8b65a92d6fe560ac46dd53521650fe4e89e30badf41a88bb0c3e928",
+      "profile": "cce_ticket_target",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 1392.671000000002,
+      "started_at_utc": "2026-10-17T08:48:11.310901+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-a0d63f35960f",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-17T09:11:23.110121+00:00",
+      "paid_runs_started": 1,
+      "result_sha256": "de6e008fad525f67d93fd15b83f0a8ddb105110f9806d31bcc8bdfa6d09ec06c",
+      "recovery": {
+        "decision": "ADR0343",
+        "evidence": "docs/capacity/cce/claim-cutoff-180-control-recovery-2026-10-17.json",
+        "sha256": "db3c080f35909d2d9187e14978c85613465b9cca35adea6ab44186c593d0492d",
+        "capacity_qualified": false,
+        "original_result_preserved": true,
+        "only_recovery_cleared": true
+      }
     }
   ],
   "verified_aborts": {

@@ -1,6 +1,6 @@
 {
   "decision": "ADR0343",
-  "status": "APPROVED_AWAITING_PROTECTED_INPUT",
+  "status": "CONTROL_FAILED_RESTORED_SEQUENCE_STOPPED",
   "approved_sequence": [
     "180/s control for300s",
     "180/s candidate for300s only after fully passed/restored fresh control"
@@ -30,11 +30,11 @@
   "shared_admission": 20,
   "acquisition_wait_ms": 500,
   "control_allowance_registered": 1,
-  "control_allowance_consumed": 0,
-  "control_started": false,
+  "control_allowance_consumed": 1,
+  "control_started": true,
   "candidate_started": false,
   "candidate_allowance_opened": false,
-  "cloud_deployed": false,
+  "cloud_deployed": true,
   "checks": {
     "actual_generated_manifests_binding_isolated_reservation": "PASS",
     "publication_mocked": false,
@@ -46,9 +46,10 @@
   },
   "control_source_contract_sha256": "b613c94f3c2e07fcba157360312d8515e52e80cffae3d61e7121799f58e938d1",
   "candidate_integration": "parked and unqualified; excluded from control source bundle",
-  "readiness_blocker": "Protected ECS SSH and diagnostic database input required; paths only may be supplied in chat, secret values through hidden terminal input.",
-  "financial_reconciliation_new_run": null,
-  "new_paid_runs": 0,
+  "readiness_blocker": null,
+  "financial_reconciliation_new_run": true,
+  "new_paid_runs": 1,
   "best_passing_conservative_tickets_per_second": 158.0633,
-  "next_action": "Supply protected input and run the single approved control. On failure stop, audit/drain/restore; do not rerun or start candidate."
+  "next_action": "Sequence stopped after failed control; candidate unstarted. Offline diagnosis only; no paid repeat authorized.",
+  "completed_result": "docs/capacity/cce/claim-cutoff-180-control-result-2026-10-17.json"
 }
