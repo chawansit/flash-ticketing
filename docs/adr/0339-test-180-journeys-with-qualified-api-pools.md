@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for preparing and executing one bounded five-minute workload step under the user's request to improve paid-and-issued tickets/s for five minutes first. No second stage, hourly test, machine resize or physical database budget increase is authorized.
+Prepared and locally qualified. Explicit approval of the exact180/s paid cloud stage is pending after automatic approval review rejected launch. No stage started or reserved. No second stage, hourly test, machine resize or physical database budget increase is authorized.
 
 ## Context
 
@@ -28,4 +28,4 @@ Preserve atomic seat holds, customer authorization, TTL, payment idempotency, pa
 
 Pending focused workload/binding checks, historical profile regression, generated manifest/admission verification and the actual cloud stage. The completed ADR0338 report remains the immutable passing baseline. No higher capacity has yet been measured.
 
-Local validation executed: 153 focused workload/profile tests and 228 isolated historical resource/lifecycle checks passed. Ruff F/I passed. Historical/current reproduction verified 535 files. Full generated four-API/fifteen-worker manifests, exact source/image binding and reservation passed in isolated files using actual existing publication, with no publication mock or live accounting changes. Original broader regression failures came from archived receipts inheriting a consumed live goal; isolated test context fixed collection without relaxing runtime guards. One fresh allowance registered at ledger index 152. Cloud load and higher capacity remain pending.
+Local validation executed: 153 focused workload/profile tests and 228 isolated historical resource/lifecycle checks passed. Ruff F/I passed. Historical/current reproduction verified 535 files. Full generated four-API/fifteen-worker manifests, exact source/image binding and reservation passed in isolated files using actual existing publication, with no publication mock or live accounting changes. Original broader regression failures came from archived receipts inheriting a consumed live goal; isolated test context fixed collection without relaxing runtime guards. The proposed goal is PREPARED_NOT_AUTHORIZED. Automatic approval review rejected the combined push/launch because the user had not explicitly approved the exact180/s paid stage. No launch, reservation or paid load occurred; the provisional envelope authorization was withdrawn and the prepared goal retained. Explicit180/s approval is required. Cloud load and higher capacity remain pending.

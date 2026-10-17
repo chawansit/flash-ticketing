@@ -168,7 +168,7 @@
           "database_connections_unchanged": true,
           "gateway_delay_unchanged": true
         },
-        "authorization": "Direct user request: Improve paid-and-issued tickets/s for5minutes first. Bounded implementation: one180offered/s300s test retaining qualified3+3 API clients, same image/pods/resources,24physicalDB,16simulator slots,800active journeys/500HTTP/16clients. Mandatory unchanged gates and restoration within3600s; no second stage or resize.",
+        "authorization": "Prepared180/s300s proposal in response to user request to improve five-minute paid-issued throughput. Automatic approval review requires explicit approval of this exact paid180/s stage. No cloud stage started or reserved.",
         "image_correction_decision": "ADR0267",
         "scope_note": "One fresh ADR0335 test only. Prior ADR0333 paid allowance remains consumed; failed outcomes and recovery evidence preserved.",
         "stop_conditions": "Failed gates stop escalation; post-TTL audit, drain and exact restoration required",
@@ -229,13 +229,10 @@
         "fixture_clock_contract_sha256": "ab332f6cd121158dfe70bbe7b08059ee38c758aa1c56a3ee057cd6d69571fbe5",
         "generator_process_decision": "ADR0335",
         "generator_process_contract_sha256": "307901590dd6605cbb9be3509f3d5c1ab05afd833eb8eabc152bfd52dfa559e2",
-        "status": "APPROVED_GOAL_BOUNDED",
+        "status": "PREPARED_NOT_AUTHORIZED",
         "api_client_pool_decision": "ADR0338",
         "api_client_pool_receipt_sha256": "09c1b025497b8a535a110f429fbfa93bb4302b1e8316260b677e181a863006e1",
-        "api_client_pool_contract_sha256": "e78e1be76a43f55de1e1861013e96cc0ae8548c9b3185fef5f6a228f1f755bb0",
-        "authorized_at_utc": "2026-10-17T05:13:24.955657+00:00",
-        "authorized_at_bangkok": "2026-10-17T12:13:24.955657+07:00",
-        "ledger_start_index": 152
+        "api_client_pool_contract_sha256": "e78e1be76a43f55de1e1861013e96cc0ae8548c9b3185fef5f6a228f1f755bb0"
       },
       "bounded_scaling_permission": {
         "authorized": true,
