@@ -1,0 +1,93 @@
+{
+  "decision": "ADR0336",
+  "status": "PUBLISHED_VERIFIED_PENDING_NEW_PAID_ALLOWANCE",
+  "registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:cde635d647a83758065d6e7bb6d36efaed79aa7baeb0dab91368dcd047aecde3",
+  "registry_manifest_digest": "sha256:cde635d647a83758065d6e7bb6d36efaed79aa7baeb0dab91368dcd047aecde3",
+  "registry_configuration_digest": "sha256:527aec6fa481e6774d4508e420cf3e394155cc8ec9ba12021971e351101044d0",
+  "source_identity_sha256": "bf8bc89d0dac9da1f318976fcecdb7899f2f883cd0fea1cab9f3d67d6140e477",
+  "registry_published": true,
+  "registry_pulled_runtime_verified": true,
+  "pulled_runtime_verification": {
+    "modules_verified": 22,
+    "manifest_role_settings_validated": [],
+    "installed_and_copied_sources_match": true,
+    "all_modules_imported": true,
+    "role_settings_validated": 8,
+    "writer_pipeline_capability_verified": true,
+    "invalid_simulator_settings_rejected": true,
+    "payment_recovery_endpoint_present": true,
+    "order_status_read_pipeline_default_off": true
+  },
+  "unmocked_local_admission": {
+    "pass": true,
+    "decision": "ADR0336",
+    "scope": "full generated manifests/binding and reservation in isolated files with actual verified publication",
+    "publication_mocked": false,
+    "actual_publication_verified": true,
+    "live_ledger_and_goal_unchanged": true,
+    "cloud_calls": 0,
+    "paid_traffic_started": false,
+    "candidate_api_manifest": "sha256:cde635d647a83758065d6e7bb6d36efaed79aa7baeb0dab91368dcd047aecde3",
+    "workers_unchanged": true,
+    "source_contract_sha256": "8fdbacd1c51ac4b6d56d95b590f6855f49544e7c68014eaea6b96e9b3d7feea7"
+  },
+  "fresh_profile_tests_passed": 31,
+  "prior_runner_tests_passed": 240,
+  "historical_reproduction": {
+    "decision": "ADR0238",
+    "pass": true,
+    "checked_files": 535,
+    "approved_working_overlay_files": 31,
+    "frozen_parent_files": 78,
+    "runtime_generator_files": 78,
+    "historical_contract_constructor_verified": true,
+    "historical_role_count": 8,
+    "cce_api_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:2fdad0b429603e01ce28eb0a578e8e0c87d98401868e389c1d92350c8969c38d",
+    "workload_profiles": {
+      "short": {
+        "rate": 84,
+        "seconds": 300,
+        "tickets": 25200
+      },
+      "hourly": {
+        "rate": 84,
+        "seconds": 3600,
+        "tickets": 302400
+      }
+    },
+    "historical_images_match_pr6_combined_source": false,
+    "cloud_calls": 0,
+    "customer_dispatches": 0,
+    "capacity_improvement_measured": false,
+    "production_qualified": false
+  },
+  "source_contract_sha256": "8fdbacd1c51ac4b6d56d95b590f6855f49544e7c68014eaea6b96e9b3d7feea7",
+  "cloud_deployed": false,
+  "paid_load_started": false,
+  "new_live_allowance_registered": false,
+  "capacity_improvement_measured": false,
+  "best_qualified_short_paid_issued_per_second": 138.49,
+  "next_scope": {
+    "requires_new_approval": true,
+    "offered_journeys_per_second": 160,
+    "offered_seconds": 300,
+    "maximum_experiment_seconds": 3600,
+    "maximum_paid_stages": 1,
+    "maximum_safety_tickets": 2,
+    "generator_active_journeys": 800,
+    "generator_http_connections": 500,
+    "generator_http_clients": 16,
+    "api_pods": 4,
+    "worker_pods": 15,
+    "physical_database_backends": 24,
+    "api_general_payment_connections": [
+      2,
+      2
+    ],
+    "resources_settings_recovery_and_quality_gates_unchanged": true
+  },
+  "limitations": [
+    "Local reservation used isolated copies and simulated approval, but actual publication/image verification was not mocked.",
+    "CCE startup, paid traffic and performance benefit remain unmeasured for this candidate."
+  ]
+}

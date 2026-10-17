@@ -64,11 +64,29 @@
     "imported_api_sha256": "d01ee4993b41d4e560a67995dce2d532a305aaa280b613e7513362e153fa7be6"
   },
   "local_image_id": "sha256:cde635d647a83758065d6e7bb6d36efaed79aa7baeb0dab91368dcd047aecde3",
-  "status": "PENDING_REGISTRY_AUTH",
-  "registry_published": false,
-  "registry_pulled_runtime_verified": false,
+  "status": "PUBLISHED_AND_PULL_VERIFIED",
+  "registry_published": true,
+  "registry_pulled_runtime_verified": true,
   "cloud_deployed": false,
   "cloud_load_started": false,
   "expected_registry_manifest_digest": "sha256:cde635d647a83758065d6e7bb6d36efaed79aa7baeb0dab91368dcd047aecde3",
-  "expected_registry_configuration_digest": "sha256:527aec6fa481e6774d4508e420cf3e394155cc8ec9ba12021971e351101044d0"
+  "expected_registry_configuration_digest": "sha256:527aec6fa481e6774d4508e420cf3e394155cc8ec9ba12021971e351101044d0",
+  "registry_manifest_digest": "sha256:cde635d647a83758065d6e7bb6d36efaed79aa7baeb0dab91368dcd047aecde3",
+  "registry_configuration_digest": "sha256:527aec6fa481e6774d4508e420cf3e394155cc8ec9ba12021971e351101044d0",
+  "registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:cde635d647a83758065d6e7bb6d36efaed79aa7baeb0dab91368dcd047aecde3",
+  "platform": {
+    "os": "linux",
+    "architecture": "amd64"
+  },
+  "registry_pulled_runtime_verification": {
+    "modules_verified": 22,
+    "manifest_role_settings_validated": [],
+    "installed_and_copied_sources_match": true,
+    "all_modules_imported": true,
+    "role_settings_validated": 8,
+    "writer_pipeline_capability_verified": true,
+    "invalid_simulator_settings_rejected": true,
+    "payment_recovery_endpoint_present": true,
+    "order_status_read_pipeline_default_off": true
+  }
 }

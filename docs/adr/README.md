@@ -335,4 +335,4 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0335: Separate active journeys from HTTP connections](0335-separate-active-journeys-from-http-connections.md) - 800-slot160/s test failed:8848 drops and five final failures;39151 payments/tickets independently reconciled. Source/resource budgets unchanged; no capacity improvement qualified.
 
-- [ADR0336: Remove the extra authentication thread handoff](0336-remove-authentication-thread-handoff.md) - Exact one-module image; 90 Linux app/240 runner checks passed; API-only overlay locally qualified with simulated publication. SWR authentication blocks real publication/admission; no cloud capacity claim.
+- [ADR0336: Remove the extra authentication thread handoff](0336-remove-authentication-thread-handoff.md) - Published/pulled exact image; 22 modules verified, 31 fresh profile checks and unmocked local admission passed. Previous 90 Linux app/240 runner checks retained; fresh paid allowance pending, no cloud capacity claim.

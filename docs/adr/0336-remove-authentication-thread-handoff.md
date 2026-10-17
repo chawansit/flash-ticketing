@@ -63,3 +63,11 @@ Full generated API manifests, source/configuration binding and reservation admis
 The SWR upload attempt failed authentication; a fresh login was requested. The public image receipt explicitly remains pending and unpublished. No CCE deployment, new live allowance, paid traffic or capacity improvement occurred. After publication and independent pull verification, regenerate the source-bound prepared goal and run unmocked local admission before requesting one new 160/s, 300-second paid comparison under the stated 3,600-second experiment bound.
 
 [Runner qualification and remaining blockers](../capacity/cce/authentication-dispatch-runner-local-2026-10-17.json).
+
+### Verified registry publication
+
+The supplied login succeeded after refreshing Docker authentication. Published and pulled the immutable candidate manifest `sha256:cde635d647a83758065d6e7bb6d36efaed79aa7baeb0dab91368dcd047aecde3`; verified the registry manifest bytes, configuration digest, Linux/amd64 platform and source label. Executed verification inside the pulled image: all 22 copied/installed/imported modules and dependency inputs match, eight role settings validate and the recovery endpoint remains present. The earlier authentication rejection alone did not prove the supplied password had expired.
+
+With the real publication receipt, full generated API manifests, source/configuration binding and reservation admission passed without mocking image publication. Approval and reservation accounting were still simulated only in isolated local files; live goal/journal/state hashes remained unchanged during qualification. Regenerated the prepared, unauthorized goal from the final publication and runner source fingerprints. Thirty-one fresh profile checks and historical/current reproduction passed.
+
+See [release evidence](../capacity/cce/authentication-dispatch-release-2026-10-17.json). No CCE deployment or paid traffic started. The previous single paid-stage allowance is consumed. The candidate is ready to request one fresh 160 offered journeys/s, 300-second comparison, including mandatory safety, post-TTL financial audit, drain and exact restoration within 3,600 seconds. The actual cloud performance benefit remains unmeasured.

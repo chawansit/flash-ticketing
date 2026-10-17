@@ -79,7 +79,7 @@
     "scripts/qualify_cce_primary_bootstrap.py": "ee4375edff0e25bb3d4a03d0da43aa0968b14cd1d86ce5c6c76d7d7babe54c5e",
     "scripts/slot_failure_evidence.py": "5303920a2497d02f3bb42824bd775b7d065ce7dbf34c4020e2eef9404195b619",
     "docs/capacity/cce/authentication-dispatch-local-2026-10-17.json": "453dc1a12c224017d6a1c8bac8fb3075eb06810424285ade77867f3defa24bc5",
-    "docs/capacity/cce/authentication-dispatch-image-2026-10-17.json": "f2cf6de1f4a97ca6b08a889b4a9943c5183773a199e4d14c25b0a41c4e9362f7",
+    "docs/capacity/cce/authentication-dispatch-image-2026-10-17.json": "9fe7fdc0faa6cad6eabab2f15b74952858dd3f4f736b4eebc9398a5813df8215",
     "scripts/cce_auth_dispatch_profile.py": "453eb1c7562851d4a12f6d4aacab774544a49588e6ea140cf5e95efcc630c2e9"
   },
   "decision": "ADR0242",
