@@ -1,0 +1,145 @@
+{
+  "decision": "ADR0344",
+  "status": "IMPLEMENTED_LOCALLY_QUALIFIED_CLOUD_UNMEASURED",
+  "application_change": "Atomic due-payment claim and lease plus existing transaction pipeline for simulator claim/ack only.",
+  "reviewed_function_sha256": "e89f728d7dc12d121d7738cdcf961cd71ad62d104444535d05f03f8f0ba78ac3",
+  "local_transaction_comparison": {
+    "decision": "ADR0344",
+    "scope": "Six alternating serial trials per arm,128 actual worker calls per trial; local PostgreSQL, no HTTP delay, no cloud throughput claim.",
+    "milliseconds_per_claim_and_ack": {
+      "cutoff_sequential": [
+        6.087060937488786,
+        6.381181249935253,
+        6.330300781201004,
+        8.611096875029034,
+        6.5651726562236945,
+        6.824390625070009
+      ],
+      "cutoff_pipeline": [
+        5.219798437451573,
+        5.155902343744856,
+        4.410099999972772,
+        5.777197656243516,
+        6.45707656246941,
+        5.366222656334685
+      ],
+      "atomic_sequential": [
+        7.119402343846559,
+        6.213696093709586,
+        5.940672656151946,
+        6.44848906244988,
+        7.7455671874986365,
+        9.153868749990579
+      ],
+      "atomic_pipeline": [
+        4.567074218698508,
+        4.925469531258386,
+        5.510766406246148,
+        5.148977343765182,
+        4.772135156258628,
+        6.991242187496027
+      ]
+    },
+    "medians_ms": {
+      "cutoff_sequential": 6.473176953079474,
+      "cutoff_pipeline": 5.293010546893129,
+      "atomic_sequential": 6.78394570314822,
+      "atomic_pipeline": 5.037223437511784
+    },
+    "pipeline_improves_atomic_local_occupancy": true,
+    "candidate_improves_cutoff_local_occupancy": true,
+    "remote_calls": 0,
+    "paid_load_started": false,
+    "receipt_sha256": "126fb9eff806688404018295025d325758a8dac386a031c1461fe744f320b6c2",
+    "candidate_reduction_percent": 22.183133969241574
+  },
+  "executed_checks": {
+    "focused_native_scheduler_and_preparation": 34,
+    "full_financial_concurrency_and_replay": 15,
+    "total_passed": 53,
+    "ruff": "PASS",
+    "actual_new_image_preparation": "PASS",
+    "network_disabled_imported_module_verification": 22,
+    "signed_http_acknowledgement_commit_failure_and_replay": 4
+  },
+  "validation_coverage": [
+    "Statement-time index eligibility; due/future/leased/locked rows.",
+    "Concurrent unique claims within10SQL clients and16delivery jobs.",
+    "Deferred claim commit failure sends no HTTP; deferred ack commit failure retains replayable lease.",
+    "Lost callback response and stale-token replay preserve payment identity and issue unique tickets.",
+    "HTTP delivery holds no SQL connection; rollback returns usable connections.",
+    "Image guards reject parent tampering, unrelated edits and unreviewed simulator functions.",
+    "Four signed-HTTP API configurations preserve callback acknowledgement-failure lease recovery; test fault wrapper forwards transaction options."
+  ],
+  "local_image": {
+    "local_tag": "flash-ticketing-shared:adr0344-56af658a57e6",
+    "local_image_id": "sha256:a3002fda9ae20d52a40e776374d87c34a0ec536ba6325a0b343fd2b8b9ae4d78",
+    "parent_registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+    "parent_source_identity_sha256": "0087ce3078532a8fd05b668c4d286988a3165d95295c51ebbf2c60d4a702ce0d",
+    "runtime_source_sha256": {
+      "src/ticketing/api.py": "52e4806e5aad90e009d5933cef57480dc470a3cee72fa5b43f8bc9589737fac1",
+      "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+      "src/ticketing/config.py": "a8fad87b1e9ae0506ca93793a276d41deac16a52a9edf08d2663e9557a0088ec",
+      "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+      "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
+      "src/ticketing/observability.py": "2985480a7d21af0be1e2126d9e556d55738e9ae30dbccd05fa368ea1ab75d6f8",
+      "src/ticketing/workers.py": "87b048e644ed65b1a53495e8d97d7ef5f9bdb5b419abba63fbe251ee346db2ab",
+      "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+      "src/ticketing/application/ports.py": "b2115020590e7b21c56792e7735c68c5d823504ce9a1abcdf3f47b94cb9c82f5",
+      "src/ticketing/application/reservations.py": "a3195a029d2cd6a00ae68abac125349ebfb5db70a7f40e4199660f78ff402114",
+      "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+      "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+      "src/ticketing/infrastructure/order_status_projector.py": "f9e1a6809227cb81a6e620cbf1d20906202fcc061e011bdc356f6a491ce0c510",
+      "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+      "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+      "src/ticketing/infrastructure/postgres.py": "9090d8bf233c32a993636e382226c79472517eb23fdb7062d24797522622680a",
+      "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+      "src/ticketing/infrastructure/reservations.py": "f8f63c853fae8814537aa489e008cbe050705ec7cd179ea86134a6009ccbba0c",
+      "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a",
+      "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "source_identity_sha256": "56af658a57e6f230467b0b775dea09dac0c7cc82008926f83a3693db4ec20374",
+    "changed_modules": [
+      "src/ticketing/workers.py"
+    ],
+    "dependency_input_sha256": {
+      "requirements.lock": "4c45aa6d68478b8f81e57eeb808f7ba55ad59275647cdc1bac28fdb795aaf14d",
+      "pyproject.toml": "c1ce0fcb261c6788d55b0532ba249af7a23e29d1d094b44310ebfc39c3b13dbd"
+    },
+    "preparation_recipe_sha256": "29023a11651ffde6a97c2e85fc4259de71f7f3b9e7e81db375ebaf25da1f057a",
+    "validation": {
+      "modules_verified": 22,
+      "imported_worker_matches": true,
+      "lease_clock_preserved": true
+    }
+  },
+  "fixed_contracts": {
+    "delivery_slots": 16,
+    "simulator_database_clients": 10,
+    "physical_backends": 24,
+    "lease_seconds": 15,
+    "status_cache_age_ms": 1000,
+    "status_poll_ms": 500,
+    "timeouts_and_commit_durability_unchanged": true,
+    "financial_writes_callback_identity_and_token_fencing_unchanged": true,
+    "api_modules_and_other_worker_functions_unchanged": true
+  },
+  "initial_validation_failure": {
+    "scope": "New local concurrency fixture started with1ready connection and hit10waiting cap under16simultaneous calls.",
+    "resolution": "Warm the existing10-client fixture ceiling before the concurrency case; no application budget or cloud setting changed.",
+    "final_recheck": "PASS"
+  },
+  "registry_published": false,
+  "cloud_deployed": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "best_passing_conservative_tickets_per_second": 158.0633,
+  "limitations": [
+    "Local serial benchmark isolates claim/ack database overhead; HTTP delay and service contention are not represented.",
+    "No proof yet that shorter simulator occupancy reduces cloud confirmation backlog or status-read amplification.",
+    "New source identity is distinct from the ADR0341 published candidate; do not reuse its registry receipt or runner registration."
+  ],
+  "next": "Qualify this distinct candidate through the existing guarded live runner before a separately authorized matched paid comparison. No paid repeat, infrastructure resize or correctness/freshness relaxation."
+}

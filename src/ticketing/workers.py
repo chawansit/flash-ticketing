@@ -1092,17 +1092,19 @@ def consume_iteration(consumer, db, cache, batch_size, order_status_projector=No
 @measured_work("simulate_one")
 def simulate_one(db, settings, transport=None):
     token = uuid4()
-    with simulator_phase("claim"), db.transaction() as conn:
-        row = conn.execute("""SELECT p.*,o.total,o.currency,clock_timestamp() AS claim_observed_at FROM payment_attempts p JOIN orders o ON o.id=p.order_id
+    with simulator_phase("claim"), db.transaction(pipeline=True) as conn:
+        row = conn.execute("""WITH candidate AS (
+            SELECT p.id,o.total,o.currency,clock_timestamp() AS claim_observed_at
+            FROM payment_attempts p JOIN orders o ON o.id=p.order_id
             WHERE p.deliveries<p.target_deliveries AND p.due_at<=statement_timestamp()
             AND (p.lease_until IS NULL OR p.lease_until<clock_timestamp())
-            ORDER BY p.due_at LIMIT 1 FOR UPDATE OF p SKIP LOCKED""").fetchone()
+            ORDER BY p.due_at LIMIT 1 FOR UPDATE OF p SKIP LOCKED
+            ) UPDATE payment_attempts p
+            SET lease_until=clock_timestamp()+interval '15 seconds',lease_token=%s
+            FROM candidate c WHERE p.id=c.id
+            RETURNING p.*,c.total,c.currency,c.claim_observed_at""", (token,)).fetchone()
         if not row:
             return False
-        conn.execute(
-            "UPDATE payment_attempts SET lease_until=clock_timestamp()+interval '15 seconds',lease_token=%s WHERE id=%s",
-            (token, row["id"]),
-        )
     SIMULATOR_DUE_TO_CLAIM_SECONDS.observe(
         max(0, (row["claim_observed_at"] - row["due_at"]).total_seconds())
     )
@@ -1135,7 +1137,7 @@ def simulate_one(db, settings, transport=None):
                 response.read()
         else:
             transport.post(raw, dict(request.header_items()))
-    with simulator_phase("ack"), db.transaction() as conn:
+    with simulator_phase("ack"), db.transaction(pipeline=True) as conn:
         conn.execute(
             """UPDATE payment_attempts SET deliveries=deliveries+1,lease_until=NULL
             WHERE id=%s AND lease_token=%s""",

@@ -349,4 +349,6 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0342: Bind the local payment claim comparison through existing builders](0342-bind-local-payment-claim-comparison.md) - Local configuration checks and explicitly approved immutable registry publication/pull verified; live registration and paid admission remain incomplete.
 
-- [ADR0343: Qualify the payment claim cutoff at 180 offered journeys/s](0343-qualify-payment-claim-cutoff-at-180.md) - User approved180/s control then conditional180/s candidate; real control admission and535-file reproduction checks passed. Control input pending, no paid run started.
+- [ADR0343: Qualify the payment claim cutoff at 180 offered journeys/s](0343-qualify-payment-claim-cutoff-at-180.md) - User approved180/s control then conditional180/s candidate; real control admission and535-file reproduction checks passed. Fresh control failed and independently restored; conditional candidate not run.
+
+- [ADR0344: Reduce simulator transaction round trips](0344-reduce-simulator-transaction-round-trips.md) - Atomic claim and simulator transaction pipeline locally qualified:53 checks,22-module image verification and22.18% lower local DB operation time; cloud unmeasured.

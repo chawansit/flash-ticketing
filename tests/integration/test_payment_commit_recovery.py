@@ -288,10 +288,10 @@ class TransactionFault:
         return getattr(self.db, name)
 
     @contextmanager
-    def transaction(self):
+    def transaction(self, **kwargs):
         self.calls += 1
         selected = self.calls == self.ordinal
-        with self.db.transaction() as conn:
+        with self.db.transaction(**kwargs) as conn:
             yield conn
             if selected and not self.after_commit:
                 raise RuntimeError("injected before acknowledgement commit")
