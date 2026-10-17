@@ -334,3 +334,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0334: Use a bounded creator-clock reference for fixture admission](0334-validate-fixture-freshness-against-bounded-creator-clock.md) - Preserve strict freshness and retain raw receipts across small measured clock offsets; no application TTL change.
 
 - [ADR0335: Separate active journeys from HTTP connections](0335-separate-active-journeys-from-http-connections.md) - 800-slot160/s test failed:8848 drops and five final failures;39151 payments/tickets independently reconciled. Source/resource budgets unchanged; no capacity improvement qualified.
+
+- [ADR0336: Remove the extra authentication thread handoff](0336-remove-authentication-thread-handoff.md) - Exact one-module image; 90 Linux/51 Windows checks passed and synthetic Linux CPU fell 12.98%; no cloud capacity claim.

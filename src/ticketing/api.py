@@ -132,7 +132,7 @@ async def service(request: Request):
     return request.app.state.reservations
 
 
-def actor(credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)]):
+async def actor(credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)]):
     try:
         claims = jwt.decode(
             credentials.credentials,

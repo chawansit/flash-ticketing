@@ -1,0 +1,194 @@
+{
+  "decision": "ADR0336",
+  "parent_registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2",
+  "parent_runtime_source_sha256": {
+    "src/ticketing/api.py": "52e4806e5aad90e009d5933cef57480dc470a3cee72fa5b43f8bc9589737fac1",
+    "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+    "src/ticketing/config.py": "a8fad87b1e9ae0506ca93793a276d41deac16a52a9edf08d2663e9557a0088ec",
+    "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+    "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
+    "src/ticketing/observability.py": "2985480a7d21af0be1e2126d9e556d55738e9ae30dbccd05fa368ea1ab75d6f8",
+    "src/ticketing/workers.py": "37915068f744b42726f1574b6d8009614c07f2aff0b19dcc2a0a1a9359a2bb61",
+    "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+    "src/ticketing/application/ports.py": "b2115020590e7b21c56792e7735c68c5d823504ce9a1abcdf3f47b94cb9c82f5",
+    "src/ticketing/application/reservations.py": "a3195a029d2cd6a00ae68abac125349ebfb5db70a7f40e4199660f78ff402114",
+    "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+    "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+    "src/ticketing/infrastructure/order_status_projector.py": "f9e1a6809227cb81a6e620cbf1d20906202fcc061e011bdc356f6a491ce0c510",
+    "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "9090d8bf233c32a993636e382226c79472517eb23fdb7062d24797522622680a",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/reservations.py": "f8f63c853fae8814537aa489e008cbe050705ec7cd179ea86134a6009ccbba0c",
+    "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a",
+    "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "parent_source_identity_sha256": "0087ce3078532a8fd05b668c4d286988a3165d95295c51ebbf2c60d4a702ce0d",
+  "runtime_source_sha256": {
+    "src/ticketing/api.py": "d01ee4993b41d4e560a67995dce2d532a305aaa280b613e7513362e153fa7be6",
+    "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+    "src/ticketing/config.py": "a8fad87b1e9ae0506ca93793a276d41deac16a52a9edf08d2663e9557a0088ec",
+    "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+    "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
+    "src/ticketing/observability.py": "2985480a7d21af0be1e2126d9e556d55738e9ae30dbccd05fa368ea1ab75d6f8",
+    "src/ticketing/workers.py": "37915068f744b42726f1574b6d8009614c07f2aff0b19dcc2a0a1a9359a2bb61",
+    "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+    "src/ticketing/application/ports.py": "b2115020590e7b21c56792e7735c68c5d823504ce9a1abcdf3f47b94cb9c82f5",
+    "src/ticketing/application/reservations.py": "a3195a029d2cd6a00ae68abac125349ebfb5db70a7f40e4199660f78ff402114",
+    "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+    "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+    "src/ticketing/infrastructure/order_status_projector.py": "f9e1a6809227cb81a6e620cbf1d20906202fcc061e011bdc356f6a491ce0c510",
+    "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "9090d8bf233c32a993636e382226c79472517eb23fdb7062d24797522622680a",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/reservations.py": "f8f63c853fae8814537aa489e008cbe050705ec7cd179ea86134a6009ccbba0c",
+    "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a",
+    "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "source_identity_sha256": "bf8bc89d0dac9da1f318976fcecdb7899f2f883cd0fea1cab9f3d67d6140e477",
+  "changed_modules": [
+    "src/ticketing/api.py"
+  ],
+  "changed_factor": "local_jwt_dependency_thread_handoff",
+  "dependency_input_sha256": {
+    "requirements.lock": "4c45aa6d68478b8f81e57eeb808f7ba55ad59275647cdc1bac28fdb795aaf14d",
+    "pyproject.toml": "c1ce0fcb261c6788d55b0532ba249af7a23e29d1d094b44310ebfc39c3b13dbd"
+  },
+  "local_tag": "flash-ticketing-shared:adr0336-bf8bc89d0dac",
+  "registry_published": false,
+  "cloud_deployed": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "local_image_id": "sha256:cde635d647a83758065d6e7bb6d36efaed79aa7baeb0dab91368dcd047aecde3",
+  "status": "LOCAL_VERIFIED_NOT_CLOUD_QUALIFIED",
+  "cloud_runner_admitted": false,
+  "local_runtime_verification": {
+    "decision": "ADR0336",
+    "source_identity_sha256": "bf8bc89d0dac9da1f318976fcecdb7899f2f883cd0fea1cab9f3d67d6140e477",
+    "modules_verified": 22,
+    "both_source_roots_match": true,
+    "dependencies_unchanged": true,
+    "actor_is_coroutine": true,
+    "imported_api_sha256": "d01ee4993b41d4e560a67995dce2d532a305aaa280b613e7513362e153fa7be6"
+  },
+  "local_validation": {
+    "windows_tests_passed": 51,
+    "linux_candidate_tests_passed": 90,
+    "ruff_F_I_passed": true,
+    "api_ast_identical_except_async_function": true,
+    "all_other_21_modules_byte_identical_to_parent": true,
+    "network_disabled_for_image_tests": true
+  },
+  "offline_cpu_replay": {
+    "scope": "offline in-memory ASGI, simulated Redis/PostgreSQL I/O; not cloud capacity",
+    "cache_hit_ratio": 0.56,
+    "concurrency": 50,
+    "both_arms_use_same_dependency_override_path": true,
+    "rows": [
+      {
+        "pair": 0,
+        "mode": "control",
+        "requests": 4000,
+        "process_cpu_seconds": 6.0466671,
+        "wall_seconds": 6.037576864999949
+      },
+      {
+        "pair": 0,
+        "mode": "candidate",
+        "requests": 4000,
+        "process_cpu_seconds": 5.4077703999999995,
+        "wall_seconds": 5.408883901000024
+      },
+      {
+        "pair": 1,
+        "mode": "candidate",
+        "requests": 4000,
+        "process_cpu_seconds": 5.362186699999999,
+        "wall_seconds": 5.360361957999999
+      },
+      {
+        "pair": 1,
+        "mode": "control",
+        "requests": 4000,
+        "process_cpu_seconds": 6.394871900000002,
+        "wall_seconds": 6.386664537999991
+      },
+      {
+        "pair": 2,
+        "mode": "control",
+        "requests": 4000,
+        "process_cpu_seconds": 6.669298999999999,
+        "wall_seconds": 6.667061651999973
+      },
+      {
+        "pair": 2,
+        "mode": "candidate",
+        "requests": 4000,
+        "process_cpu_seconds": 5.859752799999999,
+        "wall_seconds": 5.8642940579999845
+      }
+    ],
+    "mean_process_cpu_seconds": {
+      "control": 6.370279333333333,
+      "candidate": 5.543236633333333
+    },
+    "cpu_reduction_percent": 12.98283256861893,
+    "api_source_sha256": "d01ee4993b41d4e560a67995dce2d532a305aaa280b613e7513362e153fa7be6"
+  },
+  "local_verification_cost": {
+    "normal": {
+      "token_bytes": 189,
+      "samples": 1000,
+      "p95_ms": 0.05590600000004997,
+      "max_ms": 0.13101100000767474
+    },
+    "large_claim": {
+      "token_bytes": 22035,
+      "samples": 1000,
+      "p95_ms": 0.2605239999979858,
+      "max_ms": 0.6032540000262543
+    },
+    "very_large_claim": {
+      "token_bytes": 1398291,
+      "samples": 50,
+      "p95_ms": 9.226732000001903,
+      "max_ms": 10.377136000016662
+    }
+  },
+  "diagnostic_findings": {
+    "reference_run": "adr0151-3fa2832bb77c",
+    "reference_observer_scope": "native start through terminal drain; counters include safety observations",
+    "cache_hit_delta": 200425,
+    "cache_miss_delta": 157910,
+    "cache_stale_delta": 311,
+    "acquisition_failures": {
+      "general_global_limit": 907,
+      "payment_global_limit": 219,
+      "payment_role_limit": 38,
+      "native_limit": 0,
+      "native_timeout": 0
+    },
+    "failure_history_complete": false,
+    "cache_hits_already_bypass_postgresql": true,
+    "cloud_cpu_function_attribution_confirmed": false,
+    "pool_metric_removal_ceiling_percent_in_windows_replay": 1.66
+  },
+  "limitations": [
+    "Synthetic replay simulates I/O; it is not a CCE benchmark or capacity prediction.",
+    "Invalid or unusually large JWTs consume event-loop CPU; ingress header limits and adversarial traffic are not qualified.",
+    "No new paid allowance, registry publication, CCE deployment, latency gate qualification or paid throughput measurement.",
+    "Current clean short paid-issued result remains138.49/s; the exact cloud slowdown cause remains incompletely attributed."
+  ],
+  "benchmark_source_sha256": "e2f859a9c65d4ed843f3de9f6d710cad93d2116e07f40a0e3eb04341e502bd88",
+  "superseded_exploratory_replay": {
+    "cpu_reduction_percent": 16.759921447297586,
+    "qualified": false,
+    "reason": "Unequal FastAPI dependency override setup paths; replaced by equal-path replay.",
+    "raw_sha256": "14e8a2587abe7afb499af8f257a003524fa7da2d6d64ecdcfe9cf79d10bb16d3"
+  }
+}

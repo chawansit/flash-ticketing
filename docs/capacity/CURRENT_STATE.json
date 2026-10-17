@@ -2,7 +2,7 @@
   "updated_date_bangkok": "2026-10-17",
   "branch": "codex/customer-recovery-2026-10-10",
   "goal": "300000 unique paid and issued concert tickets/hour; zero double booking",
-  "status": "ADR0335 800-slot160/s test FAILED_RESTORED:48000 scheduled,39152 dispatched,8848 drops,39147 customer-confirmed tickets; five final customer failures (0.01277%, above0.01%). Fresh read-only audit verified39151 unique payments/tickets with no financial loss/double-booking, empty queues and stable restored runtime. API3.65/4 cores;358646 status reads. Partial slot history; complete before/after SQL snapshots. Best qualified clean short138.49/s unchanged; one paid allowance consumed, no active experiment.",
+  "status": "ADR0336 isolated authentication scheduling candidate locally verified:90 Linux and51 Windows checks; exact parent image with only api.py async dependency keyword changed; three synthetic Linux pairs used12.98% less CPU. No cloud runner admission/deployment/paid load or capacity improvement qualified. ADR0335 remains failed/restored and its paid allowance consumed. Best qualified clean short138.49/s unchanged.",
   "cloud_load_requires_resume": true,
   "security_note": "ADR0147 used in-memory protected password authentication and pinned known hosts; no temporary SSH keys. Secondary private api.env retained owner-only for comparison; primary export/image tar removed. New host key is first-use trust, not independently authenticated.",
   "handoff_revision": "deb330ec91e553640d1d0ba10e92aa8f29cd86dc",
@@ -15,6 +15,7 @@
   "current_run": null,
   "revision_note": "ADR0310 separately qualifies immutable hourly evidence under approved0.01% SLO:302278in-hour tickets,302066conservative, one final retrieval failure and no financial loss. Original hourly FAILED_RESTORED classifier result preserved. ADR0311 fresh84/s300s sealed-client test passed;ADR0324 qualifies100.90paid-issued/s for five minutes; sustained100/s remains unqualified.",
   "confirmed": [
+    "ADR0336:docs/capacity/cce/authentication-dispatch-local-2026-10-17.json; cache hits already bypass DB;1126 shared-limit and38 payment-role rejections in retained full counters, history incomplete. Single local auth scheduling candidate built from immutableADR0324; no financial, SQL, Redis or worker changes.",
     "ADR0335 live comparison: docs/capacity/cce/generator-occupancy-800-result-2026-10-17.json and generator-occupancy-800-recovery-2026-10-17.json. No capacity improvement;39151 payments/tickets reconciled. Five customer failures retained; original result unchanged.",
     "ADR0335 preparation: docs/capacity/cce/generator-occupancy-800-local-2026-10-17.json;270 focused tests passed, full source/configuration binding and isolated reservation passed, no new paid traffic or capacity improvement.",
     "ADR0333:160/s four-process paid run FAILED_RESTORED;40095 paid/issued,7905 undispatched, two initial errors recovered, zero final failures. Fresh financial/queue/runtime reconciliation passed; original result preserved. See docs/capacity/cce/four-generator-160-result-2026-10-17.json and four-generator-160-recovery-2026-10-17.json. Best qualified clean short138.49/s unchanged; no new paid allowance.",
