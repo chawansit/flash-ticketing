@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for preparation and validation only. Extends ADR0347 and ADR0351. User requested readiness notification before the next paid pair; no live allowance is opened.
+Accepted for preparation and the subsequently approved single bounded pair. Extends ADR0347 and ADR0351. Initial work was preparation/notification only; the user then explicitly approved160/s300s control and conditional candidate. This allowance is now consumed and closed. No automatic rerun is authorized.
 
 ## Context
 
@@ -32,4 +32,12 @@ Read-only live capture and final recapture succeeded with normal service counts,
 
 Stored registry credentials were rejected; the user supplied a fresh login, which was installed through password stdin/protected credential storage. Authenticated reads of both immutable manifests and exact configuration digests passed; no publication occurred. Four execution/authorization templates compile against the replacement target and snapshot. Future authorizer requires a separate fresh human approval receipt, current registry proof and matching prepared source contract. No new sequence, pair clock, live reservation or paid run exists. Candidate still requires the real fully passed/restored same-pair control; it was not granted live admission during preparation.
 
-[Readiness receipt](../capacity/cce/combined-observer-new-rds-readiness-2026-10-18.json). Private preparation: tmp/adr0352-pair.prepared.private.json, tmp/adr0352-control-goal.prepared.private.json, tmp/adr0352-control-admission-qualified.json. Source contract890a80df8fbced0083a31f78a5777b04dc7b7fb78e4797ebc3af529294dc3c39. Logs: tmp/adr0352-final-preparation.log, tmp/adr0352-live-capture-final.log, tmp/adr0352-diagnostic-preflight.log. No throughput gain or replacement-RDS capacity qualification is claimed.
+[Readiness receipt](../capacity/cce/combined-observer-new-rds-readiness-2026-10-18.json). Private preparation: tmp/adr0352-pair.prepared.private.json, tmp/adr0352-control-goal.prepared.private.json, tmp/adr0352-control-admission-qualified.json. Source contract890a80df8fbced0083a31f78a5777b04dc7b7fb78e4797ebc3af529294dc3c39. Logs: tmp/adr0352-final-preparation.log, tmp/adr0352-live-capture-final.log, tmp/adr0352-diagnostic-preflight.log. At that preparation stage no throughput or replacement-RDS capacity qualification was claimed; approved execution is recorded below.
+
+## Approved cloud pair result
+
+The user approved the prepared pair on2026-10-18. Fresh registry/source/live checks passed, then one shared3600s clock/journal boundary was assigned. Control adr0151-72c681a1e054:48000 scheduled/dispatched/fulfilled,0 drops,3 initial errors/3 recovered/0 final failures,47469 conservative in-window tickets=158.23/s, worst-shard journey p95 including recovery3604.24ms. All twelve measurement gates, existing database financial/post-TTL reconciliation, global drain, integrity and original replacement-RDS runtime restoration passed. Canonical raw hash is retained in the compact control result; retained-evidence audit passed separately and is not another database reconciliation.
+
+Only after that exact PASSED_RESTORED control, candidate admission passed and execution began under the original deadline. Candidate adr0151-d36daa7833d2 passed both safety cohorts and corrected observer startup, then launch_cpu called stage.check(900) with less than900s left. PAIR_TIME_BUDGET_EXHAUSTED stopped it before customer dispatch.0 paid stages started; no scheduled/dispatched/drop/failure/latency or throughput measurement exists for this arm. Existing financial checks cover only safety cohorts. Integrity, global drain, namespace/resource/credential cleanup and replacement-RDS runtime restoration all passed. The candidate remains FAILED_RESTORED, not a passed load test or a failed160/s capacity measurement.
+
+The pair clock was not extended or reset. Both consumed sequences/reports and original raw hashes remain. Live allowance closed without a retry. This exposes a preparation-time budget limitation: review bounded pair timing under a new ADR before another explicitly approved paid attempt; retain all workload, financial, same-pair/source and cleanup safeguards. No300/s qualification or candidate performance gain is claimed. [Pair result](../capacity/cce/replacement-rds-160-pair-result-2026-10-18.json), [control](../capacity/cce/replacement-rds-160-control-result-2026-10-18.json), [candidate pre-dispatch result](../capacity/cce/replacement-rds-160-candidate-result-2026-10-18.json).

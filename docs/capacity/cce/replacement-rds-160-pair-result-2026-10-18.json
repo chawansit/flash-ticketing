@@ -1,0 +1,81 @@
+{
+  "decision": "ADR0352",
+  "status": "CONTROL_PASSED_CANDIDATE_NOT_DISPATCHED",
+  "recorded_at_utc": "2026-10-18T16:36:13.945580+00:00",
+  "database": "10.1.21.48",
+  "control": {
+    "run": "adr0151-72c681a1e054",
+    "status": "PASSED_RESTORED",
+    "offered_rate": 160,
+    "offered_seconds": 300,
+    "customer": {
+      "scheduled": 48000,
+      "dispatched": 48000,
+      "fulfilled": 48000,
+      "generator_drops": 0,
+      "first_attempt_error_journeys": 3,
+      "recovered_journeys": 3,
+      "retry_attempts": 3,
+      "final_customer_failures": 0,
+      "accounting_complete": true,
+      "measurement_complete": true
+    },
+    "conservative_in_window_tickets": 47469,
+    "conservative_tickets_per_second": 158.23,
+    "latencies_ms": {
+      "dispatch_lag_p95_ms": 1.5163970001594862,
+      "dispatch_lag_max_ms": 102.6842380006201,
+      "hold_http_p95_ms": 12.646050000512332,
+      "durable_p95_ms": 3033.2447649998358,
+      "payment_http_p95_ms": 81.02402100030304,
+      "ticket_wait_p95_ms": 616.4343789996565,
+      "total_journey_p95_ms": 3604.244450999431
+    },
+    "financial_pass": true,
+    "restoration": {
+      "original_runtime_restored": true,
+      "integrity_verified": true,
+      "generator_idle": true,
+      "namespace_removed": true,
+      "cleanup_complete": true,
+      "transport_credentials_cleared": true,
+      "owned_resources_removed": true
+    },
+    "raw_result_sha256": "fb7dea63ffd556babc371a5115d5620096ac70763798f370f1bebb3729be1b94",
+    "report": "docs/capacity/cce/replacement-rds-160-control-result-2026-10-18.json"
+  },
+  "candidate": {
+    "run": "adr0151-d36daa7833d2",
+    "status": "FAILED_RESTORED",
+    "offered_rate_planned": 160,
+    "offered_seconds_planned": 300,
+    "offered_window_executed": false,
+    "paid_stages_started": 0,
+    "failure_code": "PAIR_TIME_BUDGET_EXHAUSTED",
+    "failure_phase": "observer_cpu_launch_before_dispatch",
+    "required_remaining_seconds": 900,
+    "observer_startup_passed": true,
+    "safety_audits": {
+      "bootstrap_post_ttl_pass": true,
+      "native_post_ttl_pass": true
+    },
+    "restoration": {
+      "original_runtime_restored": true,
+      "integrity_verified": true,
+      "generator_idle": true,
+      "namespace_removed": true,
+      "cleanup_complete": true,
+      "transport_credentials_cleared": true,
+      "owned_resources_removed": true
+    },
+    "raw_result_sha256": "8102cfcdc7f64a0c6a3d81de65ad9e138c4e4303d1b18eceffcf983b06b465cb",
+    "report": "docs/capacity/cce/replacement-rds-160-candidate-result-2026-10-18.json"
+  },
+  "pair_budget_seconds": 3600,
+  "clock_extended": false,
+  "automatic_retry_permitted": false,
+  "both_arms_restored": true,
+  "comparison_available": false,
+  "target300_qualified": false,
+  "next": "Review pair timing to provide a complete bounded candidate window before requesting a new paid attempt. Preserve current control evidence and all consumed-arm/source/correctness rules."
+}

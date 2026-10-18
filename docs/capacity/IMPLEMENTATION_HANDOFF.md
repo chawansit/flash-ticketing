@@ -1,15 +1,18 @@
 # Ticket throughput implementation handoff
 
-Status (2026-10-18): observer correction and replacement-RDS preparation are complete. User requested readiness notification before paid traffic. **Ready for fresh160/s x300s control approval, then conditional candidate only after fully passed/restored same-pair control. No live allowance, sequence, pair clock, lock or paid stage is open.**
+Status (2026-10-18): the approved replacement-RDS160/s pair is closed. **Control PASSED_RESTORED; candidate FAILED_RESTORED before paid dispatch because the shared clock had less than the required900s reserve. Both arms fully restored. No live allowance, lock or automatic rerun is open.** The observer fix passed cloud startup in both arms. No candidate performance comparison or300/s qualification exists.
 
 ## Read first
 
-- [Current readiness](cce/combined-observer-new-rds-readiness-2026-10-18.json).
+- [Current pair result](cce/replacement-rds-160-pair-result-2026-10-18.json).
+- [Passed new-RDS control](cce/replacement-rds-160-control-result-2026-10-18.json).
+- [Candidate pre-dispatch stop](cce/replacement-rds-160-candidate-result-2026-10-18.json).
+- [Prior preparation readiness](cce/combined-observer-new-rds-readiness-2026-10-18.json).
 - [Replacement RDS cutover](cce/rds-endpoint-switch-2026-10-18.json).
 - [Latest stopped control](cce/combined-confirmation-160-control-result-2026-10-17.json).
 - ADR0350 (observer fix), ADR0351 (RDS switch), ADR0352 (exact new-RDS preparation binding).
 
-Work in E:/MVP Project, branch codex/customer-recovery-2026-10-10. Read AGENTS.md. Goal remains verified paid-and-issued five-minute throughput toward300/s. No300/s or new-RDS throughput measurement has occurred.
+Work in E:/MVP Project, branch codex/customer-recovery-2026-10-10. Read AGENTS.md. Goal remains verified paid-and-issued five-minute throughput toward300/s. The new-RDS160/s control passed; candidate load and300/s remain unmeasured.
 
 ## Current RDS and live state
 
@@ -25,17 +28,23 @@ Initial broad run301 passed,5 failed,2 skipped. Fixed three Windows path-matchin
 
 Logs: tmp/adr0352-regressions.log, adr0352-corrections-final.log, adr0352-actual-images.log, adr0352-ruff-final.log, adr0352-final-preparation.log, adr0352-live-capture-final.log, adr0352-diagnostic-preflight.log.
 
-## Prepared execution and remaining human gate
+## Consumed execution
 
-- tmp/adr0352-pair.prepared.private.json: matching published control/candidate manifests and new-RDS binding, unstarted pair.
-- tmp/adr0352-control-goal.prepared.private.json and control-admission-qualified.json: exact prepared control and isolated admission proof.
-- tmp/adr0352-new-rds/snapshot.private.json, config.private.json, diagnostic-target.private.json and live-preparation.private.json: replacement inputs. Static snapshot hashes and exact allowed DB/CA changes are enforced by scripts/cce_replacement_rds_binding.py.
-- tmp/adr0352-authorize-control.py, control-execute.py, authorize-candidate.py and candidate-execute.py: compiled only. Wrappers use the replacement target and normal snapshot; no old-RDS restoration input.
-- Current source contract890a80df8fbced0083a31f78a5777b04dc7b7fb78e4797ebc3af529294dc3c39; prepared control goal d62ff6d47197f9b4f4cc35bfa3f336e4b42c7d80fb9779b5ae25dd7ff26dbafd. Recheck before use.
+User explicitly approved160/s x300s control on new RDS, then candidate only after fully passed/restored control. Fresh preflight passed; same source contract890a80df8fbced0083a31f78a5777b04dc7b7fb78e4797ebc3af529294dc3c39 and one3600s pair deadline were retained.
 
-User supplied refreshed SWR login after stored credentials were rejected. Protected Docker login and both immutable manifest/config reads passed; no publication needed. tmp/adr0352-registry-qualified.json records time; authorizer requires refresh if over one hour old. Never include credentials in a handoff or prompt.
+Control adr0151-72c681a1e054:48000 scheduled/dispatched/fulfilled,0 drops,3 initial/3 recovered/0 final failures;47469 conservative in-window tickets=158.23/s. Worst-shard journey p95 including recovery3604.24ms. All measurement, existing database financial/post-TTL, global drain and restoration gates passed. Retained-evidence audit also passed; it is not a new database reconciliation.
 
-**Do not execute the authorizers yet.** This user request was preparation and notification, not paid-run approval. Future explicit approval is recorded as tmp/adr0352-fresh-pair-user-approval.private.json with exactly approved=true, rate=160, seconds=300, database=10.1.21.48, control_then_conditional_candidate=true. It does not exist. Then recheck current source/live readiness/registry, authorize once, and use an ephemeral private credential input consumed/deleted by the wrapper. One fresh journal boundary and shared3600s pair deadline, assigned at approval; never reset consumed pairs. Candidate authorizer requires exact same-pair PASSED_RESTORED control, matching source/settings/new-RDS binding and original remaining deadline. No automatic retry, resize, gate relaxation or main merge.
+Candidate adr0151-d36daa7833d2 was admitted only after that exact passed/restored control. Both safety cohorts and corrected observer startup passed. At cce_paid_lifecycle.run -> observers.launch_cpu -> stage.check(900), the remaining shared pair time was below900s. PAIR_TIME_BUDGET_EXHAUSTED occurred before customer dispatch;0 paid stages started. No candidate throughput/latency/failure-count comparison exists. This is a failed attempt to qualify within the envelope, not a failed160/s load measurement. Candidate integrity, drain, runtime/namespace/resource/credential cleanup all passed. Do not run a paid-load retained audit against a no-paid report; its financial scope is safety cohorts only.
+
+- Exact pointers and raw hashes are in the two compact result files and tmp/adr0352-sequence.approved.private.json. The sequence is closed, with original clock/start/report pointers preserved.
+- Raw reports: tmp/adr0151-72c681a1e054/cce-comparison.private.json and tmp/adr0151-d36daa7833d2/cce-comparison.private.json. Do not rewrite them.
+- tmp/adr0352-authorize-control.py, control-execute.py, authorize-candidate.py and candidate-execute.py are CONSUMED templates. Do not execute again or reset their sequence/approval receipt.
+- New-RDS restoration inputs remain tmp/adr0352-new-rds/snapshot.private.json, config.private.json, diagnostic-target.private.json. scripts/cce_replacement_rds_binding.py pins exact old/new snapshots and target/CA changes.
+- Control retained audit: tmp/adr0352-control-retained-audit.json. Detailed execution logs: tmp/adr0352-control-execution.log and candidate-execution.log. Use scripts/capacity_run_brief.py and named bounded reads.
+
+Live goal metadata closed CONSUMED_FAILED_RESTORED; actual journal entries retain control PASSED_RESTORED and candidate FAILED_RESTORED. No clock extension, infrastructure resize, relaxed correctness gate or automatic retry occurred. Fresh SWR credentials are in protected Docker storage; never put credentials in a handoff or prompt.
+
+Next: review preparation-time accounting and the shared-pair time reserve under a new ADR before proposing another paid attempt. The current limit prevented the candidate despite a valid control and working observer. Preserve consumed-arm/source/financial/restoration rules; new paid authority is required. Do not silently reuse this control under a changed pairing rule or extend/reset this pair. No main merge.
 
 ## Images and work envelope
 
@@ -47,7 +56,7 @@ Fixed:4API1vCPU/2Gi,3general+3payment clients each;15workers250m/512Mi;24physica
 
 ## Retained history
 
-Latest control adr0151-d5123df337b4 / bounded_cce_ticket_target__08647b663a64 stopped before paid dispatch on observer diagnostics, FAILED_RESTORED. Both safety cohorts passed financial/post-TTL checks; normal runtime, queues, integrity and cleanup passed. Raw tmp/adr0151-d5123df337b4/cce-comparison.private.json, hashef212c5b9e8af7bac6e33ecc37d51a8a355fa302b2536cce1963d9b32d959c38. No candidate/throughput measurement. Prior allowance closed CONSUMED_FAILED_RESTORED; old sequence tmp/adr0349-sequence.approved.private.json is unchanged.
+Prior stopped control adr0151-d5123df337b4 / bounded_cce_ticket_target__08647b663a64 stopped before paid dispatch on observer diagnostics, FAILED_RESTORED. Both safety cohorts passed financial/post-TTL checks; normal runtime, queues, integrity and cleanup passed. Raw tmp/adr0151-d5123df337b4/cce-comparison.private.json, hashef212c5b9e8af7bac6e33ecc37d51a8a355fa302b2536cce1963d9b32d959c38. No candidate/throughput measurement. Prior allowance closed CONSUMED_FAILED_RESTORED; old sequence tmp/adr0349-sequence.approved.private.json is unchanged.
 
 Earlier no-paid stops adr0151-5363d2b5b94c and adr0151-d47e3c15103e remain retained/restored. Details in cce/combined-confirmation-control-pre-dispatch-result-2026-10-17.json and combined-confirmation-fresh-pre-dispatch-result-2026-10-17.json plus its independent recovery. Never reset them.
 

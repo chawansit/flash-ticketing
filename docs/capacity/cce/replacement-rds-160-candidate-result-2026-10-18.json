@@ -1,0 +1,85 @@
+{
+  "decision": "ADR0352",
+  "run": "adr0151-d36daa7833d2",
+  "ledger": "bounded_cce_ticket_target__711ff24a47c3",
+  "status": "FAILED_RESTORED",
+  "arm": "candidate",
+  "raw_result_sha256": "8102cfcdc7f64a0c6a3d81de65ad9e138c4e4303d1b18eceffcf983b06b465cb",
+  "database_endpoint": "10.1.21.48",
+  "offered_rate_per_second": 160,
+  "offered_window_seconds": 300,
+  "offered_window_executed": false,
+  "paid_runs_started": 0,
+  "short_capacity_qualified": false,
+  "hourly_qualified": false,
+  "production_qualified": false,
+  "customer": {},
+  "customer_outcome_gate": null,
+  "measurement_gates": {},
+  "latencies_ms": {},
+  "latency_scope": "Worst-shard p95 including recovery, not pooled percentiles.",
+  "issuance": {},
+  "financial": {},
+  "financial_evidence_scope": "Only bootstrap/native safety cohorts were audited by the existing cloud runner; no offered paid window ran. No candidate load reconciliation or throughput measurement is claimed.",
+  "queues_after_restoration": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "restoration": {
+    "original_runtime_restored": true,
+    "integrity_verified": true,
+    "generator_idle": true,
+    "namespace_removed": true,
+    "cleanup_complete": true,
+    "transport_credentials_cleared": true,
+    "owned_resources_removed": true
+  },
+  "cpu": {
+    "api_process_cores": null,
+    "worker_process_cores": null
+  },
+  "phase_means_ms": {
+    "due_to_claim": null,
+    "claim": null,
+    "delivery": null,
+    "ack": null,
+    "api_acquire": null
+  },
+  "phase_scope": "Retained observer-lifetime means; not an isolated paid-window cycle or causal capacity proof.",
+  "observer_qualification": {
+    "pass": null,
+    "failures": null,
+    "pipeline_startup": {
+      "utc": "2026-10-18T16:31:54.146241+00:00",
+      "api_count": 4,
+      "consumer_count": 6,
+      "writer_count": 4,
+      "sample_errors": [],
+      "diagnostics_ready": true,
+      "writer_scale_decision": "ADR0315",
+      "pass": true
+    }
+  },
+  "limiting_evidence": [
+    "PAIR_TIME_BUDGET_EXHAUSTED at observer CPU launch, before customer dispatch. Required remaining reserve900s; shared3600s pair budget was insufficient after sequential preparation.",
+    "Observer startup passed with4API/6consumer/4writer receipts and no sample errors. No candidate performance result exists."
+  ],
+  "next": "Preserve the consumed pair. Review bounded pair timing before a separately approved next attempt; no automatic rerun, clock reset or correctness relaxation.",
+  "safety_audits": {
+    "bootstrap_post_ttl_pass": true,
+    "native_post_ttl_pass": true
+  }
+}

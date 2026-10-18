@@ -367,4 +367,4 @@ These entries record experiments implemented on the pinned experimental branch; 
 
 - [ADR0351: Switch to the restored RDS endpoint](0351-switch-to-restored-rds-endpoint.md) - User-restored database switch with verified TLS and unchanged application role/pool limits; load tests remain paused.
 
-- [ADR0352: Bind replacement-RDS capacity preparation](0352-bind-replacement-rds-capacity-preparation.md) - Exact replacement snapshot and TLS target for matched160/s preparation; no paid allowance opened.
+- [ADR0352: Bind replacement-RDS capacity preparation](0352-bind-replacement-rds-capacity-preparation.md) - Approved new-RDS160/s control passed/restored; candidate observer passed but shared-time reserve blocked dispatch. Both restored; no automatic retry.
