@@ -167,11 +167,18 @@ def writer_scale_selected(goal):
 
 def writer_scale_contract():
     from cce_worker_identity import specification
-    return {"decision": "ADR0315", "normal_ecs_workers": 14,
+    result = {"decision": "ADR0315", "normal_ecs_workers": 14,
             "native_background_workers": 15, "native_counts": specification("ADR0315")["counts"],
             "normal_counts": specification("ADR0298")["counts"],
             "owned_pods": 19, "physical_connections": 24,
             "writer_client_pool_max_per_replica": 12, "api_total_connections": 16}
+    import cce_fixed_worker_allocation as allocation
+    from cce_transaction_profile import active
+    goal = active()
+    if allocation.selected(goal):
+        value = allocation.contract(goal)
+        result.update(decision='ADR0357', native_counts=value['counts'], worker_resources=value['resources'])
+    return result
 
 
 def require_slot_failure(goal):

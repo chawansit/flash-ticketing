@@ -374,3 +374,7 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0354: Retain bounded creator-clock observations](0354-retain-bounded-creator-clock-observations.md) - Preparation only: retain raw timings and at most three strict read-only samples; no paid retry.
 
 - [ADR0355: Qualify five-minute rates through200/s](0355-qualify-five-minute-rates-through-200.md) - Accepted: measured160/s candidate selected; preapproved180/s then200/s qualification with unchanged resources and149 focused cases.
+
+- [ADR0356: Reconcile dispatched qualification cohort](0356-reconcile-dispatched-qualification-cohort.md) - Exact failed180/s recovery only; preserve original quality failure and reuse full database audit.
+
+- [ADR0357: Redistribute fixed worker budget](0357-redistribute-fixed-worker-budget.md) - Explicit five-writer/five-consumer allocation; unchanged15-worker3750m/7680Mi aggregate budget and application image.

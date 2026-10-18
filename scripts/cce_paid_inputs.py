@@ -95,7 +95,9 @@ print(json.dumps(result))
 """.replace("EVENTS", repr(events))
 
 
-def safety_result(probe, financial, queues):
+def safety_result(probe, financial, queues, *, expected_consumers=6):
+    if type(expected_consumers) is not int or expected_consumers not in {5, 6}:
+        raise ValueError("Exact declared native safety consumer count required")
     gates = {
         "all_four_pods_exercised": probe.get("requests_per_pod") == [25] * 4
         and probe.get("wave_requests") == 100,
@@ -110,7 +112,7 @@ def safety_result(probe, financial, queues):
         and financial.get("callback_delivery_attempts") == financial.get("callback_delivery_target") == 3,
         "zero_double_booking": financial.get("pass") is True
         and financial.get("duplicate_booked_seats") == financial.get("multi_booking_orders") == 0,
-        "full_queue_drain": queues.get("pass") is True and queues.get("kafka_members") == 6,
+        "full_queue_drain": queues.get("pass") is True and queues.get("kafka_members") == expected_consumers,
     }
     result = {"gates": gates, "probe": probe, "post_ttl_financial": financial, "global_queues": queues}
     require_safety(result)
@@ -226,7 +228,9 @@ class Inputs:
         queues = drain(self.session, self.stage.cid, self.global_audit)
         self.record["global_queues"] = queues
         self.checkpoint()
-        result = safety_result(probe, financial, queues)
+        import cce_fixed_worker_allocation as allocation
+        from cce_transaction_profile import active
+        result = safety_result(probe, financial, queues, expected_consumers=5 if allocation.selected(active()) else 6)
         self.record["safety"] = result
         self.checkpoint()
         return result

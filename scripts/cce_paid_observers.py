@@ -460,7 +460,7 @@ class Observers:
         policy.write(self.stage.output / "pipeline-startup-row.private.json", status["pipeline"])
         self.record["pipeline_startup"] = declared_startup(
             status["pipeline"], getattr(self, "native_workers", None), pipeline_startup_view)
-        self.record["kafka_startup"] = kafka_startup_view(status["kafka"], 6)
+        self.record["kafka_startup"] = kafka_startup_view(status["kafka"], __import__("cce_fixed_worker_allocation").kafka_members(getattr(self, "native_workers", None)))
         if (
             not self.record["pipeline_startup"]["pass"]
             or not self.record["kafka_startup"]["pass"]
@@ -661,7 +661,8 @@ class Observers:
             and self.record.get("database_wait_capture", {}).get("complete") is True
             and __import__("cce_writer_scale_verification").pipeline(
                 self.record.get("pipeline_summary", {}), getattr(self, "native_workers", None), pipeline_pass)
-            and kafka_pass(self.record.get("kafka_summary", {}))
+            and __import__("cce_fixed_worker_allocation").kafka_pass(
+                self.record.get("kafka_summary", {}), getattr(self, "native_workers", None), kafka_pass)
             and (not getattr(self, "event_lanes", False) or self.record.get("projection_kafka_pass") is True)
         )
         self.checkpoint()

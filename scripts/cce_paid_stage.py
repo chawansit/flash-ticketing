@@ -36,7 +36,7 @@ def sha(raw):
 
 def identity():
     paths = (
-        "scripts/cce_rate_qualification.py", "scripts/prepare_rate_qualification.py",
+        "scripts/cce_fixed_worker_allocation.py", "scripts/cce_rate_qualification.py", "scripts/prepare_rate_qualification.py",
         "scripts/cce_replacement_rds_binding.py",
         "docs/capacity/cce/rds-endpoint-switch-2026-10-18.json",
         "scripts/cce_combined_worker_identity.py",

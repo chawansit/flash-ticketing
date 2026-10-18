@@ -77,6 +77,10 @@ def validate_binding(goal, binding):
                'cce_headroom_contract', 'cce_throughput_push_contract', 'cce_generator_process_contract',
                'cce_api_client_pool_contract', 'cce_primary_bootstrap_contract', 'cce_verification_contract_sha256',
                'cce_simulator_roundtrip_contract', 'cce_inventory_renewal_contract', 'cce_metric_admission_contract_sha256'}
+    import cce_fixed_worker_allocation as allocation
+    if allocation.selected(goal):
+        changed |= {'cce_writer_scale_contract', 'cce_worker_placement_factor'}
+        allocation.validate_binding(goal, binding, before)
     if any(before.get(k) != binding.get(k) for k in before.keys() | binding.keys() if k not in changed):
         raise ValueError('Rate qualification changed image context, routes, settings or resource budgets')
     return True

@@ -7,6 +7,8 @@ import tempfile
 from pathlib import Path
 from uuid import uuid4
 
+import cce_fixed_worker_allocation as allocation
+import cce_native_workers as workers
 import cce_rate_qualification as qualification
 import cce_simulator_roundtrip_profile as roundtrip
 import prepare_simulator_roundtrip_comparison as previous
@@ -49,6 +51,23 @@ def prepare(base, rate, reference, proof, target):
             binding = core.binding_for(config, proof, objects, target, saved, profile=profile, preparation_only=True)
             plan = core.plan(profile=profile)
             image = roundtrip.image(goal)
+            worker_decision = 'ADR0357' if allocation.selected(goal) else 'ADR0345'
+            contract = core.worker_contract()
+            model = contract.primary_model(saved['model'])
+            roles = workers.identity.specification('ADR0324')['counts']
+            environments = {role:model['services'][role]['environment'] for role in roles}
+            worker_objects = workers.objects('adr0151-035500000000', environments,
+                                             config['primary']['private_ipv4'], worker_decision,
+                                             profile=profile)
+            pods = [o for o in worker_objects if o['kind']=='Pod']
+            assert len(pods) == 15
+            if allocation.selected(goal):
+                wanted = allocation.contract(goal)
+                for pod in pods:
+                    role = pod['metadata']['labels']['codex-worker-role']
+                    assert pod['spec']['containers'][0]['resources'] == wanted['resources'][role]
+                assert sum(int(pod['spec']['containers'][0]['resources']['limits']['cpu'][:-1]) for pod in pods) == 3750
+                assert sum(int(pod['spec']['containers'][0]['resources']['limits']['memory'][:-2]) for pod in pods) == 7680
             assert plan['kind'] == 'five_minute_rate_qualification'
             assert plan['matched_performance_comparison'] is False
             assert binding['cce_simulator_roundtrip_contract']['offered_rate'] == rate
@@ -58,7 +77,7 @@ def prepare(base, rate, reference, proof, target):
             assert binding['cce_api_client_pool_max'] == 6 and binding['cce_payment_pool_max'] == 3
             assert binding['cce_simulator_concurrency'] == 16 and binding['cce_simulator_database_pool_max'] == 10
             result = {'decision':'ADR0355','goal':goal,'binding':binding,'plan':plan,'objects':objects,
-                      'image':image,'profile_rate':rate,'paid_authorized':False,'cloud_calls':0}
+                      'worker_objects':worker_objects,'image':image,'profile_rate':rate,'paid_authorized':False,'cloud_calls':0}
         finally:
             policy.ENVELOPE = original
     assert hashes == {p:hashlib.sha256(p.read_bytes()).hexdigest() for p in hashes}
@@ -71,6 +90,7 @@ def main():
     parser.add_argument('--base-goal',type=Path,required=True)
     parser.add_argument('--reference',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--fixed-worker-allocation',action='store_true')
     args=parser.parse_args()
     for path in (args.base_goal,args.reference,args.output):
         if path.is_symlink() or not path.resolve().is_relative_to(policy.ROOT.resolve()):
@@ -78,7 +98,9 @@ def main():
     if args.output.exists() or not args.output.resolve().is_relative_to((policy.ROOT/'tmp').resolve()):
         raise ValueError('Fresh private preparation output required')
     target=policy.read(policy.ROOT/'tmp/rds-switch-20261018/diagnostic-target.private.json')
-    result=prepare(policy.read(args.base_goal),args.rate,policy.read(args.reference),
+    base=policy.read(args.base_goal)
+    if args.fixed_worker_allocation:base['fixed_worker_allocation_decision']='ADR0357'
+    result=prepare(base,args.rate,policy.read(args.reference),
                    policy.read(policy.ROOT/'tmp/cce-api-registry-proof.json'),target)
     args.output.write_bytes((json.dumps(result,indent=2)+'\n').encode())
     print(json.dumps({'prepared':True,'rate':args.rate,'seconds':300,'cloud_calls':0,'paid_authorized':False,

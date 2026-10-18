@@ -25,7 +25,7 @@ def environment(role, values, primary_ip, decision="ADR0259", *, goal=None):
         if result.get("API_URL") != "http://load-balancer:8000":
             raise ValueError("Shared callback route required")
         result["API_URL"] = "http://" + cce.private_ip(primary_ip) + ":8000"
-    if decision in {"ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324", "ADR0345"}:
+    if decision in {"ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324", "ADR0345", "ADR0357"}:
         from cce_committed_status_profile import selected
         from cce_transaction_profile import active
         goal = active() if goal is None else goal
@@ -37,7 +37,7 @@ def environment(role, values, primary_ip, decision="ADR0259", *, goal=None):
         if not notification_selected(goal) or result.get("ORDER_STATUS_NOTIFICATION_DEDUP") != "0":
             raise ValueError("Explicit disabled notification bootstrap required")
         result["ORDER_STATUS_NOTIFICATION_DEDUP"] = "1" if role == "consumer" else "0"
-    if decision in {"ADR0324", "ADR0345"}:
+    if decision in {"ADR0324", "ADR0345", "ADR0357"}:
         from cce_fulfillment_batch_profile import selected as fulfillment_selected
         if (not fulfillment_selected(goal) or result.get("DB_EXPLICIT_TRANSACTION_START") != "0"
                 or result.get("ORDER_STATUS_NOTIFICATION_DEDUP") != "0"
@@ -63,7 +63,7 @@ def environment(role, values, primary_ip, decision="ADR0259", *, goal=None):
     if decision == "ADR0315" and partition_selected(goal):
         result["DATABASE_URL"] = partition_route(result["DATABASE_URL"],"ticketing_background")
     from cce_payment_delivery_headroom import environment as delivery_environment
-    return delivery_environment(role, result, goal if decision in {"ADR0324", "ADR0345"} else None)
+    return delivery_environment(role, result, goal if decision in {"ADR0324", "ADR0345", "ADR0357"} else None)
 
 
 def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None, goal=None, image_receipt=None):
@@ -86,8 +86,8 @@ def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None, 
         raise ValueError("Complete worker environments required")
     namespace = cce.dependency.namespace_for(run)
     result = []
-    if decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324", "ADR0345"}:
-        if decision == "ADR0345":
+    if decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324", "ADR0345", "ADR0357"}:
+        if decision in {"ADR0345", "ADR0357"}:
             from cce_simulator_roundtrip_profile import image
         elif decision == "ADR0324":
             from cce_fulfillment_batch_profile import image
@@ -105,7 +105,7 @@ def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None, 
             from cce_payment_pipeline_profile import image
         else:
             from cce_event_lane_profile import image
-        receipt_image = image(goal) if decision == "ADR0345" else image()
+        receipt_image = image(goal) if decision in {"ADR0345", "ADR0357"} else image()
     else:
         receipt_image = comparison.selected_receipt()
     if image_receipt is not None:
@@ -134,7 +134,7 @@ def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None, 
                                                     "envFrom": [{"secretRef": {"name": role + "-env"}}],
                                                     "env": [{"name": "CCE_RUN_ID", "value": run}, {"name": "CCE_POD_UID", "valueFrom": {"fieldRef": {"apiVersion": "v1", "fieldPath": "metadata.uid"}}}],
                                                     "securityContext": {"allowPrivilegeEscalation": False, "capabilities": {"drop": ["ALL"]}},
-                                                    "resources": copy.deepcopy(identity.RESOURCES), "ports": [{"containerPort": 9101, "protocol": "TCP"}]}]}})
+                                                    "resources": copy.deepcopy(identity.resources_for(selected, role)), "ports": [{"containerPort": 9101, "protocol": "TCP"}]}]}})
     return result
 
 
@@ -259,8 +259,8 @@ class Workers:
                     continue
                 views.append(receipt(pod, expected, self.deployment.run, self.uids[name], log, metrics, self.decision))
             if not pending:
-                if self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324", "ADR0345"}:
-                    if self.decision == "ADR0345":
+                if self.decision in {"ADR0271", "ADR0285", "ADR0298", "ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324", "ADR0345", "ADR0357"}:
+                    if self.decision in {"ADR0345", "ADR0357"}:
                         from cce_simulator_roundtrip_profile import image
                     elif self.decision == "ADR0324":
                         from cce_fulfillment_batch_profile import image
@@ -283,7 +283,7 @@ class Workers:
                     sources = comparison.selected_receipt()["runtime_source_sha256"]
                 bundle = {"decision": self.decision, "run": self.deployment.run,
                           "sources": sources,
-                          "manifest_digest": self.selected["manifest"], "resources": identity.RESOURCES, "receipts": views}
+                          "manifest_digest": self.selected["manifest"], "resources": self.selected["resources"], "receipts": views}
                 identity.validate_bundle(bundle)
                 if previous is not None and bundle != previous:
                     raise ValueError("Native workers changed since admission")

@@ -22,12 +22,12 @@ SOURCE_REFERENCE = ('tmp/adr0151-a0d63f35960f/cce-comparison.private.json',
                     'de6e008fad525f67d93fd15b83f0a8ddb105110f9806d31bcc8bdfa6d09ec06c')
 KEYS = {'simulator_roundtrip_decision', 'simulator_roundtrip_arm', 'simulator_roundtrip_contract_sha256',
         'simulator_roundtrip_pair', 'simulator_roundtrip_preview', 'simulator_roundtrip_timing_decision'}
-INPUTS = {'scripts/cce_rate_qualification.py', 'scripts/prepare_rate_qualification.py',LOCAL, PUBLICATION, 'scripts/cce_replacement_rds_binding.py', 'docs/capacity/cce/rds-endpoint-switch-2026-10-18.json', 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
+INPUTS = {'scripts/cce_fixed_worker_allocation.py','scripts/cce_rate_qualification.py', 'scripts/prepare_rate_qualification.py',LOCAL, PUBLICATION, 'scripts/cce_replacement_rds_binding.py', 'docs/capacity/cce/rds-endpoint-switch-2026-10-18.json', 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
           'scripts/prepare_simulator_roundtrip_image.py', 'scripts/prepare_simulator_roundtrip_comparison.py',
           'scripts/prepare_callback_write_pipeline_image.py',
           'docs/capacity/cce/simulator-roundtrip-local-2026-10-17.json',
           'docs/capacity/cce/simulator-roundtrip-registry-2026-10-17.json'}
-CHANGED = {'scripts/cce_paid_profiles.py', 'scripts/cce_api_client_headroom.py', 'scripts/cce_generator_process_scaling.py','scripts/cce_fixture_clock.py','scripts/cce_dependency_probe.py','scripts/cce_writer_scale_verification.py','scripts/observe_cce_paid_pipeline.py','scripts/observe_cce_workers.py','scripts/cce_inventory_renewal.py', 'scripts/cce_paid_observers.py','scripts/cce_api_adapter.py','scripts/cce_transaction_profile.py', 'scripts/run_cce_paid_comparison.py',
+CHANGED = {'scripts/cce_paid_inputs.py','scripts/cce_bounded_financial_audit.py','scripts/cce_paid_profiles.py', 'scripts/cce_api_client_headroom.py', 'scripts/cce_generator_process_scaling.py','scripts/cce_fixture_clock.py','scripts/cce_dependency_probe.py','scripts/cce_writer_scale_verification.py','scripts/observe_cce_paid_pipeline.py','scripts/observe_cce_workers.py','scripts/cce_inventory_renewal.py', 'scripts/cce_paid_observers.py','scripts/cce_api_adapter.py','scripts/cce_transaction_profile.py', 'scripts/run_cce_paid_comparison.py',
            'scripts/cce_recovery_headroom.py', 'scripts/cce_throughput_push.py',
            'scripts/cce_native_workers.py', 'scripts/cce_worker_identity.py',
            'scripts/cce_worker_transition.py', 'scripts/cce_paid_stage.py',
@@ -145,6 +145,8 @@ def binding_contract(goal):
             **({'pair_timing': timing_contract(goal), 'pair_seconds_limit': timing_contract(goal)['pair_seconds_limit']}
                if timing_contract(goal) else {}),
             **({'replacement_rds': replacement.contract(goal)} if replacement.selected(goal) else {}),
+            **({'worker_allocation': __import__('cce_fixed_worker_allocation').contract(goal)}
+               if __import__('cce_fixed_worker_allocation').selected(goal) else {}),
             **({'rate_qualification': __import__('cce_rate_qualification').contract(goal)}
                if __import__('cce_rate_qualification').selected(goal) else {})}
 
@@ -156,7 +158,9 @@ def extend_plan(goal, plan):
     if qualification.selected(goal):
         ref = goal['rate_qualification_reference']
         return {**plan, 'kind': 'five_minute_rate_qualification',
-                'single_changed_factor': 'offered_rate', 'baseline_evidence': ref['path'],
+                'single_changed_factor': None if __import__('cce_fixed_worker_allocation').selected(goal) else 'offered_rate',
+                'declared_changes': ['offered_rate', 'worker_budget_allocation'] if __import__('cce_fixed_worker_allocation').selected(goal) else ['offered_rate'],
+                'baseline_evidence': ref['path'],
                 'baseline_sha256': ref['sha256'], 'baseline_is_passing_control': False,
                 'matched_performance_comparison': False,
                 'simulator_roundtrip_contract': binding_contract(goal),
@@ -307,6 +311,9 @@ def validate_binding(goal, binding, *, preparation_only=False):
     if replacement.selected(goal):
         replacement.validate_binding(goal, binding)
         varied.add('diagnostic_target_sha256')
+    import cce_fixed_worker_allocation as allocation
+    if allocation.selected(goal):
+        varied |= {'cce_writer_scale_contract', 'cce_worker_placement_factor'}
     if any(original.get(k) != binding.get(k) for k in original.keys() | binding.keys() if k not in varied):
         raise ValueError('Roundtrip comparison changed unrelated resources, routes, settings or recovery')
     from cce_inventory_renewal import contract as renewal_contract
@@ -318,6 +325,8 @@ def validate_binding(goal, binding, *, preparation_only=False):
                 'cce_headroom_contract': headroom.contract(goal), 'cce_throughput_push_contract': push.contract(goal),
                 'cce_generator_process_contract': generator.contract(goal), 'cce_primary_bootstrap_contract': bootstrap.contract(),
                 'cce_verification_contract_sha256': policy.digest(verification.contract())}
+    if allocation.selected(goal):
+        expected['cce_writer_scale_contract'] = headroom.writer_scale_contract()
     if any(binding.get(k) != value for k, value in expected.items()):
         raise ValueError('Exact roundtrip source-bound image/settings contracts required')
     for key, current in (('cce_paid_entry_sources', core.identity()), ('cce_paid_core_sources', paid.identity())):

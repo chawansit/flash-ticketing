@@ -277,6 +277,9 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT, pr
             scale_contract = writer_scale_contract()
             extra.update(cce_writer_scale_contract=scale_contract,
                          cce_worker_placement_factor={**factor(), "worker_counts": scale_contract["native_counts"]})
+    import cce_fixed_worker_allocation as allocation
+    if allocation.selected(goal):
+        extra['cce_worker_placement_factor']['worker_resources'] = allocation.contract(goal)['resources']
     from cce_recovery_headroom import writer_batch_contract, writer_batch_selected
     if writer_batch_selected(goal):
         extra.update(cce_writer_batch_contract=writer_batch_contract())
@@ -561,7 +564,8 @@ def worker_contract():
     if fulfillment_selected(notification_goal):
         import cce_fulfillment_batch_identity as fulfillment_pins
         from cce_committed_status_contract import CommittedStatusContract
-        return CommittedStatusContract(arm="candidate", identity=fulfillment_pins)
+        from cce_fixed_worker_allocation import apply_contract
+        return apply_contract(CommittedStatusContract(arm="candidate", identity=fulfillment_pins), notification_goal)
     from cce_explicit_start_profile import selected as explicit_selected
     if explicit_selected(notification_goal):
         import cce_explicit_start_identity as explicit_pins

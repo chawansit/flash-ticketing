@@ -12,6 +12,14 @@ RESOURCES = {k: {"cpu": "250m", "memory": "512Mi"} for k in ("requests", "limits
 
 
 def specification(decision="ADR0259", *, goal=None):
+    if decision == "ADR0357":
+        from cce_combined_worker_identity import allocation_specification
+        from cce_fixed_worker_allocation import selected
+        from cce_transaction_profile import active
+        goal = active() if goal is None else goal
+        if not selected(goal):
+            raise ValueError("Explicit fixed worker allocation required")
+        return allocation_specification(specification("ADR0345", goal=goal))
     if decision == "ADR0345":
         from cce_simulator_roundtrip_profile import image
         receipt = image(goal)
@@ -78,6 +86,10 @@ def specification(decision="ADR0259", *, goal=None):
             "manifest": pins.IMAGE_ID, "image_id": pins.IMAGE_ID, "source": pins.SOURCE, "resources": RESOURCES}
 
 
+def resources_for(selected, role):
+    return selected['resources'][role] if selected['decision'] == 'ADR0357' else selected['resources']
+
+
 def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
 
@@ -102,7 +114,7 @@ def validate_bundle(value):
 def validate_transferred_bundle(value):
     # The observer receives an already hash-sealed admitted bundle. Only the
     # two independently pinned immutable images can use this portable path.
-    if value.get("decision") == "ADR0345":
+    if value.get("decision") in {"ADR0345", "ADR0357"}:
         from cce_combined_worker_identity import specification as transferred_specification
         selected = transferred_specification(value)
     else:
@@ -115,7 +127,7 @@ def _validate_bundle(value, selected):
     size = sum(counts.values())
     if (set(value) != {"decision", "run", "sources", "manifest_digest", "resources", "receipts"}
             or not re.fullmatch(r"adr0151-[0-9a-f]{12}", value["run"])
-            or value["manifest_digest"] != manifest or value["resources"] != RESOURCES):
+            or value["manifest_digest"] != manifest or value["resources"] != selected["resources"]):
         raise ValueError("Exact native worker admission bundle required")
     _verify_sources(value["sources"], selected["source"])
     expected = {f"{role}-{i}" for role, count in counts.items() for i in range(count)}
@@ -130,7 +142,7 @@ def _validate_bundle(value, selected):
         started = row["process_start_time_seconds"]
         if (role not in counts or row["pod_name"] not in {f"{role}-{i}" for i in range(counts[role])}
                 or not any(addr in ipaddress.IPv4Network(n) for n in ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"))
-                or row["image_id"].split("@")[-1] != manifest or row["resources"] != RESOURCES
+                or row["image_id"].split("@")[-1] != manifest or row["resources"] != resources_for(selected, role)
                 or proof.get("run") != value["run"] or proof.get("pod_uid") != row["pod_uid"]
                 or proof.get("sources") != value["sources"]
                 or not re.fullmatch(r"[0-9a-f]{64}", proof.get("environment_sha256", ""))

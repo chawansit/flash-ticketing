@@ -1,0 +1,118 @@
+{
+  "decision": "ADR0357",
+  "status": "READY_UNDER_EXISTING_PREAPPROVAL",
+  "recorded_at_utc": "2026-10-18T19:58:36.317726+00:00",
+  "rate": 180,
+  "offered_seconds": 300,
+  "source_contract_sha256": "35e695ad1829f1787bef5dd93d706b0f3a823da023bfbe379b6698c3afa62c4d",
+  "prepared_goal_sha256": "c8457a73efcd9f666b8ba8c2b31753e246c07601a858238333bceeb6b4505db6",
+  "worker_allocation": {
+    "decision": "ADR0357",
+    "counts": {
+      "consumer": 5,
+      "projection-consumer": 1,
+      "reservation-writer": 5,
+      "publisher": 1,
+      "maintenance": 1,
+      "reconciler": 1,
+      "simulator": 1
+    },
+    "resources": {
+      "consumer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "projection-consumer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "reservation-writer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "publisher": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "maintenance": {
+        "requests": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        }
+      },
+      "reconciler": {
+        "requests": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        }
+      },
+      "simulator": {
+        "requests": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        }
+      }
+    },
+    "worker_pods": 15,
+    "worker_cpu_millicores": 3750,
+    "worker_memory_mib": 7680,
+    "api_pods": 4,
+    "physical_backends": 24,
+    "shared_admission": 20,
+    "application_image_unchanged": true
+  },
+  "validation": {
+    "initial_focused_regressions_passed": 169,
+    "optional_cases_skipped": 2,
+    "actual_immutable_image_rehearsal_pass": true,
+    "transferred_helpers_verified": 22,
+    "runtime_modules_verified": 22,
+    "final_focused_passed": 41,
+    "final_focused_test_import_failure_corrected_and_reexecuted": true,
+    "actual_parent_startup_final_pass": true,
+    "ruff_pass": true,
+    "actual_15_worker_manifests_pass": true,
+    "actual_isolated_reservation_pass": true,
+    "live_bookkeeping_unchanged": true,
+    "200_audit_builder_preserves_seven_predicates": true
+  },
+  "prior_failed_180_preserved": true,
+  "prior_dispatched_database_recovery": "docs/capacity/cce/rate-180-dispatched-recovery-2026-10-19.json",
+  "next": "Fresh180/s300s allocated qualification under user preapproval;200/s only after clean fully passed/restored180 with same allocation."
+}
