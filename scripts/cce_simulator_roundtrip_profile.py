@@ -23,6 +23,10 @@ SOURCE_REFERENCE = ('tmp/adr0151-a0d63f35960f/cce-comparison.private.json',
 KEYS = {'simulator_roundtrip_decision', 'simulator_roundtrip_arm', 'simulator_roundtrip_contract_sha256',
         'simulator_roundtrip_pair', 'simulator_roundtrip_preview', 'simulator_roundtrip_timing_decision'}
 INPUTS = {'scripts/cce_fixed_worker_allocation.py','scripts/cce_rate_qualification.py', 'scripts/prepare_rate_qualification.py',LOCAL, PUBLICATION, 'scripts/cce_replacement_rds_binding.py', 'docs/capacity/cce/rds-endpoint-switch-2026-10-18.json', 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
+          'scripts/cce_reservation_claim_lookup.py','scripts/reservation_claim_lookup_overlay.py',
+          'scripts/prepare_reservation_claim_lookup_image.py','scripts/publish_reservation_claim_lookup_image.py',
+          'docs/capacity/cce/reservation-claim-lookup-local-2026-10-19.json',
+          'docs/capacity/cce/reservation-claim-lookup-registry-2026-10-19.json',
           'scripts/prepare_simulator_roundtrip_image.py', 'scripts/prepare_simulator_roundtrip_comparison.py',
           'scripts/prepare_callback_write_pipeline_image.py',
           'docs/capacity/cce/simulator-roundtrip-local-2026-10-17.json',
@@ -84,10 +88,15 @@ def registry_image():
 
 
 def contract(goal=None):
+    import cce_reservation_claim_lookup as claim
     from cce_rate_qualification import rate
     offered = rate(goal)
-    return {'decision': DECISION, 'source': SOURCE, 'local_image': LOCAL_IMAGE,
-            'local_receipt_sha256': LOCAL_SHA, 'publication_sha256': sha(PUBLICATION),
+    changed = claim.selected(goal)
+    return {'decision': DECISION, 'source': claim.SOURCE if changed else SOURCE,
+            'local_image': claim.MANIFEST if changed else LOCAL_IMAGE,
+            'local_receipt_sha256': sha(claim.LOCAL) if changed else LOCAL_SHA,
+            'publication_sha256': sha(publication_for(goal)),
+            **({'reservation_lookup_claim':claim.contract(goal)} if changed else {}),
             'offered_rate': offered, 'seconds': 300, 'expected_journeys': offered*300,
             'api_pods': 4, 'worker_pods': 15, 'api_client_slots': [3, 3],
             'physical_backends': 24, 'physical_reserve': 0, 'shared_admission': 20,
@@ -97,6 +106,11 @@ def contract(goal=None):
             'maximum_paid_stages_per_arm': 1, 'pair_seconds_limit': 3600,
             'source_reference_result_sha256': SOURCE_REFERENCE[2],
             'sources': {name: sha(name) for name in sorted(INPUTS | CHANGED)}}
+
+
+def publication_for(goal):
+    import cce_reservation_claim_lookup as claim
+    return claim.PUBLICATION if claim.selected(goal) else PUBLICATION
 
 
 def selected(goal):
@@ -126,6 +140,9 @@ def image(goal=None):
         goal = active()
     if not selected(goal):
         raise ValueError('Explicit simulator-roundtrip image selection required')
+    import cce_reservation_claim_lookup as claim
+    if claim.selected(goal):
+        return claim.image()
     import cce_replacement_rds_binding as replacement
     published = not goal['simulator_roundtrip_preview'] or replacement.selected(goal)
     if published:
@@ -157,7 +174,7 @@ def extend_plan(goal, plan):
     import cce_rate_qualification as qualification
     if qualification.selected(goal):
         ref = goal['rate_qualification_reference']
-        return {**plan, 'kind': 'five_minute_rate_qualification',
+        result = {**plan, 'kind': 'five_minute_rate_qualification',
                 'single_changed_factor': None if __import__('cce_fixed_worker_allocation').selected(goal) else 'offered_rate',
                 'declared_changes': ['offered_rate', 'worker_budget_allocation'] if __import__('cce_fixed_worker_allocation').selected(goal) else ['offered_rate'],
                 'baseline_evidence': ref['path'],
@@ -165,6 +182,12 @@ def extend_plan(goal, plan):
                 'matched_performance_comparison': False,
                 'simulator_roundtrip_contract': binding_contract(goal),
                 'duration_reason': 'One300s qualification with unchanged image/resources;3600s admission ceiling.'}
+        import cce_reservation_claim_lookup as claim
+        if claim.selected(goal):
+            factor = 'reservation_lookup_claim' if qualification.rate(goal)==180 else 'offered_rate'
+            result.update(single_changed_factor=factor,declared_changes=[factor],
+                          duration_reason='One300s new-image qualification; unchanged resources; real clean180 prerequisite and3600s admission ceiling.')
+        return result
     return {**plan, 'kind': 'simulator_roundtrip_matched_160',
             'single_changed_factor': 'combined_simulator_and_successful_callback_roundtrips',
             'baseline_evidence': REFERENCE[0], 'baseline_sha256': REFERENCE[2],
@@ -270,7 +293,7 @@ def require_live(goal, seconds=0):
     if not selected(goal):
         return False
     require_pair_time(goal, seconds)
-    registry_image()
+    image(goal)
     require_control(goal)
     # A second reservation for an already consumed arm is never a retry allowance.
     pair = goal['simulator_roundtrip_pair']
@@ -321,7 +344,7 @@ def validate_binding(goal, binding, *, preparation_only=False):
     expected = {'cce_fixture_clock_contract': __import__('cce_fixture_clock').contract(),
                 'cce_metric_admission_contract_sha256': policy.digest(metric_contract()),
                 'cce_inventory_renewal_contract': renewal_contract(), 'baseline_sha256': (goal['rate_qualification_reference']['sha256'] if __import__('cce_rate_qualification').selected(goal) else REFERENCE[2]), 'cce_simulator_roundtrip_contract': binding_contract(goal),
-                'cce_transaction_pair_sha256': sha(PUBLICATION), 'cce_api_client_pool_contract': client_contract(goal),
+                'cce_transaction_pair_sha256': sha(publication_for(goal)), 'cce_api_client_pool_contract': client_contract(goal),
                 'cce_headroom_contract': headroom.contract(goal), 'cce_throughput_push_contract': push.contract(goal),
                 'cce_generator_process_contract': generator.contract(goal), 'cce_primary_bootstrap_contract': bootstrap.contract(),
                 'cce_verification_contract_sha256': policy.digest(verification.contract())}

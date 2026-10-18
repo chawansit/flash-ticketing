@@ -3,6 +3,8 @@
 ## Status
 Accepted for immutable image publication and conditional cloud preparation after executed local validation. Actual paid qualification still requires all source/admission/preparation gates under existing human preapproval through clean200/s. Extends ADR0346/0359; explicitly replaces the writer's two-statement initial lookup/claim only when a new default-off feature is enabled. Historical batch-eight ADR0316 and outer-pipeline ADR0320 remain rejected.
 
+Supersedes ADR0355's rate-minus20/same-image prerequisite only for explicit ADR0362 new-image180 qualification: require the genuine clean parent-image180 result with identical ADR0359 resources. A following200 requires genuine clean180 on this new image with the identical enabled feature and allocation. Other ADR0355 modes and all historical permits remain unchanged.
+
 ## Context
 Clean180/s on new RDS completed54000 without drops/errors, p952634.74ms.200/s dispatched54320/60000, dropped5680,125recovered/0final,p956758.72ms, conservative53315. ADR0361 independently reconciled actual dispatched and restored. Writer command age averaged2782.84ms;13675successful PostgreSQL batches averaged70.24ms for about3.97commands/batch. Simulator used0.245 of0.5CPU and Kafka lag stayed bounded. API acquisition/polling increased as durable/ticket latency grew. This supports evaluating reservation round trips; causal improvement is not established.
 
@@ -26,3 +28,7 @@ Built and verified22 copied/installed/imported runtime modules, exactly3changed,
 ## Immutable publication
 
 Authenticated push succeeded for manifest34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb, sourcea96fbf6593bb805be6c7c250bc24bc56ec25791c3e11803d59c676db69d1b709. Pulled copy verified all22runtime modules, imported installed module, linux/amd64/ticketing and defaultoff. Initial final metadata comparison incorrectly equated Docker imageID with configuration digest; actual imageID equals local/manifest34ac..., separate configuration118f8976dcf4e292cfd934c9440574a4e2a4def7aaef27bee2868a968b933693. Corrected exact-ID comparison and resumed read-only verification of the retained successful push, without republishing or starting load. [Registry evidence](../capacity/cce/reservation-claim-lookup-registry-2026-10-19.json). New-mode coordinator/bundle/admission integration remains required before cloud qualification.
+
+## Coordinator and admission validation
+
+118 initial focused runner cases passed;76 targeted cases passed after correcting the image-change metadata;30 final mode/factor/reproduction cases passed after naming the actual180changed factor. Separate exact new-image sealed helper rehearsal passed with networking disabled,22 helper files and22 runtime hashes verified; retained inventory timestamp is explicitly synthetic. New200 rejects the old clean180 as its image prerequisite. Actual all15worker/fourAPI manifests show only four writers enabled; nonwriter/API newflag absent. Same0359 CPU/memory/backends/client limits. Actual isolated reservation against genuine parent180 passed, live bookkeeping unchanged. Protected-helper registry read verified all3immutable manifests without secret config files. Final source/goal hashes in [readiness](../capacity/cce/reservation-claim-lookup-180-readiness-2026-10-19.json). No new-image cloud performance pass claimed yet.

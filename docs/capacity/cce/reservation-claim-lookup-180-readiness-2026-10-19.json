@@ -1,0 +1,39 @@
+{
+  "decision": "ADR0362",
+  "status": "READY_UNDER_EXISTING_PREAPPROVAL",
+  "rate": 180,
+  "offered_seconds": 300,
+  "maximum_paid_runs": 1,
+  "source_contract_sha256": "00d81a78ef65add80d77bdcfa63aec4891a35e623bbf70821758d65d1b705653",
+  "prepared_goal_sha256": "f6dfd174827a41b7299018de242162513fc973f70ae67437d26ec92d65eeb723",
+  "prepared_payload_sha256": "e32198b26aba0a38025238e43d10b6a8b496eb99c39c9acd775d22b6a126d280",
+  "application_source": "a96fbf6593bb805be6c7c250bc24bc56ec25791c3e11803d59c676db69d1b709",
+  "application_manifest": "sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb",
+  "prerequisite": {
+    "path": "tmp/adr0151-6668a7e46ed3/cce-comparison.private.json",
+    "ledger": "bounded_cce_ticket_target__279c7373f158",
+    "sha256": "6e8156c8314fac981291856276999749373f64313938f2db0a4bcfc533ec1536",
+    "rate": 180
+  },
+  "same_ADR0359_resources": true,
+  "workers_enabled": 4,
+  "non_writer_flags_absent": true,
+  "api_flag_absent_default_off": true,
+  "validation": {
+    "first_focused_runner_cases_passed": 118,
+    "targeted_after_metadata_cases_passed": 76,
+    "final_factor_and_reproduction_cases_passed": 30,
+    "local_database_integration_cases_passed": 80,
+    "source_scope_invariants_passed": 4,
+    "actual_image_transferred_helpers_pass": true,
+    "actual_transferred_helpers_verified": 22,
+    "actual_runtime_modules_verified": 22,
+    "synthetic_inventory_timestamp": true,
+    "actual_15_worker_and_4_API_manifests_pass": true,
+    "actual_isolated_reservation_pass": true,
+    "authenticated_immutable_manifests_verified": 3,
+    "ruff_pass": true
+  },
+  "new_image_200_admitted_now": false,
+  "next": "One fresh new-image180s qualification;200 only after genuine clean new-image180 fully passes/restores. No resource resize, correctness relaxation, consumed-attempt reset or main merge."
+}

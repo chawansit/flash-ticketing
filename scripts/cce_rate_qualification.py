@@ -13,12 +13,15 @@ def selected(goal):
         return False
     ref = goal.get('rate_qualification_reference', {})
     rate = goal.get('rate_qualification_rate')
+    claim = goal.get('reservation_claim_lookup_decision')
+    if claim not in (None, 'ADR0362'):
+        raise ValueError('Exact declared lookup/claim qualification required')
     if (goal[KEY] != 'ADR0355' or type(rate) is not int or rate not in {180, 200}
             or goal.get('simulator_roundtrip_arm') != 'candidate'
             or goal.get('replacement_rds_decision') != 'ADR0352'
             or goal.get('simulator_roundtrip_timing_decision') != 'ADR0353'
             or not isinstance(ref, dict) or set(ref) != {'path', 'ledger', 'sha256', 'rate'}
-            or type(ref['rate']) is not int or ref['rate'] != rate-20
+            or type(ref['rate']) is not int or ref['rate'] != (180 if claim == 'ADR0362' and rate == 180 else rate-20)
             or not re.fullmatch(r'tmp/adr0151-[0-9a-f]{12}/cce-comparison\.private\.json', ref.get('path', ''))
             or not re.fullmatch(r'bounded_cce_ticket_target__[0-9a-f]{12}', ref.get('ledger', ''))
             or not re.fullmatch(r'[0-9a-f]{64}', ref.get('sha256', ''))):
@@ -36,7 +39,10 @@ def contract(goal):
     return {'decision': 'ADR0355', 'offered_rate': rate(goal), 'seconds': 300,
             'expected_journeys': rate(goal)*300, 'minimum_unique_inside_window': rate(goal)*300-600,
             'previous': copy.deepcopy(goal['rate_qualification_reference']),
-            'selected_arm': 'candidate', 'single_changed_factor': 'offered_rate',
+            'selected_arm': 'candidate',
+            'single_changed_factor': ('reservation_lookup_claim'
+                                      if goal.get('reservation_claim_lookup_decision') == 'ADR0362' and rate(goal) == 180
+                                      else 'offered_rate'),
             'maximum_paid_stages': 1, 'experiment_seconds_limit': 3600,
             'approval_sha256': policy.digest(policy.read(policy.ROOT / APPROVAL))}
 
@@ -49,7 +55,10 @@ def require_previous(goal):
     ref = goal['rate_qualification_reference']
     report, binding, _ = _retained(ref['path'], ref['ledger'], ref['sha256'], expected=ref['rate']*300)
     previous = binding.get('cce_simulator_roundtrip_contract', {})
-    if (previous.get('arm') != 'candidate' or previous.get('source') != SOURCE
+    import cce_reservation_claim_lookup as claim
+    if claim.selected(goal):
+        claim.validate_previous(goal, previous)
+    if (previous.get('arm') != 'candidate' or (not claim.selected(goal) and previous.get('source') != SOURCE)
             or previous.get('offered_rate') != ref['rate']
             or previous.get('replacement_rds') != replacement_contract(goal)
             or any(report['paid_stage']['customer'].get(k) != 0 for k in
@@ -81,6 +90,12 @@ def validate_binding(goal, binding):
     if allocation.selected(goal):
         changed |= {'cce_writer_scale_contract', 'cce_worker_placement_factor'}
         allocation.validate_binding(goal, binding, before)
+    import cce_reservation_claim_lookup as claim
+    if claim.selected(goal):
+        changed.add('cce_transaction_pair_sha256')
+        from cce_simulator_roundtrip_profile import publication_for, sha
+        if binding.get('cce_transaction_pair_sha256') != sha(publication_for(goal)):
+            raise ValueError('Exact new-image publication binding required')
     if any(before.get(k) != binding.get(k) for k in before.keys() | binding.keys() if k not in changed):
         raise ValueError('Rate qualification changed image context, routes, settings or resource budgets')
     return True

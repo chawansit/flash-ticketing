@@ -63,7 +63,9 @@ def environment(role, values, primary_ip, decision="ADR0259", *, goal=None):
     if decision == "ADR0315" and partition_selected(goal):
         result["DATABASE_URL"] = partition_route(result["DATABASE_URL"],"ticketing_background")
     from cce_payment_delivery_headroom import environment as delivery_environment
-    return delivery_environment(role, result, goal if decision in {"ADR0324", "ADR0345", "ADR0357", "ADR0359"} else None)
+    result = delivery_environment(role, result, goal if decision in {"ADR0324", "ADR0345", "ADR0357", "ADR0359"} else None)
+    from cce_reservation_claim_lookup import environment as claim_environment
+    return claim_environment(role, result, goal)
 
 
 def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None, goal=None, image_receipt=None):

@@ -26,8 +26,8 @@ from test_cce_rate_qualification import actual
 from test_observe_cce_paid_pipeline import bundle as api_bundle
 
 
-def allocated(monkeypatch, decision="ADR0357"):
-    goal = actual()
+def allocated(monkeypatch, decision="ADR0357", goal=None):
+    goal = actual() if goal is None else goal
     goal['fixed_worker_allocation_decision'] = decision
     monkeypatch.setattr(transaction, 'active', lambda: headroom.runtime_view(goal))
     spec = identity.specification(decision, goal=goal)

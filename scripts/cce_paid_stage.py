@@ -37,6 +37,10 @@ def sha(raw):
 def identity():
     paths = (
         "scripts/cce_fixed_worker_allocation.py", "scripts/cce_rate_qualification.py", "scripts/prepare_rate_qualification.py",
+        "scripts/cce_reservation_claim_lookup.py", "scripts/reservation_claim_lookup_overlay.py",
+        "scripts/prepare_reservation_claim_lookup_image.py", "scripts/publish_reservation_claim_lookup_image.py",
+        "docs/capacity/cce/reservation-claim-lookup-local-2026-10-19.json",
+        "docs/capacity/cce/reservation-claim-lookup-registry-2026-10-19.json",
         "scripts/cce_replacement_rds_binding.py",
         "docs/capacity/cce/rds-endpoint-switch-2026-10-18.json",
         "scripts/cce_combined_worker_identity.py",

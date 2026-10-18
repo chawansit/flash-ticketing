@@ -3,6 +3,8 @@
 No local authority, file reads, registry access or goal selection belongs here.
 """
 PINS = {
+    'sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb':
+        'a96fbf6593bb805be6c7c250bc24bc56ec25791c3e11803d59c676db69d1b709',
     'sha256:4efa10e301666db5aebc58a3a218df8987307c310c55936ba1c4e3b13de921b2':
         '0087ce3078532a8fd05b668c4d286988a3165d95295c51ebbf2c60d4a702ce0d',
     'sha256:b114f6b15e4e07f11da19e98a82a21d910c39879b7aadf1bc96e8e11a74595ba':
@@ -38,9 +40,15 @@ def specification(value):
     decision = value.get('decision')
     if decision not in {'ADR0345', 'ADR0357', 'ADR0359'} or manifest not in PINS:
         raise ValueError('Exact reviewed transferred combined worker identity required')
+    if (manifest == 'sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb'
+            and decision != 'ADR0359'):
+        raise ValueError('Lookup/claim image requires exact six-consumer allocation')
     base = local_specification('ADR0324')
     if decision in {'ADR0357', 'ADR0359'}:
-        if manifest != ALLOCATION_MANIFEST:
+        allowed = {ALLOCATION_MANIFEST}
+        if decision == 'ADR0359':
+            allowed.add('sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb')
+        if manifest not in allowed:
             raise ValueError('Allocated workers require exact combined candidate image')
         base = allocation_specification(base, decision)
     return {**base, 'decision': decision,

@@ -93,6 +93,7 @@ def main():
     modes=parser.add_mutually_exclusive_group()
     modes.add_argument('--fixed-worker-allocation',action='store_true')
     modes.add_argument('--simulator-cpu-allocation',action='store_true')
+    parser.add_argument('--reservation-lookup-claim',action='store_true')
     args=parser.parse_args()
     for path in (args.base_goal,args.reference,args.output):
         if path.is_symlink() or not path.resolve().is_relative_to(policy.ROOT.resolve()):
@@ -103,6 +104,10 @@ def main():
     base=policy.read(args.base_goal)
     if args.fixed_worker_allocation:base['fixed_worker_allocation_decision']='ADR0357'
     if args.simulator_cpu_allocation:base['fixed_worker_allocation_decision']='ADR0359'
+    if args.reservation_lookup_claim:
+        if args.fixed_worker_allocation:
+            raise ValueError('Lookup/claim qualification retains six-consumer ADR0359 allocation')
+        base.update(fixed_worker_allocation_decision='ADR0359',reservation_claim_lookup_decision='ADR0362')
     result=prepare(base,args.rate,policy.read(args.reference),
                    policy.read(policy.ROOT/'tmp/cce-api-registry-proof.json'),target)
     args.output.write_bytes((json.dumps(result,indent=2)+'\n').encode())

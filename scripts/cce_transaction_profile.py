@@ -103,8 +103,8 @@ def active(envelope=None):
 def proof_digest(goal):
     from cce_simulator_roundtrip_profile import selected as roundtrip_selected
     if roundtrip_selected(goal):
-        from cce_simulator_roundtrip_profile import PUBLICATION, sha
-        return sha(PUBLICATION)
+        from cce_simulator_roundtrip_profile import publication_for, sha
+        return sha(publication_for(goal))
     from cce_fulfillment_batch_profile import selected as fulfillment_selected
     if fulfillment_selected(goal):
         from cce_fulfillment_batch_identity import RECEIPT_SHA256

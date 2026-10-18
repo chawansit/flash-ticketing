@@ -24,16 +24,17 @@ def contract(goal):
     if not selected(goal):
         raise ValueError('Explicit fixed worker allocation required')
     spec = specification(goal[KEY])
+    from cce_reservation_claim_lookup import selected as claim_selected
     return {'decision': goal[KEY], 'counts': copy.deepcopy(spec['counts']),
             'resources': copy.deepcopy(spec['resources']), 'worker_pods': 15,
             'worker_cpu_millicores': 3750, 'worker_memory_mib': 7680,
             'api_pods': 4, 'physical_backends': 24, 'shared_admission': 20,
-            'application_image_unchanged': True}
+            'application_image_unchanged': not claim_selected(goal)}
 
 
 def validate_binding(goal, binding, before):
     value = contract(goal)
-    if (goal['rate_qualification_reference']['rate'] == 180
+    if (goal['rate_qualification_rate'] == 200
             and before.get('cce_simulator_roundtrip_contract', {}).get('worker_allocation') != value):
         raise ValueError('200/s requires clean180/s with the same worker allocation')
     wanted_factor = {**before['cce_worker_placement_factor'], 'worker_counts': value['counts'],
