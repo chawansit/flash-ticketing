@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for preparation only. Supersedes ADR0347 and ADR0352 shared3600s timing for explicitly selected future pairs only. Historical results and consumed allowances remain unchanged. Fresh paid approval is required.
+Accepted for preparation and the subsequently explicitly approved pair, now consumed and closed. Supersedes ADR0347 and ADR0352 shared3600s timing for explicitly selected future pairs only. Historical results and consumed allowances remain unchanged. Fresh paid approval is required.
 
 ## Context
 
@@ -33,3 +33,9 @@ Reject unknown timing selectors, missing replacement binding, malformed/future/n
 ## Validation evidence
 
 Executed97 focused checks passed, covering timing boundaries, invalid selectors/clocks/reserves, unchanged historical deadlines, preview denial, same-pair/control/source rejection, replacement-RDS binding and historical reproduction. Ruff passed. Actual published-image plans/manifests/bindings passed for both arms; real control reservation passed in isolated copied bookkeeping with live envelope/journal/state unchanged. Both immutable registry manifests and exact configuration digests passed authenticated read-only verification. Seven fresh authorization/execution/result/watch/registry templates compile and require a separate absent approval receipt. No cloud deployment, paid authority or live pair clock was created. Current live readiness must be checked before dispatch. [Readiness receipt](../capacity/cce/replacement-rds-pair-timing-readiness-2026-10-18.json).
+
+## Approved execution result
+
+User approved the prepared fresh pair. Control adr0151-cc8e2534f4ee PASSED_RESTORED:48000 scheduled/dispatched/fulfilled,0 drops/initial/recovered/final failures,47467 conservative in-window tickets=158.223/s, worst-shard journey p953599.75ms. Existing financial/post-TTL reconciliation, drain and restoration passed; retained-evidence audit passed separately.
+
+Candidate adr0151-37fea92d24d2 passed native safety and its financial/post-TTL checks, then failed ADR0334 creator-clock uncertainty while validating the paid fixture, before observers or paid dispatch.0 paid stages. Rejected raw clock timings were not retained, so latency versus drift cannot be determined. All queues drained; original replacement-RDS runtime, generator idle, namespace/resources/credentials cleanup and integrity restored. Pair budget was not exhausted or extended. Both arms consumed and allowance closed; no automatic retry. [Pair result](../capacity/cce/replacement-rds-timing-160-pair-result-2026-10-19.json). ADR0354 prepares bounded clock observations; it does not authorize another paid run.

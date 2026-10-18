@@ -1,5 +1,7 @@
 # ADR0334: Validate fixture freshness with a bounded creator-clock reference
 
+Single-observation behavior superseded for future source-bound preparation by [ADR0354](0354-retain-bounded-creator-clock-observations.md); original clock/freshness limits and historical evidence remain unchanged.
+
 ## Status
 Implemented for test admission; local regressions and real read-only transport verified; paid outcome pending.
 

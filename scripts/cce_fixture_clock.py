@@ -20,6 +20,10 @@ def contract():
         "maximum_clock_offset_seconds": 2,
         "maximum_probe_round_trip_seconds": 5,
         "raw_receipt_before_validation": True,
+        "observation_decision": "ADR0354",
+        "maximum_observations": 3,
+        "transport_timeout_seconds": 30,
+        "raw_clock_attempt_before_validation": True,
         "strict_fixture_validator_unchanged": True,
         "application_ttl_unchanged": True,
         "source_sha256": hashlib.sha256(Path(__file__).read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
@@ -87,24 +91,56 @@ def reference_now(record, fixture, *, monotonic_now=None):
 
 
 def sample_creator(stage, fixture):
-    nonce = uuid4().hex
-    program = (
-        "import json;from datetime import UTC,datetime;print(json.dumps({'nonce':"
-        + repr(nonce)
-        + ",'utc':datetime.now(UTC).isoformat()}))"
-    )
-    wall_start, mono_start = time.time(), time.monotonic()
-    sample = stage.session.api(stage.cid, program, 30)
-    mono_end, wall_end = time.monotonic(), time.time()
-    proof = evidence(
-        fixture,
-        sample,
-        nonce=nonce,
-        wall_start=wall_start,
-        wall_end=wall_end,
-        mono_start=mono_start,
-        mono_end=mono_end,
-    )
-    stage.record.setdefault("fixture_clock_evidence", {})[fixture["fixture_id"]] = proof
-    stage.checkpoint()
-    return reference_now(stage.record, fixture)
+    attempts = stage.record.setdefault("fixture_clock_attempts", {})
+    fixture_id = fixture["fixture_id"]
+    if fixture_id in attempts:
+        raise ValueError("Fixture clock already sampled; no replay")
+    attempts[fixture_id] = []
+    for attempt in range(1, 4):
+        nonce = uuid4().hex
+        program = (
+            "import json;from datetime import UTC,datetime;print(json.dumps({'nonce':"
+            + repr(nonce)
+            + ",'utc':datetime.now(UTC).isoformat()}))"
+        )
+        row = {"attempt": attempt, "nonce": nonce, "status": "STARTED"}
+        attempts[fixture_id].append(row)
+        stage.checkpoint()
+        wall_start, mono_start = time.time(), time.monotonic()
+        try:
+            sample = stage.session.api(stage.cid, program, 30)
+        except Exception as error:
+            row.update(status="TRANSPORT_FAILED", failure_type=type(error).__name__)
+            stage.checkpoint()
+            raise
+        mono_end, wall_end = time.monotonic(), time.time()
+        row.update(sample=sample, wall_start=wall_start, wall_end=wall_end,
+                   mono_start=mono_start, mono_end=mono_end, status="OBSERVED")
+        stage.checkpoint()  # Rejected observations must survive failed admission.
+        if (not isinstance(sample, dict) or set(sample) != {"nonce", "utc"}
+                or sample["nonce"] != nonce):
+            row["status"] = "MALFORMED"
+            stage.checkpoint()
+            raise ValueError("Malformed creator clock response")
+        try:
+            remote = datetime.fromisoformat(sample["utc"])
+            if remote.tzinfo is None:
+                raise ValueError("Aware creator clock required")
+        except (TypeError, ValueError):
+            row["status"] = "MALFORMED"
+            stage.checkpoint()
+            raise
+        try:
+            proof = evidence(fixture, sample, nonce=nonce, wall_start=wall_start,
+                             wall_end=wall_end, mono_start=mono_start, mono_end=mono_end)
+        except ValueError:
+            row["status"] = "REJECTED_UNCERTAINTY"
+            stage.checkpoint()
+            if attempt == 3:
+                raise
+            continue
+        row["status"] = "ACCEPTED"
+        stage.record.setdefault("fixture_clock_evidence", {})[fixture_id] = proof
+        stage.checkpoint()
+        return reference_now(stage.record, fixture)
+    raise AssertionError("Bounded clock observations exhausted")

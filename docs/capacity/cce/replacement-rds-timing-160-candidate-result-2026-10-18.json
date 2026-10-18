@@ -1,0 +1,78 @@
+{
+  "decision": "ADR0353",
+  "run": "adr0151-37fea92d24d2",
+  "ledger": "bounded_cce_ticket_target__39053f16ddc5",
+  "status": "FAILED_RESTORED",
+  "arm": "candidate",
+  "raw_result_sha256": "3906fcd3863d3773513eccae82023e75279a03c546184dc9536b01a93c9c3dd4",
+  "database_endpoint": "10.1.21.48",
+  "offered_rate_per_second": 160,
+  "offered_window_seconds": 300,
+  "offered_window_executed": false,
+  "paid_runs_started": 0,
+  "short_capacity_qualified": false,
+  "hourly_qualified": false,
+  "production_qualified": false,
+  "customer": {},
+  "customer_outcome_gate": null,
+  "measurement_gates": {},
+  "latencies_ms": {},
+  "latency_scope": "Worst-shard p95 including recovery, not pooled percentiles.",
+  "issuance": {},
+  "financial": {},
+  "financial_evidence_scope": "Existing safety-cohort financial/post-TTL audits only; no paid load was dispatched.",
+  "queues_after_restoration": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "restoration": {
+    "original_runtime_restored": true,
+    "integrity_verified": true,
+    "generator_idle": true,
+    "namespace_removed": true,
+    "cleanup_complete": true,
+    "transport_credentials_cleared": true,
+    "owned_resources_removed": true
+  },
+  "cpu": {
+    "api_process_cores": null,
+    "worker_process_cores": null
+  },
+  "phase_means_ms": {
+    "due_to_claim": null,
+    "claim": null,
+    "delivery": null,
+    "ack": null,
+    "api_acquire": null
+  },
+  "phase_scope": "Retained observer-lifetime means; not an isolated paid-window cycle or causal capacity proof.",
+  "observer_qualification": {
+    "pass": null,
+    "failures": null
+  },
+  "limiting_evidence": [
+    "Creator-clock uncertainty rejected by unchanged ADR0334 bounds before paid dispatch; failed sample timings were not retained, so RTT versus clock drift cannot be determined."
+  ],
+  "next": "Preserve failed evidence and diagnose bounded creator-clock sampling before proposing any fresh paid pair.",
+  "failure_code": "CREATOR_CLOCK_UNCERTAINTY",
+  "failure_phase": "paid_fixture_clock_admission_before_observers",
+  "paid_stages_started": 0,
+  "safety_audits": {
+    "native_all_gates_pass": true,
+    "native_post_ttl_financial_pass": true
+  },
+  "failed_probe_raw_timing_retained": false
+}

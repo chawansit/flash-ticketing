@@ -1,10 +1,12 @@
 # Ticket throughput implementation handoff
 
-Status (2026-10-18): the approved replacement-RDS160/s pair is closed. **Control PASSED_RESTORED; candidate FAILED_RESTORED before paid dispatch because the shared clock had less than the required900s reserve. Both arms fully restored. No live allowance, lock or automatic rerun is open.** The observer fix passed cloud startup in both arms. No candidate performance comparison or300/s qualification exists.
+Status (2026-10-19): ADR0353 pair CLOSED. Control adr0151-cc8e2534f4ee PASSED_RESTORED (48000 journeys, zero drops/errors,158.223 conservative tickets/s). Candidate adr0151-37fea92d24d2 FAILED_RESTORED on creator-clock uncertainty before paid dispatch; native safety and financial/post-TTL checks passed. Both fully restored. No active allowance, lock or automatic rerun. New ADR0354 clock-observation handling is locally prepared; no new paid approval exists.
+
+Read [latest pair](cce/replacement-rds-timing-160-pair-result-2026-10-19.json) and [clock readiness](cce/creator-clock-observation-readiness-2026-10-19.json) first. Failed clock sample timings were not retained, so historical RTT versus drift is unknown. New source retains each raw sample and allows at most three fresh read-only probes with unchanged two-second offset/five-second RTT/strict freshness bounds. Malformed/transport errors fail immediately.117 unique checks passed across initial/corrected runs; Ruff, both actual preparation paths and isolated control reservation passed. No cloud load rerun. Private prepared pair/goal/admission and seven compiled fresh templates use tmp/adr0354- prefix. Timing remains ADR0353 (7200s pair/3600s control); exact replacement snapshot remains tmp/adr0352-new-rds. Fresh explicit approval and current registry/live preflight required for a new pair. Never run consumed ADR0353 templates/reset its sequence. Its original clock/report hashes remain preserved in tmp/adr0353-sequence.approved.private.json. New source contract is in the clock readiness receipt.
 
 ## Read first
 
-- [Current pair result](cce/replacement-rds-160-pair-result-2026-10-18.json).
+- [Previous pair result](cce/replacement-rds-160-pair-result-2026-10-18.json).
 - [Passed new-RDS control](cce/replacement-rds-160-control-result-2026-10-18.json).
 - [Candidate pre-dispatch stop](cce/replacement-rds-160-candidate-result-2026-10-18.json).
 - [Prior preparation readiness](cce/combined-observer-new-rds-readiness-2026-10-18.json).
@@ -44,7 +46,7 @@ Candidate adr0151-d36daa7833d2 was admitted only after that exact passed/restore
 
 Live goal metadata closed CONSUMED_FAILED_RESTORED; actual journal entries retain control PASSED_RESTORED and candidate FAILED_RESTORED. No clock extension, infrastructure resize, relaxed correctness gate or automatic retry occurred. Fresh SWR credentials are in protected Docker storage; never put credentials in a handoff or prompt.
 
-Next preparation completed under ADR0353: explicit future-pair timing7200s total/3600s control admission ceiling from one immutable start; existing stage reserves unchanged. Fresh control required because runner timing/source binding changed; previous control remains historical evidence.97 focused checks and Ruff passed; actual both-arm preparation and isolated control reservation passed with live bookkeeping unchanged. Both immutable registry manifests authenticated read-only. See [timing readiness](cce/replacement-rds-pair-timing-readiness-2026-10-18.json). Private prepared pair/goal/admission evidence and seven compiled templates use tmp/adr0353- prefix; exact replacement snapshot remains tmp/adr0352-new-rds. No ADR0353 approval receipt, live sequence, allowance or clock exists. Request fresh approval for160/s300s control then conditional candidate; current live preflight before dispatch. Preserve consumed arms and all financial/drain/restoration gates. No automatic higher-rate run, resize or main merge.
+Historical ADR0353 preparation and its approved execution are retained in ADR0353 and the latest pair result above. The two-hour budget was sufficient; candidate stopped on creator-clock uncertainty, not time budget. Both consumed reports and original clocks remain immutable. Use only the fresh ADR0354 preparation for any future separately approved pair.
 
 ## Images and work envelope
 

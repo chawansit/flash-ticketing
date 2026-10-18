@@ -1,0 +1,33 @@
+{
+  "decision": "ADR0354",
+  "status": "PREPARED_NOT_AUTHORIZED",
+  "recorded_at_utc": "2026-10-18T17:57:46.658008+00:00",
+  "source_contract_sha256": "5e852d59200b7ad76b4589e18aa7521ea63b9d39922885f69942a68d6d82df02",
+  "prepared_control_goal_sha256": "b24124c216e38818e4eb9d8286c0b918e060973b70e03c2b2dbe6c90af26bb5f",
+  "scope": "Bounded read-only clock observations and retained rejection evidence; unchanged clock bounds and strict fixture freshness.",
+  "maximum_clock_observations": 3,
+  "maximum_clock_offset_seconds": 2,
+  "maximum_probe_round_trip_seconds": 5,
+  "transport_timeout_each_seconds": 30,
+  "timing_decision": "ADR0353",
+  "pair_limit_seconds": 7200,
+  "offered_rate_each": 160,
+  "offered_seconds_each": 300,
+  "fresh_same_pair_control_required": true,
+  "validation": {
+    "unique_regression_cases_passed_across_runs": 117,
+    "initial_run_passed": 113,
+    "initial_run_failed": 3,
+    "corrected_binding_tests_log": "tmp/adr0354-corrected-bindings.log",
+    "actual_two_arm_preparation_pass": true,
+    "isolated_control_reservation_pass": true,
+    "live_bookkeeping_unchanged": true,
+    "ruff_pass": true,
+    "fresh_templates_compiled": 7
+  },
+  "cloud_load_rerun": false,
+  "live_allowance_open": false,
+  "clock_probe_failure_historical_cause": "Unknown: rejected probe timing not retained by previous source.",
+  "latest_pair_result": "docs/capacity/cce/replacement-rds-timing-160-pair-result-2026-10-19.json",
+  "next": "Fresh explicit paid approval and current registry/live preflight required before a new160/s control and conditional candidate."
+}

@@ -1,0 +1,86 @@
+{
+  "decision": "ADR0353",
+  "status": "CONTROL_PASSED_CANDIDATE_NOT_DISPATCHED",
+  "recorded_at_utc": "2026-10-18T17:54:49.226301+00:00",
+  "database": "10.1.21.48",
+  "control": {
+    "run": "adr0151-cc8e2534f4ee",
+    "status": "PASSED_RESTORED",
+    "customer": {
+      "scheduled": 48000,
+      "dispatched": 48000,
+      "fulfilled": 48000,
+      "generator_drops": 0,
+      "first_attempt_error_journeys": 0,
+      "recovered_journeys": 0,
+      "retry_attempts": 0,
+      "final_customer_failures": 0,
+      "accounting_complete": true,
+      "measurement_complete": true
+    },
+    "issuance": {
+      "window_start_epoch": 1792344437.010128,
+      "window_end_epoch": 1792344737.010128,
+      "unique_paid_issued_tickets": 47768,
+      "unique_orders": 47768,
+      "unique_payments": 47768,
+      "joined_rows": 47768,
+      "conservative_inner_window_tickets": 47467,
+      "inner_window_guard_seconds": 2,
+      "database_now_epoch": 1792345025.812921,
+      "api_helper_now_epoch": 1792345025.8148437,
+      "first_issued_at": "2026-10-19T00:27:19.605780+07:00",
+      "last_issued_at": "2026-10-19T00:32:17.009272+07:00",
+      "pass": true,
+      "conservative_rate_per_second": 158.22333333333333
+    },
+    "latencies_ms": {
+      "dispatch_lag_p95_ms": 1.5850940017116955,
+      "dispatch_lag_max_ms": 102.12724600023648,
+      "hold_http_p95_ms": 13.113951999912388,
+      "durable_p95_ms": 3033.0007769989606,
+      "payment_http_p95_ms": 89.5671879989095,
+      "ticket_wait_p95_ms": 617.5744840002153,
+      "total_journey_p95_ms": 3599.752857000567
+    },
+    "restoration": {
+      "original_runtime_restored": true,
+      "integrity_verified": true,
+      "generator_idle": true,
+      "namespace_removed": true,
+      "cleanup_complete": true,
+      "transport_credentials_cleared": true,
+      "owned_resources_removed": true
+    },
+    "raw_result_sha256": "2eb99a699d02ea390161e9ceabb7601fd60b4c42869f195c1bd5e0dac41c365f"
+  },
+  "candidate": {
+    "run": "adr0151-37fea92d24d2",
+    "status": "FAILED_RESTORED",
+    "offered_window_executed": false,
+    "paid_stages_started": 0,
+    "failure_code": "CREATOR_CLOCK_UNCERTAINTY",
+    "failure_phase": "paid_fixture_clock_admission_before_observers",
+    "safety_audits": {
+      "native_all_gates_pass": true,
+      "native_post_ttl_financial_pass": true
+    },
+    "restoration": {
+      "original_runtime_restored": true,
+      "integrity_verified": true,
+      "generator_idle": true,
+      "namespace_removed": true,
+      "cleanup_complete": true,
+      "transport_credentials_cleared": true,
+      "owned_resources_removed": true
+    },
+    "raw_result_sha256": "3906fcd3863d3773513eccae82023e75279a03c546184dc9536b01a93c9c3dd4"
+  },
+  "pair_budget_seconds": 7200,
+  "clock_extended": false,
+  "both_arms_restored": true,
+  "automatic_retry_permitted": false,
+  "comparison_available": false,
+  "target300_qualified": false,
+  "next": "Preserve failed evidence and diagnose bounded creator-clock sampling before proposing any fresh paid pair."
+}
