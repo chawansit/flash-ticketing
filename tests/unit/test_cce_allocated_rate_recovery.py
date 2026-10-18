@@ -15,6 +15,8 @@ from cce_replacement_rds_binding import NEW_SHA
 def inputs():
     report=policy.read(policy.ROOT/'tmp'/recovery.RUN/'cce-comparison.private.json')
     entry=next(e for e in policy.journal(policy.envelope())['experiments'] if e['ledger']==recovery.LEDGER)
+    entry=copy.deepcopy(entry)
+    entry['status']=entry.get('initial_status',entry['status'])  # Validate the retained original failed classification.
     scope=policy.read(policy.STATE)[recovery.LEDGER]
     financial=copy.deepcopy(report['paid_stage']['financial'])
     financial.update(pass_=True)

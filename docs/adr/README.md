@@ -384,3 +384,7 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0359: Preserve six consumers and redistribute simulator CPU](0359-preserve-six-consumers-and-raise-simulator-cpu.md).
 
 - [ADR0360: Cleanup and complete pre-fixture200 preparation](0360-cleanup-pre-fixture-200-stop.md).
+
+- [ADR0361: Reconcile failed200 dispatched cohort](0361-reconcile-dispatched-200-cohort.md).
+
+- [ADR0362: Coalesce reservation replay lookup and claim](0362-coalesce-reservation-replay-lookup-and-claim.md).

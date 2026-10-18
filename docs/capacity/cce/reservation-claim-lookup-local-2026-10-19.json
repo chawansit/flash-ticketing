@@ -1,0 +1,165 @@
+{
+  "parent_registry_image": "swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@sha256:b114f6b15e4e07f11da19e98a82a21d910c39879b7aadf1bc96e8e11a74595ba",
+  "parent_source_identity_sha256": "19da6fb554d1e592e3eba59a52427b10510c213ab62c2a80181b8d5d27123925",
+  "parent_runtime_source_sha256": {
+    "src/ticketing/api.py": "ff0ba117a10fb8a18541978f93484f2133a85523510feea35d980f9828833cdd",
+    "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+    "src/ticketing/config.py": "c05d86e800efe15b430b915b5e3bfb64986deff20aed47201f58bbc426442c97",
+    "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+    "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
+    "src/ticketing/observability.py": "2985480a7d21af0be1e2126d9e556d55738e9ae30dbccd05fa368ea1ab75d6f8",
+    "src/ticketing/workers.py": "87b048e644ed65b1a53495e8d97d7ef5f9bdb5b419abba63fbe251ee346db2ab",
+    "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+    "src/ticketing/application/ports.py": "b2115020590e7b21c56792e7735c68c5d823504ce9a1abcdf3f47b94cb9c82f5",
+    "src/ticketing/application/reservations.py": "a3195a029d2cd6a00ae68abac125349ebfb5db70a7f40e4199660f78ff402114",
+    "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+    "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+    "src/ticketing/infrastructure/order_status_projector.py": "f9e1a6809227cb81a6e620cbf1d20906202fcc061e011bdc356f6a491ce0c510",
+    "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "9090d8bf233c32a993636e382226c79472517eb23fdb7062d24797522622680a",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/reservations.py": "f79bf4936144f935ced02a4c81af7431db57dc65bbae9830b3eef2083f6eb8c4",
+    "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a",
+    "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "runtime_source_sha256": {
+    "src/ticketing/api.py": "ff0ba117a10fb8a18541978f93484f2133a85523510feea35d980f9828833cdd",
+    "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+    "src/ticketing/config.py": "9ba6ae8c15f427f093007056879223d32e960e6ccebfac63cabce2d57edaf8c5",
+    "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+    "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
+    "src/ticketing/observability.py": "2985480a7d21af0be1e2126d9e556d55738e9ae30dbccd05fa368ea1ab75d6f8",
+    "src/ticketing/workers.py": "fe1a2263c67c37359dff714ea117c2ffebe7319e39a7c4a8d3afa41f067feeac",
+    "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+    "src/ticketing/application/ports.py": "b2115020590e7b21c56792e7735c68c5d823504ce9a1abcdf3f47b94cb9c82f5",
+    "src/ticketing/application/reservations.py": "a3195a029d2cd6a00ae68abac125349ebfb5db70a7f40e4199660f78ff402114",
+    "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+    "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+    "src/ticketing/infrastructure/order_status_projector.py": "f9e1a6809227cb81a6e620cbf1d20906202fcc061e011bdc356f6a491ce0c510",
+    "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "9090d8bf233c32a993636e382226c79472517eb23fdb7062d24797522622680a",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/reservations.py": "3f36aa8c2dc1bbea09a448d663efd9f46d60e259508d40795ae691777e117682",
+    "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a",
+    "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "source_identity_sha256": "a96fbf6593bb805be6c7c250bc24bc56ec25791c3e11803d59c676db69d1b709",
+  "changed_modules": [
+    "src/ticketing/config.py",
+    "src/ticketing/infrastructure/reservations.py",
+    "src/ticketing/workers.py"
+  ],
+  "dependency_input_sha256": {
+    "requirements.lock": "4c45aa6d68478b8f81e57eeb808f7ba55ad59275647cdc1bac28fdb795aaf14d",
+    "pyproject.toml": "c1ce0fcb261c6788d55b0532ba249af7a23e29d1d094b44310ebfc39c3b13dbd"
+  },
+  "preparation_recipe_sha256": "4ab6863c4b3ea753eb36ed48a47c78987b4c97c87a533dde25ae9289f8c0cab0",
+  "overlay_sha256": "4c319e042c1d270fc226d731aa09a8b561e0b56b630ef84f3e584defda677802",
+  "local_image_id": "sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb",
+  "decision": "ADR0362",
+  "built": true,
+  "registry_published": false,
+  "cloud_load_started": false,
+  "capacity_improvement_measured": false,
+  "image_validation": {
+    "runtime_modules_verified": 22,
+    "default_off": true,
+    "installed_module_matches": true
+  },
+  "integration_cases_passed": 80,
+  "scope_invariants_passed": 4,
+  "zero_delay_comparison": {
+    "control": {
+      "samples": 80,
+      "median_ms": 15.146720501434174,
+      "p95_ms": 17.75625099980971,
+      "mean_application_queries": 46
+    },
+    "candidate": {
+      "samples": 80,
+      "median_ms": 14.63080500070646,
+      "p95_ms": 25.25490100015304,
+      "mean_application_queries": 42
+    },
+    "postgres_version": "17.6 (Debian 17.6-2.pgdg13+1)",
+    "psycopg_version": "3.3.5",
+    "batch_size": 4,
+    "write_pipeline": true,
+    "network_delay_injected": false,
+    "new_commands_only": true,
+    "local_only": true,
+    "financial_row_counts": {
+      "holds": 720,
+      "orders": 720,
+      "reservation_commands": 720,
+      "idempotency_records": 720,
+      "outbox_events": 720
+    },
+    "median_improvement_percent": 3.406120160987095
+  },
+  "synthetic_latency_comparison": {
+    "control": {
+      "samples": 80,
+      "median_ms": 121.01297849949333,
+      "p95_ms": 142.75519300281303,
+      "mean_application_queries": 46
+    },
+    "candidate": {
+      "samples": 80,
+      "median_ms": 105.4857630006154,
+      "p95_ms": 125.07388499943772,
+      "mean_application_queries": 42
+    },
+    "postgres_version": "17.6 (Debian 17.6-2.pgdg13+1)",
+    "psycopg_version": "3.3.5",
+    "batch_size": 4,
+    "write_pipeline": true,
+    "network_delay_injected": true,
+    "synthetic_one_way_ms": 1.0,
+    "select1_median_ms": 3.2563379991188413,
+    "protocol_trials_excluded_from_timing": [
+      {
+        "candidate": false,
+        "ReadyForQuery": 31,
+        "Flush": 4,
+        "Sync": 20
+      },
+      {
+        "candidate": true,
+        "ReadyForQuery": 27,
+        "Flush": 4,
+        "Sync": 16
+      },
+      {
+        "candidate": true,
+        "ReadyForQuery": 27,
+        "Flush": 4,
+        "Sync": 16
+      },
+      {
+        "candidate": false,
+        "ReadyForQuery": 31,
+        "Flush": 4,
+        "Sync": 20
+      }
+    ],
+    "new_commands_only": true,
+    "local_only": true,
+    "financial_row_counts": {
+      "holds": 736,
+      "orders": 736,
+      "reservation_commands": 736,
+      "idempotency_records": 736,
+      "outbox_events": 736
+    },
+    "median_improvement_percent": 12.83103324239138
+  },
+  "owned_local_cleanup_pass": true,
+  "scope": "Local PostgreSQL17.6/Redis7.4.5 only. First zero-delay comparison had only3.4% median gain and worsep95; disclosed. Synthetic1ms each direction measured SELECT1median3.256ms;12.83%median improvement and lowerp95. No RDS or cloud capacity gain inferred. Protocol trials excluded from timing; message counts are not network round-trip counts."
+}
