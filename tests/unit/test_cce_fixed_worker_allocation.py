@@ -260,11 +260,12 @@ def test_actual_shared_drain_enforces_exact_member_count(monkeypatch,members,exp
         common.drain(session,'cid','audit',expected_members=True)
 
 
-def test_actual_native_inputs_safety_calls_five_member_drain(monkeypatch):
+@pytest.mark.parametrize("decision,members",[("ADR0357",5),("ADR0359",6)])
+def test_actual_native_inputs_safety_calls_five_member_drain(monkeypatch,decision,members):
     from cce_paid_inputs import Inputs
-    allocated(monkeypatch)
+    allocated(monkeypatch,decision)
     retained=policy.read(policy.ROOT/'tmp/adr0151-ccb85bad6425/cce-comparison.private.json')['native']['safety']
-    queue={**retained['global_queues'],'kafka_members':5}
+    queue={**retained['global_queues'],'kafka_members':members}
     outputs=iter([retained['probe'],retained['post_ttl_financial'],queue])
     inputs=Inputs.__new__(Inputs)
     inputs.record={};inputs.directory='/owned';inputs.stage=SimpleNamespace(cid='cid')
@@ -272,8 +273,8 @@ def test_actual_native_inputs_safety_calls_five_member_drain(monkeypatch):
     inputs.global_audit='audit';inputs.fixture=lambda *args:{'show_ids':[str(uuid4())]}
     inputs.checkpoint=lambda:None
     assert all(inputs.safety([])['gates'].values())
-    assert inputs.record['global_queues']['kafka_members']==5
-    assert allocation.native_drain_options(inputs.session)=={'expected_members':5}
+    assert inputs.record['global_queues']['kafka_members']==members
+    assert allocation.native_drain_options(inputs.session)==({'expected_members':5} if members==5 else {})
     inputs.session.cleanup_mode=True
     assert allocation.native_drain_options(inputs.session)=={}
     monkeypatch.setattr(transaction,'active',lambda:None)

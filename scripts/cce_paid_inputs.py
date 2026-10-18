@@ -229,8 +229,7 @@ class Inputs:
         queues = drain(self.session, self.stage.cid, self.global_audit, **allocation.native_drain_options(self.session))
         self.record["global_queues"] = queues
         self.checkpoint()
-        from cce_transaction_profile import active
-        result = safety_result(probe, financial, queues, expected_consumers=5 if allocation.selected(active()) else 6)
+        result = safety_result(probe, financial, queues, expected_consumers=allocation.native_drain_options(self.session).get("expected_members", 6))
         self.record["safety"] = result
         self.checkpoint()
         return result

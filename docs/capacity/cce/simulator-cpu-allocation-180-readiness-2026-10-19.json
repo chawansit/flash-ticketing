@@ -3,8 +3,8 @@
   "status": "READY_UNDER_EXISTING_PREAPPROVAL",
   "rate": 180,
   "offered_seconds": 300,
-  "source_contract_sha256": "c2b1470ae0ce85bc915887b956f1bbd11b51d522005abaf10183134a8189f5da",
-  "prepared_goal_sha256": "29f5e5104c3313311e5a8dbb19fb6010d8e9658be3a9c52419df6a50dda8bbef",
+  "source_contract_sha256": "b74e31fe3a449f9478b6addff7b9de33eb99013ef1ff8b277fc31da3fa96de32",
+  "prepared_goal_sha256": "0e7ebfca399225783a5d25fe41bff0494815f6dadc94e7e3fe30b33b9d052665",
   "worker_allocation": {
     "decision": "ADR0359",
     "counts": {
@@ -107,9 +107,21 @@
     "isolated_actual_reservation_pass": true,
     "registry_immutable_manifests_verified": true,
     "actual_transport_and_parent_startup_pass": true,
-    "200_same_allocation_and_real_lower_rate_rejection_pass": true
+    "200_same_allocation_and_real_lower_rate_rejection_pass": true,
+    "complete_native_safety_both_modes_final_pass": true,
+    "final_focused_after_safety_fix_passed": 29,
+    "final_optional_skipped": 1,
+    "actual_manifests_and_isolated_reservation_repeated": true
   },
   "prior_failed_quality_preserved": true,
   "prior_actual_dispatched_recovery": "docs/capacity/cce/allocated-180-dispatched-recovery-2026-10-19.json",
-  "next": "One fresh180/s300s window, then200 only after genuine clean180 fully passes and restores."
+  "next": "One fresh180/s300s window, then200 only after genuine clean180 fully passes and restores.",
+  "fresh_attempt_prefix": "adr0359-180b",
+  "pre_dispatch_stop": {
+    "run": "adr0151-d07bec703e74",
+    "status": "FAILED_RESTORED",
+    "paid_runs_started": 0,
+    "cause": "Safety-result caller incorrectly expected five consumers for six-consumer CPU allocation.",
+    "financial_and_drain_pass": true
+  }
 }

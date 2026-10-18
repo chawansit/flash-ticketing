@@ -129,7 +129,7 @@
       "historical_sha256": "abcb6aec285d0e007effbcd23bcdebd858b8ff7102b38c29eea6cdeb2e6aba04"
     },
     "scripts/cce_paid_inputs.py": {
-      "current_sha256": "e2047c4051c1e8495c355e31d57a2648e5b13de62bfdb43da9d931b6bd624865",
+      "current_sha256": "00e5eb75258ce10fdd0cc8ecef0197667d880e8a055a68c3d5354385ffb0ef5b",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/0888283b385ccdecbb7cc69840fc6f88efbd5def7643aec2d9e6cfb6c10e7cbb",
       "historical_sha256": "0888283b385ccdecbb7cc69840fc6f88efbd5def7643aec2d9e6cfb6c10e7cbb"
     },

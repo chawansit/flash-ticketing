@@ -23,3 +23,9 @@ Fail closed on source/role/resource/ownership mismatch. No upward progression on
 
 ## Validation evidence
 104 distinct focused cases passed across original and final corrected-source runs. One case initially observed source identity changing while overlay hashes were finalized; reexecuted with final immutable sources and passed; full17 reproduction cases also passed. Actual unchanged candidate-image rehearsal separately passed with networking disabled:22 helpers and22 runtime hashes, strict transferred six-consumer/four-writer identity; refreshed inventory timestamp explicitly synthetic. Ruff passed. Actual four-API/all15worker manifest preparation and real isolated reservation passed. Source/goal hashes and exact allocation are in docs/capacity/cce/simulator-cpu-allocation-180-readiness-2026-10-19.json. No new cloud performance pass claimed.
+
+## First preparation stop
+
+Fresh0359-180 adr0151-d07bec703e74 stopped before performance traffic: actual native financial/post-TTL and zero-global-queue/six-member drain passed, but safety_result caller still mapped every selected fixed allocation to five members. Runner fully restored, zero paid runs. Derive its exact membership from the same explicit native drain contract and exercise the complete Inputs.safety caller for both0357 five and0359 six layouts. Reseal source and use fresh0359-180b; do not reset consumed attempt.
+
+Safety-result correction validation:29 focused cases passed, including the actual Inputs.safety caller for both exact membership layouts, local/transferred new allocation identity and all17 reproduction cases. Ruff passed. Sourceb74e31fe3a449f9478b6addff7b9de33eb99013ef1ff8b277fc31da3fa96de32; fresh180b actual all15-worker preparation and isolated reservation passed, immutable registry verified.
