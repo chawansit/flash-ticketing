@@ -378,3 +378,7 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0356: Reconcile dispatched qualification cohort](0356-reconcile-dispatched-qualification-cohort.md) - Exact failed180/s recovery only; preserve original quality failure and reuse full database audit.
 
 - [ADR0357: Redistribute fixed worker budget](0357-redistribute-fixed-worker-budget.md) - Explicit five-writer/five-consumer allocation; unchanged15-worker3750m/7680Mi aggregate budget and application image.
+
+- [ADR0358: Reconcile failed allocated dispatched cohort](0358-reconcile-allocated-dispatched-cohort.md).
+
+- [ADR0359: Preserve six consumers and redistribute simulator CPU](0359-preserve-six-consumers-and-raise-simulator-cpu.md).

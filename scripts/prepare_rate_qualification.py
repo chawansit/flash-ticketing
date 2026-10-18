@@ -51,7 +51,7 @@ def prepare(base, rate, reference, proof, target):
             binding = core.binding_for(config, proof, objects, target, saved, profile=profile, preparation_only=True)
             plan = core.plan(profile=profile)
             image = roundtrip.image(goal)
-            worker_decision = 'ADR0357' if allocation.selected(goal) else 'ADR0345'
+            worker_decision = goal['fixed_worker_allocation_decision'] if allocation.selected(goal) else 'ADR0345'
             contract = core.worker_contract()
             model = contract.primary_model(saved['model'])
             roles = workers.identity.specification('ADR0324')['counts']
@@ -90,7 +90,9 @@ def main():
     parser.add_argument('--base-goal',type=Path,required=True)
     parser.add_argument('--reference',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
-    parser.add_argument('--fixed-worker-allocation',action='store_true')
+    modes=parser.add_mutually_exclusive_group()
+    modes.add_argument('--fixed-worker-allocation',action='store_true')
+    modes.add_argument('--simulator-cpu-allocation',action='store_true')
     args=parser.parse_args()
     for path in (args.base_goal,args.reference,args.output):
         if path.is_symlink() or not path.resolve().is_relative_to(policy.ROOT.resolve()):
@@ -100,6 +102,7 @@ def main():
     target=policy.read(policy.ROOT/'tmp/rds-switch-20261018/diagnostic-target.private.json')
     base=policy.read(args.base_goal)
     if args.fixed_worker_allocation:base['fixed_worker_allocation_decision']='ADR0357'
+    if args.simulator_cpu_allocation:base['fixed_worker_allocation_decision']='ADR0359'
     result=prepare(base,args.rate,policy.read(args.reference),
                    policy.read(policy.ROOT/'tmp/cce-api-registry-proof.json'),target)
     args.output.write_bytes((json.dumps(result,indent=2)+'\n').encode())

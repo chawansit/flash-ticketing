@@ -177,7 +177,7 @@ def writer_scale_contract():
     goal = active()
     if allocation.selected(goal):
         value = allocation.contract(goal)
-        result.update(decision='ADR0357', native_counts=value['counts'], worker_resources=value['resources'])
+        result.update(decision=value['decision'], native_counts=value['counts'], worker_resources=value['resources'])
     return result
 
 

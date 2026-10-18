@@ -797,7 +797,7 @@ class KubernetesTransport:
         from cce_recovery_headroom import writer_scale_selected
         writer_indices = "0-3" if writer_scale_selected(goal) else "0-2"
         from cce_fixed_worker_allocation import selected as allocated_workers
-        allocated = allocated_workers(goal)
+        allocated = allocated_workers(goal) and goal["fixed_worker_allocation_decision"] == "ADR0357"
         consumer_indices = "0-4" if allocated else "0-5"
         if allocated:
             writer_indices = "0-4"

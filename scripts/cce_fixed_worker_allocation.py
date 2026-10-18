@@ -10,21 +10,21 @@ def selected(goal):
     if goal is None or KEY not in goal:
         return False
     from cce_rate_qualification import selected as qualification
-    if goal[KEY] != 'ADR0357' or not qualification(goal):
+    if goal[KEY] not in {'ADR0357', 'ADR0359'} or not qualification(goal):
         raise ValueError('Explicit fixed-budget rate qualification allocation required')
     return True
 
 
-def specification():
+def specification(decision="ADR0357"):
     from cce_worker_identity import specification as original
-    return allocation_specification(original('ADR0324'))
+    return allocation_specification(original('ADR0324'), decision)
 
 
 def contract(goal):
     if not selected(goal):
         raise ValueError('Explicit fixed worker allocation required')
-    spec = specification()
-    return {'decision': 'ADR0357', 'counts': copy.deepcopy(spec['counts']),
+    spec = specification(goal[KEY])
+    return {'decision': goal[KEY], 'counts': copy.deepcopy(spec['counts']),
             'resources': copy.deepcopy(spec['resources']), 'worker_pods': 15,
             'worker_cpu_millicores': 3750, 'worker_memory_mib': 7680,
             'api_pods': 4, 'physical_backends': 24, 'shared_admission': 20,
@@ -38,7 +38,7 @@ def validate_binding(goal, binding, before):
         raise ValueError('200/s requires clean180/s with the same worker allocation')
     wanted_factor = {**before['cce_worker_placement_factor'], 'worker_counts': value['counts'],
                      'worker_resources': value['resources']}
-    wanted_scale = {**before['cce_writer_scale_contract'], 'decision': 'ADR0357',
+    wanted_scale = {**before['cce_writer_scale_contract'], 'decision': goal[KEY],
                     'native_counts': value['counts'], 'worker_resources': value['resources']}
     if (binding.get('cce_worker_placement_factor') != wanted_factor
             or binding.get('cce_writer_scale_contract') != wanted_scale):
@@ -70,6 +70,8 @@ def kafka_pass(summary, bundle, legacy):
 def apply_contract(value, goal):
     if not selected(goal):
         return value
+    if goal[KEY] == "ADR0359":
+        return value
     from cce_event_lane_contract import PROJECTION_AUDIT
     changed = PROJECTION_AUDIT.replace("result['kafka_members']==6", "result['kafka_members'] in (5,6)")
     if value.global_audit.count(PROJECTION_AUDIT) != 1 or changed == PROJECTION_AUDIT:
@@ -80,6 +82,6 @@ def apply_contract(value, goal):
 
 def native_drain_options(session):
     from cce_transaction_profile import active
-    if selected(active()) and not getattr(session, 'cleanup_mode', False):
+    if selected(active()) and active()[KEY] == 'ADR0357' and not getattr(session, 'cleanup_mode', False):
         return {'expected_members': 5}
     return {}

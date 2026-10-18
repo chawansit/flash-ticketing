@@ -26,11 +26,11 @@ from test_cce_rate_qualification import actual
 from test_observe_cce_paid_pipeline import bundle as api_bundle
 
 
-def allocated(monkeypatch):
+def allocated(monkeypatch, decision="ADR0357"):
     goal = actual()
-    goal['fixed_worker_allocation_decision'] = 'ADR0357'
+    goal['fixed_worker_allocation_decision'] = decision
     monkeypatch.setattr(transaction, 'active', lambda: headroom.runtime_view(goal))
-    spec = identity.specification('ADR0357', goal=goal)
+    spec = identity.specification(decision, goal=goal)
     image = profile.image(goal)
     run = 'adr0151-034800000000'
     rows = []
@@ -45,7 +45,7 @@ def allocated(monkeypatch):
                          'startup_proof':{'run':run,'pod_uid':uid,'sources':image['runtime_source_sha256'],
                                           'environment_sha256':'a'*64,
                                           'command_sha256':policy.digest(['python','-m','ticketing.workers',role])}})
-    bundle = {'decision':'ADR0357','run':run,'sources':image['runtime_source_sha256'],
+    bundle = {'decision':decision,'run':run,'sources':image['runtime_source_sha256'],
               'manifest_digest':spec['manifest'],'resources':spec['resources'],'receipts':rows}
     return goal,bundle
 

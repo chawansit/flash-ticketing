@@ -3,7 +3,7 @@ from cce_worker_identity import validate_bundle
 
 
 def selected(bundle):
-    if bundle is None or bundle.get("decision") not in {"ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324", "ADR0345", "ADR0357"}:
+    if bundle is None or bundle.get("decision") not in {"ADR0315", "ADR0319", "ADR0321", "ADR0322", "ADR0323", "ADR0324", "ADR0345", "ADR0357", "ADR0359"}:
         return False
     validate_bundle(bundle)
     return True
@@ -37,7 +37,7 @@ def startup(row, bundle, legacy):
                      for role, count in counts.items()))
     return {"utc": row.get("utc"), "api_count": len(apis), "consumer_count": row.get("consumer_replicas"),
             "writer_count": row.get("writer_replicas"), "sample_errors": errors,
-            "diagnostics_ready": ready, "writer_scale_decision": "ADR0357" if bundle["decision"] == "ADR0357" else "ADR0315",
+            "diagnostics_ready": ready, "writer_scale_decision": bundle["decision"] if bundle["decision"] in {"ADR0357", "ADR0359"} else "ADR0315",
             "pass": bool(common and ready)}
 
 
@@ -71,7 +71,7 @@ def summary(rows, bundle, legacy):
     resource = result["resources"]
     resource["legacy_resource_coverage_pass"] = resource["role_coverage_pass"]
     resource["role_coverage_pass"] = coverage
-    resource["writer_scale_decision"] = "ADR0357" if bundle["decision"] == "ADR0357" else "ADR0315"
+    resource["writer_scale_decision"] = bundle["decision"] if bundle["decision"] in {"ADR0357", "ADR0359"} else "ADR0315"
     resource["pass"] = (resource["host_cpu_p95_percent"] is not None
         and len(views) == len(ticks) == len(extended)
         and coverage and not resource["errors"] and not resource["counter_reset_detected"])

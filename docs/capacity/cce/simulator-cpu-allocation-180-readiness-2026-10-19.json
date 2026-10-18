@@ -1,0 +1,115 @@
+{
+  "decision": "ADR0359",
+  "status": "READY_UNDER_EXISTING_PREAPPROVAL",
+  "rate": 180,
+  "offered_seconds": 300,
+  "source_contract_sha256": "c2b1470ae0ce85bc915887b956f1bbd11b51d522005abaf10183134a8189f5da",
+  "prepared_goal_sha256": "29f5e5104c3313311e5a8dbb19fb6010d8e9658be3a9c52419df6a50dda8bbef",
+  "worker_allocation": {
+    "decision": "ADR0359",
+    "counts": {
+      "consumer": 6,
+      "projection-consumer": 1,
+      "reservation-writer": 4,
+      "publisher": 1,
+      "maintenance": 1,
+      "reconciler": 1,
+      "simulator": 1
+    },
+    "resources": {
+      "consumer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "projection-consumer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "reservation-writer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "publisher": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "maintenance": {
+        "requests": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        }
+      },
+      "reconciler": {
+        "requests": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        }
+      },
+      "simulator": {
+        "requests": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        }
+      }
+    },
+    "worker_pods": 15,
+    "worker_cpu_millicores": 3750,
+    "worker_memory_mib": 7680,
+    "api_pods": 4,
+    "physical_backends": 24,
+    "shared_admission": 20,
+    "application_image_unchanged": true
+  },
+  "validation": {
+    "focused_distinct_passed": 104,
+    "actual_image_helper_rehearsal_passed": true,
+    "transferred_helpers": 22,
+    "runtime_modules": 22,
+    "synthetic_inventory_timestamp": true,
+    "ruff_pass": true,
+    "all15_worker_manifest_preparation_pass": true,
+    "isolated_actual_reservation_pass": true,
+    "registry_immutable_manifests_verified": true,
+    "actual_transport_and_parent_startup_pass": true,
+    "200_same_allocation_and_real_lower_rate_rejection_pass": true
+  },
+  "prior_failed_quality_preserved": true,
+  "prior_actual_dispatched_recovery": "docs/capacity/cce/allocated-180-dispatched-recovery-2026-10-19.json",
+  "next": "One fresh180/s300s window, then200 only after genuine clean180 fully passes and restores."
+}

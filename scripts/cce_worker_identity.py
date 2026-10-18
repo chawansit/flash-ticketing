@@ -12,14 +12,14 @@ RESOURCES = {k: {"cpu": "250m", "memory": "512Mi"} for k in ("requests", "limits
 
 
 def specification(decision="ADR0259", *, goal=None):
-    if decision == "ADR0357":
+    if decision in {"ADR0357", "ADR0359"}:
         from cce_combined_worker_identity import allocation_specification
         from cce_fixed_worker_allocation import selected
         from cce_transaction_profile import active
         goal = active() if goal is None else goal
-        if not selected(goal):
+        if not selected(goal) or goal["fixed_worker_allocation_decision"] != decision:
             raise ValueError("Explicit fixed worker allocation required")
-        return allocation_specification(specification("ADR0345", goal=goal))
+        return allocation_specification(specification("ADR0345", goal=goal), decision)
     if decision == "ADR0345":
         from cce_simulator_roundtrip_profile import image
         receipt = image(goal)
@@ -87,7 +87,7 @@ def specification(decision="ADR0259", *, goal=None):
 
 
 def resources_for(selected, role):
-    return selected['resources'][role] if selected['decision'] == 'ADR0357' else selected['resources']
+    return selected['resources'][role] if selected['decision'] in {'ADR0357', 'ADR0359'} else selected['resources']
 
 
 def digest(value):
@@ -114,7 +114,7 @@ def validate_bundle(value):
 def validate_transferred_bundle(value):
     # The observer receives an already hash-sealed admitted bundle. Only the
     # two independently pinned immutable images can use this portable path.
-    if value.get("decision") in {"ADR0345", "ADR0357"}:
+    if value.get("decision") in {"ADR0345", "ADR0357", "ADR0359"}:
         from cce_combined_worker_identity import specification as transferred_specification
         selected = transferred_specification(value)
     else:

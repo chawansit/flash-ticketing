@@ -16,29 +16,32 @@ ALLOCATION_CPU = {'simulator': '500m', 'maintenance': '125m', 'reconciler': '125
 ALLOCATION_MANIFEST = 'sha256:b114f6b15e4e07f11da19e98a82a21d910c39879b7aadf1bc96e8e11a74595ba'
 
 
-def allocation_specification(base):
+def allocation_specification(base, decision="ADR0357"):
+    if decision not in {"ADR0357", "ADR0359"}:
+        raise ValueError("Exact fixed allocation decision required")
     original = {**ALLOCATION_COUNTS, 'consumer': 6, 'reservation-writer': 4}
     uniform = {kind: {'cpu': '250m', 'memory': '512Mi'} for kind in ('requests', 'limits')}
     if base['counts'] != original or base['resources'] != uniform:
         raise ValueError('Exact historical worker allocation required')
+    counts = ALLOCATION_COUNTS if decision == "ADR0357" else original
     resources = {role: {kind: {'cpu': ALLOCATION_CPU.get(role, '250m'), 'memory': '512Mi'}
-                        for kind in ('requests', 'limits')} for role in ALLOCATION_COUNTS}
-    if (sum(ALLOCATION_COUNTS.values()) != 15
-            or sum(int(resources[r]['limits']['cpu'][:-1])*n for r,n in ALLOCATION_COUNTS.items()) != 3750):
+                        for kind in ('requests', 'limits')} for role in counts}
+    if (sum(counts.values()) != 15
+            or sum(int(resources[r]['limits']['cpu'][:-1])*n for r,n in counts.items()) != 3750):
         raise ValueError('Fixed aggregate worker budget changed')
-    return {**base, 'decision': 'ADR0357', 'counts': dict(ALLOCATION_COUNTS), 'resources': resources}
+    return {**base, 'decision': decision, 'counts': dict(counts), 'resources': resources}
 
 
 def specification(value):
     from cce_worker_identity import specification as local_specification
     manifest = value.get('manifest_digest')
     decision = value.get('decision')
-    if decision not in {'ADR0345', 'ADR0357'} or manifest not in PINS:
+    if decision not in {'ADR0345', 'ADR0357', 'ADR0359'} or manifest not in PINS:
         raise ValueError('Exact reviewed transferred combined worker identity required')
     base = local_specification('ADR0324')
-    if decision == 'ADR0357':
+    if decision in {'ADR0357', 'ADR0359'}:
         if manifest != ALLOCATION_MANIFEST:
             raise ValueError('Allocated workers require exact combined candidate image')
-        base = allocation_specification(base)
+        base = allocation_specification(base, decision)
     return {**base, 'decision': decision,
             'manifest': manifest, 'image_id': manifest, 'source': PINS[manifest]}
