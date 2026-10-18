@@ -1,0 +1,66 @@
+{
+  "decision": "ADR0351",
+  "date_bangkok": "2026-10-18",
+  "pass": true,
+  "old_endpoint": "10.1.228.129",
+  "new_endpoint": "10.1.21.48",
+  "dns": "8e55812a91354a8dbbcc3ae8cc3b9e14in03.internal.ap-southeast-2.postgresql.rds.myhuaweicloud.com",
+  "database": "ticketing",
+  "user_restored_database_before_switch": true,
+  "data_copy_performed": false,
+  "schema_migrations_performed": false,
+  "tls": {
+    "mode": "verify-full",
+    "dns_and_ip_verified": true,
+    "upstream_tls_observed": true,
+    "ca_bundle_sha256": "09ae697f83a10a275bf576bfb5a5ecea8d3d387217059f48e66b49b7622a2323"
+  },
+  "schema": {
+    "migration_count": 7,
+    "public_tables": 20,
+    "old_new_migration_checksums_match": true,
+    "migration_digest": "9ceca0539ec4c6dc5b734f4c73fcecb9ea0c89fdeafed6483e383491db004b30",
+    "key_table_estimates_match": true,
+    "exact_data_reconciliation_performed": false,
+    "bounded_exact_count_attempt": "Five-second query timeout; estimated counts are not an exact reconciliation."
+  },
+  "runtime": {
+    "application_role": "ticketing",
+    "credentials_changed": false,
+    "physical_backend_limit": 24,
+    "reserve_pool": 0,
+    "api_healthy": 4,
+    "kafka_healthy": true,
+    "load_balancer_readiness_http": 200,
+    "actual_pooled_server_address_verified": "10.1.21.48"
+  },
+  "deployment": {
+    "private_directory": "/root/rds-switch-20261018c",
+    "persistent_environment_files_updated": [
+      "/root/flash-ticketing-rds-6ff8dcf/.env.rds",
+      "/root/flash-ticketing-batch-c859666/.env.rds"
+    ],
+    "original_pooler_retained_stopped": true,
+    "old_rds_preserved": true
+  },
+  "verification": {
+    "actual_pooler_creation_preparation_passed": true,
+    "isolated_tls_application_access_passed": true,
+    "final_pooled_authority_passed": true,
+    "final_direct_tls_passed": true,
+    "final_http_readiness_passed": true
+  },
+  "recovery": {
+    "pre_online_guard_failures": 2,
+    "original_stopped_pooler_restored_before_retry": true,
+    "reason": "Verification helper compatibility/address-format assertions; final corrected guard passed.",
+    "rollback_after_new_writes_requires_reconciliation": true
+  },
+  "capacity": {
+    "load_tests_paused": true,
+    "paid_load_started": false,
+    "new_throughput_measured": false,
+    "historical_capacity_not_requalified": true
+  },
+  "next": "Remain paused on load testing. Future capacity work requires a newly qualified endpoint/live snapshot and separate paid-run authority."
+}

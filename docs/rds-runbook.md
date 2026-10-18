@@ -1,5 +1,9 @@
 # Huawei RDS PostgreSQL validation runbook
 
+Current endpoint (2026-10-18, ADR0351): `10.1.21.48`, DNS `8e55812a91354a8dbbcc3ae8cc3b9e14in03.internal.ap-southeast-2.postgresql.rds.myhuaweicloud.com`. The user restored the database before cutover. PgBouncer uses this DNS with `verify-full` and the supplied CA bundle; the application retains its existing ticketing role and 24-backend limit. Current private deployment/recovery files are on the API ECS under `/root/rds-switch-20261018c`. Both existing deployment `.env.rds` files were backed up there and updated. Old RDS remains intact. Do not route back after new writes without reconciliation. See [cutover evidence](capacity/cce/rds-endpoint-switch-2026-10-18.json).
+
+Application services were brought online at the user's request; capacity/load testing remains paused. Historical capacity fixtures, diagnostic targets and run hashes retain their original endpoint. A future capacity run must prepare and bind the new endpoint, certificate and live snapshot explicitly; it cannot reuse the old database qualification.
+
 This runbook implements ADR 0035. It keeps PgBouncer on the backend ECS, moves only PostgreSQL to RDS and keeps aggregate application pool/admission budgets fixed. Never commit `.env.rds`, the CA bundle, database URLs, passwords or load manifests.
 
 ## Required RDS information

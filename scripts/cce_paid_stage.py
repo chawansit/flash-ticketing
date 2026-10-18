@@ -36,6 +36,8 @@ def sha(raw):
 
 def identity():
     paths = (
+        "scripts/cce_replacement_rds_binding.py",
+        "docs/capacity/cce/rds-endpoint-switch-2026-10-18.json",
         "scripts/cce_combined_worker_identity.py",
         "scripts/prepare_callback_write_pipeline_image.py",
         "docs/capacity/cce/callback-write-pipeline-local-2026-10-17.json",

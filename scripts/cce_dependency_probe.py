@@ -261,7 +261,7 @@ asyncio.run(main())
   probe='''import json,socket,struct
 from http.server import BaseHTTPRequestHandler,HTTPServer
 checks={}
-for role,host,port in [('rds','10.1.228.129',5432),('redis','10.1.245.61',6379),('pooler','10.1.137.69',6432)]:
+for role,host,port in [('rds','10.1.21.48',5432),('redis','10.1.245.61',6379),('pooler','10.1.137.69',6432)]:
  try:
   with socket.create_connection((host,port),timeout=5) as conn:
    if role in {'rds','pooler'}:

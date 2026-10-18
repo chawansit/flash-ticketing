@@ -1,0 +1,100 @@
+{
+  "decision": "ADR0352",
+  "status": "READY_FOR_PAID_PAIR_APPROVAL",
+  "prepared_at_utc": "2026-10-18T15:42:00.275803+00:00",
+  "database": "10.1.21.48",
+  "tls_mode": "verify-full",
+  "control": {
+    "ready": true,
+    "offered_rate": 160,
+    "offered_seconds": 300,
+    "planned_journeys": 48000
+  },
+  "candidate": {
+    "prepared": true,
+    "offered_rate": 160,
+    "offered_seconds": 300,
+    "planned_journeys": 48000,
+    "requires_exact_same_pair_passed_and_restored_control": true
+  },
+  "pair": {
+    "clock_started": false,
+    "limit_seconds": 3600,
+    "no_automatic_retry": true,
+    "new_live_allowance_opened": false,
+    "paid_runs_started": 0
+  },
+  "observer_fix": {
+    "decision": "ADR0350",
+    "four_writer_startup_summary_pipeline_gates": true,
+    "exact_worker_identity_validation_preserved": true,
+    "first_pipeline_sample_retained_before_startup_gate": true
+  },
+  "validation": {
+    "broad_initial": {
+      "passed": 301,
+      "failed": 5,
+      "skipped": 2
+    },
+    "corrections_final": {
+      "passed": 42,
+      "failed": 0
+    },
+    "distinct_regression_cases_passed_across_runs": 306,
+    "initial_failures_resolved": true,
+    "actual_images": {
+      "passed": 1,
+      "arms": 2,
+      "transferred_helpers_per_arm": 22,
+      "network_disabled": true,
+      "inventory_replay_timestamp": "synthetic local structural replay, not fresh cloud topology"
+    },
+    "skips": "Initial explicit Docker skip executed separately and passed; Windows symlink case remains unavailable.",
+    "ruff_passed": true,
+    "both_published_image_plans_manifests_bindings_passed": true,
+    "isolated_control_reservation_passed": true,
+    "live_generator_idle": true,
+    "live_queues_drained": true,
+    "live_snapshot_sha256": "fd0090550f1905464f7a81ecabd9f5ac8ab34943b7dcf52ce0ac41c720bf2f6d",
+    "new_rds_diagnostic_connection": {
+      "read_only": true,
+      "verified_tls": true,
+      "full_visibility": true,
+      "one_data_connection": true,
+      "credential_cleanup_passed": true
+    },
+    "registry": {
+      "pass": true,
+      "authenticated_immutable_manifests_verified": 2,
+      "publication_performed": false,
+      "verified_at_utc": "2026-10-18T15:39:29.500892+00:00"
+    },
+    "source_contract_sha256": "890a80df8fbced0083a31f78a5777b04dc7b7fb78e4797ebc3af529294dc3c39",
+    "prepared_control_goal_sha256": "d62ff6d47197f9b4f4cc35bfa3f336e4b42c7d80fb9779b5ae25dd7ff26dbafd"
+  },
+  "capacity": {
+    "new_rds_throughput_measured": false,
+    "historical160_qualification_applies_to_old_rds": true,
+    "target_rate": 300,
+    "financial_load_reconciliation_executed_in_preparation": false
+  },
+  "unchanged_limits": {
+    "api_pods": 4,
+    "native_workers": 15,
+    "physical_backends": 24,
+    "reserve_backends": 0,
+    "api_clients_each": [
+      3,
+      3
+    ],
+    "shared_admission": 20,
+    "acquire_wait_ms": 500,
+    "simulator_delivery_slots": 16,
+    "simulator_db_clients": 10,
+    "generator_processes": 4,
+    "active_journeys": 800,
+    "http_connections": 500,
+    "http_clients": 16
+  },
+  "next": "Notify user; await explicit fresh160/s300s control and conditional candidate approval. Assign fresh journal boundary and pair clock only then. Recheck live state/registry; perform existing mandatory financial/drain/restoration audits during each approved arm."
+}

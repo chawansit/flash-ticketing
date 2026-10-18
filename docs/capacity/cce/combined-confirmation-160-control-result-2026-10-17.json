@@ -1,0 +1,81 @@
+{
+  "decision": "ADR0349",
+  "run": "adr0151-d5123df337b4",
+  "ledger": "bounded_cce_ticket_target__08647b663a64",
+  "status": "FAILED_RESTORED",
+  "arm": "control",
+  "raw_result_sha256": "ef212c5b9e8af7bac6e33ecc37d51a8a355fa302b2536cce1963d9b32d959c38",
+  "offered_rate_per_second": 160,
+  "offered_window_seconds": 300,
+  "offered_window_executed": false,
+  "paid_runs_started": 0,
+  "short_capacity_qualified": false,
+  "hourly_qualified": false,
+  "production_qualified": false,
+  "customer": {},
+  "customer_outcome_gate": null,
+  "measurement_gates": {},
+  "latencies_ms": {},
+  "latency_scope": "Worst-shard p95 including recovery, not pooled percentiles.",
+  "issuance": {},
+  "financial": {},
+  "financial_evidence_scope": "Only bootstrap/native safety cohorts were audited by the existing cloud runner; no offered paid window ran. No paid-load financial reconciliation or throughput measurement is claimed.",
+  "queues_after_restoration": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "restoration": {
+    "original_runtime_restored": true,
+    "integrity_verified": true,
+    "generator_idle": true,
+    "namespace_removed": true,
+    "cleanup_complete": true,
+    "transport_credentials_cleared": true,
+    "owned_resources_removed": true
+  },
+  "cpu": {
+    "api_process_cores": null,
+    "worker_process_cores": null
+  },
+  "phase_means_ms": {
+    "due_to_claim": null,
+    "claim": null,
+    "delivery": null,
+    "ack": null,
+    "api_acquire": null
+  },
+  "phase_scope": "Retained observer-lifetime means; not an isolated paid-window cycle or causal capacity proof.",
+  "observer_qualification": {
+    "pass": null,
+    "failures": null,
+    "pipeline_startup": {
+      "utc": "2026-10-17T12:00:50.462090+00:00",
+      "api_count": 4,
+      "consumer_count": 6,
+      "sample_errors": [],
+      "pass": false,
+      "diagnostics_ready": false
+    }
+  },
+  "limiting_evidence": [
+    "Observer startup selected historical three-writer diagnostics for the four-writer ADR0345 bundle. No paid capacity stage started."
+  ],
+  "next": "ADR0350 corrects the observer selection locally; replacement-RDS pair preparation is ADR0352. Failed quality and raw result remain unchanged; no automatic paid repeat.",
+  "safety_audits": {
+    "bootstrap_post_ttl_pass": true,
+    "native_post_ttl_pass": true
+  }
+}

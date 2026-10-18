@@ -362,3 +362,9 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0348: Bind combined worker inventory renewal](0348-bind-combined-worker-inventory-renewal.md) - Corrected final pre-dispatch role integration/evidence retention;212 checks and actual preparation/admission passed locally; no automatic cloud retry.
 
 - [ADR0349: Seal transferred combined worker verification](0349-seal-transferred-combined-worker-verification.md) - Portable observer verification qualified with both actual images,22 transferred helpers and267 regressions; fresh control stopped before traffic and independently restored.
+
+- [ADR0350: Bind combined four-writer observation](0350-bind-combined-four-writer-observation.md) - Correct the combined label's historical three-writer fallback across startup, resource summary and pipeline validation; no automatic cloud retry.
+
+- [ADR0351: Switch to the restored RDS endpoint](0351-switch-to-restored-rds-endpoint.md) - User-restored database switch with verified TLS and unchanged application role/pool limits; load tests remain paused.
+
+- [ADR0352: Bind replacement-RDS capacity preparation](0352-bind-replacement-rds-capacity-preparation.md) - Exact replacement snapshot and TLS target for matched160/s preparation; no paid allowance opened.

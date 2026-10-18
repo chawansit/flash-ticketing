@@ -457,6 +457,7 @@ class Observers:
         if self.runtime_cohort is not None and status["pipeline"].get("runtime_cohort_contract") != self.runtime_cohort:
             raise ValueError("Runtime observer query receipt missing before dispatch")
         from cce_writer_scale_verification import startup as declared_startup
+        policy.write(self.stage.output / "pipeline-startup-row.private.json", status["pipeline"])
         self.record["pipeline_startup"] = declared_startup(
             status["pipeline"], getattr(self, "native_workers", None), pipeline_startup_view)
         self.record["kafka_startup"] = kafka_startup_view(status["kafka"], 6)

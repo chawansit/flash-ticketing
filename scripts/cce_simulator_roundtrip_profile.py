@@ -22,12 +22,12 @@ SOURCE_REFERENCE = ('tmp/adr0151-a0d63f35960f/cce-comparison.private.json',
                     'de6e008fad525f67d93fd15b83f0a8ddb105110f9806d31bcc8bdfa6d09ec06c')
 KEYS = {'simulator_roundtrip_decision', 'simulator_roundtrip_arm', 'simulator_roundtrip_contract_sha256',
         'simulator_roundtrip_pair', 'simulator_roundtrip_preview'}
-INPUTS = {LOCAL, PUBLICATION, 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
+INPUTS = {LOCAL, PUBLICATION, 'scripts/cce_replacement_rds_binding.py', 'docs/capacity/cce/rds-endpoint-switch-2026-10-18.json', 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
           'scripts/prepare_simulator_roundtrip_image.py', 'scripts/prepare_simulator_roundtrip_comparison.py',
           'scripts/prepare_callback_write_pipeline_image.py',
           'docs/capacity/cce/simulator-roundtrip-local-2026-10-17.json',
           'docs/capacity/cce/simulator-roundtrip-registry-2026-10-17.json'}
-CHANGED = {'scripts/observe_cce_paid_pipeline.py','scripts/observe_cce_workers.py','scripts/cce_inventory_renewal.py', 'scripts/cce_paid_observers.py','scripts/cce_api_adapter.py','scripts/cce_transaction_profile.py', 'scripts/run_cce_paid_comparison.py',
+CHANGED = {'scripts/cce_dependency_probe.py','scripts/cce_writer_scale_verification.py','scripts/observe_cce_paid_pipeline.py','scripts/observe_cce_workers.py','scripts/cce_inventory_renewal.py', 'scripts/cce_paid_observers.py','scripts/cce_api_adapter.py','scripts/cce_transaction_profile.py', 'scripts/run_cce_paid_comparison.py',
            'scripts/cce_recovery_headroom.py', 'scripts/cce_throughput_push.py',
            'scripts/cce_native_workers.py', 'scripts/cce_worker_identity.py',
            'scripts/cce_worker_transition.py', 'scripts/cce_paid_stage.py',
@@ -123,19 +123,23 @@ def image(goal=None):
         goal = active()
     if not selected(goal):
         raise ValueError('Explicit simulator-roundtrip image selection required')
-    if not goal['simulator_roundtrip_preview']:
+    import cce_replacement_rds_binding as replacement
+    published = not goal['simulator_roundtrip_preview'] or replacement.selected(goal)
+    if published:
         registry_image()  # Both live arms require the fully published pair before starting.
     if goal['simulator_roundtrip_arm'] == 'control':
         value = parent.image()
         return {**value, 'runtime_sources_sha256': value['runtime_source_sha256']}
-    return local_image() if goal['simulator_roundtrip_preview'] else registry_image()
+    return registry_image() if published else local_image()
 
 
 def binding_contract(goal):
     selected(goal)
+    import cce_replacement_rds_binding as replacement
     return {**contract(), 'arm': goal['simulator_roundtrip_arm'],
             'preview': goal['simulator_roundtrip_preview'], 'pair': copy.deepcopy(goal['simulator_roundtrip_pair']),
-            'fresh_control': copy.deepcopy(goal.get('simulator_roundtrip_control'))}
+            'fresh_control': copy.deepcopy(goal.get('simulator_roundtrip_control')),
+            **({'replacement_rds': replacement.contract(goal)} if replacement.selected(goal) else {})}
 
 
 def extend_plan(goal, plan):
@@ -262,6 +266,10 @@ def validate_binding(goal, binding, *, preparation_only=False):
               'cce_headroom_contract', 'cce_throughput_push_contract', 'cce_generator_process_contract',
               'cce_api_client_pool_contract', 'cce_primary_bootstrap_contract', 'cce_verification_contract_sha256',
               'cce_transaction_pair_sha256', 'cce_simulator_roundtrip_contract', 'cce_inventory_renewal_contract', 'cce_metric_admission_contract_sha256'}
+    import cce_replacement_rds_binding as replacement
+    if replacement.selected(goal):
+        replacement.validate_binding(goal, binding)
+        varied.add('diagnostic_target_sha256')
     if any(original.get(k) != binding.get(k) for k in original.keys() | binding.keys() if k not in varied):
         raise ValueError('Roundtrip comparison changed unrelated resources, routes, settings or recovery')
     from cce_inventory_renewal import contract as renewal_contract

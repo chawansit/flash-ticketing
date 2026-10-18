@@ -126,8 +126,10 @@ def prepare(base, proof, target):
                             repr(policy.digest(api_env)), repr(policy.digest(common_env)))
         normalized[arm] = objects
     assert normalized['control'] == normalized['candidate'], 'Arms differ beyond reviewed image/source and callback flag'
+    from cce_replacement_rds_binding import selected as replacement_selected
+    replacement = replacement_selected(base)
     return {'decision': roundtrip.DECISION, 'local_only': True, 'paid_authorized': False,
-            'registry_verified': False, 'live_snapshot_reconciled': False, 'pair': pair, 'arms': arms}
+            'registry_verified': replacement, 'live_snapshot_reconciled': replacement, 'pair': pair, 'arms': arms}
 
 
 def public_summary(value):
@@ -138,9 +140,10 @@ def public_summary(value):
         'arms': {name: {'image': arm['image']['registry_image'], 'source': arm['image']['source_identity_sha256'],
                         'manifest_sha256': arm['manifest_sha256'], 'binding_sha256': policy.digest(arm['binding']),
                         'api_pods': 4, 'worker_pods': 15} for name, arm in value['arms'].items()},
-        'remaining_prerequisites': ['Actual registry publication/pull verification for ADR0346.',
-                                    'Specific registry-upload approval and live pair start/journal boundary.',
-                                    'Live snapshot/readiness qualification; fully passed/restored fresh control before candidate.']}
+        'remaining_prerequisites': (
+            ([] if value['registry_verified'] else ['Actual registry publication/pull verification for ADR0346.'])
+            + ['Explicit fresh paid-pair approval, live pair start/journal boundary and current preflight.',
+               'Fully passed/restored same-pair control before conditional candidate.'])}
 
 
 def main():
