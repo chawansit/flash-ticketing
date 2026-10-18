@@ -1,0 +1,15 @@
+{
+  "decision": "ADR0359",
+  "status": "READY_UNDER_EXISTING_PREAPPROVAL",
+  "rate": 200,
+  "offered_seconds": 300,
+  "source_contract_sha256": "aee4f04799972781cfa62325de3981923dcc6e9e0eacbfaa1f20674912065847",
+  "prepared_goal_sha256": "bb47afe80fefea930222503e5baf1c8d26849f24e8d744f3f333a8153d1c9f88",
+  "clean_lower_rate_run": "adr0151-6668a7e46ed3",
+  "clean_lower_result": "docs/capacity/cce/replacement-rds-simulator-cpu-180b-candidate-result-2026-10-19.json",
+  "same_worker_allocation_verified": true,
+  "actual_15_worker_manifests_and_isolated_reservation_pass": true,
+  "200_financial_builder_tested_seven_predicates_unchanged": true,
+  "immutable_registry_authentication_pass": true,
+  "application_image_unchanged": true
+}
