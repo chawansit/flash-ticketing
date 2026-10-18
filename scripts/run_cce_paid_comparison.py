@@ -23,6 +23,7 @@ from cce_paid_profiles import (
     RATE_PUSH,
     RATE_PUSH_160,
     RATE_PUSH_180,
+    RATE_PUSH_200,
     SHORT,
     TICKET_TARGET,
     for_guard,
@@ -339,7 +340,7 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT, pr
 
 
 def entry_for(profile):
-    if profile in (SHORT, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180):
+    if profile in (SHORT, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180, RATE_PUSH_200):
         return sys.modules[__name__]
     if profile == HOURLY:
         import run_cce_hourly_qualification

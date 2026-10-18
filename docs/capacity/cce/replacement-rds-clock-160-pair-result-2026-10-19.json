@@ -1,0 +1,138 @@
+{
+  "decision": "ADR0354",
+  "status": "BOTH_PASSED_RESTORED",
+  "recorded_at_utc": "2026-10-18T18:58:26.479124+00:00",
+  "database": "10.1.21.48",
+  "offered_rate_each": 160,
+  "offered_seconds_each": 300,
+  "arms": {
+    "control": {
+      "run": "adr0151-206a8e80c810",
+      "ledger": "bounded_cce_ticket_target__b661b9be419e",
+      "raw_result_sha256": "0fa35cb9393573afb107c42cea81a6c4c8b6a1facaaed0b3691efb1e1ac3b132",
+      "customer": {
+        "scheduled": 48000,
+        "dispatched": 48000,
+        "fulfilled": 48000,
+        "generator_drops": 0,
+        "first_attempt_error_journeys": 0,
+        "recovered_journeys": 0,
+        "retry_attempts": 0,
+        "final_customer_failures": 0,
+        "accounting_complete": true,
+        "measurement_complete": true
+      },
+      "issuance": {
+        "window_start_epoch": 1792347576.187639,
+        "window_end_epoch": 1792347876.187639,
+        "unique_paid_issued_tickets": 47809,
+        "unique_orders": 47809,
+        "unique_payments": 47809,
+        "joined_rows": 47809,
+        "conservative_inner_window_tickets": 47488,
+        "inner_window_guard_seconds": 2,
+        "database_now_epoch": 1792348170.601207,
+        "api_helper_now_epoch": 1792348170.6026664,
+        "first_issued_at": "2026-10-19T01:19:38.744294+07:00",
+        "last_issued_at": "2026-10-19T01:24:36.180233+07:00",
+        "pass": true,
+        "conservative_rate_per_second": 158.29333333333332
+      },
+      "latencies_ms": {
+        "dispatch_lag_p95_ms": 1.4177040011418285,
+        "dispatch_lag_max_ms": 107.76062500008265,
+        "hold_http_p95_ms": 11.87130699872796,
+        "durable_p95_ms": 2109.638375999566,
+        "payment_http_p95_ms": 49.99955799939926,
+        "ticket_wait_p95_ms": 612.5021590014512,
+        "total_journey_p95_ms": 3476.2741060003464
+      },
+      "cpu": {
+        "api_process_cores": 2.4140704449673973,
+        "worker_process_cores": 1.6388904004742886
+      },
+      "phase_means_ms": {
+        "due_to_claim": 32.4061798421854,
+        "claim": 11.147697412611748,
+        "delivery": 37.17072951412535,
+        "ack": 10.186730263541307,
+        "api_acquire": 2.020703527788425
+      },
+      "restoration": {
+        "original_runtime_restored": true,
+        "integrity_verified": true,
+        "generator_idle": true,
+        "namespace_removed": true,
+        "cleanup_complete": true,
+        "transport_credentials_cleared": true,
+        "owned_resources_removed": true
+      }
+    },
+    "candidate": {
+      "run": "adr0151-a064d28bae81",
+      "ledger": "bounded_cce_ticket_target__f3e11501b963",
+      "raw_result_sha256": "959d0efa6d240f2aa2cb65d70ebb22d3760d1482093bfee7bd66839dd8547a2e",
+      "customer": {
+        "scheduled": 48000,
+        "dispatched": 48000,
+        "fulfilled": 48000,
+        "generator_drops": 0,
+        "first_attempt_error_journeys": 0,
+        "recovered_journeys": 0,
+        "retry_attempts": 0,
+        "final_customer_failures": 0,
+        "accounting_complete": true,
+        "measurement_complete": true
+      },
+      "issuance": {
+        "window_start_epoch": 1792349246.083915,
+        "window_end_epoch": 1792349546.083915,
+        "unique_paid_issued_tickets": 47800,
+        "unique_orders": 47800,
+        "unique_payments": 47800,
+        "joined_rows": 47800,
+        "conservative_inner_window_tickets": 47482,
+        "inner_window_guard_seconds": 2,
+        "database_now_epoch": 1792349828.076684,
+        "api_helper_now_epoch": 1792349828.0790663,
+        "first_issued_at": "2026-10-19T01:47:28.452831+07:00",
+        "last_issued_at": "2026-10-19T01:52:26.079814+07:00",
+        "pass": true,
+        "conservative_rate_per_second": 158.27333333333334
+      },
+      "latencies_ms": {
+        "dispatch_lag_p95_ms": 1.3302299994393252,
+        "dispatch_lag_max_ms": 96.76647200103616,
+        "hold_http_p95_ms": 12.294414000280085,
+        "durable_p95_ms": 1067.8292569991754,
+        "payment_http_p95_ms": 33.260897998843575,
+        "ticket_wait_p95_ms": 612.2835040005157,
+        "total_journey_p95_ms": 1696.1786640003993
+      },
+      "cpu": {
+        "api_process_cores": 2.4847065606930037,
+        "worker_process_cores": 1.7571269696413678
+      },
+      "phase_means_ms": {
+        "due_to_claim": 75.14390502190226,
+        "claim": 9.424020200686467,
+        "delivery": 27.265242882353885,
+        "ack": 7.397016239645913,
+        "api_acquire": 0.6498643358266283
+      },
+      "restoration": {
+        "original_runtime_restored": true,
+        "integrity_verified": true,
+        "generator_idle": true,
+        "namespace_removed": true,
+        "cleanup_complete": true,
+        "transport_credentials_cleared": true,
+        "owned_resources_removed": true
+      }
+    }
+  },
+  "worst_shard_journey_p95_reduction_percent": 51.20699311160044,
+  "comparison_scope": "One matched five-minute pair; latency improvement observed, maximum throughput/hourly/300/s unqualified.",
+  "selected_next_image": "candidate",
+  "next": "User preapproved300s rounds until clean200/s. Prepare source-bound180/s then200/s candidate qualification under ADR0355; preserve financial/drain/restoration and fixed resources."
+}

@@ -17,7 +17,7 @@ def contract(goal=None):
             "aggregate_api_client_slots":24, "physical_backends":24, "shared_admission":20,
             "native_role_acquisition_limit":17, "acquisition_wait_ms":500,
             "api_pods":4, "worker_pods":15, "simulator_delivery_slots":16,"simulator_database_pool_max":10,
-            "offered_rate":180 if goal is not None and goal.get("throughput_push_decision") == "ADR0339" else 160, "seconds":300, "active_journeys":800,
+            "offered_rate":__import__("cce_rate_qualification").rate(goal, 180 if goal is not None and goal.get("throughput_push_decision") == "ADR0339" else 160), "seconds":300, "active_journeys":800,
             "http_connections":500, "http_clients":16, "generator_processes":4,
             "maximum_paid_stages":1, "maximum_experiment_seconds":3600,
             "image_manifest":image()["registry_manifest_digest"],

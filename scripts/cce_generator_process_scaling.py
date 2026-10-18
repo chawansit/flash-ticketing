@@ -34,7 +34,7 @@ def contract(goal=None):
     return {
         "decision": "ADR0335" if occupancy else "ADR0333",
         "generator_processes": 4,
-        "rate": 180 if goal is not None and goal.get("throughput_push_decision") == "ADR0339" else 160,
+        "rate": __import__("cce_rate_qualification").rate(goal, 180 if goal is not None and goal.get("throughput_push_decision") == "ADR0339" else 160),
         "seconds": 300,
         "total_concurrency": active_concurrency(goal),
         "total_http_connections": 500,
@@ -209,6 +209,12 @@ def qualify_workload(bundle, coordinator, goal=None):
         if source.count(before) != 1:
             raise ValueError("Exact qualified800-slot coordinator required before180/s")
         source = source.replace(before, b"(180, 300, 800, 8, 1, 1, 3, 'distributed')")
+    if __import__("cce_rate_qualification").selected(goal):
+        before = b"(160, 300, 800, 8, 1, 1, 3, 'distributed')"
+        after = ("(" + str(contract(goal)["rate"]) + ", 300, 800, 8, 1, 1, 3, 'distributed')").encode()
+        if source.count(before) != 1:
+            raise ValueError("Exact qualified800-slot coordinator required before rate qualification")
+        source = source.replace(before, after)
     before, after = (hashlib.sha256(value).hexdigest().encode() for value in (bundle[name], source))
     if coordinator.count(before) != 1:
         raise ValueError("Exact coordinator-to-source binding required")

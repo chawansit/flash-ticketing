@@ -1,0 +1,181 @@
+{
+  "decision": "ADR0354",
+  "run": "adr0151-a064d28bae81",
+  "ledger": "bounded_cce_ticket_target__f3e11501b963",
+  "status": "PASSED_RESTORED",
+  "arm": "candidate",
+  "raw_result_sha256": "959d0efa6d240f2aa2cb65d70ebb22d3760d1482093bfee7bd66839dd8547a2e",
+  "database_endpoint": "10.1.21.48",
+  "offered_rate_per_second": 160,
+  "offered_window_seconds": 300,
+  "offered_window_executed": true,
+  "paid_runs_started": 1,
+  "short_capacity_qualified": true,
+  "hourly_qualified": false,
+  "production_qualified": false,
+  "customer": {
+    "scheduled": 48000,
+    "dispatched": 48000,
+    "fulfilled": 48000,
+    "generator_drops": 0,
+    "first_attempt_error_journeys": 0,
+    "recovered_journeys": 0,
+    "retry_attempts": 0,
+    "final_customer_failures": 0,
+    "accounting_complete": true,
+    "measurement_complete": true
+  },
+  "customer_outcome_gate": {
+    "decision": "ADR0305",
+    "contract_sha256": "f1ba7aeec82a6f75890e29bd114e9ee8dcebd14e43392d7ad2029e2e7ec4503c",
+    "denominator_dispatched_journeys": 48000,
+    "final_customer_failures": 0,
+    "maximum_final_customer_failures": 4,
+    "final_customer_failure_percent": 0.0,
+    "first_attempt_error_journeys": 0,
+    "recovered_journeys": 0,
+    "retry_attempts": 0,
+    "total_journey_p95_ms": 1696.1786640003993,
+    "checks": {
+      "complete_accounting": true,
+      "unique_confirmed_tickets": true,
+      "completion_deadline": true,
+      "zero_generator_drops": true,
+      "complete_shards": true,
+      "known_customer_failures": true,
+      "bounded_final_failures": true,
+      "dispatch_latency": true,
+      "bounded_recovery": true,
+      "unchanged_strict_success": true
+    },
+    "pass": true
+  },
+  "measurement_gates": {
+    "customer_load": true,
+    "post_ttl_financial": true,
+    "zero_double_booking": true,
+    "payment_durability": true,
+    "full_queue_drain": true,
+    "native_observer": true,
+    "native_cpu": true,
+    "unchanged_background": true,
+    "unchanged_native_pods": true,
+    "live_admission": true,
+    "ticket_target_issuance": true,
+    "unchanged_ingress_route": true
+  },
+  "latencies_ms": {
+    "dispatch_lag_p95_ms": 1.3302299994393252,
+    "dispatch_lag_max_ms": 96.76647200103616,
+    "hold_http_p95_ms": 12.294414000280085,
+    "durable_p95_ms": 1067.8292569991754,
+    "payment_http_p95_ms": 33.260897998843575,
+    "ticket_wait_p95_ms": 612.2835040005157,
+    "total_journey_p95_ms": 1696.1786640003993
+  },
+  "latency_scope": "Worst-shard p95 including recovery, not pooled percentiles.",
+  "issuance": {
+    "window_start_epoch": 1792349246.083915,
+    "window_end_epoch": 1792349546.083915,
+    "unique_paid_issued_tickets": 47800,
+    "unique_orders": 47800,
+    "unique_payments": 47800,
+    "joined_rows": 47800,
+    "conservative_inner_window_tickets": 47482,
+    "inner_window_guard_seconds": 2,
+    "database_now_epoch": 1792349828.076684,
+    "api_helper_now_epoch": 1792349828.0790663,
+    "first_issued_at": "2026-10-19T01:47:28.452831+07:00",
+    "last_issued_at": "2026-10-19T01:52:26.079814+07:00",
+    "pass": true,
+    "conservative_rate_per_second": 158.27333333333334
+  },
+  "financial": {
+    "pass": true,
+    "counts": {
+      "orders": 48000,
+      "fulfilled_orders": 48000,
+      "expired_orders": 0,
+      "pending_orders": 0,
+      "payment_attempts": 48000,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 48000,
+      "bookings": 48000,
+      "tickets": 48000,
+      "payment_callbacks": 48000,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 48000,
+      "callback_delivery_target": 48000,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 48000,
+      "expected_paid": 48000,
+      "expected_callback_deliveries_per_payment": 1,
+      "pass": true
+    },
+    "relationships": {
+      "hold_relationship_errors": 0,
+      "booking_relationship_errors": 0,
+      "order_item_relationship_errors": 0,
+      "inventory_relationship_errors": 0,
+      "fulfilled_ticket_relationship_errors": 0,
+      "unique_issued_tickets": 48000,
+      "holds_not_past_ttl": 0
+    },
+    "checks": {
+      "post_ttl_complete": true,
+      "payments_durable": true,
+      "ticket_relationships_valid": true
+    },
+    "hold_deadlines_elapsed": true
+  },
+  "financial_evidence_scope": "Existing cloud runner database audit; local evidence checks are not a separate reconciliation.",
+  "queues_after_restoration": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "restoration": {
+    "original_runtime_restored": true,
+    "integrity_verified": true,
+    "generator_idle": true,
+    "namespace_removed": true,
+    "cleanup_complete": true,
+    "transport_credentials_cleared": true,
+    "owned_resources_removed": true
+  },
+  "cpu": {
+    "api_process_cores": 2.4847065606930037,
+    "worker_process_cores": 1.7571269696413678
+  },
+  "phase_means_ms": {
+    "due_to_claim": 75.14390502190226,
+    "claim": 9.424020200686467,
+    "delivery": 27.265242882353885,
+    "ack": 7.397016239645913,
+    "api_acquire": 0.6498643358266283
+  },
+  "phase_scope": "Retained observer-lifetime means; not an isolated paid-window cycle or causal capacity proof.",
+  "observer_qualification": {
+    "pass": true,
+    "failures": []
+  },
+  "limiting_evidence": [
+    "Fixed160/s comparison; no maximum/300/s capacity qualification."
+  ],
+  "next": "Sequence stops on failed quality; no automatic repeat. Review limiting evidence before a separately approved next rate."
+}

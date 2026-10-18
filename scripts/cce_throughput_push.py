@@ -46,6 +46,13 @@ def reference(goal=None):
 
 
 def contract(goal=None):
+    import cce_rate_qualification as qualification
+    if qualification.selected(goal):
+        result = contract({k:v for k,v in goal.items() if not k.startswith('rate_qualification_')})
+        rate = qualification.rate(goal)
+        return {**result, 'offered_rate': rate, 'expected_journeys': rate*300,
+                'fixture_shows': rate, 'minimum_unique_inside_window': rate*300-600,
+                'rate_qualification': qualification.contract(goal)}
     rate, shows, expected, target = (180, 180, 54000, 53400) if push180(goal) else (160, 160, 48000, 47400) if push160(goal) else (140, 140, 42000, 41400) if higher(goal) else (RATE, SHOWS, EXPECTED, TARGET)
     return {"decision": "ADR0339" if push180(goal) else "ADR0329" if push160(goal) else "ADR0328" if higher(goal) else "ADR0327", "offered_rate": rate, "offered_seconds": 300,
             "expected_journeys": expected, "fixture_shows": shows,
@@ -69,6 +76,11 @@ def selected(goal):
 
 
 def bounds(goal=None):
+    import cce_rate_qualification as qualification
+    if qualification.selected(goal):
+        selected(goal)
+        rate = qualification.rate(goal)
+        return rate, rate, rate*300, rate*300-600
     if not selected(goal):
         return 102, 102, 30600, 30000
     return (180, 180, 54000, 53400) if push180(goal) else (160, 160, 48000, 47400) if push160(goal) else (140, 140, 42000, 41400) if higher(goal) else (RATE, SHOWS, EXPECTED, TARGET)

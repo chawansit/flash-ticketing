@@ -372,3 +372,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0353: Bound replacement-RDS pair preparation time](0353-bound-replacement-rds-pair-preparation-time.md) - Preparation only: fixed7200s fresh-pair ceiling and3600s control ceiling; no paid authority.
 
 - [ADR0354: Retain bounded creator-clock observations](0354-retain-bounded-creator-clock-observations.md) - Preparation only: retain raw timings and at most three strict read-only samples; no paid retry.
+
+- [ADR0355: Qualify five-minute rates through200/s](0355-qualify-five-minute-rates-through-200.md) - Accepted: measured160/s candidate selected; preapproved180/s then200/s qualification with unchanged resources and149 focused cases.

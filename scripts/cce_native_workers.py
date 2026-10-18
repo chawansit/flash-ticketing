@@ -74,11 +74,12 @@ def objects(run, environments, primary_ip, decision="ADR0259", *, profile=None, 
         RATE_PUSH,
         RATE_PUSH_160,
         RATE_PUSH_180,
+        RATE_PUSH_200,
         SHORT,
         TICKET_TARGET,
     )
     profile = SHORT if profile is None else profile
-    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180):
+    if profile not in (SHORT, HOURLY, TICKET_TARGET, HEADROOM, HIGHER_RATE_PUSH, RATE_PUSH, RATE_PUSH_160, RATE_PUSH_180, RATE_PUSH_200):
         raise ValueError("Exact worker lifetime profile required")
     selected = identity.specification(decision, goal=goal)
     if set(environments) != set(selected["counts"]):

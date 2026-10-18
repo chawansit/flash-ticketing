@@ -22,12 +22,12 @@ SOURCE_REFERENCE = ('tmp/adr0151-a0d63f35960f/cce-comparison.private.json',
                     'de6e008fad525f67d93fd15b83f0a8ddb105110f9806d31bcc8bdfa6d09ec06c')
 KEYS = {'simulator_roundtrip_decision', 'simulator_roundtrip_arm', 'simulator_roundtrip_contract_sha256',
         'simulator_roundtrip_pair', 'simulator_roundtrip_preview', 'simulator_roundtrip_timing_decision'}
-INPUTS = {LOCAL, PUBLICATION, 'scripts/cce_replacement_rds_binding.py', 'docs/capacity/cce/rds-endpoint-switch-2026-10-18.json', 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
+INPUTS = {'scripts/cce_rate_qualification.py', 'scripts/prepare_rate_qualification.py',LOCAL, PUBLICATION, 'scripts/cce_replacement_rds_binding.py', 'docs/capacity/cce/rds-endpoint-switch-2026-10-18.json', 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
           'scripts/prepare_simulator_roundtrip_image.py', 'scripts/prepare_simulator_roundtrip_comparison.py',
           'scripts/prepare_callback_write_pipeline_image.py',
           'docs/capacity/cce/simulator-roundtrip-local-2026-10-17.json',
           'docs/capacity/cce/simulator-roundtrip-registry-2026-10-17.json'}
-CHANGED = {'scripts/cce_fixture_clock.py','scripts/cce_dependency_probe.py','scripts/cce_writer_scale_verification.py','scripts/observe_cce_paid_pipeline.py','scripts/observe_cce_workers.py','scripts/cce_inventory_renewal.py', 'scripts/cce_paid_observers.py','scripts/cce_api_adapter.py','scripts/cce_transaction_profile.py', 'scripts/run_cce_paid_comparison.py',
+CHANGED = {'scripts/cce_paid_profiles.py', 'scripts/cce_api_client_headroom.py', 'scripts/cce_generator_process_scaling.py','scripts/cce_fixture_clock.py','scripts/cce_dependency_probe.py','scripts/cce_writer_scale_verification.py','scripts/observe_cce_paid_pipeline.py','scripts/observe_cce_workers.py','scripts/cce_inventory_renewal.py', 'scripts/cce_paid_observers.py','scripts/cce_api_adapter.py','scripts/cce_transaction_profile.py', 'scripts/run_cce_paid_comparison.py',
            'scripts/cce_recovery_headroom.py', 'scripts/cce_throughput_push.py',
            'scripts/cce_native_workers.py', 'scripts/cce_worker_identity.py',
            'scripts/cce_worker_transition.py', 'scripts/cce_paid_stage.py',
@@ -83,10 +83,12 @@ def registry_image():
             'runtime_sources_sha256': expected['runtime_source_sha256']}
 
 
-def contract():
+def contract(goal=None):
+    from cce_rate_qualification import rate
+    offered = rate(goal)
     return {'decision': DECISION, 'source': SOURCE, 'local_image': LOCAL_IMAGE,
             'local_receipt_sha256': LOCAL_SHA, 'publication_sha256': sha(PUBLICATION),
-            'offered_rate': 160, 'seconds': 300, 'expected_journeys': 48000,
+            'offered_rate': offered, 'seconds': 300, 'expected_journeys': offered*300,
             'api_pods': 4, 'worker_pods': 15, 'api_client_slots': [3, 3],
             'physical_backends': 24, 'physical_reserve': 0, 'shared_admission': 20,
             'acquisition_wait_ms': 500, 'simulator_delivery_slots': 16, 'simulator_database_clients': 10,
@@ -103,7 +105,7 @@ def selected(goal):
     timing_contract(goal)
     from cce_api_client_headroom import selected as clients_selected
     expected = {'simulator_roundtrip_decision': DECISION,
-                'simulator_roundtrip_contract_sha256': policy.digest(contract()),
+                'simulator_roundtrip_contract_sha256': policy.digest(contract(goal)),
                 'throughput_push_decision': 'ADR0329'}
     pair = goal.get('simulator_roundtrip_pair', {})
     if (any(type(goal.get(k)) is not type(v) or goal.get(k) != v for k, v in expected.items())
@@ -137,17 +139,28 @@ def image(goal=None):
 def binding_contract(goal):
     selected(goal)
     import cce_replacement_rds_binding as replacement
-    return {**contract(), 'arm': goal['simulator_roundtrip_arm'],
+    return {**contract(goal), 'arm': goal['simulator_roundtrip_arm'],
             'preview': goal['simulator_roundtrip_preview'], 'pair': copy.deepcopy(goal['simulator_roundtrip_pair']),
             'fresh_control': copy.deepcopy(goal.get('simulator_roundtrip_control')),
-            **({'pair_timing': timing_contract(goal), 'pair_seconds_limit': 7200}
+            **({'pair_timing': timing_contract(goal), 'pair_seconds_limit': timing_contract(goal)['pair_seconds_limit']}
                if timing_contract(goal) else {}),
-            **({'replacement_rds': replacement.contract(goal)} if replacement.selected(goal) else {})}
+            **({'replacement_rds': replacement.contract(goal)} if replacement.selected(goal) else {}),
+            **({'rate_qualification': __import__('cce_rate_qualification').contract(goal)}
+               if __import__('cce_rate_qualification').selected(goal) else {})}
 
 
 def extend_plan(goal, plan):
     if not selected(goal):
         return plan
+    import cce_rate_qualification as qualification
+    if qualification.selected(goal):
+        ref = goal['rate_qualification_reference']
+        return {**plan, 'kind': 'five_minute_rate_qualification',
+                'single_changed_factor': 'offered_rate', 'baseline_evidence': ref['path'],
+                'baseline_sha256': ref['sha256'], 'baseline_is_passing_control': False,
+                'matched_performance_comparison': False,
+                'simulator_roundtrip_contract': binding_contract(goal),
+                'duration_reason': 'One300s qualification with unchanged image/resources;3600s admission ceiling.'}
     return {**plan, 'kind': 'simulator_roundtrip_matched_160',
             'single_changed_factor': 'combined_simulator_and_successful_callback_roundtrips',
             'baseline_evidence': REFERENCE[0], 'baseline_sha256': REFERENCE[2],
@@ -165,7 +178,7 @@ def timing_contract(goal):
     if (goal['simulator_roundtrip_timing_decision'] != 'ADR0353'
             or goal.get('replacement_rds_decision') != 'ADR0352'):
         raise ValueError('Exact replacement-RDS ADR0353 timing required')
-    return {'decision': 'ADR0353', 'pair_seconds_limit': 7200,
+    return {'decision': 'ADR0353', 'pair_seconds_limit': (3600 if __import__('cce_rate_qualification').selected(goal) else 7200),
             'control_seconds_limit': 3600, 'clock': 'immutable_pair_start',
             'fresh_same_pair_control_required': True}
 
@@ -218,6 +231,9 @@ def _retained(path, ledger, digest, *, expected=48000):
 
 
 def require_control(goal):
+    import cce_rate_qualification as qualification
+    if qualification.selected(goal):
+        return qualification.require_authority(goal)
     if goal['simulator_roundtrip_arm'] != 'candidate':
         return None
     ref = goal.get('simulator_roundtrip_control')
@@ -297,7 +313,7 @@ def validate_binding(goal, binding, *, preparation_only=False):
     from cce_metric_admission import contract as metric_contract
     expected = {'cce_fixture_clock_contract': __import__('cce_fixture_clock').contract(),
                 'cce_metric_admission_contract_sha256': policy.digest(metric_contract()),
-                'cce_inventory_renewal_contract': renewal_contract(), 'baseline_sha256': REFERENCE[2], 'cce_simulator_roundtrip_contract': binding_contract(goal),
+                'cce_inventory_renewal_contract': renewal_contract(), 'baseline_sha256': (goal['rate_qualification_reference']['sha256'] if __import__('cce_rate_qualification').selected(goal) else REFERENCE[2]), 'cce_simulator_roundtrip_contract': binding_contract(goal),
                 'cce_transaction_pair_sha256': sha(PUBLICATION), 'cce_api_client_pool_contract': client_contract(goal),
                 'cce_headroom_contract': headroom.contract(goal), 'cce_throughput_push_contract': push.contract(goal),
                 'cce_generator_process_contract': generator.contract(goal), 'cce_primary_bootstrap_contract': bootstrap.contract(),
@@ -316,7 +332,10 @@ def validate_binding(goal, binding, *, preparation_only=False):
             or any(before['sources'][k] != after['sources'][k] for k in before['sources'] if k not in CHANGED)):
         raise ValueError('Exact unchanged common primary bootstrap required')
     generator.validate_binding(goal, binding)
-    if not preparation_only and goal['simulator_roundtrip_arm'] == 'candidate':
+    import cce_rate_qualification as qualification
+    if qualification.selected(goal):
+        qualification.validate_binding(goal, binding)
+    if not preparation_only and goal['simulator_roundtrip_arm'] == 'candidate' and not qualification.selected(goal):
         _, control = require_control(goal)
         # Source contracts must be identical between the fresh measured arms.
         for key in ('cce_paid_entry_sources', 'cce_paid_core_sources', 'configuration_sha256', 'saved_api_service_sha256'):

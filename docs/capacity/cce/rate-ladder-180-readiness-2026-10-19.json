@@ -1,0 +1,29 @@
+{
+  "decision": "ADR0355",
+  "status": "READY_UNDER_USER_PREAPPROVAL",
+  "recorded_at_utc": "2026-10-18T19:04:52.850244+00:00",
+  "rate": 180,
+  "offered_seconds": 300,
+  "expected_journeys": 54000,
+  "candidate_image_unchanged": true,
+  "resources_unchanged": true,
+  "source_contract_sha256": "5a4e83890efe22fdad2529bd55fd8b5c57aa33bcef0bfbaf68e7468d435d4931",
+  "prepared_goal_sha256": "3df658fa0f0dd524444c8cb74331ae3d6001da6d4f90d11876fa6b0cc908b514",
+  "validation": {
+    "final_regressions_passed": 147,
+    "actual_180_200_sealed_generator_guard_cases_passed": 2,
+    "actual_plan_manifests_binding_pass": true,
+    "actual_isolated_reservation_pass": true,
+    "live_bookkeeping_unchanged": true,
+    "ruff_pass": true
+  },
+  "lower_reference": {
+    "path": "tmp/adr0151-a064d28bae81/cce-comparison.private.json",
+    "ledger": "bounded_cce_ticket_target__f3e11501b963",
+    "sha256": "959d0efa6d240f2aa2cb65d70ebb22d3760d1482093bfee7bd66839dd8547a2e",
+    "rate": 160
+  },
+  "paid_runs_started": 0,
+  "preapproval": "User explicitly pre-approved until clean200/s;300s rounds.",
+  "next": "Run180/s qualification;200/s only after fully clean passed/restored180/s and actual200/s preparation."
+}
