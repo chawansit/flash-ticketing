@@ -4188,6 +4188,27 @@
         "actual_elapsed_seconds": 46.10999999998603,
         "capacity_qualified": false
       }
+    },
+    {
+      "ledger": "bounded_cce_ticket_target__e726d238e7e5",
+      "authorization_id": "work-envelope-e726d238e7e5",
+      "envelope_sha256": "4380700335037589c33e21badd9dfe17a488e6e946e914f45b73ee7389ebfd24",
+      "binding_sha256": "a45d67fac773be35bcbfba44e6478687301825b55001704147c6bffc57ec3c8d",
+      "plan_sha256": "0128297322039710e478be5315cb06245d39462fbd16082520d3e181688d4380",
+      "profile": "cce_ticket_target",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 583.9539999999979,
+      "started_at_utc": "2026-10-18T20:01:39.580670+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-a4c62014a99c",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-18T20:11:22.041314+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "29bb7d1be1c19a138f56c8bf6540148d4ed0d35cc5db8d65fcc035e7106540f6"
     }
   ],
   "verified_aborts": {

@@ -104,7 +104,7 @@
   "historical_lock_sha256": "3dabc984d879e7d59699ad74d9b26d5259a83ce338c60c2620536e7456d48fcd",
   "overlays": {
     "scripts/cce_api_adapter.py": {
-      "current_sha256": "b64a59282cbc61817afed248d967cd1321df4687cd536008bdfee535763eb0cb",
+      "current_sha256": "6434323741518ec266ea4d6d3579790f09678295dc96ddc256ccf3de34f43cd9",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e",
       "historical_sha256": "634f5d133ca9036ecc3bb5ba052f71a2c058567c320c30039353350e2560c46e"
     },

@@ -217,3 +217,27 @@ def test_actual_parent_startup_and_projection_audit_preserved(monkeypatch):
     row['writer_db_replicas']['synthetic-writer']=copy.deepcopy(next(iter(row['writer_db_replicas'].values())))
     contract.verify_pipeline_startup(row)
     assert verification.startup(row,bundle,pipeline_startup_view)['pass']
+
+
+@pytest.mark.parametrize('suffix', ['', '/log?container=worker&limitBytes=65536', '/log?container=worker&sinceSeconds=60&limitBytes=65536'])
+def test_actual_transport_allows_fifth_allocated_writer_and_rejects_extras(monkeypatch,suffix):
+    import cce_api_adapter as adapter
+    allocated(monkeypatch)
+    monkeypatch.setattr(adapter.dependency,'kube_material',lambda path:{'client.key':'test'})
+    calls=[]
+    def call(*args,**kwargs):
+        calls.append(args)
+        return {'value':{'observed':True}}
+    transport=adapter.KubernetesTransport(SimpleNamespace(call=call),Path('unused'))
+    root='/api/v1/namespaces/flash-cce-'+'a'*12+'/pods/'
+    for name in ['reservation-writer-4','consumer-4']:
+        assert transport.request('GET',root+name+suffix)=={'observed':True}
+    assert len(calls)==2
+    for name in ['reservation-writer-5','consumer-5','reservation-writer-40','consumer-6']:
+        with pytest.raises(ValueError,match='Bounded owned'):
+            transport.request('GET',root+name+suffix)
+    assert len(calls)==2
+    monkeypatch.setattr(transaction,'active',lambda:None)
+    with pytest.raises(ValueError,match='Bounded owned'):
+        transport.request('GET',root+'reservation-writer-4'+suffix)
+    assert len(calls)==2

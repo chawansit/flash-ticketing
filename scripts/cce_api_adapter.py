@@ -796,8 +796,13 @@ class KubernetesTransport:
         ingress_path = allowed_request(method, path, body, goal)
         from cce_recovery_headroom import writer_scale_selected
         writer_indices = "0-3" if writer_scale_selected(goal) else "0-2"
+        from cce_fixed_worker_allocation import selected as allocated_workers
+        allocated = allocated_workers(goal)
+        consumer_indices = "0-4" if allocated else "0-5"
+        if allocated:
+            writer_indices = "0-4"
         worker_path = bool(goal is not None and goal["extension_decision"] in {"ADR0259", "ADR0271", "ADR0277"} and method == "GET"
-                           and re.fullmatch(r"/api/v1/namespaces/flash-cce-[0-9a-f]{12}/pods/(?:consumer-[0-5]|projection-consumer-0|reservation-writer-[" + writer_indices + r"]|publisher-0|maintenance-0|reconciler-0|simulator-0)(?:/log\?container=worker&(?:limitBytes=65536|sinceSeconds=60&limitBytes=65536))?", path))
+                           and re.fullmatch(r"/api/v1/namespaces/flash-cce-[0-9a-f]{12}/pods/(?:consumer-[" + consumer_indices + r"]|projection-consumer-0|reservation-writer-[" + writer_indices + r"]|publisher-0|maintenance-0|reconciler-0|simulator-0)(?:/log\?container=worker&(?:limitBytes=65536|sinceSeconds=60&limitBytes=65536))?", path))
         if method not in {"GET", "POST", "DELETE"} or not (ingress_path or worker_path or re.fullmatch(
             r"/api/v1/namespaces(?:/flash-cce-[0-9a-f]{12}(?:/(?:pods|secrets)(?:/api-[0-3](?:/log\?container=api&(?:limitBytes=65536|sinceSeconds=(?:600|30)&limitBytes=8388608))?)?)?)?",
             path,
