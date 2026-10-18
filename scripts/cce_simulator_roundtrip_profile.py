@@ -21,7 +21,7 @@ SOURCE_REFERENCE = ('tmp/adr0151-a0d63f35960f/cce-comparison.private.json',
                     'bounded_cce_ticket_target__03bf2cac8c9b',
                     'de6e008fad525f67d93fd15b83f0a8ddb105110f9806d31bcc8bdfa6d09ec06c')
 KEYS = {'simulator_roundtrip_decision', 'simulator_roundtrip_arm', 'simulator_roundtrip_contract_sha256',
-        'simulator_roundtrip_pair', 'simulator_roundtrip_preview'}
+        'simulator_roundtrip_pair', 'simulator_roundtrip_preview', 'simulator_roundtrip_timing_decision'}
 INPUTS = {LOCAL, PUBLICATION, 'scripts/cce_replacement_rds_binding.py', 'docs/capacity/cce/rds-endpoint-switch-2026-10-18.json', 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
           'scripts/prepare_simulator_roundtrip_image.py', 'scripts/prepare_simulator_roundtrip_comparison.py',
           'scripts/prepare_callback_write_pipeline_image.py',
@@ -100,6 +100,7 @@ def contract():
 def selected(goal):
     if goal is None or not KEYS.intersection(goal):
         return False
+    timing_contract(goal)
     from cce_api_client_headroom import selected as clients_selected
     expected = {'simulator_roundtrip_decision': DECISION,
                 'simulator_roundtrip_contract_sha256': policy.digest(contract()),
@@ -139,6 +140,8 @@ def binding_contract(goal):
     return {**contract(), 'arm': goal['simulator_roundtrip_arm'],
             'preview': goal['simulator_roundtrip_preview'], 'pair': copy.deepcopy(goal['simulator_roundtrip_pair']),
             'fresh_control': copy.deepcopy(goal.get('simulator_roundtrip_control')),
+            **({'pair_timing': timing_contract(goal), 'pair_seconds_limit': 7200}
+               if timing_contract(goal) else {}),
             **({'replacement_rds': replacement.contract(goal)} if replacement.selected(goal) else {})}
 
 
@@ -150,7 +153,21 @@ def extend_plan(goal, plan):
             'baseline_evidence': REFERENCE[0], 'baseline_sha256': REFERENCE[2],
             'baseline_is_passing_control': True, 'matched_performance_comparison': True,
             'simulator_roundtrip_contract': binding_contract(goal),
-            'duration_reason': '160/s300s per arm; fresh passed/restored control required before candidate; shared3600s ceiling.'}
+            'duration_reason': ('160/s300s per arm; fresh passed/restored control; fixed7200s pair/3600s control ceilings.'
+                                if timing_contract(goal) else
+                                '160/s300s per arm; fresh passed/restored control required before candidate; shared3600s ceiling.')}
+
+
+def timing_contract(goal):
+    """Optional fresh-pair scheduling; never changes a historical allowance."""
+    if 'simulator_roundtrip_timing_decision' not in goal:
+        return None
+    if (goal['simulator_roundtrip_timing_decision'] != 'ADR0353'
+            or goal.get('replacement_rds_decision') != 'ADR0352'):
+        raise ValueError('Exact replacement-RDS ADR0353 timing required')
+    return {'decision': 'ADR0353', 'pair_seconds_limit': 7200,
+            'control_seconds_limit': 3600, 'clock': 'immutable_pair_start',
+            'fresh_same_pair_control_required': True}
 
 
 def require_pair_time(goal, seconds=0, now=None):
@@ -163,7 +180,11 @@ def require_pair_time(goal, seconds=0, now=None):
     except (TypeError, ValueError) as error:
         raise ValueError('Fresh aware pair start required') from error
     current = datetime.now(UTC) if now is None else now
-    if start.tzinfo is None or not 0 <= (current-start).total_seconds() <= 3600-seconds:
+    timing = timing_contract(goal)
+    limit = (timing['control_seconds_limit'] if goal['simulator_roundtrip_arm'] == 'control'
+             else timing['pair_seconds_limit']) if timing else 3600
+    if (type(seconds) is not int or seconds < 0 or current.tzinfo is None
+            or start.tzinfo is None or not 0 <= (current-start).total_seconds() <= limit-seconds):
         raise ValueError('PAIR_TIME_BUDGET_EXHAUSTED')
     return True
 

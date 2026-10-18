@@ -2,6 +2,8 @@
 
 ## Status
 
+Timing superseded by [ADR0353](0353-bound-replacement-rds-pair-preparation-time.md) for explicitly selected future pairs only. Existing consumed allowances and historical results remain unchanged.
+
 Accepted for preparation and the subsequently approved single bounded pair. Extends ADR0347 and ADR0351. Initial work was preparation/notification only; the user then explicitly approved160/s300s control and conditional candidate. This allowance is now consumed and closed. No automatic rerun is authorized.
 
 ## Context

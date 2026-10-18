@@ -136,7 +136,8 @@ def public_summary(value):
     return {k: value[k] for k in ('decision', 'local_only', 'paid_authorized', 'registry_verified', 'live_snapshot_reconciled')} | {
         'unchanged_resources_and_other_settings': True,
         'candidate_only_setting': {'PAYMENT_CALLBACK_WRITE_PIPELINE': '1'}, 'offered_rate_each': 160, 'offered_seconds_each': 300,
-        'pair_limit_seconds': 3600, 'stop_after_failed_control': True,
+        'pair_limit_seconds': (7200 if roundtrip.timing_contract(value['arms']['control']['goal']) else 3600),
+        'control_limit_seconds': 3600, 'stop_after_failed_control': True,
         'arms': {name: {'image': arm['image']['registry_image'], 'source': arm['image']['source_identity_sha256'],
                         'manifest_sha256': arm['manifest_sha256'], 'binding_sha256': policy.digest(arm['binding']),
                         'api_pods': 4, 'worker_pods': 15} for name, arm in value['arms'].items()},

@@ -1,0 +1,43 @@
+{
+  "decision": "ADR0353",
+  "status": "PREPARED_NOT_AUTHORIZED",
+  "recorded_at_utc": "2026-10-18T16:46:34.999424+00:00",
+  "database": "10.1.21.48",
+  "offered_rate_each": 160,
+  "offered_seconds_each": 300,
+  "maximum_paid_stages_each": 1,
+  "pair_limit_seconds": 7200,
+  "control_limit_seconds": 3600,
+  "immutable_pair_start": true,
+  "existing_stage_reserves_unchanged": true,
+  "requires_fresh_same_pair_passed_restored_control": true,
+  "reuse_previous_control": false,
+  "source_contract_sha256": "c6f673e6ec84a83a154c61f742889670085499d1a94c177932c7c55a2d8de0b8",
+  "prepared_control_goal_sha256": "245be3840810a9f31d277fa91e99c9707b59b9c28362635c1ce87a31e502573c",
+  "validation": {
+    "focused_checks_passed": 97,
+    "ruff_pass": true,
+    "actual_both_arm_plan_manifests_binding_pass": true,
+    "actual_control_reservation_isolated_pass": true,
+    "live_bookkeeping_unchanged": true,
+    "authenticated_immutable_registry_manifests": 2,
+    "registry_verified_at_utc": "2026-10-18T16:45:49.829314+00:00",
+    "fresh_execution_templates_compiled": 7
+  },
+  "application_images_changed": false,
+  "resource_limits_changed": false,
+  "paid_authority_created": false,
+  "live_pair_clock_started": false,
+  "cloud_deployment_started": false,
+  "paid_traffic_started": false,
+  "candidate_performance_measured": false,
+  "target300_qualified": false,
+  "previous_pair": "docs/capacity/cce/replacement-rds-160-pair-result-2026-10-18.json",
+  "next": "Fresh explicit approval for160/s300s control then candidate only if control fully passes and restores; rerun current live preflight before dispatch. No automatic higher-rate runs.",
+  "logs": [
+    "tmp/adr0353-final-tests.log",
+    "tmp/adr0353-ruff-final.log",
+    "tmp/adr0353-final-preparation.log",
+    "tmp/adr0353-registry-preflight.log"
+  ]
+}

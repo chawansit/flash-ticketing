@@ -2,6 +2,8 @@
 
 ## Status
 
+Timing superseded by [ADR0353](0353-bound-replacement-rds-pair-preparation-time.md) for explicitly selected future pairs only. Existing consumed allowances and historical results remain unchanged.
+
 Accepted for preparation and one fresh160/s control followed by one conditional160/s candidate, each300seconds, within unchanged resources and shared3600second pair deadline. User authorized required cloud spending on2026-10-17. Supersedes ADR0345 runner candidate selection; retains its historical receipt/image and all safety gates. Extends locally qualified ADR0346, including ADR0344 worker correction.
 
 ## Context
