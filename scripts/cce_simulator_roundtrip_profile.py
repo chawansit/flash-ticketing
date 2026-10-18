@@ -27,7 +27,7 @@ INPUTS = {'scripts/cce_fixed_worker_allocation.py','scripts/cce_rate_qualificati
           'scripts/prepare_callback_write_pipeline_image.py',
           'docs/capacity/cce/simulator-roundtrip-local-2026-10-17.json',
           'docs/capacity/cce/simulator-roundtrip-registry-2026-10-17.json'}
-CHANGED = {'scripts/cce_paid_inputs.py','scripts/cce_bounded_financial_audit.py','scripts/cce_paid_profiles.py', 'scripts/cce_api_client_headroom.py', 'scripts/cce_generator_process_scaling.py','scripts/cce_fixture_clock.py','scripts/cce_dependency_probe.py','scripts/cce_writer_scale_verification.py','scripts/observe_cce_paid_pipeline.py','scripts/observe_cce_workers.py','scripts/cce_inventory_renewal.py', 'scripts/cce_paid_observers.py','scripts/cce_api_adapter.py','scripts/cce_transaction_profile.py', 'scripts/run_cce_paid_comparison.py',
+CHANGED = {'scripts/run_two_host_paid_comparison.py','scripts/cce_paid_inputs.py','scripts/cce_bounded_financial_audit.py','scripts/cce_paid_profiles.py', 'scripts/cce_api_client_headroom.py', 'scripts/cce_generator_process_scaling.py','scripts/cce_fixture_clock.py','scripts/cce_dependency_probe.py','scripts/cce_writer_scale_verification.py','scripts/observe_cce_paid_pipeline.py','scripts/observe_cce_workers.py','scripts/cce_inventory_renewal.py', 'scripts/cce_paid_observers.py','scripts/cce_api_adapter.py','scripts/cce_transaction_profile.py', 'scripts/run_cce_paid_comparison.py',
            'scripts/cce_recovery_headroom.py', 'scripts/cce_throughput_push.py',
            'scripts/cce_native_workers.py', 'scripts/cce_worker_identity.py',
            'scripts/cce_worker_transition.py', 'scripts/cce_paid_stage.py',

@@ -604,13 +604,14 @@ class PaidStage:
         from cce_terminal_audit_admission import selected as terminal_selected
         if terminal_selected(transaction.active()):
             admit(self)
+        import cce_fixed_worker_allocation as allocation
         errors = []
         for name, operation in (
             (
                 "financial",
                 lambda: self.session.api(self.cid, audit_program(self.events, self.profile.expected), audit_timeout),
             ),
-            ("global_queues", lambda: drain(self.session, self.cid, global_audit)),
+            ("global_queues", lambda: drain(self.session, self.cid, global_audit, **allocation.native_drain_options(self.session))),
         ):
             try:
                 self.record[name] = operation()

@@ -241,3 +241,62 @@ def test_actual_transport_allows_fifth_allocated_writer_and_rejects_extras(monke
     with pytest.raises(ValueError,match='Bounded owned'):
         transport.request('GET',root+'reservation-writer-4'+suffix)
     assert len(calls)==2
+
+
+@pytest.mark.parametrize('members,expected,passes',[(5,5,True),(6,5,False),(5,6,False),(6,6,True)])
+def test_actual_shared_drain_enforces_exact_member_count(monkeypatch,members,expected,passes):
+    import run_two_host_paid_comparison as common
+    ticks=iter([0,61])
+    monkeypatch.setattr(common.time,'monotonic',lambda:next(ticks))
+    monkeypatch.setattr(common.time,'sleep',lambda _:None)
+    queue={'pass':True,'kafka_members':members}
+    session=SimpleNamespace(api=lambda *args:queue)
+    if passes:
+        assert common.drain(session,'cid','audit',expected_members=expected)==queue
+    else:
+        with pytest.raises(ValueError,match='global drain'):
+            common.drain(session,'cid','audit',expected_members=expected)
+    with pytest.raises(ValueError,match='topology'):
+        common.drain(session,'cid','audit',expected_members=True)
+
+
+def test_actual_native_inputs_safety_calls_five_member_drain(monkeypatch):
+    from cce_paid_inputs import Inputs
+    allocated(monkeypatch)
+    retained=policy.read(policy.ROOT/'tmp/adr0151-ccb85bad6425/cce-comparison.private.json')['native']['safety']
+    queue={**retained['global_queues'],'kafka_members':5}
+    outputs=iter([retained['probe'],retained['post_ttl_financial'],queue])
+    inputs=Inputs.__new__(Inputs)
+    inputs.record={};inputs.directory='/owned';inputs.stage=SimpleNamespace(cid='cid')
+    inputs.session=SimpleNamespace(api=lambda *args:next(outputs),cleanup_mode=False)
+    inputs.global_audit='audit';inputs.fixture=lambda *args:{'show_ids':[str(uuid4())]}
+    inputs.checkpoint=lambda:None
+    assert all(inputs.safety([])['gates'].values())
+    assert inputs.record['global_queues']['kafka_members']==5
+    assert allocation.native_drain_options(inputs.session)=={'expected_members':5}
+    inputs.session.cleanup_mode=True
+    assert allocation.native_drain_options(inputs.session)=={}
+    monkeypatch.setattr(transaction,'active',lambda:None)
+    inputs.session.cleanup_mode=False
+    assert allocation.native_drain_options(inputs.session)=={}
+
+
+@pytest.mark.parametrize('cleanup,members',[(False,5),(True,6)])
+def test_actual_paid_stage_audit_uses_native_then_restored_topology(monkeypatch,cleanup,members):
+    import cce_paid_stage as stage
+    import cce_terminal_audit_admission as terminal
+    import cce_verification_contract as verification
+    allocated(monkeypatch)
+    monkeypatch.setattr(verification,'selected',lambda _:False)
+    monkeypatch.setattr(terminal,'selected',lambda _:False)
+    paid=stage.PaidStage.__new__(stage.PaidStage)
+    paid.record={'customers_dispatched':True};paid.events=[str(uuid4())]
+    paid.profile=SimpleNamespace(name='focused_audit',duration=1,expected=25200)
+    paid.outcome_enabled=False;paid.cid='cid';paid.checkpoint=lambda:None
+    financial={'pass':True,'hold_deadlines_elapsed':True}
+    queue={'pass':True,'kafka_members':members}
+    responses=iter([financial,queue])
+    paid.session=SimpleNamespace(api=lambda *args:next(responses),cleanup_mode=cleanup)
+    result=paid.audit('audit')
+    assert result['post_ttl_financial_pass'] and result['global_queues_pass']
+    assert paid.record['global_queues']['kafka_members']==members

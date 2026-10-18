@@ -273,11 +273,13 @@ print(json.dumps(result))
 """.replace("EVENTS", repr(event_ids)).replace("__EXPECTED__", str(expected_tickets))
 
 
-def drain(session, cid, audit_program=GLOBAL_AUDIT):
+def drain(session, cid, audit_program=GLOBAL_AUDIT, *, expected_members=6):
+    if type(expected_members) is not int or expected_members not in (5, 6):
+        raise ValueError("Explicit five or six-member drain topology required")
     deadline = time.monotonic() + 60
     while True:
         queue = session.api(cid, audit_program, 45)
-        if queue["pass"] and queue["kafka_members"] == 6:
+        if queue["pass"] and queue["kafka_members"] == expected_members:
             return queue
         if time.monotonic() >= deadline:
             raise ValueError("Post-stage global drain failed")

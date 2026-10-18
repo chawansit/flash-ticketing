@@ -225,10 +225,10 @@ class Inputs:
         financial = self.session.api(self.stage.cid, safety_audit_program([event]), 175)
         self.record["post_ttl_financial"] = financial
         self.checkpoint()
-        queues = drain(self.session, self.stage.cid, self.global_audit)
+        import cce_fixed_worker_allocation as allocation
+        queues = drain(self.session, self.stage.cid, self.global_audit, **allocation.native_drain_options(self.session))
         self.record["global_queues"] = queues
         self.checkpoint()
-        import cce_fixed_worker_allocation as allocation
         from cce_transaction_profile import active
         result = safety_result(probe, financial, queues, expected_consumers=5 if allocation.selected(active()) else 6)
         self.record["safety"] = result

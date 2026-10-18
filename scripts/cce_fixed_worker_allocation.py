@@ -76,3 +76,10 @@ def apply_contract(value, goal):
         raise ValueError('Exact projection-lane audit required before allocation')
     value.global_audit = value.global_audit.replace(PROJECTION_AUDIT, changed)
     return value
+
+
+def native_drain_options(session):
+    from cce_transaction_profile import active
+    if selected(active()) and not getattr(session, 'cleanup_mode', False):
+        return {'expected_members': 5}
+    return {}
