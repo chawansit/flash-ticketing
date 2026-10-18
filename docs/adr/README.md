@@ -382,3 +382,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0358: Reconcile failed allocated dispatched cohort](0358-reconcile-allocated-dispatched-cohort.md).
 
 - [ADR0359: Preserve six consumers and redistribute simulator CPU](0359-preserve-six-consumers-and-raise-simulator-cpu.md).
+
+- [ADR0360: Cleanup and complete pre-fixture200 preparation](0360-cleanup-pre-fixture-200-stop.md).

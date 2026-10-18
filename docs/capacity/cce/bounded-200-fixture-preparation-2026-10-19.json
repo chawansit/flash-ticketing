@@ -1,0 +1,26 @@
+{
+  "decision": "ADR0360",
+  "status": "READY_UNDER_EXISTING_PREAPPROVAL",
+  "rate": 200,
+  "offered_seconds": 300,
+  "source_contract_sha256": "31e3617975cd671c2b7ae8517620c4a9697b6de601bcf9a15cd75da7280ca429",
+  "prepared_goal_sha256": "0ca02841910d4c0d1bdb48bcf07e027a2cc817ad814038f8539306640483c2be",
+  "validation": {
+    "fixture_provenance_caller_and_reproduction_passed": 46,
+    "recovery_negative_cases_passed": 8,
+    "actual_candidate_producer_and_generated_builder_dry_rehearsal_pass": true,
+    "actual_image_database_calls": 0,
+    "synthetic_fixture_rows": true,
+    "network_disabled": true,
+    "complete_Inputs_paid200_and60000_manifest_verified": true,
+    "actual_all15_worker_manifests_and_isolated_reservation_pass": true,
+    "registry_authentication_pass": true,
+    "ruff_pass": true
+  },
+  "recovered_attempt": "adr0151-d442b96c8c47",
+  "owned_cleanup_receipt": "docs/capacity/cce/pre-fixture-200-cleanup-2026-10-19.json",
+  "clean180_reference": "adr0151-6668a7e46ed3",
+  "same_ADR0359_allocation": true,
+  "application_image_unchanged": true,
+  "next": "Fresh0359-200b one300second round; preserve all quality, financial, drain and restoration gates."
+}

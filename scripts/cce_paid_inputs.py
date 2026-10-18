@@ -37,7 +37,7 @@ def helper_upload_program(directory, name, raw):
 
 
 def fixture_program(directory, shows, producer_sha):
-    if shows not in (1, 84, 102, 120, 140, 160, 168, 180, 1008):
+    if shows not in (1, 84, 102, 120, 140, 160, 168, 180, 200, 1008):
         raise ValueError("Only the fixed safety or paid fixture is supported")
     return (
         """import hashlib,json,os,subprocess

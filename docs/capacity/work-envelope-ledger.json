@@ -4302,6 +4302,34 @@
       "finished_at_utc": "2026-10-18T21:53:47.715063+00:00",
       "paid_runs_started": 1,
       "result_sha256": "6e8156c8314fac981291856276999749373f64313938f2db0a4bcfc533ec1536"
+    },
+    {
+      "ledger": "bounded_cce_ticket_target__adeb90a54841",
+      "authorization_id": "work-envelope-adeb90a54841",
+      "envelope_sha256": "12691c4cd0d34d0c9e51b7c86cefa75bb0397483c360b08cf92605407354d35a",
+      "binding_sha256": "43d222cd55b7b48ad1763345feb51765e2b645ad4bad2aeeb518995689771982",
+      "plan_sha256": "90f2932f23bdbe2d33996176d79c6ccc9fc126b94208bc94efe3bde964133f25",
+      "profile": "cce_ticket_target",
+      "reserved_seconds": 3600,
+      "actual_elapsed_seconds": 862.375,
+      "started_at_utc": "2026-10-18T21:56:06.597889+00:00",
+      "status": "FAILED_RESTORED",
+      "reports": [
+        {
+          "run": "adr0151-d442b96c8c47",
+          "pass": false
+        }
+      ],
+      "finished_at_utc": "2026-10-18T22:10:27.441857+00:00",
+      "paid_runs_started": 0,
+      "result_sha256": "ea0b500838819f43f69f25f0559968587f819e7f71e8ebedfb8bbcbb2389918a",
+      "initial_status": "RECOVERY_REQUIRED",
+      "recovery": {
+        "decision": "ADR0360",
+        "evidence": "docs/capacity/cce/pre-fixture-200-cleanup-2026-10-19.json",
+        "sha256": "9ca7312328dc74f9ca2f038ba67946de40012bc232d2c3641db7fce222057595",
+        "capacity_qualified": false
+      }
     }
   ],
   "verified_aborts": {

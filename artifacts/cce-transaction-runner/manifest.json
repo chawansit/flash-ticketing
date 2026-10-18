@@ -70,7 +70,7 @@
     "scripts/cce_shared_worker_image_identity.py": "7e9ff35920165698f99bba1b238445337f4e7e2487a6c95816a6a1d04ff86d9f",
     "scripts/cce_shared_worker_profile.py": "a757db861d1965276659df437e317cc5a0c0309ab272737221d282ebb39c43b2",
     "scripts/cce_simulator_dispatch_profile.py": "e3c7e6bdcbbde3317493f95e5ab6e5e4b87fda219c6462e9e8f8ebe55b0647b7",
-    "scripts/cce_simulator_roundtrip_profile.py": "a96b2cbcbf4159f4fbf4e17eea2b9caf4414ef52ec1566a8f599229001e97299",
+    "scripts/cce_simulator_roundtrip_profile.py": "b6c1fe283eeba696b53a908743f2405aaad9aa082dc892a9819d6f2136e12506",
     "scripts/cce_slot_trace_transport.py": "e436d14ba737bb590785be153bc6bdc4a0cf0fa6256c9312fd8bf2469f1a8c2b",
     "scripts/cce_status_refresh_reuse.py": "d1243ca8b5de5da5578386e34ef2f103208468e4b153fbf33d1a862fdd9f4de6",
     "scripts/cce_status_reuse_hourly.py": "fd1e78f4e07d3ecff82e09c7b901898acebedb045645536299e8318c443a4914",
@@ -129,7 +129,7 @@
       "historical_sha256": "abcb6aec285d0e007effbcd23bcdebd858b8ff7102b38c29eea6cdeb2e6aba04"
     },
     "scripts/cce_paid_inputs.py": {
-      "current_sha256": "00e5eb75258ce10fdd0cc8ecef0197667d880e8a055a68c3d5354385ffb0ef5b",
+      "current_sha256": "9facecfee218108507cac87c0347afcd1adce7d434f9d1609c407b982389c414",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/0888283b385ccdecbb7cc69840fc6f88efbd5def7643aec2d9e6cfb6c10e7cbb",
       "historical_sha256": "0888283b385ccdecbb7cc69840fc6f88efbd5def7643aec2d9e6cfb6c10e7cbb"
     },
@@ -179,7 +179,7 @@
       "historical_sha256": "85fe63f8f437b9529984b076d691a88bb833acb39173c1f49b9391b0c9548f18"
     },
     "scripts/fixture_identity_evidence.py": {
-      "current_sha256": "04cfa22e5d8801710f48fab68d5e53970ad6b8733ee79f6f85ff44e79cd913f9",
+      "current_sha256": "9d810a4166a7414c104e12df15489492bc0c8c9ff86bfaafc0f08865c5f1aafc",
       "historical_blob": "artifacts/cce-transaction-runner/blobs/dfe4ccea42819e1aa90144153a89bf0e7755cf6f64a788ced0ed656291d38902",
       "historical_sha256": "dfe4ccea42819e1aa90144153a89bf0e7755cf6f64a788ced0ed656291d38902"
     },

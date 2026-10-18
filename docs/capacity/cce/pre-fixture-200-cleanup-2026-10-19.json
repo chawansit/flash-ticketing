@@ -1,0 +1,23 @@
+{
+  "decision": "ADR0360",
+  "run": "adr0151-d442b96c8c47",
+  "original_result_sha256": "ea0b500838819f43f69f25f0559968587f819e7f71e8ebedfb8bbcbb2389918a",
+  "ledger": "bounded_cce_ticket_target__adeb90a54841",
+  "binding_sha256": "43d222cd55b7b48ad1763345feb51765e2b645ad4bad2aeeb518995689771982",
+  "pass": true,
+  "capacity_qualified": false,
+  "zero_performance_dispatch": true,
+  "paid_directory_absent": true,
+  "paid_receipt_absent": true,
+  "paid_creation_intent_absent": true,
+  "namespace_removed": true,
+  "captured_owned_resources_removed": true,
+  "helper_credentials_removed": true,
+  "native_configuration_removed": true,
+  "normal_runtime_stable": true,
+  "generator_idle": true,
+  "queues_zero": true,
+  "verified_at_utc": "2026-10-18T22:13:06.889425+00:00",
+  "elapsed_seconds": 43.578000000008615,
+  "original_failure_preserved": true
+}

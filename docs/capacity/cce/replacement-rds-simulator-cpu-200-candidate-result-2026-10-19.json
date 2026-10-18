@@ -1,0 +1,164 @@
+{
+  "decision": "ADR0359",
+  "run": "adr0151-d442b96c8c47",
+  "ledger": "bounded_cce_ticket_target__adeb90a54841",
+  "status": "FAILED_RESTORED",
+  "arm": "candidate",
+  "raw_result_sha256": "ea0b500838819f43f69f25f0559968587f819e7f71e8ebedfb8bbcbb2389918a",
+  "database_endpoint": "10.1.21.48",
+  "offered_rate_per_second": 200,
+  "offered_window_seconds": 300,
+  "offered_window_executed": false,
+  "paid_runs_started": 0,
+  "short_capacity_qualified": false,
+  "hourly_qualified": false,
+  "production_qualified": false,
+  "customer": {},
+  "customer_outcome_gate": null,
+  "measurement_gates": {},
+  "latencies_ms": {},
+  "latency_scope": "Worst-shard p95 including recovery, not pooled percentiles.",
+  "issuance": {},
+  "financial": {},
+  "financial_evidence_scope": "Existing cloud runner database audit; local evidence checks are not a separate reconciliation.",
+  "queues_after_restoration": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "restoration": {
+    "original_runtime_restored": true,
+    "integrity_verified": true,
+    "generator_idle": true,
+    "namespace_removed": true,
+    "cleanup_complete": true,
+    "transport_credentials_cleared": true,
+    "owned_resources_removed": true,
+    "cleanup_scope": "ADR0360 independent UID/execution-identity guarded actual cleanup; original native failure retained."
+  },
+  "cpu": {
+    "api_process_cores": null,
+    "worker_process_cores": null
+  },
+  "phase_means_ms": {
+    "due_to_claim": null,
+    "claim": null,
+    "delivery": null,
+    "ack": null,
+    "api_acquire": null
+  },
+  "phase_scope": "Retained observer-lifetime means; not an isolated paid-window cycle or causal capacity proof.",
+  "observer_qualification": {
+    "pass": null,
+    "failures": null
+  },
+  "limiting_evidence": [
+    "Fixed200/s300s qualification; no hourly/300/s capacity qualification."
+  ],
+  "next": "Fresh200b only after full actual200fixture builder/provenance/Inputs.paid validation and preparation. Existing clean180 remains prerequisite.",
+  "worker_allocation": {
+    "decision": "ADR0359",
+    "counts": {
+      "consumer": 6,
+      "projection-consumer": 1,
+      "reservation-writer": 4,
+      "publisher": 1,
+      "maintenance": 1,
+      "reconciler": 1,
+      "simulator": 1
+    },
+    "resources": {
+      "consumer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "projection-consumer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "reservation-writer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "publisher": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "maintenance": {
+        "requests": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        }
+      },
+      "reconciler": {
+        "requests": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        }
+      },
+      "simulator": {
+        "requests": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        }
+      }
+    },
+    "worker_pods": 15,
+    "worker_cpu_millicores": 3750,
+    "worker_memory_mib": 7680,
+    "api_pods": 4,
+    "physical_backends": 24,
+    "shared_admission": 20,
+    "application_image_unchanged": true
+  },
+  "original_native_cleanup_complete": false,
+  "operational_recovery_evidence": "docs/capacity/cce/pre-fixture-200-cleanup-2026-10-19.json"
+}
