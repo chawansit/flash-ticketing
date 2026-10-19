@@ -1,0 +1,313 @@
+{
+  "decision": "ADR0364",
+  "run": "adr0151-c5125e4d9cd8",
+  "ledger": "bounded_cce_ticket_target__be7ae0757998",
+  "status": "FAILED_RESTORED",
+  "arm": "candidate",
+  "raw_result_sha256": "6a769feb85750c842b232ef8850ff39846aa5bcfb1d193a5446e807a080be285",
+  "database_endpoint": "10.1.21.48",
+  "offered_rate_per_second": 180,
+  "offered_window_seconds": 300,
+  "offered_window_executed": true,
+  "paid_runs_started": 1,
+  "short_capacity_qualified": false,
+  "hourly_qualified": false,
+  "production_qualified": false,
+  "customer": {
+    "scheduled": 54000,
+    "dispatched": 54000,
+    "fulfilled": 54000,
+    "generator_drops": 0,
+    "first_attempt_error_journeys": 0,
+    "recovered_journeys": 0,
+    "retry_attempts": 0,
+    "final_customer_failures": 0,
+    "accounting_complete": true,
+    "measurement_complete": true
+  },
+  "customer_outcome_gate": {
+    "decision": "ADR0305",
+    "contract_sha256": "f1ba7aeec82a6f75890e29bd114e9ee8dcebd14e43392d7ad2029e2e7ec4503c",
+    "denominator_dispatched_journeys": 54000,
+    "final_customer_failures": 0,
+    "maximum_final_customer_failures": 5,
+    "final_customer_failure_percent": 0.0,
+    "first_attempt_error_journeys": 0,
+    "recovered_journeys": 0,
+    "retry_attempts": 0,
+    "total_journey_p95_ms": 4558.846159001405,
+    "checks": {
+      "complete_accounting": true,
+      "unique_confirmed_tickets": true,
+      "completion_deadline": true,
+      "zero_generator_drops": true,
+      "complete_shards": true,
+      "known_customer_failures": true,
+      "bounded_final_failures": true,
+      "dispatch_latency": true,
+      "bounded_recovery": true,
+      "unchanged_strict_success": true
+    },
+    "pass": true
+  },
+  "measurement_gates": {
+    "customer_load": true,
+    "post_ttl_financial": true,
+    "zero_double_booking": true,
+    "payment_durability": true,
+    "full_queue_drain": true,
+    "native_observer": true,
+    "native_cpu": true,
+    "unchanged_background": true,
+    "unchanged_native_pods": true,
+    "live_admission": true,
+    "ticket_target_issuance": false,
+    "unchanged_ingress_route": true
+  },
+  "latencies_ms": {
+    "dispatch_lag_p95_ms": 2.0835141112911515,
+    "dispatch_lag_max_ms": 117.14194200612837,
+    "hold_http_p95_ms": 16.681111002981197,
+    "durable_p95_ms": 4038.7332690006588,
+    "payment_http_p95_ms": 77.3721120058326,
+    "ticket_wait_p95_ms": 617.8639169957023,
+    "total_journey_p95_ms": 4558.846159001405
+  },
+  "latency_scope": "Worst-shard p95 including recovery, not pooled percentiles.",
+  "issuance": {
+    "window_start_epoch": 1792372187.777882,
+    "window_end_epoch": 1792372487.777882,
+    "unique_paid_issued_tickets": 53660,
+    "unique_orders": 53660,
+    "unique_payments": 53660,
+    "joined_rows": 53660,
+    "conservative_inner_window_tickets": 53305,
+    "inner_window_guard_seconds": 2,
+    "database_now_epoch": 1792372792.235706,
+    "api_helper_now_epoch": 1792372792.2366517,
+    "first_issued_at": "2026-10-19T08:09:50.360115+07:00",
+    "last_issued_at": "2026-10-19T08:14:47.772604+07:00",
+    "pass": false,
+    "conservative_rate_per_second": 177.68333333333334
+  },
+  "financial": {
+    "pass": true,
+    "counts": {
+      "orders": 54000,
+      "fulfilled_orders": 54000,
+      "expired_orders": 0,
+      "pending_orders": 0,
+      "payment_attempts": 54000,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 54000,
+      "bookings": 54000,
+      "tickets": 54000,
+      "payment_callbacks": 54000,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 54000,
+      "callback_delivery_target": 54000,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 54000,
+      "expected_paid": 54000,
+      "expected_callback_deliveries_per_payment": 1,
+      "pass": true
+    },
+    "relationships": {
+      "hold_relationship_errors": 0,
+      "booking_relationship_errors": 0,
+      "order_item_relationship_errors": 0,
+      "inventory_relationship_errors": 0,
+      "fulfilled_ticket_relationship_errors": 0,
+      "unique_issued_tickets": 54000,
+      "holds_not_past_ttl": 0
+    },
+    "checks": {
+      "post_ttl_complete": true,
+      "payments_durable": true,
+      "ticket_relationships_valid": true
+    },
+    "hold_deadlines_elapsed": true
+  },
+  "financial_evidence_scope": "Existing cloud runner database audit; local evidence checks are not a separate reconciliation.",
+  "queues_after_restoration": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "restoration": {
+    "original_runtime_restored": true,
+    "integrity_verified": true,
+    "generator_idle": true,
+    "namespace_removed": true,
+    "cleanup_complete": true,
+    "transport_credentials_cleared": true,
+    "owned_resources_removed": true
+  },
+  "cpu": {
+    "api_process_cores": 2.8387513147047168,
+    "worker_process_cores": 2.007429765678509
+  },
+  "phase_means_ms": {
+    "due_to_claim": 31.694453861965385,
+    "claim": 5.914061119880291,
+    "delivery": 39.89471326870325,
+    "ack": 4.596923983000055,
+    "api_acquire": 6.610322372541743
+  },
+  "phase_scope": "Retained observer-lifetime means; not an isolated paid-window cycle or causal capacity proof.",
+  "observer_qualification": {
+    "pass": true,
+    "failures": []
+  },
+  "limiting_evidence": [
+    "All54000scheduled/dispatched/fulfilled;0drops/initial/recovered/final errors.",
+    "Only failed gate: conservative53305count compared with53400minimum; full300-second count53660.",
+    "Existing query counts guarded tickets over296seconds; current minimum uses300seconds. ADR0365 proposes correction, not yet approved/applied.",
+    "Writer PG batchmean62.412ms; Redis durablemark/ACKeach1.27mspercommand. Paid query snapshot WAL831774423bytes,FPI6680; not an isolated causal proof."
+  ],
+  "next": "Await explicit approval of tested ADR0365 query correction; fresh180thenconditional200. Historical quality stays failed; normal application is restored.",
+  "persistent_uuid": {
+    "decision": "ADR0364",
+    "source": "2c59942318c306c925e5dba3ae26e59c7af30260b4de4560fed823e73ecd6afe",
+    "manifest": "sha256:7793159270ac95e20c3224eaee3298d42ab6bfeb30088d65f925b8ee5ad3b979",
+    "configuration": "sha256:06ee546fc6b01e8b0f1bd2638f91d8a194e5f1c8eeac80eec8ada617098d9448",
+    "parent_source": "72fabf5016df66fd73cfdb0faf05e4c1f80fa41868afa044c266609ffed665f6",
+    "admission_source": "19da6fb554d1e592e3eba59a52427b10510c213ab62c2a80181b8d5d27123925",
+    "native_environment": {
+      "PERSISTENT_UUID_V7": "1"
+    },
+    "uuid_version": 7,
+    "projection_transaction_pipeline": true,
+    "sql_unchanged": true,
+    "existing_identifiers_rewritten": false,
+    "lease_cache_http_tokens_unchanged": true,
+    "writer_batch_size": 4,
+    "writer_replicas": 4,
+    "consumer_replicas": 6,
+    "aggregate_resources_unchanged": true,
+    "publication_sha256": "bf5cb160ed7ff509da22fb5c0595aa8acc0d244708f97c0d501e2eab60a587cb",
+    "local_evidence_sha256": "e4656c5694ea0e1fc1eb2ea54ed41bff0c428ec50e9c08e0b22a8f135d3c9f35"
+  },
+  "worker_allocation": {
+    "decision": "ADR0359",
+    "counts": {
+      "consumer": 6,
+      "projection-consumer": 1,
+      "reservation-writer": 4,
+      "publisher": 1,
+      "maintenance": 1,
+      "reconciler": 1,
+      "simulator": 1
+    },
+    "resources": {
+      "consumer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "projection-consumer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "reservation-writer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "publisher": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "maintenance": {
+        "requests": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        }
+      },
+      "reconciler": {
+        "requests": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        }
+      },
+      "simulator": {
+        "requests": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        }
+      }
+    },
+    "worker_pods": 15,
+    "worker_cpu_millicores": 3750,
+    "worker_memory_mib": 7680,
+    "api_pods": 4,
+    "physical_backends": 24,
+    "shared_admission": 20,
+    "application_image_unchanged": false
+  },
+  "guarded_interval_diagnostic_only": {
+    "proposal_only": true,
+    "offered_rate": 180,
+    "full_window_seconds": 300,
+    "guarded_window_seconds": 296,
+    "full_count": 53660,
+    "guarded_count": 53305,
+    "minimum_full_count_unchanged": 53400,
+    "minimum_guarded_count": 53280,
+    "full_window_tickets_per_second": 178.86666666666667,
+    "guarded_window_tickets_per_second": 180.08445945945945,
+    "original_count_predicate": false,
+    "proposed_count_predicate": true,
+    "load_authorized": false,
+    "historical_status_changed": false
+  }
+}

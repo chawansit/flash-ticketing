@@ -1,0 +1,80 @@
+{
+  "decision": "ADR0365",
+  "status": "PROPOSED_REQUIRES_USER_APPROVAL",
+  "user_authorized": false,
+  "live_runner_modified": false,
+  "paid_traffic_authorized": false,
+  "original_result": {
+    "run": "adr0151-c5125e4d9cd8",
+    "sha256": "6a769feb85750c842b232ef8850ff39846aa5bcfb1d193a5446e807a080be285",
+    "status": "FAILED_RESTORED",
+    "only_failed_gate": "ticket_target_issuance"
+  },
+  "retained_counts_diagnostic_only": {
+    "proposal_only": true,
+    "offered_rate": 180,
+    "full_window_seconds": 300,
+    "guarded_window_seconds": 296,
+    "full_count": 53660,
+    "guarded_count": 53305,
+    "minimum_full_count_unchanged": 53400,
+    "minimum_guarded_count": 53280,
+    "full_window_tickets_per_second": 178.86666666666667,
+    "guarded_window_tickets_per_second": 180.08445945945945,
+    "original_count_predicate": false,
+    "proposed_count_predicate": true,
+    "load_authorized": false,
+    "historical_status_changed": false
+  },
+  "proposed_thresholds": [
+    {
+      "proposal_only": true,
+      "offered_rate": 180,
+      "full_window_seconds": 300,
+      "guarded_window_seconds": 296,
+      "full_count": 54000,
+      "guarded_count": 53280,
+      "minimum_full_count_unchanged": 53400,
+      "minimum_guarded_count": 53280,
+      "full_window_tickets_per_second": 180.0,
+      "guarded_window_tickets_per_second": 180.0,
+      "original_count_predicate": false,
+      "proposed_count_predicate": true,
+      "load_authorized": false,
+      "historical_status_changed": false
+    },
+    {
+      "proposal_only": true,
+      "offered_rate": 200,
+      "full_window_seconds": 300,
+      "guarded_window_seconds": 296,
+      "full_count": 60000,
+      "guarded_count": 59200,
+      "minimum_full_count_unchanged": 59400,
+      "minimum_guarded_count": 59200,
+      "full_window_tickets_per_second": 200.0,
+      "guarded_window_tickets_per_second": 200.0,
+      "original_count_predicate": false,
+      "proposed_count_predicate": true,
+      "load_authorized": false,
+      "historical_status_changed": false
+    }
+  ],
+  "preserved": [
+    "300-second offered windows",
+    "Two-second start/end guards",
+    "Full-window minimum53400at180and59400at200",
+    "Zero generator drops and zero initial/recovered/final errors for progression",
+    "Original latency, financial, post-TTL, observer, drain and restoration checks",
+    "Same images/resources; no main merge; no consumed reset"
+  ],
+  "next_after_approval": "Wire explicit source-bound measurement mode; fresh180qualification, then200onlyiffullyclean/restored. Never promote the retained failed run.",
+  "executed_validation": {
+    "unit_cases_passed": 13,
+    "actual_postgresql_query_model_cases_passed": 5,
+    "actual_image_source": "2c59942318c306c925e5dba3ae26e59c7af30260b4de4560fed823e73ecd6afe",
+    "query_sql_intervals_joins_clock_checks_unchanged": true,
+    "owned_cleanup_pass": true,
+    "ruff_pass": true
+  }
+}
