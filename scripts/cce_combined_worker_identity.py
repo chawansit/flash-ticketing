@@ -3,6 +3,8 @@
 No local authority, file reads, registry access or goal selection belongs here.
 """
 PINS = {
+    'sha256:7793159270ac95e20c3224eaee3298d42ab6bfeb30088d65f925b8ee5ad3b979':
+        "2c59942318c306c925e5dba3ae26e59c7af30260b4de4560fed823e73ecd6afe",
     'sha256:a8531f98d23c4d5f3197cd5273d75c0508dbffb54e846a4f8963dd25d7787c7b':
         "72fabf5016df66fd73cfdb0faf05e4c1f80fa41868afa044c266609ffed665f6",
     'sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb':
@@ -42,14 +44,14 @@ def specification(value):
     decision = value.get('decision')
     if decision not in {'ADR0345', 'ADR0357', 'ADR0359'} or manifest not in PINS:
         raise ValueError('Exact reviewed transferred combined worker identity required')
-    if (manifest in {'sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb','sha256:a8531f98d23c4d5f3197cd5273d75c0508dbffb54e846a4f8963dd25d7787c7b'}
+    if (manifest in {'sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb','sha256:a8531f98d23c4d5f3197cd5273d75c0508dbffb54e846a4f8963dd25d7787c7b','sha256:7793159270ac95e20c3224eaee3298d42ab6bfeb30088d65f925b8ee5ad3b979'}
             and decision != 'ADR0359'):
         raise ValueError('Lookup/claim image requires exact six-consumer allocation')
     base = local_specification('ADR0324')
     if decision in {'ADR0357', 'ADR0359'}:
         allowed = {ALLOCATION_MANIFEST}
         if decision == 'ADR0359':
-            allowed.update({'sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb','sha256:a8531f98d23c4d5f3197cd5273d75c0508dbffb54e846a4f8963dd25d7787c7b'})
+            allowed.update({'sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb','sha256:a8531f98d23c4d5f3197cd5273d75c0508dbffb54e846a4f8963dd25d7787c7b','sha256:7793159270ac95e20c3224eaee3298d42ab6bfeb30088d65f925b8ee5ad3b979'})
         if manifest not in allowed:
             raise ValueError('Allocated workers require exact combined candidate image')
         base = allocation_specification(base, decision)

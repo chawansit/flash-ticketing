@@ -43,10 +43,11 @@ def test_transferred_verification_needs_no_local_authority(monkeypatch,arm):
 
 
 def test_static_pins_match_real_registry_and_control_receipts():
-    import cce_reservation_claim_lookup as claim
+    import cce_persistent_uuid as identifiers
     import cce_projection_refresh_pipeline as projection
+    import cce_reservation_claim_lookup as claim
     assert pins.PINS=={image['registry_manifest_digest']:image['source_identity_sha256']
-                       for image in (profile.parent.image(),profile.registry_image(),claim.image(),projection.image())}
+                       for image in (profile.parent.image(),profile.registry_image(),claim.image(),projection.image(),identifiers.image())}
 
 
 @pytest.mark.parametrize('fault',['manifest','source','image','resources','missing','duplicate_uid',

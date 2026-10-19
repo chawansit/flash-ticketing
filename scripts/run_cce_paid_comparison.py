@@ -375,6 +375,8 @@ def api_semantics(service):
         expected = "1" if goal["simulator_roundtrip_arm"] == "candidate" else None
         if flag != expected:
             raise ValueError("Exact callback flag required before saved-service normalization")
+        from cce_image_qualification import normalize_api_environment
+        environment = normalize_api_environment(environment,goal)
     return {
         "image": service["image"],
         "environment": environment,

@@ -95,6 +95,7 @@ def main():
     modes.add_argument('--simulator-cpu-allocation',action='store_true')
     parser.add_argument('--reservation-lookup-claim',action='store_true')
     parser.add_argument('--projection-refresh-pipeline',action='store_true')
+    parser.add_argument('--persistent-uuid',action='store_true')
     args=parser.parse_args()
     for path in (args.base_goal,args.reference,args.output):
         if path.is_symlink() or not path.resolve().is_relative_to(policy.ROOT.resolve()):
@@ -113,6 +114,10 @@ def main():
         if args.fixed_worker_allocation or args.reservation_lookup_claim or 'reservation_claim_lookup_decision' in base:
             raise ValueError('Projection pipeline requires its own six-consumer image experiment')
         base.update(fixed_worker_allocation_decision='ADR0359',projection_refresh_pipeline_decision='ADR0363')
+    if args.persistent_uuid:
+        if args.fixed_worker_allocation or args.reservation_lookup_claim or args.projection_refresh_pipeline or any(k in base for k in ('reservation_claim_lookup_decision','projection_refresh_pipeline_decision')):
+            raise ValueError('Persistent UUID requires its own six-consumer image experiment')
+        base.update(fixed_worker_allocation_decision='ADR0359',persistent_uuid_decision='ADR0364')
     result=prepare(base,args.rate,policy.read(args.reference),
                    policy.read(policy.ROOT/'tmp/cce-api-registry-proof.json'),target)
     args.output.write_bytes((json.dumps(result,indent=2)+'\n').encode())

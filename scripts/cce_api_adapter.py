@@ -98,6 +98,8 @@ def contract(*, goal=None, image_receipt=None):
     from cce_simulator_roundtrip_profile import selected as roundtrip_selected
     if roundtrip_selected(goal) and goal['simulator_roundtrip_arm'] == 'candidate':
         data['api_settings']['PAYMENT_CALLBACK_WRITE_PIPELINE'] = '1'
+    from cce_image_qualification import api_environment as image_api_environment
+    data['api_settings'] = image_api_environment(data['api_settings'],goal)
     return data
 
 
