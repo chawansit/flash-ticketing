@@ -1,0 +1,293 @@
+{
+  "decision": "ADR0362",
+  "run": "adr0151-143a58c24860",
+  "ledger": "bounded_cce_ticket_target__f89baf9597f4",
+  "status": "FAILED_RESTORED",
+  "arm": "candidate",
+  "raw_result_sha256": "eccf176d17106eb02b7927e56296d35499b1290774b4f3ed641369201dce5006",
+  "database_endpoint": "10.1.21.48",
+  "offered_rate_per_second": 180,
+  "offered_window_seconds": 300,
+  "offered_window_executed": true,
+  "paid_runs_started": 1,
+  "short_capacity_qualified": false,
+  "hourly_qualified": false,
+  "production_qualified": false,
+  "customer": {
+    "scheduled": 54000,
+    "dispatched": 54000,
+    "fulfilled": 54000,
+    "generator_drops": 0,
+    "first_attempt_error_journeys": 3,
+    "recovered_journeys": 3,
+    "retry_attempts": 3,
+    "final_customer_failures": 0,
+    "accounting_complete": true,
+    "measurement_complete": true
+  },
+  "customer_outcome_gate": {
+    "decision": "ADR0305",
+    "contract_sha256": "f1ba7aeec82a6f75890e29bd114e9ee8dcebd14e43392d7ad2029e2e7ec4503c",
+    "denominator_dispatched_journeys": 54000,
+    "final_customer_failures": 0,
+    "maximum_final_customer_failures": 5,
+    "final_customer_failure_percent": 0.0,
+    "first_attempt_error_journeys": 3,
+    "recovered_journeys": 3,
+    "retry_attempts": 3,
+    "total_journey_p95_ms": 2639.2198970061145,
+    "checks": {
+      "complete_accounting": true,
+      "unique_confirmed_tickets": true,
+      "completion_deadline": true,
+      "zero_generator_drops": true,
+      "complete_shards": true,
+      "known_customer_failures": true,
+      "bounded_final_failures": true,
+      "dispatch_latency": true,
+      "bounded_recovery": true,
+      "unchanged_strict_success": true
+    },
+    "pass": true
+  },
+  "measurement_gates": {
+    "customer_load": true,
+    "post_ttl_financial": true,
+    "zero_double_booking": true,
+    "payment_durability": true,
+    "full_queue_drain": true,
+    "native_observer": false,
+    "native_cpu": true,
+    "unchanged_background": true,
+    "unchanged_native_pods": true,
+    "live_admission": true,
+    "ticket_target_issuance": true,
+    "unchanged_ingress_route": true
+  },
+  "latencies_ms": {
+    "dispatch_lag_p95_ms": 1.6204802159336396,
+    "dispatch_lag_max_ms": 109.74810588959372,
+    "hold_http_p95_ms": 13.175690997741185,
+    "durable_p95_ms": 2028.6840259941528,
+    "payment_http_p95_ms": 64.50601999677019,
+    "ticket_wait_p95_ms": 615.5477599968435,
+    "total_journey_p95_ms": 2639.2198970061145
+  },
+  "latency_scope": "Worst-shard p95 including recovery, not pooled percentiles.",
+  "issuance": {
+    "window_start_epoch": 1792366776.744351,
+    "window_end_epoch": 1792367076.744351,
+    "unique_paid_issued_tickets": 53783,
+    "unique_orders": 53783,
+    "unique_payments": 53783,
+    "joined_rows": 53783,
+    "conservative_inner_window_tickets": 53426,
+    "inner_window_guard_seconds": 2,
+    "database_now_epoch": 1792367392.64311,
+    "api_helper_now_epoch": 1792367392.6441002,
+    "first_issued_at": "2026-10-19T06:39:39.367002+07:00",
+    "last_issued_at": "2026-10-19T06:44:36.740345+07:00",
+    "pass": true,
+    "conservative_rate_per_second": 178.08666666666667
+  },
+  "financial": {
+    "pass": true,
+    "counts": {
+      "orders": 54000,
+      "fulfilled_orders": 54000,
+      "expired_orders": 0,
+      "pending_orders": 0,
+      "payment_attempts": 54000,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 54000,
+      "bookings": 54000,
+      "tickets": 54000,
+      "payment_callbacks": 54000,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 54000,
+      "callback_delivery_target": 54000,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 54000,
+      "expected_paid": 54000,
+      "expected_callback_deliveries_per_payment": 1,
+      "pass": true
+    },
+    "relationships": {
+      "hold_relationship_errors": 0,
+      "booking_relationship_errors": 0,
+      "order_item_relationship_errors": 0,
+      "inventory_relationship_errors": 0,
+      "fulfilled_ticket_relationship_errors": 0,
+      "unique_issued_tickets": 54000,
+      "holds_not_past_ttl": 0
+    },
+    "checks": {
+      "post_ttl_complete": true,
+      "payments_durable": true,
+      "ticket_relationships_valid": true
+    },
+    "hold_deadlines_elapsed": true
+  },
+  "financial_evidence_scope": "Existing cloud runner database audit; local evidence checks are not a separate reconciliation.",
+  "queues_after_restoration": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "restoration": {
+    "original_runtime_restored": true,
+    "integrity_verified": true,
+    "generator_idle": true,
+    "namespace_removed": true,
+    "cleanup_complete": true,
+    "transport_credentials_cleared": true,
+    "owned_resources_removed": true
+  },
+  "cpu": {
+    "api_process_cores": 2.5697544951975977,
+    "worker_process_cores": 1.71872845121947
+  },
+  "phase_means_ms": {
+    "due_to_claim": 26.108935305880827,
+    "claim": 6.078302967205827,
+    "delivery": 36.67646589598131,
+    "ack": 4.802058600111229,
+    "api_acquire": 4.10702713186056
+  },
+  "phase_scope": "Retained observer-lifetime means; not an isolated paid-window cycle or causal capacity proof.",
+  "observer_qualification": {
+    "pass": false,
+    "failures": []
+  },
+  "limiting_evidence": [
+    "3 initial payment:http_503 journeys recovered; zero final failures. Not a clean200 prerequisite.",
+    "Projection Kafka observation peak lag13830,last1996; native observer gate failed.",
+    "Writer mean PG batch65.967ms versus clean parent69.239ms; journey p952639.22ms versus2634.74ms. No whole-journey gain demonstrated."
+  ],
+  "next": "Preserve FAILED_RESTORED result; validate ADR0363 projection pipeline over clean original parent on unchanged resources before a fresh180.200 remains gated by genuine clean new-image180.",
+  "reservation_lookup_claim": {
+    "decision": "ADR0362",
+    "source": "a96fbf6593bb805be6c7c250bc24bc56ec25791c3e11803d59c676db69d1b709",
+    "manifest": "sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb",
+    "configuration": "sha256:118f8976dcf4e292cfd934c9440574a4e2a4def7aaef27bee2868a968b933693",
+    "parent_source": "19da6fb554d1e592e3eba59a52427b10510c213ab62c2a80181b8d5d27123925",
+    "worker_only_environment": {
+      "reservation-writer": {
+        "RESERVATION_LOOKUP_CLAIM": "1"
+      }
+    },
+    "api_default_off": true,
+    "batch_size": 4,
+    "writer_replicas": 4,
+    "consumer_replicas": 6,
+    "aggregate_resources_unchanged": true,
+    "publication_sha256": "4f7c365bd9723d9ccafa137b53078cc3deecae45e55d855673cac401d17b3d27",
+    "local_evidence_sha256": "2ceadf431f3d08190d07f7d57e876f5e643db7474ac706fa19cd0d0d3bdba400"
+  },
+  "worker_allocation": {
+    "decision": "ADR0359",
+    "counts": {
+      "consumer": 6,
+      "projection-consumer": 1,
+      "reservation-writer": 4,
+      "publisher": 1,
+      "maintenance": 1,
+      "reconciler": 1,
+      "simulator": 1
+    },
+    "resources": {
+      "consumer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "projection-consumer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "reservation-writer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "publisher": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "maintenance": {
+        "requests": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        }
+      },
+      "reconciler": {
+        "requests": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        }
+      },
+      "simulator": {
+        "requests": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        }
+      }
+    },
+    "worker_pods": 15,
+    "worker_cpu_millicores": 3750,
+    "worker_memory_mib": 7680,
+    "api_pods": 4,
+    "physical_backends": 24,
+    "shared_admission": 20,
+    "application_image_unchanged": false
+  }
+}

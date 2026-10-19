@@ -1,0 +1,92 @@
+{
+  "decision": "ADR0363",
+  "parent_source_identity_sha256": "19da6fb554d1e592e3eba59a52427b10510c213ab62c2a80181b8d5d27123925",
+  "parent_runtime_source_sha256": {
+    "src/ticketing/api.py": "ff0ba117a10fb8a18541978f93484f2133a85523510feea35d980f9828833cdd",
+    "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+    "src/ticketing/config.py": "c05d86e800efe15b430b915b5e3bfb64986deff20aed47201f58bbc426442c97",
+    "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+    "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
+    "src/ticketing/observability.py": "2985480a7d21af0be1e2126d9e556d55738e9ae30dbccd05fa368ea1ab75d6f8",
+    "src/ticketing/workers.py": "87b048e644ed65b1a53495e8d97d7ef5f9bdb5b419abba63fbe251ee346db2ab",
+    "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+    "src/ticketing/application/ports.py": "b2115020590e7b21c56792e7735c68c5d823504ce9a1abcdf3f47b94cb9c82f5",
+    "src/ticketing/application/reservations.py": "a3195a029d2cd6a00ae68abac125349ebfb5db70a7f40e4199660f78ff402114",
+    "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+    "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+    "src/ticketing/infrastructure/order_status_projector.py": "f9e1a6809227cb81a6e620cbf1d20906202fcc061e011bdc356f6a491ce0c510",
+    "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "9090d8bf233c32a993636e382226c79472517eb23fdb7062d24797522622680a",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/reservations.py": "f79bf4936144f935ced02a4c81af7431db57dc65bbae9830b3eef2083f6eb8c4",
+    "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a",
+    "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "runtime_source_sha256": {
+    "src/ticketing/api.py": "ff0ba117a10fb8a18541978f93484f2133a85523510feea35d980f9828833cdd",
+    "src/ticketing/cli.py": "21fdb088f6164f5bc835fd0e4444379d57ad4fde398621894e6d7cf7e794817d",
+    "src/ticketing/config.py": "c05d86e800efe15b430b915b5e3bfb64986deff20aed47201f58bbc426442c97",
+    "src/ticketing/domain.py": "f04823519ff95a84a3e9c28d84f6fa2f4f0a4de27574484e7cf19c94b7ab71cd",
+    "src/ticketing/http.py": "abd5d4cae1c7c52568a07a46feb5eb219f95e85f4fd6a6a651d4d5031d378b6f",
+    "src/ticketing/observability.py": "2985480a7d21af0be1e2126d9e556d55738e9ae30dbccd05fa368ea1ab75d6f8",
+    "src/ticketing/workers.py": "0684fcf4990199c8b68713200540f1d94f6f2c954d66c33392cc0bd0fd74e73e",
+    "src/ticketing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/application/payment_confirmation.py": "7374c1d5673092845d80092303be082dfbcafcadd319a75c09d6b85e70bc8eba",
+    "src/ticketing/application/ports.py": "b2115020590e7b21c56792e7735c68c5d823504ce9a1abcdf3f47b94cb9c82f5",
+    "src/ticketing/application/reservations.py": "a3195a029d2cd6a00ae68abac125349ebfb5db70a7f40e4199660f78ff402114",
+    "src/ticketing/application/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/ticketing/infrastructure/cache.py": "7671401ce7e1e48716e69fdaf85ada3b552848abbe8bec9bbaf97c7155ed1c49",
+    "src/ticketing/infrastructure/order_status_cache.py": "9a4c6ff065edac6aeb5df62fbcc638d4c94956d362c2e6a6f278e35afc5b40d4",
+    "src/ticketing/infrastructure/order_status_projector.py": "f9e1a6809227cb81a6e620cbf1d20906202fcc061e011bdc356f6a491ce0c510",
+    "src/ticketing/infrastructure/payment_confirmation.py": "1d6b02d2beb13a7539df5ce776ea1e63e6107b03a19592e7879f6de732250eae",
+    "src/ticketing/infrastructure/payment_transport.py": "58f6a16129b770e749a205f83e5b978ee6c078490731e2408d9b792b4c5c8a8c",
+    "src/ticketing/infrastructure/postgres.py": "9090d8bf233c32a993636e382226c79472517eb23fdb7062d24797522622680a",
+    "src/ticketing/infrastructure/redis_reservations.py": "04b2817ace037aa52f58111efedf4d8962c46dae5ceab9ad33c1d1eec212ac65",
+    "src/ticketing/infrastructure/reservations.py": "f79bf4936144f935ced02a4c81af7431db57dc65bbae9830b3eef2083f6eb8c4",
+    "src/ticketing/infrastructure/slot_diagnostics.py": "ff6f50aae7105d117649ec26ffca6d2a2ab62275bfd321f9e27757b4ad626c8a",
+    "src/ticketing/infrastructure/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "source_identity_sha256": "72fabf5016df66fd73cfdb0faf05e4c1f80fa41868afa044c266609ffed665f6",
+  "dependency_input_sha256": {
+    "requirements.lock": "4c45aa6d68478b8f81e57eeb808f7ba55ad59275647cdc1bac28fdb795aaf14d",
+    "pyproject.toml": "c1ce0fcb261c6788d55b0532ba249af7a23e29d1d094b44310ebfc39c3b13dbd"
+  },
+  "changed_modules": [
+    "src/ticketing/workers.py"
+  ],
+  "preparation_recipe_sha256": "3ce2149b19b00693d41499c95e33e63aa4f139535fdc1912bea0555c3e09a607",
+  "overlay_sha256": "5a8a1f201583328e05cbdbf556bd8dfba871caf5ec0487529ba89f5af5cfce48",
+  "local_image_id": "sha256:a8531f98d23c4d5f3197cd5273d75c0508dbffb54e846a4f8963dd25d7787c7b",
+  "integration_cases_passed": 38,
+  "integration_cases_skipped": 1,
+  "skip_reason": "Real Kafka broker not configured in the isolated PostgreSQL suite.",
+  "actual_image_consumer_checks_passed": 20,
+  "scope_invariants_passed": 2,
+  "owned_local_cleanup_pass": true,
+  "synthetic_latency_comparison": {
+    "control": {
+      "samples": 80,
+      "median_ms": 129.48880699877918,
+      "p95_ms": 159.0671649973956
+    },
+    "candidate": {
+      "samples": 80,
+      "median_ms": 19.96912600043288,
+      "p95_ms": 26.348618001065915
+    },
+    "batch_shows": 32,
+    "alternating_pairs": 80,
+    "select1_median_ms": 3.6401740017026896,
+    "synthetic_one_way_ms": 1.0,
+    "inbox_rows": 5760,
+    "refresh_rows": 32,
+    "all_generations_correct": true,
+    "local_only": true,
+    "median_improvement_percent": 84.57849256374634
+  },
+  "cloud_capacity_claimed": false,
+  "local_only": true
+}

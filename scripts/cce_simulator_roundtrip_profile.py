@@ -23,6 +23,7 @@ SOURCE_REFERENCE = ('tmp/adr0151-a0d63f35960f/cce-comparison.private.json',
 KEYS = {'simulator_roundtrip_decision', 'simulator_roundtrip_arm', 'simulator_roundtrip_contract_sha256',
         'simulator_roundtrip_pair', 'simulator_roundtrip_preview', 'simulator_roundtrip_timing_decision'}
 INPUTS = {'scripts/cce_fixed_worker_allocation.py','scripts/cce_rate_qualification.py', 'scripts/prepare_rate_qualification.py',LOCAL, PUBLICATION, 'scripts/cce_replacement_rds_binding.py', 'docs/capacity/cce/rds-endpoint-switch-2026-10-18.json', 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
+          'scripts/cce_image_qualification.py','scripts/cce_projection_refresh_pipeline.py','scripts/projection_refresh_pipeline_overlay.py','scripts/prepare_projection_refresh_pipeline_image.py','scripts/publish_projection_refresh_pipeline_image.py','docs/capacity/cce/projection-refresh-pipeline-local-2026-10-19.json','docs/capacity/cce/projection-refresh-pipeline-registry-2026-10-19.json',
           'scripts/cce_reservation_claim_lookup.py','scripts/reservation_claim_lookup_overlay.py',
           'scripts/prepare_reservation_claim_lookup_image.py','scripts/publish_reservation_claim_lookup_image.py',
           'docs/capacity/cce/reservation-claim-lookup-local-2026-10-19.json',
@@ -88,7 +89,8 @@ def registry_image():
 
 
 def contract(goal=None):
-    import cce_reservation_claim_lookup as claim
+    from cce_image_qualification import for_goal
+    claim = for_goal(goal)
     from cce_rate_qualification import rate
     offered = rate(goal)
     changed = claim.selected(goal)
@@ -96,7 +98,7 @@ def contract(goal=None):
             'local_image': claim.MANIFEST if changed else LOCAL_IMAGE,
             'local_receipt_sha256': sha(claim.LOCAL) if changed else LOCAL_SHA,
             'publication_sha256': sha(publication_for(goal)),
-            **({'reservation_lookup_claim':claim.contract(goal)} if changed else {}),
+            **({claim.CONTRACT_KEY:claim.contract(goal)} if changed else {}),
             'offered_rate': offered, 'seconds': 300, 'expected_journeys': offered*300,
             'api_pods': 4, 'worker_pods': 15, 'api_client_slots': [3, 3],
             'physical_backends': 24, 'physical_reserve': 0, 'shared_admission': 20,
@@ -109,7 +111,8 @@ def contract(goal=None):
 
 
 def publication_for(goal):
-    import cce_reservation_claim_lookup as claim
+    from cce_image_qualification import for_goal
+    claim = for_goal(goal)
     return claim.PUBLICATION if claim.selected(goal) else PUBLICATION
 
 
@@ -140,7 +143,8 @@ def image(goal=None):
         goal = active()
     if not selected(goal):
         raise ValueError('Explicit simulator-roundtrip image selection required')
-    import cce_reservation_claim_lookup as claim
+    from cce_image_qualification import for_goal
+    claim = for_goal(goal)
     if claim.selected(goal):
         return claim.image()
     import cce_replacement_rds_binding as replacement
@@ -182,9 +186,10 @@ def extend_plan(goal, plan):
                 'matched_performance_comparison': False,
                 'simulator_roundtrip_contract': binding_contract(goal),
                 'duration_reason': 'One300s qualification with unchanged image/resources;3600s admission ceiling.'}
-        import cce_reservation_claim_lookup as claim
+        from cce_image_qualification import for_goal
+        claim = for_goal(goal)
         if claim.selected(goal):
-            factor = 'reservation_lookup_claim' if qualification.rate(goal)==180 else 'offered_rate'
+            factor = claim.CONTRACT_KEY if qualification.rate(goal)==180 else 'offered_rate'
             result.update(single_changed_factor=factor,declared_changes=[factor],
                           duration_reason='One300s new-image qualification; unchanged resources; real clean180 prerequisite and3600s admission ceiling.')
         return result

@@ -7,6 +7,7 @@ import re
 import work_envelope as policy
 
 KEY = "reservation_claim_lookup_decision"
+CONTRACT_KEY = "reservation_lookup_claim"
 SOURCE = "a96fbf6593bb805be6c7c250bc24bc56ec25791c3e11803d59c676db69d1b709"
 MANIFEST = "sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb"
 CONFIG = "sha256:118f8976dcf4e292cfd934c9440574a4e2a4def7aaef27bee2868a968b933693"

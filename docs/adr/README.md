@@ -388,3 +388,4 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0361: Reconcile failed200 dispatched cohort](0361-reconcile-dispatched-200-cohort.md).
 
 - [ADR0362: Coalesce reservation replay lookup and claim](0362-coalesce-reservation-replay-lookup-and-claim.md).
+- [ADR0363: Pipeline projection refresh writes](0363-pipeline-projection-refresh-writes.md).

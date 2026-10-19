@@ -24,7 +24,7 @@ def contract(goal):
     if not selected(goal):
         raise ValueError('Explicit fixed worker allocation required')
     spec = specification(goal[KEY])
-    from cce_reservation_claim_lookup import selected as claim_selected
+    from cce_image_qualification import selected as claim_selected
     return {'decision': goal[KEY], 'counts': copy.deepcopy(spec['counts']),
             'resources': copy.deepcopy(spec['resources']), 'worker_pods': 15,
             'worker_cpu_millicores': 3750, 'worker_memory_mib': 7680,
