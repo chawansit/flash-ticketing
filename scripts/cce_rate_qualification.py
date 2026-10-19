@@ -35,11 +35,14 @@ def rate(goal, default=160):
 def contract(goal):
     if not selected(goal):
         raise ValueError('Explicit rate qualification required')
-    return {'decision': 'ADR0355', 'offered_rate': rate(goal), 'seconds': 300,
+    return {**({'guarded_issuance':__import__('cce_guarded_issuance').contract(goal)}
+               if __import__('cce_guarded_issuance').selected(goal) else {}),
+            'decision': 'ADR0355', 'offered_rate': rate(goal), 'seconds': 300,
             'expected_journeys': rate(goal)*300, 'minimum_unique_inside_window': rate(goal)*300-600,
             'previous': copy.deepcopy(goal['rate_qualification_reference']),
             'selected_arm': 'candidate',
-            'single_changed_factor': (__import__('cce_image_qualification').for_goal(goal).CONTRACT_KEY
+            'single_changed_factor': (None if __import__('cce_guarded_issuance').selected(goal) and rate(goal)==180 else
+                                      __import__('cce_image_qualification').for_goal(goal).CONTRACT_KEY
                                       if __import__('cce_image_qualification').selected(goal) and rate(goal) == 180
                                       else 'offered_rate'),
             'maximum_paid_stages': 1, 'experiment_seconds_limit': 3600,
@@ -54,6 +57,7 @@ def require_previous(goal):
     ref = goal['rate_qualification_reference']
     report, binding, _ = _retained(ref['path'], ref['ledger'], ref['sha256'], expected=ref['rate']*300)
     previous = binding.get('cce_simulator_roundtrip_contract', {})
+    __import__('cce_guarded_issuance').require_previous(goal, previous)
     from cce_image_qualification import for_goal
     claim = for_goal(goal)
     if claim.selected(goal):
@@ -70,6 +74,8 @@ def require_previous(goal):
 
 
 def require_authority(goal):
+    if __import__('cce_guarded_issuance').selected(goal):
+        __import__('cce_guarded_issuance').require_authority()
     approval = policy.read(policy.ROOT / APPROVAL)
     if (approval.get('user_authorized') is not True or approval.get('instruction') != 'pre-approved until clean 200/s'
             or approval.get('offered_seconds_each') != 300 or approval.get('rates') != [160, 180, 200]

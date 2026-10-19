@@ -1,0 +1,15 @@
+{
+  "decision": "ADR0365",
+  "user_authorized": true,
+  "instruction": "Approve correction and fresh 180 → conditional 200",
+  "rates": [180, 200],
+  "offered_seconds": 300,
+  "guard_seconds_each": 2,
+  "guarded_seconds": 296,
+  "full_minima": [53400, 59400],
+  "guarded_minima": [53280, 59200],
+  "fresh_180_required_before_200": true,
+  "preserve_all_other_gates": true,
+  "historical_failures_remain_failed": true,
+  "resources_unchanged": true
+}

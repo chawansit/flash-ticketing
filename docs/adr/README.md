@@ -390,4 +390,6 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0362: Coalesce reservation replay lookup and claim](0362-coalesce-reservation-replay-lookup-and-claim.md).
 - [ADR0363: Pipeline projection refresh writes](0363-pipeline-projection-refresh-writes.md).
 - [ADR0364: Localize new persistent UUID index writes](0364-localize-new-persistent-uuid-index-writes.md).
-- [ADR0365: Normalize guarded issuance interval (proposal)](0365-normalize-guarded-issuance-interval.md).
+- [ADR0365: Normalize guarded issuance interval (accepted)](0365-normalize-guarded-issuance-interval.md).
+
+- [ADR0366: Reconcile failed guarded180 dispatched cohort](0366-guarded-180-dispatched-recovery.md).

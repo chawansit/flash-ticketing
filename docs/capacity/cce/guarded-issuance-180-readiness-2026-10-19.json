@@ -1,0 +1,35 @@
+{
+  "decision": "ADR0365",
+  "user_approval": "docs/capacity/cce/guarded-window-approval-2026-10-19.json",
+  "status": "READY_FOR_FRESH_180_CONDITIONAL_200",
+  "paid_runs_started": 0,
+  "resources_unchanged": true,
+  "regressions": {
+    "passed": 69,
+    "optional_skipped": 2,
+    "final_guarded_cases_passed": 11,
+    "actual_image_helpers": 22,
+    "actual_image_runtime_modules": 22,
+    "ruff_pass": true
+  },
+  "admission": {
+    "pass": true,
+    "actual_publication_verified": true,
+    "live_ledger_and_goal_unchanged": true,
+    "cloud_calls": 0,
+    "paid_traffic_started": false,
+    "source_contract_sha256": "72ab1beb290adf48ec7370f3c6fea79f42d8065a4ecb73e841218099f62b2d53",
+    "prepared_goal_sha256": "ea9fb19a86f91709a8926e81699acccfbd62e3a6ca19471ee6a188b8a862d865",
+    "scope": "Actual rate-qualification manifests/binding/reservation in isolated bookkeeping with real registry receipt."
+  },
+  "registry": {
+    "pass": true,
+    "authenticated_immutable_manifests_verified": 3,
+    "publication_performed": false,
+    "credentials_used_from_protected_helper": true,
+    "secret_config_files_written": false,
+    "verified_at_utc": "2026-10-19T02:12:06.531569+00:00"
+  },
+  "historical_failed_run_unchanged": "adr0151-c5125e4d9cd8",
+  "next": "Fresh180300s, then fresh200300s only if clean/restored under this mode."
+}

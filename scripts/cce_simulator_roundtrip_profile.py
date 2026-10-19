@@ -22,7 +22,7 @@ SOURCE_REFERENCE = ('tmp/adr0151-a0d63f35960f/cce-comparison.private.json',
                     'de6e008fad525f67d93fd15b83f0a8ddb105110f9806d31bcc8bdfa6d09ec06c')
 KEYS = {'simulator_roundtrip_decision', 'simulator_roundtrip_arm', 'simulator_roundtrip_contract_sha256',
         'simulator_roundtrip_pair', 'simulator_roundtrip_preview', 'simulator_roundtrip_timing_decision'}
-INPUTS = {'scripts/cce_fixed_worker_allocation.py','scripts/cce_rate_qualification.py', 'scripts/prepare_rate_qualification.py',LOCAL, PUBLICATION, 'scripts/cce_replacement_rds_binding.py', 'docs/capacity/cce/rds-endpoint-switch-2026-10-18.json', 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
+INPUTS = {'scripts/cce_guarded_issuance.py','scripts/cce_guarded_issuance_proposal.py','docs/capacity/cce/guarded-window-approval-2026-10-19.json','scripts/cce_fixed_worker_allocation.py','scripts/cce_rate_qualification.py', 'scripts/prepare_rate_qualification.py',LOCAL, PUBLICATION, 'scripts/cce_replacement_rds_binding.py', 'docs/capacity/cce/rds-endpoint-switch-2026-10-18.json', 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
           'scripts/cce_persistent_uuid.py','scripts/persistent_uuid_overlay.py','scripts/prepare_persistent_uuid_image.py','scripts/publish_persistent_uuid_image.py','docs/capacity/cce/persistent-uuid-local-2026-10-19.json','docs/capacity/cce/persistent-uuid-registry-2026-10-19.json',
           'scripts/cce_image_qualification.py','scripts/cce_projection_refresh_pipeline.py','scripts/projection_refresh_pipeline_overlay.py','scripts/prepare_projection_refresh_pipeline_image.py','scripts/publish_projection_refresh_pipeline_image.py','docs/capacity/cce/projection-refresh-pipeline-local-2026-10-19.json','docs/capacity/cce/projection-refresh-pipeline-registry-2026-10-19.json',
           'scripts/cce_reservation_claim_lookup.py','scripts/reservation_claim_lookup_overlay.py',
@@ -96,6 +96,8 @@ def contract(goal=None):
     offered = rate(goal)
     changed = claim.selected(goal)
     return {'decision': DECISION, 'source': claim.SOURCE if changed else SOURCE,
+            **({'guarded_issuance':__import__('cce_guarded_issuance').contract(goal)}
+               if __import__('cce_guarded_issuance').selected(goal) else {}),
             'local_image': claim.MANIFEST if changed else LOCAL_IMAGE,
             'local_receipt_sha256': sha(claim.LOCAL) if changed else LOCAL_SHA,
             'publication_sha256': sha(publication_for(goal)),
@@ -193,6 +195,8 @@ def extend_plan(goal, plan):
             factor = claim.CONTRACT_KEY if qualification.rate(goal)==180 else 'offered_rate'
             result.update(single_changed_factor=factor,declared_changes=[factor],
                           duration_reason='One300s new-image qualification; unchanged resources; real clean180 prerequisite and3600s admission ceiling.')
+        if __import__('cce_guarded_issuance').selected(goal) and qualification.rate(goal)==180:
+            result.update(single_changed_factor=None,declared_changes=['persistent_uuid','guarded_issuance'])
         return result
     return {**plan, 'kind': 'simulator_roundtrip_matched_160',
             'single_changed_factor': 'combined_simulator_and_successful_callback_roundtrips',

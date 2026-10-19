@@ -613,6 +613,9 @@ def qualify_workload(parent, coordinator, goal=None):
 
 
 def issuance_program(events, start, goal=None):
+    import cce_guarded_issuance as guarded
+    if guarded.selected(goal):
+        return guarded.program(events, start, goal)
     import math
     _, shows, expected, target = bounds(goal)
     if (len(events) != shows or len(set(events)) != shows

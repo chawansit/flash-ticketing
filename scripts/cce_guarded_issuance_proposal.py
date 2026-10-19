@@ -1,4 +1,4 @@
-"""ADR0365 offline proposal only; no live imports, authority or state mutations."""
+"""ADR0365 shared pure query builder and historical diagnostic assessment."""
 import math
 from uuid import UUID
 
