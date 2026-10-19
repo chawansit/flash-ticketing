@@ -3,6 +3,8 @@
 No local authority, file reads, registry access or goal selection belongs here.
 """
 PINS = {
+    'sha256:cb03defd3cced76e65ee6c353668f61d2f71cf612998382a05140c3e017d7c47':
+        'c1fe95e270e8ae1b723ecc8108d17f59583b557e14ab6ff095e70df6b09eb920',
     'sha256:3096299e05160707aacc41309a483b39d5fcdfb21ec62d0ac8db823ee9828390':
         '30491ad42f02ff271ed8ee892432744397af900a8201b0d3a0c1042e81a15c5b',
     'sha256:7793159270ac95e20c3224eaee3298d42ab6bfeb30088d65f925b8ee5ad3b979':
@@ -46,14 +48,14 @@ def specification(value):
     decision = value.get('decision')
     if decision not in {'ADR0345', 'ADR0357', 'ADR0359'} or manifest not in PINS:
         raise ValueError('Exact reviewed transferred combined worker identity required')
-    if (manifest in {'sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb','sha256:a8531f98d23c4d5f3197cd5273d75c0508dbffb54e846a4f8963dd25d7787c7b','sha256:7793159270ac95e20c3224eaee3298d42ab6bfeb30088d65f925b8ee5ad3b979','sha256:3096299e05160707aacc41309a483b39d5fcdfb21ec62d0ac8db823ee9828390'}
+    if (manifest in {'sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb','sha256:a8531f98d23c4d5f3197cd5273d75c0508dbffb54e846a4f8963dd25d7787c7b','sha256:7793159270ac95e20c3224eaee3298d42ab6bfeb30088d65f925b8ee5ad3b979','sha256:3096299e05160707aacc41309a483b39d5fcdfb21ec62d0ac8db823ee9828390','sha256:cb03defd3cced76e65ee6c353668f61d2f71cf612998382a05140c3e017d7c47'}
             and decision != 'ADR0359'):
         raise ValueError('Lookup/claim image requires exact six-consumer allocation')
     base = local_specification('ADR0324')
     if decision in {'ADR0357', 'ADR0359'}:
         allowed = {ALLOCATION_MANIFEST}
         if decision == 'ADR0359':
-            allowed.update({'sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb','sha256:a8531f98d23c4d5f3197cd5273d75c0508dbffb54e846a4f8963dd25d7787c7b','sha256:7793159270ac95e20c3224eaee3298d42ab6bfeb30088d65f925b8ee5ad3b979','sha256:3096299e05160707aacc41309a483b39d5fcdfb21ec62d0ac8db823ee9828390'})
+            allowed.update({'sha256:34ac0dacef1e7f9676ee327ae5603ee83ebdd5eb7422455270400e4d755ce0bb','sha256:a8531f98d23c4d5f3197cd5273d75c0508dbffb54e846a4f8963dd25d7787c7b','sha256:7793159270ac95e20c3224eaee3298d42ab6bfeb30088d65f925b8ee5ad3b979','sha256:3096299e05160707aacc41309a483b39d5fcdfb21ec62d0ac8db823ee9828390','sha256:cb03defd3cced76e65ee6c353668f61d2f71cf612998382a05140c3e017d7c47'})
         if manifest not in allowed:
             raise ValueError('Allocated workers require exact combined candidate image')
         base = allocation_specification(base, decision)

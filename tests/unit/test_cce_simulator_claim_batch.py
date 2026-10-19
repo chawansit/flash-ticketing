@@ -114,7 +114,7 @@ def test_actual_published_image_helper_rehearsal(monkeypatch,tmp_path):
     result=subprocess.run(['docker','run','--rm','--network=none','-i','--entrypoint','python',
         '--mount','type=bind,source='+str(tmp_path.resolve())+',target=/qualified,readonly',
         image['local_image_id'],'-c',program],input=json.dumps(metadata),text=True,capture_output=True,timeout=90,check=False)
-    (policy.ROOT/'tmp/adr0368-actual-helper.log').write_text(result.stderr,encoding='utf-8')
+    (policy.ROOT/'tmp/adr0370-actual-helper.log').write_text(result.stderr,encoding='utf-8')
     assert result.returncode==0,'Inspect owned helper log'
     path=Path(target);assert not path.exists() and path.resolve().is_relative_to((policy.ROOT/'tmp').resolve())
     path.write_bytes((json.dumps({'decision':'ADR0368',**json.loads(result.stdout),'runtime_modules_verified':22,

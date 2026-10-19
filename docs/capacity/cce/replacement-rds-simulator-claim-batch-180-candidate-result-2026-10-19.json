@@ -1,0 +1,367 @@
+{
+  "decision": "ADR0368",
+  "run": "adr0151-4163debac412",
+  "ledger": "bounded_cce_ticket_target__6956d6defb6a",
+  "status": "FAILED_RESTORED",
+  "arm": "candidate",
+  "raw_result_sha256": "d5f7ecb029af526d74a279e3031e2d29ea2f919f0adc3e6110b5a608959e346a",
+  "database_endpoint": "10.1.21.48",
+  "offered_rate_per_second": 180,
+  "offered_window_seconds": 300,
+  "offered_window_executed": true,
+  "paid_runs_started": 1,
+  "short_capacity_qualified": false,
+  "hourly_qualified": false,
+  "production_qualified": false,
+  "customer": {
+    "scheduled": 54000,
+    "dispatched": 54000,
+    "fulfilled": 54000,
+    "generator_drops": 0,
+    "first_attempt_error_journeys": 0,
+    "recovered_journeys": 0,
+    "retry_attempts": 0,
+    "final_customer_failures": 0,
+    "accounting_complete": true,
+    "measurement_complete": true
+  },
+  "customer_outcome_gate": {
+    "decision": "ADR0305",
+    "contract_sha256": "f1ba7aeec82a6f75890e29bd114e9ee8dcebd14e43392d7ad2029e2e7ec4503c",
+    "denominator_dispatched_journeys": 54000,
+    "final_customer_failures": 0,
+    "maximum_final_customer_failures": 5,
+    "final_customer_failure_percent": 0.0,
+    "first_attempt_error_journeys": 0,
+    "recovered_journeys": 0,
+    "retry_attempts": 0,
+    "total_journey_p95_ms": 2564.4301409993204,
+    "checks": {
+      "complete_accounting": true,
+      "unique_confirmed_tickets": true,
+      "completion_deadline": true,
+      "zero_generator_drops": true,
+      "complete_shards": true,
+      "known_customer_failures": true,
+      "bounded_final_failures": true,
+      "dispatch_latency": true,
+      "bounded_recovery": true,
+      "unchanged_strict_success": true
+    },
+    "pass": true
+  },
+  "measurement_gates": {},
+  "latencies_ms": {
+    "dispatch_lag_p95_ms": 1.6934925588429905,
+    "dispatch_lag_max_ms": 104.34132455702638,
+    "hold_http_p95_ms": 14.610565995099023,
+    "durable_p95_ms": 2027.9087140006595,
+    "payment_http_p95_ms": 62.404546995821875,
+    "ticket_wait_p95_ms": 615.5354539951077,
+    "total_journey_p95_ms": 2564.4301409993204
+  },
+  "latency_scope": "Worst-shard p95 including recovery, not pooled percentiles.",
+  "issuance": {
+    "window_start_epoch": 1792383641.527007,
+    "window_end_epoch": 1792383941.527007,
+    "unique_paid_issued_tickets": 53784,
+    "unique_orders": 53784,
+    "unique_payments": 53784,
+    "joined_rows": 53784,
+    "conservative_inner_window_tickets": 53415,
+    "inner_window_guard_seconds": 2,
+    "database_now_epoch": 1792384093.214625,
+    "api_helper_now_epoch": 1792384093.21583,
+    "first_issued_at": "2026-10-19T11:20:44.049631+07:00",
+    "last_issued_at": "2026-10-19T11:25:41.526776+07:00",
+    "pass": true,
+    "guarded_window_seconds": 296,
+    "full_window_tickets_per_second": 179.28,
+    "guarded_window_tickets_per_second": 180.4560810810811,
+    "conservative_rate_per_second": 180.4560810810811
+  },
+  "financial": {
+    "orders": 54000,
+    "fulfilled_orders": 54000,
+    "expired_orders": 0,
+    "pending_orders": 0,
+    "payment_attempts": 54000,
+    "pending_payment_attempts": 0,
+    "succeeded_payments": 54000,
+    "bookings": 54000,
+    "tickets": 54000,
+    "payment_callbacks": 54000,
+    "incomplete_callback_deliveries": 0,
+    "callback_delivery_attempts": 54000,
+    "callback_delivery_target": 54000,
+    "duplicate_booked_seats": 0,
+    "multi_booking_orders": 0,
+    "unpublished_outbox": 0,
+    "dead_letters": 0,
+    "expected": 54000,
+    "expected_paid": 54000,
+    "expected_callback_deliveries_per_payment": 1,
+    "pass": true,
+    "counts": {
+      "orders": 54000,
+      "fulfilled_orders": 54000,
+      "expired_orders": 0,
+      "pending_orders": 0,
+      "payment_attempts": 54000,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 54000,
+      "bookings": 54000,
+      "tickets": 54000,
+      "payment_callbacks": 54000,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 54000,
+      "callback_delivery_target": 54000,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 54000,
+      "expected_paid": 54000,
+      "expected_callback_deliveries_per_payment": 1,
+      "pass": true
+    },
+    "relationships": {
+      "hold_relationship_errors": 0,
+      "booking_relationship_errors": 0,
+      "order_item_relationship_errors": 0,
+      "inventory_relationship_errors": 0,
+      "fulfilled_ticket_relationship_errors": 0,
+      "unique_issued_tickets": 54000,
+      "holds_not_past_ttl": 0
+    },
+    "checks": {
+      "post_ttl_complete": true,
+      "payments_durable": true,
+      "ticket_relationships_valid": true
+    },
+    "hold_deadlines_elapsed": true
+  },
+  "financial_evidence_scope": "Existing cloud runner database audit; local evidence checks are not a separate reconciliation.",
+  "queues_after_restoration": {
+    "unpublished_outbox": 0,
+    "pending_refresh": 0,
+    "dead_letters": 0,
+    "pending_callback_deliveries": 0,
+    "pending_refunds": 0,
+    "reservation_stream_entries": 0,
+    "reservation_stream_pending": 0,
+    "kafka_total_lag": 0,
+    "kafka_members": 1,
+    "pass": true,
+    "pending_confirmation_receipts": 0,
+    "review_confirmation_receipts": 0,
+    "confirmation_capacity_outstanding": 0,
+    "confirmation_capacity_mismatches": 0,
+    "event_lane_mode": "normal"
+  },
+  "restoration": {
+    "original_runtime_restored": true,
+    "integrity_verified": false,
+    "generator_idle": true,
+    "namespace_removed": true,
+    "cleanup_complete": true,
+    "transport_credentials_cleared": true,
+    "owned_resources_removed": true,
+    "fresh_independent_integrity_verified": true
+  },
+  "cpu": {
+    "api_process_cores": 2.606317633285664,
+    "worker_process_cores": null
+  },
+  "phase_means_ms": {
+    "due_to_claim": 60.053959371122815,
+    "claim": 8.350717758575776,
+    "delivery": 37.71513759307374,
+    "ack": 5.908206411241041,
+    "api_acquire": 5.439973654930819
+  },
+  "phase_scope": "Retained observer-lifetime means; not an isolated paid-window cycle or causal capacity proof.",
+  "observer_qualification": {
+    "pass": false,
+    "failures": [
+      {
+        "operation": "native_worker_cpu",
+        "type": "ValueError"
+      }
+    ]
+  },
+  "limiting_evidence": [
+    "All54000customer journeys clean; guarded53415/296=180.456/s; full53784/300=179.28/s; p952564.43ms.",
+    "Terminal failure log capture complete(4post-window reads,0acquisitionfailures).",
+    "New batch path bypassed simulate_one operation counter; native worker progress gate failed.",
+    "Original failed qualification remains failed; no200traffic."
+  ],
+  "next": "ADR0370 correct simulator progress instrumentation and add actual-metrics regression. Fresh180 must fully pass/restore before200; do not promote or reset this run.",
+  "simulator_claim_batch": {
+    "decision": "ADR0368",
+    "source": "30491ad42f02ff271ed8ee892432744397af900a8201b0d3a0c1042e81a15c5b",
+    "manifest": "sha256:3096299e05160707aacc41309a483b39d5fcdfb21ec62d0ac8db823ee9828390",
+    "configuration": "sha256:98a73aa4b644861e55c9dbaf099d91d836d34ff37e2168b3abfa9ef1e6ff77ae",
+    "parent_source": "2c59942318c306c925e5dba3ae26e59c7af30260b4de4560fed823e73ecd6afe",
+    "native_environment": {
+      "PERSISTENT_UUID_V7": "1",
+      "SIMULATOR_BATCH_CLAIM": "simulator_only:1"
+    },
+    "maximum_delivery_slots": 16,
+    "simulator_clients": 10,
+    "lease_seconds": 15,
+    "acknowledgement_sql_unchanged": true,
+    "callback_idempotency_unchanged": true,
+    "no_delivery_group_barrier": true,
+    "physical_backends": 24,
+    "aggregate_resources_unchanged": true,
+    "publication_sha256": "9271b144cfea5f97622adc299322b7720a621fc88144b7a874da681bae8c4331",
+    "local_evidence_sha256": "5c695496b8265f366227219ad035ecf803b2c9b3b6e3f5404bba2fdcc5f9549a"
+  },
+  "terminal_admission": {
+    "decision": "ADR0367",
+    "source": "one_second_metrics_and_terminal_redacted_logs",
+    "lookback_seconds": 600,
+    "maximum_bytes_per_pod": 67108864,
+    "maximum_records_per_pod": 128,
+    "maximum_log_requests": 4,
+    "during_offered_window_log_requests": 0,
+    "additional_database_connections": 0,
+    "missing_history_fails": true
+  },
+  "worker_allocation": {
+    "decision": "ADR0359",
+    "counts": {
+      "consumer": 6,
+      "projection-consumer": 1,
+      "reservation-writer": 4,
+      "publisher": 1,
+      "maintenance": 1,
+      "reconciler": 1,
+      "simulator": 1
+    },
+    "resources": {
+      "consumer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "projection-consumer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "reservation-writer": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "publisher": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        }
+      },
+      "maintenance": {
+        "requests": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        }
+      },
+      "reconciler": {
+        "requests": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "125m",
+          "memory": "512Mi"
+        }
+      },
+      "simulator": {
+        "requests": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        }
+      }
+    },
+    "worker_pods": 15,
+    "worker_cpu_millicores": 3750,
+    "worker_memory_mib": 7680,
+    "api_pods": 4,
+    "physical_backends": 24,
+    "shared_admission": 20,
+    "application_image_unchanged": false
+  },
+  "initial_status": "RECOVERY_REQUIRED",
+  "customer_quality_clean": true,
+  "operational_recovery_evidence": "docs/capacity/cce/claim-batch-180-operational-recovery-2026-10-19.json",
+  "original_financial": {
+    "pass": true,
+    "counts": {
+      "orders": 54000,
+      "fulfilled_orders": 54000,
+      "expired_orders": 0,
+      "pending_orders": 0,
+      "payment_attempts": 54000,
+      "pending_payment_attempts": 0,
+      "succeeded_payments": 54000,
+      "bookings": 54000,
+      "tickets": 54000,
+      "payment_callbacks": 54000,
+      "incomplete_callback_deliveries": 0,
+      "callback_delivery_attempts": 54000,
+      "callback_delivery_target": 54000,
+      "duplicate_booked_seats": 0,
+      "multi_booking_orders": 0,
+      "unpublished_outbox": 0,
+      "dead_letters": 0,
+      "expected": 54000,
+      "expected_paid": 54000,
+      "expected_callback_deliveries_per_payment": 1,
+      "pass": true
+    },
+    "relationships": {
+      "hold_relationship_errors": 0,
+      "booking_relationship_errors": 0,
+      "order_item_relationship_errors": 0,
+      "inventory_relationship_errors": 0,
+      "fulfilled_ticket_relationship_errors": 0,
+      "unique_issued_tickets": 54000,
+      "holds_not_past_ttl": 0
+    },
+    "checks": {
+      "post_ttl_complete": true,
+      "payments_durable": true,
+      "ticket_relationships_valid": true
+    },
+    "hold_deadlines_elapsed": true
+  }
+}

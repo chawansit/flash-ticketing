@@ -1,0 +1,35 @@
+{
+  "decision": "ADR0370",
+  "status": "READY_FRESH_180_THEN_CONDITIONAL_200",
+  "paid_runs_started": 0,
+  "image": {
+    "manifest": "sha256:cb03defd3cced76e65ee6c353668f61d2f71cf612998382a05140c3e017d7c47",
+    "configuration": "sha256:165c6c24b844890bff808be7befececfdc327d4bea8b78255aa957e79e5f9348",
+    "source": "c1fe95e270e8ae1b723ecc8108d17f59583b557e14ab6ff095e70df6b09eb920"
+  },
+  "source_contract_sha256": "eaf5bd5898e419e6290ed4f4409299cf21a77617d2ac3021ad3b060e2df4c120",
+  "change": "Restore simulate_one completion/error telemetry exclusively on batch callback path; preserve legacy counting and every performance/correctness setting.",
+  "validation": {
+    "actual_image_PostgreSQL_cases_passed": 51,
+    "optional_local_comparison_skipped": 1,
+    "progress_exposition_regression_passed": true,
+    "focused_mode_cases_passed": 12,
+    "actual_helper_modules_verified": 22,
+    "actual_runtime_modules_verified": 22,
+    "isolated_admission_passed": true,
+    "local_cleanup_passed": true
+  },
+  "registry": {
+    "pass": true,
+    "authenticated_immutable_manifests_verified": 3,
+    "publication_performed": false,
+    "credentials_used_from_protected_helper": true,
+    "secret_config_files_written": false,
+    "verified_at_utc": "2026-10-19T04:44:48.473140+00:00"
+  },
+  "prior_run": "adr0151-4163debac412",
+  "prior_status": "FAILED_RESTORED",
+  "prior_raw_sha256": "d5f7ecb029af526d74a279e3031e2d29ea2f919f0adc3e6110b5a608959e346a",
+  "historical_failure_preserved": true,
+  "next": "Fresh180x300s;200x300s only if actual fresh180 is clean, all gates pass and normal application restores."
+}

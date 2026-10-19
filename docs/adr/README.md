@@ -397,3 +397,7 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0367: Recover admission history after traffic stops](0367-terminal-admission-history.md).
 
 - [ADR0368: Batch due callback claims within free delivery slots](0368-bounded-simulator-claim-batch.md).
+
+- [ADR0369: Reconcile clean-customer observer failure](0369-clean-customer-observer-recovery.md).
+
+- [ADR0370: Preserve simulator batch progress counter](0370-simulator-batch-progress-counter.md).

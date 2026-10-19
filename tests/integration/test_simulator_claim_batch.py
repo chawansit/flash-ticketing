@@ -8,6 +8,7 @@ from uuid import uuid4
 
 import psycopg
 import pytest
+from prometheus_client import generate_latest
 
 from ticketing import workers
 from ticketing.config import Settings
@@ -133,6 +134,11 @@ def test_slow_delivery_does_not_block_refill_and_stop_drains(system):
     svc,db,ids=seed(system,3)
     entered,release,third,stop=threading.Event(),threading.Event(),threading.Event(),threading.Event()
     base=Gateway(svc,db)
+    def completed_operations():
+        target='ticketing_worker_operations_total{operation="simulate_one",outcome="ok"} '
+        return next((float(line[len(target):]) for line in generate_latest().decode().splitlines()
+                     if line.startswith(target)),0)
+    before=completed_operations()
     class Delayed:
         def post(self,raw,headers):
             identifier=json.loads(raw)['payment_id']
@@ -151,5 +157,6 @@ def test_slow_delivery_does_not_block_refill_and_stop_drains(system):
         finally:
             stop.set();release.set()
         future.result(timeout=5)
+    assert completed_operations()-before==3,'Every completed batch delivery must emit exactly one operation'
     with db.transaction() as conn:
         assert conn.execute('SELECT count(*) AS n FROM payment_attempts WHERE deliveries=1').fetchone()['n']==3

@@ -8,11 +8,11 @@ import work_envelope as policy
 
 KEY='simulator_claim_batch_decision'
 CONTRACT_KEY='simulator_claim_batch'
-SOURCE='30491ad42f02ff271ed8ee892432744397af900a8201b0d3a0c1042e81a15c5b'
-MANIFEST='sha256:3096299e05160707aacc41309a483b39d5fcdfb21ec62d0ac8db823ee9828390'
-CONFIG='sha256:98a73aa4b644861e55c9dbaf099d91d836d34ff37e2168b3abfa9ef1e6ff77ae'
-LOCAL='docs/capacity/cce/simulator-claim-batch-local-2026-10-19.json'
-PUBLICATION='docs/capacity/cce/simulator-claim-batch-registry-2026-10-19.json'
+SOURCE='c1fe95e270e8ae1b723ecc8108d17f59583b557e14ab6ff095e70df6b09eb920'
+MANIFEST='sha256:cb03defd3cced76e65ee6c353668f61d2f71cf612998382a05140c3e017d7c47'
+CONFIG='sha256:165c6c24b844890bff808be7befececfdc327d4bea8b78255aa957e79e5f9348'
+LOCAL='docs/capacity/cce/simulator-claim-progress-local-2026-10-19.json'
+PUBLICATION='docs/capacity/cce/simulator-claim-progress-registry-2026-10-19.json'
 MODULES={'src/ticketing/config.py','src/ticketing/workers.py'}
 
 
@@ -28,13 +28,13 @@ def image():
     before=parent.image()
     local,published=[policy.read(policy.ROOT/name) for name in (LOCAL,PUBLICATION)]
     sources=published.get('runtime_source_sha256',{})
-    if (published.get('decision')!='ADR0368' or published.get('registry_manifest_digest')!=MANIFEST
+    if (published.get('decision')!='ADR0368' or published.get('progress_correction_decision')!='ADR0370' or published.get('registry_manifest_digest')!=MANIFEST
             or published.get('registry_configuration_digest')!=CONFIG
             or published.get('local_image_id')!=MANIFEST or published.get('registry_pulled_image_id')!=MANIFEST
             or published.get('source_identity_sha256')!=SOURCE
             or published.get('registry_image')!='swr.ap-southeast-2.myhuaweicloud.com/chawansit/flash-ticketing@'+MANIFEST
             or any(published.get(k) is not True for k in ('registry_published','permission_verified','registry_pulled_runtime_verified'))
-            or published.get('validation')!={'runtime_modules_verified':22,'default_off':True,'claim_limit':16,'installed_module_matches':True}
+            or published.get('validation')!={'runtime_modules_verified':22,'default_off':True,'claim_limit':16,'installed_module_matches':True,'progress_entrypoint_installed':True}
             or published.get('platform')!={'os':'linux','architecture':'amd64'} or published.get('runtime_user')!='ticketing'
             or set(sources)!=set(before['runtime_source_sha256'])
             or {k for k in sources if sources[k]!=before['runtime_source_sha256'][k]}!=MODULES
@@ -42,6 +42,7 @@ def image():
             or published.get('parent_source_identity_sha256')!=before['source_identity_sha256']
             or published.get('dependency_input_sha256')!=before['dependency_input_sha256']
             or local.get('source_identity_sha256')!=SOURCE or local.get('runtime_source_sha256')!=sources
+            or local.get('progress_counter_regression_passed') is not True
             or local.get('integration_cases_passed')!=51 or local.get('owned_local_cleanup_pass') is not True
             or local.get('simulator_transaction_comparison',{}).get('control_transactions')!=32
             or local.get('simulator_transaction_comparison',{}).get('candidate_transactions')!=17
@@ -49,8 +50,8 @@ def image():
         raise ValueError('Exact executed, published and pulled two-module claim candidate required')
     if not re.fullmatch(r'sha256:[0-9a-f]{64}',published.get('registry_configuration_digest','')):
         raise ValueError('Actual immutable configuration digest required')
-    for name,key in [('prepare_simulator_claim_batch_image.py','preparation_recipe_sha256'),
-                     ('simulator_claim_batch_overlay.py','overlay_sha256')]:
+    for name,key in [('prepare_simulator_claim_progress_image.py','preparation_recipe_sha256'),
+                     ('simulator_claim_progress_overlay.py','overlay_sha256')]:
         current=hashlib.sha256((policy.ROOT/'scripts'/name).read_bytes().replace(b'\r\n',b'\n')).hexdigest()
         if published.get(key)!=current or local.get(key)!=current:
             raise ValueError('Executed preparation recipe drift')
@@ -60,7 +61,7 @@ def image():
 def contract(goal):
     if not selected(goal):raise ValueError('Explicit batch claim qualification required')
     value=image()
-    return {'decision':'ADR0368','source':SOURCE,'manifest':MANIFEST,
+    return {'decision':'ADR0368','progress_correction_decision':'ADR0370','worker_progress_operation':'simulate_one','source':SOURCE,'manifest':MANIFEST,
             'configuration':value['registry_configuration_digest'],'parent_source':parent.SOURCE,
             'native_environment':{'PERSISTENT_UUID_V7':'1','SIMULATOR_BATCH_CLAIM':'simulator_only:1'},
             'maximum_delivery_slots':16,'simulator_clients':10,'lease_seconds':15,
