@@ -35,7 +35,7 @@ def sha(raw):
 
 
 def identity():
-    paths = (
+    paths = ('scripts/cce_payment_client_split.py','docs/capacity/cce/payment-client-split-local-2026-10-19.json',
         "scripts/cce_fixed_worker_allocation.py", "scripts/cce_rate_qualification.py", "scripts/prepare_rate_qualification.py",
         'scripts/simulator_claim_progress_overlay.py','scripts/prepare_simulator_claim_progress_image.py','scripts/publish_simulator_claim_progress_image.py','docs/capacity/cce/simulator-claim-progress-local-2026-10-19.json','docs/capacity/cce/simulator-claim-progress-registry-2026-10-19.json',
         'scripts/cce_simulator_claim_batch.py','scripts/simulator_claim_batch_overlay.py','scripts/prepare_simulator_claim_batch_image.py','scripts/publish_simulator_claim_batch_image.py','docs/capacity/cce/simulator-claim-batch-local-2026-10-19.json','docs/capacity/cce/simulator-claim-batch-registry-2026-10-19.json',

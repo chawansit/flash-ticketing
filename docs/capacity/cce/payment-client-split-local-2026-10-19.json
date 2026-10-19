@@ -1,0 +1,15 @@
+{
+  "decision": "ADR0371",
+  "actual_image_pool_tests_pass": true,
+  "owned_local_cleanup_pass": true,
+  "old_burst_successes": 20,
+  "new_burst_successes": 21,
+  "general_read_available": true,
+  "tests_passed": 2,
+  "cloud_calls": 0,
+  "image_manifest": "sha256:cb03defd3cced76e65ee6c353668f61d2f71cf612998382a05140c3e017d7c47",
+  "source_identity_sha256": "c1fe95e270e8ae1b723ecc8108d17f59583b557e14ab6ff095e70df6b09eb920",
+  "test_source_sha256": "205374d472ed7bda941c1267e10c339ccd8135832bc9ffbb0220a102e25bdb05",
+  "private_receipt_sha256": "ece2826cac3622c2d8936b7661648ef9a5f6ce81d2fe8630922aeec2fe6a63c7",
+  "scope": "Real PostgreSQL bounded queue burst using unchanged immutable application image; not cloud throughput evidence."
+}

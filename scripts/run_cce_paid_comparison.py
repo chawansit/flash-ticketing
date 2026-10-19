@@ -262,7 +262,7 @@ def binding_for(config, proof, manifests, target, snapshot, *, profile=SHORT, pr
     from cce_api_client_headroom import selected as client_selected
     if client_selected(goal):
         from cce_api_client_headroom import contract as client_contract
-        extra.update(cce_api_client_pool_max=6, cce_payment_pool_max=3, cce_api_client_pool_contract=client_contract(goal))
+        extra.update(cce_api_client_pool_max=6, cce_payment_pool_max=__import__("cce_payment_client_split").payment_clients(goal), cce_api_client_pool_contract=client_contract(goal))
     from cce_recovery_headroom import selected as headroom_selected
     if headroom_selected(goal):
         from cce_recovery_headroom import contract as headroom_contract

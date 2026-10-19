@@ -22,7 +22,7 @@ SOURCE_REFERENCE = ('tmp/adr0151-a0d63f35960f/cce-comparison.private.json',
                     'de6e008fad525f67d93fd15b83f0a8ddb105110f9806d31bcc8bdfa6d09ec06c')
 KEYS = {'simulator_roundtrip_decision', 'simulator_roundtrip_arm', 'simulator_roundtrip_contract_sha256',
         'simulator_roundtrip_pair', 'simulator_roundtrip_preview', 'simulator_roundtrip_timing_decision'}
-INPUTS = {'scripts/simulator_claim_progress_overlay.py','scripts/prepare_simulator_claim_progress_image.py','scripts/publish_simulator_claim_progress_image.py','docs/capacity/cce/simulator-claim-progress-local-2026-10-19.json','docs/capacity/cce/simulator-claim-progress-registry-2026-10-19.json','scripts/cce_simulator_claim_batch.py','scripts/simulator_claim_batch_overlay.py','scripts/prepare_simulator_claim_batch_image.py','scripts/publish_simulator_claim_batch_image.py','docs/capacity/cce/simulator-claim-batch-local-2026-10-19.json','docs/capacity/cce/simulator-claim-batch-registry-2026-10-19.json','scripts/cce_terminal_admission.py','scripts/cce_guarded_issuance.py','scripts/cce_guarded_issuance_proposal.py','docs/capacity/cce/guarded-window-approval-2026-10-19.json','scripts/cce_fixed_worker_allocation.py','scripts/cce_rate_qualification.py', 'scripts/prepare_rate_qualification.py',LOCAL, PUBLICATION, 'scripts/cce_replacement_rds_binding.py', 'docs/capacity/cce/rds-endpoint-switch-2026-10-18.json', 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
+INPUTS = {'scripts/cce_payment_client_split.py','docs/capacity/cce/payment-client-split-local-2026-10-19.json','scripts/simulator_claim_progress_overlay.py','scripts/prepare_simulator_claim_progress_image.py','scripts/publish_simulator_claim_progress_image.py','docs/capacity/cce/simulator-claim-progress-local-2026-10-19.json','docs/capacity/cce/simulator-claim-progress-registry-2026-10-19.json','scripts/cce_simulator_claim_batch.py','scripts/simulator_claim_batch_overlay.py','scripts/prepare_simulator_claim_batch_image.py','scripts/publish_simulator_claim_batch_image.py','docs/capacity/cce/simulator-claim-batch-local-2026-10-19.json','docs/capacity/cce/simulator-claim-batch-registry-2026-10-19.json','scripts/cce_terminal_admission.py','scripts/cce_guarded_issuance.py','scripts/cce_guarded_issuance_proposal.py','docs/capacity/cce/guarded-window-approval-2026-10-19.json','scripts/cce_fixed_worker_allocation.py','scripts/cce_rate_qualification.py', 'scripts/prepare_rate_qualification.py',LOCAL, PUBLICATION, 'scripts/cce_replacement_rds_binding.py', 'docs/capacity/cce/rds-endpoint-switch-2026-10-18.json', 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
           'scripts/cce_persistent_uuid.py','scripts/persistent_uuid_overlay.py','scripts/prepare_persistent_uuid_image.py','scripts/publish_persistent_uuid_image.py','docs/capacity/cce/persistent-uuid-local-2026-10-19.json','docs/capacity/cce/persistent-uuid-registry-2026-10-19.json',
           'scripts/cce_image_qualification.py','scripts/cce_projection_refresh_pipeline.py','scripts/projection_refresh_pipeline_overlay.py','scripts/prepare_projection_refresh_pipeline_image.py','scripts/publish_projection_refresh_pipeline_image.py','docs/capacity/cce/projection-refresh-pipeline-local-2026-10-19.json','docs/capacity/cce/projection-refresh-pipeline-registry-2026-10-19.json',
           'scripts/cce_reservation_claim_lookup.py','scripts/reservation_claim_lookup_overlay.py',
@@ -95,6 +95,8 @@ def contract(goal=None):
     from cce_rate_qualification import rate
     offered = rate(goal)
     changed = claim.selected(goal)
+    import cce_payment_client_split as split
+    split_changed = split.selected(goal)
     return {'decision': DECISION, 'source': claim.SOURCE if changed else SOURCE,
             **({'guarded_issuance':__import__('cce_guarded_issuance').contract(goal)}
                if __import__('cce_guarded_issuance').selected(goal) else {}),
@@ -105,8 +107,9 @@ def contract(goal=None):
             'publication_sha256': sha(publication_for(goal)),
             **({claim.CONTRACT_KEY:claim.contract(goal)} if changed else {}),
             'offered_rate': offered, 'seconds': 300, 'expected_journeys': offered*300,
-            'api_pods': 4, 'worker_pods': 15, 'api_client_slots': [3, 3],
-            'physical_backends': 24, 'physical_reserve': 0, 'shared_admission': 20,
+            **({'payment_client_split':split.contract(goal)} if split_changed else {}),
+            'api_pods': 4, 'worker_pods': 15, 'api_client_slots': [2, 4] if split_changed else [3, 3],
+            'physical_backends': 24, 'physical_reserve': 0, 'shared_admission': 19 if split_changed else 20,
             'acquisition_wait_ms': 500, 'simulator_delivery_slots': 16, 'simulator_database_clients': 10,
             'generator_processes': 4, 'active_journeys': 800, 'http_connections': 500, 'http_clients': 16,
             'candidate_api_callback_write_pipeline': '1', 'control_api_callback_write_pipeline': 'absent',
@@ -201,6 +204,13 @@ def extend_plan(goal, plan):
             result.update(single_changed_factor=None,declared_changes=[claim.CONTRACT_KEY,'guarded_issuance'])
         if __import__('cce_terminal_admission').selected(goal) and qualification.rate(goal)==180:
             result['declared_changes'].append('terminal_admission_history')
+        if __import__('cce_payment_client_split').selected(goal):
+            result.update(payment_connections_per_api=4, general_connections_per_api=2,
+                          actual_shared_acquisition_limit=19,
+                          payment_client_split=__import__('cce_payment_client_split').contract(goal))
+            if qualification.rate(goal)==180:
+                result.update(single_changed_factor=None,
+                              declared_changes=[*result['declared_changes'], 'payment_client_split'])
         return result
     return {**plan, 'kind': 'simulator_roundtrip_matched_160',
             'single_changed_factor': 'combined_simulator_and_successful_callback_roundtrips',
@@ -344,6 +354,8 @@ def validate_binding(goal, binding, *, preparation_only=False):
               'cce_fixture_clock_contract', 'cce_headroom_contract', 'cce_throughput_push_contract', 'cce_generator_process_contract',
               'cce_api_client_pool_contract', 'cce_primary_bootstrap_contract', 'cce_verification_contract_sha256',
               'cce_transaction_pair_sha256', 'cce_simulator_roundtrip_contract', 'cce_inventory_renewal_contract', 'cce_metric_admission_contract_sha256'}
+    if __import__('cce_payment_client_split').selected(goal):
+        varied.add('cce_payment_pool_max')
     import cce_replacement_rds_binding as replacement
     if replacement.selected(goal):
         replacement.validate_binding(goal, binding)

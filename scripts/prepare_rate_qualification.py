@@ -74,7 +74,7 @@ def prepare(base, rate, reference, proof, target):
             assert binding['cce_generator_process_contract']['rate'] == rate
             assert binding['cce_api_client_pool_contract']['offered_rate'] == rate
             assert plan['baseline_sha256'] == reference['sha256']
-            assert binding['cce_api_client_pool_max'] == 6 and binding['cce_payment_pool_max'] == 3
+            assert binding['cce_api_client_pool_max'] == 6 and binding['cce_payment_pool_max'] == __import__('cce_payment_client_split').payment_clients(goal)
             assert binding['cce_simulator_concurrency'] == 16 and binding['cce_simulator_database_pool_max'] == 10
             result = {'decision':'ADR0355','goal':goal,'binding':binding,'plan':plan,'objects':objects,
                       'worker_objects':worker_objects,'image':image,'profile_rate':rate,'paid_authorized':False,'cloud_calls':0}
@@ -99,6 +99,7 @@ def main():
     parser.add_argument('--guarded-issuance',action='store_true')
     parser.add_argument('--terminal-admission',action='store_true')
     parser.add_argument('--simulator-claim-batch',action='store_true')
+    parser.add_argument('--payment-client-split',action='store_true')
     args=parser.parse_args()
     for path in (args.base_goal,args.reference,args.output):
         if path.is_symlink() or not path.resolve().is_relative_to(policy.ROOT.resolve()):
@@ -133,6 +134,10 @@ def main():
         if not args.terminal_admission:
             raise ValueError('Claim batch requires explicit terminal observer qualification')
         base['simulator_claim_batch_decision']='ADR0368'
+    if args.payment_client_split:
+        if not args.simulator_claim_batch:
+            raise ValueError('Payment split requires explicit qualified batch image')
+        base['payment_client_split_decision']='ADR0371'
     result=prepare(base,args.rate,policy.read(args.reference),
                    policy.read(policy.ROOT/'tmp/cce-api-registry-proof.json'),target)
     args.output.write_bytes((json.dumps(result,indent=2)+'\n').encode())

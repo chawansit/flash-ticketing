@@ -90,6 +90,8 @@ def contract(*, goal=None, image_receipt=None):
         data["api_settings"].update(DB_EXPLICIT_TRANSACTION_START="1", FULFILLMENT_TRANSACTION_BATCH_SIZE="1")
     from cce_api_client_headroom import api_settings as client_settings
     data["api_settings"] = client_settings(data["api_settings"], goal)
+    import cce_payment_client_split as split
+    data["api_settings"] = split.settings(data["api_settings"], goal)
     import cce_generator_process_scaling as generator_scaling
     if generator_scaling.selected(goal):
         data["workload"].update(shards=4, http_clients_per_shard=4)
@@ -206,6 +208,11 @@ def api_environment(service, primary_ip, *, acquisition_budget=12, goal=None):
     if type(acquisition_budget) is not int or acquisition_budget not in {12, 20}:
         raise ValueError("Only baseline12 or bounded candidate20 acquisition slots supported")
     env["DB_POOL_MAX_WAITING"] = str(acquisition_budget)
+    import cce_payment_client_split as split
+    if goal is None:
+        import cce_transaction_profile as transaction
+        goal = transaction.active()
+    env = split.queue(env, goal, acquisition_budget)
     db = urlsplit(env["DATABASE_URL"])
     if (
         db.scheme not in {"postgres", "postgresql"}
@@ -599,7 +606,10 @@ class Deployment:
         if budget != admission_budget() or type(budget) is not int:
             raise ValueError("Current declared acquisition budget differs from binding")
         secret_budget = base64.b64decode(manifests[1]["data"]["DB_POOL_MAX_WAITING"], validate=True).decode()
-        if secret_budget != str(budget):
+        import cce_payment_client_split as split
+        import cce_transaction_profile as transaction
+        expected_budget = 19 if split.selected(transaction.active()) else budget
+        if secret_budget != str(expected_budget):
             raise ValueError("Candidate acquisition Secret differs from bound budget")
         self.namespace = manifests[0]["metadata"]["name"]
         self.run = manifests[0]["metadata"]["labels"]["codex-owner"]

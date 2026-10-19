@@ -83,7 +83,8 @@ def api_environment(values,goal):return environment('api',values,goal)
 
 def normalize_api_environment(values,goal):
     if 'SIMULATOR_BATCH_CLAIM' in values:raise ValueError('Claim batching belongs only to simulator')
-    return parent.normalize_api_environment(values,goal)
+    import cce_payment_client_split as split
+    return parent.normalize_api_environment(split.normalize(values,goal),goal)
 
 
 def validate_previous(goal,previous):

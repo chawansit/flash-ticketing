@@ -401,3 +401,5 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0369: Reconcile clean-customer observer failure](0369-clean-customer-observer-recovery.md).
 
 - [ADR0370: Preserve simulator batch progress counter](0370-simulator-batch-progress-counter.md).
+
+- [ADR0371: Redistribute six API clients toward payments](0371-payment-client-split.md).

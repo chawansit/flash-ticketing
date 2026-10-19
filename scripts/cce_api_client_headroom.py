@@ -13,8 +13,11 @@ ADDED = previous.ADDED | {SOURCE, LOCAL}
 
 
 def contract(goal=None):
-    return {"decision":"ADR0338", "baseline_api_client_slots":[2,2], "candidate_api_client_slots":[3,3],
-            "aggregate_api_client_slots":24, "physical_backends":24, "shared_admission":20,
+    import cce_payment_client_split as split
+    changed = split.selected(goal)
+    return {**({"payment_client_split":split.contract(goal)} if changed else {}),
+            "decision":"ADR0338", "baseline_api_client_slots":[2,2], "candidate_api_client_slots":[2,4] if changed else [3,3],
+            "aggregate_api_client_slots":24, "physical_backends":24, "shared_admission":19 if changed else 20,
             "native_role_acquisition_limit":17, "acquisition_wait_ms":500,
             "api_pods":4, "worker_pods":15, "simulator_delivery_slots":16,"simulator_database_pool_max":10,
             "offered_rate":__import__("cce_rate_qualification").rate(goal, 180 if goal is not None and goal.get("throughput_push_decision") == "ADR0339" else 160), "seconds":300, "active_journeys":800,

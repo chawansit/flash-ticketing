@@ -58,6 +58,7 @@ def require_previous(goal):
     report, binding, _ = _retained(ref['path'], ref['ledger'], ref['sha256'], expected=ref['rate']*300)
     previous = binding.get('cce_simulator_roundtrip_contract', {})
     __import__('cce_guarded_issuance').require_previous(goal, previous)
+    __import__('cce_payment_client_split').require_previous(goal, previous)
     from cce_image_qualification import for_goal
     claim = for_goal(goal)
     if claim.selected(goal):
@@ -92,6 +93,10 @@ def validate_binding(goal, binding):
                'cce_headroom_contract', 'cce_throughput_push_contract', 'cce_generator_process_contract',
                'cce_api_client_pool_contract', 'cce_primary_bootstrap_contract', 'cce_verification_contract_sha256',
                'cce_simulator_roundtrip_contract', 'cce_inventory_renewal_contract', 'cce_metric_admission_contract_sha256'}
+    if __import__("cce_payment_client_split").selected(goal):
+        changed.add("cce_payment_pool_max")
+        if binding.get("cce_payment_pool_max") != 4:
+            raise ValueError("Exact four payment clients required")
     import cce_fixed_worker_allocation as allocation
     if allocation.selected(goal):
         changed |= {'cce_writer_scale_contract', 'cce_worker_placement_factor'}
