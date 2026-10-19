@@ -48,7 +48,7 @@ def validate_binding(binding):
         raise ValueError("Exact metric admission capture binding required")
 
 
-def summarize(rows, receipts, start, end, *, hourly=False):
+def summarize(rows, receipts, start, end, *, hourly=False, terminal_evidence=None):
     try:
         starts = native.validate_receipts(receipts)
         if any(row.get("api_metrics_error") or set(row.get("api_replicas", {})) != set(starts)
@@ -77,19 +77,34 @@ def summarize(rows, receipts, start, end, *, hourly=False):
                 raise CaptureError("process_or_counter_changed")
             previous[address] = count
     try:
-        result = slots.summarize(rows, starts)
+        extra=None
+        if terminal_evidence is not None:
+            from cce_terminal_admission import endpoints
+            extra=endpoints(terminal_evidence,receipts['receipts'])
+        result = slots.summarize(rows, starts,extra_records=extra)
     except (ValueError, KeyError, TypeError) as error:
         raise CaptureError("slot_history_incomplete") from error
-    return {**result, "decision": DECISION, "source": contract()["source"],
+    return {**result, "decision": DECISION, "source": (__import__('cce_terminal_admission').SOURCE
+             if terminal_evidence is not None else contract()["source"]),
             "contract_sha256": digest(contract()), "receipt_sha256": digest(receipts["receipts"]),
             "samples": len(rows), "coverage": coverage,
-            "additional_kubernetes_log_requests": 0}
+            "additional_kubernetes_log_requests": 4 if terminal_evidence is not None else 0,
+            **({'terminal_admission':__import__('cce_terminal_admission').contract(),
+                'terminal_evidence_sha256':digest(terminal_evidence)} if terminal_evidence is not None else {})}
 
 
 def validate_summary(value, binding, receipts):
     validate_binding(binding)
+    from cce_terminal_admission import bound
+    from cce_terminal_admission import contract as terminal_contract
+    if bound(binding) and (not isinstance(value,dict) or value.get('terminal_admission')!=terminal_contract()
+                           or value.get('additional_kubernetes_log_requests')!=4
+                           or not isinstance(value.get('terminal_evidence_sha256'),str)
+                           or len(value['terminal_evidence_sha256'])!=64):
+        raise ValueError('Complete bound terminal admission evidence required')
     if (not isinstance(value, dict) or value.get("complete") is not True
-            or value.get("decision") != DECISION or value.get("source") != contract()["source"]
+            or value.get("decision") != DECISION or value.get("source") !=
+               (__import__('cce_terminal_admission').SOURCE if bound(binding) else contract()["source"])
             or value.get("contract_sha256") != binding["cce_metric_admission_contract_sha256"]
             or value.get("receipt_sha256") != digest(receipts)
             or value.get("coverage", {}).get("all_four_replicas_observed") is not True

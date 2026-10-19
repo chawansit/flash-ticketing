@@ -393,3 +393,7 @@ These entries record experiments implemented on the pinned experimental branch; 
 - [ADR0365: Normalize guarded issuance interval (accepted)](0365-normalize-guarded-issuance-interval.md).
 
 - [ADR0366: Reconcile failed guarded180 dispatched cohort](0366-guarded-180-dispatched-recovery.md).
+
+- [ADR0367: Recover admission history after traffic stops](0367-terminal-admission-history.md).
+
+- [ADR0368: Batch due callback claims within free delivery slots](0368-bounded-simulator-claim-batch.md).

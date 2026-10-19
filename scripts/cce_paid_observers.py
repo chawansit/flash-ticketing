@@ -30,7 +30,7 @@ def receipt_bundle(run, receipts):
 
 def summarize_independent_diagnostics(record, rows, path, receipts, start, end, *, hourly, summarize_waits,
                                      summarize_slots=None, summarize_pipeline=None, native_workers=None, slot_log_evidence=None,
-                                     diagnostic_path=None, metric_admission=False):
+                                     diagnostic_path=None, metric_admission=False, terminal_admission_evidence=None):
     """ADR0257/0260 preserve independent diagnostics despite a missing slot history."""
     failures = []
     operations = []
@@ -40,7 +40,8 @@ def summarize_independent_diagnostics(record, rows, path, receipts, start, end, 
                 if slot_log_evidence is not None:
                     raise ValueError("Metric admission cannot silently supplement missing history with logs")
                 from cce_metric_admission import summarize
-                return summarize(rows, receipts, start, end, hourly=hourly)
+                return summarize(rows, receipts, start, end, hourly=hourly,
+                                 terminal_evidence=terminal_admission_evidence)
             admitted = native.validate_receipts(receipts)
             if slot_log_evidence is None:
                 return summarize_slots(rows, admitted)
@@ -641,6 +642,7 @@ class Observers:
                         summarize_pipeline=summarize, native_workers=getattr(self, "native_workers", None),
                         slot_log_evidence=getattr(self, "slot_log_evidence", None),
                         metric_admission=getattr(self, "metric_admission", False),
+                        terminal_admission_evidence=getattr(self, 'terminal_admission_evidence', None),
                         diagnostic_path=(self.stage.output / "database-waits.jsonl"
                             if getattr(self, "independent_database_sampling", False) else None)))
                 else:

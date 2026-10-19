@@ -68,6 +68,10 @@ class Lifecycle:
         self.live_admission = live_admission
         self.ingress_route = ingress_route
         self.metric_admission = metric_admission
+        from cce_terminal_admission import bound as terminal_bound
+        self.terminal_admission = terminal_bound(self.stage.guard.binding)
+        if self.terminal_admission and not metric_admission:
+            raise ValueError('Terminal capture requires the metric completeness gate')
         self.early_hourly_observers = early_hourly_observers
         if early_hourly_observers:
             if (self.stage.profile.duration != 3600
@@ -114,6 +118,20 @@ class Lifecycle:
                 "capture_incomplete": True, "awaiting_trace_validation": True,
             }
             self.checkpoint()
+            if self.terminal_admission:
+                try:
+                    if not self.stage.record.get('customer'):
+                        raise ValueError('Terminal logs require completed customer dispatch')
+                    from cce_terminal_admission import collect
+                    evidence=collect(self.deployment,self.record['native_receipts'])
+                    self.observers.terminal_admission_evidence=evidence
+                    policy.write(self.stage.output/'terminal-admission.private.json',evidence)
+                    self.record['admission_diagnostics'].update(terminal_capture_complete=True,
+                                                               additional_kubernetes_log_requests=4)
+                except Exception as error:  # noqa: BLE001 - Financial recovery remains independent.
+                    self.record['admission_diagnostics'].update(terminal_capture_complete=False,
+                                                               capture_error=type(error).__name__)
+                self.checkpoint()
             return
         try:
             if self.live_capture is not None:
@@ -259,7 +277,7 @@ class Lifecycle:
                 self.record["admission_diagnostics"] = {
                     "decision": "ADR0287", "source": capture["source"],
                     "sha256": policy.digest(capture), "failure_events": capture["failure_total"],
-                    "capture_incomplete": False, "additional_kubernetes_log_requests": 0,
+                    "capture_incomplete": False, "additional_kubernetes_log_requests": capture['additional_kubernetes_log_requests'],
                 }
                 self.checkpoint()
             financial = self.stage.audit(global_audit)

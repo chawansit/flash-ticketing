@@ -1,0 +1,61 @@
+{
+  "decision": "ADR0368",
+  "status": "READY_FRESH_180_THEN_CONDITIONAL_200",
+  "paid_runs_started": 0,
+  "application_image": {
+    "manifest": "sha256:3096299e05160707aacc41309a483b39d5fcdfb21ec62d0ac8db823ee9828390",
+    "configuration": "sha256:98a73aa4b644861e55c9dbaf099d91d836d34ff37e2168b3abfa9ef1e6ff77ae",
+    "source": "30491ad42f02ff271ed8ee892432744397af900a8201b0d3a0c1042e81a15c5b"
+  },
+  "source_contract_sha256": "39b0f1728594d9937b5ab0efaf330b79d7e39b0a6eb70e69bf42a06de26e16c0",
+  "changes": [
+    "bounded_simulator_claim_batch",
+    "terminal_redacted_failure_history"
+  ],
+  "preserved": [
+    "all_quality_financial_clock_restoration_gates",
+    "fixed_ADR0359_resources",
+    "UUIDv7",
+    "projection_pipeline",
+    "500ms_acquisition",
+    "15s_lease"
+  ],
+  "validation": {
+    "actual_image_PostgreSQL_cases_passed": 51,
+    "optional_local_comparison_skipped": 1,
+    "runner_cases_passed": 136,
+    "optional_helper_rehearsals_initially_skipped": 2,
+    "final_capture_cases_passed": 41,
+    "actual_image_helpers_verified": 22,
+    "actual_image_runtime_modules_verified": 22,
+    "extended_transport_test_passed": true,
+    "ruff_pass": true,
+    "local_owned_cleanup_pass": true
+  },
+  "local_claim_transaction_comparison": {
+    "due_callbacks": 16,
+    "control": 32,
+    "candidate": 17,
+    "scope": "Simulator transactions only; no cloud throughput claim"
+  },
+  "actual_isolated_admission": {
+    "pass": true,
+    "actual_publication_verified": true,
+    "live_ledger_and_goal_unchanged": true,
+    "cloud_calls": 0,
+    "paid_traffic_started": false,
+    "source_contract_sha256": "39b0f1728594d9937b5ab0efaf330b79d7e39b0a6eb70e69bf42a06de26e16c0",
+    "prepared_goal_sha256": "e8571f4ed270374aa316843daf73fcf0d7f4c81b0263fb522fe51edbe4983ee2",
+    "scope": "Actual rate-qualification manifests/binding/reservation in isolated bookkeeping with real registry receipt."
+  },
+  "registry": {
+    "pass": true,
+    "authenticated_immutable_manifests_verified": 3,
+    "publication_performed": false,
+    "credentials_used_from_protected_helper": true,
+    "secret_config_files_written": false,
+    "verified_at_utc": "2026-10-19T03:54:03.480102+00:00"
+  },
+  "historical_failures_unchanged": true,
+  "next": "Fresh180x300s;200x300s only if actual new180 is zero-error, fully passed and restored."
+}

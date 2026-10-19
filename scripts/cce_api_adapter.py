@@ -716,10 +716,17 @@ class Deployment:
         self.persist({"cce_api_receipts": views})
         return views
 
-    def admission_diagnostics(self, *, lookback_seconds=600):
+    def admission_diagnostics(self, *, lookback_seconds=600, maximum_bytes=8388608):
         """Read only exact owned pod logs; available during mandatory cleanup."""
         if type(lookback_seconds) is not int or lookback_seconds not in {30, 600}:
             raise ValueError("Bounded admission log window required")
+        if type(maximum_bytes) is not int or maximum_bytes not in {8388608,67108864}:
+            raise ValueError("Exact bounded admission byte budget required")
+        if maximum_bytes == 67108864:
+            import cce_terminal_admission as terminal
+            from cce_transaction_profile import active
+            if lookback_seconds != 600 or not terminal.selected(active()):
+                raise ValueError("Explicit terminal admission transport required")
         self.verify_owner()
         if set(self.pod_uids) != {f"api-{i}" for i in range(4)}:
             raise ValueError("Four captured pod identities required for admission evidence")
@@ -741,7 +748,7 @@ class Deployment:
 
                 verify()
                 value = self.request(
-                    "GET", path + f"/log?container=api&sinceSeconds={lookback_seconds}&limitBytes=8388608", None
+                    "GET", path + f"/log?container=api&sinceSeconds={lookback_seconds}&limitBytes={maximum_bytes}", None
                 )
                 verify()
                 if not isinstance(value, dict) or value.get("schema_version") != 1:
@@ -794,6 +801,8 @@ class KubernetesTransport:
             raise ValueError("Closed CCE certificate transport")
         import cce_transaction_profile as transaction
         goal = transaction.active()
+        terminal_path = (method == 'GET' and __import__('cce_terminal_admission').selected(goal)
+                         and re.fullmatch(r'/api/v1/namespaces/flash-cce-[0-9a-f]{12}/pods/api-[0-3]/log\?container=api&sinceSeconds=600&limitBytes=67108864',path))
         from cce_nginx_ingress import allowed_request
         ingress_path = allowed_request(method, path, body, goal)
         from cce_recovery_headroom import writer_scale_selected
@@ -805,7 +814,7 @@ class KubernetesTransport:
             writer_indices = "0-4"
         worker_path = bool(goal is not None and goal["extension_decision"] in {"ADR0259", "ADR0271", "ADR0277"} and method == "GET"
                            and re.fullmatch(r"/api/v1/namespaces/flash-cce-[0-9a-f]{12}/pods/(?:consumer-[" + consumer_indices + r"]|projection-consumer-0|reservation-writer-[" + writer_indices + r"]|publisher-0|maintenance-0|reconciler-0|simulator-0)(?:/log\?container=worker&(?:limitBytes=65536|sinceSeconds=60&limitBytes=65536))?", path))
-        if method not in {"GET", "POST", "DELETE"} or not (ingress_path or worker_path or re.fullmatch(
+        if method not in {"GET", "POST", "DELETE"} or not (terminal_path or ingress_path or worker_path or re.fullmatch(
             r"/api/v1/namespaces(?:/flash-cce-[0-9a-f]{12}(?:/(?:pods|secrets)(?:/api-[0-3](?:/log\?container=api&(?:limitBytes=65536|sinceSeconds=(?:600|30)&limitBytes=8388608))?)?)?)?",
             path,
         )):
@@ -850,7 +859,7 @@ class KubernetesTransport:
 
 DIAGNOSTIC_FILTER = r"""
 import hashlib,json,math
-def filtered_admission_logs(raw):
+def filtered_admission_logs(raw,maximum_bytes=8388608):
  records=[];events=0;malformed=0
  for line in raw.decode('utf-8',errors='replace').splitlines():
   try:row=json.loads(line)
@@ -898,7 +907,7 @@ def filtered_admission_logs(raw):
    except (ValueError,KeyError,TypeError):malformed+=1
   if not all(k in record for k in ('role','reason','capture','guard','native_pool')):malformed+=1
   records.append(record)
- return {'schema_version':1,'logs_sha256':hashlib.sha256(raw).hexdigest(),'logs_bytes':len(raw),'byte_limit_reached':len(raw)>=8388608,'failure_events':events,'overflow_events':max(0,events-len(records)),'malformed_events':malformed,'records':records}
+ return {'schema_version':1,'logs_sha256':hashlib.sha256(raw).hexdigest(),'logs_bytes':len(raw),'byte_limit_reached':len(raw)>=maximum_bytes,'failure_events':events,'overflow_events':max(0,events-len(records)),'malformed_events':malformed,'records':records}
 """
 
 WORKER_DIAGNOSTIC_FILTER = r"""
@@ -937,11 +946,12 @@ with tempfile.TemporaryDirectory(prefix='codex-cce-') as directory:
  try:
   with urllib.request.urlopen(req,context=context,timeout=10) as response:
    diagnostic=any(payload['path'].endswith('/log?container=api&sinceSeconds='+str(n)+'&limitBytes=8388608') for n in (30,600))
+   terminal_diagnostic=payload['path'].endswith('/log?container=api&sinceSeconds=600&limitBytes=67108864')
    worker_diagnostic=payload['path'].endswith('/log?container=worker&sinceSeconds=60&limitBytes=65536')
-   limit=8388608 if diagnostic else 65536 if worker_diagnostic else 1048576
+   limit=67108864 if terminal_diagnostic else 8388608 if diagnostic else 65536 if worker_diagnostic else 1048576
    raw=response.read(limit+1)
    if len(raw)>limit:raise ValueError('CCE response exceeds bounded payload')
-   value=filtered_admission_logs(raw) if diagnostic else filtered_worker_failure(raw) if worker_diagnostic else (raw.decode() if '/log?' in payload['path'] else json.loads(raw))
+   value=filtered_admission_logs(raw,limit) if diagnostic or terminal_diagnostic else filtered_worker_failure(raw) if worker_diagnostic else (raw.decode() if '/log?' in payload['path'] else json.loads(raw))
    result={'not_found':False,'value':value}
  except urllib.error.HTTPError as error:
   if error.code==404 and payload['method']=='GET':result={'not_found':True}

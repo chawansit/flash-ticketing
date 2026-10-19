@@ -22,7 +22,7 @@ SOURCE_REFERENCE = ('tmp/adr0151-a0d63f35960f/cce-comparison.private.json',
                     'de6e008fad525f67d93fd15b83f0a8ddb105110f9806d31bcc8bdfa6d09ec06c')
 KEYS = {'simulator_roundtrip_decision', 'simulator_roundtrip_arm', 'simulator_roundtrip_contract_sha256',
         'simulator_roundtrip_pair', 'simulator_roundtrip_preview', 'simulator_roundtrip_timing_decision'}
-INPUTS = {'scripts/cce_guarded_issuance.py','scripts/cce_guarded_issuance_proposal.py','docs/capacity/cce/guarded-window-approval-2026-10-19.json','scripts/cce_fixed_worker_allocation.py','scripts/cce_rate_qualification.py', 'scripts/prepare_rate_qualification.py',LOCAL, PUBLICATION, 'scripts/cce_replacement_rds_binding.py', 'docs/capacity/cce/rds-endpoint-switch-2026-10-18.json', 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
+INPUTS = {'scripts/cce_simulator_claim_batch.py','scripts/simulator_claim_batch_overlay.py','scripts/prepare_simulator_claim_batch_image.py','scripts/publish_simulator_claim_batch_image.py','docs/capacity/cce/simulator-claim-batch-local-2026-10-19.json','docs/capacity/cce/simulator-claim-batch-registry-2026-10-19.json','scripts/cce_terminal_admission.py','scripts/cce_guarded_issuance.py','scripts/cce_guarded_issuance_proposal.py','docs/capacity/cce/guarded-window-approval-2026-10-19.json','scripts/cce_fixed_worker_allocation.py','scripts/cce_rate_qualification.py', 'scripts/prepare_rate_qualification.py',LOCAL, PUBLICATION, 'scripts/cce_replacement_rds_binding.py', 'docs/capacity/cce/rds-endpoint-switch-2026-10-18.json', 'scripts/cce_combined_worker_identity.py', 'scripts/cce_simulator_roundtrip_profile.py',
           'scripts/cce_persistent_uuid.py','scripts/persistent_uuid_overlay.py','scripts/prepare_persistent_uuid_image.py','scripts/publish_persistent_uuid_image.py','docs/capacity/cce/persistent-uuid-local-2026-10-19.json','docs/capacity/cce/persistent-uuid-registry-2026-10-19.json',
           'scripts/cce_image_qualification.py','scripts/cce_projection_refresh_pipeline.py','scripts/projection_refresh_pipeline_overlay.py','scripts/prepare_projection_refresh_pipeline_image.py','scripts/publish_projection_refresh_pipeline_image.py','docs/capacity/cce/projection-refresh-pipeline-local-2026-10-19.json','docs/capacity/cce/projection-refresh-pipeline-registry-2026-10-19.json',
           'scripts/cce_reservation_claim_lookup.py','scripts/reservation_claim_lookup_overlay.py',
@@ -33,7 +33,7 @@ INPUTS = {'scripts/cce_guarded_issuance.py','scripts/cce_guarded_issuance_propos
           'scripts/prepare_callback_write_pipeline_image.py',
           'docs/capacity/cce/simulator-roundtrip-local-2026-10-17.json',
           'docs/capacity/cce/simulator-roundtrip-registry-2026-10-17.json'}
-CHANGED = {'scripts/fixture_identity_evidence.py','scripts/run_two_host_paid_comparison.py','scripts/cce_paid_inputs.py','scripts/cce_bounded_financial_audit.py','scripts/cce_paid_profiles.py', 'scripts/cce_api_client_headroom.py', 'scripts/cce_generator_process_scaling.py','scripts/cce_fixture_clock.py','scripts/cce_dependency_probe.py','scripts/cce_writer_scale_verification.py','scripts/observe_cce_paid_pipeline.py','scripts/observe_cce_workers.py','scripts/cce_inventory_renewal.py', 'scripts/cce_paid_observers.py','scripts/cce_api_adapter.py','scripts/cce_transaction_profile.py', 'scripts/run_cce_paid_comparison.py',
+CHANGED = {'scripts/cce_metric_admission.py','scripts/cce_paid_lifecycle.py','scripts/fixture_identity_evidence.py','scripts/run_two_host_paid_comparison.py','scripts/cce_paid_inputs.py','scripts/cce_bounded_financial_audit.py','scripts/cce_paid_profiles.py', 'scripts/cce_api_client_headroom.py', 'scripts/cce_generator_process_scaling.py','scripts/cce_fixture_clock.py','scripts/cce_dependency_probe.py','scripts/cce_writer_scale_verification.py','scripts/observe_cce_paid_pipeline.py','scripts/observe_cce_workers.py','scripts/cce_inventory_renewal.py', 'scripts/cce_paid_observers.py','scripts/cce_api_adapter.py','scripts/cce_transaction_profile.py', 'scripts/run_cce_paid_comparison.py',
            'scripts/cce_recovery_headroom.py', 'scripts/cce_throughput_push.py',
            'scripts/cce_native_workers.py', 'scripts/cce_worker_identity.py',
            'scripts/cce_worker_transition.py', 'scripts/cce_paid_stage.py',
@@ -98,6 +98,8 @@ def contract(goal=None):
     return {'decision': DECISION, 'source': claim.SOURCE if changed else SOURCE,
             **({'guarded_issuance':__import__('cce_guarded_issuance').contract(goal)}
                if __import__('cce_guarded_issuance').selected(goal) else {}),
+            **({'terminal_admission':__import__('cce_terminal_admission').contract()}
+               if __import__('cce_terminal_admission').selected(goal) else {}),
             'local_image': claim.MANIFEST if changed else LOCAL_IMAGE,
             'local_receipt_sha256': sha(claim.LOCAL) if changed else LOCAL_SHA,
             'publication_sha256': sha(publication_for(goal)),
@@ -196,7 +198,9 @@ def extend_plan(goal, plan):
             result.update(single_changed_factor=factor,declared_changes=[factor],
                           duration_reason='One300s new-image qualification; unchanged resources; real clean180 prerequisite and3600s admission ceiling.')
         if __import__('cce_guarded_issuance').selected(goal) and qualification.rate(goal)==180:
-            result.update(single_changed_factor=None,declared_changes=['persistent_uuid','guarded_issuance'])
+            result.update(single_changed_factor=None,declared_changes=[claim.CONTRACT_KEY,'guarded_issuance'])
+        if __import__('cce_terminal_admission').selected(goal) and qualification.rate(goal)==180:
+            result['declared_changes'].append('terminal_admission_history')
         return result
     return {**plan, 'kind': 'simulator_roundtrip_matched_160',
             'single_changed_factor': 'combined_simulator_and_successful_callback_roundtrips',

@@ -97,6 +97,8 @@ def main():
     parser.add_argument('--projection-refresh-pipeline',action='store_true')
     parser.add_argument('--persistent-uuid',action='store_true')
     parser.add_argument('--guarded-issuance',action='store_true')
+    parser.add_argument('--terminal-admission',action='store_true')
+    parser.add_argument('--simulator-claim-batch',action='store_true')
     args=parser.parse_args()
     for path in (args.base_goal,args.reference,args.output):
         if path.is_symlink() or not path.resolve().is_relative_to(policy.ROOT.resolve()):
@@ -123,6 +125,14 @@ def main():
         if not args.persistent_uuid:
             raise ValueError('Guarded issuance requires explicit persistent UUID selection')
         base['guarded_issuance_decision']='ADR0365'
+    if args.terminal_admission:
+        if not args.guarded_issuance:
+            raise ValueError('Terminal admission requires explicit guarded qualification')
+        base['terminal_admission_decision']='ADR0367'
+    if args.simulator_claim_batch:
+        if not args.terminal_admission:
+            raise ValueError('Claim batch requires explicit terminal observer qualification')
+        base['simulator_claim_batch_decision']='ADR0368'
     result=prepare(base,args.rate,policy.read(args.reference),
                    policy.read(policy.ROOT/'tmp/cce-api-registry-proof.json'),target)
     args.output.write_bytes((json.dumps(result,indent=2)+'\n').encode())

@@ -37,6 +37,8 @@ def sha(raw):
 def identity():
     paths = (
         "scripts/cce_fixed_worker_allocation.py", "scripts/cce_rate_qualification.py", "scripts/prepare_rate_qualification.py",
+        'scripts/cce_simulator_claim_batch.py','scripts/simulator_claim_batch_overlay.py','scripts/prepare_simulator_claim_batch_image.py','scripts/publish_simulator_claim_batch_image.py','docs/capacity/cce/simulator-claim-batch-local-2026-10-19.json','docs/capacity/cce/simulator-claim-batch-registry-2026-10-19.json',
+        'scripts/cce_terminal_admission.py',
         'scripts/cce_guarded_issuance.py','scripts/cce_guarded_issuance_proposal.py','docs/capacity/cce/guarded-window-approval-2026-10-19.json',
         'scripts/cce_persistent_uuid.py','scripts/persistent_uuid_overlay.py','scripts/prepare_persistent_uuid_image.py','scripts/publish_persistent_uuid_image.py','docs/capacity/cce/persistent-uuid-local-2026-10-19.json','docs/capacity/cce/persistent-uuid-registry-2026-10-19.json',
           'scripts/cce_image_qualification.py','scripts/cce_projection_refresh_pipeline.py','scripts/projection_refresh_pipeline_overlay.py','scripts/prepare_projection_refresh_pipeline_image.py','scripts/publish_projection_refresh_pipeline_image.py','docs/capacity/cce/projection-refresh-pipeline-local-2026-10-19.json','docs/capacity/cce/projection-refresh-pipeline-registry-2026-10-19.json',
